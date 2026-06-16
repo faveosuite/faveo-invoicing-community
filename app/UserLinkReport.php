@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class UserLinkReport extends Model
 {
     use HasFactory;
+
     protected $table = 'users_link_reports';
+
     protected $fillable = [
         'user_id',
         'column_id',

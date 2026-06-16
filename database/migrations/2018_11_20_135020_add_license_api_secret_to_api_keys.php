@@ -13,10 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             if (! Schema::hasColumn('api_keys', 'license_api_secret')) {
                 $table->string('license_api_secret', 255)->nullable();
             }
+
             if (! Schema::hasColumn('api_keys', 'license_api_url')) {
                 $table->string('license_api_url', 255)->nullable();
             }
@@ -30,7 +31,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             $table->dropColumn(['license_api_url', 'license_api_secret']);
         });
     }

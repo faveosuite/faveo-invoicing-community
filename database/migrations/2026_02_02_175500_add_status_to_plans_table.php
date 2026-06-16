@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('plans', function (Blueprint $table) {
+        Schema::table('plans', function (Blueprint $table): void {
             $table->boolean('status')->default(1)->after('days');
         });
     }
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('plans', function (Blueprint $table) {
+        Schema::table('plans', function (Blueprint $table): void {
             $table->dropColumn('status');
         });
     }

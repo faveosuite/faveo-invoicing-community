@@ -8,11 +8,8 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 class PhoneNumber implements ValidationRule
 {
-    protected string $mobileCountryIso;
-
-    public function __construct(string $mobileCountryIso)
+    public function __construct(protected string $mobileCountryIso)
     {
-        $this->mobileCountryIso = $mobileCountryIso;
     }
 
     public function validate(string $attribute, mixed $value, Closure $fail): void

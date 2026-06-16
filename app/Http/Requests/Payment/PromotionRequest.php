@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Payment;
 
+use Override;
 use App\Http\Requests\Request;
 
 class PromotionRequest extends Request
@@ -41,6 +42,7 @@ class PromotionRequest extends Request
         return $rules;
     }
 
+    #[Override]
     public function messages()
     {
         return [

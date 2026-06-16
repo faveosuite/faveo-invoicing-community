@@ -2,6 +2,7 @@
 
 namespace App\Helper;
 
+use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -10,10 +11,10 @@ class ImageUploadHelper
     /**
      * Stores the files in default disk.
      *
-     * @param  \Illuminate\Http\UploadedFile  $contents
+     * @param UploadedFile $contents
      * @param  null  $disk
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public static function saveImageToStorage(UploadedFile $image, $directory, $disk = 'public')
     {

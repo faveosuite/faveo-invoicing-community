@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Demo_page extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'demo_pages';
 
     protected $fillable = ['id', 'link', 'email', 'status'];

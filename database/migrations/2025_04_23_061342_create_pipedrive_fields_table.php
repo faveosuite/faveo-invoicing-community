@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pipedrive_fields', function (Blueprint $table) {
+        Schema::create('pipedrive_fields', function (Blueprint $table): void {
             $table->id();
             $table->string('field_name');
             $table->string('field_key')->nullable();
@@ -32,7 +32,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('pipedrive_fields', function (Blueprint $table) {
+        Schema::table('pipedrive_fields', function (Blueprint $table): void {
             $table->dropForeign(['local_field_id']);
             $table->dropForeign(['pipedrive_group_id']);
         });

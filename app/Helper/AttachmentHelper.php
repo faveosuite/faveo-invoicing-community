@@ -2,6 +2,9 @@
 
 namespace App\Helper;
 
+use Illuminate\Filesystem\FilesystemAdapter;
+use Exception;
+use Storage;
 use App\FileSystemSettings;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
@@ -41,7 +44,7 @@ class AttachmentHelper
     {
         $adapter = $this->getStorageAdapter($disk);
 
-        $filename = Str::ascii(basename($path)) ?: basename($path);
+        $filename = Str::ascii(basename((string) $path)) ?: basename((string) $path);
 
         if (isS3Enabled()) {
             return $adapter->temporaryUrl($path, now()->addHour());
@@ -50,15 +53,15 @@ class AttachmentHelper
         return $adapter->download($path, $filename);
     }
 
-    private function getStorageAdapter($disk = null): \Illuminate\Filesystem\FilesystemAdapter
+    private function getStorageAdapter($disk = null): FilesystemAdapter
     {
         $disk = $disk ?: FileSystemSettings::value('disk');
 
         if (! $disk) {
-            throw new \Exception(trans('message.attach_helper_no_default_disk'));
+            throw new Exception(trans('message.attach_helper_no_default_disk'));
         }
 
-        return \Storage::disk($disk);
+        return Storage::disk($disk);
     }
 
     /**
@@ -72,7 +75,7 @@ class AttachmentHelper
         $extension = $file->getClientOriginalExtension();
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME); // Filename without extension
 
-        $safeName = Str::slug($filename) ? Str::slug($filename) : 'file';
+        $safeName = Str::slug($filename) ?: 'file';
 
         // Add timestamp hash to name of the file
         return $safeName.'_'.md5(time()).'.'.$extension;
@@ -108,7 +111,7 @@ class AttachmentHelper
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getMetadata($path, $disk = null)
     {

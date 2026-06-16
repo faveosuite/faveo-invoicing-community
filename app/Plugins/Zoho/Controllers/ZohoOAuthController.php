@@ -2,6 +2,8 @@
 
 namespace App\Plugins\Zoho\Controllers;
 
+use Exception;
+use DB;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 use App\Plugins\Zoho\Models\ZohoOAuthClient;
 use App\Plugins\Zoho\Models\ZohoOAuthToken;
@@ -42,10 +44,10 @@ class ZohoOAuthController extends Controller
     public function saveOAuthClientKeys(Request $request)
     {
         $validated = $request->validate([
-            'integration_id' => 'required|exists:zoho_integrations,id',
-            'client_id' => 'required|string',
-            'client_secret' => 'required|string',
-            'region' => 'required|in:in,us,eu,au,jp,cn',
+            'integration_id' => ['required', 'exists:zoho_integrations,id'],
+            'client_id' => ['required', 'string'],
+            'client_secret' => ['required', 'string'],
+            'region' => ['required', 'in:in,us,eu,au,jp,cn'],
         ]);
 
         $integration = ZohoIntegration::findOrFail($validated['integration_id']);
@@ -78,7 +80,7 @@ class ZohoOAuthController extends Controller
         $client = $integration->client;
 
         if (! $client) {
-            throw new \Exception('OAuth client not configured');
+            throw new Exception('OAuth client not configured');
         }
 
         return $this->authorizationUrl(
@@ -238,7 +240,7 @@ class ZohoOAuthController extends Controller
     {
         $newValue = $request->boolean('is_active') ? 1 : 0;
 
-        \DB::table('zoho_integrations')
+        DB::table('zoho_integrations')
             ->where('id', (int) $id)
             ->update(['is_active' => $newValue]);
 

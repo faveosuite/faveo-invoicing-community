@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('jobs')) {
-            Schema::create('jobs', function (Blueprint $table) {
+            Schema::create('jobs', function (Blueprint $table): void {
                 $table->bigInteger('id', true)->unsigned();
                 $table->string('queue');
                 $table->text('payload');

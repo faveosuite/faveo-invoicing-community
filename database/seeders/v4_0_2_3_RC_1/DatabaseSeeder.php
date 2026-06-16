@@ -5,7 +5,6 @@ namespace Database\Seeders\v4_0_2_3_RC_1;
 use App\FileSystemSettings;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -18,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->fileSystemSeeder();
         $this->templateSeeder();
     }
+
     public function fileSystemSeeder()
     {
         FileSystemSettings::create([

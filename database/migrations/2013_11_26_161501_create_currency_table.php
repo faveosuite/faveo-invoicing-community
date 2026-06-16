@@ -29,7 +29,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable($this->table_name)) {
-            Schema::create($this->table_name, function (Blueprint $table) {
+            Schema::create($this->table_name, function (Blueprint $table): void {
                 $table->increments('id')->unsigned();
                 $table->string('name');
                 $table->string('code', 10)->index();

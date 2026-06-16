@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Model\Order\Order;
-use Storage;
 use Tests\DBTestCase;
 
 class LocalizedLicenseControllerTest extends DBTestCase
@@ -97,14 +96,14 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $fileName = 'faveo-license-{192020}.txt';
         $response = $this->json('GET', url('LocalizedLicense/delete/'.$fileName));
         $response->assertStatus(302);
-        $response->assertHeaderMissing('content-disposition', 'attachment; filename="faveo-license-{192020}.txt"');
+        $response->assertHeaderMissing('content-disposition');
     }
 
     #[Group('LocalizedLicense')]
     public function test_chooseLicenseMode_DatabaseChosen_returnStatusChangeSuccessfully()
     {
         $this->withoutMiddleware();
-        \App\Model\Order\Order::create(['number' => 192020, 'order_status' => 'executed', 'product' => 28]);
+        Order::create(['number' => 192020, 'order_status' => 'executed', 'product' => 28]);
         $data = [
             'choose' => 0,
             'orderNo' => 192020,

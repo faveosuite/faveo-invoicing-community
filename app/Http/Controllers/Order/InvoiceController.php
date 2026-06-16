@@ -2,6 +2,15 @@
 
 namespace App\Http\Controllers\Order;
 
+use Str;
+use Exception;
+use Auth;
+use Illuminate\Support\Facades\Date;
+use DB;
+use Session;
+use App\Http\Controllers\Payment\PromotionController;
+use Logger;
+use App\Services\Payment\ProcessingFee;
 use App\Facades\Cart;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
@@ -138,7 +147,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             $query = $this->advanceSearch($request);
 
-            $invoice = $query->when($searchQuery, function ($query, $search) {
+            $invoice = $query->when($searchQuery, function ($query, $search): void {
                 $statusMapping = [
                     'paid' => 'success',
                     'unpaid' => 'pending',
@@ -147,8 +156,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 ];
 
                 $status = array_key_exists($search, $statusMapping) ? $statusMapping[$search] : $search;
-                $query->where(function ($q) use ($search, $status) {
-                    $q->whereHas('user', function ($q2) use ($search) {
+                $query->where(function ($q) use ($search, $status): void {
+                    $q->whereHas('user', function ($q2) use ($search): void {
                         $q2->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', ["%{$search}%"]);
                     })
                         ->orWhere('number', 'like', "%{$search}%")
@@ -163,7 +172,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                     'pending' => 'Unpaid',
                     'partially paid' => 'Partially Paid',
                 ];
-                $status = \Str::lower($invoice->status);
+                $status = Str::lower($invoice->status);
 
                 $products = $invoice->invoiceItem ? $invoice->invoiceItem->pluck('item_name')->toArray() : [];
 
@@ -179,7 +188,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             });
 
             return successResponse('', $invoice);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -187,25 +196,26 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     /**
      * Generate invoice from client panel.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function generateInvoice()
     {
         try {
             $amt_to_credit = null;
-            $tax_rule = new \App\Model\Payment\TaxOption();
+            $tax_rule = new TaxOption();
             $rule = $tax_rule->findOrFail(1);
             $rounding = $rule->rounding;
-            $user_id = \Auth::user()->id;
+            $user_id = Auth::user()->id;
             $grand_total = $this->cart->getTotal();
-            $number = rand(11111111, 99999999);
-            $date = \Carbon\Carbon::now();
+            $number = random_int(11111111, 99999999);
+            $date = Date::now();
             if ($rounding) {
                 $grand_total = round($grand_total);
             }
+
             if (User::where('id', $user_id)->value('billing_pay_balance')) {
-                $amt_to_credit = \DB::table('payments')
-                    ->where('user_id', \Auth::user()->id)
+                $amt_to_credit = DB::table('payments')
+                    ->where('user_id', Auth::user()->id)
                     ->where('payment_method', 'Credit Balance')
                     ->where('payment_status', 'success')
                     ->where('amt_to_credit', '!=', 0)
@@ -215,10 +225,11 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                     $amt_to_credit = $grand_total;
                 }
             }
-            \Session::forget('cloud_domain');
-            $currency = \Session::has('cart_currency') ? \Session::get('cart_currency') : getCurrencyForClient(\Auth::user()->country);
-            $cloud_domain = \Session::has('cloud_domain') ? \Session::get('cloud_domain') : '';
-            $cont = new \App\Http\Controllers\Payment\PromotionController();
+
+            Session::forget('cloud_domain');
+            $currency = Session::has('cart_currency') ? Session::get('cart_currency') : getCurrencyForClient(Auth::user()->country);
+            $cloud_domain = Session::has('cloud_domain') ? Session::get('cloud_domain') : '';
+            $cont = new PromotionController();
             $invoice = $this->invoice->create([
                 'user_id' => $user_id,
                 'number' => $number,
@@ -226,18 +237,18 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'grand_total' => $grand_total,
                 'status' => 'pending',
                 'currency' => $currency,
-                'coupon_code' => \Session::get('code'),
-                'discount' => \Session::get('discountPrice'),
+                'coupon_code' => Session::get('code'),
+                'discount' => Session::get('discountPrice'),
                 'discount_mode' => 'coupon',
                 'billing_pay' => $amt_to_credit,
                 'cloud_domain' => str_replace('.'.cloudSubDomain(), '', $cloud_domain),
-                'credits' => \Session::get('priceRemaining'),
-                'metadata' => \Session::has('upgradeDowngradeProduct') ? [
+                'credits' => Session::get('priceRemaining'),
+                'metadata' => Session::has('upgradeDowngradeProduct') ? [
                     'type' => 'upgrade_downgrade',
-                    'old_order_id' => (int) \Session::get('upgradeorderId'),
-                    'old_license' => \Session::get('upgradeOldLicense'),
-                    'installation_path' => \Session::get('upgradeInstallationPath'),
-                    'discount' => \Session::has('discount') ? (float) \Session::get('discount') : null,
+                    'old_order_id' => (int) Session::get('upgradeorderId'),
+                    'old_license' => Session::get('upgradeOldLicense'),
+                    'installation_path' => Session::get('upgradeInstallationPath'),
+                    'discount' => Session::has('discount') ? (float) Session::get('discount') : null,
                 ] : null,
             ]);
 
@@ -250,8 +261,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             }
 
             return $invoice;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
             return errorResponse($ex->getMessage());
         }
@@ -263,17 +274,19 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $planid = 0;
             $product = Product::find($cart->associatedModel->id);
             $product_id = $product->id;
-            $regular_price = (\Session::has('priceToBePaid')) ? \Session::get('priceToBePaid') : $cart->price;
+            $regular_price = (Session::has('priceToBePaid')) ? Session::get('priceToBePaid') : $cart->price;
             $quantity = $cart->quantity;
             $agents = $cart->attributes->agents;
             $domain = $this->domain($cart->id);
             if (checkPlanSession()) {
-                $planid = \Session::get('plan');
+                $planid = Session::get('plan');
             }
+
             if ($planid == 0) {
                 //When Product is added from Faveo Website
                 $planid = Plan::where('id', $cart['id'])->pluck('id')->first();
             }
+
             $subtotal = $this->cart->getPriceSum($cart['id']);
             $tax_name = $cart['conditions']['name'] ?? '';
             $tax_percentage = $cart['conditions']['value'] ?? '';
@@ -306,7 +319,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             }
 
             return $invoiceItem;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -314,7 +327,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     /**
      * Generate invoice from admin panel.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function invoiceGenerateByForm(InvoiceRequest $request, $user_id = '')
     {
@@ -326,6 +339,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             if ($user_id == '') {
                 $user_id = $request->input('user');
             }
+
             if ($request->has('cloud_domain')) {
                 $cloud_domain = $request->input('cloud_domain');
 
@@ -335,7 +349,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
                 $cloud_domain = $cloud_domain.'.'.cloudSubDomain();
 
-                if (! (new CloudExtraActivities(new Client, new FaveoCloud()))->checkDomain($cloud_domain)) {
+                if (! new CloudExtraActivities(new Client, new FaveoCloud())->checkDomain($cloud_domain)) {
                     return errorResponse([trans('message.domain_taken')]);
                 }
             }
@@ -353,20 +367,22 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 $domain = $request->input('domain');
                 $this->setDomain($productid, $domain);
             }
+
             $planObj = Plan::where('id', $plan)->first();
             $userCurrency = userCurrencyAndPrice($user_id, $planObj);
             $currency = $userCurrency['currency'];
-            $number = rand(11111111, 99999999);
-            $date = \Carbon\Carbon::parse($request->input('date'));
+            $number = random_int(11111111, 99999999);
+            $date = Date::parse($request->input('date'));
             $product = Product::find($productid);
 
             $cost = $this->cartController->cost($productid, $plan, $user_id);
-            \Session::put('plan', $plan);
+            Session::put('plan', $plan);
             $couponTotal = $this->getGrandTotal($code, $total, $cost, $productid, $currency, $user_id);
             $grandTotalAfterCoupon = $qty * $couponTotal['total'];
             if (! $grandTotalAfterCoupon) {
                 $status = 'success';
             }
+
             $user = User::where('id', $user_id)->select('state', 'country')->first();
             $tax = $this->calculateTax($product->id, $user->state, $user->country, true);
             $grand_total = rounding($this->calculateTotal($tax['value'], $grandTotalAfterCoupon));
@@ -378,11 +394,11 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $items = $this->createInvoiceItemsByAdmin($invoice->id, $productid,
                 $total, $currency, $qty, $agents, $plan, $user_id, $tax['name'], $tax['value'], $total);
             $result = $this->getMessage($items, $user_id);
-            \Session::forget('plan');
+            Session::forget('plan');
 
             return successResponse($result);
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
             return errorResponse([$ex->getMessage()]);
         }
@@ -427,20 +443,21 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             }
 
             return $items;
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
     public function setDomain($productid, $domain)
     {
         try {
-            if (\Session::has('domain'.$productid)) {
-                \Session::forget('domain'.$productid);
+            if (Session::has('domain'.$productid)) {
+                Session::forget('domain'.$productid);
             }
-            \Session::put('domain'.$productid, $domain);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+
+            Session::put('domain'.$productid, $domain);
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -452,8 +469,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $total = $invoice->grand_total;
 
             return $this->sendInvoiceMail($userid, $number, $total, $invoiceid);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -471,7 +488,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 return errorResponse(__('message.invalid-invoice-id'));
             }
 
-            $authUser = \Auth::user();
+            $authUser = Auth::user();
             if ($invoice->user_id != $authUser->id && $authUser->role != 'admin') {
                 return errorResponse(__('message.invalid_user'));
             }
@@ -485,7 +502,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             $invoiceUser = $invoice->user;
             if ($invoiceUser) {
-                $invoiceUser->state = key_exists('name', getStateByCode($invoiceUser->country, $invoiceUser->state))
+                $invoiceUser->state = array_key_exists('name', getStateByCode($invoiceUser->country, $invoiceUser->state))
                     ? getStateByCode($invoiceUser->country, $invoiceUser->state)['name']
                     : $invoiceUser->state;
             }
@@ -514,7 +531,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 ->format(Format::A4)
                 ->margins(10, 10, 10, 10)
                 ->download($authUser->first_name.'-invoice.pdf');
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -525,18 +542,18 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             ini_set('memory_limit', '-1');
             $selectedColumns = $request->input('selected_columns', []);
             $searchParams = $request->input('search_params', []);
-            $email = \Auth::user()->email;
+            $email = Auth::user()->email;
             $driver = QueueService::where('status', '1')->first();
             if ($driver->name != 'Sync') {
-                app('queue')->setDefaultDriver($driver->short_name);
-                ReportExport::dispatch('invoices', $selectedColumns, $searchParams, $email)->onQueue('reports');
+                resolve('queue')->setDefaultDriver($driver->short_name);
+                dispatch(new ReportExport('invoices', $selectedColumns, $searchParams, $email))->onQueue('reports');
 
                 return response()->json(['message' => __('message.report_generation_in_progress')], 200);
             } else {
                 return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
             }
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -552,7 +569,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             ])->findOrFail($id);
 
             if (! $query->user || User::onlyTrashed()->find($query->user->id)) {
-                throw new \Exception(__('message.user_suspended'));
+                throw new Exception(__('message.user_suspended'));
             }
 
             // Company settings
@@ -561,15 +578,15 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'phone_code', 'phone', 'logo', 'company_email'
             )->first();
 
-            $setting->state = key_exists('name', getStateByCode($setting->country, $setting->state))
+            $setting->state = array_key_exists('name', getStateByCode($setting->country, $setting->state))
                 ? getStateByCode($setting->country, $setting->state)['name']
                 : $setting->state;
 
-            $query->user->state = key_exists('name', getStateByCode($query->user->country, $query->user->state))
+            $query->user->state = array_key_exists('name', getStateByCode($query->user->country, $query->user->state))
                 ? getStateByCode($query->user->country, $query->user->state)['name']
                 : $query->user->state;
 
-            $result = $this->calculateInvoice($id, true);
+            $result = static::calculateInvoice($id, true);
 
             $invoice = [
                 'invoice' => [
@@ -590,7 +607,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             ];
 
             return successResponse('', $invoice);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -624,12 +641,12 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
         // Processing fee: grand_total is stored fee-inclusive, so the fee amount
         // is the part of grand_total above the pre-fee total (NOT the % itself).
-        $feeAmount = \App\Services\Payment\ProcessingFee::fromInclusive((float) $invoice->grand_total, $invoice->processing_fee);
+        $feeAmount = ProcessingFee::fromInclusive((float) $invoice->grand_total, $invoice->processing_fee);
         $processingFee = $formatCurrency ? currencyFormat($feeAmount, $invoice->currency) : round($feeAmount, 2);
 
         // Subtotal shown ex-tax: for tax-inclusive pricing the item subtotal is
         // gross, so strip the tax out so subtotal + tax + fee reconciles to total.
-        $pricesIncludeTax = (int) optional(\App\Model\Payment\TaxOption::find(1))->inclusive === 1;
+        $pricesIncludeTax = (int) TaxOption::find(1)?->inclusive === 1;
         $netSubtotal = $pricesIncludeTax ? ($itemSubtotal - $taxTotal) : $itemSubtotal;
         $subtotal = $formatCurrency ? currencyFormat($netSubtotal, $invoice->currency) : round($netSubtotal, 2);
 

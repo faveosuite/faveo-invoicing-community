@@ -41,7 +41,7 @@ class LinkLicenseToPlugin extends Command
 
             foreach ($licenses as $license) {
                 $license->licensePlugins()->createMany(
-                    collect($plugins)->map(fn ($plugin) => ['product_id' => $plugin])->toArray()
+                    collect($plugins)->map(fn ($plugin) => ['product_id' => $plugin])->all()
                 );
             }
         }

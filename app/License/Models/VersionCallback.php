@@ -2,6 +2,9 @@
 
 namespace App\License\Models;
 
+use Override;
+use App\Model\Product\Product;
+use App\Model\Product\ProductUpload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -19,17 +22,26 @@ class VersionCallback extends Model
         'callback_status',
     ];
 
-    protected $casts = [
-        'callback_date_time' => 'datetime',
-    ];
-
+    /**
+     * @return BelongsTo<Product, $this>
+     */
     public function product(): BelongsTo
     {
-        return $this->belongsTo(\App\Model\Product\Product::class, 'product_id');
+        return $this->belongsTo(Product::class, 'product_id');
     }
 
+    /**
+     * @return BelongsTo<ProductUpload, $this>
+     */
     public function version(): BelongsTo
     {
-        return $this->belongsTo(\App\Model\Product\ProductUpload::class, 'version_id');
+        return $this->belongsTo(ProductUpload::class, 'version_id');
+    }
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'callback_date_time' => 'datetime',
+        ];
     }
 }

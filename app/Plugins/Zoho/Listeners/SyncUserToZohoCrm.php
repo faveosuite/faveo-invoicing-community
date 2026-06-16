@@ -21,6 +21,6 @@ class SyncUserToZohoCrm extends BaseExternalSyncListener
 
     protected function sync(User $user): void
     {
-        app(ZohoCrmController::class)->addUserDataToCrm($user->email);
+        resolve(ZohoCrmController::class)->addUserDataToCrm($user->email);
     }
 }

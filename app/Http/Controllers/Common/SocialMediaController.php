@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Common;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Common\SocialMediaRequest;
 use App\Model\Common\SocialMedia;
@@ -25,7 +26,7 @@ class SocialMediaController extends Controller
      * Get Social Media List.
      *
      * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getSocialList(Request $request)
     {
@@ -38,25 +39,23 @@ class SocialMediaController extends Controller
 
             $socials = $this->social
                 ->select('id', 'name', 'link')
-                ->when($searchString, function ($query) use ($searchString) {
-                    $query->where(function ($q) use ($searchString) {
+                ->when($searchString, function ($query) use ($searchString): void {
+                    $query->where(function ($q) use ($searchString): void {
                         $q->where('name', 'like', "%{$searchString}%");
                     });
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $socials->getCollection()->transform(function ($social) {
-                return [
-                    'id' => $social->id,
-                    'name' => ucfirst($social->name),
-                    'link' => $social->link,
-                    'action' => hyperLinkGenerator("social-media/show/{$social->id}", __('message.edit')),
-                ];
-            });
+            $socials->getCollection()->transform(fn($social) => [
+                'id' => $social->id,
+                'name' => ucfirst((string) $social->name),
+                'link' => $social->link,
+                'action' => hyperLinkGenerator("social-media/show/{$social->id}", __('message.edit')),
+            ]);
 
             return successResponse(__('message.social_media_fetched'), $socials);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -64,8 +63,8 @@ class SocialMediaController extends Controller
     /**
      * Store a newly created social media account in storage.
      *
-     * @param  \App\Http\Requests\Common\SocialMediaRequest  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @param SocialMediaRequest $request
+     * @return JsonResponse
      */
     public function createSocialMedia(SocialMediaRequest $request)
     {
@@ -83,7 +82,7 @@ class SocialMediaController extends Controller
      * Display the specified social media account.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getSocialMedia($id)
     {
@@ -103,9 +102,9 @@ class SocialMediaController extends Controller
     /**
      * Update the specified social media account in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function updateSocial($id, SocialMediaRequest $request)
     {
@@ -119,7 +118,7 @@ class SocialMediaController extends Controller
             $social->fill($request->validated())->save();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }
     }
@@ -150,7 +149,7 @@ class SocialMediaController extends Controller
             }
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('invoices')) {
-            Schema::create('invoices', function (Blueprint $table) {
+            Schema::create('invoices', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('user_id')->unsigned()->index('invoices_user_id_foreign');
                 $table->string('number');

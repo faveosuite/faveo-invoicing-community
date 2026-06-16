@@ -14,8 +14,8 @@ class ClientController extends Controller
         $search = $request->input('search-query', $request->input('search_query', ''));
 
         $query = User::select('id', 'first_name', 'last_name', 'email')
-            ->when($search, function ($q) use ($search) {
-                $q->where(function ($q2) use ($search) {
+            ->when($search, function ($q) use ($search): void {
+                $q->where(function ($q2) use ($search): void {
                     $q2->where('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%")
                         ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])

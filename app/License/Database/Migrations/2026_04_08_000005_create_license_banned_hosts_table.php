@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('license_banned_hosts', function (Blueprint $table) {
+        Schema::create('license_banned_hosts', function (Blueprint $table): void {
             $table->id();
             $table->string('banned_host_ip');
             $table->text('comments')->nullable();

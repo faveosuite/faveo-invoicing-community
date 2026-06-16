@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use Auth;
 use App\Http\Controllers\Controller;
 use App\Model\Common\State;
 use App\Model\Payment\TaxByState;
@@ -15,7 +16,7 @@ class InfoController extends Controller
      */
     public function getState()
     {
-        $user = \Auth::user();
+        $user = Auth::user();
 
         if ($user->country !== 'IN') {
             return State::where('country_code', $user->country)

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('promotion_types')) {
-            Schema::create('promotion_types', function (Blueprint $table) {
+            Schema::create('promotion_types', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name');
                 $table->timestamps();

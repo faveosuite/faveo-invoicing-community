@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\AutoUpdate\AutoUpdateController;
+use Logger;
 use App\Http\Controllers\Controller;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
@@ -71,7 +73,7 @@ class ThirdPartyApiController extends Controller
                 $this->product_upload->dependencies = json_encode($request->input('dependencies'));
                 $this->product_upload->save();
                 $this->product->where('id', $product_id->id)->update(['version' => $request->input('version')]);
-                $updateClassObj = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
+                $updateClassObj = new AutoUpdateController();
                 $addProductToAutoUpdate = $updateClassObj->addNewVersion($product_id->id, $request->input('version'), $request->input('filename'), '1');
                 $response = ['success' => 'true', 'message' => __('message.product_uploaded_successfully')];
             } else {
@@ -79,8 +81,8 @@ class ThirdPartyApiController extends Controller
             }
 
             return $response;
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
             $message = [$e->getMessage()];
             $response = ['success' => 'false', 'message' => $message];
 

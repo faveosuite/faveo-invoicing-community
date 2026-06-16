@@ -2,6 +2,7 @@
 
 namespace App\Model\Product;
 
+use Override;
 use App\BaseModel;
 
 class Type extends BaseModel
@@ -12,9 +13,10 @@ class Type extends BaseModel
 
     public function product()
     {
-        return $this->hasMany(\App\Model\Product\Product::class);
+        return $this->hasMany(Product::class);
     }
 
+    #[Override]
     public function delete()
     {
         $this->Product()->delete();

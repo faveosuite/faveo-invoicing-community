@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Client;
 
+use PHPUnit\Framework\Attributes\Group;
+use Illuminate\Support\Facades\Date;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
@@ -9,7 +11,6 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Mockery;
 use Spatie\Html\Html;
@@ -20,13 +21,13 @@ class DashboardTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->request = app(Request::class);
+        $this->request = resolve(Request::class);
         $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
         $this->html->shouldReceive('token')->andReturn('mocked-token');
         $this->app->instance(Html::class, $this->html);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
+    #[Group('dashboard')]
     public function test_dashboard_returning_correct_view()
     {
         $user = User::factory()->create();
@@ -41,7 +42,7 @@ class DashboardTest extends DBTestCase
         $this->assertDatabaseCount('orders', 1);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
+    #[Group('dashboard')]
     public function test_when_no_orders_are_created()
     {
         $user = User::factory()->create();
@@ -53,7 +54,7 @@ class DashboardTest extends DBTestCase
         $this->assertDatabaseCount('orders', 0);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
+    #[Group('dashboard')]
     public function test_when_no_invoices_are_created()
     {
         $user = User::factory()->create();
@@ -71,7 +72,7 @@ class DashboardTest extends DBTestCase
         ]);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
+    #[Group('dashboard')]
     public function test_when_user_is_not_authenticated()
     {
         $user = User::factory()->create();
@@ -81,7 +82,7 @@ class DashboardTest extends DBTestCase
         $response->assertStatus(500);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
+    #[Group('dashboard')]
     public function test_when_there_are_order_renewals()
     {
         $user = User::factory()->create();
@@ -101,7 +102,7 @@ class DashboardTest extends DBTestCase
         $this->assertDatabaseCount('subscriptions', 1);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
+    #[Group('dashboard')]
     public function test_when_there_are_no_order_renewals()
     {
         $user = User::factory()->create();
@@ -113,14 +114,14 @@ class DashboardTest extends DBTestCase
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => Carbon::now()]);
+            'version' => 'v6.0.0', 'update_ends_at' => Date::now()]);
         $response = $this->call('get', 'client-dashboard-details');
         $content = $response->json();
         $this->assertEquals($content['data']['renewalCount'], 0);
         $this->assertDatabaseCount('subscriptions', 1);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
+    #[Group('dashboard')]
     public function test_return_to_invoice_correctly()
     {
         $user = User::factory()->create();
@@ -139,7 +140,7 @@ class DashboardTest extends DBTestCase
         ]);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
+    #[Group('dashboard')]
     public function test_return_invoice_details_correctly()
     {
         $user = User::factory()->create();
@@ -187,7 +188,7 @@ class DashboardTest extends DBTestCase
         $pendingInvoicesCount = $user->invoice()->where('status', 'pending')->count();
         $ordersCount = $user->order()->count();
         $renewalCount = $user->order()
-            ->whereHas('subscription', function ($query) {
+            ->whereHas('subscription', function ($query): void {
                 $query->where('update_ends_at', '<', now());
             })
             ->count();

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('products', 'product_sku')) {
-            Schema::table('products', function (Blueprint $table) {
+            Schema::table('products', function (Blueprint $table): void {
                 $table->string('product_sku', 255)->nullable();
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('products', function (Blueprint $table): void {
             $table->dropColumn('product_sku');
         });
     }

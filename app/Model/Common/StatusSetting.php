@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class StatusSetting extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'status_settings';
 
     public $timestamps = false;

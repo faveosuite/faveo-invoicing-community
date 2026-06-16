@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('templates', function (Blueprint $table) {
+        Schema::table('templates', function (Blueprint $table): void {
             $table->foreign('type')->references('id')->on('template_types')->onUpdate('RESTRICT')->onDelete('RESTRICT');
         });
     }
@@ -24,7 +24,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('templates', function (Blueprint $table) {
+        Schema::table('templates', function (Blueprint $table): void {
             $table->dropForeign('templates_type_foreign');
         });
     }

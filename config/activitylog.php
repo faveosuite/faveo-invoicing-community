@@ -1,5 +1,7 @@
 <?php
 
+use Spatie\Activitylog\Models\Activity;
+
 return [
 
     /*
@@ -34,7 +36,7 @@ return [
      * This model will be used to log activity. The only requirement is that
      * it should be or extend the Spatie\Activitylog\Models\Activity model.
      */
-    'activity_model' => \Spatie\Activitylog\Models\Activity::class,
+    'activity_model' => Activity::class,
 
     /*
      * This is the name of the table that will be created by the migration and

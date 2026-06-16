@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use Hash;
 use App\Http\Middleware\Install;
 use App\Model\Common\StatusSetting;
 use App\Plugins\Recaptcha\Model\RecaptchaSetting;
@@ -17,7 +18,7 @@ class LoginTest extends DBTestCase
     #[Group('postLogin')]
     public function test_postLogin_forVerifiedUsers()
     {
-        $user = User::factory()->create(['password' => \Hash::make('password')]);
+        $user = User::factory()->create(['password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
         $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password', 'login' => [
@@ -46,7 +47,7 @@ class LoginTest extends DBTestCase
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
     public function test_postLogin_forAdmin()
     {
-        $user = User::factory()->create(['role' => 'admin', 'password' => \Hash::make('password')]);
+        $user = User::factory()->create(['role' => 'admin', 'password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
         $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password', 'login' => [
@@ -75,7 +76,7 @@ class LoginTest extends DBTestCase
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
     public function test_postLogin_when_mobile_is_Unverified()
     {
-        $user = User::factory()->create(['mobile_verified' => 0, 'password' => \Hash::make('password')]);
+        $user = User::factory()->create(['mobile_verified' => 0, 'password' => Hash::make('password')]);
         StatusSetting::updateOrCreate(
             ['id' => 1],
             ['msg91_status' => 1, 'emailverification_status' => 0]
@@ -98,7 +99,7 @@ class LoginTest extends DBTestCase
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
     public function test_postLogin_when_email_is_Unverified()
     {
-        $user = User::factory()->create(['email_verified' => 0, 'password' => \Hash::make('password')]);
+        $user = User::factory()->create(['email_verified' => 0, 'password' => Hash::make('password')]);
         StatusSetting::updateOrCreate(
             ['id' => 1],
             ['emailverification_status' => 1, 'msg91_status' => 0]
@@ -121,7 +122,7 @@ class LoginTest extends DBTestCase
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
     public function test_postLogin_when_email_and_mobile_are_Unverified()
     {
-        $user = User::factory()->create(['password' => \Hash::make('password'), 'email_verified' => 0, 'mobile_verified' => 0]);
+        $user = User::factory()->create(['password' => Hash::make('password'), 'email_verified' => 0, 'mobile_verified' => 0]);
         $this->withoutMiddleware();
         StatusSetting::updateOrCreate(
             ['id' => 1],
@@ -143,7 +144,7 @@ class LoginTest extends DBTestCase
 
     public function test_login_should_fail_when_the_user_not_present()
     {
-        User::factory()->create(['password' => \Hash::make('password')]);
+        User::factory()->create(['password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 1, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
         $response = $this->postJson('/login', ['email_username' => 'santhanuchakrapa@gmail.com', 'password1' => 'password', 'login' => [
@@ -159,7 +160,7 @@ class LoginTest extends DBTestCase
 
     public function test_login_fails_when_password_is_wrong()
     {
-        $user = User::factory()->create(['password' => \Hash::make('password')]);
+        $user = User::factory()->create(['password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
         $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'passwor', 'login' => [
@@ -175,7 +176,7 @@ class LoginTest extends DBTestCase
 
     public function test_when_2fa_is_enabled()
     {
-        $user = User::factory()->create(['password' => \Hash::make('password'), 'is_2fa_enabled' => 1]);
+        $user = User::factory()->create(['password' => Hash::make('password'), 'is_2fa_enabled' => 1]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
         $response = $this->postJson('/login', [

@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Recaptcha\Requests;
 
+use Override;
 use App\Plugins\Recaptcha\Services\RecaptchaVerifier;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -19,22 +20,23 @@ class UpdateSettingsRequest extends FormRequest
             || ($this->input('captcha_version') === 'v3_invisible' && $this->input('failover_action') === 'v2_checkbox');
 
         return [
-            'recaptcha_status' => 'sometimes|boolean',
-            'captcha_version' => 'required|in:v2_checkbox,v2_invisible,v3_invisible',
-            'failover_action' => 'required|in:none,v2_checkbox',
-            'theme' => 'required|in:light,dark',
-            'size' => 'required|in:normal,compact',
-            'badge_position' => 'required|in:bottomright,bottomleft,inline',
+            'recaptcha_status' => ['sometimes', 'boolean'],
+            'captcha_version' => ['required', 'in:v2_checkbox,v2_invisible,v3_invisible'],
+            'failover_action' => ['required', 'in:none,v2_checkbox'],
+            'theme' => ['required', 'in:light,dark'],
+            'size' => ['required', 'in:normal,compact'],
+            'badge_position' => ['required', 'in:bottomright,bottomleft,inline'],
             'v3_site_key' => $isV3 ? 'required|string' : 'nullable|string',
             'v3_secret_key' => $isV3 ? 'required|string' : 'nullable|string',
             'score_threshold' => $isV3 ? 'required|numeric|min:0|max:1' : 'nullable|numeric|min:0|max:1',
             'v2_site_key' => $needsV2 ? 'required|string' : 'nullable|string',
             'v2_secret_key' => $needsV2 ? 'required|string' : 'nullable|string',
-            'v2_g_recaptcha_response' => 'nullable|string',
-            'v3_g_recaptcha_response' => 'nullable|string',
+            'v2_g_recaptcha_response' => ['nullable', 'string'],
+            'v3_g_recaptcha_response' => ['nullable', 'string'],
         ];
     }
 
+    #[Override]
     public function attributes()
     {
         return [
@@ -51,6 +53,7 @@ class UpdateSettingsRequest extends FormRequest
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [
@@ -77,12 +80,12 @@ class UpdateSettingsRequest extends FormRequest
 
     public function withValidator($validator)
     {
-        $validator->after(function ($validator) {
+        $validator->after(function ($validator): void {
             $isV3 = $this->input('captcha_version') === 'v3_invisible';
             $needsV2 = in_array($this->input('captcha_version'), ['v2_checkbox', 'v2_invisible'], true)
                 || ($this->input('captcha_version') === 'v3_invisible' && $this->input('failover_action') === 'v2_checkbox');
 
-            $verifier = app(RecaptchaVerifier::class);
+            $verifier = resolve(RecaptchaVerifier::class);
 
             if ($isV3) {
                 if (! $this->filled('v3_g_recaptcha_response')) {

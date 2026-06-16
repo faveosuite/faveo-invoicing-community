@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Date;
+use DB;
+use Illuminate\Database\Eloquent\Collection;
+use Exception;
 use App\Model\Common\Setting;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
@@ -79,7 +83,7 @@ class DashboardController extends Controller
     {
         $dayUtc = new Carbon('-30 days');
         $rate = 0;
-        $now = Carbon::now();
+        $now = Date::now();
         $allOrders = Order::whereBetween('created_at', [$dayUtc, $now])->count();
         $paidOrders = Order::where('price_override', '>', 0)->whereBetween('created_at', [$dayUtc, $now])->count();
         if ($paidOrders) {
@@ -97,7 +101,7 @@ class DashboardController extends Controller
     public function getLast30DaysInstallation()
     {
         $dayUtc = new Carbon('-30 days');
-        $now = Carbon::now()->subDays(1);
+        $now = Date::now()->subDays(1);
         $rate = 0;
         $totalSubscriptionInLast30Days = Subscription::whereBetween('created_at', [$dayUtc, $now])->count();
         $inactiveInstallation = Subscription::whereColumn('created_at', '=', 'updated_at')->whereBetween('created_at', [$dayUtc, $now])->count();
@@ -183,17 +187,17 @@ class DashboardController extends Controller
     /**
      * Get the list of previous month registered users.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public function getAllUsers()
     {
-        $dateBefore = Carbon::now()->subDays(31)->startOfDay()->setTime(12, 0, 0);
+        $dateBefore = Date::now()->subDays(31)->startOfDay()->setTime(12, 0, 0);
 
-        $today = Carbon::now()->endOfDay();
+        $today = Date::now()->endOfDay();
         $fromDateStart = date_create($dateBefore)->format('Y-m-d').' 00:00:00';
         $tillDateEnd = date_create($today)->format('Y-m-d').' 23:59:59';
 
-        $todayInclusive = Carbon::now()->endOfDay()->second(59);
+        $todayInclusive = Date::now()->endOfDay()->second(59);
 
         return User::orderBy('created_at', 'desc')
             ->where('active', 1)
@@ -207,17 +211,17 @@ class DashboardController extends Controller
      * List of products sold in past $noOfDays days. If no parameter is passed, it will give all products.
      *
      * @param  int  $noOfDays
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getSoldProducts(?int $noOfDays = null)
     {
         // ASSUMING THIS CODE WON"T STAY ALIVE TILL year 3000
-        $dateBefore = $noOfDays ? (new Carbon("-$noOfDays days"))->toDateTimeString() : Carbon::now()->startOfMillennium()->toDateTimeString();
+        $dateBefore = $noOfDays ? new Carbon("-$noOfDays days")->toDateTimeString() : Date::now()->startOfMillennium()->toDateTimeString();
 
         return Order::join('products', 'products.id', '=', 'orders.product')
-            ->select(\DB::raw('COUNT(*) as order_count'), 'products.id as product_id',
+            ->select(DB::raw('COUNT(*) as order_count'), 'products.id as product_id',
                 'orders.created_at as order_created_at', 'products.image as product_image', 'products.name as product_name')
             ->where('order_status', 'executed')
             ->where('orders.created_at', '>', $dateBefore)
@@ -225,7 +229,7 @@ class DashboardController extends Controller
             ->orderBy('orders.created_at', 'desc')
             ->groupBy('products.id')
             ->get()->map(function ($element) {
-                $element->product_image = (new Product())->getImageAttribute($element->product_image);
+                $element->product_image = new Product()->getImageAttribute($element->product_image);
                 $element->order_created_at = getTimeInLoggedInUserTimeZone($element->order_created_at);
 
                 return $element;
@@ -235,11 +239,11 @@ class DashboardController extends Controller
     /**
      * List of orders of past 30 days.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public function getRecentOrders()
     {
-        $dateBefore = (new Carbon('-30 days'))->toDateTimeString();
+        $dateBefore = new Carbon('-30 days')->toDateTimeString();
 
         return Order::with('user:id,first_name,last_name,email,user_name')
             ->join('products', 'products.id', '=', 'orders.product')
@@ -263,13 +267,13 @@ class DashboardController extends Controller
      * List of orders expiring in next 30 days.
      *
      * @param  bool  $past30Days
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getExpiringSubscriptions($past30Days = false)
     {
-        $today = Carbon::now()->endOfDay();
+        $today = Date::now()->endOfDay();
 
         $baseQuery = Subscription::with('user:id,first_name,last_name,email,user_name')
             ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
@@ -283,7 +287,8 @@ class DashboardController extends Controller
         } else {
             $baseQuery->whereBetween('update_ends_at', [$today, now()->addMonth()->toDateTimeString()]);
         }
-        $baseQuery->orderByDesc('subscription_ends_at')
+
+        $baseQuery->latest('subscription_ends_at')
             ->groupBy('subscriptions.id');
 
         $subscriptions = $baseQuery->get()->map(function ($element) {
@@ -303,23 +308,23 @@ class DashboardController extends Controller
     /**
      * List of Invoices of past 30 ays.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public function getRecentInvoices()
     {
-        $dateBefore = Carbon::now()->subDays(31)->startOfDay()->setTime(12, 0, 0);
+        $dateBefore = Date::now()->subDays(31)->startOfDay()->setTime(12, 0, 0);
 
-        $today = Carbon::now()->endOfDay();
+        $today = Date::now()->endOfDay();
         $fromDateStart = date_create($dateBefore)->format('Y-m-d').' 00:00:00';
         $tillDateEnd = date_create($today)->format('Y-m-d').' 23:59:59';
 
-        $todayInclusive = Carbon::now()->endOfDay()->second(59);
+        $todayInclusive = Date::now()->endOfDay()->second(59);
 
         return Invoice::with('user:id,first_name,last_name,email,user_name')
             ->leftJoin('currencies', 'invoices.currency', '=', 'currencies.code')
             ->leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
             ->select('invoices.id as invoice_id', 'invoices.number as invoice_number', 'invoices.grand_total', 'invoices.status',
-                \DB::raw('SUM(payments.amount) as paid'), 'invoices.user_id', 'currencies.code as currency_code', 'invoices.date')
+                DB::raw('SUM(payments.amount) as paid'), 'invoices.user_id', 'currencies.code as currency_code', 'invoices.date')
             ->whereBetween('invoices.date', [$fromDateStart, $tillDateEnd])
 
             ->groupBy('invoices.id')
@@ -343,7 +348,7 @@ class DashboardController extends Controller
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function getClientsUsingOldVersions()
     {
@@ -362,7 +367,7 @@ class DashboardController extends Controller
             ->leftJoin('users', 'orders.client', '=', 'users.id')
             ->leftJoin('products', 'orders.product', '=', 'products.id')
             ->leftJoin('installation_details', 'orders.id', '=', 'installation_details.order_id')
-            ->select('orders.id', \DB::raw("concat(first_name, ' ', last_name) as client_name"), 'products.name as product_name', 'products.id as product_id',
+            ->select('orders.id', DB::raw("concat(first_name, ' ', last_name) as client_name"), 'products.name as product_name', 'products.id as product_id',
                 'subscriptions.version as product_version', 'client as client_id', 'subscriptions.update_ends_at as subscription_ends_at'
             )->groupBy('orders.number');
     }
@@ -375,6 +380,7 @@ class DashboardController extends Controller
         if ($allowedCurrencies1 && ! isset($totals[$allowedCurrencies1])) {
             $totals[$allowedCurrencies1] = 0;
         }
+
         if ($allowedCurrencies2 && ! isset($totals[$allowedCurrencies2])) {
             $totals[$allowedCurrencies2] = 0;
         }
@@ -408,8 +414,8 @@ class DashboardController extends Controller
         return User::where('mobile_verified', 1)
             ->where('email_verified', 1)
             ->whereBetween('created_at', [
-                Carbon::now()->subDays($days)->startOfDay(),
-                Carbon::now()->endOfDay(),
+                Date::now()->subDays($days)->startOfDay(),
+                Date::now()->endOfDay(),
             ])
             ->get();
     }
@@ -422,7 +428,7 @@ class DashboardController extends Controller
             'update_ends_at',
             'user_id',
             'product_id',
-            \DB::raw('DATEDIFF(NOW(), update_ends_at) as days_expired')
+            DB::raw('DATEDIFF(NOW(), update_ends_at) as days_expired')
         )
             ->with([
                 'user:id,first_name,last_name',
@@ -430,8 +436,8 @@ class DashboardController extends Controller
                 'product:id,name',
             ])
             ->whereBetween('update_ends_at', [
-                Carbon::now()->subDays($days)->startOfDay(),
-                Carbon::now()->endOfDay(),
+                Date::now()->subDays($days)->startOfDay(),
+                Date::now()->endOfDay(),
             ])
             ->orderBy('days_expired')
             ->get();
@@ -447,7 +453,7 @@ class DashboardController extends Controller
             'update_ends_at',
             'user_id',
             'product_id',
-            \DB::raw('DATEDIFF(update_ends_at, NOW()) as days_to_expire')
+            DB::raw('DATEDIFF(update_ends_at, NOW()) as days_to_expire')
         )
             ->with([
                 'user:id,first_name,last_name',
@@ -455,8 +461,8 @@ class DashboardController extends Controller
                 'product:id,name',
             ])
             ->whereBetween('update_ends_at', [
-                Carbon::now()->startOfDay(),
-                Carbon::now()->addDays($days)->endOfDay(),
+                Date::now()->startOfDay(),
+                Date::now()->addDays($days)->endOfDay(),
             ])
             ->orderBy('days_to_expire')
             ->get();
@@ -475,7 +481,7 @@ class DashboardController extends Controller
             'product_id',
             'version'
         )
-            ->whereExists(function ($query) {
+            ->whereExists(function ($query): void {
                 $query->selectRaw('1')
                     ->from('product_uploads as pu')
                     ->whereColumn('pu.product_id', 'subscriptions.product_id')
@@ -486,7 +492,7 @@ class DashboardController extends Controller
                 'user:id,first_name,last_name',
                 'product:id,name',
             ])
-            ->whereHas('order', function ($query) {
+            ->whereHas('order', function ($query): void {
                 $query->where('price_override', '>', 0);
             })
             ->orderBy('id', 'desc')
@@ -509,8 +515,8 @@ class DashboardController extends Controller
             ])
             ->where('price_override', '>', 0)
             ->whereBetween('created_at', [
-                Carbon::now()->subDays($days)->startOfDay(),
-                Carbon::now()->endOfDay(),
+                Date::now()->subDays($days)->startOfDay(),
+                Date::now()->endOfDay(),
             ])
             ->orderBy('id', 'desc')
             ->get();
@@ -523,16 +529,12 @@ class DashboardController extends Controller
             ->get();
 
         // Group by currency and sum payments
-        return $invoices->groupBy('currency')->map(function ($invoicesGroup) {
-            return $invoicesGroup->sum(function ($invoice) {
-                return $invoice->payment->sum('amount');
-            });
-        });
+        return $invoices->groupBy('currency')->map(fn($invoicesGroup) => $invoicesGroup->sum(fn($invoice) => $invoice->payment->sum('amount')));
     }
 
     public function getYearlySalesByCurrency()
     {
-        $currentYear = Carbon::now()->year;
+        $currentYear = Date::now()->year;
 
         // Fetch invoices for the current year that are not pending
         $invoices = Invoice::where('status', '!=', 'pending')
@@ -541,11 +543,7 @@ class DashboardController extends Controller
             ->get();
 
         // Group by currency and sum payments
-        return $invoices->groupBy('currency')->map(function ($invoicesGroup) {
-            return $invoicesGroup->sum(function ($invoice) {
-                return $invoice->payment->sum('amount');
-            });
-        });
+        return $invoices->groupBy('currency')->map(fn($invoicesGroup) => $invoicesGroup->sum(fn($invoice) => $invoice->payment->sum('amount')));
     }
 
     public function getMonthlySalesByCurrency()
@@ -557,11 +555,7 @@ class DashboardController extends Controller
             ->get();
 
         // Group by currency and sum payments
-        return $invoices->groupBy('currency')->map(function ($invoicesGroup) {
-            return $invoicesGroup->sum(function ($invoice) {
-                return $invoice->payment->sum('amount');
-            });
-        });
+        return $invoices->groupBy('currency')->map(fn($invoicesGroup) => $invoicesGroup->sum(fn($invoice) => $invoice->payment->sum('amount')));
     }
 
     public function getAllPendingPayments()
@@ -572,21 +566,19 @@ class DashboardController extends Controller
             ->get();
 
         // Group by currency and sum pending amounts
-        $totals = $invoices->groupBy('currency')->map(function ($invoicesGroup) {
-            return $invoicesGroup->sum(function ($invoice) {
-                $paidAmount = $invoice->payment->sum('amount');
+        $totals = $invoices->groupBy('currency')->map(fn($invoicesGroup) => $invoicesGroup->sum(function ($invoice) {
+            $paidAmount = $invoice->payment->sum('amount');
 
-                return $invoice->grand_total - $paidAmount;
-            });
-        });
+            return $invoice->grand_total - $paidAmount;
+        }));
 
         return $totals;
     }
 
     public function getLastNoOfDaysInstallation(int $days)
     {
-        $startDate = Carbon::now()->subDays($days)->startOfDay();
-        $endDate = Carbon::now()->subDay()->endOfDay();
+        $startDate = Date::now()->subDays($days)->startOfDay();
+        $endDate = Date::now()->subDay()->endOfDay();
 
         // Total subscriptions in the period
         $totalSubscription = Subscription::whereBetween('created_at', [$startDate, $endDate])->count();
@@ -608,8 +600,8 @@ class DashboardController extends Controller
 
     private function getConversionRateByDays(int $days)
     {
-        $startDate = Carbon::now()->subDays($days)->startOfDay();
-        $endDate = Carbon::now()->endOfDay();
+        $startDate = Date::now()->subDays($days)->startOfDay();
+        $endDate = Date::now()->endOfDay();
 
         // Total orders in the period
         $allOrders = Order::whereBetween('created_at', [$startDate, $endDate])->count();
@@ -630,8 +622,8 @@ class DashboardController extends Controller
 
     private function getAllRecentInvoices(int $days)
     {
-        $fromDate = Carbon::now()->subDays($days)->startOfDay();
-        $toDate = Carbon::now()->endOfDay();
+        $fromDate = Date::now()->subDays($days)->startOfDay();
+        $toDate = Date::now()->endOfDay();
 
         // Fetch invoices with user info and payment sum
         $invoices = Invoice::with([
@@ -671,17 +663,17 @@ class DashboardController extends Controller
     public function getSoldProduct(?int $days = null)
     {
         $fromDate = $days
-            ? Carbon::now()->subDays($days)->startOfDay()
+            ? Date::now()->subDays($days)->startOfDay()
             : CarbonImmutable::startOfTime();
 
-        $toDate = Carbon::now()->endOfDay();
+        $toDate = Date::now()->endOfDay();
 
         return Product::select('id', 'name', 'image')
-            ->withCount(['order as order_count' => function ($query) use ($fromDate, $toDate) {
+            ->withCount(['order as order_count' => function ($query) use ($fromDate, $toDate): void {
                 $query->where('order_status', 'executed')
                     ->whereBetween('created_at', [$fromDate, $toDate]);
             }])
-            ->withMax(['order as latest_order_created_at' => function ($query) use ($fromDate, $toDate) {
+            ->withMax(['order as latest_order_created_at' => function ($query) use ($fromDate, $toDate): void {
                 $query->where('order_status', 'executed')
                     ->whereBetween('created_at', [$fromDate, $toDate]);
             }], 'created_at')

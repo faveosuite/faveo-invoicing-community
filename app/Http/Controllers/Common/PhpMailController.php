@@ -2,6 +2,18 @@
 
 namespace App\Http\Controllers\Common;
 
+use Logger;
+use App\Jobs\SendEmail;
+use DB;
+use App\Jobs\NotifyMail;
+use App\Model\Mailjob\QueueService;
+use App\Model\Mailjob\FaveoQueue;
+use Exception;
+use Illuminate\Support\Facades\Date;
+use Log;
+use Config;
+use App\Http\Controllers\Front\PageController;
+use Mail;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
@@ -14,7 +26,6 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Payment_log;
 use App\Traits\QueueTrait;
-use Carbon\Carbon;
 use Crypt;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -28,7 +39,7 @@ class PhpMailController extends Controller
     public function __construct()
     {
         $this->commonMailer = new CommonMailer();
-        $this->queueManager = app('queue');
+        $this->queueManager = resolve('queue');
     }
 
     /**
@@ -50,7 +61,7 @@ class PhpMailController extends Controller
         bool $autoReply = false
     ): void {
         // Step 1: Log email entry
-        $logIdentifier = \Logger::logMailByCategory(
+        $logIdentifier = Logger::logMailByCategory(
             $from,
             $to,
             $cc,
@@ -63,7 +74,7 @@ class PhpMailController extends Controller
         $this->setQueue();
 
         // Step 2: Prepare the job
-        $job = new \App\Jobs\SendEmail(
+        $job = new SendEmail(
             $from,
             $to,
             $template_data,
@@ -81,11 +92,11 @@ class PhpMailController extends Controller
 
         // Step 3: Update log with encrypted job payload
         $logIdentifier->update([
-            'job_payload' => Crypt::encrypt((new QueueTrait())->getPayloadData($job)),
+            'job_payload' => Crypt::encrypt(new QueueTrait()->getPayloadData($job)),
         ]);
 
         // Step 4: Dispatch job only after DB commit
-        \DB::afterCommit(function () use ($job) {
+        DB::afterCommit(function () use ($job): void {
             dispatch($job);
         });
     }
@@ -93,7 +104,7 @@ class PhpMailController extends Controller
     public function NotifyMail($from, $to, $template_data, $template_name)
     {
         $this->setQueue();
-        $job = new \App\Jobs\NotifyMail();
+        $job = new NotifyMail();
         dispatchNow($job);
     }
 
@@ -116,11 +127,11 @@ class PhpMailController extends Controller
                 'expire' => 60,
             ];
 
-            $queue = new \App\Model\Mailjob\QueueService();
+            $queue = new QueueService();
             $active_queue = $queue->where('status', 1)->first();
             if ($active_queue) {
                 $short = $active_queue->short_name;
-                $fields = new \App\Model\Mailjob\FaveoQueue();
+                $fields = new FaveoQueue();
                 $field = $fields->where('service_id', $active_queue->id)->pluck('value', 'key')->toArray();
             }
 
@@ -135,8 +146,8 @@ class PhpMailController extends Controller
             if ($status == 1) {
                 $this->deleteCloudDetails();
             }
-        } catch(\Exception $ex) {
-            \Logger::exception($ex);
+        } catch(Exception $ex) {
+            Logger::exception($ex);
         }
     }
 
@@ -145,13 +156,13 @@ class PhpMailController extends Controller
         try {
             $contact = getContactData();
             $day = ExpiryMailDay::value('cloud_days');
-            $today = Carbon::today();
+            $today = Date::today();
 
             $sub = Subscription::whereNotNull('ends_at')
                 ->where('is_deleted', 0)
                 ->whereIn('product_id', cloudPopupProducts())
                 ->whereDate(
-                    \DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
+                    DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
                     '<=',
                     $today
                 )
@@ -159,21 +170,22 @@ class PhpMailController extends Controller
 
             foreach ($sub as $data) {
                 $cron = new CronController();
-                $user = \DB::table('users')->find($data->user_id);
+                $user = DB::table('users')->find($data->user_id);
                 $product = Product::find($data->product_id);
                 $order = $cron->getOrderById($data->order_id);
 
                 if (empty($order)) {
                     continue;
                 }
-                $id = \DB::table('installation_details')->where('order_id', $order->id)->value('installation_path');
+
+                $id = DB::table('installation_details')->where('order_id', $order->id)->value('installation_path');
 
                 if (is_null($id) || $id == cloudCentralDomain()) {
 //                    $order->delete();
                     continue;
                 } else {
                     //Destroy the tenat
-                    $destroy = (new TenantController(new Client, new FaveoCloud()))->destroyTenant(new Request(['id' => $id, 'orderId' => $data->order_id]));
+                    $destroy = new TenantController(new Client, new FaveoCloud())->destroyTenant(new Request(['id' => $id, 'orderId' => $data->order_id]));
 
                     //Mail Sending
 
@@ -181,18 +193,18 @@ class PhpMailController extends Controller
                         $data->is_deleted = 1;
                         $data->save();
                         //check in the settings
-                        $settings = new \App\Model\Common\Setting();
+                        $settings = new Setting();
                         $setting = $settings::find(1);
 
                         //template
-                        $template = \App\Model\Common\TemplateType::getSelectedTemplate('cloud_deleted');
+                        $template = TemplateType::getSelectedTemplate('cloud_deleted');
 
-                        $mail = new \App\Http\Controllers\Common\PhpMailController();
+                        $mail = new PhpMailController();
                         $type = $template?->type()->value('name') ?? '';
                         $replace = ['name' => $user->first_name.' '.$user->last_name,
                             'product' => $product->name,
                             'number' => $order->number,
-                            'expiry' => date('j M Y', strtotime($data->update_ends_at)),
+                            'expiry' => date('j M Y', strtotime((string) $data->update_ends_at)),
                             'contact' => $contact['contact'],
                             'logo' => $contact['logo'],
                             'reply_email' => $setting->company_email,
@@ -201,8 +213,8 @@ class PhpMailController extends Controller
                     }
                 }
             }
-        } catch(\Exception $ex) {
-            \Logger::exception($ex);
+        } catch(Exception $ex) {
+            Logger::exception($ex);
         }
     }
 
@@ -218,7 +230,7 @@ class PhpMailController extends Controller
         string $toname = '',
         array $cc = [],
         array $attach = [],
-        int $logIdentifier,
+        int $logIdentifier = 0,
         bool $autoReply = false
     ): string {
         try {
@@ -234,11 +246,11 @@ class PhpMailController extends Controller
             // Send email
             $this->sendMailMessage($from, $to, $subject, $transformedData, $emailConfig, $toname, $cc, $bcc, $attach);
 
-            \Logger::outgoingMailSent($logIdentifier);
+            Logger::outgoingMailSent($logIdentifier);
 
             return 'success';
-        } catch (\Exception $ex) {
-            \Logger::outgoingMailFailed($logIdentifier, $ex);
+        } catch (Exception $ex) {
+            Logger::outgoingMailFailed($logIdentifier, $ex);
             throw $ex;
         }
     }
@@ -255,10 +267,10 @@ class PhpMailController extends Controller
                     'password' => $settings->password,
                 ];
 
-                $mail = new \App\Http\Controllers\Common\CommonMailer();
+                $mail = new CommonMailer();
                 $mailer = $mail->setSmtpDriver($config);
                 if (! $this->commonMailer->setSmtpDriver($config)) {
-                    \Log::info('Invaid configuration :- '.$config);
+                    Log::info('Invaid configuration :- '.$config);
 
                     return 'invalid mail configuration';
                 }
@@ -268,11 +280,11 @@ class PhpMailController extends Controller
 
             case 'send_mail':
                 $config = [
-                    'host' => \Config::get('mail.host'),
-                    'port' => \Config::get('mail.port'),
-                    'security' => \Config::get('mail.encryption'),
-                    'username' => \Config::get('mail.username'),
-                    'password' => \Config::get('mail.password'),
+                    'host' => Config::get('mail.host'),
+                    'port' => Config::get('mail.port'),
+                    'security' => Config::get('mail.encryption'),
+                    'username' => Config::get('mail.username'),
+                    'password' => Config::get('mail.password'),
                 ];
                 $this->commonMailer->setSmtpDriver($config);
                 break;
@@ -349,7 +361,7 @@ class PhpMailController extends Controller
     protected function transformEmailData(string $data, array $replace, string $type): string
     {
         $transform = [$replace];
-        $pageController = new \App\Http\Controllers\Front\PageController();
+        $pageController = new PageController();
 
         return $pageController->transform($type, $data, $transform);
     }
@@ -368,9 +380,9 @@ class PhpMailController extends Controller
         array $bcc,
         array $attach
     ): void {
-        \Mail::send('emails.mail', ['data' => $data], function ($message) use (
+        Mail::send('emails.mail', ['data' => $data], function ($message) use (
             $from, $to, $subject, $config, $toname, $cc, $bcc, $attach
-        ) {
+        ): void {
             $message->from($from, $config['fromname']);
             $message->to($to, $toname)->subject($subject);
 

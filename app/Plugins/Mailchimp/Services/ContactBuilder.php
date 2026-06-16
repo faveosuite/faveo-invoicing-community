@@ -2,6 +2,8 @@
 
 namespace App\Plugins\Mailchimp\Services;
 
+use App\Model\Common\StatusSetting;
+use App\Model\Common\Mailchimp\MailchimpGroupAgoraRelation;
 use App\Model\Common\Country;
 use App\Model\Common\Mailchimp\MailchimpFieldAgoraRelation;
 use App\Model\Common\Setting;
@@ -65,8 +67,8 @@ class ContactBuilder
         $relation = $this->relation();
         $interests = [];
 
-        $isPaidStatus = \App\Model\Common\StatusSetting::value('mailchimp_ispaid_status');
-        $productStatus = \App\Model\Common\StatusSetting::value('mailchimp_product_status');
+        $isPaidStatus = StatusSetting::value('mailchimp_ispaid_status');
+        $productStatus = StatusSetting::value('mailchimp_product_status');
 
         if ($isPaidStatus) {
             $idYes = $relation->is_paid_yes;
@@ -75,13 +77,14 @@ class ContactBuilder
             if ($idYes) {
                 $interests[$idYes] = $isPaid;
             }
+
             if ($idNo) {
                 $interests[$idNo] = ! $isPaid;
             }
         }
 
         if ($productStatus) {
-            $groupId = \App\Model\Common\Mailchimp\MailchimpGroupAgoraRelation::where('agora_product_id', $productId)
+            $groupId = MailchimpGroupAgoraRelation::where('agora_product_id', $productId)
                 ->value('mailchimp_group_cat_id');
 
             if ($groupId) {

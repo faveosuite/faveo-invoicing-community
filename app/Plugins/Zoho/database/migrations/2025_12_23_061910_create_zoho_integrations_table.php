@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('zoho_integrations', function (Blueprint $table) {
+        Schema::create('zoho_integrations', function (Blueprint $table): void {
             $table->id();
             $table->enum('platform', ['crm', 'campaigns'])->unique();
             $table->string('description')->nullable();

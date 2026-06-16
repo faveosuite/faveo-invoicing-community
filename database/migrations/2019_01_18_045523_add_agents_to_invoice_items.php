@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('invoice_items', 'agents')) {
-            Schema::table('invoice_items', function (Blueprint $table) {
+            Schema::table('invoice_items', function (Blueprint $table): void {
                 $table->string('agents')->nullable();
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('invoice_items', function (Blueprint $table) {
+        Schema::table('invoice_items', function (Blueprint $table): void {
             $table->dropColumn('agents');
         });
     }

@@ -2,6 +2,22 @@
 
 namespace App\Http\Controllers\Common;
 
+use Mailchimp\Mailchimp;
+use Exception;
+use Logger;
+use Lang;
+use App\Model\Common\Template;
+use App\Model\Common\Timezone;
+use App\Model\Mailjob\ExpiryMailDay;
+use App\Model\Mailjob\ActivityLogDay;
+use App\Model\Mailjob\Condition;
+use DB;
+use App\Model\Common\FaveoCloud;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Contracts\Database\Query\Builder;
+use App\Model\Common\CommonSettings;
+use Sentry\State\HubInterface;
+use App\ThirdPartyApp;
 use App\ApiKey;
 use App\CloudPopUp;
 use App\Email_log;
@@ -27,7 +43,6 @@ use App\Model\Product\Product;
 use App\Payment_log;
 use App\User;
 use Cache;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
@@ -78,11 +93,11 @@ class SettingsController extends BaseSettingsController
             $mailchimp_set = new MailchimpSetting();
             $set = $mailchimp_set->firstOrFail();
             $mail_api_key = $set->api_key;
-            $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
+            $mailchimp = new Mailchimp($mail_api_key);
             $allists = $mailchimp->get('lists?count=20')['lists'];
             $selectedList[] = $set->list_id;
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             // Return null when it fails
             $mailchimp = '';
@@ -162,7 +177,7 @@ class SettingsController extends BaseSettingsController
             ];
 
             return successResponse('', $data);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             $data = [
                 'githubFileds' => '',
 
@@ -196,9 +211,9 @@ class SettingsController extends BaseSettingsController
             $keys = $apikeys->find(1);
             $keys->fill($request->input())->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('success', Lang::get('message.updated-successfully'));
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -215,15 +230,15 @@ class SettingsController extends BaseSettingsController
             $allAcivePluginName = [];
             if ($active_plugins) {
                 foreach ($active_plugins as $plugin) {
-                    if (isCurrencySupportedForPayments($currency, strtolower($plugin->name))) {
+                    if (isCurrencySupportedForPayments($currency, strtolower((string) $plugin->name))) {
                         $allAcivePluginName[] = $plugin->name;
                     }
                 }
             }
 
             return $allAcivePluginName;
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -254,9 +269,9 @@ class SettingsController extends BaseSettingsController
 
             $setting->fill(Arr::except($input, ['password', 'logo', 'admin-logo', 'fav-icon']))->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('success', Lang::get('message.updated-successfully'));
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -275,22 +290,25 @@ class SettingsController extends BaseSettingsController
                     Attach::delete('images/'.$logoPath);
                     $todo->logo = null;
                 }
+
                 if ($request->column == 'admin') {
                     $adminLogoPath = $todo->admin_logo;
                     Attach::delete('admin/images/'.$adminLogoPath);
                     $todo->admin_logo = null;
                 }
+
                 if ($request->column == 'fav') {
                     $favIconPath = $todo->fav_icon;
                     Attach::delete('common/images'.$favIconPath);
                     $todo->fav_icon = null;
                 }
+
                 $todo->save();
                 $response = ['type' => 'success', 'message' => __('message.logo_deleted_successfully')];
 
                 return response()->json($response);
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $result = [$ex->getMessage()];
 
             return response()->json(compact('result'), 500);
@@ -323,12 +341,12 @@ class SettingsController extends BaseSettingsController
                 'selected_template_id' => $t->selected_template_id,
             ])->values();
 
-            $templates = \App\Model\Common\Template::select('id', 'name')
+            $templates = Template::select('id', 'name')
                 ->orderBy('name')
                 ->get();
 
             return successResponse('', compact('types', 'templates'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -341,8 +359,8 @@ class SettingsController extends BaseSettingsController
                     ->update(['selected_template_id' => $templateId ?: null]);
             }
 
-            return successResponse(\Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
+            return successResponse(Lang::get('message.updated-successfully'));
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -356,7 +374,7 @@ class SettingsController extends BaseSettingsController
                 'error_log' => (bool) $set->error_log,
                 'error_email' => $set->error_email ?? '',
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -365,7 +383,7 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $set = $settings->with('timezone:id,name,location')->find(1) ?: $settings->create(['company' => '']);
-            $languages = (new InstallerController())->languageList()->getData()->data ?? [];
+            $languages = new InstallerController()->languageList()->getData()->data ?? [];
 
             return successResponse('', [
                 'settings' => [
@@ -401,7 +419,7 @@ class SettingsController extends BaseSettingsController
                 'states' => State::where('country_code', $set->country)->orderBy('state_subdivision_name')->get(['iso2', 'state_subdivision_name']),
                 'currencies' => Currency::orderBy('name')->get(['code', 'name', 'symbol']),
                 'languages' => $languages,
-                'timezones' => \App\Model\Common\Timezone::orderBy('name')->get(['id', 'name', 'location']),
+                'timezones' => Timezone::orderBy('name')->get(['id', 'name', 'location']),
                 'date_formats' => [
                     ['value' => 'd/m/Y', 'label' => 'DD/MM/YYYY'],
                     ['value' => 'm/d/Y', 'label' => 'MM/DD/YYYY'],
@@ -416,7 +434,7 @@ class SettingsController extends BaseSettingsController
                     ['value' => 'h:i A', 'label' => '12 Hours'],
                 ],
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -424,17 +442,17 @@ class SettingsController extends BaseSettingsController
     public function updateSystemSettingsData(Setting $settings, Request $request)
     {
         $request->validate([
-            'company' => 'required|max:50',
-            'company_email' => 'required|email',
-            'website' => 'required|url',
-            'phone' => 'required',
-            'address' => 'required',
-            'state' => 'required',
-            'country' => 'required',
-            'default_currency' => 'required',
-            'logo' => 'sometimes|file|mimes:jpeg,png,jpg|max:2048',
-            'admin-logo' => 'sometimes|file|mimes:jpeg,png,jpg|max:2048',
-            'fav-icon' => 'sometimes|file|mimes:jpeg,png,jpg|max:2048',
+            'company' => ['required', 'max:50'],
+            'company_email' => ['required', 'email'],
+            'website' => ['required', 'url'],
+            'phone' => ['required'],
+            'address' => ['required'],
+            'state' => ['required'],
+            'country' => ['required'],
+            'default_currency' => ['required'],
+            'logo' => ['sometimes', 'file', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'admin-logo' => ['sometimes', 'file', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'fav-icon' => ['sometimes', 'file', 'mimes:jpeg,png,jpg', 'max:2048'],
         ]);
 
         try {
@@ -450,10 +468,12 @@ class SettingsController extends BaseSettingsController
                 $path = Attach::put('images', $request->file('logo'), null, true);
                 $setting->logo = basename($path);
             }
+
             if ($request->hasFile('admin-logo')) {
                 $path = Attach::put('admin/images', $request->file('admin-logo'), null, true);
                 $setting->admin_logo = basename($path);
             }
+
             if ($request->hasFile('fav-icon')) {
                 $path = Attach::put('common/images', $request->file('fav-icon'), null, true);
                 $setting->fav_icon = basename($path);
@@ -463,8 +483,8 @@ class SettingsController extends BaseSettingsController
             $setting->content = $request->input('language');
             $setting->fill($input)->save();
 
-            return successResponse(\Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
+            return successResponse(Lang::get('message.updated-successfully'));
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -472,9 +492,9 @@ class SettingsController extends BaseSettingsController
     public function updateDateTimeSettingsData(Setting $settings, Request $request)
     {
         $request->validate([
-            'timezone_id' => 'required|integer|exists:timezone,id',
-            'date_format' => 'required|string|max:20',
-            'time_format' => 'required|string|max:20',
+            'timezone_id' => ['required', 'integer', 'exists:timezone,id'],
+            'date_format' => ['required', 'string', 'max:20'],
+            'time_format' => ['required', 'string', 'max:20'],
         ]);
 
         try {
@@ -484,8 +504,8 @@ class SettingsController extends BaseSettingsController
             Cache::forget('system_datetime_format');
             Cache::forget('system_timezone');
 
-            return successResponse(\Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
+            return successResponse(Lang::get('message.updated-successfully'));
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -496,27 +516,28 @@ class SettingsController extends BaseSettingsController
             $status = StatusSetting::first();
 
             $all = [
-                ['key' => 'gcaptchastatus',        'slug' => 'recaptcha',         'name' => \Lang::get('message.recaptcha_heading'),               'description' => \Lang::get('message.google_description'),               'enabled' => (bool) optional($status)->recaptcha_status,        'route' => '/settings/api/recaptcha'],
-                ['key' => 'mstatus',               'slug' => 'msg91',             'name' => \Lang::get('message.msg91_heading'),                   'description' => \Lang::get('message.msg91_description'),               'enabled' => (bool) optional($status)->msg91_status,            'route' => '/settings/api/msg91'],
-                ['key' => 'mailchimpstatus',        'slug' => 'mailchimp',         'name' => \Lang::get('message.mailchimp'),                'description' => \Lang::get('message.mailchimp_description'),           'enabled' => (bool) optional($status)->mailchimp_status,        'route' => '/settings/api/mailchimp'],
-                ['key' => 'termsStatus',            'slug' => 'terms',             'name' => \Lang::get('message.terms_heading'),                   'description' => \Lang::get('message.terms_description'),               'enabled' => (bool) optional($status)->terms,                   'route' => '/settings/api/terms'],
-                ['key' => 'pipedrivestatus',        'slug' => 'pipedrive',         'name' => \Lang::get('message.pipedrive'),               'description' => \Lang::get('message.pipedrive_description'),           'enabled' => (bool) optional($status)->pipedrive_status,        'route' => '/settings/api/pipedrive'],
-                ['key' => 'githubstatus',           'slug' => 'github',            'name' => \Lang::get('message.github_heading'),                  'description' => \Lang::get('message.github_description'),              'enabled' => (bool) optional($status)->github_status,           'route' => '/settings/api/github'],
-                ['key' => 'email_validation_status', 'slug' => 'email-validation',  'name' => \Lang::get('message.email_provider'),                  'description' => \Lang::get('message.email_validation_description'),    'enabled' => (bool) optional($status)->email_validation_status, 'route' => '/settings/api/email-validation'],
-                ['key' => 'mobile_validation_status', 'slug' => 'mobile-validation', 'name' => \Lang::get('message.mobile_provider'),                 'description' => \Lang::get('message.mobile_validation_description'),   'enabled' => (bool) optional($status)->mobile_validation_status, 'route' => '/settings/api/mobile-validation'],
-                ['key' => 'whatsapp_status',        'slug' => 'whatsapp',          'name' => \Lang::get('message.whatsapp_config'),                  'description' => \Lang::get('message.whatsapp_thirdParty_explanation'), 'enabled' => (bool) optional($status)->whatsapp_status,         'route' => '/settings/whatsapp-integration'],
-                ['key' => 'zoho',                   'slug' => 'zoho',              'name' => \Lang::get('message.zoho_integration'),                'description' => \Lang::get('message.zoho_description'),                'enabled' => true,                                              'route' => '/settings/api/zoho', 'settings_only' => true],
+                ['key' => 'gcaptchastatus',        'slug' => 'recaptcha',         'name' => Lang::get('message.recaptcha_heading'),               'description' => Lang::get('message.google_description'),               'enabled' => (bool) $status?->recaptcha_status,        'route' => '/settings/api/recaptcha'],
+                ['key' => 'mstatus',               'slug' => 'msg91',             'name' => Lang::get('message.msg91_heading'),                   'description' => Lang::get('message.msg91_description'),               'enabled' => (bool) $status?->msg91_status,            'route' => '/settings/api/msg91'],
+                ['key' => 'mailchimpstatus',        'slug' => 'mailchimp',         'name' => Lang::get('message.mailchimp'),                'description' => Lang::get('message.mailchimp_description'),           'enabled' => (bool) $status?->mailchimp_status,        'route' => '/settings/api/mailchimp'],
+                ['key' => 'termsStatus',            'slug' => 'terms',             'name' => Lang::get('message.terms_heading'),                   'description' => Lang::get('message.terms_description'),               'enabled' => (bool) $status?->terms,                   'route' => '/settings/api/terms'],
+                ['key' => 'pipedrivestatus',        'slug' => 'pipedrive',         'name' => Lang::get('message.pipedrive'),               'description' => Lang::get('message.pipedrive_description'),           'enabled' => (bool) $status?->pipedrive_status,        'route' => '/settings/api/pipedrive'],
+                ['key' => 'githubstatus',           'slug' => 'github',            'name' => Lang::get('message.github_heading'),                  'description' => Lang::get('message.github_description'),              'enabled' => (bool) $status?->github_status,           'route' => '/settings/api/github'],
+                ['key' => 'email_validation_status', 'slug' => 'email-validation',  'name' => Lang::get('message.email_provider'),                  'description' => Lang::get('message.email_validation_description'),    'enabled' => (bool) $status?->email_validation_status, 'route' => '/settings/api/email-validation'],
+                ['key' => 'mobile_validation_status', 'slug' => 'mobile-validation', 'name' => Lang::get('message.mobile_provider'),                 'description' => Lang::get('message.mobile_validation_description'),   'enabled' => (bool) $status?->mobile_validation_status, 'route' => '/settings/api/mobile-validation'],
+                ['key' => 'whatsapp_status',        'slug' => 'whatsapp',          'name' => Lang::get('message.whatsapp_config'),                  'description' => Lang::get('message.whatsapp_thirdParty_explanation'), 'enabled' => (bool) $status?->whatsapp_status,         'route' => '/settings/whatsapp-integration'],
+                ['key' => 'zoho',                   'slug' => 'zoho',              'name' => Lang::get('message.zoho_integration'),                'description' => Lang::get('message.zoho_description'),                'enabled' => true,                                              'route' => '/settings/api/zoho', 'settings_only' => true],
             ];
 
             foreach ($all as $index => &$item) {
                 $item['id'] = $index + 1;
             }
+
             unset($item);
 
             $search = trim((string) $request->input('search-query', ''));
             if ($search !== '') {
-                $all = array_values(array_filter($all, fn ($m) => stripos($m['name'], $search) !== false ||
-                    stripos($m['description'], $search) !== false
+                $all = array_values(array_filter($all, fn ($m) => stripos((string) $m['name'], $search) !== false ||
+                    stripos((string) $m['description'], $search) !== false
                 ));
             }
 
@@ -538,7 +559,7 @@ class SettingsController extends BaseSettingsController
                 'next_page_url' => $page < $lastPage ? $base.'?page='.($page + 1).'&limit='.$perPage : null,
                 'prev_page_url' => $page > 1 ? $base.'?page='.($page - 1).'&limit='.$perPage : null,
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -559,7 +580,7 @@ class SettingsController extends BaseSettingsController
                     'dealId' => $groups['Deal'] ?? null,
                 ],
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -573,8 +594,8 @@ class SettingsController extends BaseSettingsController
                 'require_pipedrive_user_verification' => $request->boolean('require_pipedrive_user_verification'),
             ]);
 
-            return successResponse(\Lang::get('message.pipedrive_setting'));
-        } catch (\Exception $ex) {
+            return successResponse(Lang::get('message.pipedrive_setting'));
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -583,51 +604,51 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $status = StatusSetting::find(1);
-            $days = \App\Model\Mailjob\ExpiryMailDay::first();
-            $activityDay = \App\Model\Mailjob\ActivityLogDay::first();
-            $conditions = \App\Model\Mailjob\Condition::pluck('value', 'job');
+            $days = ExpiryMailDay::first();
+            $activityDay = ActivityLogDay::first();
+            $conditions = Condition::pluck('value', 'job');
 
             return successResponse('', [
                 'cron_path' => base_path('artisan'),
                 'exec_enabled' => $this->execEnabled(),
                 'php_paths' => $this->getPHPBinPath(),
                 'statuses' => [
-                    'expiry_cron' => (bool) optional($status)->expiry_mail,
-                    'activity' => (bool) optional($status)->activity_log_delete,
-                    'subs_expirymail' => (bool) optional($status)->subs_expirymail,
-                    'postsubs_expirymail' => (bool) optional($status)->post_expirymail,
-                    'cloud_cron' => (bool) optional($status)->cloud_mail_status,
-                    'invoice_cron' => (bool) optional($status)->invoice_deletion_status,
-                    'msg91_cron' => (bool) optional($status)->msg91_report_delete_status,
-                    'reoon_cron' => (bool) optional($status)->reoon_deletion_status,
-                    'systemlogs_cron' => (bool) optional($status)->system_log_status,
-                    'installationlogs_cron' => (bool) optional($status)->installation_logs_status,
-                    'licensereports_cron' => (bool) optional($status)->license_reports_cleanup_status,
-                    'licensecallbacks_cron' => (bool) optional($status)->license_callbacks_cleanup_status,
-                    'licensecrack_cron' => (bool) optional($status)->license_crack_reports_cleanup_status,
-                    'licensesystem_cron' => (bool) optional($status)->license_system_reports_cleanup_status,
-                    'licenseversions_cron' => (bool) optional($status)->license_versions_cleanup_status,
+                    'expiry_cron' => (bool) $status?->expiry_mail,
+                    'activity' => (bool) $status?->activity_log_delete,
+                    'subs_expirymail' => (bool) $status?->subs_expirymail,
+                    'postsubs_expirymail' => (bool) $status?->post_expirymail,
+                    'cloud_cron' => (bool) $status?->cloud_mail_status,
+                    'invoice_cron' => (bool) $status?->invoice_deletion_status,
+                    'msg91_cron' => (bool) $status?->msg91_report_delete_status,
+                    'reoon_cron' => (bool) $status?->reoon_deletion_status,
+                    'systemlogs_cron' => (bool) $status?->system_log_status,
+                    'installationlogs_cron' => (bool) $status?->installation_logs_status,
+                    'licensereports_cron' => (bool) $status?->license_reports_cleanup_status,
+                    'licensecallbacks_cron' => (bool) $status?->license_callbacks_cleanup_status,
+                    'licensecrack_cron' => (bool) $status?->license_crack_reports_cleanup_status,
+                    'licensesystem_cron' => (bool) $status?->license_system_reports_cleanup_status,
+                    'licenseversions_cron' => (bool) $status?->license_versions_cleanup_status,
                 ],
                 'conditions' => $conditions,
                 'days' => [
-                    'expiryday' => json_decode(optional($days)->days ?: '[]', true),
-                    'subexpiryday' => json_decode(optional($days)->autorenewal_days ?: '[]', true),
-                    'postsubexpiry_days' => json_decode(optional($days)->postexpiry_days ?: '[]', true),
-                    'cloud_days' => optional($days)->cloud_days,
-                    'invoice_days' => optional($days)->invoice_days,
-                    'msg91_days' => optional($days)->msg91_days,
-                    'reoon_days' => optional($days)->reoon_logs_days,
-                    'system_logs_days' => optional($days)->system_logs_days,
-                    'installation_logs_days' => optional($days)->installation_logs_expire_days,
-                    'license_reports_days' => optional($days)->license_reports_cleanup_days,
-                    'license_callbacks_days' => optional($days)->license_callbacks_cleanup_days,
-                    'license_crack_days' => optional($days)->license_crack_reports_cleanup_days,
-                    'license_system_days' => optional($days)->license_system_reports_cleanup_days,
-                    'license_versions_days' => optional($days)->license_versions_cleanup_days,
-                    'logdelday' => optional($activityDay)->days,
+                    'expiryday' => json_decode((string) $days?->days ?: '[]', true),
+                    'subexpiryday' => json_decode((string) $days?->autorenewal_days ?: '[]', true),
+                    'postsubexpiry_days' => json_decode((string) $days?->postexpiry_days ?: '[]', true),
+                    'cloud_days' => $days?->cloud_days,
+                    'invoice_days' => $days?->invoice_days,
+                    'msg91_days' => $days?->msg91_days,
+                    'reoon_days' => $days?->reoon_logs_days,
+                    'system_logs_days' => $days?->system_logs_days,
+                    'installation_logs_days' => $days?->installation_logs_expire_days,
+                    'license_reports_days' => $days?->license_reports_cleanup_days,
+                    'license_callbacks_days' => $days?->license_callbacks_cleanup_days,
+                    'license_crack_days' => $days?->license_crack_reports_cleanup_days,
+                    'license_system_days' => $days?->license_system_reports_cleanup_days,
+                    'license_versions_days' => $days?->license_versions_cleanup_days,
+                    'logdelday' => $activityDay?->days,
                 ],
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -656,15 +677,16 @@ class SettingsController extends BaseSettingsController
             foreach ($map as $input => $column) {
                 $status->{$column} = $request->boolean("statuses.$input");
             }
+
             $status->save();
 
-            \App\Model\Mailjob\Condition::truncate();
+            Condition::truncate();
             foreach ($request->input('conditions', []) as $job => $value) {
-                \App\Model\Mailjob\Condition::create(['job' => $job, 'value' => $value]);
+                Condition::create(['job' => $job, 'value' => $value]);
             }
 
-            return successResponse(\Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
+            return successResponse(Lang::get('message.updated-successfully'));
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -672,14 +694,14 @@ class SettingsController extends BaseSettingsController
     public function updateCronDaysData(Request $request)
     {
         try {
-            \App\Model\Mailjob\ExpiryMailDay::truncate();
-            \App\Model\Mailjob\ExpiryMailDay::create([
+            ExpiryMailDay::truncate();
+            ExpiryMailDay::create([
                 'days' => json_encode($request->input('expiryday', [])),
                 'autorenewal_days' => json_encode($request->input('subexpiryday', [])),
                 'postexpiry_days' => json_encode($request->input('postsubexpiry_days', [])),
             ]);
 
-            \DB::table('expiry_mail_days')->update([
+            DB::table('expiry_mail_days')->update([
                 'cloud_days' => $request->input('cloud_days'),
                 'invoice_days' => $request->input('invoice_days'),
                 'msg91_days' => $request->input('msg91_days'),
@@ -692,10 +714,10 @@ class SettingsController extends BaseSettingsController
                 'license_system_reports_cleanup_days' => $request->input('license_system_days'),
                 'license_versions_cleanup_days' => $request->input('license_versions_days'),
             ]);
-            \App\Model\Mailjob\ActivityLogDay::updateOrCreate(['id' => 1], ['days' => $request->input('logdelday')]);
+            ActivityLogDay::updateOrCreate(['id' => 1], ['days' => $request->input('logdelday')]);
 
-            return successResponse(\Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
+            return successResponse(Lang::get('message.updated-successfully'));
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -703,7 +725,7 @@ class SettingsController extends BaseSettingsController
     public function getCloudDetails()
     {
         try {
-            $cloud = \App\Model\Common\FaveoCloud::find(1);
+            $cloud = FaveoCloud::find(1);
             $cloudPopUp = CloudPopUp::find(1);
 
             $products = Product::orderBy('name')->get(['id', 'name'])
@@ -715,7 +737,7 @@ class SettingsController extends BaseSettingsController
             $countries = Country::where('country_name', '!=', '')
                 ->orderBy('country_name')
                 ->get(['country_code_char2', 'country_name'])
-                ->map(fn ($c) => ['code' => strtolower($c->country_code_char2), 'name' => $c->country_name]);
+                ->map(fn ($c) => ['code' => strtolower((string) $c->country_code_char2), 'name' => $c->country_name]);
 
             $regions = CloudDataCenters::all()
                 ->map(fn ($r) => [
@@ -725,18 +747,18 @@ class SettingsController extends BaseSettingsController
                 ]);
 
             return successResponse('', [
-                'cloud_central_domain' => optional($cloud)->cloud_central_domain,
-                'cloud_cname' => optional($cloud)->cloud_cname,
+                'cloud_central_domain' => $cloud?->cloud_central_domain,
+                'cloud_cname' => $cloud?->cloud_cname,
                 'cloud_button' => (bool) StatusSetting::value('cloud_button'),
-                'cloud_top_message' => optional($cloudPopUp)->cloud_top_message ?? '',
-                'cloud_label_field' => optional($cloudPopUp)->cloud_label_field ?? '',
-                'cloud_label_radio' => optional($cloudPopUp)->cloud_label_radio ?? '',
+                'cloud_top_message' => $cloudPopUp?->cloud_top_message ?? '',
+                'cloud_label_field' => $cloudPopUp?->cloud_label_field ?? '',
+                'cloud_label_radio' => $cloudPopUp?->cloud_label_radio ?? '',
                 'products' => $products,
                 'plans' => $plans,
                 'countries' => $countries,
                 'regions' => $regions,
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -747,7 +769,7 @@ class SettingsController extends BaseSettingsController
             $email = Email_log::findOrFail($id);
 
             return successResponse('', ['body' => $email->body, 'subject' => $email->subject]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -779,7 +801,7 @@ class SettingsController extends BaseSettingsController
             $query = $this->filterQuery($query);
 
             if ($searchString) {
-                $query->where(function ($q) use ($searchString) {
+                $query->where(function ($q) use ($searchString): void {
                     $q->where('activity_log.log_name', 'like', "%{$searchString}%")
                         ->orWhere('activity_log.event', 'like', "%{$searchString}%")
                         ->orWhere('activity_log.description', 'like', "%{$searchString}%")
@@ -792,6 +814,7 @@ class SettingsController extends BaseSettingsController
             if (! in_array($sortField, $allowedActivitySorts, true)) {
                 $sortField = 'created_at';
             }
+
             $activitySortMap = [
                 'performed_by' => 'users.first_name',
                 'role' => 'users.role',
@@ -800,23 +823,21 @@ class SettingsController extends BaseSettingsController
             $activitySortColumn = $activitySortMap[$sortField] ?? 'activity_log.'.$sortField;
             $logs = $query->orderBy($activitySortColumn, $sortOrder)->simplePaginate($limit);
 
-            $logs->getCollection()->transform(function ($row) {
-                return [
-                    'id' => $row->id,
-                    'module' => $row->log_name ?? '—',
-                    'event' => ucfirst($row->event ?? '—'),
-                    'description' => $row->description ?? '—',
-                    'detailed_properties' => $this->formatProperties($row->properties, $row->event),
-                    'performed_by' => $row->first_name ? trim($row->first_name.' '.$row->last_name) : __('message.system'),
-                    'performed_by_id' => $row->causer_id ?? null,
-                    'email' => $row->email ?? '',
-                    'role' => ucfirst($row->user_role ?? '—'),
-                    'created_at' => $row->created_at ? $row->created_at->format('Y-m-d H:i') : '—',
-                ];
-            });
+            $logs->getCollection()->transform(fn($row) => [
+                'id' => $row->id,
+                'module' => $row->log_name ?? '—',
+                'event' => ucfirst($row->event ?? '—'),
+                'description' => $row->description ?? '—',
+                'detailed_properties' => $this->formatProperties($row->properties, $row->event),
+                'performed_by' => $row->first_name ? trim($row->first_name.' '.$row->last_name) : __('message.system'),
+                'performed_by_id' => $row->causer_id ?? null,
+                'email' => $row->email ?? '',
+                'role' => ucfirst($row->user_role ?? '—'),
+                'created_at' => $row->created_at ? $row->created_at->format('Y-m-d H:i') : '—',
+            ]);
 
             return successResponse('', $logs);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -837,7 +858,7 @@ class SettingsController extends BaseSettingsController
                 ]);
 
             return successResponse('', ['modules' => $modules, 'users' => $users]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -864,20 +885,23 @@ class SettingsController extends BaseSettingsController
                     'payment_logs.payment_type',
                     'payment_logs.created_at',
                     'users.id as user_id',
-                    \DB::raw("CONCAT(users.first_name, ' ', users.last_name) as user_name")
+                    DB::raw("CONCAT(users.first_name, ' ', users.last_name) as user_name")
                 );
 
             if ($status = $request->input('status')) {
                 $query->where('payment_logs.status', $status);
             }
+
             if ($dateFrom = $request->input('date_from')) {
-                $query->where('payment_logs.date', '>=', Carbon::parse($dateFrom)->startOfDay());
+                $query->where('payment_logs.date', '>=', Date::parse($dateFrom)->startOfDay());
             }
+
             if ($dateTill = $request->input('date_till')) {
-                $query->where('payment_logs.date', '<=', Carbon::parse($dateTill)->endOfDay());
+                $query->where('payment_logs.date', '<=', Date::parse($dateTill)->endOfDay());
             }
+
             if ($searchString) {
-                $query->where(function ($q) use ($searchString) {
+                $query->where(function (Builder $q) use ($searchString): void {
                     $q->where('payment_logs.order', 'like', "%{$searchString}%")
                         ->orWhere('payment_logs.status', 'like', "%{$searchString}%")
                         ->orWhere('payment_logs.payment_method', 'like', "%{$searchString}%")
@@ -889,27 +913,26 @@ class SettingsController extends BaseSettingsController
             if (! in_array($sortField, $allowedPaymentSorts, true)) {
                 $sortField = 'date';
             }
+
             $paymentSortMap = ['user' => 'users.first_name'];
             $paymentSortColumn = $paymentSortMap[$sortField] ?? 'payment_logs.'.$sortField;
             $logs = $query->orderBy($paymentSortColumn, $sortOrder)->simplePaginate($limit);
 
-            $logs->getCollection()->transform(function ($row) {
-                return [
-                    'id' => $row->id,
-                    'date' => $row->date ? \Carbon\Carbon::parse($row->date)->format('Y-m-d H:i') : '—',
-                    'user' => $row->user_name ? trim($row->user_name) : ($row->from ?? '—'),
-                    'user_id' => $row->user_id,
-                    'order' => $row->order ?? '—',
-                    'amount' => $row->amount ?? '—',
-                    'payment_method' => ucfirst($row->payment_method ?? '—'),
-                    'payment_type' => ucfirst($row->payment_type ?? '—'),
-                    'status' => ucfirst($row->status ?? '—'),
-                    'exception' => $row->status === 'failed' ? $row->exception : null,
-                ];
-            });
+            $logs->getCollection()->transform(fn($row) => [
+                'id' => $row->id,
+                'date' => $row->date ? Date::parse($row->date)->format('Y-m-d H:i') : '—',
+                'user' => $row->user_name ? trim((string) $row->user_name) : ($row->from ?? '—'),
+                'user_id' => $row->user_id,
+                'order' => $row->order ?? '—',
+                'amount' => $row->amount ?? '—',
+                'payment_method' => ucfirst($row->payment_method ?? '—'),
+                'payment_type' => ucfirst($row->payment_type ?? '—'),
+                'status' => ucfirst($row->status ?? '—'),
+                'exception' => $row->status === 'failed' ? $row->exception : null,
+            ]);
 
             return successResponse('', $logs);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -947,39 +970,40 @@ class SettingsController extends BaseSettingsController
                         echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
 
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                            /* @scrutinizer ignore-type */     \Lang::get('message.failed').'
+                        <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                            /* @scrutinizer ignore-type */     Lang::get('message.failed').'
 
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
+                            './* @scrutinizer ignore-type */Lang::get('message.no-record').'
                     </div>';
                         //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
+
                 echo "<div class='alert alert-success alert-dismissable'>
                         <i class='fa fa-ban'></i>
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '
-                    ./* @scrutinizer ignore-type */\Lang::get('message.success').'
+                        <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '
+                    ./* @scrutinizer ignore-type */Lang::get('message.success').'
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */ \Lang::get('message.deleted-successfully').'
+                            './* @scrutinizer ignore-type */ Lang::get('message.deleted-successfully').'
                     </div>';
             } else {
                 echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
-                        <b>"./* @scrutinizer ignore-type */ \Lang::get('message.alert').
-                    '!</b> './* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                        <b>"./* @scrutinizer ignore-type */ Lang::get('message.alert').
+                    '!</b> './* @scrutinizer ignore-type */Lang::get('message.failed').'
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */ \Lang::get('message.select-a-row').'
+                            './* @scrutinizer ignore-type */ Lang::get('message.select-a-row').'
                     </div>';
                 //echo \Lang::get('message.select-a-row');
             }
-        } catch (\Exception $e) {
+        } catch (Exception) {
             echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                        <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                /* @scrutinizer ignore-type */Lang::get('message.failed').'
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            '.\Lang::get('message.err_msg.').'
+                            '.Lang::get('message.err_msg.').'
                     </div>';
         }
     }
@@ -990,9 +1014,9 @@ class SettingsController extends BaseSettingsController
             $setting = $settings->find(1);
             $setting->fill($request->only(['error_log', 'error_email']))->save();
 
-            return successResponse(\Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return errorResponse(\Lang::get('message.err_msg'));
+            return successResponse(Lang::get('message.updated-successfully'));
+        } catch (Exception) {
+            return errorResponse(Lang::get('message.err_msg'));
         }
     }
 
@@ -1011,7 +1035,7 @@ class SettingsController extends BaseSettingsController
     {
         $bool = fn (string $key) => $request->boolean($key) ? '1' : '0';
 
-        \App\Model\Common\CommonSettings::upsert([
+        CommonSettings::upsert([
             ['option_name' => 'debugging', 'optional_field' => 'app_debug',              'option_value' => $bool('debug')],
             ['option_name' => 'debugging', 'optional_field' => 'pulse_enabled',          'option_value' => $bool('pulse_enabled')],
             ['option_name' => 'debugging', 'optional_field' => 'clockwork_enable',       'option_value' => $bool('clockwork_enable')],
@@ -1019,7 +1043,7 @@ class SettingsController extends BaseSettingsController
             ['option_name' => 'sentry',    'optional_field' => 'performance_monitoring', 'option_value' => $bool('sentry_performance')],
         ], ['option_name', 'optional_field'], ['option_value']);
 
-        \Cache::forget('debugging_settings');
+        Cache::forget('debugging_settings');
 
         $tracesRate = $request->boolean('sentry_performance') ? 0.1 : 0;
 
@@ -1031,29 +1055,29 @@ class SettingsController extends BaseSettingsController
             'sentry.traces_sample_rate' => $tracesRate,
         ]);
 
-        if (app()->bound(\Sentry\State\HubInterface::class)) {
-            app(\Sentry\State\HubInterface::class)
+        if (app()->bound(HubInterface::class)) {
+            resolve(HubInterface::class)
                 ->getClient()
                 ?->getOptions()
                 ->setTracesSampleRate($tracesRate ?: null);
         }
 
-        return successResponse(\Lang::get('message.updated-successfully'));
+        return successResponse(Lang::get('message.updated-successfully'));
     }
 
     public function paymentSearch($from = '', $till = '')
     {
         $join = Payment_log::query()->leftJoin('users', 'payment_logs.from', '=', 'users.email')
-            ->select('payment_logs.id', 'from', 'to', 'date', 'subject', 'status', 'payment_logs.created_at', 'payment_method', 'order', 'exception', 'email', \DB::raw("CONCAT(first_name, ' ', last_name) as name"), 'users.id', 'payment_logs.id as count', 'amount', 'payment_type');
+            ->select('payment_logs.id', 'from', 'to', 'date', 'subject', 'status', 'payment_logs.created_at', 'payment_method', 'order', 'exception', 'email', DB::raw("CONCAT(first_name, ' ', last_name) as name"), 'users.id', 'payment_logs.id as count', 'amount', 'payment_type');
 
         if ($from || $till) {
             $fromDate = $from
-                ? Carbon::parse($this->DateFormat($from))->startOfDay()
-                : Carbon::parse(Payment_log::oldest('date')->value('date'))->startOfDay();
+                ? Date::parse($this->DateFormat($from))->startOfDay()
+                : Date::parse(Payment_log::oldest('date')->value('date'))->startOfDay();
 
             $tillDate = $till
-                ? Carbon::parse($this->DateFormat($till))->endOfDay()
-                : Carbon::now()->endOfDay();
+                ? Date::parse($this->DateFormat($till))->endOfDay()
+                : Date::now()->endOfDay();
 
             $join->whereBetween('date', [$fromDate, $tillDate]);
         }
@@ -1082,7 +1106,7 @@ class SettingsController extends BaseSettingsController
             Payment_log::whereIn('id', $ids)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -1177,7 +1201,7 @@ class SettingsController extends BaseSettingsController
             $query = EmailValidationResults::select(['id', 'email', 'method', 'status', 'registration', 'created_at']);
 
             if ($search = $request->input('search-query')) {
-                $query->where(function ($q) use ($search) {
+                $query->where(function ($q) use ($search): void {
                     $q->where('email', 'like', "%{$search}%")
                       ->orWhere('method', 'like', "%{$search}%")
                       ->orWhere('status', 'like', "%{$search}%");
@@ -1188,14 +1212,15 @@ class SettingsController extends BaseSettingsController
             if (! in_array($sortField, ['email', 'method', 'status', 'registration', 'created_at'])) {
                 $sortField = 'created_at';
             }
+
             $query->orderBy($sortField, $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc');
 
             return successResponse('', $query->paginate($request->input('limit', 10))
                 ->through(fn ($r) => array_merge($r->only(['id', 'email', 'registration', 'created_at']), [
-                    'method' => ucfirst($r->method),
-                    'status' => ucfirst($r->status),
+                    'method' => ucfirst((string) $r->method),
+                    'status' => ucfirst((string) $r->status),
                 ])));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -1206,7 +1231,7 @@ class SettingsController extends BaseSettingsController
             $id = $request->input('id');
             $result = EmailValidationResults::where('id', $id)->first();
 
-            $cont1 = json_decode($result->result, true);
+            $cont1 = json_decode((string) $result->result, true);
             $cont2 = ['name' => $result->first_name.' '.$result->last_name,
                 'mobile Number' => '+'.$result->mobile_code.$result->mobile,
                 'email' => $result->email,
@@ -1218,7 +1243,7 @@ class SettingsController extends BaseSettingsController
             $final = ($result->first_name && $result->last_name) ? array_merge($cont2, $cont1) : $cont1;
 
             return successResponse(trans('message.success'), $final);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -1238,7 +1263,7 @@ class SettingsController extends BaseSettingsController
                 'city' => $result->town, ];
 
             return successResponse(trans('message.success'), $content);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dd($e->getMessage());
         }
     }
@@ -1316,8 +1341,9 @@ class SettingsController extends BaseSettingsController
         if ($content['status'] === 'error') {
             return errorResponse(trans('message.emailApikey_error'));
         }
+
         $emailSave->where('type', 'email')->update(['to_use' => 0]);
-        $apikey = trim($request->input('apikey'));
+        $apikey = trim((string) $request->input('apikey'));
         try {
             $accepted_output = $request->input('mode') == 'quick' ? $emailSave->where('type', 'email')->value('accepted_output') : $request->input('accepted_output');
             $emailMobileProvider = EmailMobileValidationProviders::where('provider', $request->input('provider'))->firstOrFail();
@@ -1326,8 +1352,8 @@ class SettingsController extends BaseSettingsController
             StatusSetting::where('id', 1)->update(['email_validation_status' => 1]);
 
             return successResponse(trans('message.email_validation_success'));
-        } catch (\Exception $e) {
-            return errorResponse(\Lang::get('message.invalid_key'));
+        } catch (Exception) {
+            return errorResponse(Lang::get('message.invalid_key'));
         }
     }
 
@@ -1335,8 +1361,8 @@ class SettingsController extends BaseSettingsController
     {
         $emailSave = new EmailMobileValidationProviders();
         $provider = $request->input('provider');
-        $apikey = trim($request->input('apikey'));
-        $apisecret = trim($request->input('apisecret'));
+        $apikey = trim((string) $request->input('apikey'));
+        $apisecret = trim((string) $request->input('apisecret'));
         if ($provider == 'vonage') {
             $response = Http::get('https://rest.nexmo.com/account/get-balance/', [
                 'api_key' => $apikey,
@@ -1345,13 +1371,14 @@ class SettingsController extends BaseSettingsController
             if (! $response->successful() && ! $response->json('value')) {
                 return errorResponse(trans('message.mobileApikey_error'));
             }
+
             $emailSave->where('type', 'mobile')->update(['to_use' => 0]);
 
             $emailSave->where('provider', $request->input('provider'))->update(['api_key' => $apikey,
                 'mode' => $request->input('mode'), 'api_secret' => $apisecret, 'to_use' => 1]);
             StatusSetting::where('id', 1)->update(['mobile_validation_status' => 1]);
 
-            return successResponse(\Lang::get('message.mobile_validation_success'));
+            return successResponse(Lang::get('message.mobile_validation_success'));
         }
 
         if ($provider == 'abstract') {
@@ -1363,12 +1390,13 @@ class SettingsController extends BaseSettingsController
             if (! $response->successful() && $response->json('error')) {
                 return errorResponse(trans('message.mobileApikey_error'));
             }
+
             $emailSave->where('type', 'mobile')->update(['to_use' => 0]);
 
             $emailSave->where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'), 'to_use' => 1]);
             StatusSetting::where('id', 1)->update(['mobile_validation_status' => 1]);
 
-            return successResponse(\Lang::get('message.mobile_validation_success_abstract'));
+            return successResponse(Lang::get('message.mobile_validation_success_abstract'));
         }
     }
 
@@ -1376,7 +1404,7 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $apiKey = ApiKey::first();
-            $thirdPartyApps = \App\ThirdPartyApp::orderBy('app_name')->get(['id', 'app_name', 'app_key', 'app_secret']);
+            $thirdPartyApps = ThirdPartyApp::orderBy('app_name')->get(['id', 'app_name', 'app_key', 'app_secret']);
 
             return successResponse('', [
                 'msg91_auth_key' => $apiKey->msg91_auth_key ?? '',
@@ -1385,7 +1413,7 @@ class SettingsController extends BaseSettingsController
                 'third_party_id' => $apiKey->msg91_third_party_id ?? null,
                 'third_party_apps' => $thirdPartyApps,
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -1393,13 +1421,13 @@ class SettingsController extends BaseSettingsController
     public function getGithubSettings()
     {
         try {
-            $github = \App\Model\Github\Github::first();
+            $github = Github::first();
 
             return successResponse('', [
                 'username' => $github->username ?? '',
                 'password' => $github->password ?? '',
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -1414,11 +1442,11 @@ class SettingsController extends BaseSettingsController
 
             if ($apiKey) {
                 try {
-                    $mailchimp = new \Mailchimp\Mailchimp($apiKey);
+                    $mailchimp = new Mailchimp($apiKey);
                     $result = $mailchimp->get('lists?count=100');
                     $raw = is_array($result) ? ($result['lists'] ?? []) : ($result->lists ?? []);
                     $allLists = json_decode(json_encode($raw), true);
-                } catch (\Exception $e) {
+                } catch (Exception) {
                     // API key invalid or network error — return empty list
                 }
             }
@@ -1429,7 +1457,7 @@ class SettingsController extends BaseSettingsController
                 'subscribe_status' => $setting->subscribe_status ?? 0,
                 'lists' => array_map(fn ($l) => ['id' => $l['id'], 'name' => $l['name']], $allLists),
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -1440,7 +1468,7 @@ class SettingsController extends BaseSettingsController
             return successResponse('', [
                 'terms_url' => ApiKey::value('terms_url') ?? '',
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -1469,7 +1497,7 @@ class SettingsController extends BaseSettingsController
                 'selected_bits' => $selected,
                 'status_options' => array_map(fn ($b, $n) => ['bit' => $b, 'name' => $n], $statusBits, $statusNames),
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -1491,7 +1519,7 @@ class SettingsController extends BaseSettingsController
                 'api_secret' => $provider->api_secret ?? '',
                 'mode' => $provider->mode ?? 'basic',
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }

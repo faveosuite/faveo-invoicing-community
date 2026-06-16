@@ -2,7 +2,7 @@
 
 $theme = 'adminlte';
 $useCdn = false;
-$cdnBase = rtrim(env('CDN_URL', 'https://your-cdn-server.com'), '/');
+$cdnBase = rtrim((string) env('CDN_URL', 'https://your-cdn-server.com'), '/');
 
 // Named asset registry — keyed by alias, resolved to local path or CDN URL at runtime.
 // Add new assets here; reference them by alias in admin.blade.php.

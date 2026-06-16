@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Order;
 
+use Override;
 use App\Http\Requests\Request;
 
 class OrderRequest extends Request
@@ -24,18 +25,19 @@ class OrderRequest extends Request
     public function rules()
     {
         return [
-            'client' => 'required',
-            'payment_method' => 'required',
-            'promotion_code' => 'required',
-            'order_status' => 'required',
-            'product' => 'required',
+            'client' => ['required'],
+            'payment_method' => ['required'],
+            'promotion_code' => ['required'],
+            'order_status' => ['required'],
+            'product' => ['required'],
             //'domain'         => 'url',
-            'subscription' => 'required',
-            'price_override' => 'numeric',
-            'qty' => 'integer',
+            'subscription' => ['required'],
+            'price_override' => ['numeric'],
+            'qty' => ['integer'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

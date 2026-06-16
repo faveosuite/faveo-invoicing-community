@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Session;
  */
 class GuestCart
 {
-    private const KEY = 'guest_cart';
+    private const string KEY = 'guest_cart';
 
     public function add(array $data, string $currency): void
     {
@@ -69,9 +69,11 @@ class GuestCart
         if (isset($data['quantity'])) {
             $cart['items'][$id]['quantity'] = (int) $data['quantity'];
         }
+
         if (isset($data['agents'])) {
             $cart['items'][$id]['agents'] = (int) $data['agents'];
         }
+
         if (array_key_exists('domain', $data)) {
             $cart['items'][$id]['domain'] = $data['domain'];
         }

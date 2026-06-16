@@ -83,7 +83,7 @@ class DatabaseSeeder extends Seeder
                 'field_type'   => $field['type'],
                 'created_at'   => now(),
                 'updated_at'   => now(),
-            ])->toArray()
+            ])->all()
         );
     }
 
@@ -113,6 +113,7 @@ class DatabaseSeeder extends Seeder
             );
         }
     }
+
     public function openPaymentEmailTemplates(): void
     {
         $types = ['open_payment_success', 'open_payment_failed', 'open_payment_admin_success', 'open_payment_admin_failed'];

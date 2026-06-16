@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('product_groups')) {
-            Schema::create('product_groups', function (Blueprint $table) {
+            Schema::create('product_groups', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name')->nullable();
                 $table->string('headline')->nullable();

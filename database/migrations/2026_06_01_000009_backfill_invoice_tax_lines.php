@@ -27,17 +27,19 @@ return new class extends Migration
             ->where('tax_name', '!=', '')
             ->where('tax_name', 'not like', 'null%')
             ->orderBy('id')
-            ->chunkById(1000, function ($items) use ($invoicesWithLines) {
+            ->chunkById(1000, function ($items) use ($invoicesWithLines): void {
                 $rows = [];
                 foreach ($items as $item) {
                     if (isset($invoicesWithLines[$item->invoice_id])) {
                         continue; // already has tax lines (new cart invoices)
                     }
+
                     $label = $this->cleanLabel($item->tax_name);
                     $percent = $this->parsePercent($item->tax_percentage);
                     if ($label === '' || strtolower($label) === 'null' || $percent <= 0) {
                         continue;
                     }
+
                     $rows[] = [
                         'invoice_id' => $item->invoice_id,
                         'invoice_item_id' => $item->id,
@@ -50,6 +52,7 @@ return new class extends Migration
                         'updated_at' => now(),
                     ];
                 }
+
                 if ($rows) {
                     DB::table('invoice_tax_lines')->insert($rows);
                 }

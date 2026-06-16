@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Admin\Dashboard;
 
+use Illuminate\Support\Facades\Date;
+use DB;
 use App\Http\Controllers\DashboardController;
 use App\Model\Common\Setting;
 use App\Model\Order\Invoice;
@@ -35,7 +37,7 @@ class DashboardControllerTest extends DBTestCase
         $user = $this->user;
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '10000']);
-        $controller = new \App\Http\Controllers\DashboardController();
+        $controller = new DashboardController();
         $allowedCurrencies2 = 'INR';
         $response = $controller->getTotalSales($allowedCurrencies2);
         $this->assertEquals($response, '10000');
@@ -50,7 +52,7 @@ class DashboardControllerTest extends DBTestCase
         $date = date('Y-m-d H:m:i');
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'date' => $date]);
         $payment = Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '10000']);
-        $controller = new \App\Http\Controllers\DashboardController();
+        $controller = new DashboardController();
         $allowedCurrencies2 = 'INR';
         $response = $controller->getYearlySales($allowedCurrencies2);
         $this->assertEquals($response, '10000');
@@ -66,7 +68,7 @@ class DashboardControllerTest extends DBTestCase
         $user = $this->user;
         $date = date('Y-m-d H:m:i');
         $invoice = Invoice::factory()->count(3)->create(['created_at' => 2017, 'user_id' => $user->id, 'date' => $date]);
-        $controller = new \App\Http\Controllers\DashboardController();
+        $controller = new DashboardController();
         $allowedCurrencies2 = 'INR';
         $response = $controller->getYearlySales($allowedCurrencies2);
         $this->assertEquals($response, '0');
@@ -76,7 +78,7 @@ class DashboardControllerTest extends DBTestCase
     public function test_getAllUsers_getListOfRecentUsers()
     {
         $user = User::factory()->count(3)->create();
-        $controller = new \App\Http\Controllers\DashboardController();
+        $controller = new DashboardController();
         $response = $controller->getAllUsers();
         $this->assertCount(1, [$user]);
     }
@@ -120,7 +122,7 @@ class DashboardControllerTest extends DBTestCase
         $productOne->order()->create(['client' => $this->user->id, 'number' => 2, 'order_status' => 'executed']);
 
         $order = $productOne->order()->create(['client' => $this->user->id, 'number' => 3, 'order_status' => 'executed']);
-        $order->created_at = Carbon::now()->subDays(2);
+        $order->created_at = Date::now()->subDays(2);
         $order->save();
 
         $productTwo->order()->create(['client' => $this->user->id, 'number' => 4, 'order_status' => 'executed']);
@@ -143,7 +145,7 @@ class DashboardControllerTest extends DBTestCase
         $productOne->order()->create(['client' => $this->user->id, 'number' => 2, 'order_status' => 'executed']);
 
         $order = $productOne->order()->create(['client' => $this->user->id, 'number' => 3, 'order_status' => 'executed']);
-        $order->created_at = Carbon::now()->subDays(2);
+        $order->created_at = Date::now()->subDays(2);
         $order->save();
 
         $productTwo->order()->create(['client' => $this->user->id, 'number' => 4, 'order_status' => 'executed']);
@@ -164,13 +166,13 @@ class DashboardControllerTest extends DBTestCase
         $product = Product::create(['name' => 'one']);
         $orderOne = $product->order()->create(['client' => $this->user->id, 'number' => 1, 'price_override' => 10]);
         $orderTwo = $product->order()->create(['client' => $this->user->id, 'number' => 2, 'price_override' => 10]);
-        Subscription::create(['update_ends_at' => Carbon::now()->addDays(2), 'order_id' => $orderOne->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        Subscription::create(['update_ends_at' => Carbon::now()->addDays(3), 'order_id' => $orderOne->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        Subscription::create(['update_ends_at' => Carbon::now()->addDays(4), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        Subscription::create(['update_ends_at' => Carbon::now()->addDays(5), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        Subscription::create(['update_ends_at' => Carbon::now()->subDays(5), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        Subscription::create(['update_ends_at' => Carbon::now()->addMonth(), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        $mouthDiff = ((int) Carbon::now()->addMonth()->diffInDays(Carbon::now(), true)).' days';
+        Subscription::create(['update_ends_at' => Date::now()->addDays(2), 'order_id' => $orderOne->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
+        Subscription::create(['update_ends_at' => Date::now()->addDays(3), 'order_id' => $orderOne->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
+        Subscription::create(['update_ends_at' => Date::now()->addDays(4), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
+        Subscription::create(['update_ends_at' => Date::now()->addDays(5), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
+        Subscription::create(['update_ends_at' => Date::now()->subDays(5), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
+        Subscription::create(['update_ends_at' => Date::now()->addMonth(), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
+        $mouthDiff = ((int) Date::now()->addMonth()->diffInDays(Date::now(), true)).' days';
         $response = $this->classObject->getExpiringSubscriptions(false);
         $this->assertCount(5, $response);
         $this->assertEquals($mouthDiff, $response[0]->days_difference);
@@ -192,13 +194,13 @@ class DashboardControllerTest extends DBTestCase
         $product = Product::create(['name' => 'one']);
         $orderOne = $product->order()->create(['client' => $this->user->id, 'number' => 1, 'price_override' => 10]);
         $orderTwo = $product->order()->create(['client' => $this->user->id, 'number' => 2, 'price_override' => 10]);
-        Subscription::create(['update_ends_at' => Carbon::now()->subDays(2), 'order_id' => $orderOne->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        Subscription::create(['update_ends_at' => Carbon::now()->subDays(3), 'order_id' => $orderOne->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        Subscription::create(['update_ends_at' => Carbon::now()->subDays(4), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        Subscription::create(['update_ends_at' => Carbon::now()->subDays(5), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        Subscription::create(['update_ends_at' => Carbon::now()->addDays(5), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        Subscription::create(['update_ends_at' => Carbon::now()->subMonth(), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        $mouthDiff = ((int) Carbon::now()->subMonth()->diffInDays(Carbon::now(), true)).' days';
+        Subscription::create(['update_ends_at' => Date::now()->subDays(2), 'order_id' => $orderOne->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
+        Subscription::create(['update_ends_at' => Date::now()->subDays(3), 'order_id' => $orderOne->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
+        Subscription::create(['update_ends_at' => Date::now()->subDays(4), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
+        Subscription::create(['update_ends_at' => Date::now()->subDays(5), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
+        Subscription::create(['update_ends_at' => Date::now()->addDays(5), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
+        Subscription::create(['update_ends_at' => Date::now()->subMonth(), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
+        $mouthDiff = ((int) Date::now()->subMonth()->diffInDays(Date::now(), true)).' days';
         $response = $this->classObject->getExpiringSubscriptions(true);
 
         $this->assertCount(5, $response);
@@ -303,7 +305,7 @@ class DashboardControllerTest extends DBTestCase
         $subscriptionId = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'version' => $version])->id;
 
         if ($subscriptionUpdatedAt) {
-            \DB::table('subscriptions')->where('id', $subscriptionId)->update(['updated_at' => $subscriptionUpdatedAt]);
+            DB::table('subscriptions')->where('id', $subscriptionId)->update(['updated_at' => $subscriptionUpdatedAt]);
         }
 
         return $order;
@@ -345,11 +347,11 @@ class DashboardControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $this->getLoggedInUser();
         $user = $this->user;
-        $invoice = Invoice::factory()->create(['id' => 22, 'user_id' => $user->id, 'status' => 'Pending', 'date' => Carbon::now()]);
+        $invoice = Invoice::factory()->create(['id' => 22, 'user_id' => $user->id, 'status' => 'Pending', 'date' => Date::now()]);
         Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '50000']);
-        $invoice1 = Invoice::factory()->create(['id' => 23, 'user_id' => $user->id, 'status' => 'success', 'date' => Carbon::now()]);
+        $invoice1 = Invoice::factory()->create(['id' => 23, 'user_id' => $user->id, 'status' => 'success', 'date' => Date::now()]);
         Payment::create(['invoice_id' => $invoice1->id, 'user_id' => $user->id, 'amount' => '20000']);
-        $invoice2 = Invoice::factory()->create(['id' => 24, 'user_id' => $user->id, 'status' => 'Pending', 'date' => Carbon::now()]);
+        $invoice2 = Invoice::factory()->create(['id' => 24, 'user_id' => $user->id, 'status' => 'Pending', 'date' => Date::now()]);
         Payment::create(['invoice_id' => $invoice2->id, 'user_id' => $user->id, 'amount' => '80000']);
         $currencies = Currency::create(['code' => 'INR', 'symbol' => '₹', 'name' => 'Indian Rupees', 'dashboard_currency=0']);
         $response = $this->getPrivateMethod($this->classObject, 'getRecentInvoices');
@@ -365,7 +367,7 @@ class DashboardControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $this->getLoggedInUser();
         $user = $this->user;
-        $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'success', 'date' => Carbon::now(), 'currency' => 'INR']);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'success', 'date' => Date::now(), 'currency' => 'INR']);
         Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '50000']);
         $response = $this->getPrivateMethod($this->classObject, 'getMonthlySales', ['INR']);
         $this->assertEquals(50000, $response);
@@ -378,11 +380,11 @@ class DashboardControllerTest extends DBTestCase
         $this->getLoggedInUser();
         $user = $this->user;
         Setting::create(['default_currency' => 'INR', 'default_symbol' => '₹']);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending', 'date' => Carbon::now()]);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending', 'date' => Date::now()]);
         Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '50000']);
-        $invoice1 = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'success', 'date' => Carbon::now()]);
+        $invoice1 = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'success', 'date' => Date::now()]);
         Payment::create(['invoice_id' => $invoice1->id, 'user_id' => $user->id, 'amount' => '20000']);
-        $invoice2 = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending', 'date' => Carbon::now()]);
+        $invoice2 = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending', 'date' => Date::now()]);
         Payment::create(['invoice_id' => $invoice2->id, 'user_id' => $user->id, 'amount' => '80000']);
         $currencies = Currency::create(['code' => 'INR', 'symbol' => '₹', 'name' => 'Indian Rupees', 'dashboard_currency=1']);
         $product = Product::create(['name' => "Helpdesk v3.0.0'"]);

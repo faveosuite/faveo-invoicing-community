@@ -2,6 +2,8 @@
 
 namespace App\Plugins\Payment\Contracts;
 
+use App\Plugins\Payment\Exceptions\PaymentException;
+use App\Plugins\Payment\Exceptions\SignatureVerificationException;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentResult;
 use App\Plugins\Payment\Dto\PaymentSession;
@@ -36,7 +38,7 @@ interface PaymentGateway
     /**
      * Open a payment and return everything the client SDK needs to proceed.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function createPayment(PaymentRequest $request): PaymentSession;
 
@@ -45,8 +47,8 @@ interface PaymentGateway
      *
      * @param  array<string, mixed>  $payload  Raw gateway callback fields.
      *
-     * @throws \App\Plugins\Payment\Exceptions\SignatureVerificationException
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws SignatureVerificationException
+     * @throws PaymentException
      */
     public function capturePayment(array $payload): PaymentResult;
 
@@ -56,7 +58,7 @@ interface PaymentGateway
      *
      * @param  string  $reference  Gateway transaction id (Stripe PaymentIntent id, Razorpay payment id).
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function refundPayment(string $reference, ?float $amount = null): PaymentResult;
 
@@ -64,7 +66,7 @@ interface PaymentGateway
      * Read a payment's current status from the gateway (the gateway's own
      * status string, e.g. Stripe "succeeded", Razorpay "captured").
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function getPaymentStatus(string $reference): string;
 

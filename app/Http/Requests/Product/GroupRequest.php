@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Product;
 
+use Override;
 use App\Http\Requests\Request;
 
 class GroupRequest extends Request
@@ -24,15 +25,16 @@ class GroupRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required',
-            'headline' => 'nullable|string',
-            'tagline' => 'nullable|string',
-            'hidden' => 'nullable|integer',
-            'pricing_templates_id' => 'required|exists:pricing_templates,id',
-            'status' => 'nullable|boolean',
+            'name' => ['required'],
+            'headline' => ['nullable', 'string'],
+            'tagline' => ['nullable', 'string'],
+            'hidden' => ['nullable', 'integer'],
+            'pricing_templates_id' => ['required', 'exists:pricing_templates,id'],
+            'status' => ['nullable', 'boolean'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

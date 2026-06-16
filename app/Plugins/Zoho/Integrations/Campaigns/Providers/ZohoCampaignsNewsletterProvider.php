@@ -20,6 +20,6 @@ class ZohoCampaignsNewsletterProvider implements NewsletterProvider
 
     public function subscribeEmail(string $email): void
     {
-        app(ZohoCampaignsController::class)->subscribe($email, 'newsletter');
+        resolve(ZohoCampaignsController::class)->subscribe($email, 'newsletter');
     }
 }

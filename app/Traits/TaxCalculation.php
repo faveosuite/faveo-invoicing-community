@@ -2,6 +2,9 @@
 
 namespace App\Traits;
 
+use Throwable;
+use Exception;
+use Auth;
 use App\Model\Payment\TaxOption;
 use App\Services\Tax\TaxService;
 
@@ -27,9 +30,9 @@ trait TaxCalculation
         try {
             $user = $this->taxUserFromLocation($user_state, $user_country);
 
-            return app(TaxService::class)->legacyCondition((int) $productid, $user, (bool) $taxCaluculationFromAdminPanel);
-        } catch (\Throwable $ex) {
-            app('log')->warning('calculateTax failed: '.$ex->getMessage());
+            return resolve(TaxService::class)->legacyCondition((int) $productid, $user, (bool) $taxCaluculationFromAdminPanel);
+        } catch (Throwable $ex) {
+            resolve('log')->warning('calculateTax failed: '.$ex->getMessage());
 
             return $taxCaluculationFromAdminPanel
                 ? ['name' => 'null', 'value' => '0%']
@@ -56,10 +59,10 @@ trait TaxCalculation
             $percent = $this->sumPercent($rate);
 
             return $total + ($total * $percent / 100);
-        } catch (\Throwable $ex) {
-            app('log')->warning($ex->getMessage());
+        } catch (Throwable $ex) {
+            resolve('log')->warning($ex->getMessage());
 
-            throw new \Exception($ex->getMessage());
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -77,7 +80,7 @@ trait TaxCalculation
             $rate = floatval(str_replace('%', '', (string) $rate));
 
             return $price * ($rate / 100);
-        } catch (\Throwable $ex) {
+        } catch (Throwable) {
             return 0;
         }
     }
@@ -106,9 +109,9 @@ trait TaxCalculation
         return (object) [
             'country' => $country,
             'state' => $state,
-            'zip' => optional(\Auth::user())->zip ?? '',
-            'city' => optional(\Auth::user())->city ?? '',
-            'is_tax_exempt' => (bool) (optional(\Auth::user())->is_tax_exempt ?? false),
+            'zip' => Auth::user()?->zip ?? '',
+            'city' => Auth::user()?->city ?? '',
+            'is_tax_exempt' => (bool) (Auth::user()?->is_tax_exempt ?? false),
         ];
     }
 }

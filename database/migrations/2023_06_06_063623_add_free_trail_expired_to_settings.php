@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('free_trail_expired', 'Free_trail_gonna_expired')) {
-            Schema::table('settings', function (Blueprint $table) {
+            Schema::table('settings', function (Blueprint $table): void {
                 $table->string('free_trail_expired')->nullable();
                 $table->string('Free_trail_gonna_expired')->nullable();
             });
@@ -28,7 +28,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             $table->dropColumn('free_trail_expired');
             $table->dropColumn('Free_trail_gonna_expired');
         });

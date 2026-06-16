@@ -2,6 +2,8 @@
 
 namespace App\Plugins\Zoho\Models;
 
+use Override;
+use Illuminate\Support\Facades\Date;
 use Attribute;
 use Carbon\Carbon;
 use Crypt;
@@ -24,10 +26,6 @@ class ZohoOAuthToken extends Model
         'api_domain',
     ];
 
-    protected $casts = [
-        'expires_at' => 'datetime',
-    ];
-
     protected $hidden = [
         'access_token',
         'refresh_token',
@@ -35,6 +33,7 @@ class ZohoOAuthToken extends Model
 
     /**
      * Parent integration.
+     * @return BelongsTo<ZohoIntegration, $this>
      */
     public function integration(): BelongsTo
     {
@@ -101,6 +100,13 @@ class ZohoOAuthToken extends Model
             return true;
         }
 
-        return $this->expires_at->isAfter($validAt ?? Carbon::now());
+        return $this->expires_at->isAfter($validAt ?? Date::now());
+    }
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'expires_at' => 'datetime',
+        ];
     }
 }

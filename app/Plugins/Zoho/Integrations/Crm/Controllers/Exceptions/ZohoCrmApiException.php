@@ -6,16 +6,14 @@ use Exception;
 
 class ZohoCrmApiException extends Exception
 {
-    protected array $error;
     protected int $httpStatus;
 
     public function __construct(
         string $message,
-        array $error = [],
+        protected array $error = [],
         int $httpStatus = 400
     ) {
         parent::__construct($message, $httpStatus);
-        $this->error = $error;
         $this->httpStatus = $httpStatus;
     }
 

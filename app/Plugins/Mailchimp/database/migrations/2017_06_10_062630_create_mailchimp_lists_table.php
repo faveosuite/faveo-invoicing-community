@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('mailchimp_lists')) {
-            Schema::create('mailchimp_lists', function (Blueprint $table) {
+            Schema::create('mailchimp_lists', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name');
                 $table->string('list_id');

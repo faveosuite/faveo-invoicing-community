@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('license_plugins', function (Blueprint $table) {
+        Schema::create('license_plugins', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('license_id');
             $table->unsignedInteger('product_id');

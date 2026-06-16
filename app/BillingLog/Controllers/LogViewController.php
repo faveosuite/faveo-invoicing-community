@@ -2,6 +2,8 @@
 
 namespace App\BillingLog\Controllers;
 
+use Exception;
+use DB;
 use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\ExceptionLog;
 use App\BillingLog\Model\LogCategory;
@@ -12,8 +14,11 @@ use Spatie\Activitylog\Models\Activity;
 class LogViewController
 {
     private $searchString;
+
     private $sortOrder;
+
     private $sortField;
+
     private $limit;
 
     public function getSystemLogs()
@@ -39,8 +44,8 @@ class LogViewController
     public function getExceptionLogs(Request $request)
     {
         $request->validate([
-            'date' => 'required|date',
-            'category' => 'required|exists:log_categories,id',
+            'date' => ['required', 'date'],
+            'category' => ['required', 'exists:log_categories,id'],
         ]);
 
         try {
@@ -55,9 +60,9 @@ class LogViewController
 
             $exceptionLog = $exceptionCategory->exceptions()
                 ->whereDate('created_at', $date)
-                ->when($this->searchString, function ($q) {
+                ->when($this->searchString, function ($q): void {
                     $search = $this->searchString;
-                    $q->where(function ($q) use ($search) {
+                    $q->where(function ($q) use ($search): void {
                         $q->where('message', 'like', "%$search%")
                             ->orWhere('file', 'like', "%$search%");
                     });
@@ -66,7 +71,7 @@ class LogViewController
                 ->simplePaginate($this->limit);
 
             return successResponse(__('message.exceptions_fetched_successfully'), $exceptionLog);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
@@ -74,9 +79,9 @@ class LogViewController
     public function getCronLogs(Request $request)
     {
         $request->validate([
-            'date' => 'required|date',
-            'status' => 'in:completed,failed',
-            'category' => 'required',
+            'date' => ['required', 'date'],
+            'status' => ['in:completed,failed'],
+            'category' => ['required'],
         ]);
 
         try {
@@ -87,9 +92,9 @@ class LogViewController
             $cronLogs = CronLog::whereDate('created_at', $date)
                 ->where('command', $cronCategory)
                 ->when($status, fn ($q) => $q->where('status', $status))
-                ->when($this->searchString, function ($q) {
+                ->when($this->searchString, function ($q): void {
                     $search = $this->searchString;
-                    $q->where(function ($q) use ($search) {
+                    $q->where(function ($q) use ($search): void {
                         $q->where('description', 'like', "%$search%")
                             ->orWhere('command', 'like', "%$search%");
                     });
@@ -98,7 +103,7 @@ class LogViewController
                 ->simplePaginate($this->limit);
 
             return successResponse(__('message.crons_fetched_successfully'), $cronLogs);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
@@ -106,9 +111,9 @@ class LogViewController
     public function getMailLogs(Request $request)
     {
         $request->validate([
-            'date' => 'required|date',
-            'category' => 'required|exists:log_categories,id',
-            'status' => 'in:sent,failed,queued',
+            'date' => ['required', 'date'],
+            'category' => ['required', 'exists:log_categories,id'],
+            'status' => ['in:sent,failed,queued'],
         ]);
 
         try {
@@ -125,9 +130,9 @@ class LogViewController
             $mailLogs = $mailCategory->mail()
                 ->whereDate('created_at', $date)
                 ->when($status, fn ($q) => $q->where('status', $status))
-                ->when($this->searchString, function ($q) {
+                ->when($this->searchString, function ($q): void {
                     $search = $this->searchString;
-                    $q->where(function ($sub) use ($search) {
+                    $q->where(function ($sub) use ($search): void {
                         $sub->where('sender_mail', 'like', "%$search%")
                             ->orWhere('receiver_mail', 'like', "%$search%")
                             ->orWhere('carbon_copy', 'like', "%$search%");
@@ -137,7 +142,7 @@ class LogViewController
                 ->simplePaginate($this->limit);
 
             return successResponse(__('message.mail_logs_fetched_successfully'), $mailLogs);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
@@ -158,16 +163,18 @@ class LogViewController
             }
 
             if ($type === 'failed_jobs') {
-                $query = \DB::table($logModels[$type]);
+                $query = DB::table($logModels[$type]);
                 if ($date) {
                     $query->where('failed_at', '<=', $date);
                 }
+
                 $query->delete();
             } else {
                 $query = $logModels[$type]::query();
                 if ($date) {
                     $query->where('created_at', '<=', $date);
                 }
+
                 $query->delete();
             }
         }

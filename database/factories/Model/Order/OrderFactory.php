@@ -39,7 +39,7 @@ class OrderFactory extends Factory
     public function withRelations(array $overrides = [])
     {
         return $this->state(fn () => $overrides)
-            ->afterCreating(function (Order $order) {
+            ->afterCreating(function (Order $order): void {
                 $user = User::find($order->client) ?? User::factory()->create();
                 $product = Product::find($order->product) ?? Product::factory()->create();
 

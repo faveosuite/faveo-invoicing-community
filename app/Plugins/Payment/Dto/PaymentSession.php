@@ -12,17 +12,17 @@ namespace App\Plugins\Payment\Dto;
  *                Razorpay: Checkout options object).
  * - $raw         The untouched gateway response, for logging/debugging.
  */
-final class PaymentSession
+final readonly class PaymentSession
 {
     /**
      * @param  array<string, mixed>  $clientConfig
      * @param  array<string, mixed>  $raw
      */
     public function __construct(
-        public readonly string $gateway,
-        public readonly string $id,
-        public readonly array $clientConfig,
-        public readonly array $raw = [],
+        public string $gateway,
+        public string $id,
+        public array $clientConfig,
+        public array $raw = [],
     ) {
     }
 }

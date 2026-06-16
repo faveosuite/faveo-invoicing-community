@@ -72,7 +72,7 @@ class TenantControllerTest extends TestCase
         $response = $controller->getTenants($request);
 
         // Assert response
-        $responseData = json_decode($response->getContent(), true);
+        $responseData = json_decode((string) $response->getContent(), true);
 
         $this->assertCount(2, $responseData['data']);
         $this->assertEquals('test_db', $responseData['data'][0]['db_name']);

@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('common_settings', function (Blueprint $table) {
+        Schema::create('common_settings', function (Blueprint $table): void {
             $table->increments('id');
             $table->string('option_name');
             $table->string('optional_field');

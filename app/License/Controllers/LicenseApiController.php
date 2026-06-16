@@ -12,11 +12,8 @@ use Illuminate\Routing\Controller;
  */
 class LicenseApiController extends Controller
 {
-    protected LicenseService $licenseService;
-
-    public function __construct(LicenseService $licenseService)
+    public function __construct(protected LicenseService $licenseService)
     {
-        $this->licenseService = $licenseService;
     }
 
     /**

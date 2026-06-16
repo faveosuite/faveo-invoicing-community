@@ -2,6 +2,14 @@
 
 namespace App\Services\Payment;
 
+use RuntimeException;
+use Crypt;
+use DB;
+use Illuminate\Support\Facades\Date;
+use Auth;
+use App\Model\Common\Country;
+use App\Plugins\Payment\Dto\SubscriptionRequest;
+use App\Http\Controllers\Order\InvoiceController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Order\RenewController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
@@ -24,8 +32,8 @@ use Illuminate\Http\Request;
 
 class PostPaymentService
 {
-    use TaxCalculation, PostPaymentHandle;
-
+    use TaxCalculation;
+    use PostPaymentHandle;
     public function handle(Invoice $invoice, string $gateway): array
     {
         $this->clearCart($invoice);
@@ -71,7 +79,7 @@ class PostPaymentService
                 OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id')
             )->whereIn('product', cloudPopupProducts())->value('number');
 
-            (new TenantController(new Client(), new FaveoCloud()))->createTenant(
+            new TenantController(new Client(), new FaveoCloud())->createTenant(
                 new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain])
             );
         }
@@ -81,7 +89,7 @@ class PostPaymentService
 
     private function handleRenewal(Invoice $invoice, array $metadata): array
     {
-        (new RenewController())->successRenew($invoice);
+        new RenewController()->successRenew($invoice);
 
         $this->doTheDeed($invoice);
 
@@ -93,7 +101,7 @@ class PostPaymentService
         $cloud = new CloudExtraActivities(new Client(), new FaveoCloud());
 
         if ($metadata['agent_increase_date'] ?? false) {
-            (new RenewController())->successRenew($invoice);
+            new RenewController()->successRenew($invoice);
         }
 
         $this->doTheDeed($invoice);
@@ -124,14 +132,15 @@ class PostPaymentService
             ->latest()->value('order_id');
         $newOrder = Order::find($newActiveOrderId);
         if (! $newOrder) {
-            throw new \RuntimeException("New order not found for invoice #{$invoice->id} after checkoutAction.");
+            throw new RuntimeException("New order not found for invoice #{$invoice->id} after checkoutAction.");
         }
-        $licenseCode = \Crypt::decrypt($newOrder->serial_key);
+
+        $licenseCode = Crypt::decrypt($newOrder->serial_key);
         $productId = (int) $newOrder->product;
 
         $this->doTheDeed($invoice);
 
-        $cloud = new \App\Http\Controllers\Tenancy\CloudExtraActivities(new Client(), new FaveoCloud());
+        $cloud = new CloudExtraActivities(new Client(), new FaveoCloud());
         $cloud->doTheProductUpgradeDowngrade(
             $licenseCode,
             $installationPath,
@@ -143,7 +152,7 @@ class PostPaymentService
         );
 
         // Transfer subscription from terminated order to new order
-        $termOrderId = \DB::table('terminated_order_upgrade')
+        $termOrderId = DB::table('terminated_order_upgrade')
             ->where('upgraded_order_id', $newActiveOrderId)->value('terminated_order_id');
         $terminatedOrder = Order::find($termOrderId);
         if ($terminatedOrder) {
@@ -176,7 +185,7 @@ class PostPaymentService
         )->exists();
 
         if (! $alreadyExecuted) {
-            (new OrderController())->executeOrder($invoice->id);
+            new OrderController()->executeOrder($invoice->id);
         }
     }
 
@@ -192,7 +201,7 @@ class PostPaymentService
                 'amount' => rounding($outstanding),
                 'payment_method' => $gateway,
                 'payment_status' => 'success',
-                'created_at' => \Carbon\Carbon::now(),
+                'created_at' => Date::now(),
             ]);
         }
 
@@ -201,21 +210,21 @@ class PostPaymentService
 
     private function doTheDeed(Invoice $invoice): void
     {
-        $amt_to_credit = Payment::where('user_id', \Auth::user()->id)
+        $amt_to_credit = Payment::where('user_id', Auth::user()->id)
             ->where('payment_status', 'success')
             ->where('payment_method', 'Credit Balance')
             ->value('amt_to_credit');
 
         if ($amt_to_credit) {
             $amt_to_credit = (int) $amt_to_credit - (int) $invoice->billing_pay;
-            Payment::where('user_id', \Auth::user()->id)
+            Payment::where('user_id', Auth::user()->id)
                 ->where('payment_method', 'Credit Balance')
                 ->where('payment_status', 'success')
                 ->update(['amt_to_credit' => $amt_to_credit]);
-            \App\User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
+            User::where('id', Auth::user()->id)->update(['billing_pay_balance' => 0]);
 
-            $payment_id = \DB::table('payments')
-                ->where('user_id', \Auth::user()->id)
+            $payment_id = DB::table('payments')
+                ->where('user_id', Auth::user()->id)
                 ->where('payment_status', 'success')
                 ->where('payment_method', 'Credit Balance')
                 ->value('id');
@@ -228,8 +237,8 @@ class PostPaymentService
                 .' You can view the details of the invoice '
                 .'<a href="'.config('app.url').'/my-invoice/'.$invoice->id.'">'.$invoice->number.'</a>.';
 
-            \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin,  'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-            \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user',  'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+            DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin,  'role' => 'admin', 'created_at' => Date::now(), 'updated_at' => Date::now()]);
+            DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user',  'created_at' => Date::now(), 'updated_at' => Date::now()]);
 
             if ($invoice->billing_pay) {
                 Payment::create([
@@ -238,7 +247,7 @@ class PostPaymentService
                     'amount' => $invoice->billing_pay,
                     'payment_method' => 'Credits',
                     'payment_status' => 'success',
-                    'created_at' => \Carbon\Carbon::now(),
+                    'created_at' => Date::now(),
                 ]);
             }
         }
@@ -271,11 +280,12 @@ class PostPaymentService
         }
 
         $plan = Plan::find($subscription->plan_id);
-        $countryids = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->first();
+        $countryids = Country::where('country_code_char2', Auth::user()->country)->first();
         $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $invoice->currency)->where('country_id', $countryids->country_id)->value('renew_price');
         if (empty($price)) {
             $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $invoice->currency)->where('country_id', 0)->value('renew_price');
         }
+
         $amount = $this->getPriceForCloud($order, $price, $subscription->product_id, $invoice->currency, $subscription);
         $renewPrice = intval(calculateUnitCost($invoice->currency, $amount));
 
@@ -288,10 +298,10 @@ class PostPaymentService
         // The gateway driver fetches the live subscription, skips the update when
         // the price/interval already matches or the subscription is inactive, and
         // (Stripe) cancels + flags raw['cancelled'] if the change deactivates it.
-        $result = app(\App\Services\Payment\SubscriptionService::class)->updateSubscriptionPrice(
+        $result = resolve(SubscriptionService::class)->updateSubscriptionPrice(
             $gateway,
             $subscription->subscribe_id,
-            new \App\Plugins\Payment\Dto\SubscriptionRequest(
+            new SubscriptionRequest(
                 amountMinor: $renewPrice,
                 currency: $invoice->currency,
                 intervalDays: (int) $plan->days,
@@ -310,10 +320,10 @@ class PostPaymentService
 
     private function getPriceForCloud($order, $price, $product, $currency, $subscription): float|int
     {
-        $numberofAgents = (int) ltrim(substr($order->serial_key, -4), '0');
+        $numberofAgents = (int) ltrim(substr((string) $order->serial_key, -4), '0');
         $finalPrice = $numberofAgents * $price;
-        $controller = new \App\Http\Controllers\Order\InvoiceController();
-        $tax = $this->calculateTax($product, \Auth::user()->state, \Auth::user()->country);
+        $controller = new InvoiceController();
+        $tax = $this->calculateTax($product, Auth::user()->state, Auth::user()->country);
         $tax_rate = $tax['value'];
         $cost = rounding($controller->calculateTotal($tax_rate, $finalPrice));
 

@@ -2,6 +2,8 @@
 
 namespace App\Plugins\Zoho\Controllers;
 
+use Throwable;
+use Logger;
 use App\Http\Controllers\Common\ExternalServiceController;
 use App\Http\Controllers\Controller;
 use App\Jobs\AddUserToExternalService;
@@ -14,8 +16,8 @@ use Illuminate\Http\Request;
 class ZohoController extends Controller
 {
     public function __construct(
-        private ZohoCampaignsController $campaignsController,
-        private ZohoCrmController $crmController
+        private readonly ZohoCampaignsController $campaignsController,
+        private readonly ZohoCrmController $crmController
     ) {
     }
 
@@ -25,14 +27,14 @@ class ZohoController extends Controller
 
         try {
             $this->campaignsController->subscribe($email, 'newsletter');
-        } catch (\Throwable $e) {
-            \Logger::exception($e);
+        } catch (Throwable $e) {
+            Logger::exception($e);
         }
 
         try {
             $this->crmController->addUserDataToCrm($email);
-        } catch (\Throwable $e) {
-            \Logger::exception($e);
+        } catch (Throwable $e) {
+            Logger::exception($e);
         }
     }
 
@@ -59,14 +61,14 @@ class ZohoController extends Controller
                 ->first();
 
         match ($event) {
-            'register' => AddUserToExternalService::dispatch($user, 'register'),
+            'register' => dispatch(new AddUserToExternalService($user, 'register')),
 
             'newsletter' => $this->campaignsController
                 ->subscribeCampaign(new Request([
                     'email' => $user->email,
                 ])),
 
-            'purchase' => app(ExternalServiceController::class)->subscribeForProductsUpdates($productId, $user->id, $item),
+            'purchase' => resolve(ExternalServiceController::class)->subscribeForProductsUpdates($productId, $user->id, $item),
 
             default => abort(400, 'Invalid event type'),
         };

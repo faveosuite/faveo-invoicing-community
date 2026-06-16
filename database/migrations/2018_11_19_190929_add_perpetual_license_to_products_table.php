@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('products', 'perpetual_license')) {
-            Schema::table('products', function (Blueprint $table) {
+            Schema::table('products', function (Blueprint $table): void {
                 $table->boolean('perpetual_license')->nullable();
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('products', function (Blueprint $table): void {
             $table->dropColumn('perpetual_license');
         });
     }

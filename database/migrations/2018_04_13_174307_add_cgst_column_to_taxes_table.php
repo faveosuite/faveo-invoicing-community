@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('taxes', function (Blueprint $table) {
+        Schema::table('taxes', function (Blueprint $table): void {
             $table->string('c_gst');
             $table->string('s_gst');
             $table->string('i_gst');
@@ -28,7 +28,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('taxes', function (Blueprint $table) {
+        Schema::table('taxes', function (Blueprint $table): void {
             //
         });
     }

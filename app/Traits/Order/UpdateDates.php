@@ -2,9 +2,10 @@
 
 namespace App\Traits\Order;
 
+use Exception;
+use Illuminate\Support\Facades\Date;
 use App\Model\Product\Subscription;
 use App\Services\SubscriptionRenewalService;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 trait UpdateDates
@@ -15,10 +16,10 @@ trait UpdateDates
 
         try {
             $sub = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
-            app(SubscriptionRenewalService::class)->setDate($sub, 'update_ends_at', $this->parseDate($request->input('date')));
+            resolve(SubscriptionRenewalService::class)->setDate($sub, 'update_ends_at', $this->parseDate($request->input('date')));
 
             return ['message' => 'success', 'update' => 'Updates Expiry Date Updated Successfully'];
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return response()->json(['result' => [$ex->getMessage()]], 500);
         }
     }
@@ -29,10 +30,10 @@ trait UpdateDates
 
         try {
             $sub = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
-            app(SubscriptionRenewalService::class)->setDate($sub, 'ends_at', $this->parseDate($request->input('date')));
+            resolve(SubscriptionRenewalService::class)->setDate($sub, 'ends_at', $this->parseDate($request->input('date')));
 
             return ['message' => 'success', 'update' => 'License Expiry Date Updated Successfully'];
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return response()->json(['result' => [$ex->getMessage()]], 500);
         }
     }
@@ -43,10 +44,10 @@ trait UpdateDates
 
         try {
             $sub = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
-            app(SubscriptionRenewalService::class)->setDate($sub, 'support_ends_at', $this->parseDate($request->input('date')));
+            resolve(SubscriptionRenewalService::class)->setDate($sub, 'support_ends_at', $this->parseDate($request->input('date')));
 
             return ['message' => 'success', 'update' => 'Support Expiry Date Updated Successfully'];
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return response()->json(['result' => [$ex->getMessage()]], 500);
         }
     }
@@ -56,13 +57,13 @@ trait UpdateDates
         $this->validate($request, ['limit' => 'required|numeric']);
 
         $sub = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
-        app(SubscriptionRenewalService::class)->updateInstallationLimit($sub, (int) $request->input('limit'));
+        resolve(SubscriptionRenewalService::class)->updateInstallationLimit($sub, (int) $request->input('limit'));
 
         return ['message' => 'success', 'update' => 'Installation Limit Updated'];
     }
 
     private function parseDate(string $date): string
     {
-        return Carbon::createFromFormat('m/d/Y', $date)->format('Y-m-d H:i:s');
+        return Date::createFromFormat('m/d/Y', $date)->format('Y-m-d H:i:s');
     }
 }

@@ -38,7 +38,7 @@ class LoginTest extends DuskTestCase
     {
         $this->setUpEmail(true);
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -61,7 +61,7 @@ class LoginTest extends DuskTestCase
     #[Group('login_test_group')]
     public function test_for_forgot_password_by_giving_invalid_email_id()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -84,7 +84,7 @@ class LoginTest extends DuskTestCase
     #[Group('login_test_group')]
     public function test_navigate_to_login_page_from_forgot_password_page()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -111,7 +111,7 @@ class LoginTest extends DuskTestCase
     {
         $this->setUpEmail(true);
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -142,7 +142,7 @@ class LoginTest extends DuskTestCase
 
         $this->enableRecaptcha('v2');
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -170,7 +170,7 @@ class LoginTest extends DuskTestCase
         $this->user = User::factory()->create([
             'role' => 'admin',
         ]);
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -198,7 +198,7 @@ class LoginTest extends DuskTestCase
         $this->user = User::factory()->create([
             'role' => 'admin',
         ]);
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -226,7 +226,7 @@ class LoginTest extends DuskTestCase
         $this->user = User::factory()->create([
             'role' => 'admin',
         ]);
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -259,7 +259,7 @@ class LoginTest extends DuskTestCase
 
         $this->enableRecaptcha('v3');
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -291,7 +291,7 @@ class LoginTest extends DuskTestCase
             'password' => bcrypt('Demopass@1234'),
         ]);
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -326,7 +326,7 @@ class LoginTest extends DuskTestCase
 
         $this->enableRecaptcha('v2');
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -356,7 +356,7 @@ class LoginTest extends DuskTestCase
         $this->user = User::factory()->create([
             'role' => 'user',
         ]);
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -384,7 +384,7 @@ class LoginTest extends DuskTestCase
         $this->user = User::factory()->create([
             'role' => 'user',
         ]);
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -412,7 +412,7 @@ class LoginTest extends DuskTestCase
         $this->user = User::factory()->create([
             'role' => 'user',
         ]);
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -445,7 +445,7 @@ class LoginTest extends DuskTestCase
 
         $this->enableRecaptcha('v3');
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -477,7 +477,7 @@ class LoginTest extends DuskTestCase
             'password' => bcrypt('Demopass@1234'),
         ]);
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);

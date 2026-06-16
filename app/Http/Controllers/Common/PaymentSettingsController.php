@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Common;
 
+use Exception;
+use Zipper;
+use Lang;
 use App\Http\Controllers\Controller;
 use App\Model\Plugin;
 use Illuminate\Http\Request;
@@ -41,6 +44,7 @@ class PaymentSettingsController extends Controller
                         $attributes[$key]['path'] = $field['name'];
                         $attributes[$key]['status'] = 0;
                     }
+
                     $attributes[$key]['name'] = $field['name'];
                     $attributes[$key]['settings'] = $field['settings'];
                     $attributes[$key]['description'] = $field['description'];
@@ -52,7 +56,7 @@ class PaymentSettingsController extends Controller
             }
 
             return $attributes;
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
@@ -71,6 +75,7 @@ class PaymentSettingsController extends Controller
                 $files[$key] = $file;
             }
         }
+
         //dd($files);
         $config = [];
         $plugins = [];
@@ -80,6 +85,7 @@ class PaymentSettingsController extends Controller
                 $plugins[$key] = array_diff(scandir($plugin), ['.', '..', 'ServiceProvider.php']);
                 $plugins[$key]['file'] = $plugin;
             }
+
             foreach ($plugins as $plugin) {
                 $dir = $plugin['file'];
                 //opendir($dir);
@@ -89,6 +95,7 @@ class PaymentSettingsController extends Controller
                             $config[] = $dir.DIRECTORY_SEPARATOR.$file;
                         }
                     }
+
                     closedir($dh);
                 }
             }
@@ -113,8 +120,9 @@ class PaymentSettingsController extends Controller
             file_put_contents($app, implode("\n", $lines));
             $plugs->create(['name' => $slug, 'path' => $slug, 'status' => 1]);
 
-            return redirect()->back()->with('success', __('message.status_change'));
+            return back()->with('success', __('message.status_change'));
         }
+
         $status = $plug->status;
 
         if ($status == 0) {
@@ -141,7 +149,7 @@ class PaymentSettingsController extends Controller
 
         $plug->save();
 
-        return redirect()->back()->with('success', __('message.status_change'));
+        return back()->with('success', __('message.status_change'));
     }
 
     public function postPlugins(Request $request)
@@ -163,7 +171,7 @@ class PaymentSettingsController extends Controller
         /*
          * extract the zip file using zipper
          */
-        \Zipper::make($zipfile)->folder($filename2)->extractTo($destination.DIRECTORY_SEPARATOR.$filename);
+        Zipper::make($zipfile)->folder($filename2)->extractTo($destination.DIRECTORY_SEPARATOR.$filename);
 
         $file = app_path().DIRECTORY_SEPARATOR.'Plugins'.DIRECTORY_SEPARATOR.$filename; // Plugin file path
 
@@ -188,14 +196,14 @@ class PaymentSettingsController extends Controller
                     file_put_contents($app, implode("\n", $lines));
                     $plug->create(['name' => $filename, 'path' => $filename, 'status' => 1]);
 
-                    return redirect()->back()->with('success', __('message.installed_successfully'));
+                    return back()->with('success', __('message.installed_successfully'));
                 } else {
                     /*
                      * delete if the plugin hasn't config.php and ServiceProvider.php
                      */
                     $this->deleteDirectory($file);
 
-                    return redirect()->back()->with('fails', 'Their is no '.$file);
+                    return back()->with('fails', 'Their is no '.$file);
                 }
             } else {
                 /*
@@ -203,7 +211,7 @@ class PaymentSettingsController extends Controller
                  */
                 $this->deleteDirectory($file);
 
-                return redirect()->back()->with('fails', __('message.file_missing', ['file' => $file]));
+                return back()->with('fails', __('message.file_missing', ['file' => $file]));
             }
         } else {
             /*
@@ -211,7 +219,7 @@ class PaymentSettingsController extends Controller
              */
             $this->deleteDirectory($file);
 
-            return redirect()->back()->with('fails', '<b>'.__('message.plugin_file_path_not_exist').'</b> '.$file);
+            return back()->with('fails', '<b>'.__('message.plugin_file_path_not_exist').'</b> '.$file);
         }
     }
 
@@ -226,18 +234,22 @@ class PaymentSettingsController extends Controller
         if (! file_exists($dir)) {
             return true;
         }
+
         if (! is_dir($dir)) {
             return unlink($dir);
         }
+
         foreach (scandir($dir) as $item) {
             if ($item == '.' || $item == '..') {
                 continue;
             }
+
             chmod($dir.DIRECTORY_SEPARATOR.$item, 0777);
             if (! $this->deleteDirectory($dir.DIRECTORY_SEPARATOR.$item)) {
                 return false;
             }
         }
+
         chmod($dir, 0777);
 
         return rmdir($dir);
@@ -274,7 +286,7 @@ class PaymentSettingsController extends Controller
             $plugin->delete();
         }
 
-        return redirect()->back()->with('success', __('message.deleted-successfully'));
+        return back()->with('success', __('message.deleted-successfully'));
     }
 
     public function updatePaymentStatus(Request $request)
@@ -292,8 +304,9 @@ class PaymentSettingsController extends Controller
             file_put_contents($app, implode("\n", $lines));
             $plugs->create(['name' => $name, 'path' => $name, 'status' => 1]);
 
-            return successResponse(\Lang::get('message.status_change'));
+            return successResponse(Lang::get('message.status_change'));
         }
+
         if ($status) {
             $plug->status = 1;
             file_put_contents($app, implode("\n", $lines));
@@ -303,9 +316,10 @@ class PaymentSettingsController extends Controller
             $file_contents = str_replace($str, '//', $file_contents);
             file_put_contents($app, $file_contents);
         }
+
         $plug->save();
 
-        return successResponse(\Lang::get('message.status_change'));
+        return successResponse(Lang::get('message.status_change'));
     }
 
     public function getPaymentGatewayList()
@@ -314,7 +328,7 @@ class PaymentSettingsController extends Controller
             $configs = $this->fetchConfig();
 
             return successResponse('', array_values($configs));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }
     }
@@ -328,7 +342,7 @@ class PaymentSettingsController extends Controller
             $pluginMap = [];
 
             foreach ($values as $plugin) {
-                $name = strtolower($plugin['name']);
+                $name = strtolower((string) $plugin['name']);
                 $pluginMap[$name] = [
                     'supported_currencies' => $plugin['supported_currencies'] ?? [],
                 ];

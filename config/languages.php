@@ -79,7 +79,6 @@ return [
     'mk' => ['Macedonian', 'македонски јазик'],
     'ml' => ['Malayalam', 'മലയാളം'],
     'mn' => ['Mongolian', 'Монгол хэл'],
-    'ro' => ['Moldavian', 'Română'],
     'mr' => ['Marathi', 'मराठी'],
     'ms' => ['Malay', 'Bahasa Melayu'],
     'mt' => ['Maltese', 'Malti'],

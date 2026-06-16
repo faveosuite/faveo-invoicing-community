@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use Illuminate\Support\Str;
+use Illuminate\Http\Response;
 use App\ThirdPartyApp;
 use Illuminate\Http\Request;
 
@@ -31,8 +34,8 @@ class ThirdPartyAppController extends Controller
 
             $query = $this->thirdParty
                 ->select('id', 'app_name', 'app_key', 'app_secret')
-                ->when($searchString, function ($q) use ($searchString) {
-                    $q->where(function ($sub) use ($searchString) {
+                ->when($searchString, function ($q) use ($searchString): void {
+                    $q->where(function ($sub) use ($searchString): void {
                         $sub->where('app_name', 'like', "%{$searchString}%")
                             ->orWhere('app_key', 'like', "%{$searchString}%");
                     });
@@ -47,7 +50,7 @@ class ThirdPartyAppController extends Controller
                 'third_party_apps' => $thirdPartyApps,
                 'total' => $total,
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
@@ -55,8 +58,8 @@ class ThirdPartyAppController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function createThirdPartyApp(Request $request)
     {
@@ -79,19 +82,19 @@ class ThirdPartyAppController extends Controller
     public function getAppKey()
     {
         try {
-            $code = str_random(32);
+            $code = Str::random(32);
             echo $code;
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ThirdPartyApp  $thirdPartyApp
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param ThirdPartyApp $thirdPartyApp
+     * @return Response
      */
     public function updateThirdPartyApp(Request $request, $id)
     {
@@ -120,8 +123,8 @@ class ThirdPartyAppController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\ThirdPartyApp  $thirdPartyApp
-     * @return \Illuminate\Http\Response
+     * @param ThirdPartyApp $thirdPartyApp
+     * @return Response
      */
     public function deleteThirdPartyApp(Request $request)
     {
@@ -132,7 +135,7 @@ class ThirdPartyAppController extends Controller
                 $ids = explode(',', $ids);
             }
 
-            $ids = array_filter(array_map('trim', $ids));
+            $ids = array_filter(array_map(trim(...), $ids));
 
             if (! is_array($ids) || empty($ids)) {
                 return errorResponse(__('message.select-a-row'));
@@ -157,7 +160,7 @@ class ThirdPartyAppController extends Controller
             }
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

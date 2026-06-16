@@ -18,7 +18,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('tax_rates')) {
-            Schema::create('tax_rates', function (Blueprint $table) {
+            Schema::create('tax_rates', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name');                          // display label e.g. "VAT", "GST", "Sales Tax"
                 $table->string('country', 2)->default('');       // ISO-2, '' = applies to every country

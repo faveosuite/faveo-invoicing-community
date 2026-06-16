@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Tests\Controllers;
 
+use Exception;
 use App\Plugins\Zoho\Controllers\ZohoSync;
 use App\Plugins\Zoho\Models\ZohoFields;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -100,7 +101,7 @@ class ZohoSyncTest extends DBTestCase
 
     public function test_it_throws_exception_for_unsupported_platform()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Unsupported platform unsupported');
 
         $fields = [

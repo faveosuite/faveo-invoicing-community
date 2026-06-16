@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Common;
 
+use Override;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Session;
+use DB;
 use App\EmailValidationResults;
 use App\FailedWhatsappMessage;
 use App\Jobs\SendWhatsappMessage;
@@ -16,7 +21,6 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Subscription;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
-use App\WhatsappIntegrationUser;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use GuzzleHttp\Client;
@@ -34,6 +38,7 @@ class CronController extends BaseCronController
     protected $invoice;
 
     protected $client;
+
     protected $PostSubscriptionHandle;
 
     public function __construct()
@@ -259,15 +264,19 @@ class CronController extends BaseCronController
         if (count($this->get30DaysUsers())) {
             array_push($users, $this->get30DaysUsers());
         }
+
         if (count($this->get15DaysUsers())) {
             array_push($users, $this->get15DaysUsers());
         }
+
         if (count($this->get1DaysUsers())) {
             array_push($users, $this->get1DaysUsers());
         }
+
         if (count($this->get0DaysUsers())) {
             array_push($users, $this->get0DaysUsers());
         }
+
         if (count($this->getPlus1Users())) {
             array_push($users, $this->getPlus1Users());
         }
@@ -275,9 +284,10 @@ class CronController extends BaseCronController
         return $users;
     }
 
+    #[Override]
     public function getSubscriptions($days)
     {
-        $decodedData = json_decode($days[0]);
+        $decodedData = json_decode((string) $days[0]);
 
         if ($decodedData === null && json_last_error() !== JSON_ERROR_NONE) {
             return [];
@@ -288,10 +298,10 @@ class CronController extends BaseCronController
             $day = (int) $day;
 
             // Calculate the start and end dates
-            $startDate = Carbon::now()->toDateString();
-            $endDate = Carbon::now()->addDays($day)->toDateString();
+            $startDate = Date::now()->toDateString();
+            $endDate = Date::now()->addDays($day)->toDateString();
 
-            $subscriptionsForDay = Subscription::where(function ($query) use ($endDate) {
+            $subscriptionsForDay = Subscription::where(function (Builder $query) use ($endDate): void {
                 $query->where('update_ends_at', 'LIKE', $endDate.'%')
                     ->orWhere('support_ends_at', 'LIKE', $endDate.'%')
                     ->orWhere('ends_at', 'LIKE', $endDate.'%');
@@ -310,14 +320,15 @@ class CronController extends BaseCronController
 
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
         }
-        $uniqueSubscriptions = array_map('unserialize', array_unique(array_map('serialize', $subscriptions)));
+
+        $uniqueSubscriptions = array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions)));
 
         return $uniqueSubscriptions;
     }
 
     public function getautoSubscriptions($days)
     {
-        $decodedData = json_decode($days[0]);
+        $decodedData = json_decode((string) $days[0]);
 
         if ($decodedData === null && json_last_error() !== JSON_ERROR_NONE) {
             return [];
@@ -328,9 +339,9 @@ class CronController extends BaseCronController
             $day = (int) $day;
 
             // Calculate the start and end dates
-            $endDate = Carbon::now()->addDays($day)->toDateString();
+            $endDate = Date::now()->addDays($day)->toDateString();
 
-            $subscriptionsForDay = Subscription::where(function ($query) use ($endDate) {
+            $subscriptionsForDay = Subscription::where(function (Builder $query) use ($endDate): void {
                 $query->where('update_ends_at', 'LIKE', $endDate.'%')
                     ->orWhere('support_ends_at', 'LIKE', $endDate.'%')
                     ->orWhere('ends_at', 'LIKE', $endDate.'%');
@@ -349,14 +360,15 @@ class CronController extends BaseCronController
 
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
         }
-        $uniqueSubscriptions = array_map('unserialize', array_unique(array_map('serialize', $subscriptions)));
+
+        $uniqueSubscriptions = array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions)));
 
         return $uniqueSubscriptions;
     }
 
     public function getPostSubscriptions($days)
     {
-        $decodedData = json_decode($days[0]);
+        $decodedData = json_decode((string) $days[0]);
 
         if ($decodedData === null && json_last_error() !== JSON_ERROR_NONE) {
             return [];
@@ -370,7 +382,7 @@ class CronController extends BaseCronController
             $day = (int) $day;
 
             // Calculate the start date based on the specific day value from $decodedData
-            $endDate = Carbon::now()->subDays($day)->toDateString(); // Use $day here
+            $endDate = Date::now()->subDays($day)->toDateString(); // Use $day here
 
             $subscriptionsForDay = Subscription::where('update_ends_at', 'LIKE', $endDate.'%')
                 ->orWhere('support_ends_at', 'LIKE', $endDate.'%')
@@ -389,7 +401,7 @@ class CronController extends BaseCronController
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
         }
 
-        $uniqueSubscriptions = array_map('unserialize', array_unique(array_map('serialize', $subscriptions)));
+        $uniqueSubscriptions = array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions)));
 
         return $uniqueSubscriptions;
     }
@@ -451,7 +463,7 @@ class CronController extends BaseCronController
                 $userid = $value->user_id;
                 $user = $this->getUserById($userid);
                 $end = $value->update_ends_at;
-                $order = \App\Model\Order\Order::find($value->order_id);
+                $order = Order::find($value->order_id);
                 if ($order) {
                     $order = $this->getOrderById($value->order_id);
                     $invoice = $this->getInvoiceByOrderId($value->order_id);
@@ -494,6 +506,7 @@ class CronController extends BaseCronController
         if (! $this->shouldDeleteReooLogs()) {
             return;
         }
+
         $days = ExpiryMailDay::value('reoon_logs_days');
         $logs = $this->getOldReoonLogs($days);
         foreach ($logs as $log) {
@@ -503,12 +516,12 @@ class CronController extends BaseCronController
 
     public function failedMessageDelivery()
     {
-        \Session::forget('NonReachableUrls');
+        Session::forget('NonReachableUrls');
         $messages = FailedWhatsappMessage::get();
         foreach ($messages as $message) {
             $rawBody = $message->message;
             if ($rawBody != '') {
-                SendWhatsappMessage::dispatch($rawBody)->onQueue('whatsapp');
+                dispatch(new SendWhatsappMessage($rawBody))->onQueue('whatsapp');
                 $message->delete();
 //                $data = json_decode($rawBody, true);
 //                try {
@@ -549,7 +562,7 @@ class CronController extends BaseCronController
 
     private function getOldInvoices($days)
     {
-        $date = Carbon::now()->subDays($days)->toDateString();
+        $date = Date::now()->subDays($days)->toDateString();
 
         $oldInvoices = Invoice::where('status', 'pending')
             ->whereDate('date', '<=', $date)
@@ -561,7 +574,7 @@ class CronController extends BaseCronController
 
     private function getOldReoonLogs($days)
     {
-        $date = Carbon::now()->subDays($days)->toDateString();
+        $date = Date::now()->subDays($days)->toDateString();
         $oldLogs = EmailValidationResults::whereDate('created_at', '<=', $date)
             ->get();
 
@@ -583,7 +596,7 @@ class CronController extends BaseCronController
 
     private function deleteInvoice($invoice)
     {
-        return \DB::transaction(function () use ($invoice) {
+        return DB::transaction(function () use ($invoice): void {
             // Delete related InvoiceItem records
             $invoice->invoiceItem()->delete();
 
@@ -607,7 +620,7 @@ class CronController extends BaseCronController
 
         $from = CarbonImmutable::startOfTime();
 
-        $to = Carbon::now()->subDays($days)->endOfDay();
+        $to = Date::now()->subDays($days)->endOfDay();
 
         MsgDeliveryReports::where('created_at', '<=', $to)->delete();
     }

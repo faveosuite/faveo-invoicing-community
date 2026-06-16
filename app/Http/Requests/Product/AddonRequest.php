@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Product;
 
+use Override;
 use App\Http\Requests\Request;
 
 class AddonRequest extends Request
@@ -24,14 +25,15 @@ class AddonRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required',
-            'subscription' => 'required',
-            'regular_price' => 'required|numeric',
-            'selling_price' => 'required|numeric',
-            'products' => 'required',
+            'name' => ['required'],
+            'subscription' => ['required'],
+            'regular_price' => ['required', 'numeric'],
+            'selling_price' => ['required', 'numeric'],
+            'products' => ['required'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\User;
 
+use Auth;
+use App\Model\Common\Timezone;
+use App\Model\Common\Bussiness;
+use Exception;
+use Lang;
+use DB;
 use App\Facades\Attach;
 use App\Http\Controllers\Auth\BaseAuthController;
 use App\Http\Requests\User\ProfileRequest;
@@ -18,61 +24,63 @@ class ProfileController extends BaseAuthController
     public function profile()
     {
         try {
-            $user = \Auth::user();
-            $timezonesList = \App\Model\Common\Timezone::get();
+            $user = Auth::user();
+            $timezonesList = Timezone::get();
             $is2faEnabled = $user->is_2fa_enabled;
             $dateSinceEnabled = $user->google2fa_activation_date;
             foreach ($timezonesList as $timezone) {
                 $location = $timezone->location;
                 if ($location) {
-                    $start = strpos($location, '(');
-                    $end = strpos($location, ')', $start + 1);
+                    $start = strpos((string) $location, '(');
+                    $end = strpos((string) $location, ')', $start + 1);
                     $length = $end - $start;
-                    $result = substr($location, $start + 1, $length - 1);
+                    $result = substr((string) $location, $start + 1, $length - 1);
                     $display[] = ['id' => $timezone->id, 'name' => '('.$result.')'.' '.$timezone->name];
                 }
             }
+
             //for display
             $timezones = array_column($display, 'name', 'id');
             $state = getStateByCode($user->country, $user->state);
             $states = findStateByRegionId($user->country);
-            $bussinesses = \App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
+            $bussinesses = Bussiness::pluck('name', 'short')->toArray();
 
             return successResponse('', ['bussinesses' => $bussinesses, 'user' => $user, 'timezones' => $timezones, 'state' => $state, 'states' => $states, 'is2faEnabled' => $is2faEnabled, 'dateSinceEnabled' => $dateSinceEnabled]);
 //            return view('themes.default1.user.profile', compact('bussinesses', 'user', 'timezones', 'state', 'states', 'is2faEnabled', 'dateSinceEnabled'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+        } catch (Exception $e) {
+            return back()->with('fails', $e->getMessage());
         }
     }
 
     public function updateProfile(ProfileRequest $request)
     {
         try {
-            $user = \Auth::user();
+            $user = Auth::user();
             if ($request->hasFile('profile_pic')) {
                 $path = Attach::put('common/images/users/', $request->file('profile_pic'), null, true);
                 $user->profile_pic = basename($path);
             }
+
             $user->fill($request->input())->save();
 
             if ($request->expectsJson()) {
-                return successResponse(\Lang::get('message.updated-successfully'));
+                return successResponse(Lang::get('message.updated-successfully'));
             }
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $e) {
+            return back()->with('success', Lang::get('message.updated-successfully'));
+        } catch (Exception $e) {
             if ($request->expectsJson()) {
                 return errorResponse($e->getMessage());
             }
 
-            return redirect()->back()->with('fails', $e->getMessage());
+            return back()->with('fails', $e->getMessage());
         }
     }
 
     public function updatePassword(ProfileRequest $request)
     {
         try {
-            $user = \Auth::user();
+            $user = Auth::user();
             $oldpassword = $request->input('old_password');
             $currentpassword = $user->getAuthPassword();
             $newpassword = $request->input('new_password');
@@ -82,26 +90,26 @@ class ProfileController extends BaseAuthController
 
                 deleteUserSessions($user->id, $newpassword);
 
-                \DB::table('password_resets')->where('email', $user->email)->delete();
+                DB::table('password_resets')->where('email', $user->email)->delete();
 
                 if ($request->expectsJson()) {
-                    return successResponse(\Lang::get('message.updated-successfully'));
+                    return successResponse(Lang::get('message.updated-successfully'));
                 }
 
-                return redirect()->back()->with('success1', \Lang::get('message.updated-successfully'));
+                return back()->with('success1', Lang::get('message.updated-successfully'));
             } else {
                 if ($request->expectsJson()) {
                     return errorResponse(__('message.incorrect_old_password'));
                 }
 
-                return redirect()->back()->with('fails1', __('message.incorrect_old_password'));
+                return back()->with('fails1', __('message.incorrect_old_password'));
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($request->expectsJson()) {
                 return errorResponse($e->getMessage());
             }
 
-            return redirect()->back()->with('fails', $e->getMessage());
+            return back()->with('fails', $e->getMessage());
         }
     }
 

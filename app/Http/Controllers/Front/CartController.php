@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\Front;
 
+use Exception;
+use Logger;
+use Auth;
+use App\Http\Controllers\Order\RenewController;
+use App\Http\Controllers\Payment\PromotionController;
+use Lang;
 use App\Facades\Cart;
 use App\Http\Controllers\Common\TemplateController;
 use App\Model\Common\Setting;
@@ -13,7 +19,6 @@ use App\Model\Payment\Tax;
 use App\Model\Payment\TaxByState;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\Product;
-use App\User;
 //use Cart;
 use Illuminate\Http\Request;
 use Session;
@@ -77,14 +82,14 @@ class CartController extends BaseCartController
      */
     public function cart(Request $request)
     {
-        \Session::forget('priceRemaining');
-        \Session::forget('priceToBePaid');
-        \Session::forget('discount');
-        \Session::forget('plan');
-        \Session::forget('togglePrice');
-        \Session::forget('oldPrice');
-        \Session::forget('productid');
-        \Session::forget('plan_id');
+        Session::forget('priceRemaining');
+        Session::forget('priceToBePaid');
+        Session::forget('discount');
+        Session::forget('plan');
+        Session::forget('togglePrice');
+        Session::forget('oldPrice');
+        Session::forget('productid');
+        Session::forget('plan_id');
         try {
             $plan = '';
             $domain = '';
@@ -93,10 +98,12 @@ class CartController extends BaseCartController
                 $subscription = $request->get('subscription');
                 Session::put('plan_id', $subscription);
             }
+
             $id = $request->input('id');
             if ($request->has('domain')) {
                 $domain = $request->input('domain').'.'.cloudSubDomain();
             }
+
             //if (! property_exists($subscription, $this->cart->getContent())) {
             $items = $this->addProduct($id, $domain);
 //                \Cart::add($items); //Add Items To the Cart Collection
@@ -105,8 +112,8 @@ class CartController extends BaseCartController
 
             return successResponse('cart Redirect', ['url' => $url]);
             // return redirect('show/cart');
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
             return errorResponse($ex->getMessage());
             //return redirect()->back()->with('fails', $ex->getMessage());
@@ -128,8 +135,8 @@ class CartController extends BaseCartController
         try {
             $qty = 1;
             $agents = 0; //Unlmited Agents
-            if (\Session::has('plan_id')) { //If a plan is selected from dropdown in pricing page, this is true
-                $planid = \Session::get('plan_id');
+            if (Session::has('plan_id')) { //If a plan is selected from dropdown in pricing page, this is true
+                $planid = Session::get('plan_id');
             } else {
                 $query = Plan::where('product', $id)->where('status', 1);
 
@@ -145,6 +152,7 @@ class CartController extends BaseCartController
 
                 $planid = $query->value('id');
             }
+
             $product = Product::find($id);
             $plan = $product->planRelation->find($planid);
             if ($plan) { //If Plan For a Product exists
@@ -154,14 +162,16 @@ class CartController extends BaseCartController
                 $currency = userCurrencyAndPrice('', $plan);
                 // $this->checkProductsHaveSimilarCurrency($currency['currency']);
             } else {
-                throw new \Exception(__('message.product_add_cart_no_plan'));
+                throw new Exception(__('message.product_add_cart_no_plan'));
             }
+
             $actualPrice = $this->cost($product->id, $planid);
-            if (\Session::has('plan') && $product->can_modify_agent) {
+            if (Session::has('plan') && $product->can_modify_agent) {
                 $agtQty = $plan->where('id', $planid)->first()->planPrice->first()->no_of_agents;
             } else {
                 $agtQty = $plan->planPrice->first()->no_of_agents;
             }
+
             $agents = $agtQty != null ? $agtQty : 0;
             $items = ['id' => $planid, 'name' => $product->name, 'price' => $actualPrice,
                 'quantity' => $qty, 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $agents, 'domain' => $domain], 'associatedModel' => $product];
@@ -172,9 +182,9 @@ class CartController extends BaseCartController
 
 //
             return $items;
-        } catch (\Exception $e) {
-            \Logger::exception($e);
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            Logger::exception($e);
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -188,7 +198,7 @@ class CartController extends BaseCartController
         $carts = \Cart::getContent();
         foreach ($carts as $cart) {
             if ($cart->attributes['currency'] != $currency) {
-                throw new \Exception(__('message.similar_currency_required'));
+                throw new Exception(__('message.similar_currency_required'));
             }
         }
     }
@@ -200,7 +210,7 @@ class CartController extends BaseCartController
 
             foreach ($cartCollection as $item) {
                 $cart_currency = $item['attributes']['currency'];
-                \Session::put('currency', $cart_currency);
+                Session::put('currency', $cart_currency);
                 $unpaidInvoice = $this->checkUnpaidInvoices($item);
 
                 if ($unpaidInvoice) {
@@ -211,15 +221,13 @@ class CartController extends BaseCartController
                 }
             }
 
-            $cartCollection = $this->cart->getContent()->sortByDesc(function ($item) {
-                return (int) $item['id'];
-            });
+            $cartCollection = $this->cart->getContent()->sortByDesc(fn($item) => (int) $item['id']);
             $cart = $this->cart;
 
             return successResponse('', ['cartCollection' => $cartCollection, 'cart' => $cart]);
             //return view('themes.default1.front.cart', compact('cartCollection', 'cart'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
             return errorResponse($ex->getMessage());
             // return redirect()->back()->with('fails', $ex->getMessage());
@@ -234,11 +242,11 @@ class CartController extends BaseCartController
      */
     private function checkUnpaidInvoices($item)
     {
-        if (\Auth::check()) {
-            $unpaidInvoice = Invoice::where('user_id', \Auth::user()->id)
+        if (Auth::check()) {
+            $unpaidInvoice = Invoice::where('user_id', Auth::user()->id)
                 ->where('is_renewed', 0)
                 ->where('status', 'pending')
-                ->whereHas('invoiceItem', function ($query) use ($item) {
+                ->whereHas('invoiceItem', function ($query) use ($item): void {
                     $query->where('product_id', $item->id)->where('quantity', $item->quantity);
                 })
                 ->first();
@@ -269,7 +277,7 @@ class CartController extends BaseCartController
 //        Cart::removeConditionsByType('coupon');
 //        Cart::clearItemConditions($id);
             return successResponse(__('message.success'));
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.fail'));
         }
     }
@@ -285,15 +293,16 @@ class CartController extends BaseCartController
         foreach ($this->cart->getContent() as $item) {
             $this->cart->remove($item['id']);
 //            $this->cart->clearItemConditions($item->id);
-            if (\Session::has('domain'.$item['id'])) {
-                \Session::forget('domain'.$item['id']);
+            if (Session::has('domain'.$item['id'])) {
+                Session::forget('domain'.$item['id']);
             }
         }
 
         if (Session::has('plan')) {
             Session::forget('plan');
         }
-        $renew_control = new \App\Http\Controllers\Order\RenewController();
+
+        $renew_control = new RenewController();
         $renew_control->removeSession();
 //        Cart::clearCartConditions();
         $this->cart->clear();
@@ -307,7 +316,7 @@ class CartController extends BaseCartController
      * @param  int  $planid
      * @return int
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function cost($productid, $planid = '', $userid = '', $admin = false)
     {
@@ -315,9 +324,9 @@ class CartController extends BaseCartController
             $cost = $this->planCost($productid, $userid, $planid, $admin);
 
             return $cost;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            Logger::exception($ex);
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -338,12 +347,13 @@ class CartController extends BaseCartController
         $planID = $this->getPlanIdBasedOnProductStatus($product, $planId);
 
         if (! $product->planRelation()->find($planID)) {
-            throw new \Exception(__('message.invalid_coupon_code'));
+            throw new Exception(__('message.invalid_coupon_code'));
         }
+
         $userPlan = userCurrencyAndPrice($userId, $product->planRelation()->findOrFail($planID));
 
         if (empty($userPlan['plan'])) {
-            throw new \Exception(__('message.no_available_plans_currency'));
+            throw new Exception(__('message.no_available_plans_currency'));
         }
 
         return $this->applyOfferPrice($userPlan, $shouldApplyOffer);
@@ -397,16 +407,16 @@ class CartController extends BaseCartController
     {
         try {
             $code = \Request::get('coupon');
-            $promo_controller = new \App\Http\Controllers\Payment\PromotionController();
+            $promo_controller = new PromotionController();
             $result = $promo_controller->checkCode($code);
             if ($result == 'success') {
-                return successResponse(\Lang::get('message.updated-successfully'));
+                return successResponse(Lang::get('message.updated-successfully'));
                 // return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
             }
 
             return errorResponse('Not Updated');
             //return redirect()->back();
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
             // return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -426,6 +436,7 @@ class CartController extends BaseCartController
             foreach (\Cart::getContent() as $item) {
                 $productid = $item->id;
             }
+
             if ($productid && $originalPrice) {
                 Cart::update($productid, [
                     'price' => $originalPrice,
@@ -433,14 +444,14 @@ class CartController extends BaseCartController
                 Session::forget('code');
                 Session::forget('oldprice');
                 Session::forget('usage');
-                \Session::forget('plan');
+                Session::forget('plan');
 
-                return redirect()->back()->with('success', \Lang::get('message.remove_coupon'));
+                return back()->with('success', Lang::get('message.remove_coupon'));
             } else {
-                return redirect()->back()->with('fails', \Lang::get('message.no_product'));
+                return back()->with('fails', Lang::get('message.no_product'));
             }
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', \Lang::get('message.err_msg'));
+        } catch (Exception) {
+            return back()->with('fails', Lang::get('message.err_msg'));
         }
     }
 }

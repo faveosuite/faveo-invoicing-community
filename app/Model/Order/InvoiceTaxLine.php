@@ -2,6 +2,7 @@
 
 namespace App\Model\Order;
 
+use Override;
 use App\BaseModel;
 
 /**
@@ -17,19 +18,22 @@ class InvoiceTaxLine extends BaseModel
         'label', 'rate', 'compound', 'amount',
     ];
 
-    protected $casts = [
-        'rate' => 'float',
-        'compound' => 'boolean',
-        'amount' => 'float',
-    ];
-
     public function invoice()
     {
-        return $this->belongsTo(\App\Model\Order\Invoice::class, 'invoice_id');
+        return $this->belongsTo(Invoice::class, 'invoice_id');
     }
 
     public function item()
     {
-        return $this->belongsTo(\App\Model\Order\InvoiceItem::class, 'invoice_item_id');
+        return $this->belongsTo(InvoiceItem::class, 'invoice_item_id');
+    }
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'rate' => 'float',
+            'compound' => 'boolean',
+            'amount' => 'float',
+        ];
     }
 }

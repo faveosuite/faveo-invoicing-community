@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Product;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Model\License\LicenseType;
 use App\Model\Product\Product;
@@ -37,7 +38,7 @@ class ProductPluginController extends Controller
                 ]);
 
             return successResponse('', ['plugins' => $plugins]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -45,10 +46,10 @@ class ProductPluginController extends Controller
     public function sync(Request $request, $productId)
     {
         $request->validate([
-            'bundled' => 'array',
-            'bundled.*' => 'integer',
-            'compatible' => 'array',
-            'compatible.*' => 'integer',
+            'bundled' => ['array'],
+            'bundled.*' => ['integer'],
+            'compatible' => ['array'],
+            'compatible.*' => ['integer'],
         ]);
 
         try {
@@ -62,13 +63,13 @@ class ProductPluginController extends Controller
             $bundledIds = array_values(array_intersect($request->input('bundled', []), $validIds));
             $compatibleIds = array_values(array_intersect($request->input('compatible', []), $validIds));
 
-            DB::transaction(function () use ($product, $bundledIds, $compatibleIds) {
+            DB::transaction(function () use ($product, $bundledIds, $compatibleIds): void {
                 $product->bundledPlugins()->sync($bundledIds);
                 $product->compatiblePlugins()->sync($compatibleIds);
             });
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

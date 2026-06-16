@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('version_callbacks', function (Blueprint $table) {
+        Schema::create('version_callbacks', function (Blueprint $table): void {
             $table->id();
             $table->unsignedInteger('product_id');
             $table->unsignedInteger('version_id')->nullable();

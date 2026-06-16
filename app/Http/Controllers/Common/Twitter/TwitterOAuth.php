@@ -56,6 +56,7 @@ class TwitterOAuth extends Config
         if (! empty($oauthToken) && ! empty($oauthTokenSecret)) {
             $this->token = new Token($oauthToken, $oauthTokenSecret);
         }
+
         if (empty($oauthToken) && ! empty($oauthTokenSecret)) {
             $this->bearer = $oauthTokenSecret;
         }
@@ -282,6 +283,7 @@ class TwitterOAuth extends Config
                 'media_data' => base64_encode(fread($media, self::UPLOAD_CHUNK)),
             ]);
         }
+
         fclose($media);
         // Finalize
         $finalize = $this->http('POST', self::UPLOAD_HOST, 'media/upload', [
@@ -328,6 +330,7 @@ class TwitterOAuth extends Config
             // Twitter doesn't like oauth_callback as a parameter.
             unset($parameters['oauth_callback']);
         }
+
         if ($this->bearer === null) {
             $request->signRequest($this->signatureMethod, $this->consumer, $this->token);
             $authorization = $request->toHeader();
@@ -427,7 +430,7 @@ class TwitterOAuth extends Config
     {
         $headers = [];
         foreach (explode("\r\n", $header) as $line) {
-            if (strpos($line, ':') !== false) {
+            if (str_contains($line, ':')) {
                 [$key, $value] = explode(': ', $line);
                 $key = str_replace('-', '_', strtolower($key));
                 $headers[$key] = trim($value);

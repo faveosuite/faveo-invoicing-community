@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\ApiKey;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\ApiKey>
+ * @extends Factory<ApiKey>
  */
 class ApiKeyFactory extends Factory
 {

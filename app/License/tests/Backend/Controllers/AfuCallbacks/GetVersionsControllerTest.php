@@ -26,7 +26,7 @@ class GetVersionsControllerTest extends LicenseTestCase
         $validator->shouldReceive('verifyAfuScriptSignature')->once()->andReturn(true);
         $validator->shouldReceive('verifyDateTime')->once()->andReturn(true);
 
-        $response = (new GetVersionsController($validator))->getVersions($this->moduleRequest([
+        $response = new GetVersionsController($validator)->getVersions($this->moduleRequest([
             'product_id' => $product->id,
             'product_key' => 'AFUKEY1',
             'user_local_path' => '/var/www/html',

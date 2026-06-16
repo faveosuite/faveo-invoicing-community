@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Tests\Controllers\Exceptions;
 
+use Exception;
 use App\Plugins\Zoho\Controllers\Exceptions\ZohoApiException;
 use Tests\DBTestCase;
 
@@ -12,7 +13,7 @@ class ZohoApiExceptionTest extends DBTestCase
         $exception = new ZohoApiException('test_error', 'Test error message');
 
         $this->assertInstanceOf(ZohoApiException::class, $exception);
-        $this->assertInstanceOf(\Exception::class, $exception);
+        $this->assertInstanceOf(Exception::class, $exception);
     }
 
     public function test_it_stores_error_id()
@@ -29,7 +30,7 @@ class ZohoApiExceptionTest extends DBTestCase
         $this->assertEquals('This is the error message', $exception->getMessage());
     }
 
-    public function test_it_can_be_thrown_and_caught()
+    public function test_it_can_be_thrown_and_caught(): never
     {
         $this->expectException(ZohoApiException::class);
         $this->expectExceptionMessage('Test exception');
@@ -41,7 +42,7 @@ class ZohoApiExceptionTest extends DBTestCase
     {
         try {
             throw new ZohoApiException('error', 'Message');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->assertInstanceOf(ZohoApiException::class, $e);
             $this->assertEquals('error', $e->getErrorId());
         }

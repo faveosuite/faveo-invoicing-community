@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         if (! Schema::hasTable('stripe')) {
-            Schema::create('stripe', function ($table) {
+            Schema::create('stripe', function ($table): void {
                 $table->increments('id');
                 $table->string('image_url');
                 $table->string('processing_fee');

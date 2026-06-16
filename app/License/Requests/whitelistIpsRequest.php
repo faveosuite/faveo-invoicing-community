@@ -2,6 +2,7 @@
 
 namespace App\License\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use App\Traits\RequestJsonValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -21,7 +22,7 @@ class whitelistIpsRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

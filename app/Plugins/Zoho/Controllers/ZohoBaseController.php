@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Controllers;
 
+use DB;
 use App\Http\Controllers\Controller;
 use App\Plugins\Zoho\Helpers\ZohoConnectHelper;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
@@ -35,15 +36,15 @@ class ZohoBaseController extends Controller
     public function updateMapping(Request $request)
     {
         $request->validate([
-            'integration_id' => 'required|exists:zoho_integrations,id',
-            'module' => 'required|string',
-            'mappings' => 'required|array',
-            'mappings.*.zoho_field_id' => 'required|exists:zoho_fields,id',
-            'mappings.*.selected.type' => 'required|in:local,zoho',
-            'mappings.*.selected.value' => 'required',
+            'integration_id' => ['required', 'exists:zoho_integrations,id'],
+            'module' => ['required', 'string'],
+            'mappings' => ['required', 'array'],
+            'mappings.*.zoho_field_id' => ['required', 'exists:zoho_fields,id'],
+            'mappings.*.selected.type' => ['required', 'in:local,zoho'],
+            'mappings.*.selected.value' => ['required'],
         ]);
 
-        \DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request): void {
             $incomingIds = collect($request->mappings)
                 ->pluck('zoho_field_id')
                 ->unique();
@@ -54,7 +55,7 @@ class ZohoBaseController extends Controller
                 $request,
                 $zohoIntegration,
                 $incomingIds
-            ) {
+            ): void {
                 $query->select('id')
                     ->from('zoho_fields')
                     ->where('module', $request->module)

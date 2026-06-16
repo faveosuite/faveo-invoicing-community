@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('license_types')) {
-            Schema::create('license_types', function (Blueprint $table) {
+            Schema::create('license_types', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name')->nullable();
                 $table->timestamps();

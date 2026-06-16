@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers\Product;
 
+use App\Http\Controllers\AutoUpdate\AutoUpdateController;
+use Exception;
+use Logger;
+use Lang;
+use App\Http\Controllers\Github\GithubApiController;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Auth;
 use App\Facades\Attach;
 use App\Http\Controllers\Controller;
 use App\Model\Order\Invoice;
@@ -30,7 +37,7 @@ class ExtendedBaseProductController extends Controller
             $selectedProduct = $model->product?->name;
 
             if (! $selectedProduct) {
-                return redirect()->back()
+                return back()
                     ->with('fails', __('message.product_not_found'));
             }
 
@@ -38,7 +45,7 @@ class ExtendedBaseProductController extends Controller
                 'themes.default1.product.product.edit-upload-option',
                 compact('model', 'selectedProduct')
             );
-        } catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException) {
             return redirect()->to('products')
                 ->with('fails', __('message.product_not_found'));
         }
@@ -61,16 +68,16 @@ class ExtendedBaseProductController extends Controller
             $file_upload = ProductUpload::find($id);
             $file_upload->update(['title' => $request->input('title'), 'description' => $request->input('description'), 'version' => $request->input('version'), 'dependencies' => json_encode($request->input('dependencies')), 'is_private' => $request->input('is_private'), 'is_restricted' => $request->input('is_restricted'), 'release_type' => $request->input('release_type')]);
             $productSku = $file_upload->product->product_sku;
-            $updateClassObj = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
+            $updateClassObj = new AutoUpdateController();
             $addProductToAutoUpdate = $updateClassObj->editVersion($request->input('version'), $productSku);
 
-            return redirect()->back()->with('success', __('message.product_updated_successfully'));
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+            return back()->with('success', __('message.product_updated_successfully'));
+        } catch (Exception $e) {
+            Logger::exception($e);
             $message = [$e->getMessage()];
             $response = ['success' => 'false', 'message' => $message];
 
-            return redirect()->back()->with('fails', $e->getMessage());
+            return back()->with('fails', $e->getMessage());
         }
     }
 
@@ -100,15 +107,16 @@ class ExtendedBaseProductController extends Controller
             if ($product->require_domain == 1) {
                 $field .= '<div>
                         <label>'./* @scrutinizer ignore-type */
-                         \Lang::get('message.domain')."</label>
+                         Lang::get('message.domain')."</label>
                         <input type='text' name='domain' class='form-control' 
                         id='domain' placeholder='domain.com or sub.domain.com'>
                 </div>";
             }
+
             if (in_array($product->id, cloudPopupProducts())) {
                 $field .= '<div>
     <div class="form-group">
-        <label class="required">'./* @scrutinizer ignore-type */ \Lang::get('message.cloud_domain').'</label>
+        <label class="required">'./* @scrutinizer ignore-type */ Lang::get('message.cloud_domain').'</label>
         <div class="input-group">
             <input type="text" name="cloud_domain" class="form-control" id="cloud_domain" placeholder="'.__('message.admin_domain').'" required >
             <input type="text" class="form-control" value=".'.cloudSubDomain().'" disabled="true" style="background-color: #4081B5; color:white; border-color: #0088CC">
@@ -119,7 +127,7 @@ class ExtendedBaseProductController extends Controller
             }
 
             return $field;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return $ex->getMessage();
         }
     }
@@ -133,7 +141,7 @@ class ExtendedBaseProductController extends Controller
                 if ($product[0]['github_owner'] && $product[0]['github_repository']) {
                     $repo = $product[0]['github_repository'];
                     $owner = $product[0]['github_owner'];
-                    $githubApi = new \App\Http\Controllers\Github\GithubApiController();
+                    $githubApi = new GithubApiController();
                     $url = "https://api.github.com/repos/$owner/$repo/releases";
                     $countExpiry = 0;
                     $link = $githubApi->getCurl1($url);
@@ -145,20 +153,21 @@ class ExtendedBaseProductController extends Controller
                         $fileName = 'faveo.zip';
                         $url = $link1['header']['location'];
 
-                        return response()->streamDownload(function () use ($url) {
+                        return response()->streamDownload(function () use ($url): void {
                             echo file_get_contents($url);
                         }, $fileName);
                     } else {
                         $string = $link1['body']['message'];
-                        preg_match_all('/https:\/\/[^\s,"]+/', $string, $matches);
+                        preg_match_all('/https:\/\/[^\s,"]+/', (string) $string, $matches);
                         $url = $matches[0][0];
                         $fileName = 'faveo.zip';
 
-                        return response()->streamDownload(function () use ($url) {
+                        return response()->streamDownload(function () use ($url): void {
                             echo file_get_contents($url);
                         }, $fileName);
                     }
                 }
+
                 $release = $this->downloadProductAdmin($id, $beta);
                 $name = Product::where('id', $id)->value('name');
                 if (isS3Enabled()) {
@@ -168,9 +177,10 @@ class ExtendedBaseProductController extends Controller
 
                     return downloadExternalFile($release, $name);
                 } else {
-                    if (! $release instanceof \Symfony\Component\HttpFoundation\StreamedResponse) {
-                        return redirect('my-orders')->with('fails', \Lang::get('message.file_not_exist'));
+                    if (! $release instanceof StreamedResponse) {
+                        return redirect('my-orders')->with('fails', Lang::get('message.file_not_exist'));
                     }
+
                     $customFileName = "{$name}.zip";
 
                     $release->headers->set(
@@ -184,9 +194,9 @@ class ExtendedBaseProductController extends Controller
                     return $release;
                 }
             } else {
-                throw new \Exception(\Lang::get('message.no_permission_for_action'));
+                throw new Exception(Lang::get('message.no_permission_for_action'));
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return redirect('my-orders')->with('fails', $e->getMessage());
         }
     }
@@ -204,7 +214,7 @@ class ExtendedBaseProductController extends Controller
     private function downloadValidation(bool $allowDownload, $id, $invoice, $api)
     {
         if ($api == false) {
-            if (\Auth::user()->role == 'user') {
+            if (Auth::user()->role == 'user') {
                 $invoice = Invoice::where('number', $invoice)->first(); //If invoice number sent as parameter exists
                 $this->checkSubscriptionExpiry($invoice);
                 $allowDownload = $invoice ? $invoice->order()->value('product') == $id : false; //If the order for the product sent in the parameter exists
@@ -218,19 +228,21 @@ class ExtendedBaseProductController extends Controller
     {
         $checkSubscription = false;
         if ($invoice) {
-            if ($invoice->user_id != \Auth::user()->id) {
-                throw new \Exception(__('message.invalid_modification_data_permission'));
+            if ($invoice->user_id != Auth::user()->id) {
+                throw new Exception(__('message.invalid_modification_data_permission'));
             }
+
             $checkSubscription = $invoice->order()->first() ? $invoice->order()->first()->subscription : false;
         }
+
         if ($checkSubscription) {
-            if (strtotime($checkSubscription->update_ends_at) > 1) {
-                if ($checkSubscription->update_ends_at < (new Carbon())->toDateTimeString()) {
-                    throw new \Exception(__('message.renew_subscription_download'));
+            if (strtotime((string) $checkSubscription->update_ends_at) > 1) {
+                if ($checkSubscription->update_ends_at < new Carbon()->toDateTimeString()) {
+                    throw new Exception(__('message.renew_subscription_download'));
                 }
             }
         } else {
-            throw new \Exception(__('message.no_order_exists_invoice'));
+            throw new Exception(__('message.no_order_exists_invoice'));
         }
     }
 
@@ -241,7 +253,7 @@ class ExtendedBaseProductController extends Controller
      *
      * @date   2019-01-07T14:34:54+0530
      *
-     * @param  Illuminate\Http\Request  $input  All the Product Detais Sent from  the form
+     * @param Request $input All the Product Detais Sent from  the form
      * @param  bool  $can_modify_agent  Whether Agents can be modified by customer
      * @param  bool  $can_modify_quantity  Whether Product Quantity can be modified by Customers
      * @return
@@ -262,7 +274,7 @@ class ExtendedBaseProductController extends Controller
      *
      * @date   2019-01-07T20:40:20+0530
      *
-     * @param  Illuminate\Http\Request  $input  All the Product Detais Sent from  the form
+     * @param Request $input All the Product Detais Sent from  the form
      * @param Illuminate\Http\Request; $request
      * @param  array  $product  instance of the Product
      * @return Save The Details
@@ -287,6 +299,7 @@ class ExtendedBaseProductController extends Controller
                 $product->can_modify_quantity = 0;
             }
         }
+
         $product->highlight = $highlight;
         $product->add_to_contact = $add_to_contact;
         $product->save();

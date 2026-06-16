@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Common;
 
+use ReflectionClass;
 use App\ApiKey;
 use App\Http\Controllers\Common\PipedriveController;
 use App\Model\Common\PipedriveField;
@@ -63,9 +64,8 @@ class PipedriveControllerTest extends DBTestCase
     public function test_it_adds_user_to_pipedrive_when_enabled()
     {
         $mockController = Mockery::mock(PipedriveController::class)->makePartial()->shouldAllowMockingProtectedMethods();
-        $reflection = new \ReflectionClass($mockController);
+        $reflection = new ReflectionClass($mockController);
         $property = $reflection->getProperty('groups');
-        $property->setAccessible(true);
         $property->setValue($mockController, [
             'personId' => 1,
             'organizationId' => 2,
@@ -97,9 +97,8 @@ class PipedriveControllerTest extends DBTestCase
     public function test_it_syncs_fields_from_pipedrive()
     {
         $mockController = Mockery::mock(PipedriveController::class)->makePartial();
-        $reflection = new \ReflectionClass($mockController);
+        $reflection = new ReflectionClass($mockController);
         $property = $reflection->getProperty('groups');
-        $property->setAccessible(true);
         $property->setValue($mockController, [
             'personId' => 1,
             'organizationId' => 2,

@@ -2,6 +2,9 @@
 
 namespace App\Plugins\Zoho\Tests\Controllers;
 
+use Illuminate\Validation\ValidationException;
+use Exception;
+use InvalidArgumentException;
 use App\Plugins\Zoho\Controllers\ZohoOAuthController;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 use App\Plugins\Zoho\Models\ZohoOAuthClient;
@@ -65,7 +68,7 @@ class ZohoOAuthControllerTest extends DBTestCase
 
     public function test_it_validates_required_fields_when_saving_oauth_keys()
     {
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
 
         $request = new Request([
             'integration_id' => 999,
@@ -76,7 +79,7 @@ class ZohoOAuthControllerTest extends DBTestCase
 
     public function test_it_validates_region_must_be_valid()
     {
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
 
         $integration = ZohoIntegration::first();
 
@@ -112,7 +115,7 @@ class ZohoOAuthControllerTest extends DBTestCase
 
     public function test_it_throws_exception_when_oauth_client_not_configured()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('OAuth client not configured');
 
         ZohoIntegration::wherePlatform('crm')->first();
@@ -122,7 +125,7 @@ class ZohoOAuthControllerTest extends DBTestCase
 
     public function test_it_throws_exception_when_scopes_not_configured()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Scopes not configured for [crm]');
 
         $integration = ZohoIntegration::wherePlatform('crm')->first();

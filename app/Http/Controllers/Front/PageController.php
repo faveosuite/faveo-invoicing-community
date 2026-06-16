@@ -2,6 +2,25 @@
 
 namespace App\Http\Controllers\Front;
 
+use Exception;
+use Logger;
+use Illuminate\Support\Facades\Date;
+use Lang;
+use App\Http\Controllers\Product\ProductController;
+use Illuminate\Support\Str;
+use Config;
+use Auth;
+use DB;
+use Illuminate\Contracts\Database\Query\Builder;
+use App\Model\Common\Setting;
+use Form;
+use App\Http\Controllers\Common\PhpMailController;
+use DateTime;
+use Throwable;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use App\ApiKey;
 use App\DefaultPage;
 use App\Demo_page;
@@ -13,7 +32,6 @@ use App\Model\Common\Country;
 use App\Model\Common\PricingTemplate;
 use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
-use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Front\FrontendPage;
 use App\Model\Payment\Plan;
@@ -43,6 +61,7 @@ class PageController extends Controller
             if ($request->input('type') == 'contactus') {
                 $url = url('/contact-us');
             }
+
             $this->page->name = $request->input('name');
             $this->page->publish = $request->input('publish');
             $this->page->slug = $request->input('slug');
@@ -53,14 +72,14 @@ class PageController extends Controller
             if ($pages_count <= 2) {
                 $this->page->save();
 
-                return redirect()->back()->with('success', trans('message.saved-successfully'));
+                return back()->with('success', trans('message.saved-successfully'));
             } else {
-                return redirect()->back()->with('fails', trans('message.limit_exceed'));
+                return back()->with('fails', trans('message.limit_exceed'));
             }
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -72,7 +91,7 @@ class PageController extends Controller
             $page->fill($request->except('created_at'));
 
             if ($request->filled('created_at')) {
-                $page->created_at = \Carbon\Carbon::createFromFormat(
+                $page->created_at = Date::createFromFormat(
                     'm/d/Y',
                     $request->input('created_at')
                 );
@@ -96,26 +115,26 @@ class PageController extends Controller
                 ]);
             }
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('success', Lang::get('message.updated-successfully'));
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
     public function getPageUrl($slug)
     {
-        $productController = new \App\Http\Controllers\Product\ProductController();
+        $productController = new ProductController();
         //  $url = url('/');
         //  $segment = $this->addSegment(['public/pages']);
         $url = url('/');
 
-        $slug = str_slug($slug, '-');
+        $slug = Str::slug($slug, '-');
         echo $url.'/pages'.'/'.$slug;
     }
 
     public function getSlug($slug)
     {
-        $slug = str_slug($slug, '-');
+        $slug = Str::slug($slug, '-');
         echo $slug;
     }
 
@@ -136,6 +155,7 @@ class PageController extends Controller
 
             return $this->getSlug($slug);
         }
+
         if ($request->has('url')) {
             $slug = $request->input('url');
 
@@ -156,7 +176,7 @@ class PageController extends Controller
                 ->get();
 
             return successResponse('', $pages);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -175,7 +195,7 @@ class PageController extends Controller
                 ->first();
 
             return successResponse('', $page);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -200,49 +220,50 @@ class PageController extends Controller
                         } else {
                             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
                     /* @scrutinizer ignore-type */
-                    \Lang::get('message.failed').'
+                    Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
+                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
                 </div>';
                             //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                         }
+
                         echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
 
-                    <b>"./* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '.
+                    <b>"./* @scrutinizer ignore-type */ Lang::get('message.alert').'!</b> '.
                     /* @scrutinizer ignore-type */
-                    \Lang::get('message.success').'
+                    Lang::get('message.success').'
 
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
+                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
                 </div>';
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */ \Lang::get('message.can-not-delete-default-page').'
+                        './* @scrutinizer ignore-type */ Lang::get('message.can-not-delete-default-page').'
                 </div>';
                     }
                 }
             } else {
                 echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
+                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
                 </div>';
                 //echo \Lang::get('message.select-a-row');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.$e->getMessage().'
                 </div>';
@@ -282,27 +303,29 @@ class PageController extends Controller
 
                     if (isset($prices[$plan->id]) && ! empty($prices[$plan->id])) {
                         if (isset($offerprice) && $offerprice != '' && $offerprice != null) {
-                            $prices[$plan->id][0] = $prices[$plan->id][0] - (($offerprice / 100) * $prices[$plan->id][0]);
+                            $prices[$plan->id][0] -= ($offerprice / 100) * $prices[$plan->id][0];
                         }
+
                         $format = currencyFormat(min([$prices[$plan->id][0]]), $code = $prices[$plan->id][2]);
                         $finalPrice = str_replace($prices[$plan->id][1], '', $format);
                         $cost[$plan->id] = '<span class="price-unit striked hide_custom" id="'.$prices[$plan->id][3].'">'.$prices[$plan->id][1].$finalPrice.'</span>';
                     }
                 }
             }
-            if (sizeof($cost) > 1) {
+
+            if (count($cost) > 1) {
                 unset($cost[0]);
             }
 
             return $cost;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
     public function transformTemplate($type, $data, $trasform = [])
     {
-        $config = \Config::get("transform.$type");
+        $config = Config::get("transform.$type");
         $result = '';
 
         // Iterate using the original transform array to preserve product IDs as keys
@@ -326,6 +349,7 @@ class PageController extends Controller
                 $data = str_replace('{{price}}', 'Custom Pricing', $data);
                 $data = str_replace('{{price-year}}', 'Custom Pricing', $data);
             }
+
             if ($month_offer_price === '' || $month_offer_price === null) {
                 $data = str_replace('{{strike-price}}', '', $data);
             }
@@ -337,6 +361,7 @@ class PageController extends Controller
             } elseif (empty($year_offer_price)) {
                 $data = str_replace('{{strike-priceyear}}', '', $data);
             }
+
             if ($year_offer_price !== '' && $year_offer_price !== null) {
                 $offerprice = $this->getPayingprice($id);
                 $offerpriceYear = $this->getstrikePriceYear($id);
@@ -347,19 +372,22 @@ class PageController extends Controller
                 if ($month_offer_price !== '' && $month_offer_price !== null) {
                     $data = str_replace('{{strike-price}}', $array2[1] ?? '', $data);
                 }
-                if (sizeof($offerpriceyearKeys) > 1) {
+
+                if (count($offerpriceyearKeys) > 1) {
                     $data = str_replace('{{price-year}}', implode(' ', $offerpriceYear), $data);
                 } else {
                     $data = str_replace('{{price-year}}', $offerpriceYear[$offerpriceyearKeys[0]], $data);
                 }
+
                 if ($year_offer_price !== '' && $year_offer_price !== null) {
-                    if (sizeof($strikePriceKeys) > 1) {
+                    if (count($strikePriceKeys) > 1) {
                         $data = str_replace('{{strike-priceyear}}', implode(' ', $strikePrice), $data);
                     } else {
                         $data = str_replace('{{strike-priceyear}}', $strikePrice[$strikePriceKeys[0]], $data);
                     }
                 }
             }
+
             $result .= str_replace($array1, $array2, $data);
         }
 
@@ -368,12 +396,13 @@ class PageController extends Controller
 
     public function transform($type, $data, $trasform = [])
     {
-        $config = \Config::get("transform.$type");
+        $config = Config::get("transform.$type");
         $result = '';
         $array = [];
         foreach ($trasform as $trans) {
             $array[] = $this->checkConfigKey($config, $trans);
         }
+
         $c = count($array);
         for ($i = 0; $i < $c; $i++) {
             $array1 = $this->keyArray($array[$i]);
@@ -402,7 +431,7 @@ class PageController extends Controller
                         $symbol = $planDetails['symbol'];
                         $currency = $planDetails['currency'];
                         if (isset($offerprice) && $offerprice != '' && $offerprice != null) {
-                            $price = $price - (($offerprice / 100) * $price);
+                            $price -= ($offerprice / 100) * $price;
                         }
 
                         $prices[] = $price;
@@ -419,7 +448,7 @@ class PageController extends Controller
             }
 
             return $cost;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
@@ -436,47 +465,49 @@ class PageController extends Controller
      * @param  int  $templateid  Id of the Template
      * @return
      */
-    public function pageTemplates(?int $templateid = null, int $group)
+    public function pageTemplates(?int $templateid = null, int $group = 0)
     {
         $group = ProductGroup::findOrFail($group);
         try {
             $headline = $group->headline;
             $tagline = $group->tagline;
             $currencyAndSymbol = '';
-            if (! \Auth::user()) {
+            if (! Auth::user()) {
                 $location = getLocation();
                 $country = findCountryByGeoip($location['iso_code']);
                 $currencyAndSymbol = getCurrencyForClient($country);
             }
-            if (\Auth::user()) {
-                $country = \DB::table('users')->where('id', \Auth::user()->id)->value('country');
+
+            if (Auth::user()) {
+                $country = DB::table('users')->where('id', Auth::user()->id)->value('country');
                 $currencyAndSymbol = getCurrencyForClient($country);
             }
+
             $productsRelatedToGroup = Product::with([
-                'planRelation' => function ($query) use ($currencyAndSymbol) {
+                'planRelation' => function ($query) use ($currencyAndSymbol): void {
                     $query->where('days', '!=', 14)
-                    ->with(['planPrice' => function ($priceQuery) use ($currencyAndSymbol) {
+                    ->with(['planPrice' => function ($priceQuery) use ($currencyAndSymbol): void {
                         $priceQuery->where('currency', $currencyAndSymbol);
                     }]);
                 },
             ])
                 ->where('group', $group->id)
                 ->where('hidden', '!=', 1)
-                ->whereHas('planRelation', function ($query) use ($currencyAndSymbol) {
+                ->whereHas('planRelation', function (Builder $query) use ($currencyAndSymbol): void {
                     $query->where('days', '!=', 14)
-                    ->whereHas('planPrice', function ($priceQuery) use ($currencyAndSymbol) {
+                    ->whereHas('planPrice', function (Builder $priceQuery) use ($currencyAndSymbol): void {
                         $priceQuery->where('currency', $currencyAndSymbol);
                     });
                 })
-            ->where(function ($query) use ($currencyAndSymbol) {
+            ->where(function (Builder $query) use ($currencyAndSymbol): void {
                 $query->where('status', '!=', 1)
-                    ->orWhere(function ($activeQuery) use ($currencyAndSymbol) {
+                    ->orWhere(function (Builder $activeQuery) use ($currencyAndSymbol): void {
                         $activeQuery->where('status', 1)
-                            ->whereHas('planRelation', function ($q) use ($currencyAndSymbol) {
+                            ->whereHas('planRelation', function (Builder $q) use ($currencyAndSymbol): void {
                                 $q->whereIn('days', [30, 31])
-                                    ->whereHas('planPrice', fn ($pq) => $pq->where('currency', $currencyAndSymbol));
+                                    ->whereHas('planPrice', fn (Builder $pq) => $pq->where('currency', $currencyAndSymbol));
                             })
-                            ->whereHas('planRelation', function ($q) use ($currencyAndSymbol) {
+                            ->whereHas('planRelation', function ($q) use ($currencyAndSymbol): void {
                                 $q->whereIn('days', [365, 366])
                                     ->whereHas('planPrice', fn ($pq) => $pq->where('currency', $currencyAndSymbol));
                             });
@@ -485,19 +516,18 @@ class PageController extends Controller
                 ->orderBy('id')
                 ->get();
 
-            $productsRelatedToGroup = $productsRelatedToGroup->sortBy(function ($product) {
-                return $product->planRelation
-                    ->flatMap(fn ($plan) => $plan->planPrice)
-                    ->pluck('add_price')
-                    ->filter(fn ($v) => $v !== null)
-                    ->min() ?? PHP_INT_MAX;
-            })->values();
+            $productsRelatedToGroup = $productsRelatedToGroup->sortBy(fn($product) => $product->planRelation
+                ->flatMap(fn ($plan) => $plan->planPrice)
+                ->pluck('add_price')
+                ->filter(fn ($v) => $v !== null)
+                ->min() ?? PHP_INT_MAX)->values();
 
             $trasform = [];
             $templates = $this->getTemplateOne($productsRelatedToGroup, $trasform);
             if (empty($templates)) {
-                $templates = \Lang::get('message.empty_group');
+                $templates = Lang::get('message.empty_group');
             }
+
             $products = Product::all();
             $plan = '';
             $description = '';
@@ -510,7 +540,7 @@ class PageController extends Controller
 
             return successResponse('', ['templates' => $templates, 'headline' => $headline, 'tagline' => $tagline, 'description' => $description, 'status' => $status]);
 //            return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -520,15 +550,15 @@ class PageController extends Controller
      *
      * @param
      * @param
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     * @return Factory|View|Application|RedirectResponse
      *
      * @throws
      */
     public function contactUsInfo()
     {
         try {
-            $set = \App\Model\Common\Setting::findOrFail(1);
-            $address = preg_replace("/^\R+|\R+\z/", '', $set->address);
+            $set = Setting::findOrFail(1);
+            $address = preg_replace("/^\R+|\R+\z/", '', (string) $set->address);
             $state = State::where('country_code', $set->country)->where('iso2', $set->state)->value('state_subdivision_name');
             $country = Country::where('country_code_char2', $set->country)->value('country_name');
             $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck')->first();
@@ -546,7 +576,7 @@ class PageController extends Controller
                 'recaptcha_key' => $apiKeys->nocaptcha_sitekey ?? null,
                 'msg91_status' => (bool) ($status->msg91_status ?? false),
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -591,12 +621,13 @@ class PageController extends Controller
                     'url' => $this->generateProductUrl($product, $orderButton, $highlight),
                 ];
             }
+
             $data = PricingTemplate::findOrFail(1)->data;
 
             return $trasform;
 //            return $this->transformTemplate('cart', $data, $trasform);
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -644,24 +675,26 @@ class PageController extends Controller
 
             $plans = $this->prices($id);
             if ($plans) {
-                $plan_form = \Form::select('subscription', ['Plans' => $plans], null);
+                $plan_form = Form::select('subscription', ['Plans' => $plans], null);
             }
-            $form = \Form::open(['method' => 'get', 'url' => $url]).
+
+            $form = Form::open(['method' => 'get', 'url' => $url]).
             $plan_form.
-            \Form::hidden('id', $id);
+            Form::hidden('id', $id);
 
             return $product['add_to_contact'] == 1 ? '' : $form;
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
     public function getPrice($months, $price, $priceDescription, $value, $cost, $currency, $offer, $product)
     {
-        $cost = $cost * 12;
+        $cost *= 12;
         if (isset($offer) && $offer !== '' && $offer !== null) {
-            $cost = $cost - ($offer / 100 * $cost);
+            $cost -= $offer / 100 * $cost;
         }
+
         $price1 = currencyFormat($cost, $code = $currency);
         $price[$value->id] = $months.'  '.$price1.' '.$priceDescription;
 
@@ -689,14 +722,15 @@ class PageController extends Controller
                 } elseif ($cost != '0' && in_array($product->id, cloudPopupProducts())) {
                     $price = $this->getPrice($months, $price, $priceDescription, $value, $cost, $currency, $offer, $product);
                 }
+
                 // $price = currencyFormat($cost, $code = $currency);
             }
 
             return $price;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -780,7 +814,7 @@ class PageController extends Controller
             }
 
             return $cost;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
@@ -813,12 +847,13 @@ class PageController extends Controller
                     $cost[$plan->id] = '<span class="price-unit strike-amount hide_custom" id="'.$plan->id.'">'.$prices[$plan->id][1].$finalPrice.'</span>';
                 }
             }
-            if (sizeof($cost) > 1) {
+
+            if (count($cost) > 1) {
                 unset($cost[0]);
             }
 
             return $cost;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
@@ -855,10 +890,10 @@ class PageController extends Controller
             }
 
             return $priceDescription;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -913,8 +948,8 @@ class PageController extends Controller
             }
 
             return '';
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
             return '';
         }
@@ -947,7 +982,7 @@ class PageController extends Controller
     public function valueArray($array)
     {
         $result = [];
-        foreach ($array as $key => $value) {
+        foreach ($array as $value) {
             $result[] = $value;
         }
 
@@ -964,7 +999,8 @@ class PageController extends Controller
             if ($isSpam) {
                 return response()->json(['error' => 'Spam detected.'], 403);
             }
-            $set = new \App\Model\Common\Setting();
+
+            $set = new Setting();
             $set = $set->findOrFail(1);
 
             $template = TemplateType::getSelectedTemplate('contact_us');
@@ -984,12 +1020,12 @@ class PageController extends Controller
             $type = $template?->type()->value('name') ?? '';
 
             if (emailSendingStatus()) {
-                $mail = new \App\Http\Controllers\Common\PhpMailController();
+                $mail = new PhpMailController();
                 $mail->SendEmail($set->email, $set->company_email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
             }
 
             return response()->json(['message' => __('message.message_sent_successfully_400')], 200);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return response()->json(['error' => $ex->getMessage()], 500);
         }
     }
@@ -1005,13 +1041,13 @@ class PageController extends Controller
 
     private function containsExcessivePunctuation($text)
     {
-        return (bool) preg_match('/!{5,}/', $text);
+        return (bool) preg_match('/!{5,}/', (string) $text);
     }
 
     private function containsExcessiveCaps($text)
     {
-        $uppercaseCount = preg_match_all('/[A-Z]/', $text);
-        $lowercaseCount = preg_match_all('/[a-z]/', $text);
+        $uppercaseCount = preg_match_all('/[A-Z]/', (string) $text);
+        $lowercaseCount = preg_match_all('/[a-z]/', (string) $text);
         $totalCharacters = $uppercaseCount + $lowercaseCount;
         if ($totalCharacters > 0) {
             $percentageCaps = ($uppercaseCount / $totalCharacters) * 100;
@@ -1026,13 +1062,7 @@ class PageController extends Controller
     private function containsSpamKeywords($text)
     {
         $spamKeywords = ['viagra', 'casino', 'lottery', 'free money', 'enlargement', 'promotions'];
-        foreach ($spamKeywords as $keyword) {
-            if (stripos($text, $keyword) !== false) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($spamKeywords, fn($keyword) => stripos((string) $text, (string) $keyword) !== false);
     }
 
     public function postDemoReq(ContactRequest $request)
@@ -1045,7 +1075,7 @@ class PageController extends Controller
                 return response()->json(['error' => 'Spam detected.'], 403);
             }
 
-            $set = new \App\Model\Common\Setting();
+            $set = new Setting();
             $set = $set->findOrFail(1);
 
             $template = TemplateType::getSelectedTemplate('demo_request');
@@ -1067,12 +1097,12 @@ class PageController extends Controller
             $templatename = $template->name.' '.'for'.' '.$product;
 
             if (emailSendingStatus()) {
-                $mail = new \App\Http\Controllers\Common\PhpMailController();
+                $mail = new PhpMailController();
                 $mail->SendEmail($set->email, $set->company_email, $template->data, $templatename, $template->type()->value('name'), $replace, $type);
             }
 
             return successResponse(__('message.message_sent_successfully_400'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -1089,7 +1119,7 @@ class PageController extends Controller
     public function saveDemoPage(Request $request)
     {
         $request->validate([
-            'status' => 'required|boolean',
+            'status' => ['required', 'boolean'],
         ]);
 
         Demo_page::updateOrCreate([],
@@ -1107,8 +1137,8 @@ class PageController extends Controller
         $limit = $request->input('limit', 10);
 
         $pages = FrontendPage::select('id', 'name', 'url', 'created_at')
-            ->when($searchQuery, function ($query) use ($searchQuery) {
-                $query->where(function ($q) use ($searchQuery) {
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($q) use ($searchQuery): void {
                     $q->where('name', 'like', "%{$searchQuery}%")
                         ->orWhere('url', 'like', "%{$searchQuery}%");
                 });
@@ -1153,7 +1183,7 @@ class PageController extends Controller
         $span = '<span class="price-unit"'.($id ? ' id="'.$id.'"' : '').'>'.$symbol.'</span>';
 
         // rebuild keeping correct placement
-        if (strpos($withSymbol, $symbol) === 0) {
+        if (str_starts_with((string) $withSymbol, $symbol)) {
             // symbol is in front
             return $span.$formatted;
         }
@@ -1186,7 +1216,7 @@ class PageController extends Controller
             ]);
 
             return successResponse(__('message.saved-successfully'), $page);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -1200,7 +1230,7 @@ class PageController extends Controller
             $data['is_default'] = (int) $page->id === (int) $defaultPageId;
 
             return successResponse('', $data);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -1220,7 +1250,7 @@ class PageController extends Controller
 
             // Handle created_at if provided and valid
             if ($request->filled('created_at')) {
-                $date = \DateTime::createFromFormat('m/d/Y', $request->input('created_at'));
+                $date = DateTime::createFromFormat('m/d/Y', $request->input('created_at'));
                 if ($date) {
                     $page->created_at = $date->format('Y-m-d H:i:s');
                 }
@@ -1239,7 +1269,7 @@ class PageController extends Controller
             ]);
 
             return successResponse(__('message.updated-successfully'), $page);
-        } catch (\Throwable $ex) {
+        } catch (Throwable $ex) {
             return errorResponse($ex->getMessage());
         }
     }

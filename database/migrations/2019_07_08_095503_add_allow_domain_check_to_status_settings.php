@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('status_settings', 'domain_check')) {
-            Schema::table('status_settings', function (Blueprint $table) {
+            Schema::table('status_settings', function (Blueprint $table): void {
                 $table->boolean('domain_check')->default(0);
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->dropColumn('domain_check');
         });
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Github;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Model\Github\Github;
 
@@ -41,9 +42,10 @@ class GithubApiController extends Controller
     public function getCurl($url)
     {
         try {
-            if (str_contains($url, ' ')) {
+            if (str_contains((string) $url, ' ')) {
                 $url = str_replace(' ', '', $url);
             }
+
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
@@ -53,20 +55,22 @@ class GithubApiController extends Controller
             if (curl_exec($ch) === false) {
                 echo 'Curl error: '.curl_error($ch);
             }
+
             $content = curl_exec($ch);
             curl_close($ch);
 
             return json_decode($content, true);
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
     public function getCurl1($url)
     {
-        if (str_contains($url, ' ')) {
+        if (str_contains((string) $url, ' ')) {
             $url = str_replace(' ', '', $url);
         }
+
         // $url = "https://api.github.com/repos/ladybirdweb/faveo-helpdesk/zipball/master";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -80,6 +84,7 @@ class GithubApiController extends Controller
         if (curl_exec($ch) === false) {
             echo 'Curl error: '.curl_error($ch);
         }
+
         $content = curl_exec($ch);
         $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $header = substr($content, 0, $header_size);
@@ -96,7 +101,7 @@ class GithubApiController extends Controller
         try {
             $headers = [];
 
-            $header_text = substr($response, 0, strpos($response, "\r\n\r\n"));
+            $header_text = substr((string) $response, 0, strpos((string) $response, "\r\n\r\n"));
             foreach (explode("\r\n", $header_text) as $i => $line) {
                 if ($i === 0) {
                     $headers['http_code'] = $line;
@@ -108,7 +113,7 @@ class GithubApiController extends Controller
             }
 
             return $headers;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dd($e);
         }
     }

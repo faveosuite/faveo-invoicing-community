@@ -28,19 +28,19 @@ class LicenseRequest extends FormRequest
     {
         return [
 
-            'license_code' => 'nullable|string',
-            'product_id' => 'numeric',
-            'license_order_number' => 'numeric',
-            'license_require_domain' => 'boolean',
-            'license_limit' => 'numeric',
-            'license_date' => 'date',
-            'license_cancel_date' => 'date',
-            'license_expire_email_date' => 'date',
-            'license_updates_date' => 'date',
-            'license_updates_email_date' => 'date',
-            'license_support_email_date' => 'date',
-            'license_support_date' => 'date',
-            'license_status' => 'integer|in:0,1,2',
+            'license_code' => ['nullable', 'string'],
+            'product_id' => ['numeric'],
+            'license_order_number' => ['numeric'],
+            'license_require_domain' => ['boolean'],
+            'license_limit' => ['numeric'],
+            'license_date' => ['date'],
+            'license_cancel_date' => ['date'],
+            'license_expire_email_date' => ['date'],
+            'license_updates_date' => ['date'],
+            'license_updates_email_date' => ['date'],
+            'license_support_email_date' => ['date'],
+            'license_support_date' => ['date'],
+            'license_status' => ['integer', 'in:0,1,2'],
         ];
     }
 

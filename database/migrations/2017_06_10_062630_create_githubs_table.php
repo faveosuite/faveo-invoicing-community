@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('githubs')) {
-            Schema::create('githubs', function (Blueprint $table) {
+            Schema::create('githubs', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('client_id')->nullable();
                 $table->string('client_secret')->nullable();

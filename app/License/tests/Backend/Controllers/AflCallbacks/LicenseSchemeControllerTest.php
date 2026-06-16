@@ -40,7 +40,7 @@ class LicenseSchemeControllerTest extends LicenseTestCase
         $validator->shouldReceive('findLicense')->once()->andReturn($license);
         $validator->shouldReceive('validateLicense')->once()->andReturn(['valid' => true, 'license' => $license]);
 
-        $response = (new LicenseSchemeController($validator))->licenseScheme($this->moduleRequest([
+        $response = new LicenseSchemeController($validator)->licenseScheme($this->moduleRequest([
             'product_id' => $product->id,
             'root_url' => 'https://example.com/helpdesk',
             'client_email' => 'client@example.com',
@@ -51,7 +51,7 @@ class LicenseSchemeControllerTest extends LicenseTestCase
         ], 'POST'));
 
         $this->assertSame('notification_license_ok', $response->headers->get('notification_case'));
-        $data = json_decode($response->headers->get('notification_data'), true);
+        $data = json_decode((string) $response->headers->get('notification_data'), true);
         $this->assertSame('select 1', $data['scheme_query']);
     }
 }

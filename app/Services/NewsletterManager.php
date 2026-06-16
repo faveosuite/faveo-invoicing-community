@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Throwable;
+use Logger;
 use App\Contracts\NewsletterProvider;
 
 class NewsletterManager
@@ -27,20 +29,14 @@ class NewsletterManager
 
             try {
                 $provider->subscribeEmail($email);
-            } catch (\Throwable $e) {
-                \Logger::exception($e);
+            } catch (Throwable $e) {
+                Logger::exception($e);
             }
         }
     }
 
     public function hasEnabledProviders(): bool
     {
-        foreach ($this->providers as $provider) {
-            if ($provider->isEnabled()) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($this->providers, fn($provider) => $provider->isEnabled());
     }
 }

@@ -13,11 +13,8 @@ class GetAllVersionsController extends Controller
 {
     use AfuCallbackHelpers;
 
-    protected LicenseValidator $validator;
-
-    public function __construct(LicenseValidator $validator)
+    public function __construct(protected LicenseValidator $validator)
     {
-        $this->validator = $validator;
     }
 
     /**

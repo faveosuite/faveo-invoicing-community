@@ -2,6 +2,8 @@
 
 namespace App\Plugins;
 
+use Override;
+
 abstract class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     public function boot()
@@ -13,6 +15,7 @@ abstract class ServiceProvider extends \Illuminate\Support\ServiceProvider
         }
     }
 
+    #[Override]
     public function register()
     {
         if ($module = $this->getModule(func_get_args())) {

@@ -17,28 +17,26 @@ class LicenseService
      */
     public function create(array $data): License
     {
-        return DB::transaction(function () use ($data) {
-            return License::create([
-                'product_id' => $data['product_id'],
-                'user_id' => $data['user_id'] ?? $data['client_id'] ?? null,
-                'license_code' => $data['license_code'] ?? $this->generateLicenseCode(),
-                'license_order_number' => $data['license_order_number'] ?? null,
-                'license_domain' => $data['license_domain'] ?? null,
-                'license_ip' => $data['license_ip'] ?? null,
-                'license_require_domain' => $data['license_require_domain'] ?? 0,
-                'license_expire_date' => $data['license_expire_date'] ?? null,
-                'license_expire_email_date' => null,
-                'license_updates_date' => $data['license_updates_date'] ?? null,
-                'license_updates_email_date' => null,
-                'license_support_date' => $data['license_support_date'] ?? null,
-                'license_support_email_date' => null,
-                'license_limit' => $data['license_limit'] ?? 1,
-                'license_status' => $data['license_status'] ?? 1,
-                'license_date' => $data['license_date'] ?? now()->format('Y-m-d'),
-                'license_cancel_date' => null,
-                'license_comments' => $data['license_comments'] ?? null,
-            ]);
-        });
+        return DB::transaction(fn() => License::create([
+            'product_id' => $data['product_id'],
+            'user_id' => $data['user_id'] ?? $data['client_id'] ?? null,
+            'license_code' => $data['license_code'] ?? $this->generateLicenseCode(),
+            'license_order_number' => $data['license_order_number'] ?? null,
+            'license_domain' => $data['license_domain'] ?? null,
+            'license_ip' => $data['license_ip'] ?? null,
+            'license_require_domain' => $data['license_require_domain'] ?? 0,
+            'license_expire_date' => $data['license_expire_date'] ?? null,
+            'license_expire_email_date' => null,
+            'license_updates_date' => $data['license_updates_date'] ?? null,
+            'license_updates_email_date' => null,
+            'license_support_date' => $data['license_support_date'] ?? null,
+            'license_support_email_date' => null,
+            'license_limit' => $data['license_limit'] ?? 1,
+            'license_status' => $data['license_status'] ?? 1,
+            'license_date' => $data['license_date'] ?? now()->format('Y-m-d'),
+            'license_cancel_date' => null,
+            'license_comments' => $data['license_comments'] ?? null,
+        ]));
     }
 
     /**
@@ -53,9 +51,11 @@ class LicenseService
         if (isset($data['license_expire_date']) && $data['license_expire_date'] != $license->license_expire_date) {
             $data['license_expire_email_date'] = null;
         }
+
         if (isset($data['license_updates_date']) && $data['license_updates_date'] != $license->license_updates_date) {
             $data['license_updates_email_date'] = null;
         }
+
         if (isset($data['license_support_date']) && $data['license_support_date'] != $license->license_support_date) {
             $data['license_support_email_date'] = null;
         }
@@ -139,7 +139,7 @@ class LicenseService
         // Filter out empty values and deduplicate
         $productIds = array_unique(array_filter($productIds, fn ($id) => ! empty($id)));
 
-        DB::transaction(function () use ($licenseId, $productIds, $options) {
+        DB::transaction(function () use ($licenseId, $productIds, $options): void {
             // Insert or update license plugins (upsert like original)
             foreach ($productIds as $productId) {
                 LicensePlugin::updateOrCreate(
@@ -243,15 +243,13 @@ class LicenseService
 
         return LicenseOption::where('option_group', (string) $license->id)
             ->get()
-            ->map(function ($option) use ($license) {
-                return [
-                    'license_code' => $license->license_code,
-                    'id' => $option->id,
-                    'option_group' => $option->option_group,
-                    'key' => $option->option_key,
-                    'value' => $option->option_value,
-                ];
-            })
+            ->map(fn($option) => [
+                'license_code' => $license->license_code,
+                'id' => $option->id,
+                'option_group' => $option->option_group,
+                'key' => $option->option_key,
+                'value' => $option->option_value,
+            ])
             ->toArray();
     }
 
@@ -296,7 +294,7 @@ class LicenseService
     public function generateLicenseCode(): string
     {
         do {
-            $code = strtoupper(substr(md5(uniqid(rand(), true)), 0, 16));
+            $code = strtoupper(substr(md5(uniqid(random_int(0, mt_getrandmax()), true)), 0, 16));
             $code = chunk_split($code, 4, '-');
             $code = substr($code, 0, -1);
         } while (License::where('license_code', $code)->exists());

@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Common;
 
+use Mockery;
+use App\Http\Controllers\Common\SettingsController;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -183,15 +185,15 @@ class BaseSettingsControllerTest extends DBTestCase
 
     public function test_it_returns_success_when_exec_is_enabled_and_php_path_is_valid()
     {
-        $mock = \Mockery::mock(
-            \App\Http\Controllers\Common\SettingsController::class
+        $mock = Mockery::mock(
+            SettingsController::class
         )->makePartial();
 
         $mock->shouldAllowMockingProtectedMethods();
         $mock->shouldReceive('execEnabled')->once()->andReturn(true);
 
         $this->app->instance(
-            \App\Http\Controllers\Common\SettingsController::class,
+            SettingsController::class,
             $mock
         );
 
@@ -208,8 +210,8 @@ class BaseSettingsControllerTest extends DBTestCase
 
     public function test_it_returns_error_when_exec_is_disabledq()
     {
-        $mock = \Mockery::mock(
-            \App\Http\Controllers\Common\SettingsController::class
+        $mock = Mockery::mock(
+            SettingsController::class
         )->makePartial();
 
         // allow mocking protected methods
@@ -222,7 +224,7 @@ class BaseSettingsControllerTest extends DBTestCase
 
         // bind the mocked controller
         $this->app->instance(
-            \App\Http\Controllers\Common\SettingsController::class,
+            SettingsController::class,
             $mock
         );
 

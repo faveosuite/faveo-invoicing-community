@@ -2,9 +2,11 @@
 
 namespace App\Model\Product;
 
+use Override;
+use App\User;
+use App\Model\Payment\Plan;
+use App\Model\Order\Order;
 use App\Traits\SystemActivityLogsTrait;
-use DateTime;
-use DateTimeZone;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,10 +19,6 @@ class Subscription extends Model
 
     protected $fillable = ['name', 'description', 'days', 'ends_at', 'update_ends_at',
         'user_id', 'plan_id', 'order_id', 'deny_after_subscription', 'version', 'product_id', 'support_ends_at', 'version_updated_at', 'is_subscribed', 'is_deleted', 'autoRenew_status'];
-
-    protected $casts = [
-        'ends_at' => 'datetime',
-    ];
 
     protected $logName = 'subscriptions';
 
@@ -37,12 +35,12 @@ class Subscription extends Model
             'days' => ['Subscription Days', fn ($value) => $value],
             'ends_at' => ['Subscription End Date', fn ($value) => $value],
             'update_ends_at' => ['Update End Date', fn ($value) => $value],
-            'user_id' => ['User', fn ($value) => \App\User::find($value)?->name],
-            'plan_id' => ['Plan', fn ($value) => \App\Model\Payment\Plan::find($value)?->name],
-            'order_id' => ['Order', fn ($value) => $value ? \App\Model\Order\Order::find($value)?->number : 'No Order'],
+            'user_id' => ['User', fn ($value) => User::find($value)?->name],
+            'plan_id' => ['Plan', fn ($value) => Plan::find($value)?->name],
+            'order_id' => ['Order', fn ($value) => $value ? Order::find($value)?->number : 'No Order'],
             'deny_after_subscription' => ['Deny After Subscription', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
             'version' => ['Version', fn ($value) => $value],
-            'product_id' => ['Product', fn ($value) => \App\Model\Product\Product::find($value)?->name],
+            'product_id' => ['Product', fn ($value) => Product::find($value)?->name],
             'support_ends_at' => ['Support End Date', fn ($value) => $value],
             'version_updated_at' => ['Version Updated At', fn ($value) => $value],
             'is_subscribed' => ['Is Subscribed', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
@@ -52,22 +50,22 @@ class Subscription extends Model
 
     public function plan()
     {
-        return $this->belongsTo(\App\Model\Payment\Plan::class);
+        return $this->belongsTo(Plan::class);
     }
 
     public function product()
     {
-        return $this->belongsTo(\App\Model\Product\Product::class);
+        return $this->belongsTo(Product::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(\App\User::class);
+        return $this->belongsTo(User::class);
     }
 
     public function order()
     {
-        return $this->belongsTo(\App\Model\Order\Order::class);
+        return $this->belongsTo(Order::class);
     }
 
     public function getLogUrl($id = null): ?string
@@ -93,4 +91,11 @@ class Subscription extends Model
 //
 //        return parent::delete();
 //    }
+#[Override]
+protected function casts(): array
+{
+    return [
+        'ends_at' => 'datetime',
+    ];
+}
 }

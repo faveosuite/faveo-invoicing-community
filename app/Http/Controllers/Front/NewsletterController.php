@@ -15,7 +15,7 @@ class NewsletterController extends Controller
 
     public function subscribe(Request $request): JsonResponse
     {
-        $request->validate(['newsletterEmail' => 'required|email']);
+        $request->validate(['newsletterEmail' => ['required', 'email']]);
 
         $email = $request->input('newsletterEmail');
 

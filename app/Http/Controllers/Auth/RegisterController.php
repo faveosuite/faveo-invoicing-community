@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Log;
+use Lang;
+use Hash;
+use Session;
+use Logger;
 use App\EmailValidationResults;
 use App\Events\UserRegisteredEvent;
 use App\Http\Controllers\Controller;
@@ -62,8 +67,8 @@ class RegisterController extends Controller
             }
 
             return ['status' => false, 'id' => $emailResult->id];
-        } catch (\Exception $exception) {
-            \Log::error($exception->getMessage());
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage());
 
             // Fail open: if the verifier is unreachable, let the user proceed
             return ['status' => true, 'id' => null];
@@ -139,14 +144,14 @@ class RegisterController extends Controller
                     $user = $this->getUserDetails($request);
                     EmailValidationResults::where('id', $emailVerifier['id'])->update($user);
 
-                    return errorResponse(\Lang::get('message.email_provided_wrong'));
+                    return errorResponse(Lang::get('message.email_provided_wrong'));
                 }
             }
 
             if ($status->mobile_validation_status) {
                 $mobileVerifier = $this->phoneVerification($request->input('mobile_code').$request->input('mobile'));
                 if (! $mobileVerifier) {
-                    return errorResponse(\Lang::get('message.mobile_provided_wrong'));
+                    return errorResponse(Lang::get('message.mobile_provided_wrong'));
                 }
             }
 
@@ -159,20 +164,20 @@ class RegisterController extends Controller
 
             $user->state = $state['id'];
             $user->town = $location['city'];
-            $user->password = \Hash::make($request->input('password'));
+            $user->password = Hash::make($request->input('password'));
             $user->profile_pic = '';
             $user->mobile_verified = 0;
             $user->email_verified = 0;
-            $user->mobile = ltrim($request->input('mobile'), '0');
+            $user->mobile = ltrim((string) $request->input('mobile'), '0');
             $user->mobile_code = $request->input('mobile_code');
             $user->mobile_country_iso = $request->input('mobile_country_iso');
             $user->country = $request->input('country');
-            $user->company = strip_tags($request->input('company'));
-            $user->address = strip_tags($request->input('address'));
-            $user->email = strip_tags($request->input('email'));
-            $user->user_name = strip_tags($request->input('email'));
-            $user->first_name = strip_tags($request->input('first_name'));
-            $user->last_name = strip_tags($request->input('last_name'));
+            $user->company = strip_tags((string) $request->input('company'));
+            $user->address = strip_tags((string) $request->input('address'));
+            $user->email = strip_tags((string) $request->input('email'));
+            $user->user_name = strip_tags((string) $request->input('email'));
+            $user->first_name = strip_tags((string) $request->input('first_name'));
+            $user->last_name = strip_tags((string) $request->input('last_name'));
             $user->ip = $location['ip'];
             $user->timezone_id = getTimezoneByName($location['timezone']);
             $user->referrer = Referer::get();
@@ -186,18 +191,18 @@ class RegisterController extends Controller
 
             event(new UserRegisteredEvent($user, 'register'));
 
-            \Session::put([
+            Session::put([
                 'justStarted' => true,
                 'verification_user_id' => $user->id,
             ]);
 
             $this->logActivityRegister($user);
 
-            \Session::flash('user', $user);
+            Session::flash('user', $user);
 
             return successResponse(__('message.registration_complete'), ['need_verify' => $need_verify]);
         } catch (Exception $ex) {
-            \Logger::exception($ex);
+            Logger::exception($ex);
 
             return errorResponse(__('message.something_wrong'));
         }
@@ -212,15 +217,15 @@ class RegisterController extends Controller
         $user = [
             'state' => $state['id'],
             'town' => $location['city'],
-            'mobile' => ltrim($request->input('mobile'), '0'),
+            'mobile' => ltrim((string) $request->input('mobile'), '0'),
             'mobile_code' => $request->input('mobile_code'),
             'mobile_country_iso' => $request->input('mobile_country_iso'),
             'country' => $request->input('country'),
-            'company' => strip_tags($request->input('company')),
-            'address' => strip_tags($request->input('address')),
-            'email' => strip_tags($request->input('email')),
-            'first_name' => strip_tags($request->input('first_name')),
-            'last_name' => strip_tags($request->input('last_name')),
+            'company' => strip_tags((string) $request->input('company')),
+            'address' => strip_tags((string) $request->input('address')),
+            'email' => strip_tags((string) $request->input('email')),
+            'first_name' => strip_tags((string) $request->input('first_name')),
+            'last_name' => strip_tags((string) $request->input('last_name')),
             'registration' => 'Not Completed',
             'ip' => $location['ip'],
             'timezone_id' => getTimezoneByName($location['timezone']),

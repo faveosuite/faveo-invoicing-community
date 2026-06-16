@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Admin\User;
 
+use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\User\ClientController;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
@@ -148,7 +149,7 @@ class ClientControllerTest extends DBTestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
         $this->withoutMiddleware();
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
         $response = $this->call('POST', url('clients'), [
             'first_name' => 'Abc',
             'user_name' => 'demopass',
@@ -213,7 +214,7 @@ class ClientControllerTest extends DBTestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
         $this->withoutMiddleware();
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
         $response = $this->call('POST', url('clients'), [
             'first_name' => 'Abc',
             'user_name' => 'demopass',

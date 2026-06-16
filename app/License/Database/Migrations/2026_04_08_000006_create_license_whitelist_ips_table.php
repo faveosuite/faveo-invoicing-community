@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('license_whitelist_ips', function (Blueprint $table) {
+        Schema::create('license_whitelist_ips', function (Blueprint $table): void {
             $table->id();
             $table->string('whitelist_host_ip');
             $table->string('whitelist_host_comments')->nullable();

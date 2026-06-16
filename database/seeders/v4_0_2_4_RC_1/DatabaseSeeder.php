@@ -2,20 +2,19 @@
 
 namespace Database\Seeders\v4_0_2_4_RC_1;
 
-use App\ApiKey;
+use Artisan;
+use DB;
+use Illuminate\Support\Facades\Date;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Msg91Status;
-use App\Http\Controllers\Common\PipedriveController;
 use App\Model\Common\PipedriveGroups;
 use App\Model\Common\PipedriveLocalFields;
-use App\Model\Common\PricingTemplate;
 use App\Model\Github\Github;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
-use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -69,11 +68,12 @@ class DatabaseSeeder extends Seeder
 
             setEnvValue(['APP_PREVIOUS_KEYS' => 'SomeRandomString']);
 
-            \Artisan::call('key:generate', ['--force' => true]);
+            Artisan::call('key:generate', ['--force' => true]);
 
             setEnvValue(['APP_KEY_UPDATED' => 'true']);
         }
     }
+
     private function addFielsForPipedrive()
     {
         $fields = [
@@ -110,6 +110,7 @@ class DatabaseSeeder extends Seeder
             );
         }
     }
+
     public function invoiceItemProductIDChange()
     {
         $orders = Order::all();
@@ -156,7 +157,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($languages as $lang) {
-            \DB::table('languages')->updateOrInsert(
+            DB::table('languages')->updateOrInsert(
                 ['locale' => $lang['locale']],
                 ['name' => $lang['name'], 'translation' => $lang['translation']]
             );
@@ -165,11 +166,11 @@ class DatabaseSeeder extends Seeder
     }
 
     public function update_is_deleted(){
-        $today= Carbon::today();
+        $today= Date::today();
         $day = ExpiryMailDay::value('cloud_days');
         Subscription::whereNotNull('ends_at')
         ->whereIn('product_id',cloudPopupProducts())->whereDate(
-            \DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
+            DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
             '<',
             $today
         )->update(['is_deleted'=>1]);

@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Admin\Invoice;
 
+use App\Model\Payment\TaxOption;
 use App\Http\Controllers\Order\BaseInvoiceController;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
@@ -30,7 +31,7 @@ class BaseInvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
-        $tax_rule = new \App\Model\Payment\TaxOption();
+        $tax_rule = new TaxOption();
         $rule = $tax_rule->findOrFail(1)->update(['inclusive' => 1]);
         $price = $this->classObject->calculateTotal('10%', '1000');
         $this->assertEquals($price, '1000');

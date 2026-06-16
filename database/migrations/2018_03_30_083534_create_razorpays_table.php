@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('razorpays', function (Blueprint $table) {
+        Schema::create('razorpays', function (Blueprint $table): void {
             $table->increments('id');
 
             $table->string('key_id');

@@ -36,7 +36,7 @@ abstract class LicenseTestCase extends DBTestCase
 
     protected function jsonContent($response): array
     {
-        return json_decode($response->getContent(), true) ?: [];
+        return json_decode((string) $response->getContent(), true) ?: [];
     }
 
     protected function assertSuccessfulJson($response, int $status = 200): array
@@ -84,6 +84,7 @@ abstract class LicenseTestCase extends DBTestCase
                 $product->{$column} = $value;
             }
         }
+
         $product->save();
 
         return $product;

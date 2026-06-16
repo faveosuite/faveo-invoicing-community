@@ -12,7 +12,7 @@ use App\User;
 
 class MailchimpService
 {
-    private string $listId;
+    private readonly string $listId;
 
     public function __construct(
         private readonly MailchimpClient $client,
@@ -61,6 +61,7 @@ class MailchimpService
 
                 return;
             }
+
             throw $e;
         }
     }
@@ -85,6 +86,7 @@ class MailchimpService
             if ($e->isMemberExists()) {
                 return;
             }
+
             throw $e;
         }
     }
@@ -159,6 +161,7 @@ class MailchimpService
         if (! $this->listId) {
             return [];
         }
+
         $result = $this->client->get("lists/{$this->listId}/merge-fields", ['count' => 100]);
 
         return $result['merge_fields'] ?? [];
@@ -198,6 +201,7 @@ class MailchimpService
         if (! $this->listId) {
             return [];
         }
+
         $result = $this->client->get("lists/{$this->listId}/interest-categories", ['count' => 100]);
 
         return $result['categories'] ?? [];
@@ -208,6 +212,7 @@ class MailchimpService
         if (! $this->listId) {
             return [];
         }
+
         $result = $this->client->get(
             "lists/{$this->listId}/interest-categories/{$categoryId}/interests",
             ['count' => 100]
@@ -248,7 +253,7 @@ class MailchimpService
         $options = $this->getInterestGroupOptions($categoryId);
 
         foreach ($options as $option) {
-            $name = strtolower($option['name']);
+            $name = strtolower((string) $option['name']);
             if (in_array($name, ['yes', 'true'], true)) {
                 MailchimpFieldAgoraRelation::find(1)?->update(['is_paid_yes' => $option['id']]);
             } elseif (in_array($name, ['no', 'false'], true)) {

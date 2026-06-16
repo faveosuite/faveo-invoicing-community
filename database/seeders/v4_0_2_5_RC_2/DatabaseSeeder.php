@@ -2,6 +2,8 @@
 
 namespace Database\Seeders\v4_0_2_5_RC_2;
 
+use File;
+use DB;
 use App\Model\Common\FaveoCloud;
 use App\Model\Order\InstallationDetail;
 use App\Model\Product\Subscription;
@@ -46,14 +48,17 @@ class DatabaseSeeder extends Seeder
         if (!is_dir($dir)) {
             return;
         }
+
         $items = scandir($dir);
         if ($items === false) {
             return;
         }
+
         foreach ($items as $item) {
             if ($item === '.' || $item === '..') {
                 continue;
             }
+
             $path = $dir . DIRECTORY_SEPARATOR . $item;
             if (is_dir($path)) {
                 $this->deleteDirectory($path);
@@ -61,6 +66,7 @@ class DatabaseSeeder extends Seeder
                 @unlink($path);
             }
         }
+
         @rmdir($dir);
     }
 
@@ -69,12 +75,13 @@ class DatabaseSeeder extends Seeder
     {
 
         $env = base_path('.env');
-        if (\File::exists($env) && (env('DB_INSTALL') == 1)) {
+        if (File::exists($env) && (env('DB_INSTALL') == 1)) {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
             if (is_null($keys)) {//Valdidate if the app key to be sent is valid or not
                 return;
             }
+
             $client = new Client();
             $cloud = new FaveoCloud();
             $response = $client->request(
@@ -90,9 +97,7 @@ class DatabaseSeeder extends Seeder
             $responseBody = (string)$response->getBody();
             $responseData = json_decode($responseBody);
 
-            $collection = collect($responseData->message)->reject(function ($item) {
-                return $item === null;
-            });
+            $collection = collect($responseData->message)->reject(fn($item) => $item === null);
 
             $allowedDomains = $collection->pluck('domain')->toArray();
 
@@ -139,12 +144,13 @@ class DatabaseSeeder extends Seeder
     public function domainDelete()
     {
         $env = base_path('.env');
-        if (\File::exists($env) && (env('DB_INSTALL') == 1)) {
+        if (File::exists($env) && (env('DB_INSTALL') == 1)) {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
             if (is_null($keys)) {//Valdidate if the app key to be sent is valid or not
                 return;
             }
+
             $client = new Client();
             $cloud = new FaveoCloud();
             $response = $client->request(
@@ -160,16 +166,14 @@ class DatabaseSeeder extends Seeder
             $responseBody = (string)$response->getBody();
             $responseData = json_decode($responseBody);
 
-            $collection = collect($responseData->message)->reject(function ($item) {
-                return $item === null;
-            });
+            $collection = collect($responseData->message)->reject(fn($item) => $item === null);
 
             $allowedDomains = $collection->pluck('domain')->toArray();
             $cloudProductIds = cloudPopupProducts();
 
-            \DB::transaction(function () use ($allowedDomains, $cloudProductIds) {
+            DB::transaction(function () use ($allowedDomains, $cloudProductIds): void {
 
-                $otherOrders = \DB::table("installation_details")
+                $otherOrders = DB::table("installation_details")
                     ->whereNotIn("installation_path", $allowedDomains)
                     ->pluck("order_id");
 
@@ -177,7 +181,7 @@ class DatabaseSeeder extends Seeder
                     return;
                 }
 
-                $updated = \DB::table("subscriptions")
+                $updated = DB::table("subscriptions")
                     ->whereIn("order_id", $otherOrders)
                     ->whereIn("product_id", $cloudProductIds)
                     ->update(["is_deleted" => 1]);

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('payment_logs')) {
-            Schema::create('payment_logs', function (Blueprint $table) {
+            Schema::create('payment_logs', function (Blueprint $table): void {
                 $table->id();
                 $table->dateTime('date');
                 $table->string('from')->nullable();

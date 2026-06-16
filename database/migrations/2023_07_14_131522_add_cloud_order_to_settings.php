@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        if (! Schema::hasColumn('cloud_order', 'cloud_deleted', 'from_name')) {
-            Schema::table('settings', function (Blueprint $table) {
+        if (! Schema::hasColumn('cloud_order', 'cloud_deleted')) {
+            Schema::table('settings', function (Blueprint $table): void {
                 $table->string('cloud_order')->nullable();
                 $table->string('cloud_deleted')->nullable();
                 $table->string('from_name')->nullable();
@@ -29,7 +29,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             $table->dropColumn('cloud_order');
             $table->dropColumn('cloud_deleted');
             $table->dropColumn('from_name');

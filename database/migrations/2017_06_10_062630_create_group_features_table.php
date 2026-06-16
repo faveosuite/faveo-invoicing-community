@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('group_features')) {
-            Schema::create('group_features', function (Blueprint $table) {
+            Schema::create('group_features', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('group_id')->unsigned()->index('group_features_group_id_foreign');
                 $table->string('features');

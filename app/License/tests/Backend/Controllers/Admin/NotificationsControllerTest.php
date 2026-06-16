@@ -24,7 +24,7 @@ class NotificationsControllerTest extends LicenseTestCase
     #[Group('license-admin')]
     public function update_license_notifications_creates_and_show_returns_first_record(): void
     {
-        $payload = array_fill_keys((new LicenseNotification())->getFillable(), 'license notification text');
+        $payload = array_fill_keys(new LicenseNotification()->getFillable(), 'license notification text');
 
         $response = $this->controller->updateLicenseNotifications($this->moduleRequest($payload, 'POST'), 999999);
         $json = $this->assertSuccessfulJson($response);
@@ -40,7 +40,7 @@ class NotificationsControllerTest extends LicenseTestCase
     #[Group('license-admin')]
     public function update_update_notifications_creates_and_show_returns_first_record(): void
     {
-        $payload = array_fill_keys((new VersionNotification())->getFillable(), 'version notification text');
+        $payload = array_fill_keys(new VersionNotification()->getFillable(), 'version notification text');
 
         $response = $this->controller->updateUpdateNotifications($this->moduleRequest($payload, 'POST'), 999999);
         $json = $this->assertSuccessfulJson($response);

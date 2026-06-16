@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable(config('activitylog.table_name'))) {
-            Schema::create(config('activitylog.table_name'), function (Blueprint $table) {
+            Schema::create(config('activitylog.table_name'), function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('log_name')->nullable();
                 $table->text('description');

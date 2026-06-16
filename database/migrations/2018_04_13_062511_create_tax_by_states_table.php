@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('tax_by_states')) {
-            Schema::create('tax_by_states', function (Blueprint $table) {
+            Schema::create('tax_by_states', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('state');
                 $table->string('c_gst');

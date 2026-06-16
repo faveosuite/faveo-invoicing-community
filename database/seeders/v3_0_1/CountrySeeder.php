@@ -5,7 +5,6 @@ namespace Database\Seeders\v3_0_1;
 
 use App\Model\Common\Country;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class CountrySeeder extends Seeder
 {

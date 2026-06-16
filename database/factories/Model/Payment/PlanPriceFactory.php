@@ -7,7 +7,7 @@ use App\Model\Payment\PlanPrice;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\PlanPrice>
+ * @extends Factory<\App\PlanPrice>
  */
 class PlanPriceFactory extends Factory
 {

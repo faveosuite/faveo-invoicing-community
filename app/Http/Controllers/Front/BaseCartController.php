@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use Exception;
 use App\Facades\Cart;
 use App\Http\Controllers\Controller;
 //use Cart;
@@ -39,7 +40,7 @@ class BaseCartController extends Controller
             }
 
             return successResponse(__('message.cart_updated_successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -66,7 +67,7 @@ class BaseCartController extends Controller
             }
 
             return successResponse(__('message.cart_updated_successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -80,19 +81,19 @@ class BaseCartController extends Controller
             $currency = $cart['attributes']['currency'];
             $symbol = $cart['attributes']['currency'];
         } else {
-            throw new \Exception(__('message.product_not_in_cart'));
+            throw new Exception(__('message.product_not_in_cart'));
         }
 
         if ($canReduceAgent && $agtqty > 1) {
             $price = $cart['price'] / $agtqty;
-            $agtqty = $agtqty - 1;
+            $agtqty -= 1;
             $price = $cart['price'] - $price;
         } else {
             $price = $cart['price'] / $agtqty;
 
-            $agtqty = $agtqty + 1;
+            $agtqty += 1;
 
-            $price = $price * $agtqty;
+            $price *= $agtqty;
         }
 
         return ['agtqty' => $agtqty, 'price' => $price, 'currency' => $currency, 'symbol' => $symbol, 'domain' => $cart['attributes']['domain'] ?? null];
@@ -124,7 +125,7 @@ class BaseCartController extends Controller
                 return errorResponse(__('message.cannot_modify_quantity'));
                 //throw new \Exception(__('message.cannot_modify_quantity'));
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
             //throw new \Exception($ex->getMessage());
         }
@@ -151,10 +152,10 @@ class BaseCartController extends Controller
                     'price' => $price,
                 ]);
             } else {
-                throw new \Exception(__('message.cannot_modify_quantity'));
+                throw new Exception(__('message.cannot_modify_quantity'));
             }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 }

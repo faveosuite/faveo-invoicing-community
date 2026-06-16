@@ -2,6 +2,9 @@
 
 namespace App\License\Models;
 
+use Override;
+use App\Model\Product\Product;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -19,24 +22,36 @@ class LicenseCallback extends Model
         'callback_status',
     ];
 
-    protected $casts = [
-        'callback_date_time' => 'datetime',
-        'callback_status' => 'integer',
-        'product_id' => 'integer',
-    ];
-
+    /**
+     * @return BelongsTo<Product, $this>
+     */
     public function product(): BelongsTo
     {
-        return $this->belongsTo(\App\Model\Product\Product::class, 'product_id');
+        return $this->belongsTo(Product::class, 'product_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * @return BelongsTo<License, $this>
+     */
     public function license(): BelongsTo
     {
         return $this->belongsTo(License::class, 'license_code', 'license_code');
+    }
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'callback_date_time' => 'datetime',
+            'callback_status' => 'integer',
+            'product_id' => 'integer',
+        ];
     }
 }

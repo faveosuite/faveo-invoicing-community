@@ -41,13 +41,13 @@ trait PaginationTotal
         }
 
         $modelClass = $model instanceof Builder
-            ? get_class($model->getModel())
+            ? $model->getModel()::class
             : $model;
 
         $resolvedKey = $cacheKey ?? 'pagination_total_'.Str::snake(class_basename($modelClass));
 
         $counter = $model instanceof Builder
-            ? fn () => (clone $model)->count()
+            ? (clone $model)->count(...)
             : fn () => $modelClass::count();
 
         return Cache::remember($resolvedKey, $ttl, $counter);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Github;
 
+use Lang;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
@@ -104,7 +105,7 @@ class GithubController extends Controller
     {
         try {
             $releases = $this->downloadLink($owner, $repo, $order_id);
-            if (array_key_exists('Location', $releases)) {
+            if (property_exists($releases, 'Location')) {
                 $release = $releases['Location'];
             } else {
                 $release = $this->latestRelese($owner, $repo);
@@ -233,18 +234,19 @@ class GithubController extends Controller
 
                 $data = json_decode($response->getBody(), true);
                 if ($data['login'] !== $username) {
-                    return errorResponse(\Lang::get('message.github_invalid'));
+                    return errorResponse(Lang::get('message.github_invalid'));
                 }
-            } catch(\Exception $ex) {
-                return errorResponse(\Lang::get('message.github_invalid'));
+            } catch(Exception) {
+                return errorResponse(Lang::get('message.github_invalid'));
             }
+
             StatusSetting::find(1)->update(['github_status' => $status]);
             Github::find(1)->update(['username' => $request->input('git_username'),
                 'password' => $request->input('git_password'), ]);
 
-            return successResponse(\Lang::get('message.github_valid'));
-        } catch (Exception $ex) {
-            return errorResponse(\Lang::get('message.github_invalid'));
+            return successResponse(Lang::get('message.github_valid'));
+        } catch (Exception) {
+            return errorResponse(Lang::get('message.github_invalid'));
         }
     }
 
@@ -265,6 +267,7 @@ class GithubController extends Controller
             if ($repo == 'faveo-helpdesk') {
                 return $array = ['Location' => $url];
             }
+
             //For servicedesk-community
             if ($repo == 'faveo-servicedesk-community') {
                 return $array = ['Location' => $url];
@@ -274,17 +277,18 @@ class GithubController extends Controller
             $url = "https://api.github.com/repos/$owner/$repo/releases";
 
             $link = $this->github_api->getCurl1($url);
-            foreach ($link['body'] as $key => $value) {
-                if (strtotime($value['created_at']) < strtotime($order_end_date->ends_at)) {
+            foreach ($link['body'] as $value) {
+                if (strtotime((string) $value['created_at']) < strtotime((string) $order_end_date->ends_at)) {
                     $ver[] = $value['tag_name'];
                 }
             }
+
             $url = $this->getUrl($repo, $ver);
             $link = $this->github_api->getCurl1($url);
 
             return $link['header'];
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -299,6 +303,7 @@ class GithubController extends Controller
         if ($repo == 'Faveo-Helpdesk-Pro') {
             $url = 'https://api.github.com/repos/ladybirdweb/Faveo-Helpdesk-Pro/zipball/'.$ver[0];
         }
+
         //For Service Desk Advance
         if ($repo == 'faveo-service-desk-pro') {
             $url = 'https://api.github.com/repos/ladybirdweb/faveo-service-desk-pro/zipball/'.$ver[0];
@@ -315,11 +320,12 @@ class GithubController extends Controller
             if ($repo == 'faveo-helpdesk') {
                 return $array = ['Location' => $url];
             }
+
             $link = $this->github_api->getCurl1($url);
 
             return $link['header'];
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -331,7 +337,7 @@ class GithubController extends Controller
                 return $release['tag_name'];
             }
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 }

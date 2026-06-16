@@ -2,6 +2,16 @@
 
 namespace App\Http\Controllers\Common;
 
+use Pipedrive\versions\v1\Api\DealFieldsApi;
+use Pipedrive\versions\v1\Api\PersonFieldsApi;
+use Pipedrive\versions\v1\Api\PersonsApi;
+use Pipedrive\versions\v1\Api\OrganizationsApi;
+use Pipedrive\versions\v1\Api\OrganizationFieldsApi;
+use Pipedrive\versions\v1\Api\DealsApi;
+use Exception;
+use Logger;
+use DB;
+use Throwable;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
@@ -14,14 +24,15 @@ use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
-use Pipedrive\versions\v1\Api;
 use Pipedrive\versions\v1\ApiException;
 use Pipedrive\versions\v1\Configuration as PipedriveConfiguration;
 
 class PipedriveController extends Controller
 {
     protected array $apiClients = [];
+
     protected array $groups = [];
+
     protected Client $client;
 
     /**
@@ -44,12 +55,12 @@ class PipedriveController extends Controller
 
         // Initialize API clients
         $this->apiClients = [
-            'dealField' => new Api\DealFieldsApi($this->client, $config),
-            'personField' => new Api\PersonFieldsApi($this->client, $config),
-            'persons' => new Api\PersonsApi($this->client, $config),
-            'organizations' => new Api\OrganizationsApi($this->client, $config),
-            'organizationFields' => new Api\OrganizationFieldsApi($this->client, $config),
-            'deals' => new Api\DealsApi($this->client, $config),
+            'dealField' => new DealFieldsApi($this->client, $config),
+            'personField' => new PersonFieldsApi($this->client, $config),
+            'persons' => new PersonsApi($this->client, $config),
+            'organizations' => new OrganizationsApi($this->client, $config),
+            'organizationFields' => new OrganizationFieldsApi($this->client, $config),
+            'deals' => new DealsApi($this->client, $config),
         ];
 
         $this->groups = $this->getGroups();
@@ -77,9 +88,9 @@ class PipedriveController extends Controller
 
             return is_array($result) ? $result : (array) $result;
         } catch (ApiException $e) {
-            throw new \Exception(json_decode($e->getResponseBody())->error);
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+            throw new Exception(json_decode($e->getResponseBody())->error);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return [];
         }
@@ -102,8 +113,8 @@ class PipedriveController extends Controller
             return $response;
         } catch (ApiException $e) {
             return json_decode($e->getResponseBody());
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return null;
         }
@@ -190,10 +201,10 @@ class PipedriveController extends Controller
             }
 
             return $orgId;
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
-            throw new \Exception($e->getMessage());
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -225,11 +236,9 @@ class PipedriveController extends Controller
         $existingFields = PipedriveField::where('pipedrive_group_id', $groupId)->get()->keyBy('field_key');
 
         // Filter bulk-edit-allowed fields
-        $allowedFields = collect($fields)->filter(function ($field) use ($groupId) {
-            return isset($field->bulk_edit_allowed) && $field->bulk_edit_allowed === true &&
-                (! isset($field->use_field) || $field->use_field === 'id') &&
-                ! in_array($field->key, $this->excludeKeysFromPipedrive($groupId));
-        });
+        $allowedFields = collect($fields)->filter(fn($field) => isset($field->bulk_edit_allowed) && $field->bulk_edit_allowed === true &&
+            (! isset($field->use_field) || $field->use_field === 'id') &&
+            ! in_array($field->key, $this->excludeKeysFromPipedrive($groupId)));
 
         $newFieldKeys = $allowedFields->pluck('key')->toArray();
         $existingKeys = $existingFields->keys()->toArray();
@@ -259,7 +268,7 @@ class PipedriveController extends Controller
                 // Get existing options
                 $existingOptions = PipedriveFieldOption::where('pipedrive_field_id', $pipedriveField->id)->get()->keyBy('key');
 
-                $newOptionKeys = $newOptions->keys()->toArray();
+                $newOptionKeys = $newOptions->keys()->all();
                 $existingOptionKeys = $existingOptions->keys()->toArray();
 
                 // Delete options
@@ -313,8 +322,8 @@ class PipedriveController extends Controller
                 'person_id' => $personID,
             ]);
             $this->addDeal($deal);
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
         }
     }
 
@@ -352,7 +361,7 @@ class PipedriveController extends Controller
         }
 
         try {
-            \DB::transaction(function () use ($select1, $select2, $groupID) {
+            DB::transaction(function () use ($select1, $select2, $groupID): void {
                 // Update selected fields
                 foreach ($select1 as $key => $fieldId) {
                     $localField = $select2[$key];
@@ -375,22 +384,20 @@ class PipedriveController extends Controller
 
                 // Reset non-selected options
                 $fieldIds = PipedriveField::where('pipedrive_group_id', $groupID)->pluck('id')->toArray();
-                $selectedOptionIds = collect($select2)->filter(function ($item) {
-                    return isset($item['id']) && $item['faveo_fields'] !== 'true';
-                })->pluck('id')->toArray();
+                $selectedOptionIds = collect($select2)->filter(fn($item) => isset($item['id']) && $item['faveo_fields'] !== 'true')->pluck('id')->toArray();
 
                 PipedriveFieldOption::whereIn('pipedrive_field_id', $fieldIds)
                     ->whereNotIn('id', $selectedOptionIds)
                     ->update(['status' => 0]);
 
                 // Run mapping test **within** the transaction
-                $response = app(self::class)->testPipedriveMapping($groupID);
+                $response = resolve(self::class)->testPipedriveMapping($groupID);
                 if ($response !== true) {
                     // Throwing exception will trigger rollback
-                    throw new \Exception($response);
+                    throw new Exception($response);
                 }
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
 
@@ -436,7 +443,7 @@ class PipedriveController extends Controller
             }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $e->getMessage();
         } finally {
             $user->forceDelete();
@@ -510,7 +517,7 @@ class PipedriveController extends Controller
             ];
 
             return successResponse(__('message.pipedrive_fetched_successfully'), $data);
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             return errorResponse(__('message.unable_to_fetch_pipedrive_data'));
         }
     }
@@ -526,12 +533,10 @@ class PipedriveController extends Controller
             ->get(['id', 'value']);
 
         if ($fieldOptions->isEmpty()) {
-            $localOptions = PipedriveLocalFields::get(['id', 'field_name'])->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'value' => $item->field_name,
-                ];
-            });
+            $localOptions = PipedriveLocalFields::get(['id', 'field_name'])->map(fn($item) => [
+                'id' => $item->id,
+                'value' => $item->field_name,
+            ]);
 
             return successResponse('', [
                 'is_faveo_options' => true,
@@ -554,7 +559,7 @@ class PipedriveController extends Controller
         $pipedriveFields = PipedriveField::where('pipedrive_group_id', $groupId)
             ->with([
                 'localField',
-                'pipedriveOptions' => function ($q) {
+                'pipedriveOptions' => function ($q): void {
                     $q->where('status', 1);
                 },
             ])

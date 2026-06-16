@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Front\Cart;
 
+use Illuminate\Support\Facades\Date;
+use Throwable;
+use Exception;
 use App\Http\Controllers\Common\SettingsController;
 use App\Model\Cart\Cart;
 use App\Model\Cart\CartItem;
@@ -12,7 +15,6 @@ use App\Model\Payment\Promotion;
 use App\Model\Payment\TaxOption;
 use App\Services\Payment\ProcessingFee;
 use App\Services\Tax\TaxService;
-use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -142,7 +144,7 @@ class CartService
     {
         $summary = $this->summary($cart, $user);
 
-        $pricesIncludeTax = (int) optional(TaxOption::find(1))->inclusive === 1;
+        $pricesIncludeTax = (int) TaxOption::find(1)?->inclusive === 1;
         $subtotalExTax = $pricesIncludeTax
             ? round($summary['subtotal'] - $summary['tax_total'], 2)
             : round($summary['subtotal'], 2);
@@ -186,7 +188,7 @@ class CartService
 
             $attributes = [
                 'user_id' => $user->getAuthIdentifier(),
-                'date' => Carbon::now(),
+                'date' => Date::now(),
                 'grand_total' => $summary['grand_total'],
                 'status' => 'pending',
                 'currency' => $cart->currency ?? 'USD',
@@ -239,7 +241,7 @@ class CartService
     {
         $invoice = $cart->invoice_id ? Invoice::find($cart->invoice_id) : null;
 
-        if ($invoice && strtolower($invoice->status) === 'pending' && (float) $invoice->payment()->sum('amount') === 0.0) {
+        if ($invoice && strtolower((string) $invoice->status) === 'pending' && (float) $invoice->payment()->sum('amount') === 0.0) {
             return $invoice;
         }
 
@@ -345,6 +347,7 @@ class CartService
                 if ($rateLine['amount'] <= 0) {
                     continue;
                 }
+
                 $key = $rateLine['label'];
                 $grouped[$key]['label'] = $rateLine['label'];
                 $grouped[$key]['rate'] = $rateLine['rate'];
@@ -358,12 +361,12 @@ class CartService
             $taxes[] = ['label' => $g['label'], 'rate' => $g['rate'], 'amount' => round($g['amount'], 2)];
         }
 
-        $subtotal = (float) $cart->subtotal();
+        $subtotal = $cart->subtotal();
         $discount = (float) $cart->coupon_discount;
 
         // When prices are entered inclusive of tax, the tax is already inside
         // the subtotal — show it for information but do not add it again.
-        $pricesIncludeTax = (int) optional(TaxOption::find(1))->inclusive === 1;
+        $pricesIncludeTax = (int) TaxOption::find(1)?->inclusive === 1;
         $payable = $pricesIncludeTax
             ? max(0, $subtotal - $discount)
             : max(0, $subtotal - $discount + $taxTotal);
@@ -388,7 +391,7 @@ class CartService
     private function lineTaxes(Cart $cart, Authenticatable $user): array
     {
         $currency = $cart->currency ?? 'USD';
-        $tax = app(TaxService::class);
+        $tax = resolve(TaxService::class);
 
         return $cart->items->map(function (CartItem $line) use ($user, $currency, $tax) {
             $lineTotal = $line->priceFor($currency) * $line->quantity * $line->agents;
@@ -425,10 +428,8 @@ class CartService
                 return [];
             }
 
-            return array_map(function ($name) {
-                return ['name' => $name, 'processing_fee' => ProcessingFee::percent($name) ?: null];
-            }, $names);
-        } catch (\Throwable) {
+            return array_map(fn($name) => ['name' => $name, 'processing_fee' => ProcessingFee::percent($name) ?: null], $names);
+        } catch (Throwable) {
             return [];
         }
     }
@@ -451,7 +452,7 @@ class CartService
 
         try {
             $promo = $this->validatedPromotion($cart->coupon_code);
-        } catch (\Exception) {
+        } catch (Exception) {
             $cart->update(['coupon_code' => null, 'coupon_discount' => 0]);
 
             return;
@@ -465,7 +466,7 @@ class CartService
         $promo = Promotion::where('code', $code)->first();
 
         if (! $promo || ! $this->withinValidityWindow($promo)) {
-            throw new \Exception(__('message.invalid_coupon_code'));
+            throw new Exception(__('message.invalid_coupon_code'));
         }
 
         return $promo;
@@ -484,13 +485,13 @@ class CartService
 
     private function withinValidityWindow(Promotion $promo): bool
     {
-        $now = Carbon::now();
+        $now = Date::now();
 
-        if ($this->hasDateBound($promo->start) && $now->lt(Carbon::parse($promo->start))) {
+        if ($this->hasDateBound($promo->start) && $now->lt(Date::parse($promo->start))) {
             return false;
         }
 
-        if ($this->hasDateBound($promo->expiry) && $now->gt(Carbon::parse($promo->expiry))) {
+        if ($this->hasDateBound($promo->expiry) && $now->gt(Date::parse($promo->expiry))) {
             return false;
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Override;
 use App\Rules\Honeypot;
 
 class ValidateSecretRequest extends Request
@@ -10,10 +11,11 @@ class ValidateSecretRequest extends Request
     {
         return [
             '2fa_code' => [new Honeypot()],
-            'totp' => 'bail|required|digits:6',
+            'totp' => ['bail', 'required', 'digits:6'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return[

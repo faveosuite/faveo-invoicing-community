@@ -20,7 +20,7 @@ class RecaptchaSettingsController extends Controller
         $settings = RecaptchaSetting::firstOrCreate([]);
 
         return successResponse('', [
-            'recaptcha_status' => (bool) optional($status)->recaptcha_status,
+            'recaptcha_status' => (bool) $status?->recaptcha_status,
             'captcha_version' => $settings->captcha_version ?? 'v2_checkbox',
             'failover_action' => $settings->failover_action ?? 'none',
             'v3_site_key' => $settings->v3_site_key ?? '',

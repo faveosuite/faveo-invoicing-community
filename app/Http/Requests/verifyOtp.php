@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Override;
 use App\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Hash;
@@ -29,9 +30,7 @@ class verifyOtp extends FormRequest
         $pass = User::where('email', $email)->value('password');
 
         return [
-            'verify_email' => 'sometimes|required|verify_email|email',
-            'verify_email' => 'sometimes|required||verify_country_code|numeric',
-            'verify_email' => 'sometimes|required|verify_number|numeric',
+            'verify_email' => ['sometimes', 'required', 'verify_number', 'numeric'],
             'password' => [
 
                 function ($attribute, $value, $fail) use ($pass) {
@@ -43,6 +42,7 @@ class verifyOtp extends FormRequest
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('status_settings', 'invoice_deletion_status')) {
-            Schema::table('status_settings', function (Blueprint $table) {
+            Schema::table('status_settings', function (Blueprint $table): void {
                 $table->boolean('invoice_deletion_status')->default(true);
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->dropColumn('invoice_deletion_status');
         });
     }

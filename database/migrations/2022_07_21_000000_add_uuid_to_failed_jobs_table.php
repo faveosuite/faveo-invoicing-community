@@ -15,11 +15,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('failed_jobs', function (Blueprint $table) {
+        Schema::table('failed_jobs', function (Blueprint $table): void {
             $table->string('uuid')->after('id')->nullable()->unique();
         });
 
-        DB::table('failed_jobs')->whereNull('uuid')->cursor()->each(function ($job) {
+        DB::table('failed_jobs')->whereNull('uuid')->cursor()->each(function ($job): void {
             DB::table('failed_jobs')
                 ->where('id', $job->id)
                 ->update(['uuid' => (string) Str::uuid()]);
@@ -33,7 +33,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('failed_jobs', function (Blueprint $table) {
+        Schema::table('failed_jobs', function (Blueprint $table): void {
             $table->dropColumn('uuid');
         });
     }

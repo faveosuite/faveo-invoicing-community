@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('subscriptions', 'autoRenew_status')) {
-            Schema::table('subscriptions', function (Blueprint $table) {
+            Schema::table('subscriptions', function (Blueprint $table): void {
                 $table->string('autoRenew_status')->nullable();
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('subscriptions', function (Blueprint $table) {
+        Schema::table('subscriptions', function (Blueprint $table): void {
             $table->dropColumn('autoRenew_status');
         });
     }

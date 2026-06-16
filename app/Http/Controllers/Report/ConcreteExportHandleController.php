@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Report;
 
+use Illuminate\Support\Facades\Date;
+use App\Model\Common\Setting;
+use App\Http\Controllers\Common\PhpMailController;
+use Exception;
+use DB;
 use App\ExportDetail;
 use App\Exports\InvoiceExport;
 use App\Exports\OrderExport;
@@ -28,17 +33,9 @@ use Maatwebsite\Excel\Facades\Excel;
 abstract class ExportHandleController
 {
     use CoupCodeAndInvoiceSearch;
-    protected $reportType;
-    protected $selectedColumns;
-    protected $searchParams;
-    protected $email;
 
-    public function __construct($reportType, $selectedColumns, $searchParams, $email)
+    public function __construct(protected $reportType, protected $selectedColumns, protected $searchParams, protected $email)
     {
-        $this->reportType = $reportType;
-        $this->selectedColumns = $selectedColumns;
-        $this->searchParams = $searchParams;
-        $this->email = $email;
     }
 
     abstract public function userExports($selectedColumns, $searchParams, $email);
@@ -61,9 +58,7 @@ class ConcreteExportHandleController extends ExportHandleController
     {
         try {
             // Filter out unwanted columns
-            $selectedColumns = array_filter($selectedColumns, function ($column) {
-                return ! in_array($column, ['checkbox', 'action']);
-            });
+            $selectedColumns = array_filter($selectedColumns, fn($column) => ! in_array($column, ['checkbox', 'action']));
 
             // Prepare the query
             $users = User::query();
@@ -79,50 +74,28 @@ class ConcreteExportHandleController extends ExportHandleController
             foreach ($searchParams as $key => $value) {
                 if ($value !== null && $value !== '') {
                     if ($key === 'reg_from') {
-                        $users->whereDate('created_at', '>=', date('Y-m-d', strtotime($value)));
+                        $users->whereDate('created_at', '>=', date('Y-m-d', strtotime((string) $value)));
                     } elseif ($key === 'reg_till') {
-                        $users->whereDate('created_at', '<=', date('Y-m-d', strtotime($value)));
+                        $users->whereDate('created_at', '<=', date('Y-m-d', strtotime((string) $value)));
                     } else {
-                        switch ($key) {
-                            case 'company':
-                                $users->where('company', 'LIKE', '%'.$value.'%');
-                                break;
-                            case 'country':
-                                $users->where('country', $value);
-                                break;
-                            case 'industry':
-                                $users->where('bussiness', $value);
-                                break;
-                            case 'role':
-                                $users->where('role', $value);
-                                break;
-                            case 'position':
-                                $users->where('position', $value);
-                                break;
-                            case 'actmanager':
-                                $users->where('account_manager', $value);
-                                break;
-                            case 'salesmanager':
-                                $users->where('manager', $value);
-                                break;
-                            case 'mobile_verified':
-                                $users->where('mobile_verified', $value);
-                                break;
-                            case 'active':
-                                $users->where('active', $value);
-                                break;
-                            case 'is_2fa_enabled':
-                                $users->where('is_2fa_enabled', $value);
-                                break;
-                            default:
-                                $users->where($key, $value);
-                                break;
-                        }
+                        match ($key) {
+                            'company' => $users->where('company', 'LIKE', '%'.$value.'%'),
+                            'country' => $users->where('country', $value),
+                            'industry' => $users->where('bussiness', $value),
+                            'role' => $users->where('role', $value),
+                            'position' => $users->where('position', $value),
+                            'actmanager' => $users->where('account_manager', $value),
+                            'salesmanager' => $users->where('manager', $value),
+                            'mobile_verified' => $users->where('mobile_verified', $value),
+                            'active' => $users->where('active', $value),
+                            'is_2fa_enabled' => $users->where('is_2fa_enabled', $value),
+                            default => $users->where($key, $value),
+                        };
                     }
                 }
             }
 
-            $users->orderBy('created_at', 'desc');
+            $users->latest();
 
             // Ensure status columns are included
             if (! empty($selectedColumns) && $selectedColumns == 'active') {
@@ -151,7 +124,7 @@ class ConcreteExportHandleController extends ExportHandleController
                             $userData[$column] = $user->$column ? 'Active' : 'Inactive';
                             break;
                         case 'created_at':
-                            $userData['created_at'] = \Carbon\Carbon::parse($user->created_at)->format('Y-m-d');
+                            $userData['created_at'] = Date::parse($user->created_at)->format('Y-m-d');
                             break;
                         case 'country':
                             $country = Country::where('country_code_char2', $user->country)->value('country_name');
@@ -202,9 +175,9 @@ class ConcreteExportHandleController extends ExportHandleController
             ]);
 
             // Send email notification
-            $settings = \App\Model\Common\Setting::find(1);
+            $settings = Setting::find(1);
             $from = $settings->email;
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
+            $mail = new PhpMailController();
             $downloadLink = route('download.exported.file', ['id' => $exportDetail->id]);
             $emailContent = 'Hello '.$user->first_name.' '.$user->last_name.','.
                 '<br><br>User report is successfully generated and ready for download.'.
@@ -224,9 +197,7 @@ class ConcreteExportHandleController extends ExportHandleController
     {
         try {
             // Filter out unwanted columns
-            $selectedColumns = array_filter($selectedColumns, function ($column) {
-                return ! in_array($column, ['checkbox', 'action']);
-            });
+            $selectedColumns = array_filter($selectedColumns, fn($column) => ! in_array($column, ['checkbox', 'action']));
 
             // Perform search and filtering
             $request = new Request();
@@ -239,7 +210,7 @@ class ConcreteExportHandleController extends ExportHandleController
             $till = $request->input('till');
 
             // Get invoices with filters applied
-            $invoices = $this->advanceSearch($name, $invoice_no, $currency, $status, $from, $till);
+            $invoices = $this->advanceSearch($name);
             $invoices->orderBy('date', 'desc');
 
             // Use LazyCollection for efficient memory usage
@@ -260,10 +231,11 @@ class ConcreteExportHandleController extends ExportHandleController
                         case 'country':
                             if ($user) {
                                 $country = Country::where('country_code_char2', $user->country)->value('country_name');
-                                $invoiceData['country'] = $country ? $country : null;
+                                $invoiceData['country'] = $country ?: null;
                             } else {
                                 $invoiceData['country'] = null;
                             }
+
                             break;
 
                         case 'grand_total':
@@ -274,7 +246,7 @@ class ConcreteExportHandleController extends ExportHandleController
                             $invoiceData['product'] = $item ? $item->product_name : null;
                             break;
                         case 'date':
-                            $invoiceData['date'] = \Carbon\Carbon::parse($invoice->created_at)->format('Y-m-d');
+                            $invoiceData['date'] = Date::parse($invoice->created_at)->format('Y-m-d');
                             break;
                         case 'status':
                             $invoiceData['status'] = $this->getStatus($invoice->status);
@@ -324,9 +296,9 @@ class ConcreteExportHandleController extends ExportHandleController
             ]);
 
             // Send email notification
-            $settings = \App\Model\Common\Setting::find(1);
+            $settings = Setting::find(1);
             $from = $settings->email;
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
+            $mail = new PhpMailController();
             $downloadLink = route('download.exported.file', ['id' => $exportDetail->id]);
             $emailContent = 'Hello '.$user->first_name.' '.$user->last_name.','.
                 '<br><br>Invoice report is successfully generated and ready for download.'.
@@ -346,9 +318,7 @@ class ConcreteExportHandleController extends ExportHandleController
     {
         try {
             // Filter out unwanted columns
-            $selectedColumns = array_filter($selectedColumns, function ($column) {
-                return ! in_array($column, ['checkbox', 'action']);
-            });
+            $selectedColumns = array_filter($selectedColumns, fn($column) => ! in_array($column, ['checkbox', 'action']));
             $searchRequest = new Request($searchParams);
 
             // Perform advanced order search
@@ -374,10 +344,11 @@ class ConcreteExportHandleController extends ExportHandleController
                         case 'country':
                             if ($order) {
                                 $country = Country::where('country_code_char2', $order->country)->value('country_name');
-                                $orderData['country'] = $country ? $country : null;
+                                $orderData['country'] = $country ?: null;
                             } else {
                                 $orderData['country'] = null;
                             }
+
                             break;
                         case 'status':
                             $orderData['status'] = $order->installation_path ? 'Active' : 'Inactive';
@@ -396,10 +367,10 @@ class ConcreteExportHandleController extends ExportHandleController
                             $orderData['agents'] = $this->getAgents($order);
                             break;
                         case 'order_date':
-                            $orderData['order_date'] = \Carbon\Carbon::parse($order->subscription_created_at)->format('Y-m-d');
+                            $orderData['order_date'] = Date::parse($order->subscription_created_at)->format('Y-m-d');
                             break;
                         case 'update_ends_at':
-                            $orderData['update_ends_at'] = \Carbon\Carbon::parse($order->subscription_ends_at)->format('Y-m-d');
+                            $orderData['update_ends_at'] = Date::parse($order->subscription_ends_at)->format('Y-m-d');
                             break;
                         default:
                             $orderData[$column] = $order->$column;
@@ -410,7 +381,7 @@ class ConcreteExportHandleController extends ExportHandleController
             });
 
             if ($filteredOrders->isEmpty()) {
-                throw new \Exception(__('message.no_data_available_export'));
+                throw new Exception(__('message.no_data_available_export'));
             }
 
             // Get user details for email
@@ -446,9 +417,9 @@ class ConcreteExportHandleController extends ExportHandleController
             ]);
 
             // Send email notification
-            $settings = \App\Model\Common\Setting::find(1);
+            $settings = Setting::find(1);
             $from = $settings->email;
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
+            $mail = new PhpMailController();
             $downloadLink = route('download.exported.file', ['id' => $exportDetail->id]);
             $emailContent = 'Hello '.$user->first_name.' '.$user->last_name.','.
                 '<br><br>Order report is successfully generated and ready for download.'.
@@ -470,15 +441,13 @@ class ConcreteExportHandleController extends ExportHandleController
         $client = new Client();
 
         // Similar logic to export users but for orders
-        $this->selectedColumns = array_filter($this->selectedColumns, function ($column) {
-            return ! in_array($column, ['action']);
-        });
+        $this->selectedColumns = array_filter($this->selectedColumns, fn($column) => ! in_array($column, ['action']));
 
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
         if (! $keys->app_key) {
             // Validate if the app key to be sent is valid or not
-            throw new \Exception(__('message.cloud_invalid_message'));
+            throw new Exception(__('message.cloud_invalid_message'));
         }
 
         $response = $client->request(
@@ -494,20 +463,18 @@ class ConcreteExportHandleController extends ExportHandleController
         $responseBody = (string) $response->getBody();
         $responseData = json_decode($responseBody);
 
-        $tenats = collect($responseData->message)->reject(function ($item) {
-            return $item === null;
-        });
+        $tenats = collect($responseData->message)->reject(fn($item) => $item === null);
         $filteredTenants = $tenats->map(function ($tenats) {
             $tenantData = [];
             foreach ($this->selectedColumns as $column) {
                 switch ($column) {
                     case 'Order':
-                        $order_id = \DB::table('installation_details')->where('installation_path', $tenats->domain)->latest()->value('order_id');
-                        $order_number = \DB::table('orders')->where('id', $order_id)->value('number');
+                        $order_id = DB::table('installation_details')->where('installation_path', $tenats->domain)->latest()->value('order_id');
+                        $order_number = DB::table('orders')->where('id', $order_id)->value('number');
                         $tenantData['Order'] = $order_number;
                         break;
                     case 'name':
-                        $order_id = \DB::table('installation_details')
+                        $order_id = DB::table('installation_details')
                                     ->where('installation_path', $tenats->domain)
                                     ->latest()
                                     ->value('order_id');
@@ -527,10 +494,11 @@ class ConcreteExportHandleController extends ExportHandleController
                                 }
                             }
                         }
+
                         break;
 
                     case 'email':
-                        $order_id = \DB::table('installation_details')
+                        $order_id = DB::table('installation_details')
                                     ->where('installation_path', $tenats->domain)
                                     ->latest()
                                     ->value('order_id');
@@ -550,10 +518,11 @@ class ConcreteExportHandleController extends ExportHandleController
                                 }
                             }
                         }
+
                         break;
 
                     case 'mobile':
-                        $order_id = \DB::table('installation_details')
+                        $order_id = DB::table('installation_details')
                                     ->where('installation_path', $tenats->domain)
                                     ->latest()
                                     ->value('order_id');
@@ -573,10 +542,11 @@ class ConcreteExportHandleController extends ExportHandleController
                                 }
                             }
                         }
+
                         break;
 
                     case 'country':
-                        $order_id = \DB::table('installation_details')
+                        $order_id = DB::table('installation_details')
                                     ->where('installation_path', $tenats->domain)
                                     ->latest()
                                     ->value('order_id');
@@ -597,10 +567,11 @@ class ConcreteExportHandleController extends ExportHandleController
                                 }
                             }
                         }
+
                         break;
 
                     case 'Expiry day':
-                        $order_id = \DB::table('installation_details')
+                        $order_id = DB::table('installation_details')
                                     ->where('installation_path', $tenats->domain)
                                     ->latest()
                                     ->value('order_id');
@@ -608,12 +579,13 @@ class ConcreteExportHandleController extends ExportHandleController
                         if (empty($subscription_date)) {
                             $tenantData['Expiry day'] = null;
                         } else {
-                            $tenantData['Expiry day'] = Carbon::parse($subscription_date)->format('d M Y');
+                            $tenantData['Expiry day'] = Date::parse($subscription_date)->format('d M Y');
                         }
+
                         break;
 
                     case 'Deletion day':
-                        $order_id = \DB::table('installation_details')
+                        $order_id = DB::table('installation_details')
                                     ->where('installation_path', $tenats->domain)
                                     ->latest()
                                     ->value('order_id');
@@ -621,15 +593,16 @@ class ConcreteExportHandleController extends ExportHandleController
                         if (empty($subscription_date)) {
                             $tenantData['Deletion day'] = null;
                         } else {
-                            $days = \DB::table('expiry_mail_days')->where('cloud_days', '!=', null)->value('cloud_days');
-                            $originalDate = Carbon::parse($subscription_date)->addDays($days);
-                            $formattedDate = Carbon::parse($originalDate)->format('d M Y');
+                            $days = DB::table('expiry_mail_days')->where('cloud_days', '!=', null)->value('cloud_days');
+                            $originalDate = Date::parse($subscription_date)->addDays($days);
+                            $formattedDate = Date::parse($originalDate)->format('d M Y');
                             $tenantData['Deletion day'] = $formattedDate;
                         }
+
                         break;
 
                     case 'plan':
-                        $order_id = \DB::table('installation_details')
+                        $order_id = DB::table('installation_details')
                                     ->where('installation_path', $tenats->domain)
                                     ->latest()
                                     ->value('order_id');
@@ -641,11 +614,12 @@ class ConcreteExportHandleController extends ExportHandleController
                             $message = ($price) ? 'Paid Subscription' : 'Free Trial';
                             $tenantData['plan'] = $message;
                         }
+
                         break;
 
                     case 'tenants':
-                        $order_id = \DB::table('installation_details')->where('installation_path', $tenats->domain)->latest()->value('order_id');
-                        $order_number = \DB::table('orders')->where('id', $order_id)->value('number');
+                        $order_id = DB::table('installation_details')->where('installation_path', $tenats->domain)->latest()->value('order_id');
+                        $order_number = DB::table('orders')->where('id', $order_id)->value('number');
                         $tenantData['tenats'] = $tenats->id;
                         break;
 
@@ -670,8 +644,9 @@ class ConcreteExportHandleController extends ExportHandleController
         });
 
         if ($filteredTenants->isEmpty()) {
-            throw new \Exception(__('message.no_data_available_export'));
+            throw new Exception(__('message.no_data_available_export'));
         }
+
         // Get user details for email
         $id = User::where('email', $email)->value('id');
         $user = User::find($id);
@@ -702,10 +677,10 @@ class ConcreteExportHandleController extends ExportHandleController
             'name' => 'tenants',
         ]);
 
-        $settings = new \App\Model\Common\Setting();
+        $settings = new Setting();
         $setting = $settings::find(1);
         $from = $setting->email;
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
         $downloadLink = route('download.exported.file', ['id' => $exportDetail->id]);
         $emailContent = 'Hello '.$user->first_name.' '.$user->last_name.','.
             '<br><br>Tenant report is successfully generated and ready for download.'.
@@ -718,16 +693,12 @@ class ConcreteExportHandleController extends ExportHandleController
 
     public function getStatus($status)
     {
-        switch ($status) {
-            case 'Pending':
-                return 'unpaid';
-            case 'Success':
-                return 'paid';
-            case 'Renewed':
-                return 'renewed';
-            default:
-                return 'partially paid';
-        }
+        return match ($status) {
+            'Pending' => 'unpaid',
+            'Success' => 'paid',
+            'Renewed' => 'renewed',
+            default => 'partially paid',
+        };
     }
 
     public function allInstallations($allInstallation, $orders)
@@ -736,19 +707,14 @@ class ConcreteExportHandleController extends ExportHandleController
             $dayUtc = new Carbon('-30 days');
             $minus30Day = $dayUtc->toDateTimeString();
 
-            switch ($allInstallation) {
-                case 'installed':
-                    return $orders->whereColumn('subscriptions.created_at', '!=', 'subscriptions.updated_at');
-                case 'not_installed':
-                    return $orders->whereColumn('subscriptions.created_at', '=', 'subscriptions.updated_at');
-                case 'paid_inactive_ins':
-                    return $orders->where('subscriptions.updated_at', '<', $minus30Day);
-                case 'paid_ins':
-                    return $orders->whereColumn('subscriptions.created_at', '!=', 'subscriptions.updated_at')
-                                  ->where('subscriptions.updated_at', '>', $minus30Day);
-                default:
-                    return $orders;
-            }
+            return match ($allInstallation) {
+                'installed' => $orders->whereColumn('subscriptions.created_at', '!=', 'subscriptions.updated_at'),
+                'not_installed' => $orders->whereColumn('subscriptions.created_at', '=', 'subscriptions.updated_at'),
+                'paid_inactive_ins' => $orders->where('subscriptions.updated_at', '<', $minus30Day),
+                'paid_ins' => $orders->whereColumn('subscriptions.created_at', '!=', 'subscriptions.updated_at')
+                              ->where('subscriptions.updated_at', '>', $minus30Day),
+                default => $orders,
+            };
         }
     }
 
@@ -779,7 +745,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
     public function getAgents($order)
     {
-        $license = substr($order->serial_key, 12, 16);
+        $license = substr((string) $order->serial_key, 12, 16);
         if ($license == '0000') {
             return 'Unlimited';
         }

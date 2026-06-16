@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('promo_product_relations', function (Blueprint $table) {
+        Schema::table('promo_product_relations', function (Blueprint $table): void {
             $table->foreign('product_id')->references('id')->on('products')->onUpdate('RESTRICT')->onDelete('RESTRICT');
             $table->foreign('promotion_id')->references('id')->on('promotions')->onUpdate('RESTRICT')->onDelete('RESTRICT');
         });
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('promo_product_relations', function (Blueprint $table) {
+        Schema::table('promo_product_relations', function (Blueprint $table): void {
             $table->dropForeign('promo_product_relations_product_id_foreign');
             $table->dropForeign('promo_product_relations_promotion_id_foreign');
         });

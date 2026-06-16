@@ -2,6 +2,8 @@
 
 namespace App\Model\Payment;
 
+use Override;
+use App\Model\Common\Country;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,10 +28,11 @@ class Currency extends BaseModel
         'segments' => ['currency'],
     ];
 
+    #[Override]
     protected static function booted(): void
     {
-        static::addGlobalScope('active_country', function (Builder $builder) {
-            $builder->whereHas('country', function ($query) {
+        static::addGlobalScope('active_country', function (Builder $builder): void {
+            $builder->whereHas('country', function (\Illuminate\Contracts\Database\Query\Builder $query): void {
                 $query->where('status', true);
             });
         });
@@ -47,6 +50,6 @@ class Currency extends BaseModel
 
     public function country()
     {
-        return $this->hasMany(\App\Model\Common\Country::class, 'currency_id');
+        return $this->hasMany(Country::class, 'currency_id');
     }
 }

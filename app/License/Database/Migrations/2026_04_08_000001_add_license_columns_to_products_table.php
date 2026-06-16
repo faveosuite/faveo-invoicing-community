@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('products', function (Blueprint $table): void {
             $table->string('product_url_homepage')->nullable()->after('product_description');
             $table->string('product_url_download')->nullable()->after('product_url_homepage');
             $table->string('product_envato_id')->nullable()->after('product_url_download');
@@ -26,7 +26,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('products', function (Blueprint $table): void {
             $table->dropColumn([
                 'product_url_homepage',
                 'product_url_download',

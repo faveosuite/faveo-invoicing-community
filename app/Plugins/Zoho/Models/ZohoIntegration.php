@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Models;
 
+use Override;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -15,12 +16,9 @@ class ZohoIntegration extends Model
         'is_active',
     ];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
-
     /**
      * OAuth token for this integration.
+     * @return HasOne<ZohoOAuthToken, $this>
      */
     public function token(): HasOne
     {
@@ -29,9 +27,17 @@ class ZohoIntegration extends Model
 
     /**
      * OAuth client credentials.
+     * @return HasOne<ZohoOAuthClient, $this>
      */
     public function client(): HasOne
     {
         return $this->hasOne(ZohoOAuthClient::class, 'integration_id');
+    }
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
     }
 }

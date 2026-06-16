@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('account_activates')) {
-            Schema::create('account_activates', function (Blueprint $table) {
+            Schema::create('account_activates', function (Blueprint $table): void {
                 $table->string('email')->index();
                 $table->string('token')->index();
                 $table->timestamps();

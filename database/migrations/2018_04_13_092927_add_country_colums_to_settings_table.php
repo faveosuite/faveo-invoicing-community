@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('settings', 'country')) {
-            Schema::table('settings', function (Blueprint $table) {
+            Schema::table('settings', function (Blueprint $table): void {
                 $table->string('country');
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             $table->dropColumn('country');
         });
     }

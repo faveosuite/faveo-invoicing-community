@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\v2_0_0;
 
+use App\User;
 use App\ApiKey;
 use App\Model\Common\Mailchimp\MailchimpFieldAgoraRelation;
 use App\Model\Common\Mailchimp\MailchimpSetting;
@@ -14,12 +15,9 @@ use App\Model\License\LicensePermission;
 use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\Condition;
 use App\Model\Payment\Period;
-use App\Model\Payment\Plan;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Payment\TaxOption;
-use App\Model\Product\Product;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -83,8 +81,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call([PricingTemplateSeeder::class]);
         $this->command->info('Pricing Template Table Seeded!');
-        
-        
+
+
         $this->call([UserTableSeeder::class]);
         $this->command->info('User table seeded!');
 
@@ -97,7 +95,7 @@ class DatabaseSeeder extends Seeder
 
 //        $this->call([FormatCurrenciesSeeder::class]);
 //        $this->command->info('Format Currencies table seeded!');
-        
+
         // $this->call([FaveoCloudSeeder::class]);
         // $this->command->info('Format faveocloud table seeded!');
 
@@ -1000,7 +998,7 @@ class UserTableSeeder extends Seeder
         DB::table('users')->where('email','demo@admin.com')->delete();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return \App\User::create([
+        return User::create([
             'first_name' => 'Demo',
             'last_name' => 'Admin',
             'user_name' => 'demo',

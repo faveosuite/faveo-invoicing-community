@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Recaptcha\Model;
 
+use App\Model\Common\StatusSetting;
 use Illuminate\Database\Eloquent\Model;
 
 class RecaptchaSetting extends Model
@@ -21,7 +22,7 @@ class RecaptchaSetting extends Model
 
     public static function isCaptchaCanRun(): bool
     {
-        $statusSetting = \App\Model\Common\StatusSetting::first();
+        $statusSetting = StatusSetting::first();
         $recaptchaSetting = self::first();
 
         return auth()->guest()
@@ -39,7 +40,7 @@ class RecaptchaSetting extends Model
      */
     public static function publicConfig(): array
     {
-        $status = \App\Model\Common\StatusSetting::first();
+        $status = StatusSetting::first();
         $settings = self::firstOrCreate([]);
 
         $statusEnabled = (bool) ($status?->recaptcha_status ?? false);

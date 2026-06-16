@@ -1,5 +1,18 @@
 <?php
 
+use App\License\Controllers\Admin\ClientController;
+use App\License\Controllers\Admin\VersionsController;
+use App\License\Controllers\Admin\Views\VersionsViewController;
+use App\License\Controllers\Update\AfuVersionsController;
+use App\License\Controllers\Admin\LicenseController;
+use App\License\Controllers\Admin\Views\LicenseViewController;
+use App\License\Controllers\Admin\InstallationController;
+use App\License\Controllers\Admin\Views\InstallationViewController;
+use App\License\Controllers\Admin\CallBackController;
+use App\License\Controllers\Admin\ReportsController;
+use App\License\Controllers\Admin\BannedHostController;
+use App\License\Controllers\WhitelistIpsController;
+use App\License\Controllers\Admin\NotificationsController;
 use App\License\Controllers\Admin\LanguageController;
 use App\License\Controllers\AflCallbacks\ConnectionTestController;
 use App\License\Controllers\AflCallbacks\LicenseInstallController;
@@ -31,7 +44,7 @@ use Illuminate\Support\Facades\Route;
 
 // APL License Callbacks — original URL format: /apl_callbacks/*.php
 // AFU Version Callbacks and API-style equivalents — throttled per IP
-Route::middleware('throttle:60,1')->group(function () {
+Route::middleware('throttle:60,1')->group(function (): void {
     Route::post('/apl_callbacks/connection_test.php', [ConnectionTestController::class, 'connection']);
     Route::post('/apl_callbacks/license_install.php', [LicenseInstallController::class, 'licenseInstall']);
     Route::post('/apl_callbacks/license_scheme.php', [LicenseSchemeController::class, 'licenseScheme']);
@@ -45,7 +58,7 @@ Route::middleware('throttle:60,1')->group(function () {
 });
 
 // File download routes — tighter limit to prevent bandwidth abuse
-Route::middleware('throttle:10,1')->group(function () {
+Route::middleware('throttle:10,1')->group(function (): void {
     Route::post('/aus_callbacks/download_file.php', [DownloadFileController::class, 'downloadFile']);
     Route::post('/api/downloadFile', [DownloadFileController::class, 'downloadFile']);
     Route::post('/api/pdf', [DownloadFileController::class, 'downloadFile']);
@@ -56,7 +69,7 @@ Route::middleware('throttle:10,1')->group(function () {
 // Called by external Faveo instances for license/plugin info
 // ============================================================================
 
-Route::middleware('throttle:120,1')->group(function () {
+Route::middleware('throttle:120,1')->group(function (): void {
     Route::get('/api/licenseInfo', [LicenseApiController::class, 'licenseInfo']);
     Route::get('/api/IndividuallicenseInfo', [LicenseApiController::class, 'individualLicenseInfo']);
     Route::get('/api/getOrder', [LicenseApiController::class, 'getOrder']);
@@ -73,84 +86,84 @@ Route::get('/license-manager-lang', [LanguageController::class, 'getLanguageFile
 // These routes are called by the License Manager Vue UI
 // ============================================================================
 
-Route::prefix('api/admin')->middleware(['web', 'auth', 'admin'])->group(function () {
+Route::prefix('api/admin')->middleware(['web', 'auth', 'admin'])->group(function (): void {
     // ========================================================================
     // ========================================================================
     // CLIENTS
     // ========================================================================
-    Route::get('/viewClients', [\App\License\Controllers\Admin\ClientController::class, 'viewClients']);
-    Route::get('/viewClients/{id}', [\App\License\Controllers\Admin\ClientController::class, 'viewClients']);
-    Route::get('/viewproducts', [\App\License\Controllers\Admin\ClientController::class, 'viewProducts']);
+    Route::get('/viewClients', [ClientController::class, 'viewClients']);
+    Route::get('/viewClients/{id}', [ClientController::class, 'viewClients']);
+    Route::get('/viewproducts', [ClientController::class, 'viewProducts']);
 
     // ========================================================================
     // VERSIONS
     // ========================================================================
-    Route::get('/viewVersions', [\App\License\Controllers\Admin\VersionsController::class, 'show']);
-    Route::get('/versionView/{version_id}', [\App\License\Controllers\Admin\Views\VersionsViewController::class, 'getVersionInfo']);
-    Route::get('/versionCallbacks/{version_id}', [\App\License\Controllers\Admin\Views\VersionsViewController::class, 'getVersionCallbacks']);
-    Route::post('/versions/add', [\App\License\Controllers\Update\AfuVersionsController::class, 'versionAdd']);
-    Route::post('/versions/edit', [\App\License\Controllers\Update\AfuVersionsController::class, 'versionUpdate']);
-    Route::post('/versions/delete', [\App\License\Controllers\Update\AfuVersionsController::class, 'deleteVersion']);
+    Route::get('/viewVersions', [VersionsController::class, 'show']);
+    Route::get('/versionView/{version_id}', [VersionsViewController::class, 'getVersionInfo']);
+    Route::get('/versionCallbacks/{version_id}', [VersionsViewController::class, 'getVersionCallbacks']);
+    Route::post('/versions/add', [AfuVersionsController::class, 'versionAdd']);
+    Route::post('/versions/edit', [AfuVersionsController::class, 'versionUpdate']);
+    Route::post('/versions/delete', [AfuVersionsController::class, 'deleteVersion']);
 
     // ========================================================================
     // LICENSES
     // ========================================================================
-    Route::get('/viewLicenses', [\App\License\Controllers\Admin\LicenseController::class, 'show']);
-    Route::get('/licenseView/{license_id}', [\App\License\Controllers\Admin\Views\LicenseViewController::class, 'getLicenseDetails']);
-    Route::get('/license/{license_id}', [\App\License\Controllers\Admin\LicenseController::class, 'edit']);
-    Route::get('/licenseInstallation/{license_id}', [\App\License\Controllers\Admin\Views\LicenseViewController::class, 'getLicenseInstallations']);
-    Route::get('/licenseCallbacks/{license_id}', [\App\License\Controllers\Admin\Views\LicenseViewController::class, 'getLicenseCallBacks']);
-    Route::get('/installationLogs/{id}', [\App\License\Controllers\Admin\Views\LicenseViewController::class, 'getLicenseInstallationLogs']);
-    Route::post('/license/add', [\App\License\Controllers\Admin\LicenseController::class, 'licenseAdd']);
-    Route::post('/license/edit', [\App\License\Controllers\Admin\LicenseController::class, 'licenseUpdate']);
-    Route::post('/license/delete', [\App\License\Controllers\Admin\LicenseController::class, 'deleteLicense']);
+    Route::get('/viewLicenses', [LicenseController::class, 'show']);
+    Route::get('/licenseView/{license_id}', [LicenseViewController::class, 'getLicenseDetails']);
+    Route::get('/license/{license_id}', [LicenseController::class, 'edit']);
+    Route::get('/licenseInstallation/{license_id}', [LicenseViewController::class, 'getLicenseInstallations']);
+    Route::get('/licenseCallbacks/{license_id}', [LicenseViewController::class, 'getLicenseCallBacks']);
+    Route::get('/installationLogs/{id}', [LicenseViewController::class, 'getLicenseInstallationLogs']);
+    Route::post('/license/add', [LicenseController::class, 'licenseAdd']);
+    Route::post('/license/edit', [LicenseController::class, 'licenseUpdate']);
+    Route::post('/license/delete', [LicenseController::class, 'deleteLicense']);
 
     // ========================================================================
     // INSTALLATIONS
     // ========================================================================
-    Route::get('/viewInstallations', [\App\License\Controllers\Admin\InstallationController::class, 'show']);
-    Route::get('/installationView/{installation_id}', [\App\License\Controllers\Admin\Views\InstallationViewController::class, 'getInstallation']);
-    Route::get('/installation/{installation_id}', [\App\License\Controllers\Admin\InstallationController::class, 'edit']);
-    Route::get('/installationCallbacks/{installation_id}', [\App\License\Controllers\Admin\Views\InstallationViewController::class, 'getInstallationCallBacks']);
-    Route::post('/installations/edit', [\App\License\Controllers\Admin\InstallationController::class, 'installationUpdate']);
-    Route::post('/installations/delete', [\App\License\Controllers\Admin\InstallationController::class, 'deleteInstallations']);
+    Route::get('/viewInstallations', [InstallationController::class, 'show']);
+    Route::get('/installationView/{installation_id}', [InstallationViewController::class, 'getInstallation']);
+    Route::get('/installation/{installation_id}', [InstallationController::class, 'edit']);
+    Route::get('/installationCallbacks/{installation_id}', [InstallationViewController::class, 'getInstallationCallBacks']);
+    Route::post('/installations/edit', [InstallationController::class, 'installationUpdate']);
+    Route::post('/installations/delete', [InstallationController::class, 'deleteInstallations']);
 
     // ========================================================================
     // CALLBACKS
     // ========================================================================
-    Route::get('/showLicenseCallbacks', [\App\License\Controllers\Admin\CallBackController::class, 'licneseCallbacks']);
-    Route::get('/showUpdateCallbacks', [\App\License\Controllers\Admin\CallBackController::class, 'updateCallbacks']);
+    Route::get('/showLicenseCallbacks', [CallBackController::class, 'licneseCallbacks']);
+    Route::get('/showUpdateCallbacks', [CallBackController::class, 'updateCallbacks']);
 
     // ========================================================================
     // REPORTS
     // ========================================================================
-    Route::get('/reportLicense', [\App\License\Controllers\Admin\ReportsController::class, 'reportArrayLicense']);
-    Route::get('/reportCracking', [\App\License\Controllers\Admin\ReportsController::class, 'reportArrayCracking']);
-    Route::get('/reportSystem', [\App\License\Controllers\Admin\ReportsController::class, 'reportArraySystem']);
-    Route::get('/reportUpdate', [\App\License\Controllers\Admin\ReportsController::class, 'reportArrayUpdate']);
+    Route::get('/reportLicense', [ReportsController::class, 'reportArrayLicense']);
+    Route::get('/reportCracking', [ReportsController::class, 'reportArrayCracking']);
+    Route::get('/reportSystem', [ReportsController::class, 'reportArraySystem']);
+    Route::get('/reportUpdate', [ReportsController::class, 'reportArrayUpdate']);
 
     // ========================================================================
     // BANNED HOSTS
     // ========================================================================
-    Route::get('/viewBannedHost', [\App\License\Controllers\Admin\BannedHostController::class, 'show']);
-    Route::get('/viewBannedHost/{banned_host_id}', [\App\License\Controllers\Admin\BannedHostController::class, 'view']);
-    Route::post('/bannedHosts/add', [\App\License\Controllers\Admin\BannedHostController::class, 'bannedHostAdd']);
-    Route::post('/bannedHosts/edit', [\App\License\Controllers\Admin\BannedHostController::class, 'bannedHostUpdate']);
-    Route::post('/bannedHosts/delete', [\App\License\Controllers\Admin\BannedHostController::class, 'deleteBannedHost']);
+    Route::get('/viewBannedHost', [BannedHostController::class, 'show']);
+    Route::get('/viewBannedHost/{banned_host_id}', [BannedHostController::class, 'view']);
+    Route::post('/bannedHosts/add', [BannedHostController::class, 'bannedHostAdd']);
+    Route::post('/bannedHosts/edit', [BannedHostController::class, 'bannedHostUpdate']);
+    Route::post('/bannedHosts/delete', [BannedHostController::class, 'deleteBannedHost']);
 
     // ========================================================================
     // WHITELIST IPS
     // ========================================================================
-    Route::get('/view-Whitelist', [\App\License\Controllers\WhitelistIpsController::class, 'view']);
-    Route::get('/whitelist-edit/{id}', [\App\License\Controllers\WhitelistIpsController::class, 'edit']);
-    Route::post('/whitelist/updateOrCreate', [\App\License\Controllers\WhitelistIpsController::class, 'whitelistAdd']);
-    Route::post('/delete-whitelist-ip', [\App\License\Controllers\WhitelistIpsController::class, 'deleteWhitelistIp']);
+    Route::get('/view-Whitelist', [WhitelistIpsController::class, 'view']);
+    Route::get('/whitelist-edit/{id}', [WhitelistIpsController::class, 'edit']);
+    Route::post('/whitelist/updateOrCreate', [WhitelistIpsController::class, 'whitelistAdd']);
+    Route::post('/delete-whitelist-ip', [WhitelistIpsController::class, 'deleteWhitelistIp']);
 
     // ========================================================================
     // SERVER NOTIFICATIONS
     // ========================================================================
-    Route::get('/viewNotifications', [\App\License\Controllers\Admin\NotificationsController::class, 'showLicenseNotifications']);
-    Route::post('/notifications/{notification_id}', [\App\License\Controllers\Admin\NotificationsController::class, 'updateLicenseNotifications']);
-    Route::get('/showUpdateNotifications', [\App\License\Controllers\Admin\NotificationsController::class, 'showUpdateNotifications']);
-    Route::post('/updateNotifications/{notification_id}', [\App\License\Controllers\Admin\NotificationsController::class, 'updateUpdateNotifications']);
+    Route::get('/viewNotifications', [NotificationsController::class, 'showLicenseNotifications']);
+    Route::post('/notifications/{notification_id}', [NotificationsController::class, 'updateLicenseNotifications']);
+    Route::get('/showUpdateNotifications', [NotificationsController::class, 'showUpdateNotifications']);
+    Route::post('/updateNotifications/{notification_id}', [NotificationsController::class, 'updateUpdateNotifications']);
 });

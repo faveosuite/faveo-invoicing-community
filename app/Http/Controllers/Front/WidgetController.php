@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Front;
 
+use Exception;
+use App\Model\Common\Setting;
+use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Http\Controllers\Controller;
 use App\Model\Common\SocialMedia;
 use App\Model\Common\StatusSetting;
@@ -32,33 +35,29 @@ class WidgetController extends Controller
             // Base query
             $widgets = $this->widget
                 ->select('id', 'name', 'type', 'created_at', 'content')
-                ->when($searchString, function ($query) use ($searchString) {
-                    return $query->where(function ($q) use ($searchString) {
-                        $q->where('name', 'like', "%{$searchString}%")
-                            ->orWhere('type', 'like', "%{$searchString}%");
-                    });
-                })
+                ->when($searchString, fn($query) => $query->where(function ($q) use ($searchString): void {
+                    $q->where('name', 'like', "%{$searchString}%")
+                        ->orWhere('type', 'like', "%{$searchString}%");
+                }))
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
             $total = $widgets->count();
 
-            $widgets->getCollection()->transform(function ($widget) {
-                return [
-                    'id' => $widget->id,
-                    'name' => ucfirst($widget->name),
-                    'type' => $widget->type,
-                    'created_at' => getDateHtml($widget->created_at),
-                    'content' => $widget->content,
-                    'action' => hyperLinkGenerator("widgets/show/{$widget->id}", __('message.edit')),
-                ];
-            });
+            $widgets->getCollection()->transform(fn($widget) => [
+                'id' => $widget->id,
+                'name' => ucfirst((string) $widget->name),
+                'type' => $widget->type,
+                'created_at' => getDateHtml($widget->created_at),
+                'content' => $widget->content,
+                'action' => hyperLinkGenerator("widgets/show/{$widget->id}", __('message.edit')),
+            ]);
 
             return successResponse(__('message.widget_fetched'), [
                 'pages' => $widgets,
                 'total' => $total,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -85,7 +84,7 @@ class WidgetController extends Controller
                 ],
                 200
             );
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -120,7 +119,7 @@ class WidgetController extends Controller
             $this->widget->save();
 
             return successResponse(__('message.saved-successfully'), '', 201);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -175,7 +174,7 @@ class WidgetController extends Controller
             $widget->save();
 
             return successResponse(__('message.updated-successfully'), ['widgets' => $widget], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -192,11 +191,11 @@ class WidgetController extends Controller
             $ids = $request->input('select', []);
 
             if (! is_array($ids)) {
-                $ids = explode(',', $ids);
+                $ids = explode(',', (string) $ids);
             }
 
             // Clean IDs - remove empty values & convert to integer
-            $ids = array_filter(array_map('intval', array_map('trim', $ids)));
+            $ids = array_filter(array_map(intval(...), array_map(trim(...), $ids)));
 
             if (empty($ids)) {
                 return errorResponse(__('message.select-a-row'), 400);
@@ -207,12 +206,13 @@ class WidgetController extends Controller
             if ($existingIds->isEmpty()) {
                 return errorResponse(__('message.no-record'), 404);
             }
+
             foreach ($existingIds as $exist) {
                 $exist->delete();
             }
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -228,15 +228,15 @@ class WidgetController extends Controller
      */
     public function footer1()
     {
-        $set = new \App\Model\Common\Setting();
+        $set = new Setting();
         $set = $set->findOrFail(1);
         $social = SocialMedia::get();
         $footerWidgetTypes = ['footer1', 'footer2', 'footer3'];
         $isV2RecaptchaEnabledForNewsletter = 0;
         $data = [];
         foreach ($footerWidgetTypes as $widgetType) {
-            $widget = \App\Model\Front\Widgets::where('publish', 1)->where('type', $widgetType)->select('name', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media')->first();
-            $mailchimpKey = \App\Model\Common\Mailchimp\MailchimpSetting::value('api_key');
+            $widget = Widgets::where('publish', 1)->where('type', $widgetType)->select('name', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media')->first();
+            $mailchimpKey = MailchimpSetting::value('api_key');
 
             if ($widget) {
                 $data[$widgetType] = $this->renderWidget($widget, $set, $social, $mailchimpKey);
@@ -272,6 +272,7 @@ class WidgetController extends Controller
                                     <a href="mailto:'.$set->company_email.'" class="d-inline-flex align-items-center text-decoration-none text-color-grey text-color-hover-primary font-weight-semibold text-4-5">'.$set->company_email.'</a>
                                 </li>';
             }
+
             if ($set->phone) {
                 $socialMedia1['phone'] = $set->phone;
                 $socialMedia .= '<li class="d-flex align-items-center mb-4">
@@ -279,6 +280,7 @@ class WidgetController extends Controller
                                     <a href="tel:'.$set->phone.'" class="d-inline-flex align-items-center text-decoration-none text-color-grey text-color-hover-primary font-weight-semibold text-4-5">+'.$set->phone_code.' '.$set->phone.'</a>
                                 </li>';
             }
+
             $socialMedia .= '</ul>';
 
             // Social Icons
@@ -286,12 +288,13 @@ class WidgetController extends Controller
             foreach ($social as $media) {
                 $socialMedia1['socialMediaName'] = $media->name;
                 $socialMedia1['socialMediaUrl'] = $media->link;
-                $socialMedia .= '<li class="social-icons-'.strtolower($media->name).'">
-                                    <a href="'.$media->link.'" target="_blank" data-bs-toggle="tooltip" title="'.ucfirst($media->name).'">
-                                        <i class="fab fa-'.strtolower($media->name).' text-color-grey-lighten"></i>
+                $socialMedia .= '<li class="social-icons-'.strtolower((string) $media->name).'">
+                                    <a href="'.$media->link.'" target="_blank" data-bs-toggle="tooltip" title="'.ucfirst((string) $media->name).'">
+                                        <i class="fab fa-'.strtolower((string) $media->name).' text-color-grey-lighten"></i>
                                     </a>
                                 </li>';
             }
+
             $socialMedia .= '</ul>';
         }
 
@@ -320,13 +323,14 @@ class WidgetController extends Controller
         }
 
         // Check if the 'menu' class exists in the widget content
-        $hasMenuClass = strpos($widget->content, 'menu') !== false;
+        $hasMenuClass = str_contains((string) $widget->content, 'menu');
 
         // Add class if 'menu' class exists in the widget content
         if ($hasMenuClass) {
             $socialMedia1['widgetContent'] = $widget->content;
             $widget->content = str_replace('<ul', '<ul class="list list-styled columns-lg-2 px-2"', $widget->content);
         }
+
         $socialMedia1['tweetDetails'] = $tweetDetails;
 
 //        return $socialMedia1;

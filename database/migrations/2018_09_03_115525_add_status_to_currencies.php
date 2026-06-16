@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('currencies', 'status')) {
-            Schema::table('currencies', function (Blueprint $table) {
+            Schema::table('currencies', function (Blueprint $table): void {
                 $table->boolean('status')->nullable();
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('currencies', function (Blueprint $table) {
+        Schema::table('currencies', function (Blueprint $table): void {
             $table->dropColumn('status');
         });
     }

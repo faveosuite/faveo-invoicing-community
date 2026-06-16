@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use Override;
 use App\Rules\Honeypot;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -36,6 +37,7 @@ class LoginRequest extends FormRequest
      *
      * @return array
      */
+    #[Override]
     public function messages()
     {
         return [

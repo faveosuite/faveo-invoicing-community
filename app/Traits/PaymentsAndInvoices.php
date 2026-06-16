@@ -2,6 +2,13 @@
 
 namespace App\Traits;
 
+use App\Http\Controllers\User\ClientController;
+use Exception;
+use Logger;
+use Auth;
+use Cart;
+use Illuminate\Support\Facades\Date;
+use Input;
 use App\Model\Order\Invoice;
 use App\Model\Order\Payment;
 use App\Model\Product\Product;
@@ -24,18 +31,20 @@ trait PaymentsAndInvoices
             if ($total == '') {
                 $total = 0;
             }
+
             $paymentid = $request->input('id');
             $creditAmtUserId = $this->payment->where('id', $paymentid)->value('user_id');
             $creditAmt = $this->payment->where('user_id', $creditAmtUserId)
               ->where('invoice_id', '=', 0)->value('amt_to_credit');
             $invoices = $invoice->where('user_id', $creditAmtUserId)->orderBy('created_at', 'desc')->get();
-            $cltCont = new \App\Http\Controllers\User\ClientController();
+            $cltCont = new ClientController();
             $invoiceSum = $cltCont->getTotalInvoice($invoices);
             if ($total > $invoiceSum) {
                 $diff = $total - $invoiceSum;
-                $creditAmt = $creditAmt + $diff;
+                $creditAmt += $diff;
                 $total = $invoiceSum;
             }
+
             $payment = $this->payment->where('id', $paymentid)->update(['amount' => $total]);
 
             $creditAmtInvoiceId = $this->payment->where('user_id', $creditAmtUserId)
@@ -48,10 +57,10 @@ trait PaymentsAndInvoices
             $finalAmt = $creditAmt + $diffSum;
             $updatedAmt = $this->payment->where('user_id', $creditAmtUserId)
         ->where('invoice_id', '=', 0)->update(['amt_to_credit' => $creditAmt]);
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -66,11 +75,13 @@ trait PaymentsAndInvoices
         try {
             if ($amount > 0) {
                 if ($userid == '') {
-                    $userid = \Auth::user()->id;
+                    $userid = Auth::user()->id;
                 }
+
                 if ($amount == 0) {
                     $payment_status = 'success';
                 }
+
                 $this->payment->create([
                     'parent_id' => $parent_id,
                     'invoice_id' => $invoiceid,
@@ -81,8 +92,8 @@ trait PaymentsAndInvoices
                 ]);
                 $this->updateInvoice($invoiceid);
             }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -93,7 +104,7 @@ trait PaymentsAndInvoices
             $planForAgent = Product::find($productid)->planRelation->find($plan);
             if ($planForAgent) {//If Plan Exists For the Product ie not a Product without Plan
                 $noOfAgents = $planForAgent->planPrice->first()->no_of_agents;
-                $agents = $noOfAgents ? $noOfAgents : 0; //If no. of Agents is specified then that,else 0(Unlimited Agents)
+                $agents = $noOfAgents ?: 0; //If no. of Agents is specified then that,else 0(Unlimited Agents)
             } else {
                 $agents = 0;
             }
@@ -108,7 +119,7 @@ trait PaymentsAndInvoices
             $planForQty = Product::find($productid)->planRelation->find($plan);
             if ($planForQty) {
                 $quantity = Product::find($productid)->planRelation->find($plan)->planPrice->first()->product_quantity;
-                $qty = $quantity ? $quantity : 1; //If no. of Agents is specified then that,else 0(Unlimited Agents)
+                $qty = $quantity ?: 1; //If no. of Agents is specified then that,else 0(Unlimited Agents)
             } else {
                 $qty = 1;
             }
@@ -121,18 +132,21 @@ trait PaymentsAndInvoices
     {
         try {
             $invoice = $this->invoice->findOrFail($invoiceid);
-            foreach (\Cart::getConditionsByType('fee') as $value) {
+            foreach (Cart::getConditionsByType('fee') as $value) {
                 $invoice->processing_fee = $value->getValue();
             }
+
             $payment = $this->payment->where('invoice_id', $invoiceid)
             ->where('payment_status', 'success')->pluck('amount')->toArray();
             $total = array_sum($payment);
             if ($total < $invoice->grand_total) {
                 $invoice->status = 'pending';
             }
+
             if ($total >= $invoice->grand_total) {
                 $invoice->status = 'success';
             }
+
             if ($total > $invoice->grand_total) {
                 $user = $invoice->user()->first();
                 $balance = $total - $invoice->grand_total;
@@ -141,8 +155,8 @@ trait PaymentsAndInvoices
             }
 
             $invoice->save();
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -152,13 +166,13 @@ trait PaymentsAndInvoices
         $outstanding = max(0, (float) $invoice->grand_total - $alreadyPaid);
 
         if ($outstanding > 0) {
-            \App\Model\Order\Payment::create([
+            Payment::create([
                 'invoice_id' => $invoice->id,
                 'user_id' => $invoice->user_id,
                 'amount' => rounding($outstanding),
                 'payment_method' => $gateway,
                 'payment_status' => 'success',
-                'created_at' => \Carbon\Carbon::now(),
+                'created_at' => Date::now(),
             ]);
         }
 
@@ -168,18 +182,19 @@ trait PaymentsAndInvoices
     public function sendmailClientAgent($userid, $invoiceid)
     {
         try {
-            $agent = \Input::get('agent');
-            $client = \Input::get('client');
+            $agent = Input::get('agent');
+            $client = Input::get('client');
             if ($agent == 1) {
-                $id = \Auth::user()->id;
+                $id = Auth::user()->id;
                 $this->sendMail($id, $invoiceid);
             }
+
             if ($client == 1) {
                 $this->sendMail($userid, $invoiceid);
             }
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            Logger::exception($ex);
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -202,6 +217,7 @@ trait PaymentsAndInvoices
                         $domain = $items->domain;
                     }
                 }
+
                 $payment = $this->payment->where('invoice_id', $invoice_id)->first();
                 if ($payment) {
                     $payment_status = $payment->payment_status;
@@ -222,9 +238,9 @@ trait PaymentsAndInvoices
                 );
             }
 
-            return redirect()->back();
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back();
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -235,15 +251,15 @@ trait PaymentsAndInvoices
             $balance = 0;
             foreach ($amounts as $amount) {
                 if ($amount) {
-                    $balance = $balance + $amount->amt_to_credit;
+                    $balance += $amount->amt_to_credit;
                 }
             }
 
             return $balance;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -254,7 +270,7 @@ trait PaymentsAndInvoices
     {
         $sum = 0;
         foreach ($invoices as $invoice) {
-            $sum = $sum + $invoice->grand_total;
+            $sum += $invoice->grand_total;
         }
 
         return $sum;
@@ -267,16 +283,16 @@ trait PaymentsAndInvoices
             $paidSum = 0;
             foreach ($amounts as $amount) {
                 if ($amount) {
-                    $paidSum = $paidSum + (int) $amount->amount;
+                    $paidSum += (int) $amount->amount;
                     // $credit = $paidSum + $amount->amt_to_credit;
                 }
             }
 
             return $paidSum;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 }

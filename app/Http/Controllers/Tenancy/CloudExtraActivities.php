@@ -2,6 +2,17 @@
 
 namespace App\Http\Controllers\Tenancy;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Arr;
+use Auth;
+use Exception;
+use Logger;
+use DB;
+use App\License\Services\LicenseService;
+use Crypt;
+use Illuminate\Contracts\Database\Query\Builder;
+use Lang;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\Order\InvoiceController as InvoiceCtrl;
@@ -23,7 +34,6 @@ use App\Model\Product\Subscription;
 use App\ThirdPartyApp;
 use App\Traits\TaxCalculation;
 use App\User;
-use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
@@ -42,10 +52,10 @@ class CloudExtraActivities extends Controller
     private function cloudApiPost(string $endpoint, array $data): object
     {
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-        $data = array_merge($data, ['app_key' => $keys->app_key, 'token' => str_random(32), 'timestamp' => time()]);
-        $hashedSignature = hash_hmac('sha256', http_build_query($data), $keys->app_secret);
+        $data = array_merge($data, ['app_key' => $keys->app_key, 'token' => Str::random(32), 'timestamp' => time()]);
+        $hashedSignature = hash_hmac('sha256', http_build_query($data), (string) $keys->app_secret);
 
-        $response = (new Client())->request('POST', $this->cloud->cloud_central_domain.$endpoint, [
+        $response = new Client()->request('POST', $this->cloud->cloud_central_domain.$endpoint, [
             'form_params' => $data,
             'headers' => ['signature' => $hashedSignature],
         ]);
@@ -55,12 +65,12 @@ class CloudExtraActivities extends Controller
 
     private function daysRemaining(string $ends_at): int
     {
-        return (int) $this->daysRemaining($ends_at);
+        return $this->daysRemaining($ends_at);
     }
 
     private function isExpired(string $ends_at): bool
     {
-        return Carbon::now() >= Carbon::parse($ends_at);
+        return Date::now() >= Date::parse($ends_at);
     }
 
     private function checktheAgent($numberOfAgents, $domain)
@@ -71,12 +81,12 @@ class CloudExtraActivities extends Controller
         ]);
         $response = explode('{', (string) $response->getBody());
 
-        return json_decode(array_first($response));
+        return json_decode(Arr::first($response));
     }
 
     public function domainCloudAutofill()
     {
-        $company = User::where('id', \Auth::user()->id)->value('company');
+        $company = User::where('id', Auth::user()->id)->value('company');
         $company = substr(strtolower(str_replace(' ', '', $company)), 0, 28);
 
         return response()->json(['data' => $company]);
@@ -100,15 +110,15 @@ class CloudExtraActivities extends Controller
             $orderId = $request->input('orderId');
             $plan = Plan::find($planId);
 
-            $planDetails = userCurrencyAndPrice(\Auth::user()->id, $plan);
+            $planDetails = userCurrencyAndPrice(Auth::user()->id, $plan);
             $actualPrice = $planDetails['plan']->add_price * $agents;
             $oldLicense = Order::where('id', $orderId)->latest()->value('serial_key');
 
             return $this->getThePaymentCalculationUpgradeDowngradeDisplay(
                 $agents, $oldLicense, $orderId, $planId, $actualPrice, $planDetails['plan']->add_price
             );
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
             return ['price_to_be_paid' => 'NaN', 'discount' => 'NaN', 'currency' => 'NaN'];
         }
@@ -128,7 +138,7 @@ class CloudExtraActivities extends Controller
             $orderId = $request->input('order_id');
             $order = Order::where('id', $orderId)->first();
 
-            if ($order->client != \Auth::user()->id) {
+            if ($order->client != Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
 
@@ -138,16 +148,18 @@ class CloudExtraActivities extends Controller
             if (! filter_var($newDomain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
                 return errorResponse(trans('message.not_allowed_domain'));
             }
-            if (strpos($newDomain, '.'.cloudSubDomain()) !== false) {
+
+            if (str_contains((string) $newDomain, '.'.cloudSubDomain())) {
                 return errorResponse(trans('message.cloud_not_allowed'));
             }
+
             if ($newDomain === $currentDomain) {
                 return errorResponse(trans('message.nothing_changed'));
             }
 
             $dns_record = dns_get_record($newDomain, DNS_CNAME);
 
-            if (! strpos($newDomain, cloudSubDomain())) {
+            if (! strpos((string) $newDomain, (string) cloudSubDomain())) {
                 if (empty($dns_record) || ! in_array(cloudSubDomain(), array_column($dns_record, 'target'))) {
                     return errorResponse(trans('message.cname'));
                 }
@@ -163,8 +175,8 @@ class CloudExtraActivities extends Controller
             $this->jobsForCloudDomain($newDomain, $currentDomain);
 
             return successResponse(trans('message.cloud_domain_change'));
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return errorResponse(trans('message.wrong_domain'));
         }
@@ -172,7 +184,7 @@ class CloudExtraActivities extends Controller
 
     private function jobsForCloudDomain(string $newDomain, string $currentDomain): void
     {
-        (new Client([]))->request('GET', env('CLOUD_JOB_URL'), [
+        new Client([])->request('GET', env('CLOUD_JOB_URL'), [
             'auth' => [env('CLOUD_USER'), env('CLOUD_AUTH')],
             'query' => ['token' => env('CLOUD_OAUTH_TOKEN'), 'domain' => $newDomain],
         ]);
@@ -190,11 +202,11 @@ class CloudExtraActivities extends Controller
             $orderId = $request->input('orderId');
             $order = Order::where('id', $orderId)->first();
 
-            if ($order->client != \Auth::user()->id) {
+            if ($order->client != Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
 
-            $oldAgents = ltrim(substr($order->serial_key, 12), '0');
+            $oldAgents = ltrim(substr((string) $order->serial_key, 12), '0');
 
             if ($request->agentAction == 'decrease' && $oldAgents <= $newAgents) {
                 return errorResponse(trans('message.agent_decrease_invalid'));
@@ -219,12 +231,12 @@ class CloudExtraActivities extends Controller
 
             $oldLicense = $order->serial_key;
             $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId, null, $request->agentAction);
-            $invoice = (new RenewController())->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', false, $totalAgents);
+            $invoice = new RenewController()->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', false, $totalAgents);
 
             if ($invoice) {
                 // Determine if subscription is expired — if so, renewal date extension is needed
                 $sub = Subscription::where('order_id', $orderId)->first();
-                $isExpired = $sub && Carbon::now() >= Carbon::parse($sub->ends_at);
+                $isExpired = $sub && Date::now() >= Date::parse($sub->ends_at);
 
                 Invoice::find($invoice->invoice_id)->update([
                     'metadata' => [
@@ -241,8 +253,8 @@ class CloudExtraActivities extends Controller
 
                 return successResponse('success', ['invoice_id' => $invoice->invoice_id]);
             }
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return errorResponse(trans('message.wrong_agents'));
         }
@@ -256,7 +268,7 @@ class CloudExtraActivities extends Controller
             $orderId = $request->orderId;
 
             $order = Order::find($orderId);
-            if ($order->client != \Auth::user()->id) {
+            if ($order->client != Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
 
@@ -272,15 +284,15 @@ class CloudExtraActivities extends Controller
             $productNew = $calc['product'];
             $currencyNew = $calc['currency'];
 
-            $user = \Auth::user();
+            $user = Auth::user();
             $tax = $this->calculateTax($productNew->id, $user->state, $user->country);
             $invoiceCtrl = new InvoiceCtrl();
             $finalCost = rounding($invoiceCtrl->calculateTotal($tax['value'], $price));
 
             $invoice = Invoice::create([
                 'user_id' => $user->id,
-                'number' => rand(11111111, 99999999),
-                'date' => Carbon::now(),
+                'number' => random_int(11111111, 99999999),
+                'date' => Date::now(),
                 'grand_total' => $finalCost,
                 'currency' => $currencyNew,
                 'status' => 'pending',
@@ -302,25 +314,25 @@ class CloudExtraActivities extends Controller
             );
 
             return successResponse('success', ['invoice_id' => $invoice->id]);
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return errorResponse(trans('message.wrong_upgrade'));
         }
     }
 
-    private function getThePaymentCalculation($newAgents, $oldLicense, $orderId, $planId = null, $agentAction): array
+    private function getThePaymentCalculation($newAgents, $oldLicense, $orderId, $planId = null, $agentAction = null): array
     {
         try {
             $sub = Subscription::where('order_id', $orderId)->first();
-            $planId = $planId ?? $sub->plan_id;
+            $planId ??= $sub->plan_id;
             $plan = Plan::with('productRelation')->find($planId);
 
             $product = $plan->productRelation;
             $currency = userCurrencyAndPrice('', $product->planRelation->find($planId));
             $ends_at = $sub->ends_at;
             $base_price = $currency['plan']?->add_price;
-            $oldAgents = substr($oldLicense, 12, 16);
+            $oldAgents = substr((string) $oldLicense, 12, 16);
             $planDays = (int) $plan->days;
 
             switch ($agentAction) {
@@ -343,8 +355,8 @@ class CloudExtraActivities extends Controller
                 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $totalAgents],
                 'associatedModel' => $product,
             ];
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return [];
         }
@@ -358,7 +370,7 @@ class CloudExtraActivities extends Controller
 
         $agentsAdded = $newAgents - $oldAgents;
         $pricePerDay = $base_price / $planDays;
-        $daysRemain = (int) $this->daysRemaining($ends_at);
+        $daysRemain = $this->daysRemaining($ends_at);
 
         return (float) ($agentsAdded * $pricePerDay * $daysRemain);
     }
@@ -369,7 +381,7 @@ class CloudExtraActivities extends Controller
             return (float) ($base_price * $newAgents);
         }
 
-        $daysRemain = (int) $this->daysRemaining($ends_at);
+        $daysRemain = $this->daysRemaining($ends_at);
         $pricePerDayNewAgents = ($base_price * $newAgents) / $planDays;
         $pricePerDayOldAgents = ($base_price * $oldAgents) / $planDays;
         $priceRemaining = $pricePerDayOldAgents * $daysRemain;
@@ -384,7 +396,7 @@ class CloudExtraActivities extends Controller
             $sub = Subscription::where('order_id', $orderId)->first();
             $planIdOld = $sub->plan_id;
             $ends_at = $sub->ends_at;
-            $oldAgents = substr($oldLicense, 12, 16);
+            $oldAgents = substr((string) $oldLicense, 12, 16);
 
             $planOld = Plan::with('productRelation')->find($planIdOld);
             $currencyOld = userCurrencyAndPrice('', $planOld->productRelation->planRelation->find($planIdOld));
@@ -411,8 +423,8 @@ class CloudExtraActivities extends Controller
                 'product' => $productNew,
                 'currency' => $currencyNew['currency'],
             ];
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return ['price' => 0, 'discount' => null, 'product' => null, 'currency' => ''];
         }
@@ -424,7 +436,7 @@ class CloudExtraActivities extends Controller
             return ['price' => $base_price_new, 'priceRemaining' => 0, 'priceToBePaid' => $base_price_new, 'discount' => null];
         }
 
-        $daysRemain = (int) $this->daysRemaining($ends_at);
+        $daysRemain = $this->daysRemaining($ends_at);
         $pricePerDayNew = $base_price_new / $planDaysNew;
         $pricePerDayOld = $base_priceOld / $planDaysOld;
 
@@ -445,7 +457,7 @@ class CloudExtraActivities extends Controller
             $price = $priceToBePaid - $priceRemaining;
         } else {
             $discount = round($priceRemaining - $priceToBePaid);
-            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
+            DB::table('users')->where('id', Auth::user()->id)->update(['billing_pay_balance' => 1]);
             $price = $priceToBePaid;
         }
 
@@ -470,7 +482,7 @@ class CloudExtraActivities extends Controller
             $price = $priceToBePaid - $priceRemaining;
         } else {
             $discount = round($priceRemaining - $priceToBePaid);
-            User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
+            User::where('id', Auth::user()->id)->update(['billing_pay_balance' => 1]);
             $price = $priceToBePaid;
         }
 
@@ -485,7 +497,7 @@ class CloudExtraActivities extends Controller
 
         $pricePerDayNew = $base_price_new / $planDaysNew;
         $pricePerDayOld = $base_priceOld / $planDaysOld;
-        $daysRemain = (int) $this->daysRemaining($ends_at);
+        $daysRemain = $this->daysRemaining($ends_at);
 
         if ($planDaysNew !== $planDaysOld) {
             return $this->newPlanDaysNotEqualToOld($planDaysNew, $planDaysOld, $daysRemain, $pricePerDayNew, $pricePerDayOld);
@@ -533,9 +545,9 @@ class CloudExtraActivities extends Controller
                 default => '0000',
             };
 
-            $licenseCode = substr($oldLicense, 0, -4).$lastFour;
-            app(\App\License\Services\LicenseService::class)->updateLicenseCode($oldLicense, $licenseCode);
-            Order::where('id', $orderId)->update(['serial_key' => \Crypt::encrypt(substr($licenseCode, 0, 12).$lastFour)]);
+            $licenseCode = substr((string) $oldLicense, 0, -4).$lastFour;
+            resolve(LicenseService::class)->updateLicenseCode($oldLicense, $licenseCode);
+            Order::where('id', $orderId)->update(['serial_key' => Crypt::encrypt(substr($licenseCode, 0, 12).$lastFour)]);
 
             $result = $this->cloudApiPost('/performAgentUpgradeOrDowngrade', [
                 'licenseCode' => $licenseCode,
@@ -549,8 +561,8 @@ class CloudExtraActivities extends Controller
             }
 
             return successResponse(trans('message.agent_updated'));
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return errorResponse(trans('message.wrong_agents'));
         }
@@ -575,7 +587,7 @@ class CloudExtraActivities extends Controller
         ]);
 
         Order::where('id', $terminatedOrderId)->update(['order_status' => 'Terminated']);
-        \DB::table('terminated_order_upgrade')->insert([
+        DB::table('terminated_order_upgrade')->insert([
             'terminated_order_id' => $terminatedOrderId,
             'upgraded_order_id' => $newActiveOrderId,
         ]);
@@ -602,20 +614,20 @@ class CloudExtraActivities extends Controller
             return;
         }
 
-        Payment::where('user_id', \Auth::user()->id)
+        Payment::where('user_id', Auth::user()->id)
             ->where('payment_status', 'pending')
             ->where('amt_to_credit', $discount)
             ->where('payment_method', 'Credit Balance')
             ->latest()
             ->update(['payment_status' => 'success']);
 
-        $payment_id = \DB::table('payments')
-            ->where('user_id', \Auth::user()->id)
+        $payment_id = DB::table('payments')
+            ->where('user_id', Auth::user()->id)
             ->where('payment_status', 'success')
             ->where('payment_method', 'Credit Balance')
             ->value('id');
 
-        $formattedValue = currencyFormat($discount, getCurrencyForClient(\Auth::user()->country), true);
+        $formattedValue = currencyFormat($discount, getCurrencyForClient(Auth::user()->country), true);
         $oldOrderNumber = Order::where('id', $terminatedOrderId)->value('number');
         $newOrderNumber = Order::where('id', $newActiveOrderId)->value('number');
 
@@ -629,8 +641,8 @@ class CloudExtraActivities extends Controller
             .' You can also view details of the downgraded order here: '
             .'<a href="'.config('app.url').'/my-order/'.$newActiveOrderId.'">'.$newOrderNumber.'</a>.';
 
-        \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin,  'role' => 'admin', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-        \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user',  'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+        DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin,  'role' => 'admin', 'created_at' => Date::now(), 'updated_at' => Date::now()]);
+        DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user',  'created_at' => Date::now(), 'updated_at' => Date::now()]);
     }
 
     private function getThePaymentCalculationUpgradeDowngradeDisplay($newAgents, $oldAgents, $orderId, $planIdNew, $actualPrice, $pricePerAgent): array
@@ -673,8 +685,8 @@ class CloudExtraActivities extends Controller
                 'discount' => currencyFormat($discount, $currencyNew['currency'], true),
                 'priceperagent' => currencyFormat($pricePerAgent, $currencyNew['currency'], true),
             ];
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return ['price_to_be_paid' => 'NaN', 'discount' => 'NaN', 'currency' => 'NaN'];
         }
@@ -688,7 +700,7 @@ class CloudExtraActivities extends Controller
 
         $pricePerDayNew = $base_price_new / $planDaysNew;
         $pricePerDayOld = $base_priceOld / $planDaysOld;
-        $daysRemain = (int) $this->daysRemaining($ends_at);
+        $daysRemain = $this->daysRemaining($ends_at);
 
         if ($planDaysNew !== $planDaysOld) {
             $daysRemainNewFinal = $planDaysNew - ($planDaysOld - $daysRemain);
@@ -710,7 +722,7 @@ class CloudExtraActivities extends Controller
             return ['price' => $base_price_new, 'priceRemaining' => 0, 'priceToBePaid' => $base_price_new, 'discount' => 0];
         }
 
-        $daysRemain = (int) $this->daysRemaining($ends_at);
+        $daysRemain = $this->daysRemaining($ends_at);
         $pricePerDayNew = $base_price_new / $planDaysNew;
         $pricePerDayOld = $base_priceOld / $planDaysOld;
 
@@ -759,7 +771,7 @@ class CloudExtraActivities extends Controller
 
     public function processFormat(Request $request)
     {
-        return currencyFormat($request->get('totalPrice'), getCurrencyForClient(\Auth::user()->country), true);
+        return currencyFormat($request->get('totalPrice'), getCurrencyForClient(Auth::user()->country), true);
     }
 
     public function getThePaymentCalculationDisplay(Request $request)
@@ -801,8 +813,8 @@ class CloudExtraActivities extends Controller
                 'totalPrice' => currencyFormat($base_price * $totalAgents, $currency['currency'], true),
                 'priceToPay' => currencyFormat($price, $currency['currency'], true),
             ];
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return errorResponse('', ['data' => ['pricePerAgent' => 'NaN', 'totalPrice' => 'NaN', 'priceToPay' => 'NaN']]);
         }
@@ -810,13 +822,13 @@ class CloudExtraActivities extends Controller
 
     public function storeTenantTillPurchase(Request $request)
     {
-        $request->validate(['domain' => 'required|alpha_num']);
+        $request->validate(['domain' => ['required', 'alpha_num']]);
 
         if (! $this->checkDomain($request->input('domain'))) {
             return response(['status' => false, 'message' => trans('message.domain_taken')]);
         }
 
-        (new CartController())->cart($request);
+        new CartController()->cart($request);
 
         return response()->json(['redirectTo' => url('/show/cart')]);
     }
@@ -826,7 +838,7 @@ class CloudExtraActivities extends Controller
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->first(['app_key', 'app_secret']);
 
         if (! $keys || empty($keys->app_key)) {
-            throw new \Exception(__('message.something_bad'));
+            throw new Exception(__('message.something_bad'));
         }
 
         return $this->cloudApiPost('/checkDomain', ['domain' => $domain, 'key' => $keys->app_key]);
@@ -836,7 +848,7 @@ class CloudExtraActivities extends Controller
     {
         try {
             $productPlanData = CloudProducts::with(['product', 'plan'])
-                ->when($request->input('search-query'), fn ($q, $s) => $q->whereHas('product', fn ($q2) => $q2->where('name', 'like', "%{$s}%")))
+                ->when($request->input('search-query'), fn ($q, $s) => $q->whereHas('product', fn (Builder $q2) => $q2->where('name', 'like', "%{$s}%")))
                 ->orderBy($request->input('sort-field', 'updated_at'), $request->input('sort-order', 'desc'))
                 ->paginate((int) $request->input('limit', 10));
 
@@ -851,7 +863,7 @@ class CloudExtraActivities extends Controller
             ]);
 
             return successResponse('', $productPlanData);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong'));
         }
     }
@@ -861,9 +873,9 @@ class CloudExtraActivities extends Controller
         try {
             CloudProducts::findOrFail($request->input('id'))->update(['trial_status' => $request->input('status')]);
 
-            return successResponse(\Lang::get('message.trial_status_updated'));
-        } catch (\Exception $e) {
-            return errorResponse(\Lang::get('message.trial_status_error'));
+            return successResponse(Lang::get('message.trial_status_updated'));
+        } catch (Exception) {
+            return errorResponse(Lang::get('message.trial_status_error'));
         }
     }
 
@@ -881,22 +893,22 @@ class CloudExtraActivities extends Controller
             CloudProducts::findOrFail($request->input('id'))->delete();
 
             return successResponse(trans('message.pop_delete'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
 
     public function storeCloudDataCenter(Request $request)
     {
-        $request->validate(['cloud_countries' => 'required', 'cloud_state' => 'required']);
+        $request->validate(['cloud_countries' => ['required'], 'cloud_state' => ['required']]);
 
-        $countryName = Country::where('country_code_char2', strtoupper($request->get('cloud_countries')))->value('country_name');
+        $countryName = Country::where('country_code_char2', strtoupper((string) $request->get('cloud_countries')))->value('country_name');
         $state = $request->get('cloud_state');
         $city = $request->get('cloud_city');
         $geo = empty($city)
-            ? $this->getStateCoordinates(strtoupper($request->get('cloud_countries')).'-'.$state)
+            ? $this->getStateCoordinates(strtoupper((string) $request->get('cloud_countries')).'-'.$state)
             : $this->getStateCoordinates($city);
-        $state = State::where('country_code', strtoupper($request->get('cloud_countries')))->where('iso2', $state)->value('state_subdivision_name');
+        $state = State::where('country_code', strtoupper((string) $request->get('cloud_countries')))->where('iso2', $state)->value('state_subdivision_name');
 
         if (! empty($geo)) {
             CloudDataCenters::create([
@@ -917,7 +929,7 @@ class CloudExtraActivities extends Controller
     {
         $stateName = str_replace(' ', '+', $stateName);
         $url = "https://nominatim.openstreetmap.org/search?q={$stateName}&format=json&limit=1";
-        $response = (new Client(['verify' => true]))->get($url, ['headers' => ['Referer' => $url]]);
+        $response = new Client(['verify' => true])->get($url, ['headers' => ['Referer' => $url]]);
         $data = json_decode($response->getBody(), true);
 
         if (empty($data)) {
@@ -930,11 +942,11 @@ class CloudExtraActivities extends Controller
     public function removeLocation(Request $request)
     {
         try {
-            $location = array_first(explode(', ', $request->location_id));
+            $location = Arr::first(explode(', ', $request->location_id));
             CloudDataCenters::where('cloud_state', $location)->orWhere('cloud_city', $location)->delete();
 
             return successResponse(trans('message.removed_datacenter'));
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(trans('message.something_went_wrong'));
         }
     }

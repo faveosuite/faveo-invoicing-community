@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Payment\Gateways;
 
+use Razorpay\Api\Errors\Error;
 use App\Plugins\Payment\Contracts\PaymentGateway;
 use App\Plugins\Payment\Contracts\SubscriptionGateway;
 use App\Plugins\Payment\Dto\PaymentRequest;
@@ -34,10 +35,10 @@ use Razorpay\Api\Errors\SignatureVerificationError;
  *   // open Checkout with $session->clientConfig; on the handler callback:
  *   $result   = $razorpay->capturePayment($handlerResponse); // throws on a bad signature
  */
-final class RazorpayGateway implements PaymentGateway, SubscriptionGateway
+final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGateway
 {
     /** @var array<int, string> */
-    private const SUPPORTED = [
+    private const array SUPPORTED = [
         'AED', 'ALL', 'AMD', 'AUD', 'AZN', 'BBD', 'BDT', 'BHD', 'BIF', 'BMD', 'BND', 'BOB',
         'BAM', 'BWP', 'BZD', 'BSD', 'BRL', 'BGN', 'CAD', 'CHF', 'CLP', 'CNY', 'CVE', 'CRC',
         'CUP', 'CZK', 'DJF', 'DKK', 'DOP', 'EGP', 'ETB', 'EUR', 'FJD', 'GBP', 'GHS', 'GIP',
@@ -51,10 +52,10 @@ final class RazorpayGateway implements PaymentGateway, SubscriptionGateway
     ];
 
     public function __construct(
-        private readonly string $keyId,
-        private readonly string $keySecret,
-        private readonly string $checkoutName = 'Payment',
-        private readonly string $webhookSecret = '',
+        private string $keyId,
+        private string $keySecret,
+        private string $checkoutName = 'Payment',
+        private string $webhookSecret = '',
     ) {
     }
 
@@ -73,7 +74,7 @@ final class RazorpayGateway implements PaymentGateway, SubscriptionGateway
                 'payment_capture' => 1,
                 'notes' => $this->stringMetadata($request->metadata),
             ]);
-        } catch (\Razorpay\Api\Errors\Error $e) {
+        } catch (Error $e) {
             throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
         }
 
@@ -120,7 +121,7 @@ final class RazorpayGateway implements PaymentGateway, SubscriptionGateway
             ]);
         } catch (SignatureVerificationError $e) {
             throw new SignatureVerificationException($e->getMessage(), (int) $e->getCode(), $e);
-        } catch (\Razorpay\Api\Errors\Error $e) {
+        } catch (Error $e) {
             throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
         }
 
@@ -141,7 +142,7 @@ final class RazorpayGateway implements PaymentGateway, SubscriptionGateway
                 ? ['amount' => Money::toMinor($amount, (string) $payment['currency'])]
                 : [];
             $refund = $payment->refund($params);
-        } catch (\Razorpay\Api\Errors\Error $e) {
+        } catch (Error $e) {
             throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
         }
 
@@ -158,7 +159,7 @@ final class RazorpayGateway implements PaymentGateway, SubscriptionGateway
     {
         try {
             return (string) $this->api()->payment->fetch($reference)['status'];
-        } catch (\Razorpay\Api\Errors\Error $e) {
+        } catch (Error $e) {
             throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
         }
     }
@@ -214,7 +215,7 @@ final class RazorpayGateway implements PaymentGateway, SubscriptionGateway
                 status: (string) $subscription['status'],
                 raw: $subscription->toArray(),
             );
-        } catch (\Razorpay\Api\Errors\Error $e) {
+        } catch (Error $e) {
             throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
         }
     }
@@ -223,7 +224,7 @@ final class RazorpayGateway implements PaymentGateway, SubscriptionGateway
     {
         try {
             return (string) $this->api()->subscription->fetch($subscriptionId)['status'];
-        } catch (\Razorpay\Api\Errors\Error $e) {
+        } catch (Error $e) {
             throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
         }
     }
@@ -239,7 +240,7 @@ final class RazorpayGateway implements PaymentGateway, SubscriptionGateway
                 status: (string) ($subscription['status'] ?? 'cancelled'),
                 raw: $subscription->toArray(),
             );
-        } catch (\Razorpay\Api\Errors\Error $e) {
+        } catch (Error $e) {
             throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
         }
     }
@@ -283,7 +284,7 @@ final class RazorpayGateway implements PaymentGateway, SubscriptionGateway
             ]);
 
             return new SubscriptionResult($this->name(), $updated['id'], (string) $updated['status'], $updated->toArray());
-        } catch (\Razorpay\Api\Errors\Error $e) {
+        } catch (Error $e) {
             throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
         }
     }

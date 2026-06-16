@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\License;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,9 +15,9 @@ class EncryptDecryptController extends Controller
     {
         $pubkey = Storage::disk('public')->get('publicKey-'.$orderNumber.'.txt');
         if (openssl_public_encrypt($data, $encrypted, $pubkey, OPENSSL_PKCS1_PADDING)) {
-            $data = base64_encode($encrypted);
+            $data = base64_encode((string) $encrypted);
         } else {
-            throw new \Exception(__('message.unable_to_encrypt'));
+            throw new Exception(__('message.unable_to_encrypt'));
         }
 
         return $data;
@@ -29,7 +30,7 @@ class EncryptDecryptController extends Controller
     {
         $privkey = Storage::disk('public')->get('privateKey-'.$orderNo.'.txt');
         $data = Storage::disk('public')->get('faveo-license-{'.$orderNo.'}.txt');
-        if (openssl_private_decrypt(base64_decode($data), $decrypted, $privkey, OPENSSL_PKCS1_PADDING)) {
+        if (openssl_private_decrypt(base64_decode((string) $data), $decrypted, $privkey, OPENSSL_PKCS1_PADDING)) {
             $data = $decrypted;
         } else {
             $data = '';

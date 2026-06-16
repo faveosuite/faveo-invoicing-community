@@ -3,6 +3,12 @@
 namespace App\Http\Controllers\Product;
 
 // use Illuminate\Http\Request;
+use Exception;
+use Logger;
+use Validator;
+use Lang;
+use App\Model\Order\OrderInvoiceRelation;
+use DB;
 use App\Facades\Attach;
 use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\License\LicensePermissionsController;
@@ -24,7 +30,6 @@ use App\Model\Product\Subscription;
 use App\Traits\Upload\ChunkUpload;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -135,13 +140,13 @@ class ProductController extends BaseProductController
             $this->product_upload->save();
 
             $this->product->where('id', $product_id->id)->update(['version' => $request->input('version')]);
-            $updateClassObj = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
+            $updateClassObj = new AutoUpdateController();
             $addProductToAutoUpdate = $updateClassObj->addNewVersion($product_id->id, $request->input('version'), $request->input('filename'), '1');
             $response = ['success' => 'true', 'message' => __('message.product_uploaded_successfully')];
 
             return $response;
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
             $message = [$e->getMessage()];
             $response = ['success' => 'false', 'message' => $message];
 
@@ -158,7 +163,7 @@ class ProductController extends BaseProductController
     {
         $input = $request->all();
 
-        $v = \Validator::make($input, [
+        $v = Validator::make($input, [
             'name' => [
                 'required',
                 Rule::unique('products', 'name')->where('group', $request->group),
@@ -181,7 +186,7 @@ class ProductController extends BaseProductController
         if ($v->fails()) {
             //     $currency = $input['currency'];
 
-            return redirect()->back()
+            return back()
                         ->withErrors($v)
                         ->withInput($request->input());
         }
@@ -191,6 +196,7 @@ class ProductController extends BaseProductController
                 $image = Attach::put('common/images/', $request->file('image'), null, true);
                 $this->product->image = basename($image);
             }
+
             $can_modify_agent = $request->input('can_modify_agent');
             $can_modify_quantity = $request->input('can_modify_quantity');
             $highlight = $request->input('highlight');
@@ -200,11 +206,12 @@ class ProductController extends BaseProductController
             if (! empty($product_id)) {
                 $data['id'] = $product_id;
             }
+
             $this->product->fill($data)->save();
 
             $taxes = $request->input('tax');
             if ($taxes) {
-                foreach ($taxes as $key => $value) {
+                foreach ($taxes as $value) {
                     $newtax = new TaxProductRelation();
                     $newtax->product_id = $this->product->id;
                     $newtax->tax_class_id = $value;
@@ -212,11 +219,11 @@ class ProductController extends BaseProductController
                 }
             }
 
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+            return back()->with('success', Lang::get('message.saved-successfully'));
+        } catch (Exception $e) {
+            Logger::exception($e);
 
-            return redirect()->back()->with('fails', $e->getMessage());
+            return back()->with('fails', $e->getMessage());
         }
     }
 
@@ -235,12 +242,12 @@ class ProductController extends BaseProductController
                 'required',
                 Rule::unique('products', 'name')->where('group', $request->group)->ignore($id),
             ],
-            'type' => 'required',
-            'description' => 'required',
-            'product_description' => 'required',
-            'image' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'product_sku' => 'required',
-            'group' => 'required',
+            'type' => ['required'],
+            'description' => ['required'],
+            'product_description' => ['required'],
+            'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'product_sku' => ['required'],
+            'group' => ['required'],
         ],
             [
                 'name.required' => __('validation.product_controller.name_required'),
@@ -264,6 +271,7 @@ class ProductController extends BaseProductController
                 $image = Attach::put('common/images/', $request->file('image'), null, true);
                 $product->image = basename($image);
             }
+
             if ($request->hasFile('file')) {
                 $file = $request->file('file')->getClientOriginalName();
                 $filedestinationPath = storage_path().'/products';
@@ -279,19 +287,20 @@ class ProductController extends BaseProductController
             if ($request->input('github_owner') && $request->input('github_repository')) {
                 $this->updateVersionFromGithub($product->id, $request->input('github_owner'), $request->input('github_repository'));
             }
+
             //add tax class to tax_product_relation table
             $newTax = $this->saveTax($request->input('tax'), $product->id);
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return back()->with('success', Lang::get('message.updated-successfully'));
+        } catch (Exception $e) {
+            return back()->with('fails', $e->getMessage());
         }
     }
 
     public function removeUploads($oldContent, $newContent)
     {
-        preg_match_all('/<img[^>]+src="([^"]+)"/', $oldContent, $oldMatches);
-        preg_match_all('/<img[^>]+src="([^"]+)"/', $newContent, $newMatches);
+        preg_match_all('/<img[^>]+src="([^"]+)"/', (string) $oldContent, $oldMatches);
+        preg_match_all('/<img[^>]+src="([^"]+)"/', (string) $newContent, $newMatches);
 
         $oldImages = $oldMatches[1] ?? [];
         $newImages = $newMatches[1] ?? [];
@@ -328,36 +337,37 @@ class ProductController extends BaseProductController
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
+                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
                 </div>';
                         //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
+
                 echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
                     <b>"./* @scrutinizer ignore-type */
-                        \Lang::get('message.alert').'!</b> './* @scrutinizer ignore-type */ \Lang::get('message.success').'
+                        Lang::get('message.alert').'!</b> './* @scrutinizer ignore-type */ Lang::get('message.success').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
+                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
                 </div>';
             } else {
                 echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
+                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
                 </div>';
                 //echo \Lang::get('message.select-a-row');
             }
-        } catch (\Exception $e) {
+        } catch (Exception) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').',
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').',
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.__('message.not-found').'
                 </div>';
@@ -379,19 +389,20 @@ class ProductController extends BaseProductController
                 return successResponse(__('message.select-a-row'));
             }
 
-            foreach ($ids as $key => $id) {
+            foreach ($ids as $id) {
                 $product = $this->product_upload->find($id);
                 if ($product) {
                     $filePath = $storagePath.'/'.$product->file;
                     if (Attach::exists($filePath)) {
                         Attach::delete($filePath);
                     }
+
                     $product->delete();
                 }
             }
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse(__('message.errors_occurs_delete_product').$e->getMessage());
         }
     }
@@ -409,13 +420,13 @@ class ProductController extends BaseProductController
             $file = $this->product_upload
                 ->where('product_id', '=', $uploadid)
                 ->where('id', $version_id)->select('file')->first();
-            $order = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice_id)->pluck('order_id'))->first();
+            $order = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoice_id)->pluck('order_id'))->first();
             $order_id = $order->id;
             $relese = $this->getRelease($owner, $repository, $order_id, $file);
 
             return $relese;
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+        } catch (Exception $e) {
+            return back()->with('fails', $e->getMessage());
         }
     }
 
@@ -469,7 +480,7 @@ class ProductController extends BaseProductController
                 ]);
                 $contents = $response->getBody()->getContents();
 
-                $ext = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
+                $ext = pathinfo(parse_url((string) $url, PHP_URL_PATH), PATHINFO_EXTENSION);
                 $filename = 'tinymce/'.uniqid().'.'.($ext ?: 'jpg');
                 Storage::put('public/uploads/'.$filename, $contents);
                 $path = Storage::url('public/uploads/'.$filename);
@@ -478,7 +489,7 @@ class ProductController extends BaseProductController
             return response()->json([
                 'location' => asset(str_replace('public/', 'storage/', $path)),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return response()->json(['error' => 'No file uploaded.'], 500);
         }
     }
@@ -490,14 +501,12 @@ class ProductController extends BaseProductController
         $page = $request->input('page', 1);
 
         $productsQuery = Product::where('invoice_hidden', 0)
-            ->when($searchQuery, function ($query, $searchQuery) {
+            ->when($searchQuery, function ($query, $searchQuery): void {
                 $query->where('name', 'like', "%{$searchQuery}%");
             })
             ->paginate($limit, ['*'], 'page', $page);
 
-        $productsQuery->getCollection()->transform(function ($item) {
-            return ['id' => $item->id, 'name' => $item->name];
-        });
+        $productsQuery->getCollection()->transform(fn($item) => ['id' => $item->id, 'name' => $item->name]);
 
         return successResponse('', $productsQuery);
     }
@@ -510,7 +519,7 @@ class ProductController extends BaseProductController
 
         $plans = Plan::select('id', 'name')
             ->where('product', $productId)
-            ->when($searchQuery, function ($query, $searchQuery) {
+            ->when($searchQuery, function ($query, $searchQuery): void {
                 $query->where('name', 'like', "%{$searchQuery}%");
             })
             ->simplePaginate($limit);
@@ -537,9 +546,9 @@ class ProductController extends BaseProductController
                 'groupRelation',
                 'licenseType',
             ])
-            ->when($searchQuery, function ($query, $searchQuery) {
+            ->when($searchQuery, function ($query, $searchQuery): void {
                 $query->where('products.name', 'like', "%{$searchQuery}%")
-                      ->orWhereHas('groupRelation', function ($q) use ($searchQuery) {
+                      ->orWhereHas('groupRelation', function ($q) use ($searchQuery): void {
                           $q->where('name', 'like', "%{$searchQuery}%");
                       });
             })
@@ -578,7 +587,7 @@ class ProductController extends BaseProductController
         }
 
         try {
-            \DB::transaction(function () use ($ids) {
+            DB::transaction(function () use ($ids): void {
                 $products = Product::whereIn('id', $ids)->get();
 
                 foreach ($products as $product) {
@@ -587,7 +596,7 @@ class ProductController extends BaseProductController
             });
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse(__('message.errors_occurs_delete_product').' '.$e->getMessage());
         }
     }
@@ -608,7 +617,7 @@ class ProductController extends BaseProductController
                 'product' => $product,
                 'github_status' => (bool) $githubStatus,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -616,12 +625,12 @@ class ProductController extends BaseProductController
     public function productUploadCreate(Request $request, $productId)
     {
         $validated = $request->validate([
-            'producttitle' => 'required|string|max:255',
-            'version' => 'required|string|max:50',
-            'filename' => 'required|string|max:255',
-            'dependencies' => 'required|array',
-            'description' => 'required',
-            'release_type' => 'required',
+            'producttitle' => ['required', 'string', 'max:255'],
+            'version' => ['required', 'string', 'max:50'],
+            'filename' => ['required', 'string', 'max:255'],
+            'dependencies' => ['required', 'array'],
+            'description' => ['required'],
+            'release_type' => ['required'],
         ], [
             'producttitle.required' => __('validation.product_validate.producttitle_required'),
             'version.required' => __('validation.product_validate.version_required'),
@@ -634,7 +643,7 @@ class ProductController extends BaseProductController
         try {
             $product = Product::findOrFail($productId);
 
-            \DB::transaction(function () use ($request, $validated, $product) {
+            DB::transaction(function () use ($request, $validated, $product): void {
                 // Save the product upload
                 $productUpload = ProductUpload::create([
                     'product_id' => $product->id,
@@ -651,7 +660,7 @@ class ProductController extends BaseProductController
                 // Update the product version
                 $product->update(['version' => $validated['version']]);
 
-                app(AutoUpdateController::class)
+                resolve(AutoUpdateController::class)
                     ->addNewVersion(
                         $product->id,
                         $validated['version'],
@@ -661,7 +670,7 @@ class ProductController extends BaseProductController
             });
 
             return successResponse(__('message.product_uploaded_successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -685,8 +694,8 @@ class ProductController extends BaseProductController
             }
 
             $uploads = ProductUpload::where('product_id', $productId)
-                ->when($search, function ($q, $search) {
-                    $q->where(function ($qq) use ($search) {
+                ->when($search, function ($q, $search): void {
+                    $q->where(function ($qq) use ($search): void {
                         $qq->where('title', 'like', "%{$search}%")
                             ->orWhere('version', 'like', "%{$search}%")
                             ->orWhere('release_type', 'like', "%{$search}%");
@@ -695,21 +704,19 @@ class ProductController extends BaseProductController
                 ->orderBy($sortField, $sortOrder)
                 ->paginate($limit, ['*'], 'page', $page);
 
-            $uploads->getCollection()->transform(function ($u) {
-                return [
-                    'id' => $u->id,
-                    'title' => $u->title,
-                    'description' => $u->description,
-                    'version' => $u->version,
-                    'release_type' => $u->release_type,
-                    'file' => $u->file,
-                    'status' => $u->status,
-                    'created_at' => $u->created_at,
-                ];
-            });
+            $uploads->getCollection()->transform(fn($u) => [
+                'id' => $u->id,
+                'title' => $u->title,
+                'description' => $u->description,
+                'version' => $u->version,
+                'release_type' => $u->release_type,
+                'file' => $u->file,
+                'status' => $u->status,
+                'created_at' => $u->created_at,
+            ]);
 
             return successResponse('', $uploads);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -732,9 +739,9 @@ class ProductController extends BaseProductController
                 'release_type' => $u->release_type,
                 'is_private' => (bool) $u->is_private,
                 'is_restricted' => (bool) $u->is_restricted,
-                'dependencies' => json_decode($u->dependencies, true) ?: [],
+                'dependencies' => json_decode((string) $u->dependencies, true) ?: [],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -745,10 +752,10 @@ class ProductController extends BaseProductController
     public function updateProductUpload($productUploadId, Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'version' => 'required|string|max:50',
-            'dependencies' => 'required|array',
-            'release_type' => 'required',
+            'title' => ['required', 'string', 'max:255'],
+            'version' => ['required', 'string', 'max:50'],
+            'dependencies' => ['required', 'array'],
+            'release_type' => ['required'],
         ], [
             'title.required' => __('validation.extend_product.title_required'),
             'version.required' => __('validation.extend_product.version_required'),
@@ -777,12 +784,12 @@ class ProductController extends BaseProductController
 
             $productSku = $upload->product->product_sku ?? null;
             if ($productSku) {
-                app(\App\Http\Controllers\AutoUpdate\AutoUpdateController::class)
+                resolve(AutoUpdateController::class)
                     ->editVersion($validated['version'], $productSku);
             }
 
             return successResponse(__('message.product_updated_successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -790,14 +797,14 @@ class ProductController extends BaseProductController
     public function productCreate(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|unique:products,name',
-            'type' => 'required',
-            'description' => 'required',
-            'product_description' => 'required',
-            'image' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'product_sku' => 'required|unique:products,product_sku',
-            'group' => 'required',
-            'show_agent' => 'required',
+            'name' => ['required', 'unique:products,name'],
+            'type' => ['required'],
+            'description' => ['required'],
+            'product_description' => ['required'],
+            'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'product_sku' => ['required', 'unique:products,product_sku'],
+            'group' => ['required'],
+            'show_agent' => ['required'],
         ], [
             'product_sku.unique' => __('validation.product_sku_unique'),
             'name.unique' => __('validation.product_name_unique'),
@@ -805,7 +812,7 @@ class ProductController extends BaseProductController
         ]);
 
         try {
-            \DB::transaction(function () use ($request, $validated) {
+            DB::transaction(function () use ($request, $validated): void {
                 // Handle Image Upload
                 if ($request->hasFile('image')) {
                     $validated['image'] = basename(Attach::put('common/images/', $request->file('image'), null, true));
@@ -836,7 +843,7 @@ class ProductController extends BaseProductController
             });
 
             return successResponse(__('message.saved-successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -844,15 +851,15 @@ class ProductController extends BaseProductController
     public function updateProduct($productId, Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required',
-            'type' => 'required',
-            'description' => 'required',
-            'product_description' => 'required',
-            'image' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'file' => 'sometimes|file',
-            'product_sku' => 'required',
-            'group' => 'required',
-            'show_agent' => 'required',
+            'name' => ['required'],
+            'type' => ['required'],
+            'description' => ['required'],
+            'product_description' => ['required'],
+            'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'file' => ['sometimes', 'file'],
+            'product_sku' => ['required'],
+            'group' => ['required'],
+            'show_agent' => ['required'],
         ], [
             'name.required' => __('validation.product_controller.name_required'),
             'type.required' => __('validation.product_controller.type_required'),
@@ -866,7 +873,7 @@ class ProductController extends BaseProductController
         ]);
 
         try {
-            \DB::transaction(function () use ($validated, $request, $productId) {
+            DB::transaction(function () use ($validated, $request, $productId): void {
                 $product = Product::findOrFail($productId);
 
                 // Handle image upload
@@ -906,7 +913,7 @@ class ProductController extends BaseProductController
             });
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

@@ -2,6 +2,7 @@
 
 namespace Tests\Browser\Auth;
 
+use Str;
 use App\Model\Common\StatusSetting;
 use App\Model\User\AccountActivate;
 use App\User;
@@ -37,7 +38,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_new_register_with_duplicate_values()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -63,7 +64,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_new_register_with_mandatory_fields_left_blank()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -87,7 +88,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_register_with_invalid_first_and_last_name_and_email()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -115,7 +116,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_register_witt_invalid_lastname_and_email()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -142,7 +143,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_invalid_firstname_and_lastname()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -176,14 +177,14 @@ class RegisterTest extends DuskTestCase
 
         $this->enableEmailAndMobile(true, false);
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
 
             $this->showCaption($browser, 'TC0126 - Check for the registration');
 
-            $email = \Str::random(10).'@gmail.com';
+            $email = Str::random(10).'@gmail.com';
 
             $browser->pause(5000);
 
@@ -215,7 +216,7 @@ class RegisterTest extends DuskTestCase
     {
         $this->enableOrDisableTerms(true);
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -247,7 +248,7 @@ class RegisterTest extends DuskTestCase
     {
         $this->enableOrDisableTerms(true);
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -289,7 +290,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_mandatory_validation_in_re_enter_password_field()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -317,7 +318,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_invalid_re_enter_password_field()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -345,7 +346,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_password_field_mandatory_validation()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -371,7 +372,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_with_invalid_password()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -399,7 +400,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_password_field_validation_in_signup_for_free()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -410,7 +411,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10).'@gmail.com')
+                ->type('#email', Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -428,7 +429,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_mobile_field_validation_in_sign_up()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -437,7 +438,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10).'@gmail.com')
+                ->type('#email', Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -453,7 +454,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_with_invalid_mobile_number_for_sign_up()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -462,7 +463,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10).'@gmail.com')
+                ->type('#email', Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -481,7 +482,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_mobile_field_validation()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -492,7 +493,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10).'@gmail.com')
+                ->type('#email', Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -510,7 +511,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_company_name_validation()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -519,7 +520,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10).'@gmail.com')
+                ->type('#email', Str::random(10).'@gmail.com')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
                 ->type('#mobilenum', random_int(1111111111, 9999999999))
@@ -535,7 +536,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_invalid_company_name()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -544,8 +545,8 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10).'@gmail.com')
-                ->type('#company', \Str::random(51))
+                ->type('#email', Str::random(10).'@gmail.com')
+                ->type('#company', Str::random(51))
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
                 ->type('#mobilenum', random_int(1111111111, 9999999999))
@@ -562,7 +563,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_company_name_field_validation()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -573,7 +574,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10).'@gmail.com')
+                ->type('#email', Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -591,7 +592,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_email_field_validation1()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -616,7 +617,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_invalid_email_id()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -625,7 +626,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10))
+                ->type('#email', Str::random(10))
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -642,7 +643,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_duplicate_email_id()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -669,7 +670,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_email_field_validation()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -680,7 +681,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10).'@gmail.com')
+                ->type('#email', Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -698,7 +699,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_error_message_if_last_name_field_left_blank()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -706,7 +707,7 @@ class RegisterTest extends DuskTestCase
             $this->showCaption($browser, 'TC0108 - Check for error message if Last name field left blank');
 
             $browser->type('#first_name', 'Demo')
-                ->type('#email', \Str::random(10).'@gmail.com')
+                ->type('#email', Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -723,7 +724,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_invalid_last_name_validation()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -732,7 +733,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', '123456789')
-                ->type('#email', \Str::random(10).'@gmail.com')
+                ->type('#email', Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -749,7 +750,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_last_name_field_validation1()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -760,7 +761,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10).'@gmail.com')
+                ->type('#email', Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -778,14 +779,14 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_error_message_if_first_name_field_left_blank()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
 
             $this->showCaption($browser, 'TC0105 - Check for error message if first name field left blank');
 
-            $browser->type('#email', \Str::random(10).'@gmail.com')
+            $browser->type('#email', Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -805,7 +806,7 @@ class RegisterTest extends DuskTestCase
     #[Group('register')]
     public function test_for_first_name_field_validation1()
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -816,7 +817,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10).'@gmail.com')
+                ->type('#email', Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -836,7 +837,7 @@ class RegisterTest extends DuskTestCase
     {
         $this->enableRecaptcha('v2');
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -864,7 +865,7 @@ class RegisterTest extends DuskTestCase
     {
         $this->enableRecaptcha('v3');
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -873,7 +874,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(8).'@gmail.com')
+                ->type('#email', Str::random(8).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')

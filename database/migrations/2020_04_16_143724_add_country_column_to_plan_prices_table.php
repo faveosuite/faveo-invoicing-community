@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('plan_prices', function (Blueprint $table) {
+        Schema::table('plan_prices', function (Blueprint $table): void {
             $table->integer('country_id')->default(0);
         });
     }
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('plan_prices', function (Blueprint $table) {
+        Schema::table('plan_prices', function (Blueprint $table): void {
             $table->dropColumn('country_id');
         });
     }

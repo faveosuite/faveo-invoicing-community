@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('license_notifications', function (Blueprint $table) {
+        Schema::create('license_notifications', function (Blueprint $table): void {
             $table->id();
             $table->string('notification_product_not_found', 250)->nullable();
             $table->string('notification_product_inactive', 250)->nullable();

@@ -16,16 +16,25 @@ class CartItem extends Model
         'quantity', 'agents', 'domain', 'data_center_id', 'billing_cycle',
     ];
 
+    /**
+     * @return BelongsTo<Cart, $this>
+     */
     public function cart(): BelongsTo
     {
         return $this->belongsTo(Cart::class);
     }
 
+    /**
+     * @return BelongsTo<Product, $this>
+     */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
 
+    /**
+     * @return BelongsTo<Plan, $this>
+     */
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class, 'plan_id');

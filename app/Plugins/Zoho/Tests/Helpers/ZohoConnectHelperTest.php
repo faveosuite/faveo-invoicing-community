@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Tests\Helpers;
 
+use InvalidArgumentException;
 use App\Plugins\Zoho\Helpers\ZohoConnectHelper;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
@@ -92,7 +93,7 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertCount(1, $result);
         $this->assertEquals($zohoField->id, $result[0]['zoho_field_id']);
         $this->assertEquals('zoho', $result[0]['selected']['type']);
-        $this->assertEquals('Active', json_decode($result[0]['selected']['value'])->value);
+        $this->assertEquals('Active', json_decode((string) $result[0]['selected']['value'])->value);
     }
 
     public function test_get_existing_mappings_returns_local_field_mapping()
@@ -228,7 +229,7 @@ class ZohoConnectHelperTest extends DBTestCase
         ]);
 
         $mapping = ZohoFieldMappings::where('zoho_field_id', $zohoField->id)->first();
-        $selectedOption = json_decode($mapping->selected_option, true);
+        $selectedOption = json_decode((string) $mapping->selected_option, true);
         $this->assertEquals('Active', $selectedOption['value']);
     }
 
@@ -255,7 +256,7 @@ class ZohoConnectHelperTest extends DBTestCase
 
     public function test_update_mapping_throws_exception_for_invalid_type()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         ZohoConnectHelper::updateMapping(
             1,
@@ -301,7 +302,7 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertEquals(1, $mapping->use_default_if_empty);
         $this->assertEquals(
             ['value' => 'fallback'],
-            json_decode($mapping->default_value, true)
+            json_decode((string) $mapping->default_value, true)
         );
     }
 

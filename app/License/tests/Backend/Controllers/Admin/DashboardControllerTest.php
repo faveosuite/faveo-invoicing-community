@@ -39,7 +39,7 @@ class DashboardControllerTest extends LicenseTestCase
             'report_status' => 1,
         ]);
 
-        $response = (new DashboardController())->dashboard();
+        $response = new DashboardController()->dashboard();
         $json = $this->assertSuccessfulJson($response);
         $data = $json['data'];
 

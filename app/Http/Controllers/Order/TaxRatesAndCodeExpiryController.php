@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers\Order;
 
+use App\Http\Controllers\Payment\PromotionController;
+use Lang;
+use App\Model\Order\OrderInvoiceRelation;
+use Exception;
+use App\Model\Common\Setting;
+use App\Http\Controllers\Common\PhpMailController;
+use App\Http\Controllers\User\AdvanceSearchController;
 use App\Model\Common\TemplateType;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
@@ -19,8 +26,9 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         if (! $total) {
             return ['total' => $total, 'code' => '', 'value' => '', 'mode' => ''];
         }
+
         if ($code) {
-            $cont = new \App\Http\Controllers\Payment\PromotionController();
+            $cont = new PromotionController();
             $promo = $cont->getPromotionDetails($code);
             $total = $cont->findCostAfterDiscount($promo->id, $productid, $user_id);
 
@@ -37,9 +45,9 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
     {
         if ($items) {
             // $this->sendmailClientAgent($user_id, $items->invoice_id);
-            $result = ['success' => \Lang::get('message.invoice-generated-successfully')];
+            $result = ['success' => Lang::get('message.invoice-generated-successfully')];
         } else {
-            $result = ['fails' => \Lang::get('message.can-not-generate-invoice')];
+            $result = ['fails' => Lang::get('message.can-not-generate-invoice')];
         }
 
         return $result;
@@ -51,7 +59,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             $response = false;
             $invoice = Invoice::find($invoiceid);
 
-            $order = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'));
+            $order = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'));
             $order_invoice_relation = $invoice->orderRelation()->first();
 
             if ($order_invoice_relation) {
@@ -61,8 +69,8 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             }
 
             return $response;
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+        } catch (Exception $e) {
+            return back()->with('fails', $e->getMessage());
         }
     }
 
@@ -100,6 +108,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         if ($invoice->grand_total == 0) {
             return $cur;
         }
+
         $currency = Currency::where('code', $currency_code)->first();
         if ($currency) {
             $cur = $currency->symbol;
@@ -118,7 +127,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         $users = new User();
         $user = $users->find($userid);
         //check in the settings
-        $settings = new \App\Model\Common\Setting();
+        $settings = new Setting();
         $setting = $settings::find(1);
         $invoiceurl = $this->invoiceUrl($invoiceid);
         //template
@@ -136,7 +145,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             'reply_email' => $setting->company_email,
         ];
         $type = $template?->type()->value('name') ?? '';
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
@@ -158,14 +167,15 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
                 if ($invoice) {
                     $invoice_no = $invoice->number;
                 }
+
                 $payment->delete();
             } else {
-                return redirect()->back()->with('fails', __('message.cannot_delete'));
+                return back()->with('fails', __('message.cannot_delete'));
             }
 
-            return redirect()->back()->with('success', __('message.payment_deleted_successfully', ['invoice_no' => $invoice_no]));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return back()->with('success', __('message.payment_deleted_successfully', ['invoice_no' => $invoice_no]));
+        } catch (Exception $e) {
+            return back()->with('fails', $e->getMessage());
         }
     }
 
@@ -178,7 +188,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             $symbol = Currency::where('code', $client->currency)->value('symbol');
 
             // Client's available credit balance = sum of their invoice_id = 0 rows.
-            $availableCredit = (new \App\Http\Controllers\User\AdvanceSearchController())->getExtraAmt($clientid);
+            $availableCredit = new AdvanceSearchController()->getExtraAmt($clientid);
 
             // Invoices that still carry a balance and can absorb credit.
             $invoices = Invoice::where('user_id', $clientid)
@@ -214,7 +224,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
                 'symbol' => $symbol,
                 'currency' => $client->currency,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

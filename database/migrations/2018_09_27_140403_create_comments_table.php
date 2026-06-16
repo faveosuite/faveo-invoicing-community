@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('comments')) {
-            Schema::create('comments', function (Blueprint $table) {
+            Schema::create('comments', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('user_id')->unsigned();
                 $table->integer('updated_by_user_id')->unsigned();

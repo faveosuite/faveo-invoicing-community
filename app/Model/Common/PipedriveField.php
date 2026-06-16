@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PipedriveField extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'pipedrive_fields';
 
     protected $fillable = [
@@ -43,8 +43,8 @@ class PipedriveField extends Model
             'field_name' => ['Field Name', fn ($value) => $value],
             'field_key' => ['Field Key', fn ($value) => $value],
             'field_type' => ['Field Type', fn ($value) => $value],
-            'pipedrive_group_id' => ['Pipedrive Group', fn ($value) => optional($this->pipedriveGroups)->name],
-            'local_field_id' => ['Local Field', fn ($value) => optional($this->localField)->field_name],
+            'pipedrive_group_id' => ['Pipedrive Group', fn ($value) => $this->pipedriveGroups?->name],
+            'local_field_id' => ['Local Field', fn ($value) => $this->localField?->field_name],
         ];
     }
 
@@ -53,6 +53,9 @@ class PipedriveField extends Model
         return $this->belongsTo(PipedriveLocalFields::class, 'local_field_id');
     }
 
+    /**
+     * @return BelongsTo<PipedriveGroups, $this>
+     */
     public function pipedriveGroups(): BelongsTo
     {
         return $this->belongsTo(PipedriveGroups::class, 'pipedrive_group_id');

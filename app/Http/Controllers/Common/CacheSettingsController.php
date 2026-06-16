@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Common;
 
+use Throwable;
+use Redis;
+use RuntimeException;
+use Predis\Client;
+use Memcached;
 use App\Http\Controllers\Controller;
 use App\Model\Common\CommonSettings;
 use Illuminate\Http\Request;
@@ -9,7 +14,7 @@ use Illuminate\Support\Facades\Artisan;
 
 class CacheSettingsController extends Controller
 {
-    private const DRIVERS = [
+    private const array DRIVERS = [
         ['name' => 'File',      'short_name' => 'file'],
         ['name' => 'Database',  'short_name' => 'database'],
         ['name' => 'Redis',     'short_name' => 'redis'],
@@ -57,7 +62,7 @@ class CacheSettingsController extends Controller
         }
 
         $data = collect($request->except('_token'))
-            ->mapWithKeys(fn ($value, $key) => [strtoupper($key) => $value ?? ''])
+            ->mapWithKeys(fn ($value, $key) => [strtoupper((string) $key) => $value ?? ''])
             ->all();
 
         $error = $this->testConnection($driver, $data);
@@ -74,7 +79,7 @@ class CacheSettingsController extends Controller
 
     public function activate(string $driver)
     {
-        if (! collect(self::DRIVERS)->pluck('short_name')->contains($driver)) {
+        if (collect(self::DRIVERS)->pluck('short_name')->doesntContain($driver)) {
             return errorResponse(__('message.invalid_driver'), 422);
         }
 
@@ -120,7 +125,7 @@ class CacheSettingsController extends Controller
                 ),
                 default => null,
             };
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return $e->getMessage();
         }
 
@@ -130,17 +135,19 @@ class CacheSettingsController extends Controller
     private function testRedis(string $host, int $port, string $password): void
     {
         if (extension_loaded('redis')) {
-            $redis = new \Redis();
+            $redis = new Redis();
             if (! $redis->connect($host, $port, 3)) {
-                throw new \RuntimeException("Could not connect to Redis at {$host}:{$port}");
+                throw new RuntimeException("Could not connect to Redis at {$host}:{$port}");
             }
+
             if (! empty($password)) {
                 $redis->auth($password);
             }
+
             $redis->ping();
             $redis->close();
-        } elseif (class_exists('Predis\Client')) {
-            $client = new \Predis\Client([
+        } elseif (class_exists(Client::class)) {
+            $client = new Client([
                 'host' => $host,
                 'port' => $port,
                 'password' => $password ?: null,
@@ -148,22 +155,22 @@ class CacheSettingsController extends Controller
             ]);
             $client->ping();
         } else {
-            throw new \RuntimeException(__('message.extension_required_error', ['extension' => 'redis']));
+            throw new RuntimeException(__('message.extension_required_error', ['extension' => 'redis']));
         }
     }
 
     private function testMemcached(string $host, int $port): void
     {
         if (! extension_loaded('memcached')) {
-            throw new \RuntimeException(__('message.extension_required_error', ['extension' => 'memcached']));
+            throw new RuntimeException(__('message.extension_required_error', ['extension' => 'memcached']));
         }
 
-        $memcached = new \Memcached();
+        $memcached = new Memcached();
         $memcached->addServer($host, $port);
         $stats = $memcached->getStats();
 
         if (empty($stats) || ! isset($stats["{$host}:{$port}"])) {
-            throw new \RuntimeException("Could not connect to Memcached at {$host}:{$port}");
+            throw new RuntimeException("Could not connect to Memcached at {$host}:{$port}");
         }
     }
 

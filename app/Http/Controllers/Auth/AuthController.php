@@ -2,17 +2,25 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Exception;
+use Lang;
+use Auth;
+use Session;
+use Illuminate\Support\Facades\Date;
+use App\Model\Common\State;
+use App\Model\Common\Setting;
+use App\Model\Common\Template;
+use App\Http\Controllers\Common\TemplateController;
+use App\Http\Controllers\Common\PhpMailController;
+use App\Model\Common\Country;
 use App\ApiKey;
 use App\Events\UserRegisteredEvent;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
-use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
 use App\User;
 use App\VerificationAttempt;
-use Carbon\Carbon;
-use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use RateLimiter;
@@ -56,7 +64,7 @@ class AuthController extends BaseAuthController
     public function requestOtp(Request $request)
     {
         $request->validate([
-            'eid' => 'required|string',
+            'eid' => ['required', 'string'],
         ],
             [
                 'eid.required' => __('validation.eid_required'),
@@ -76,7 +84,7 @@ class AuthController extends BaseAuthController
 
             RateLimiter::hit("mobile-otp:{$user->id}", 600);
 
-            $response = app(SmsOtpController::class)->sendOtp($user->mobile_code.$user->mobile, $user->id, 'registration-verify');
+            $response = resolve(SmsOtpController::class)->sendOtp($user->mobile_code.$user->mobile, $user->id, 'registration-verify');
 
             if ($response['type'] === 'error') {
                 return errorResponse($response['message']);
@@ -85,7 +93,7 @@ class AuthController extends BaseAuthController
             $this->updateVerificationAttempts($user, 'mobile');
 
             return successResponse(__('message.otp_verification.send_success'));
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.otp_verification.send_failure'));
         }
     }
@@ -120,7 +128,7 @@ class AuthController extends BaseAuthController
 
             RateLimiter::hit("mobile-otp:{$user->id}", 600);
 
-            $response = app(SmsOtpController::class)->sendForReOtp($user->mobile_code.$user->mobile, $type, $user->id, 'registration-verify');
+            $response = resolve(SmsOtpController::class)->sendForReOtp($user->mobile_code.$user->mobile, $type, $user->id, 'registration-verify');
 
             if ($response['type'] === 'error') {
                 return errorResponse($response['message']);
@@ -133,7 +141,7 @@ class AuthController extends BaseAuthController
             }
 
             return successResponse(__('message.otp_verification.resend_send_success'));
-        } catch (\Exception $exception) {
+        } catch (Exception) {
             return errorResponse(__('message.otp_verification.resend_send_failure'));
         }
     }
@@ -141,7 +149,7 @@ class AuthController extends BaseAuthController
     public function sendEmail(Request $request, $method = 'POST')
     {
         $request->validate([
-            'eid' => 'required|string',
+            'eid' => ['required', 'string'],
         ], [
             'eid.required' => __('validation.eid_required'),
             'eid.string' => __('validation.eid_string'),
@@ -153,7 +161,7 @@ class AuthController extends BaseAuthController
 
             $existingToken = AccountActivate::where('email', $email)->latest()->first();
             if ($existingToken && $method !== 'GET' && ! $existingToken->updated_at->addMinutes(10)->isPast()) {
-                return successResponse(\Lang::get('message.email_verification.already_sent'));
+                return successResponse(Lang::get('message.email_verification.already_sent'));
             }
 
             RateLimiter::hit("email-otp:{$user->id}", 600);
@@ -167,7 +175,7 @@ class AuthController extends BaseAuthController
                     ? __('message.email_verification.resend_success')
                     : __('message.email_verification.send_success')
             );
-        } catch (\Exception $exception) {
+        } catch (Exception) {
             return errorResponse(__('message.email_verification.send_failure'));
         }
     }
@@ -175,8 +183,8 @@ class AuthController extends BaseAuthController
     public function verifyOtp(Request $request)
     {
         $request->validate([
-            'eid' => 'required|string',
-            'otp' => 'required|string|size:6',
+            'eid' => ['required', 'string'],
+            'otp' => ['required', 'string', 'size:6'],
         ],
             [
                 'eid.required' => __('validation.verify_otp.eid_required'),  // Translating for eid field
@@ -199,7 +207,7 @@ class AuthController extends BaseAuthController
                 return errorResponse(__('message.otp_invalid_format'));
             }
 
-            $response = app(SmsOtpController::class)->sendVerifyOTP($otp, $user->mobile_code.$user->mobile, $user->id, 'registration-verify');
+            $response = resolve(SmsOtpController::class)->sendVerifyOTP($otp, $user->mobile_code.$user->mobile, $user->id, 'registration-verify');
             if ($response['type'] === 'error') {
                 RateLimiter::hit("mobile-verify:{$user->id}", 600);
 
@@ -210,15 +218,15 @@ class AuthController extends BaseAuthController
 
             $user->save();
 
-            if (! \Auth::check() && $this->userNeedVerified($user)) {
+            if (! Auth::check() && $this->userNeedVerified($user)) {
                 //dispatch the job to add user to external services
                 event(new UserRegisteredEvent($user, 'verify'));
 
-                \Session::flash('success', __('message.registration_complete'));
+                Session::flash('success', __('message.registration_complete'));
             }
 
             return successResponse(__('message.otp_verified'));
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.error_occurred_while_verify'));
         }
     }
@@ -226,8 +234,8 @@ class AuthController extends BaseAuthController
     public function verifyEmail(Request $request)
     {
         $request->validate([
-            'eid' => 'required|string',
-            'otp' => 'required|string|size:6',
+            'eid' => ['required', 'string'],
+            'otp' => ['required', 'string', 'size:6'],
         ],
             [
                 'eid.required' => __('validation.verify_otp.eid_required'),  // Translating for eid field
@@ -251,7 +259,7 @@ class AuthController extends BaseAuthController
                 return errorResponse(__('message.email_verification.invalid_token'));
             }
 
-            if ($account->updated_at->addMinutes(10) < Carbon::now()) {
+            if ($account->updated_at->addMinutes(10) < Date::now()) {
                 RateLimiter::hit("email-verify:{$user->id}", 600);
 
                 return errorResponse(__('message.email_verification.token_expired'));
@@ -262,15 +270,15 @@ class AuthController extends BaseAuthController
             $user->email_verified = 1;
             $user->save();
 
-            if (! \Auth::check() && $this->userNeedVerified($user)) {
+            if (! Auth::check() && $this->userNeedVerified($user)) {
                 //dispatch the job to add user to external services
                 event(new UserRegisteredEvent($user, 'verify'));
 
-                \Session::flash('success', __('message.registration_complete'));
+                Session::flash('success', __('message.registration_complete'));
             }
 
             return successResponse(__('message.email_verification.email_verified'));
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.email_verification.invalid_token'));
         }
     }
@@ -279,7 +287,7 @@ class AuthController extends BaseAuthController
     {
         $check = false;
         if ($user->active == '1' && $user->mobile_verified == '1') {
-            \Auth::login($user);
+            Auth::login($user);
             $check = true;
         }
 
@@ -290,7 +298,7 @@ class AuthController extends BaseAuthController
     {
         try {
             $id = $state;
-            $states = \App\Model\Common\State::where('country_code_char2', $id)
+            $states = State::where('country_code_char2', $id)
             ->orderBy('state_subdivision_name', 'asc')->get();
 
 //            if (count($states) > 0) {
@@ -303,7 +311,7 @@ class AuthController extends BaseAuthController
 //                echo "<option value=''>".__('message.no_states_available').'</option>';
 //            }
             return successResponse('States', ['states' => $states]);
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.problem_while_loading'));
         }
     }
@@ -316,11 +324,11 @@ class AuthController extends BaseAuthController
             ->where('position', 'manager')
             ->select('first_name', 'last_name', 'email', 'mobile_code', 'mobile', 'skype')
             ->first();
-        $settings = new \App\Model\Common\Setting();
+        $settings = new Setting();
         $setting = $settings->first();
         $from = $setting->email;
         $to = $user->email;
-        $templates = new \App\Model\Common\Template();
+        $templates = new Template();
         $template = $templates
                 ->join('template_types', 'templates.type', '=', 'template_types.id')
                 ->where('template_types.name', '=', 'sales_manager_email')
@@ -328,7 +336,7 @@ class AuthController extends BaseAuthController
                 ->first();
         $template_data = $template->data;
         $template_name = $template->name;
-        $template_controller = new \App\Http\Controllers\Common\TemplateController();
+        $template_controller = new TemplateController();
         $replace = [
             'name' => $user->first_name.' '.$user->last_name,
             'manager_first_name' => $manager->first_name,
@@ -341,7 +349,7 @@ class AuthController extends BaseAuthController
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email,
         ];
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
         $mail->SendEmail($from, $to, $template_data, $template_name, 'sales-manager-mail', $replace, TemplateType::where('id', $template->type)->value('name'), $bcc);
     }
 
@@ -353,11 +361,11 @@ class AuthController extends BaseAuthController
             ->where('position', 'account_manager')
             ->select('first_name', 'last_name', 'email', 'mobile_code', 'mobile', 'skype')
             ->first();
-        $settings = new \App\Model\Common\Setting();
+        $settings = new Setting();
         $setting = $settings->first();
         $from = $setting->email;
         $to = $user->email;
-        $templates = new \App\Model\Common\Template();
+        $templates = new Template();
         $template = $templates
                 ->join('template_types', 'templates.type', '=', 'template_types.id')
                 ->where('template_types.name', '=', 'account_manager_email')
@@ -365,7 +373,7 @@ class AuthController extends BaseAuthController
                 ->first();
         $template_data = $template->data;
         $template_name = $template->name;
-        $template_controller = new \App\Http\Controllers\Common\TemplateController();
+        $template_controller = new TemplateController();
         $replace = [
             'name' => $user->first_name.' '.$user->last_name,
             'manager_first_name' => $manager->first_name,
@@ -378,13 +386,13 @@ class AuthController extends BaseAuthController
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email,
         ];
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
         $mail->SendEmail($from, $to, $template_data, $template_name, 'account-manager-mail', $replace, TemplateType::where('id', $template->type)->value('name'), $bcc);
     }
 
     public function verify()
     {
-        $sessionUser = \Session::get('user');
+        $sessionUser = Session::get('user');
         if (! $sessionUser) {
             return redirect('login');
         }
@@ -413,7 +421,7 @@ class AuthController extends BaseAuthController
      */
     public function verifyConfig()
     {
-        $userId = \Session::get('verification_user_id') ?? optional(\Session::get('user'))->id;
+        $userId = Session::get('verification_user_id') ?? Session::get('user')?->id;
         if (! $userId) {
             return successResponse('', ['redirect' => url('login')]);
         }
@@ -422,6 +430,7 @@ class AuthController extends BaseAuthController
         if (! $user) {
             return successResponse('', ['redirect' => url('login')]);
         }
+
         $eid = Crypt::encrypt($user->email);
 
         $setting = StatusSetting::select('emailverification_status', 'msg91_status')->first();
@@ -463,7 +472,7 @@ class AuthController extends BaseAuthController
 
     public function getCountries()
     {
-        $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray();
+        $countries = Country::pluck('nicename', 'country_code_char2')->toArray();
 
         return successResponse('countries', $countries);
     }

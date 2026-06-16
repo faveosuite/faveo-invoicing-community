@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Agent\Order;
 
+use Illuminate\Support\Facades\Date;
 use App\Http\Controllers\License\LicenseController;
 use App\Model\Common\StatusSetting;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery\MockInterface;
 use Tests\DBTestCase;
@@ -50,7 +50,7 @@ class BaseOrderControllerTest extends DBTestCase
         $permissionDisplayNames = collect($map)
             ->filter(fn ($key) => isset($permissionNames[$key]) && $permissionNames[$key] == 1)
             ->keys()
-            ->toArray();
+            ->all();
 
         $permissionIds = LicensePermission::whereIn('permissions', $permissionDisplayNames)
             ->pluck('id');
@@ -64,7 +64,7 @@ class BaseOrderControllerTest extends DBTestCase
 
     private function mockLicenseController()
     {
-        $this->mock(LicenseController::class, function (MockInterface $mock) {
+        $this->mock(LicenseController::class, function (MockInterface $mock): void {
             $mock->shouldReceive('updateExpirationDate')->andReturn(true);
             $mock->shouldReceive('getNoOfAllowedInstallation')->andReturn(5);
             $mock->shouldReceive('getInstallPreference')->andReturn('domain.com');
@@ -74,14 +74,14 @@ class BaseOrderControllerTest extends DBTestCase
 
     private function date()
     {
-        return Carbon::now()->addDays(30)->toDateString();
+        return Date::now()->addDays(30)->toDateString();
     }
 
     private function assertExpiryUpdated($field, $orderId, $date)
     {
         $this->assertDatabaseHas('subscriptions', [
             'order_id' => $orderId,
-            $field => Carbon::parse($date)->endOfDay()->format('Y-m-d H:i:s'),
+            $field => Date::parse($date)->endOfDay()->format('Y-m-d H:i:s'),
         ]);
     }
 

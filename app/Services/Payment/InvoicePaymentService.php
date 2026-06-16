@@ -2,6 +2,8 @@
 
 namespace App\Services\Payment;
 
+use Throwable;
+use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Http\Controllers\Common\SettingsController;
 use App\Model\Order\Invoice;
 use App\Plugins\Payment\Dto\Customer;
@@ -65,7 +67,7 @@ class InvoicePaymentService
                 'name' => $name,
                 'processing_fee' => ProcessingFee::percent($name) ?: null,
             ], $names);
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             return [];
         }
     }
@@ -73,7 +75,7 @@ class InvoicePaymentService
     /**
      * Open a payment for an invoice and return the gateway's client config.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function start(Invoice $invoice, string $gateway): PaymentSession
     {

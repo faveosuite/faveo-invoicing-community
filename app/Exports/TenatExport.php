@@ -11,15 +11,8 @@ class TenatExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
 
-    protected $selectedColumns;
-    protected $tenantsData;
-    protected $sheetIndex;
-
-    public function __construct($selectedColumns, $tenantsData, $sheetIndex)
+    public function __construct(protected $selectedColumns, protected $tenantsData, protected $sheetIndex)
     {
-        $this->selectedColumns = $selectedColumns;
-        $this->tenantsData = $tenantsData;
-        $this->sheetIndex = $sheetIndex;
     }
 
     public function collection()
@@ -44,9 +37,7 @@ class TenatExport implements FromCollection, WithHeadings, WithTitle
             'db_username' => 'Database Username',
         ];
 
-        return array_map(function ($column) use ($headingsMap) {
-            return $headingsMap[$column] ?? $column;
-        }, $this->selectedColumns);
+        return array_map(fn($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
     }
 
     public function title(): string

@@ -3,8 +3,6 @@
 namespace Database\Seeders\v3_0_5;
 use App\Model\Mailjob\ExpiryMailDay;
 
-use App\Model\Common\Template;
-
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder

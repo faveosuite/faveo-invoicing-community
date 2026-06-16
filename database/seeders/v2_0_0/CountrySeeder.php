@@ -592,8 +592,6 @@ class CountrySeeder extends Seeder
             'nicename' => 'IVOIRE',
             'country_code_char3' => 'Cote D',
             'numcode' => 'Ivoire',
-            'phonecode' => 'CIV',
-            'currency_id' => 384,
             'phonecode' => 225,
             'currency_id' => '53',
         ]);
@@ -1243,8 +1241,6 @@ class CountrySeeder extends Seeder
             'nicename' => 'S REPUBLIC OF',
             'country_code_char3' => 'Korea, Democratic People',
             'numcode' => 's Republic of',
-            'phonecode' => 'PRK',
-            'currency_id' => 408,
             'phonecode' => 850,
             'currency_id' => '8',
         ]);

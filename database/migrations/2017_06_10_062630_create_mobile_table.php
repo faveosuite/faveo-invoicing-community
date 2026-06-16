@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('mobile')) {
-            Schema::create('mobile', function (Blueprint $table) {
+            Schema::create('mobile', function (Blueprint $table): void {
                 $table->integer('id', true);
                 $table->char('iso', 2);
                 $table->string('name', 80);

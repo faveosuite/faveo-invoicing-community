@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Client;
 
+use PHPUnit\Framework\Attributes\Group;
+use DB;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
@@ -27,7 +29,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->tenantController = Mockery::mock(new TenantController(new Client, new FaveoCloud()));
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('demo')]
+    #[Group('demo')]
     public function test_request_demo_required_field_not_given()
     {
         $user = User::factory()->create();
@@ -36,7 +38,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertSessionHasErrors('demoname', 'The name field is required');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('demo')]
+    #[Group('demo')]
     public function test_request_demo_fields_are_given()
     {
         $this->withoutMiddleware();
@@ -53,7 +55,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertJson(['message' => 'Your message was sent successfully. Thanks.']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('demo')]
+    #[Group('demo')]
     public function test_request_demo_spam_detected()
     {
         $this->withoutMiddleware();
@@ -71,7 +73,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertSessionHasErrors('demo');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('demo')]
+    #[Group('demo')]
     public function test_request_demo_when_spam_name_given()
     {
         $this->withoutMiddleware();
@@ -88,7 +90,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertSessionHasErrors('demo');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('trial')]
+    #[Group('trial')]
     public function test_start_free_trial_domain_is_wrong()
     {
         $this->withoutMiddleware();
@@ -96,7 +98,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertSessionHasErrors('domain', 'Special characters are not allowed in domain name');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('trial')]
+    #[Group('trial')]
     public function test_start_free_trial_tenant_not_created()
     {
         $user = User::factory()->create();
@@ -113,7 +115,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->assertEquals($content['status'], 'false');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('trial')]
+    #[Group('trial')]
     public function test_start_free_trial_tenant_created()
     {
         $user = User::factory()->create();
@@ -143,7 +145,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->assertEquals(' You will receive the login credentials on your registered email', $result['message']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('trial')]
+    #[Group('trial')]
     public function test_free_trial_attempt_more_then_one()
     {
         $user = User::factory()->create();
@@ -153,13 +155,13 @@ class ClientFooterGeneralTest extends DBTestCase
         $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 15]);
         $cloudProduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        \DB::table('free_trial_allowed')->insert([
+        DB::table('free_trial_allowed')->insert([
             'id' => 1,
             'user_id' => $user->id,
             'product_id' => $product->id,
         ]);
 
-        \DB::table('free_trial_allowed')->insert([
+        DB::table('free_trial_allowed')->insert([
             'id' => 2,
             'user_id' => $user->id,
             'product_id' => $product->id,
@@ -171,7 +173,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->assertEquals($content['message'], 'It has come to our notice that you have crossed the free trial limit, please delete your existing instances to proceed further.');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('group')]
+    #[Group('group')]
     public function test_master_group_display()
     {
         $user = User::factory()->create();

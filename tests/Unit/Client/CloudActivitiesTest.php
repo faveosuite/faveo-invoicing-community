@@ -2,6 +2,13 @@
 
 namespace Tests\Unit\Client;
 
+use PHPUnit\Framework\Attributes\Group;
+use Illuminate\Support\Facades\Date;
+use Session;
+use Auth;
+use DB;
+use App\License\Services\LicenseService;
+use App\License\Models\License;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
@@ -21,9 +28,7 @@ use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
-use Carbon\Carbon;
 use GuzzleHttp\Client;
-use Illuminate\Http\Request;
 use Mockery;
 use Tests\DBTestCase;
 
@@ -48,7 +53,7 @@ class CloudActivitiesTest extends DBTestCase
         parent::tearDown();
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('Cloud Agent Change')]
+    #[Group('Cloud Agent Change')]
     public function test_cloud_agents_change_plan_ended()
     {
         $user = User::factory()->create();
@@ -84,7 +89,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertEquals($content['priceToPay'], $priceToPay);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('Cloud Agent Change')]
+    #[Group('Cloud Agent Change')]
     public function test_cloud_agents_when_plan_not_ended()
     {
         $user = User::factory()->create();
@@ -112,14 +117,14 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(30)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(30)]);
         $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 5, 'oldAgents' => 3, 'orderId' => $order->id, 'agentAction' => 'increase']);
         $response->assertStatus(200);
         $content = $response->json();
         $this->assertNotEquals($content['priceToPay'], $content['totalPrice']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('Cloud Agent Change')]
+    #[Group('Cloud Agent Change')]
     public function test_cloud_when_no_of_agents_less_then_old_agents()
     {
         $user = User::factory()->create();
@@ -155,7 +160,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertEquals($content['priceToPay'], $priceToPay);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('Cloud Agent Change')]
+    #[Group('Cloud Agent Change')]
     public function test_when_days_are_more_less_no_of_agents()
     {
         $user = User::factory()->create(['country' => 'IN']);
@@ -183,14 +188,14 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(80)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(80)]);
         $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 3, 'oldAgents' => 5, 'orderId' => $order->id, 'agentAction' => 'decrease']);
         $content = $response->json();
         $response->assertStatus(200);
         $this->assertEquals($content['priceToPay'], '₹0.00');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('Cloud domain Change')]
+    #[Group('Cloud domain Change')]
 //    public function  test_cloud_update_no_of_agents(){
 //        $user=User::factory()->create();
 //        $this->actingAs($user);
@@ -226,7 +231,7 @@ class CloudActivitiesTest extends DBTestCase
 //
 //    }
 
-    #[\PHPUnit\Framework\Attributes\Group('Cloud plan Change')]
+    #[Group('Cloud plan Change')]
     public function test_cloud_plan_old_price_less_then_new_price()
     {
         $user = User::factory()->create();
@@ -258,9 +263,9 @@ class CloudActivitiesTest extends DBTestCase
         $planPrice2 = PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000]);
 
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(65)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
         $subscription = Subscription::create(['plan_id' => $plan2->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(130)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(130)]);
         $response = $this->call('POST', 'get-cloud-upgrade-cost', ['agents' => 5, 'plan' => $plan2->id, 'orderId' => $order->id]);
         $content = $response->json();
         $this->assertEquals('₹10,038.46', $content['price_to_be_paid']);
@@ -268,7 +273,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertEquals('₹5,000.00', $content['priceperagent']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('Cloud plan Change')]
+    #[Group('Cloud plan Change')]
     public function test_cloud_plan_old_price_equal_to_new_price()
     {
         $user = User::factory()->create();
@@ -300,9 +305,9 @@ class CloudActivitiesTest extends DBTestCase
         $planPrice2 = PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000]);
 
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(65)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
         $subscription = Subscription::create(['plan_id' => $plan2->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(130)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(130)]);
         $response = $this->call('POST', 'get-cloud-upgrade-cost', ['agents' => 5, 'plan' => $plan2->id, 'orderId' => $order->id]);
         $content = $response->json();
         $this->assertEquals('₹0.00', $content['price_to_be_paid']);
@@ -310,7 +315,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertEquals('₹3,000.00', $content['priceperagent']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('Cloud plan Change')]
+    #[Group('Cloud plan Change')]
     public function test_cloud_plan_old_price_greater_than_new_price()
     {
         $user = User::factory()->create();
@@ -341,15 +346,15 @@ class CloudActivitiesTest extends DBTestCase
         $planPrice2 = PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000]);
 
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(65)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
         $subscription = Subscription::create(['plan_id' => $plan2->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(130)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(130)]);
         $response = $this->call('POST', 'get-cloud-upgrade-cost', ['agents' => 5, 'plan' => $plan2->id, 'orderId' => $order->id]);
         $content = $response->json();
         $this->assertEquals('₹9,730.77', $content['discount']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('Cloud plan Change')]
+    #[Group('Cloud plan Change')]
     public function test_cloud_upgrade_downgrade_plan()
     {
         $user = User::factory()->create();
@@ -380,9 +385,9 @@ class CloudActivitiesTest extends DBTestCase
         $planPrice2 = PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
 
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(65)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
         $subscription1 = Subscription::create(['plan_id' => $plan2->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(65)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
 
         $response = $this->call('POST', 'upgradeDowngradeCloud', ['id' => $plan2->id, 'orderId' => $order->id, 'agents' => $planPrice2->no_of_agents]);
         $response->assertStatus(200);
@@ -419,13 +424,13 @@ class CloudActivitiesTest extends DBTestCase
         $planPrice2 = PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
 
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(65)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
         $subscription1 = Subscription::create(['plan_id' => $plan2->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(65)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
 
         $response = $this->getPrivateMethod($this->cloudactivities, 'getThePaymentCalculationUpgradeDowngrade', [$planPrice2->no_of_agents, $order->serial_key, $order->id, $plan2->id]);
         $this->assertTrue($response['attributes']['priceToBePaid'] > $response['attributes']['priceRemaining']);
-        $this->assertEquals(\Session::get('priceToBePaid') - \Session::get('priceRemaining'), $response['price']);
+        $this->assertEquals(Session::get('priceToBePaid') - Session::get('priceRemaining'), $response['price']);
         $this->assertEquals($plan2->product, $response['id']);
         $this->assertEquals(0, $user->billing_pay_balance);
     }
@@ -460,16 +465,16 @@ class CloudActivitiesTest extends DBTestCase
         $planPrice2 = PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 3000, 'no_of_agents' => 5]);
 
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(65)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
         $subscription1 = Subscription::create(['plan_id' => $plan2->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(65)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(65)]);
 
         $response = $this->getPrivateMethod($this->cloudactivities, 'getThePaymentCalculationUpgradeDowngrade', [$planPrice2->no_of_agents, $order->serial_key, $order->id, $plan2->id]);
         $this->assertTrue($response['attributes']['priceToBePaid'] < $response['attributes']['priceRemaining']);
-        $this->assertEquals(\Session::get('priceToBePaid'), $response['price']);
+        $this->assertEquals(Session::get('priceToBePaid'), $response['price']);
         $this->assertEquals($plan2->product, $response['id']);
-        $this->assertEquals(1, User::where('id', \Auth::user()->id)->value('billing_pay_balance'));
-        $this->assertEquals(0, \Session::get('nothingLeft'));
+        $this->assertEquals(1, User::where('id', Auth::user()->id)->value('billing_pay_balance'));
+        $this->assertEquals(0, Session::get('nothingLeft'));
     }
 
     public function test_subscription_query_is_correct()
@@ -501,21 +506,21 @@ class CloudActivitiesTest extends DBTestCase
         $cloudProduct = CloudProducts::create(['id' => 1, 'cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => 'HelpDesk']);
 
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->subDays(8)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->subDays(8)]);
         $subscription2 = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(1)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(1)]);
         $day = ExpiryMailDay::value('cloud_days');
-        $today = Carbon::today();
+        $today = Date::today();
         $sub = Subscription::whereNotNull('ends_at')
             ->whereIn('product_id', cloudPopupProducts())
             ->whereDate(
-                \DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
+                DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
                 '<=',
                 $today
             )
             ->get();
         $content = $sub->toArray();
-        $test = (new PhpMailController())->deleteCloudDetails();
+        $test = new PhpMailController()->deleteCloudDetails();
         $this->assertEquals($content[0]['id'], $subscription->id);
         $this->assertEquals($test, null);
     }
@@ -552,21 +557,21 @@ class CloudActivitiesTest extends DBTestCase
         $cloudProduct = CloudProducts::create(['id' => 1, 'cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => 'HelpDesk']);
 
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->subDays(8)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->subDays(8)]);
         $subscription2 = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(1)]);
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(1)]);
         $FreeTrial = new FreeTrailController();
         StatusSetting::create(['id' => 1, 'mailchimp_status' => 0]);
-        $mock = Mockery::mock(\App\License\Services\LicenseService::class);
+        $mock = Mockery::mock(LicenseService::class);
         $mock->shouldReceive('syncAddons')
             ->withAnyArgs()
             ->once()
             ->andReturn(null);
         $mock->shouldReceive('create')
             ->withAnyArgs()
-            ->andReturn(new \App\License\Models\License());
+            ->andReturn(new License());
 
-        $this->app->instance(\App\License\Services\LicenseService::class, $mock);
+        $this->app->instance(LicenseService::class, $mock);
         $response = $this->getPrivateMethod($FreeTrial, 'getIfFreetrailItemPresent', [$invoiceItem, $invoice->id, $user->id, 'executed']);
         $this->assertEquals(16, strlen($response));
     }

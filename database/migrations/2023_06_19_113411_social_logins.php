@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('social_logins', function (Blueprint $table) {
+        Schema::create('social_logins', function (Blueprint $table): void {
             $table->increments('id');
             $table->string('type');
             $table->string('client_id')->nullable;

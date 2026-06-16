@@ -2,6 +2,10 @@
 
 namespace Tests\Unit\Client\Order;
 
+use PHPUnit\Framework\Attributes\Group;
+use App\ApiKey;
+use App\Model\Common\Setting;
+use App\License\Services\InstallationService;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
@@ -25,13 +29,13 @@ class ClientOrderControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->request = app(Request::class);
+        $this->request = resolve(Request::class);
         $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
         $this->html->shouldReceive('token')->andReturn('mocked-token');
         $this->app->instance(Html::class, $this->html);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('order')]
+    #[Group('order')]
     public function test_my_orders_datatable_sends_data()
     {
         $user = User::factory()->create();
@@ -80,7 +84,7 @@ class ClientOrderControllerTest extends DBTestCase
             ]);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('order')]
+    #[Group('order')]
     public function test_while_selecting_plan_provides_price()
     {
         $user = User::factory()->create();
@@ -97,7 +101,7 @@ class ClientOrderControllerTest extends DBTestCase
         $this->assertEquals($content['formatted_price'], currencyFormat($planPrice->renew_price, 'USD'));
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('order')]
+    #[Group('order')]
     public function test_successful_when_license_mocked()
     {
         $user = User::factory()->create();
@@ -121,22 +125,22 @@ class ClientOrderControllerTest extends DBTestCase
         $order = Order::factory()->create(['invoice_id' => $invoice->id,
             'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
         $subscription = Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
-        \App\ApiKey::create(['rzp_key' => 'test_key', 'rzp_secret' => 'test_secret', 'stripe_key' => 'test_stripe']);
-        \App\Model\Common\Setting::create(['id' => 1, 'autorenewal_status' => 1]);
+        ApiKey::create(['rzp_key' => 'test_key', 'rzp_secret' => 'test_secret', 'stripe_key' => 'test_stripe']);
+        Setting::create(['id' => 1, 'autorenewal_status' => 1]);
         $serialKey = 'eertrertyuhgbvfdrgtyujhnbvfdrethgbf';
         $productId = 1;
-        $mock = Mockery::mock(\App\License\Services\InstallationService::class);
+        $mock = Mockery::mock(InstallationService::class);
         $mock->shouldReceive('getInstallationsByProduct')
             ->withAnyArgs()
             ->once()
             ->andReturn(['installed_path' => ['/mocked'], 'installed_ip' => [], 'installation_date' => [], 'installation_status' => []]);
 
-        $this->app->instance(\App\License\Services\InstallationService::class, $mock);
+        $this->app->instance(InstallationService::class, $mock);
         $response = $this->call('get', 'my-order/'.$order->id);
         $response->assertStatus(200);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('order')]
+    #[Group('order')]
     public function test_auto_renewal()
     {
         $user = User::factory()->create();
@@ -157,7 +161,7 @@ class ClientOrderControllerTest extends DBTestCase
         $response->assertSessionHas('plan_id');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('order')]
+    #[Group('order')]
     public function test_to_payNow_exception()
     {
         $user = User::factory()->create();
@@ -179,7 +183,7 @@ class ClientOrderControllerTest extends DBTestCase
         $this->assertEquals('Cannot initiate payment. Invalid modification of data', $content['message']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('order')]
+    #[Group('order')]
     public function test_to_payNow_redirection()
     {
         $user = User::factory()->create();
@@ -202,7 +206,7 @@ class ClientOrderControllerTest extends DBTestCase
         $this->assertArrayHasKey('paid', $content);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('order')]
+    #[Group('order')]
     public function test_download_version()
     {
         $user = User::factory()->create();
@@ -252,7 +256,7 @@ class ClientOrderControllerTest extends DBTestCase
             ]);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('order')]
+    #[Group('order')]
     public function test_my_orders_datatable_individual_data()
     {
         $user = User::factory()->create();

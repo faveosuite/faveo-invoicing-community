@@ -21,7 +21,7 @@ class SettingsControllerTest extends DBTestCase
     {
         parent::setUp();
         $this->classObject = new SettingsController();
-        $this->request = app(Request::class);
+        $this->request = resolve(Request::class);
         $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
         $this->html->shouldReceive('token')->andReturn('mocked-token');
         $this->app->instance(Html::class, $this->html);

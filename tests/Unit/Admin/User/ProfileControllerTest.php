@@ -2,6 +2,11 @@
 
 namespace Tests\Unit\Admin\User;
 
+use App\Http\Controllers\User\ProfileController;
+use Auth;
+use Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Date;
 use App\Model\User\Password;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -19,8 +24,8 @@ class ProfileControllerTest extends DBTestCase
         parent::setUp();
         $this->withoutMiddleware();
         $this->getLoggedInUser('admin');
-        $this->profileController = Mockery::mock(\App\Http\Controllers\User\ProfileController::class)->makePartial();
-        $this->app->instance(\App\Http\Controllers\User\ProfileController::class, $this->profileController);
+        $this->profileController = Mockery::mock(ProfileController::class)->makePartial();
+        $this->app->instance(ProfileController::class, $this->profileController);
     }
 
     protected function createUser(array $attributes = []): User
@@ -73,7 +78,7 @@ class ProfileControllerTest extends DBTestCase
     public function testUpdatePasswordSuccess()
     {
         // Manually update the password first
-        \Auth::user()->update(['password' => \Hash::make('Test@1234')]);
+        Auth::user()->update(['password' => Hash::make('Test@1234')]);
 
         $response = $this->call('PATCH', 'password', [
             'old_password' => 'Test@1234',
@@ -82,25 +87,25 @@ class ProfileControllerTest extends DBTestCase
         ]);
 
         // Assert the password has been updated correctly
-        $this->assertTrue(\Hash::check('NewTest@1234', \Auth::user()->getAuthPassword()));
+        $this->assertTrue(Hash::check('NewTest@1234', Auth::user()->getAuthPassword()));
 
         // Assert the old password no longer works
-        $this->assertFalse(\Hash::check('Test@1234', \Auth::user()->getAuthPassword()));
+        $this->assertFalse(Hash::check('Test@1234', Auth::user()->getAuthPassword()));
 
         $this->assertEquals(session('success1'), 'Updated Successfully');
     }
 
     public function testPasswordResetLinkExpiredAfterUpdatingThePasswordFromUI()
     {
-        $password = new \App\Model\User\Password();
+        $password = new Password();
 
-        $user = \Auth::user();
-        $token = str_random(40);
-        $activate = $password->create(['email' => $user->email, 'token' => $token, 'created_at' => \Carbon\Carbon::now()]);
+        $user = Auth::user();
+        $token = Str::random(40);
+        $activate = $password->create(['email' => $user->email, 'token' => $token, 'created_at' => Date::now()]);
 
         $this->assertEquals(1, Password::where('email', $user->email)->get()->count());
 
-        \Auth::user()->update(['password' => \Hash::make('Test@1234')]);
+        Auth::user()->update(['password' => Hash::make('Test@1234')]);
 
         Password::where('email', $user->email)->get();
 

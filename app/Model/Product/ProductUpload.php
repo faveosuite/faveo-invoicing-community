@@ -2,14 +2,18 @@
 
 namespace App\Model\Product;
 
+use App\Model\Order\Order;
+use App\License\Models\VersionCallback;
+use App\License\Models\VersionInstallation;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductUpload extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'product_uploads';
 
     protected $fillable = ['product_id', 'title', 'description', 'version', 'file', 'is_private', 'is_restricted', 'release_type', 'dependencies', 'version_expire_date', 'version_install_count', 'status'];
@@ -35,7 +39,7 @@ class ProductUpload extends Model
             'file' => ['File', fn ($value) => $value],
             'is_private' => ['Is Private', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
             'is_restricted' => ['Is Restricted', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'release_type' => ['Release Type', fn ($value) => ucfirst($value)],
+            'release_type' => ['Release Type', ucfirst(...)],
         ];
     }
 
@@ -46,28 +50,29 @@ class ProductUpload extends Model
 
     public function order()
     {
-        return $this->belongsTo(\App\Model\Order\Order::class);
+        return $this->belongsTo(Order::class);
     }
 
     public function callbacks()
     {
-        return $this->hasMany(\App\License\Models\VersionCallback::class, 'version_id');
+        return $this->hasMany(VersionCallback::class, 'version_id');
     }
 
     public function installations()
     {
-        return $this->hasMany(\App\License\Models\VersionInstallation::class, 'version_id');
+        return $this->hasMany(VersionInstallation::class, 'version_id');
     }
 
-    public function scopeActive($query)
+    #[Scope]
+    protected function active($query)
     {
-        return $query->where(function ($q) {
+        return $query->where(function ($q): void {
             $q->where('status', 1);
         });
     }
 
-    public function getDependenciesAttribute($value)
+    protected function getDependenciesAttribute($value)
     {
-        return json_decode($value);
+        return json_decode((string) $value);
     }
 }

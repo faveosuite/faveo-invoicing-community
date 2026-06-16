@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\Order;
 
+use Illuminate\Support\Collection;
+use App\Http\Controllers\Common\MailChimpController;
+use Exception;
+use Illuminate\Support\Facades\Date;
+use App\Model\Common\Setting;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Services\LicenseService;
 use App\Model\Common\StatusSetting;
@@ -59,9 +65,9 @@ class BaseOrderController extends ExtendedOrderController
      * @param  type  $order_status
      * @return string
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function executeOrder($invoiceId): \Illuminate\Support\Collection
+    public function executeOrder($invoiceId): Collection
     {
         $userId = Invoice::findOrFail($invoiceId)->user_id;
         $items = InvoiceItem::where('invoice_id', $invoiceId)->get();
@@ -97,7 +103,7 @@ class BaseOrderController extends ExtendedOrderController
             $this->addSubscription($order->id, $item->plan_id, $version, $product, $serialKey, $item->invoice_id);
             $addOnIds = Product::find($product)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray();
             $options = $this->formatConfigurableOptions($product)->toArray();
-            app(LicenseService::class)->syncAddons($serialKey, $addOnIds, $options);
+            resolve(LicenseService::class)->syncAddons($serialKey, $addOnIds, $options);
         }
 
         if (emailSendingStatus()) {
@@ -114,14 +120,14 @@ class BaseOrderController extends ExtendedOrderController
     public function addToMailchimp($product, $user_id, $item)
     {
         try {
-            $mailchimp = new \App\Http\Controllers\Common\MailChimpController();
+            $mailchimp = new MailChimpController();
             $email = User::where('id', $user_id)->pluck('email')->first();
             if ($item->subtotal > 0) {
                 $r = $mailchimp->updateSubscriberForPaidProduct($email, $product);
             } else {
                 $r = $mailchimp->updateSubscriberForFreeProduct($email, $product);
             }
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return;
         }
     }
@@ -135,14 +141,14 @@ class BaseOrderController extends ExtendedOrderController
      * @param  int  $product
      * @param  string  $serial_key
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
      */
     public function addSubscription($orderid, $planid, $version, $product, $serial_key, $invoiceId = null): void
     {
         $permissions = LicensePermissionsController::getPermissionsForProduct($product);
-        $version = $version ?? '';
+        $version ??= '';
 
         $plan = Plan::findOrFail($planid);
         $order = Order::findOrFail($orderid);
@@ -177,7 +183,7 @@ class BaseOrderController extends ExtendedOrderController
         ]);
 
         $ipAndDomain = LicenseService::parseIpAndDomain($order->domain ?? '');
-        app(LicenseService::class)->create([
+        resolve(LicenseService::class)->create([
             'product_id' => $product,
             'user_id' => $order->client,
             'license_code' => $serial_key,
@@ -204,7 +210,7 @@ class BaseOrderController extends ExtendedOrderController
     {
         $ends_at = '';
         if ($days > 0 && $permissions == 1) {
-            $dt = \Carbon\Carbon::now();
+            $dt = Date::now();
             $ends_at = $dt->addDays($days);
         }
 
@@ -222,7 +228,7 @@ class BaseOrderController extends ExtendedOrderController
     {
         $update_ends_at = '';
         if ($days > 0 && $permissions == 1) {
-            $dt = \Carbon\Carbon::now();
+            $dt = Date::now();
             $update_ends_at = $dt->addDays($days);
         }
 
@@ -240,7 +246,7 @@ class BaseOrderController extends ExtendedOrderController
     {
         $support_ends_at = '';
         if ($days > 0 && $permissions == 1) {
-            $dt = \Carbon\Carbon::now();
+            $dt = Date::now();
             $support_ends_at = $dt->addDays($days);
         }
 
@@ -258,7 +264,7 @@ class BaseOrderController extends ExtendedOrderController
         $users = new User();
         $user = $users->find($userid);
         //check in the settings
-        $settings = new \App\Model\Common\Setting();
+        $settings = new Setting();
         $setting = $settings::find(1);
         $orders = new Order();
         $order = $orders->where('id', $orderid)->first();
@@ -269,6 +275,7 @@ class BaseOrderController extends ExtendedOrderController
         if ($user && $order->order_status == 'Executed') {
             $downloadurl = url('product/'.'download'.'/'.$productId.'/'.$number);
         }
+
         // $downloadurl = $this->downloadUrl($userid, $orderid,$productId);
         $myaccounturl = url('my-order/'.$orderid);
         $invoiceurl = $this->invoiceUrl($orderid);
@@ -283,6 +290,7 @@ class BaseOrderController extends ExtendedOrderController
         if (! $product) {
             return;
         }
+
         $value = $product->type;
 
         $template = TemplateType::getSelectedTemplate('order_mail');
@@ -297,7 +305,7 @@ class BaseOrderController extends ExtendedOrderController
 
         $orderHeading = ($value != '4') ? 'Download' : 'Order';
         $orderUrl = ($value != '4') ? $downloadurl : url('my-order/'.$orderid);
-        $end = app(\App\Http\Controllers\Order\OrderController::class)->expiry($orderid);
+        $end = resolve(OrderController::class)->expiry($orderid);
         $date = date_create($end);
         $end = date_format($date, 'M d, Y');
 
@@ -310,7 +318,7 @@ class BaseOrderController extends ExtendedOrderController
             'product' => $product->name,
             'number' => $order->number,
             'expiry' => $end,
-            'url' => app(\App\Http\Controllers\Order\OrderController::class)->renew($orderid),
+            'url' => resolve(OrderController::class)->renew($orderid),
             'knowledge_base' => $knowledgeBaseUrlFinal,
             'contact' => $contact['contact'],
             'logo' => $contact['logo'],
@@ -319,11 +327,11 @@ class BaseOrderController extends ExtendedOrderController
         ];
 
         $type = $template?->type()->value('name') ?? '';
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 
         $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-        $orderInvoice = $invoiceId ? \App\Model\Order\Invoice::find($invoiceId) : null;
+        $orderInvoice = $invoiceId ? Invoice::find($invoiceId) : null;
         if ($orderInvoice?->grand_total) {
             SettingsController::sendPaymentSuccessMailtoAdmin($orderInvoice, $orderInvoice->grand_total, $user, $product->name);
         }
@@ -343,14 +351,14 @@ class BaseOrderController extends ExtendedOrderController
      * @param  type  $product_id
      * @return type collection
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getPrice($product_id)
     {
         try {
             return Price::where('product_id', $product_id)->first();
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -383,18 +391,12 @@ class BaseOrderController extends ExtendedOrderController
         }
 
         // Format the configuration options
-        return $products->flatMap(function ($product) {
-            return $product->configOptions->flatMap(function ($configOption) use ($product) {
-                return $configOption->configOptionValues->map(function ($configOptionValue) use ($product, $configOption) {
-                    return [
-                        'product_id' => $product->id,
-                        'option_group' => $configOption->configGroup->config_group_name,
-                        'option_name' => $configOption->config_option_name,
-                        'key' => $configOptionValue->key,
-                        'value' => $configOptionValue->value,
-                    ];
-                });
-            });
-        });
+        return $products->flatMap(fn($product) => $product->configOptions->flatMap(fn($configOption) => $configOption->configOptionValues->map(fn($configOptionValue) => [
+            'product_id' => $product->id,
+            'option_group' => $configOption->configGroup->config_group_name,
+            'option_name' => $configOption->config_option_name,
+            'key' => $configOptionValue->key,
+            'value' => $configOptionValue->value,
+        ])));
     }
 }

@@ -15,11 +15,8 @@ class DownloadFileController extends Controller
 {
     use AfuCallbackHelpers;
 
-    protected LicenseValidator $validator;
-
-    public function __construct(LicenseValidator $validator)
+    public function __construct(protected LicenseValidator $validator)
     {
-        $this->validator = $validator;
     }
 
     /**
@@ -103,11 +100,12 @@ class DownloadFileController extends Controller
         $filename = basename($filePath);
         $signature = $this->generateSignature($product->id, $product_key);
 
-        $response = new StreamedResponse(function () use ($filePath) {
+        $response = new StreamedResponse(function () use ($filePath): void {
             $stream = Attach::readStream($filePath);
             while (! feof($stream)) {
                 echo fread($stream, 1024 * 8);
             }
+
             fclose($stream);
         });
 

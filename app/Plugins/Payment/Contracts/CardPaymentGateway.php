@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Payment\Contracts;
 
+use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentSession;
 
@@ -25,7 +26,7 @@ interface CardPaymentGateway
      * Open a payment to be completed by the gateway's client-side SDK against a
      * custom card UI, returning the client secret + key the browser needs.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function createCardPayment(PaymentRequest $request): PaymentSession;
 }

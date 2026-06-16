@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers\Payment;
 
+use Lang;
+use Exception;
+use Session;
+use Auth;
+use Illuminate\Support\Facades\Date;
+use App\Http\Controllers\Order\InvoiceController;
+use DB;
 use App\Facades\Cart;
 use App\Http\Requests\Payment\PromotionRequest;
 use App\Model\Order\Invoice;
@@ -9,7 +16,6 @@ use App\Model\Payment\PromoProductRelation;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Product\Product;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class PromotionController extends BasePromotionController
@@ -72,9 +78,9 @@ class PromotionController extends BasePromotionController
 
             $this->promoRelation->create(['product_id' => $product, 'promotion_id' => $this->promotion->id]);
 
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('success', Lang::get('message.saved-successfully'));
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -105,13 +111,14 @@ class PromotionController extends BasePromotionController
             foreach ($deletes as $delete) {
                 $delete->delete();
             }
+
             /* Update the realtion details */
             $product = $request->input('applied');
             $this->promoRelation->create(['product_id' => $product, 'promotion_id' => $id]);
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('success', Lang::get('message.updated-successfully'));
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -133,36 +140,37 @@ class PromotionController extends BasePromotionController
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
+                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
                 </div>';
                         //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
+
                 echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.success').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.success').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
+                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
                 </div>';
             } else {
                 echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
+                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
                 </div>';
                 //echo \Lang::get('message.select-a-row');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.$e->getMessage().'
                 </div>';
@@ -176,46 +184,50 @@ class PromotionController extends BasePromotionController
             $codevalue = Promotion::where('code', $code)->first();
 
             if (! $codevalue) {
-                throw new \Exception(__('message.invalid_coupon_code'));
+                throw new Exception(__('message.invalid_coupon_code'));
             }
+
             $promotion = $this->promotion->where('code', $code)->first();
             $uses = $promotion->uses;
-            if (\Session::get('usage') == 1) {
-                if (\Session::get('code') == $code) {
-                    throw new \Exception(__('message.coupon_code_applied'));
-                } elseif (\Session::get('usage') >= $uses) {
-                    throw new \Exception(\Lang::get('message.usage-of-code-completed'));
+            if (Session::get('usage') == 1) {
+                if (Session::get('code') == $code) {
+                    throw new Exception(__('message.coupon_code_applied'));
+                } elseif (Session::get('usage') >= $uses) {
+                    throw new Exception(Lang::get('message.usage-of-code-completed'));
                 } else {
                     $productid = '';
-                    $originalPrice = \Session::get('oldPrice');
+                    $originalPrice = Session::get('oldPrice');
                     foreach ($this->cart->getContent() as $item) {
                         $productid = $item['id'];
                     }
+
                     if ($productid && $originalPrice) {
                         $this->cart->update($productid, [
                             'price' => $originalPrice,
                         ]);
-                        \Session::forget('code');
-                        \Session::forget('oldprice');
-                        \Session::forget('usage');
+                        Session::forget('code');
+                        Session::forget('oldprice');
+                        Session::forget('usage');
                     }
                 }
             }
+
             $validProductForPromo = $promo->relation->first()->product_id;
             $productid = '';
             foreach (\Cart::getContent() as $item) {
                 if ($item->associatedModel->id == $validProductForPromo) {
                     $productid = $item->id;
                     $original = $item->price;
-                    \Session::put('plan', $item->id);
+                    Session::put('plan', $item->id);
                 }
             }
-            $value = $this->findCostAfterDiscount($promo->id, $validProductForPromo, \Auth::user()->id);
+
+            $value = $this->findCostAfterDiscount($promo->id, $validProductForPromo, Auth::user()->id);
 
             if ($productid) {
-                \Session::put('usage', 1);
-                \Session::put('code', $promo->code);
-                \Session::put('codevalue', $promo->value);
+                Session::put('usage', 1);
+                Session::put('code', $promo->code);
+                Session::put('codevalue', $promo->value);
                 $coupon101 = [
                     'name' => $original,
                     'type' => 'coupon',
@@ -229,15 +241,15 @@ class PromotionController extends BasePromotionController
 
                     // new item price, price can also be a string format like so: '98.67'
                 ]);
-                \Session::put('togglePrice', $coupon101->getName());
-                \Session::put('productid', $productid);
+                Session::put('togglePrice', $coupon101->getName());
+                Session::put('productid', $productid);
 
-                return redirect()->back()->with('success', __('message.coupon_code_applied_successfully'));
+                return back()->with('success', __('message.coupon_code_applied_successfully'));
             } else {
-                throw new \Exception(__('message.invalid_coupon_code'));
+                throw new Exception(__('message.invalid_coupon_code'));
             }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -249,14 +261,15 @@ class PromotionController extends BasePromotionController
             if ($uses == 1) {
                 return 'success';
             }
+
             $used_number = $this->invoice->where('coupon_code', $code)->count();
             if ($uses > $used_number) {
                 return 'success';
             } else {
                 return 'fails';
             }
-        } catch (\Exception $ex) {
-            throw new \Exception(\Lang::get('message.find-cost-error'));
+        } catch (Exception) {
+            throw new Exception(Lang::get('message.find-cost-error'));
         }
     }
 
@@ -266,13 +279,13 @@ class PromotionController extends BasePromotionController
             $promotion = $this->promotion->where('code', $code)->first();
             $start = $promotion->start;
             $end = $promotion->expiry;
-            $now = \Carbon\Carbon::now()->format('Y-m-d H:m:i');
-            $inv_cont = new \App\Http\Controllers\Order\InvoiceController();
+            $now = Date::now()->format('Y-m-d H:m:i');
+            $inv_cont = new InvoiceController();
             $getExpiryStatus = $inv_cont->getExpiryStatus($start, $end, $now);
 
             return $getExpiryStatus;
-        } catch (\Exception $ex) {
-            throw new \Exception(\Lang::get('message.check-expiry'));
+        } catch (Exception) {
+            throw new Exception(Lang::get('message.check-expiry'));
         }
     }
 
@@ -285,17 +298,17 @@ class PromotionController extends BasePromotionController
 
         $promotions = Promotion::with([
             'promotionType:id,name',
-            'products' => function ($q) {
+            'products' => function ($q): void {
                 $q->select('products.id', 'products.name');
             },
         ])
-            ->when($searchQuery, function ($q) use ($searchQuery) {
-                $q->where(function ($query) use ($searchQuery) {
+            ->when($searchQuery, function ($q) use ($searchQuery): void {
+                $q->where(function ($query) use ($searchQuery): void {
                     $query->where('code', 'like', "%{$searchQuery}%")
-                        ->orWhereHas('products', function ($q) use ($searchQuery) {
+                        ->orWhereHas('products', function ($q) use ($searchQuery): void {
                             $q->where('name', 'like', "%{$searchQuery}%");
                         })
-                        ->orWhereHas('promotionType', function ($q) use ($searchQuery) {
+                        ->orWhereHas('promotionType', function ($q) use ($searchQuery): void {
                             $q->where('name', 'like', "%{$searchQuery}%");
                         });
                 });
@@ -311,12 +324,12 @@ class PromotionController extends BasePromotionController
         try {
             return Promotion::with([
                 'promotionType:id,name',
-                'products' => function ($q) {
+                'products' => function ($q): void {
                     $q->select('products.id', 'products.name');
                 },
             ])
             ->findOrFail($promotionId);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -326,8 +339,8 @@ class PromotionController extends BasePromotionController
         try {
             $promotion = Promotion::findOrFail($promotionId);
 
-            $start = Carbon::parse($request->input('start'))->format('Y-m-d H:i:s');
-            $expiry = Carbon::parse($request->input('expiry'))->format('Y-m-d H:i:s');
+            $start = Date::parse($request->input('start'))->format('Y-m-d H:i:s');
+            $expiry = Date::parse($request->input('expiry'))->format('Y-m-d H:i:s');
 
             // Update promotion fields
             $promotion->update([
@@ -351,7 +364,7 @@ class PromotionController extends BasePromotionController
             ]);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -360,8 +373,8 @@ class PromotionController extends BasePromotionController
     {
         try {
             // Format start and expiry dates
-            $start = Carbon::parse($request->input('start'))->format('Y-m-d H:i:s');
-            $expiry = Carbon::parse($request->input('expiry'))->format('Y-m-d H:i:s');
+            $start = Date::parse($request->input('start'))->format('Y-m-d H:i:s');
+            $expiry = Date::parse($request->input('expiry'))->format('Y-m-d H:i:s');
 
             // Create the promotion
             $promotion = Promotion::create([
@@ -382,7 +395,7 @@ class PromotionController extends BasePromotionController
             ]);
 
             return successResponse(__('message.created-successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -396,7 +409,7 @@ class PromotionController extends BasePromotionController
         }
 
         try {
-            \DB::transaction(function () use ($ids) {
+            DB::transaction(function () use ($ids): void {
                 $promotions = Promotion::whereIn('id', $ids)->get();
 
                 foreach ($promotions as $promotion) {
@@ -405,7 +418,7 @@ class PromotionController extends BasePromotionController
             });
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

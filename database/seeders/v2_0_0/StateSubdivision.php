@@ -1785,8 +1785,6 @@ class StateSubdivision extends Seeder
             'country_code_char3' => 'ARM',
             'state_subdivision_name' => 'Gegark',
             'state_subdivision_alternate_names' => 'unik',
-            'primary_level_name' => '',
-            'state_subdivision_code' => 'Gegharkunick',
             'primary_level_name' => 'Province',
             'state_subdivision_code' => 'AM-GR',
         ]);

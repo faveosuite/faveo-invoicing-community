@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('products', 'add_to_contact')) {
-            Schema::table('products', function (Blueprint $table) {
+            Schema::table('products', function (Blueprint $table): void {
                 $table->string('add_to_contact')->default(0);
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('products', function (Blueprint $table): void {
             $table->dropColumn('add_to_contact');
         });
     }

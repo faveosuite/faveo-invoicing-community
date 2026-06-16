@@ -2,6 +2,26 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Model\Product\Product;
+use Hash;
+use Swift_TransportException;
+use Exception;
+use Logger;
+use App\Model\Common\Setting;
+use App\Model\Common\TemplateType;
+use App\Model\Common\Template;
+use App\Http\Controllers\Common\PhpMailController;
+use DB;
+use Auth;
+use ZipArchive;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
+use Log;
+use Str;
+use App\Model\Common\Bussiness;
+use App\Model\Common\State;
+use App\Model\Order\Payment;
+use Illuminate\Support\Facades\Date;
 use App\Comment;
 use App\ExportDetail;
 use App\Http\Requests\User\ClientRequest;
@@ -17,16 +37,14 @@ use App\Traits\PaginationTotal;
 use App\Traits\PaymentsAndInvoices;
 use App\User;
 use App\UserLinkReport;
-use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Storage;
 
 class ClientController extends AdvanceSearchController
 {
-    use PaginationTotal, PaymentsAndInvoices;
-
+    use PaginationTotal;
+    use PaymentsAndInvoices;
     public $user;
 
     public $activate;
@@ -41,7 +59,7 @@ class ClientController extends AdvanceSearchController
         $this->user = $user;
         $activate = new AccountActivate();
         $this->activate = $activate;
-        $product = new \App\Model\Product\Product();
+        $product = new Product();
         $this->product = $product;
     }
 
@@ -53,9 +71,11 @@ class ClientController extends AdvanceSearchController
         if ($mobileActive) {
             $mobileLabel = "<i class='fas fa-phone'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".Lang::get('message.mobile_verified')."'></label></i>";
         }
+
         if ($emailActive) {
             $emailLabel = "<i class='fas fa-envelope'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".Lang::get('message.email_verified')."'> </label></i>";
         }
+
         if ($twoFaActive) {
             $twoFalabel = "<i class='fas fa-qrcode'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title= '".Lang::get('message.2fa_enabled')."'> </label></i>";
         }
@@ -73,7 +93,7 @@ class ClientController extends AdvanceSearchController
         try {
             $user = $this->user;
             $str = 'demopass';
-            $password = \Hash::make($str);
+            $password = Hash::make($str);
             $user->password = $password;
             if ($request->input('mobile_code') == '') {
                 $country = new Country();
@@ -81,6 +101,7 @@ class ClientController extends AdvanceSearchController
             } else {
                 $mobile_code = str_replace('+', '', $request->input('mobile_code'));
             }
+
             $location = getLocation();
             $user = [
                 'user_name' => $request->input('user_name'),
@@ -97,7 +118,7 @@ class ClientController extends AdvanceSearchController
                 'company_size' => $request->input('company_size'),
                 'address' => $request->input('address'),
                 'town' => $request->input('town'),
-                'country' => strtoupper($request->input('country')),
+                'country' => strtoupper((string) $request->input('country')),
                 'state' => $request->input('state'),
                 'zip' => $request->input('zip'),
                 'timezone_id' => $request->input('timezone_id'),
@@ -119,14 +140,14 @@ class ClientController extends AdvanceSearchController
                 $this->sendWelcomeMail($userInput);
             }
 
-            AddUserToExternalService::dispatch($userInput);
+            dispatch(new AddUserToExternalService($userInput));
 
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (\Swift_TransportException $e) {
-            return redirect()->back()->with('warning',
+            return back()->with('success', \Lang::get('message.saved-successfully'));
+        } catch (Swift_TransportException $e) {
+            return back()->with('warning',
                 __('message.user_created_but_email_problem').$e->getMessage());
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+        } catch (Exception $e) {
+            return back()->with('fails', $e->getMessage());
         }
     }
 
@@ -149,11 +170,11 @@ class ClientController extends AdvanceSearchController
             $user->save();
 
             // \Session::put('test', 1000);
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+            return back()->with('success', \Lang::get('message.updated-successfully'));
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -174,15 +195,17 @@ class ClientController extends AdvanceSearchController
                     $isAccountManager = User::where('account_manager', $id)->get();
                     $isSalesManager = User::where('manager', $id)->get();
                     if (count($isSalesManager) > 0) {
-                        throw new \Exception(__('message.admin_delete_restricted', [
+                        throw new Exception(__('message.admin_delete_restricted', [
                             'name' => $user->first_name.' '.$user->last_name,
                         ]));
                     }
+
                     if (count($isAccountManager) > 0) {
-                        throw new \Exception(__('message.cannot_delete_admin', [
+                        throw new Exception(__('message.cannot_delete_admin', [
                             'name' => $user->first_name.' '.$user->last_name,
                         ]));
                     }
+
                     if ($user) {
                         $user->delete();
                     } else {
@@ -197,6 +220,7 @@ class ClientController extends AdvanceSearchController
                         //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
+
                 echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
                     <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert')
@@ -214,7 +238,7 @@ class ClientController extends AdvanceSearchController
                         './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
                 </div>';
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
                     <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
@@ -229,9 +253,9 @@ class ClientController extends AdvanceSearchController
     {
         // Retrieve necessary data
         $contact = getContactData();
-        $settings = \App\Model\Common\Setting::find(1);
-        $template_type = \App\Model\Common\TemplateType::where('name', 'registration_mail')->first();
-        $template = \App\Model\Common\Template::find($template_type->id);
+        $settings = Setting::find(1);
+        $template_type = TemplateType::where('name', 'registration_mail')->first();
+        $template = Template::find($template_type->id);
 
         // Check if settings or template is missing
         if (! $settings || ! $template) {
@@ -252,10 +276,10 @@ class ClientController extends AdvanceSearchController
 
         // Get template type name
 
-        $type = $template->type ? \App\Model\Common\TemplateType::find($template->type)->name : '';
+        $type = $template->type ? TemplateType::find($template->type)->name : '';
 
         // Send the email
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
         $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
@@ -273,8 +297,8 @@ class ClientController extends AdvanceSearchController
                 'users.first_name',
                 'users.last_name',
                 'users.email',
-                \DB::raw("CONCAT('+', users.mobile_code, ' ', users.mobile) as mobile"),
-                \DB::raw("CONCAT(users.first_name, ' ', users.last_name) as name"),
+                DB::raw("CONCAT('+', users.mobile_code, ' ', users.mobile) as mobile"),
+                DB::raw("CONCAT(users.first_name, ' ', users.last_name) as name"),
                 'countries.country_name as country',
                 'users.created_at',
                 'users.active',
@@ -285,25 +309,25 @@ class ClientController extends AdvanceSearchController
                 'users.position'
             );
         // Apply other conditions based on the request
-        $baseQuery = $baseQuery->when($request->company, function ($query) use ($request) {
+        $baseQuery = $baseQuery->when($request->company, function ($query) use ($request): void {
             $query->where('company', 'LIKE', '%'.$request->company.'%');
-        })->when($request->country, function ($query) use ($request) {
+        })->when($request->country, function ($query) use ($request): void {
             $query->where('users.country', $request->country); // or 'countries.country_name'
-        })->when($request->industry, function ($query) use ($request) {
+        })->when($request->industry, function ($query) use ($request): void {
             $query->where('bussiness', $request->industry);
-        })->when($request->role, function ($query) use ($request) {
+        })->when($request->role, function ($query) use ($request): void {
             $query->where('role', $request->role);
-        })->when($request->position, function ($query) use ($request) {
+        })->when($request->position, function ($query) use ($request): void {
             $query->where('position', $request->position);
-        })->when($request->actmanager, function ($query) use ($request) {
+        })->when($request->actmanager, function ($query) use ($request): void {
             $query->where('account_manager', $request->actmanager);
-        })->when($request->salesmanager, function ($query) use ($request) {
+        })->when($request->salesmanager, function ($query) use ($request): void {
             $query->where('manager', $request->salesmanager);
-        })->when($request->filled('mobile_verified'), function ($query) use ($request) {
+        })->when($request->filled('mobile_verified'), function ($query) use ($request): void {
             $query->where('mobile_verified', $request->mobile_verified);
-        })->when($request->filled('email_verified'), function ($query) use ($request) {
+        })->when($request->filled('email_verified'), function ($query) use ($request): void {
             $query->where('email_verified', $request->email_verified);
-        })->when($request->filled('is_2fa_enabled'), function ($query) use ($request) {
+        })->when($request->filled('is_2fa_enabled'), function ($query) use ($request): void {
             $query->where('is_2fa_enabled', $request->is_2fa_enabled);
         });
 
@@ -319,7 +343,7 @@ class ClientController extends AdvanceSearchController
 
             $selectedColumns = $request->input('selected_columns', []);
             $searchParams = $request->input('search_params', []);
-            $email = \Auth::user()->email;
+            $email = Auth::user()->email;
 
             $driver = QueueService::where('status', '1')->first();
 
@@ -328,14 +352,14 @@ class ClientController extends AdvanceSearchController
             }
 
             // Set the queue driver dynamically
-            app('queue')->setDefaultDriver($driver->short_name);
+            resolve('queue')->setDefaultDriver($driver->short_name);
 
-            ReportExport::dispatch('users', $selectedColumns, $searchParams, $email)
+            dispatch(new ReportExport('users', $selectedColumns, $searchParams, $email))
                 ->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return errorResponse($e->getMessage());
         }
@@ -362,29 +386,30 @@ class ClientController extends AdvanceSearchController
 
             $zipFileName = $exportDetail->file.'.zip';
             $zipFilePath = storage_path('app/public/export/'.$zipFileName);
-            $zip = new \ZipArchive();
-            if ($zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
+            $zip = new ZipArchive();
+            if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
                 if (is_dir($filePath)) {
                     // Add directory and its files to the zip
-                    $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath), \RecursiveIteratorIterator::LEAVES_ONLY);
-                    foreach ($files as $name => $file) {
+                    $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($filePath), RecursiveIteratorIterator::LEAVES_ONLY);
+                    foreach ($files as $file) {
                         if (! $file->isDir()) {
                             $filePath = $file->getRealPath();
-                            $relativePath = substr($filePath, strlen($exportDetail->file_path) + 1);
+                            $relativePath = substr((string) $filePath, strlen((string) $exportDetail->file_path) + 1);
                             $zip->addFile($filePath, $relativePath);
                         }
                     }
                 } else {
-                    $zip->addFile($filePath, basename($filePath));
+                    $zip->addFile($filePath, basename((string) $filePath));
                 }
+
                 $zip->close();
             } else {
                 return errorResponse(__('message.failed_create_zip_file'));
             }
 
             return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
-        } catch (\Exception $e) {
-            \Log::error('Report Export Failure'.$e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Report Export Failure'.$e->getMessage());
 
             return errorResponse('Report Export Failure'.$e->getMessage());
         }
@@ -401,9 +426,11 @@ class ClientController extends AdvanceSearchController
         if (! in_array('checkbox', $selectedKeys, true)) {
             array_unshift($selectedKeys, 'checkbox');
         }
+
         if (! in_array('action', $selectedKeys, true)) {
             $selectedKeys[] = 'action';
         }
+
         // De-dupe while keeping the first occurrence's position.
         $selectedKeys = array_values(array_unique($selectedKeys));
 
@@ -537,11 +564,7 @@ class ClientController extends AdvanceSearchController
                 'account_manager' => $accountManagers,
                 'sales_manager' => $salesManagers,
             ])
-                ->flatMap(function ($collection, $role) {
-                    return $collection->map(function ($u) use ($role) {
-                        return $u->first_name.' '.$u->last_name.' ('.__("message.$role").')';
-                    });
-                })
+                ->flatMap(fn($collection, $role) => $collection->map(fn($u) => $u->first_name.' '.$u->last_name.' ('.__("message.$role").')'))
                 ->implode(', ');
 
             return errorResponse(__('message.deletion_blocked', [
@@ -557,7 +580,7 @@ class ClientController extends AdvanceSearchController
     public function userCreate(ClientRequest $request)
     {
         try {
-            $password = \Hash::make(\Str::password(12));
+            $password = Hash::make(Str::password(12));
 
             $mobile_code = str_replace('+', '', $request->input('mobile_code') ??
                 Country::where('country_code_char2', $request->input('country'))->value('phonecode'));
@@ -576,7 +599,7 @@ class ClientController extends AdvanceSearchController
                 'active' => 1,
                 'email_verified' => $request->boolean('active'),
                 'mobile_verified' => $request->boolean('mobile_verified'),
-                'country' => strtoupper($request->input('country')),
+                'country' => strtoupper((string) $request->input('country')),
                 'mobile_code' => $mobile_code,
                 'ip' => $location['ip'] ?? null,
             ]);
@@ -587,10 +610,10 @@ class ClientController extends AdvanceSearchController
                 $this->sendWelcomeMail($user);
             }
 
-            AddUserToExternalService::dispatch($user);
+            dispatch(new AddUserToExternalService($user));
 
             return successResponse(__('message.user-create-successfully'), $user);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -610,19 +633,19 @@ class ClientController extends AdvanceSearchController
         $bussinessShort = $user->attributes['bussiness'] ?? null;
         $bussinessObj = null;
         if ($bussinessShort) {
-            $b = \App\Model\Common\Bussiness::where('short', $bussinessShort)->first();
+            $b = Bussiness::where('short', $bussinessShort)->first();
             $bussinessObj = $b ? ['id' => $b->short, 'name' => $b->name] : null;
         }
 
         $countryObj = null;
         if ($user->country) {
-            $c = \App\Model\Common\Country::where('country_code_char2', $user->country)->first();
+            $c = Country::where('country_code_char2', $user->country)->first();
             $countryObj = $c ? ['id' => $c->country_id, 'name' => $c->country_name, 'code' => $c->country_code_char2] : null;
         }
 
         $stateObj = null;
         if ($user->state) {
-            $s = \App\Model\Common\State::find($user->state);
+            $s = State::find($user->state);
             $stateObj = $s ? ['id' => $s->state_subdivision_id, 'name' => $s->state_subdivision_name] : null;
         }
 
@@ -630,14 +653,14 @@ class ClientController extends AdvanceSearchController
             ? ['id' => $user->timezone->id, 'name' => $user->timezone->timezone_name]
             : null;
 
-        $mgr = $user->manager instanceof \App\User ? $user->manager : null;
+        $mgr = $user->manager instanceof User ? $user->manager : null;
         $managerObj = $mgr ? [
             'id' => $mgr->id,
             'name' => trim($mgr->first_name.' '.$mgr->last_name),
             'email' => $mgr->email,
         ] : null;
 
-        $acm = $user->accountManager instanceof \App\User ? $user->accountManager : null;
+        $acm = $user->accountManager instanceof User ? $user->accountManager : null;
         $accountManagerObj = $acm ? [
             'id' => $acm->id,
             'name' => trim($acm->first_name.' '.$acm->last_name),
@@ -691,7 +714,7 @@ class ClientController extends AdvanceSearchController
             $user->save();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -716,10 +739,10 @@ class ClientController extends AdvanceSearchController
                 'balance' => $balance,
                 'currency' => $currency,
                 'invoice_count' => $invoices->count(),
-                'payment_count' => \App\Model\Order\Payment::where('user_id', $id)->count(),
-                'order_count' => \App\Model\Order\Order::where('client', $id)->count(),
+                'payment_count' => Payment::where('user_id', $id)->count(),
+                'order_count' => Order::where('client', $id)->count(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -742,7 +765,7 @@ class ClientController extends AdvanceSearchController
                 ->paginate($limit, ['*'], 'page', $page);
 
             $invoices->getCollection()->transform(function ($invoice) {
-                $paid = \App\Model\Order\Payment::where('invoice_id', $invoice->id)->sum('amount');
+                $paid = Payment::where('invoice_id', $invoice->id)->sum('amount');
                 $balance = max(0, $invoice->grand_total - $paid);
 
                 return [
@@ -758,7 +781,7 @@ class ClientController extends AdvanceSearchController
             });
 
             return successResponse('', $invoices);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -776,7 +799,7 @@ class ClientController extends AdvanceSearchController
                 $sortField = 'created_at';
             }
 
-            $payments = \App\Model\Order\Payment::where('user_id', $id)
+            $payments = Payment::where('user_id', $id)
                 ->orderBy($sortField, $sortOrder)
                 ->paginate($limit, ['*'], 'page', $page);
 
@@ -796,7 +819,7 @@ class ClientController extends AdvanceSearchController
             });
 
             return successResponse('', $payments);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -805,23 +828,20 @@ class ClientController extends AdvanceSearchController
     {
         try {
             $comments = Comment::with('user:id,first_name,last_name')
-                ->where('user_id', $id)
-                ->orderBy('created_at', 'desc')
+                ->where('user_id', $id)->latest()
                 ->get()
-                ->map(function ($c) {
-                    return [
-                        'id' => $c->id,
-                        'description' => $c->description,
-                        'created_at' => $c->created_at,
-                        'updated_at' => $c->updated_at,
-                        'author' => $c->user
-                            ? trim($c->user->first_name.' '.$c->user->last_name)
-                            : null,
-                    ];
-                });
+                ->map(fn($c) => [
+                    'id' => $c->id,
+                    'description' => $c->description,
+                    'created_at' => $c->created_at,
+                    'updated_at' => $c->updated_at,
+                    'author' => $c->user
+                        ? trim($c->user->first_name.' '.$c->user->last_name)
+                        : null,
+                ]);
 
             return successResponse('', $comments);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -847,7 +867,7 @@ class ClientController extends AdvanceSearchController
                 'updated_at' => $comment->updated_at,
                 'author' => trim(auth()->user()->first_name.' '.auth()->user()->last_name),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -861,7 +881,7 @@ class ClientController extends AdvanceSearchController
             $comment->save();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -872,7 +892,7 @@ class ClientController extends AdvanceSearchController
             Comment::where('id', $commentId)->where('user_id', $id)->firstOrFail()->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -900,14 +920,14 @@ class ClientController extends AdvanceSearchController
             )
             ->when($request->filled('is_2fa_enabled'), fn ($q) => $q->where('is_2fa_enabled', $request->is_2fa_enabled)
             )
-            ->when($request->hasAny(['reg_from', 'reg_till']), function ($q) use ($request) {
+            ->when($request->hasAny(['reg_from', 'reg_till']), function ($q) use ($request): void {
                 $from = $request->filled('reg_from')
-                    ? Carbon::parse($request->input('reg_from'))->startOfDay()
+                    ? Date::parse($request->input('reg_from'))->startOfDay()
                     : CarbonImmutable::startOfTime();
 
                 $till = $request->filled('reg_till')
-                    ? Carbon::parse($request->input('reg_till'))->endOfDay()
-                    : Carbon::now()->endOfDay();
+                    ? Date::parse($request->input('reg_till'))->endOfDay()
+                    : Date::now()->endOfDay();
 
                 $q->whereBetween('created_at', [$from, $till]);
             });
@@ -915,10 +935,10 @@ class ClientController extends AdvanceSearchController
 
     private function applyUsersSearch($query, $search)
     {
-        return $query->when($search, function ($q) use ($search) {
-            $q->where(function ($subQuery) use ($search) {
+        return $query->when($search, function ($q) use ($search): void {
+            $q->where(function ($subQuery) use ($search): void {
                 $subQuery->where('email', 'like', '%'.$search.'%')
-                    ->orWhere(\DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.$search.'%')
+                    ->orWhere(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.$search.'%')
                     ->orWhere('mobile', 'like', '%'.$search.'%')
                     ->orWhere('country', 'like', '%'.$search.'%');
             });

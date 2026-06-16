@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Client\Cart;
 
+use Exception;
 use App\Facades\Cart;
 use App\Http\Controllers\Front\CartController;
 use App\Model\Payment\Currency;
@@ -52,7 +53,7 @@ class CartControllerTest extends DBTestCase
     #[Group('cart')]
     public function test_planCost_whenPlanIdNotRelatedToProductPassed_throwsException()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $errors = session('errors');
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -79,7 +80,7 @@ class CartControllerTest extends DBTestCase
     #[Group('cart')]
     public function test_planCost_whenPlanIdForOtherProductPassed_throwsException()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $errors = session('errors');
         $this->getLoggedInUser();
         $this->withoutMiddleware();

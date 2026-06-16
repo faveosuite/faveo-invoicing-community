@@ -25,7 +25,7 @@ class SubscriptionService
     /**
      * Open a recurring subscription on a gateway.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function createSubscription(string $gateway, SubscriptionRequest $request): SubscriptionResult
     {
@@ -35,7 +35,7 @@ class SubscriptionService
     /**
      * Read a subscription's current status (the gateway's own status string).
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function getStatus(string $gateway, string $subscriptionId): string
     {
@@ -45,7 +45,7 @@ class SubscriptionService
     /**
      * Cancel a subscription at the gateway.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function cancelSubscription(string $gateway, string $subscriptionId): SubscriptionResult
     {
@@ -55,7 +55,7 @@ class SubscriptionService
     /**
      * Ensure a subscription bills the requested amount/interval going forward.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function updateSubscriptionPrice(string $gateway, string $subscriptionId, SubscriptionRequest $request): SubscriptionResult
     {
@@ -65,7 +65,7 @@ class SubscriptionService
     /**
      * Resolve a gateway and assert it supports subscriptions.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     private function gateway(string $gateway): SubscriptionGateway
     {

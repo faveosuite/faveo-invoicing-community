@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Integrations\Campaigns\Controllers\Api;
 
+use Override;
 use App\Plugins\Zoho\Controllers\Api\ZohoBaseApi;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Exceptions\ContactNotFoundException;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Exceptions\TagNotFoundException;
@@ -389,6 +390,7 @@ class ZohoCampaignsApi extends ZohoBaseApi
         }
     }
 
+    #[Override]
     protected function newRequest(): PendingRequest
     {
         return parent::newRequest()->throw();

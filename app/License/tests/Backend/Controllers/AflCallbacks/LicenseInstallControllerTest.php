@@ -22,7 +22,7 @@ class LicenseInstallControllerTest extends LicenseTestCase
         $validator->shouldReceive('isValidLicenseRequest')->once()->andReturn(false);
         $service = Mockery::mock(InstallationService::class);
 
-        $response = (new LicenseInstallController($validator, $service))->licenseInstall($this->moduleRequest([
+        $response = new LicenseInstallController($validator, $service)->licenseInstall($this->moduleRequest([
             'product_id' => 1,
         ], 'POST'));
 
@@ -49,7 +49,7 @@ class LicenseInstallControllerTest extends LicenseTestCase
         $service->shouldReceive('register')->once();
         $service->shouldReceive('updateLogs')->once();
 
-        $response = (new LicenseInstallController($validator, $service))->licenseInstall($this->moduleRequest([
+        $response = new LicenseInstallController($validator, $service)->licenseInstall($this->moduleRequest([
             'product_id' => $product->id,
             'root_url' => 'https://example.com/helpdesk',
             'client_email' => 'client@example.com',

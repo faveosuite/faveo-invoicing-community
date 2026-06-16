@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Front;
 
+use Override;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PageRequest extends FormRequest
@@ -27,11 +28,11 @@ class PageRequest extends FormRequest
 
         if ($this->method() == 'POST') {
             return [
-                'name' => 'required|unique:frontend_pages,name|max:20|regex:/^[a-zA-Z\s]*$/',
-                'publish' => 'required',
-                'slug' => 'required',
+                'name' => ['required', 'unique:frontend_pages,name', 'max:20', 'regex:/^[a-zA-Z\s]*$/'],
+                'publish' => ['required'],
+                'slug' => ['required'],
                 'url' => 'required|url|regex:'.$regex,
-                'content' => 'required',
+                'content' => ['required'],
             ];
         } elseif ($this->method() == 'PATCH') {
             return [
@@ -45,6 +46,7 @@ class PageRequest extends FormRequest
         }
     }
 
+    #[Override]
     public function messages()
     {
         return[

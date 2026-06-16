@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Tests\Controllers;
 
+use Exception;
 use App\Plugins\Zoho\Controllers\ZohoController;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\ZohoCampaignsController;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\ZohoCrmController;
@@ -42,7 +43,7 @@ class ZohoControllerTest extends DBTestCase
         $campaignsMock = $this->createMock(ZohoCampaignsController::class);
         $campaignsMock->expects($this->once())
             ->method('subscribe')
-            ->willThrowException(new \Exception('Campaigns API error'));
+            ->willThrowException(new Exception('Campaigns API error'));
 
         $this->instance(ZohoCampaignsController::class, $campaignsMock);
 
@@ -64,7 +65,7 @@ class ZohoControllerTest extends DBTestCase
         $crmMock = $this->createMock(ZohoCrmController::class);
         $crmMock->expects($this->once())
             ->method('addUserDataToCrm')
-            ->willThrowException(new \Exception('CRM API error'));
+            ->willThrowException(new Exception('CRM API error'));
 
         $this->instance(ZohoCrmController::class, $crmMock);
 

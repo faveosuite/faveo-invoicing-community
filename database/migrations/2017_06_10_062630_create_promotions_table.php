@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('promotions')) {
-            Schema::create('promotions', function (Blueprint $table) {
+            Schema::create('promotions', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('code')->unique('code');
                 $table->integer('type')->unsigned()->index('promotions_type_foreign');

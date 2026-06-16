@@ -2,6 +2,8 @@
 
 namespace App\Services\Payment;
 
+use Logger;
+use DB;
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
 use App\Http\Controllers\Order\BaseRenewController;
 use App\Model\Order\Invoice;
@@ -151,7 +153,7 @@ class SubscriptionWebhookService
     {
         $subscription = Subscription::where('subscribe_id', $gatewaySubscriptionId)->first();
         if (! $subscription) {
-            \Logger::warning("SubscriptionWebhook: no subscription found for {$gateway} ID {$gatewaySubscriptionId}");
+            Logger::warning("SubscriptionWebhook: no subscription found for {$gateway} ID {$gatewaySubscriptionId}");
 
             return;
         }
@@ -180,12 +182,12 @@ class SubscriptionWebhookService
 
     private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, $user, Plan $plan, float $cost, string $currency): Invoice
     {
-        $latestInvoiceId = \DB::table('order_invoice_relations')
+        $latestInvoiceId = DB::table('order_invoice_relations')
             ->where('order_id', $subscription->order_id)
             ->latest()
             ->value('invoice_id');
 
-        $existingItem = \DB::table('invoice_items')
+        $existingItem = DB::table('invoice_items')
             ->where('invoice_id', $latestInvoiceId)
             ->where('product_id', $subscription->product_id)
             ->first();
@@ -202,13 +204,13 @@ class SubscriptionWebhookService
             }
         }
 
-        $originalInvoiceId = \DB::table('order_invoice_relations')
+        $originalInvoiceId = DB::table('order_invoice_relations')
             ->where('order_id', $order->id)
             ->oldest()
             ->value('invoice_id');
 
-        $agents = \DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents');
-        $invoiceItem = (new BaseRenewController())->generateInvoice($product, $user, $order->id, $plan->id, $cost, '', $agents, $currency);
+        $agents = DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents');
+        $invoiceItem = new BaseRenewController()->generateInvoice($product, $user, $order->id, $plan->id, $cost, '', $agents, $currency);
 
         return Invoice::findOrFail($invoiceItem->invoice_id);
     }

@@ -30,7 +30,7 @@ class LicenseVerifyControllerTest extends LicenseTestCase
         $validator->shouldReceive('validateIntegerValue')->zeroOrMoreTimes()->andReturn(true);
         $service = Mockery::mock(InstallationService::class);
 
-        $response = (new LicenseVerifyController($validator, $service))->licenseVerify($this->moduleRequest([
+        $response = new LicenseVerifyController($validator, $service)->licenseVerify($this->moduleRequest([
             'product_id' => $product->id,
             'root_url' => 'https://example.com/helpdesk',
             'client_email' => 'client@example.com',

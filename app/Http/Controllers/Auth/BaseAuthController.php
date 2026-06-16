@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Exception;
+use App\Model\Common\Setting;
+use App\Model\Common\TemplateType;
+use App\Http\Controllers\Common\PhpMailController;
+use Devio\Pipedrive\Pipedrive;
+use App\Model\Common\StatusSetting;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
@@ -9,7 +15,6 @@ use App\Model\Common\State;
 use App\Model\User\AccountActivate;
 use App\User;
 use App\VerificationAttempt;
-use Illuminate\Http\Request;
 
 class BaseAuthController extends Controller
 {
@@ -57,7 +62,7 @@ class BaseAuthController extends Controller
         $user = User::where('email', $email)->first();
         $contact = getContactData();
         if (! $user) {
-            throw new \Exception(__('message.activation_link_sent'));
+            throw new Exception(__('message.activation_link_sent'));
         }
 
         try {
@@ -81,10 +86,10 @@ class BaseAuthController extends Controller
             }
 
             // Check the settings
-            $settings = \App\Model\Common\Setting::find(1);
+            $settings = Setting::find(1);
 
             // Retrieve the template
-            $template = \App\Model\Common\TemplateType::getSelectedTemplate('welcome_mail');
+            $template = TemplateType::getSelectedTemplate('welcome_mail');
             $website_url = url('/');
             $replace = [
                 'name' => $user->first_name.' '.$user->last_name,
@@ -99,10 +104,10 @@ class BaseAuthController extends Controller
 
             $type = $template?->type()->value('name') ?? '';
 
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
+            $mail = new PhpMailController();
             $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -114,7 +119,7 @@ class BaseAuthController extends Controller
 
             if (! $result) {
                 $countryFullName = Country::where('country_code_char2', $user->country)->value('country_name');
-                $pipedrive = new \Devio\Pipedrive\Pipedrive($token);
+                $pipedrive = new Pipedrive($token);
 
                 // Create Organization
                 $orgResponse = $pipedrive->organizations->add(['name' => $user->company]);
@@ -187,7 +192,7 @@ class BaseAuthController extends Controller
         $attempt = $user->verificationAttempts->first();
 
         if ($attempt && $attempt->email_attempt) {
-            $attempt->email_attempt = $attempt->email_attempt + 1;
+            $attempt->email_attempt += 1;
             $attempt->save();
         } else {
             VerificationAttempt::where('user_id', $user->id)->update(['email_attempt' => 1]);
@@ -199,7 +204,7 @@ class BaseAuthController extends Controller
         $mobileAttempt = $user->verificationAttempts->first();
 
         if ($mobileAttempt && $mobileAttempt->mobile_attempt) {
-            $mobileAttempt->mobile_attempt = $mobileAttempt->mobile_attempt + 1;
+            $mobileAttempt->mobile_attempt += 1;
             $mobileAttempt->save();
         } else {
             VerificationAttempt::where('user_id', $user->id)->update(['mobile_attempt' => 1]);
@@ -208,7 +213,7 @@ class BaseAuthController extends Controller
 
     protected function userNeedVerified(User $user): bool
     {
-        $setting = \App\Model\Common\StatusSetting::first(['emailverification_status', 'msg91_status']);
+        $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);
 
         if ($setting->emailverification_status == 1 && $user->email_verified != 1) {
             return false;

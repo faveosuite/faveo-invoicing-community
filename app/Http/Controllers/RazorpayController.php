@@ -2,6 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use App\Services\Payment\InvoicePaymentService;
+use App\Plugins\Payment\Exceptions\SignatureVerificationException;
+use Exception;
+use Stripe\StripeClient;
+use Session;
+use App\Http\Controllers\Order\RenewController;
+use App\Services\Payment\SubscriptionService;
+use App\Plugins\Payment\Dto\SubscriptionRequest;
+use Illuminate\Support\Facades\Date;
 use App\ApiKey;
 use App\Facades\Cart;
 use App\Model\Common\State;
@@ -10,15 +20,16 @@ use App\Model\Order\InvoiceItem;
 use App\Model\Payment\TaxByState;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\Traits\Payment\PostPaymentHandle;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class RazorpayController extends Controller
 {
     use PostPaymentHandle;
+
     public $invoice;
 
     public $invoiceItem;
+
     public $cart;
 
     public function __construct()
@@ -40,19 +51,19 @@ class RazorpayController extends Controller
     public function payment($invoice, Request $request)
     {
         $request->validate([
-            'razorpay_payment_id' => 'required|string',
-            'razorpay_order_id' => 'required|string',
-            'razorpay_signature' => 'required|string',
+            'razorpay_payment_id' => ['required', 'string'],
+            'razorpay_order_id' => ['required', 'string'],
+            'razorpay_signature' => ['required', 'string'],
         ]);
 
         $model = Invoice::find($invoice);
         abort_if(! $model, 404, 'Invoice not found.');
-        if (\Auth::user()->role != 'admin' && (int) $model->user_id !== (int) \Auth::id()) {
+        if (Auth::user()->role != 'admin' && (int) $model->user_id !== (int) Auth::id()) {
             return errorResponse(__('message.invalid_modification'));
         }
 
         try {
-            $paid = app(\App\Services\Payment\InvoicePaymentService::class)
+            $paid = resolve(InvoicePaymentService::class)
                 ->confirm($model, 'Razorpay', $request->only([
                     'razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature',
                 ]));
@@ -60,30 +71,30 @@ class RazorpayController extends Controller
             return $paid
                 ? successResponse('success', [])
                 : errorResponse(__('message.payment_declined_try_other_gateway'));
-        } catch (\App\Plugins\Payment\Exceptions\SignatureVerificationException $e) {
+        } catch (SignatureVerificationException $e) {
             if (emailSendingStatus()) {
-                $this->sendFailedPaymenttoAdmin($model, $model->grand_total, optional($model->invoiceItem()->first())->product_name, $e->getMessage(), \Auth::user());
+                $this->sendFailedPaymenttoAdmin($model, $model->grand_total, $model->invoiceItem()->first()?->product_name, $e->getMessage(), Auth::user());
             }
 
             return errorResponse(__('message.payment_declined_try_other_gateway'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
 
     public function getCurrency()
     {
-        $symbol = \Auth::user()->currency_symbol;
+        $symbol = Auth::user()->currency_symbol;
 
         return $symbol;
     }
 
     public function getState($country, $stateCode)
     {
-        if (\Auth::user()->country != 'IN') {
+        if (Auth::user()->country != 'IN') {
             $state = State::where('country_code', $country)->where('iso2', $stateCode)->pluck('state_subdivision_name')->first();
         } else {
-            $state = TaxByState::where('state_code', \Auth::user()->state)->pluck('state')->first();
+            $state = TaxByState::where('state_code', Auth::user()->state)->pluck('state')->first();
         }
 
         return $state;
@@ -93,30 +104,30 @@ class RazorpayController extends Controller
     {
         try {
             $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-            $stripe = new \Stripe\StripeClient($stripeSecretKey);
+            $stripe = new StripeClient($stripeSecretKey);
             // SPA flow carries the invoice id on the return URL (stateless);
             // legacy flow still falls back to the session-stored invoice.
             $invoice = $request->query('invoice')
                 ? Invoice::find($request->query('invoice'))
-                : \Session::get('invoice');
+                : Session::get('invoice');
             $paymentIntent = $stripe->paymentIntents->retrieve($request->input('payment_intent'));
             if ($paymentIntent->status === 'succeeded') {
-                $currency = strtolower($invoice->currency);
+                $currency = strtolower((string) $invoice->currency);
                 $controller = new SettingsController();
                 $result = $controller->processPaymentSuccess($invoice, $currency);
-                \Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
+                Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
                 \Cart::removeCartCondition('Processing fee');
 
                 return redirect('checkout')->with($result['status'], $result['message']);
             } else {
-                $control = new \App\Http\Controllers\Order\RenewController();
+                $control = new RenewController();
                 if ($control->checkRenew($invoice->is_renewed) != true) {
                     return redirect('checkout')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
                 } else {
                     return redirect('paynow/'.$invoice->id)->with('fails', 'Your Payment was declined. Please try with another card or gateway');
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return redirect('checkout')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
         }
     }
@@ -132,13 +143,13 @@ class RazorpayController extends Controller
      */
     public function handleRzpAutoPay($cost, $days, $product_name, $invoice, $currency, $subscription, $user, $order, $endDate, $productDetails)
     {
-        return app(\App\Services\Payment\SubscriptionService::class)->createSubscription('Razorpay', new \App\Plugins\Payment\Dto\SubscriptionRequest(
+        return resolve(SubscriptionService::class)->createSubscription('Razorpay', new SubscriptionRequest(
             amountMinor: (int) $cost,
             currency: $currency,
             intervalDays: (int) $days,
             planName: $product_name,
-            startAt: Carbon::parse($subscription->update_ends_at)->addDays(round((int) $days))->timestamp,
-            expireBy: Carbon::parse($subscription->update_ends_at)->addDays(1)->timestamp,
+            startAt: Date::parse($subscription->update_ends_at)->addDays(round((int) $days))->timestamp,
+            expireBy: Date::parse($subscription->update_ends_at)->addDays(1)->timestamp,
         ));
     }
 }

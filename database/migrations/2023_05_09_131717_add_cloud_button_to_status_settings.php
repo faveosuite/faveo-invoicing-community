@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('status_settings', 'cloud_button')) {
-            Schema::table('status_settings', function (Blueprint $table) {
+            Schema::table('status_settings', function (Blueprint $table): void {
                 $table->string('cloud_button')->default(1);
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->dropColumn('cloud_button');
         });
     }

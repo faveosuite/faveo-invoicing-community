@@ -2,6 +2,7 @@
 
 namespace App\Model\Order;
 
+use Override;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,9 +16,10 @@ class InstallationDetail extends Model
 
     public function order()
     {
-        return $this->belongsTo(\App\Model\Order\Order::class);
+        return $this->belongsTo(Order::class);
     }
 
+    #[Override]
     public function delete()
     {
         $this->order()->delete();

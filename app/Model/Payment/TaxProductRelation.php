@@ -2,6 +2,7 @@
 
 namespace App\Model\Payment;
 
+use App\Model\Product\Product;
 use App\BaseModel;
 
 class TaxProductRelation extends BaseModel
@@ -12,11 +13,11 @@ class TaxProductRelation extends BaseModel
 
     public function tax()
     {
-        return $this->belongsTo(\App\Model\Payment\TaxClass::class, 'tax_class_id');
+        return $this->belongsTo(TaxClass::class, 'tax_class_id');
     }
 
     public function product()
     {
-        return $this->hasMany(\App\Model\Product\Product::class, 'product_id');
+        return $this->hasMany(Product::class, 'product_id');
     }
 }

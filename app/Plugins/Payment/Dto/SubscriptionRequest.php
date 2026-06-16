@@ -14,7 +14,7 @@ namespace App\Plugins\Payment\Dto;
  * (the saved payment method whose customer + default method drive the subscription);
  * Razorpay uses {@see $startAt} / {@see $expireBy} / {@see $totalCount}.
  */
-final class SubscriptionRequest
+final readonly class SubscriptionRequest
 {
     /**
      * @param  int  $amountMinor  Per-cycle charge in minor units (gateway-native).
@@ -26,15 +26,15 @@ final class SubscriptionRequest
      * @param  array<string, scalar>  $metadata
      */
     public function __construct(
-        public readonly int $amountMinor,
-        public readonly string $currency,
-        public readonly int $intervalDays,
-        public readonly string $planName,
-        public readonly ?string $paymentMethodReference = null,
-        public readonly ?int $startAt = null,
-        public readonly ?int $expireBy = null,
-        public readonly int $totalCount = 100,
-        public readonly array $metadata = [],
+        public int $amountMinor,
+        public string $currency,
+        public int $intervalDays,
+        public string $planName,
+        public ?string $paymentMethodReference = null,
+        public ?int $startAt = null,
+        public ?int $expireBy = null,
+        public int $totalCount = 100,
+        public array $metadata = [],
     ) {
     }
 }

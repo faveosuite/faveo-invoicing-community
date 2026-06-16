@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('prices')) {
-            Schema::create('prices', function (Blueprint $table) {
+            Schema::create('prices', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('product_id')->unsigned()->index('prices_product_id_foreign');
                 $table->string('currency');

@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             $table->dropColumn([
                 'license_api_secret',
                 'license_api_url',
@@ -23,7 +23,7 @@ return new class extends Migration
             ]);
         });
 
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->dropColumn('license_status');
         });
     }
@@ -33,7 +33,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('api_keys', function (Blueprint $table) {
+        Schema::table('api_keys', function (Blueprint $table): void {
             $table->string('license_api_secret')->nullable()->after('twitter_access_token');
             $table->string('license_api_url')->nullable()->after('license_api_secret');
             $table->string('license_client_id')->nullable()->after('stripe_secret');
@@ -41,7 +41,7 @@ return new class extends Migration
             $table->string('license_grant_type')->nullable()->after('license_client_secret');
         });
 
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->integer('license_status')->after('activity_log_delete');
         });
     }

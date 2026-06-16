@@ -3,7 +3,6 @@
 namespace Tests;
 
 use App\User;
-use DB;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use ReflectionClass;
 
@@ -19,6 +18,7 @@ class DBTestCase extends TestCase
     protected $token;
 
     protected $organization;
+
     //NOTE: For logging into api, we require token but for web we don't need any
 
     /**
@@ -42,9 +42,8 @@ class DBTestCase extends TestCase
      */
     protected function getPrivateMethod(&$classObject, $methodName, $arguments = [])
     {
-        $reflector = new ReflectionClass(get_class($classObject));
+        $reflector = new ReflectionClass($classObject::class);
         $method = $reflector->getMethod($methodName);
-        $method->setAccessible(true);
 
         return $method->invokeArgs($classObject, $arguments);
     }
@@ -61,7 +60,6 @@ class DBTestCase extends TestCase
     {
         $reflector = new ReflectionClass($classObject);
         $property = $reflector->getProperty($propertyName);
-        $property->setAccessible(true);
         $property->setValue($classObject, $value);
     }
 
@@ -77,7 +75,6 @@ class DBTestCase extends TestCase
     {
         $reflector = new ReflectionClass($classObject);
         $property = $reflector->getProperty($propertyName);
-        $property->setAccessible(true);
 
         return $property->getValue($classObject);
     }
@@ -127,6 +124,7 @@ class DBTestCase extends TestCase
                 array_push($notFoundKeys, $key);
             }
         }
+
         //if not found key is empty, it means all the keys are found. else not
         $hasKeys = ! $notFoundKeys ? true : false;
         $notFoundKeysJson = json_encode($notFoundKeys);
@@ -144,7 +142,7 @@ class DBTestCase extends TestCase
     protected function assertStringContainsSubstring($string, $substring)
     {
         $message = "'$substring' not found in target string";
-        $hasSubstring = (strpos($string, $substring) !== false) ? true : false;
+        $hasSubstring = (str_contains($string, $substring)) ? true : false;
         self::assertThat($hasSubstring, self::isTrue(), $message);
     }
 

@@ -20,6 +20,6 @@ class SyncUserToPipedrive extends BaseExternalSyncListener
 
     protected function sync(User $user): void
     {
-        app(PipedriveController::class)->addUserToPipedrive($user);
+        resolve(PipedriveController::class)->addUserToPipedrive($user);
     }
 }

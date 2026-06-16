@@ -2,6 +2,10 @@
 
 namespace App\Exceptions;
 
+use Override;
+use Log;
+use Sentry\Laravel\Integration;
+use Logger;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -28,23 +32,25 @@ class Handler extends ExceptionHandler
         MethodNotAllowedHttpException::class,
     ];
 
+    #[Override]
     public function report(Throwable $exception)
     {
         if ($this->shouldReport($exception)) {
-            \Log::channel('daily')->error($exception);
+            Log::channel('daily')->error($exception);
 
             if (config('app.sentry_reporting') && ! app()->environment('production')) {
-                \Sentry\Laravel\Integration::captureUnhandledException($exception);
+                Integration::captureUnhandledException($exception);
             }
 
             if (isInstall()) {
-                \Logger::exception($exception);
+                Logger::exception($exception);
             }
         }
 
         parent::report($exception);
     }
 
+    #[Override]
     protected function unauthenticated($request, AuthenticationException $exception)
     {
         if ($request->expectsJson()) {

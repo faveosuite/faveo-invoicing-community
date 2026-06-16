@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Payment;
 
+use Exception;
+use App\Model\Common\State;
+use Illuminate\Support\Str;
+use App\Model\Payment\TaxProductRelation;
+use Validator;
 use App\Http\Controllers\Controller;
 use App\Model\Payment\TaxClass;
 use App\Model\Payment\TaxOption;
@@ -32,7 +37,7 @@ class TaxController extends Controller
                     ->orderBy('name')->pluck('name')->implode("\n"),
                 'countries' => getSupportedCountriesForIntlInput(),
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }
     }
@@ -49,11 +54,11 @@ class TaxController extends Controller
             $classNames = TaxClass::pluck('name', 'slug');
 
             $rates = TaxRate::query()
-                ->when($request->has('tax_class'), function ($query) use ($request) {
+                ->when($request->has('tax_class'), function ($query) use ($request): void {
                     $query->where('tax_class', (string) $request->input('tax_class'));
                 })
-                ->when($searchString, function ($query) use ($searchString) {
-                    $query->where(function ($q) use ($searchString) {
+                ->when($searchString, function ($query) use ($searchString): void {
+                    $query->where(function ($q) use ($searchString): void {
                         $q->where('name', 'like', "%{$searchString}%")
                             ->orWhere('country', 'like', "%{$searchString}%")
                             ->orWhere('state', 'like', "%{$searchString}%");
@@ -62,22 +67,20 @@ class TaxController extends Controller
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $rates->getCollection()->transform(function ($rate) use ($classNames) {
-                return [
-                    'id' => $rate->id,
-                    'name' => $rate->name,
-                    'country' => $rate->country ?: 'All',
-                    'state' => $rate->state ?: 'All',
-                    'rate' => $rate->rate,
-                    'priority' => $rate->priority,
-                    'compound' => $rate->compound ? __('message.yes') : __('message.no'),
-                    'tax_class_name' => $classNames[$rate->tax_class] ?? ($rate->tax_class ?: 'Standard'),
-                    'active' => $rate->active ? __('message.active') : __('message.inactive'),
-                ];
-            });
+            $rates->getCollection()->transform(fn($rate) => [
+                'id' => $rate->id,
+                'name' => $rate->name,
+                'country' => $rate->country ?: 'All',
+                'state' => $rate->state ?: 'All',
+                'rate' => $rate->rate,
+                'priority' => $rate->priority,
+                'compound' => $rate->compound ? __('message.yes') : __('message.no'),
+                'tax_class_name' => $classNames[$rate->tax_class] ?? ($rate->tax_class ?: 'Standard'),
+                'active' => $rate->active ? __('message.active') : __('message.inactive'),
+            ]);
 
             return successResponse(__('message.tax_fetched'), $rates);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -103,7 +106,7 @@ class TaxController extends Controller
                 'classes' => $this->taxClassList(),
                 'states' => $rate->country ? findStateByRegionId($rate->country) : [],
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -120,7 +123,7 @@ class TaxController extends Controller
             $this->syncLocations($rate, $request);
 
             return successResponse(__('message.created-successfully'), ['tax' => $rate]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }
     }
@@ -133,6 +136,7 @@ class TaxController extends Controller
             if (! $rate) {
                 return errorResponse(__('message.tax_not_found'), 404);
             }
+
             if ($error = $this->validateRate($request)) {
                 return errorResponse($error, 422);
             }
@@ -141,7 +145,7 @@ class TaxController extends Controller
             $this->syncLocations($rate, $request);
 
             return successResponse(__('message.tax_updated_successfully'), ['tax' => $rate]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -150,7 +154,7 @@ class TaxController extends Controller
     public function deleteTax(Request $request)
     {
         try {
-            $ids = array_filter(array_unique(array_map('intval', (array) $request->input('select', []))));
+            $ids = array_filter(array_unique(array_map(intval(...), (array) $request->input('select', []))));
             if (empty($ids)) {
                 return errorResponse(__('message.select-a-row'), 400);
             }
@@ -163,7 +167,7 @@ class TaxController extends Controller
             TaxRate::whereIn('id', $ids)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage(), 500);
         }
     }
@@ -172,12 +176,12 @@ class TaxController extends Controller
     public function getState(Request $request, $stateid)
     {
         try {
-            $states = \App\Model\Common\State::where('country_code', $stateid)
+            $states = State::where('country_code', $stateid)
                 ->orderBy('state_subdivision_name', 'asc')
                 ->get(['iso2', 'state_subdivision_name']);
 
             return successResponse('', ['states' => $states]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -200,7 +204,7 @@ class TaxController extends Controller
             }
 
             return successResponse(__('message.tax_settings_saved_successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -224,7 +228,7 @@ class TaxController extends Controller
         $desired = collect(preg_split('/\r\n|\r|\n/', $raw))
             ->map(fn ($n) => trim($n))
             ->filter()
-            ->mapWithKeys(fn ($n) => [\Illuminate\Support\Str::slug($n) => $n])
+            ->mapWithKeys(fn ($n) => [Str::slug($n) => $n])
             ->forget('');
 
         $standardId = TaxClass::where('slug', '')->value('id');
@@ -232,7 +236,7 @@ class TaxController extends Controller
         foreach (TaxClass::where('slug', '!=', '')->get() as $class) {
             if (! $desired->has($class->slug)) {
                 TaxRate::where('tax_class', $class->slug)->delete();
-                \App\Model\Payment\TaxProductRelation::where('tax_class_id', $class->id)
+                TaxProductRelation::where('tax_class_id', $class->id)
                     ->update(['tax_class_id' => $standardId]);
                 $class->delete();
             }
@@ -247,7 +251,7 @@ class TaxController extends Controller
 
     private function validateRate(Request $request): ?string
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'rate' => 'required|numeric|min:0',
             'priority' => 'nullable|numeric|min:1',
@@ -275,7 +279,7 @@ class TaxController extends Controller
         TaxRateLocation::where('tax_rate_id', $rate->id)->delete();
 
         foreach (['postcode', 'city'] as $type) {
-            $codes = array_filter(array_map('trim', explode(',', (string) $request->input($type, ''))));
+            $codes = array_filter(array_map(trim(...), explode(',', (string) $request->input($type, ''))));
             foreach ($codes as $code) {
                 TaxRateLocation::create([
                     'tax_rate_id' => $rate->id,

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\User;
 
+use Lang;
+use Logger;
+use Illuminate\Http\Response;
 use App\Comment;
 use App\Http\Controllers\Controller;
 use App\User;
@@ -24,7 +27,7 @@ class CommentController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {
@@ -34,7 +37,7 @@ class CommentController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
@@ -44,28 +47,28 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function store(Request $request)
     {
         try {
             $comments = $this->comment->fill($request->input())->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
+            return back()->with('success', Lang::get('message.saved-successfully'));
         } catch (Exception $ex) {
-            \Logger::exception($ex);
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function update(Request $request, $id)
     {
@@ -73,11 +76,11 @@ class CommentController extends Controller
             $comment = $this->comment->where('id', $id)->update(['user_id' => $request->input('user_id'),
                 'updated_by_user_id' => $request->input('updated_by_user_id'), 'description' => $request->input('description'), ]);
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return back()->with('success', Lang::get('message.updated-successfully'));
         } catch (Exception $ex) {
-            \Logger::exception($ex);
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -85,7 +88,7 @@ class CommentController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy(Request $request)
     {
@@ -95,7 +98,7 @@ class CommentController extends Controller
             return successResponse(__('message.comment_deleted_successfully'));
             // return redirect()->back()->with('success', \Lang::get('message.deleted-successfully'));
         } catch (Exception $ex) {
-            \Logger::exception($ex);
+            Logger::exception($ex);
 
             return errorResponse($ex->getMessage());
         }

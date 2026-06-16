@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('states_subdivisions')) {
-            Schema::create('states_subdivisions', function (Blueprint $table) {
+            Schema::create('states_subdivisions', function (Blueprint $table): void {
                 $table->smallInteger('state_subdivision_id')->unsigned()->primary();
                 $table->string('country_code_char2', 2);
                 $table->string('country_code_char3', 3);

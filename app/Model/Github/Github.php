@@ -2,6 +2,7 @@
 
 namespace App\Model\Github;
 
+use Crypt;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 
@@ -35,16 +36,16 @@ class Github extends BaseModel
         ];
     }
 
-    public function setPasswordAttribute($value)
+    protected function setPasswordAttribute($value)
     {
-        $value = \Crypt::encrypt($value);
+        $value = Crypt::encrypt($value);
         $this->attributes['password'] = $value;
     }
 
-    public function getPasswordAttribute($value)
+    protected function getPasswordAttribute($value)
     {
         if ($value) {
-            $value = \Crypt::decrypt($value);
+            $value = Crypt::decrypt($value);
         }
 
         return $value;

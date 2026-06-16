@@ -2,6 +2,13 @@
 
 namespace App\Plugins\Stripe\Controllers;
 
+use App\Model\Common\StatusSetting;
+use Exception;
+use App\Jobs\CancelGatewaySubscriptionsJob;
+use Arr;
+use App\Services\Payment\SubscriptionService;
+use App\Plugins\Payment\Dto\SubscriptionRequest;
+use Logger;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Services\Payment\ProcessingFee;
@@ -36,7 +43,7 @@ class SettingsController extends Controller
     {
         try {
             $keys = ApiKey::select('stripe_key', 'stripe_secret', 'stripe_webhook_secret')->first();
-            $status = \App\Model\Common\StatusSetting::select('stripe_auto_renewal')->first();
+            $status = StatusSetting::select('stripe_auto_renewal')->first();
 
             return successResponse('', [
                 'stripe_key' => $keys->stripe_key ?? '',
@@ -46,7 +53,7 @@ class SettingsController extends Controller
                 'auto_renewal' => (bool) ($status->stripe_auto_renewal ?? false),
                 'webhook_url' => url('webhook/stripe'),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -54,11 +61,11 @@ class SettingsController extends Controller
     public function updateApiKey(Request $request)
     {
         $request->validate([
-            'stripe_secret' => 'required|string',
-            'stripe_key' => 'required|string',
-            'webhook_secret' => 'nullable|string',
-            'processing_fee' => 'nullable|numeric|min:0|max:100',
-            'auto_renewal' => 'nullable|boolean',
+            'stripe_secret' => ['required', 'string'],
+            'stripe_key' => ['required', 'string'],
+            'webhook_secret' => ['nullable', 'string'],
+            'processing_fee' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'auto_renewal' => ['nullable', 'boolean'],
         ], [
             'stripe_secret.required' => __('message.stripe_secret_required'),
             'stripe_key.required' => __('message.stripe_key_required'),
@@ -78,17 +85,15 @@ class SettingsController extends Controller
 
             if ($request->has('auto_renewal')) {
                 $enabling = $request->boolean('auto_renewal');
-                \App\Model\Common\StatusSetting::find(1)->update(['stripe_auto_renewal' => $enabling ? 1 : 0]);
+                StatusSetting::find(1)->update(['stripe_auto_renewal' => $enabling ? 1 : 0]);
 
                 if (! $enabling) {
-                    \App\Jobs\CancelGatewaySubscriptionsJob::dispatch('stripe');
+                    dispatch(new CancelGatewaySubscriptionsJob('stripe'));
                 }
             }
 
             return successResponse(__('message.stripe_settings_updated_successfully'));
-        } catch (AuthenticationException $e) {
-            return errorResponse($e->getMessage());
-        } catch (\Exception $e) {
+        } catch (AuthenticationException|Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -103,12 +108,12 @@ class SettingsController extends Controller
     public function handlePayment(Request $request, $amount, $currency, $url, $user = null)
     {
         $request->validate([
-            'stripeToken' => 'required|string',
+            'stripeToken' => ['required', 'string'],
         ], [
             'stripeToken.required' => __('message.stripe_token_required'),
         ]);
 
-        $user = $user ?? auth()->user();
+        $user ??= auth()->user();
 
         $stripeSecretKey = ApiKey::value('stripe_secret');
         $stripe = new StripeClient($stripeSecretKey);
@@ -161,22 +166,22 @@ class SettingsController extends Controller
     {
         $data = $user instanceof User ? $user->toArray() : (array) $user;
 
-        $firstName = \Arr::get($data, 'first_name');
-        $lastName = \Arr::get($data, 'last_name');
+        $firstName = Arr::get($data, 'first_name');
+        $lastName = Arr::get($data, 'last_name');
 
         return [
             'name' => ($firstName || $lastName)
                 ? trim($firstName.' '.$lastName)
-                : \Arr::get($data, 'name'),
+                : Arr::get($data, 'name'),
 
-            'email' => \Arr::get($data, 'email'),
+            'email' => Arr::get($data, 'email'),
 
             'address' => [
-                'line1' => \Arr::get($data, 'address'),
-                'postal_code' => \Arr::get($data, 'zip'),
-                'city' => \Arr::get($data, 'town') ?? \Arr::get($data, 'city'),
-                'state' => \Arr::get($data, 'state'),
-                'country' => \Arr::get($data, 'country'),
+                'line1' => Arr::get($data, 'address'),
+                'postal_code' => Arr::get($data, 'zip'),
+                'city' => Arr::get($data, 'town') ?? Arr::get($data, 'city'),
+                'state' => Arr::get($data, 'state'),
+                'country' => Arr::get($data, 'country'),
             ],
         ];
     }
@@ -192,15 +197,15 @@ class SettingsController extends Controller
     public function handleStripeAutoPay($stripe_payment_details, $product_details, $unit_cost, $currency, $plan)
     {
         try {
-            return app(\App\Services\Payment\SubscriptionService::class)->createSubscription('Stripe', new \App\Plugins\Payment\Dto\SubscriptionRequest(
+            return resolve(SubscriptionService::class)->createSubscription('Stripe', new SubscriptionRequest(
                 amountMinor: (int) $unit_cost,
                 currency: $currency,
                 intervalDays: (int) $plan->days,
                 planName: $product_details->name,
                 paymentMethodReference: $stripe_payment_details->payment_intent_id,
             ));
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
         }
     }
 }

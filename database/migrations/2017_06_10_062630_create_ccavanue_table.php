@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('ccavanue')) {
-            Schema::create('ccavanue', function (Blueprint $table) {
+            Schema::create('ccavanue', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('merchant_id');
                 $table->string('access_code');

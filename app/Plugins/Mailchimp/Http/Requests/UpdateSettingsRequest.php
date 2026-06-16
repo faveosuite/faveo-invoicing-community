@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Mailchimp\Http\Requests;
 
+use Override;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateSettingsRequest extends FormRequest
@@ -18,6 +19,7 @@ class UpdateSettingsRequest extends FormRequest
         ];
     }
 
+    #[Override]
     public function messages(): array
     {
         return [

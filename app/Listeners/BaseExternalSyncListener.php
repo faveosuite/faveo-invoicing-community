@@ -2,6 +2,8 @@
 
 namespace App\Listeners;
 
+use Throwable;
+use Logger;
 use App\ApiKey;
 use App\Events\UserRegisteredEvent;
 use App\Model\Common\StatusSetting;
@@ -44,16 +46,16 @@ abstract class BaseExternalSyncListener implements ShouldQueue
         $this->sync($event->user);
     }
 
-    public function failed(UserRegisteredEvent $event, \Throwable $exception): void
+    public function failed(UserRegisteredEvent $event, Throwable $exception): void
     {
-        \Logger::exception($exception);
+        Logger::exception($exception);
     }
 
     protected function requiresVerification(): bool
     {
         try {
             return (bool) (ApiKey::value('require_'.$this->serviceKey().'_user_verification') ?? false);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         }
     }

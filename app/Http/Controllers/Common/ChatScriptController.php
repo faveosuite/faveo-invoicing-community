@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Common;
 
+use Exception;
+use Logger;
+use Log;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Model\Common\ChatScript;
 use Illuminate\Http\Request;
@@ -27,23 +31,21 @@ class ChatScriptController extends Controller
 
             $scripts = $this->script
                 ->select('id', 'name')
-                ->when($searchString, function ($query) use ($searchString) {
+                ->when($searchString, function ($query) use ($searchString): void {
                     $query->where('name', 'like', "%{$searchString}%");
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $scripts->getCollection()->transform(function ($script) {
-                return [
-                    'id' => $script->id,
-                    'name' => $script->name,
-                    'checkbox' => $script->id,
-                    'action' => hyperLinkGenerator("chat/show/{$script->id}", __('message.edit')),
-                ];
-            });
+            $scripts->getCollection()->transform(fn($script) => [
+                'id' => $script->id,
+                'name' => $script->name,
+                'checkbox' => $script->id,
+                'action' => hyperLinkGenerator("chat/show/{$script->id}", __('message.edit')),
+            ]);
 
             return successResponse(__('message.scripts_fetched'), $scripts);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -51,15 +53,15 @@ class ChatScriptController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function createScript(Request $request)
     {
         $request->validate([
-            'name' => 'required|max:50',
-            'script' => 'required',
-            'google_analytics_tag' => 'required_if:google_analytics,1',
+            'name' => ['required', 'max:50'],
+            'script' => ['required'],
+            'google_analytics_tag' => ['required_if:google_analytics,1'],
         ], [
             'name.required' => __('validation.widget.name_required'),
             'script.required' => __('message.script_required'),
@@ -71,8 +73,8 @@ class ChatScriptController extends Controller
             $this->script->fill($request->all())->save();
 
             return successResponse(__('message.saved-successfully'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
             return errorResponse($ex->getMessage());
         }
@@ -82,7 +84,7 @@ class ChatScriptController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function getScript($id)
     {
@@ -94,7 +96,7 @@ class ChatScriptController extends Controller
             }
 
             return successResponse(__('message.chat_fetched'), $chat);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -102,16 +104,16 @@ class ChatScriptController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function updateScript(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|max:50',
-            'script' => 'required',
-            'google_analytics_tag' => 'required_if:google_analytics,1',
+            'name' => ['required', 'max:50'],
+            'script' => ['required'],
+            'google_analytics_tag' => ['required_if:google_analytics,1'],
         ], [
             'script.required' => __('message.script_required'),
             'google_analytics_tag.required_if' => __('message.google_analytics_tag_required_if'),
@@ -131,8 +133,8 @@ class ChatScriptController extends Controller
             $script->save();
 
             return successResponse(__('message.updated-successfully'), $script);
-        } catch (\Exception $ex) {
-            \Log::error($ex->getMessage());
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage());
 
             return errorResponse($ex->getMessage(), 500);
         }
@@ -142,7 +144,7 @@ class ChatScriptController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function deleteScript(Request $request)
     {
@@ -153,7 +155,7 @@ class ChatScriptController extends Controller
 //                    $ids = explode(',', $ids);
 //                }
 
-            $ids = array_filter(array_unique(array_map('intval', array_map('trim', $ids))));
+            $ids = array_filter(array_unique(array_map(intval(...), array_map(trim(...), $ids))));
 
             if (empty($ids)) {
                 return errorResponse(__('message.select-a-row'), 400);
@@ -164,13 +166,15 @@ class ChatScriptController extends Controller
             if ($scriptIds->isEmpty()) {
                 return errorResponse(__('message.no-record'), 404);
             }
+
             foreach ($scriptIds as $script) {
                 $script->delete();
             }
+
             $this->script->whereIn('id', $ids)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }
     }

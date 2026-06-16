@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Common;
 
+use Override;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SocialMediaRequest extends FormRequest
@@ -27,7 +28,7 @@ class SocialMediaRequest extends FormRequest
 
         if ($this->method() == 'POST') {
             return [
-                'name' => 'required|unique:social_media|max:50',
+                'name' => ['required', 'unique:social_media', 'max:50'],
                 'link' => 'required|regex:'.$regex,
             ];
         } elseif ($this->method() == 'PATCH') {
@@ -38,6 +39,7 @@ class SocialMediaRequest extends FormRequest
         }
     }
 
+    #[Override]
     public function messages()
     {
         return [

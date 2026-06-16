@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class SocialLogin extends Model
 {
     use HasFactory;
+
     protected $table = 'social_logins';
 
     protected $fillable = [

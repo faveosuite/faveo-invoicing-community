@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Integrations\Crm\Controllers;
 
+use Exception;
 use App\Plugins\Zoho\Controllers\ZohoBaseController;
 use App\Plugins\Zoho\Controllers\ZohoSync;
 use App\Plugins\Zoho\Integrations\Crm\Facades\ZohoCrm;
@@ -29,27 +30,27 @@ class ZohoCrmController extends ZohoBaseController
     public function syncFields()
     {
         try {
-            app(ZohoSync::class)->sync(
+            resolve(ZohoSync::class)->sync(
                 platform: 'crm',
                 module: 'Contacts',
                 fields: $this->crm()->fields('Contacts')->toArray()
             );
 
-            app(ZohoSync::class)->sync(
+            resolve(ZohoSync::class)->sync(
                 platform: 'crm',
                 module: 'Accounts',
                 fields: $this->crm()->fields('Accounts')->toArray()
             );
 
             return successResponse('CRM fields synced successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
 
     public function getCrmMappedFields($module)
     {
-        return $this->getMappedFields('crm', ucfirst(strtolower($module)));
+        return $this->getMappedFields('crm', ucfirst(strtolower((string) $module)));
     }
 
     public function getCrmContactsFields()
@@ -69,13 +70,13 @@ class ZohoCrmController extends ZohoBaseController
     {
         try {
             $data = $request->validate([
-                'email' => 'required|email',
+                'email' => ['required', 'email'],
             ]);
 
             $this->addUserDataToCrm($data['email']);
 
             return successResponse('CRM contact created successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

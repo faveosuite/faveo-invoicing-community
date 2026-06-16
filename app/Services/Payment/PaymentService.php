@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Plugins\Payment\Exceptions\SignatureVerificationException;
 use App\ApiKey;
 use App\Plugins\Payment\Contracts\CardPaymentGateway;
 use App\Plugins\Payment\Dto\PaymentRequest;
@@ -57,7 +58,7 @@ class PaymentService
     /**
      * Open a payment on a gateway and return everything the client SDK needs.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function start(string $gateway, PaymentRequest $request): PaymentSession
     {
@@ -69,7 +70,7 @@ class PaymentService
      * browser confirms against). Only gateways implementing
      * {@see CardPaymentGateway} support this.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function startCardPayment(string $gateway, PaymentRequest $request): PaymentSession
     {
@@ -87,8 +88,8 @@ class PaymentService
      *
      * @param  array<string, mixed>  $payload  Raw gateway callback fields.
      *
-     * @throws \App\Plugins\Payment\Exceptions\SignatureVerificationException
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws SignatureVerificationException
+     * @throws PaymentException
      */
     public function capture(string $gateway, array $payload): PaymentResult
     {

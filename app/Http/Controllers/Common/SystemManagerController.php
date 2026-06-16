@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Common;
 
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Common\SystemManagerSettingsRequest;
@@ -59,7 +62,7 @@ class SystemManagerController extends Controller
             ];
 
             return successResponse('', $response);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -70,8 +73,8 @@ class SystemManagerController extends Controller
             $term = trim($request->input('search-query') ?? '');
 
             $users = User::where('role', 'admin')
-                ->when($term, function ($query) use ($term) {
-                    $query->where(function ($q) use ($term) {
+                ->when($term, function ($query) use ($term): void {
+                    $query->where(function ($q) use ($term): void {
                         $q->where('first_name', 'LIKE', "%{$term}%")
                             ->orWhere('last_name', 'LIKE', "%{$term}%")
                             ->orWhere('email', 'LIKE', "%{$term}%");
@@ -80,16 +83,14 @@ class SystemManagerController extends Controller
                 ->select('id', 'email', 'first_name', 'last_name')
                 ->simplePaginate();
 
-            $users->getCollection()->transform(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->first_name.' '.$user->last_name,
-                    'email' => $user->email,
-                ];
-            });
+            $users->getCollection()->transform(fn($user) => [
+                'id' => $user->id,
+                'name' => $user->first_name.' '.$user->last_name,
+                'email' => $user->email,
+            ]);
 
             return successResponse('', $users);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -100,8 +101,8 @@ class SystemManagerController extends Controller
      * Validates the request, updates manager assignments, auto-assign settings,
      * and sends notification emails if enabled.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * @param Request $request
+     * @return JsonResponse|RedirectResponse
      */
     public function updateManagerSettings(SystemManagerSettingsRequest $request)
     {
@@ -138,7 +139,7 @@ class SystemManagerController extends Controller
             }
 
             return successResponse(__('message.manager_settings_updated_successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -151,12 +152,12 @@ class SystemManagerController extends Controller
      * @param  string  $role  The manager role ('account' or 'sales').
      * @param  int  $oldManagerId  The ID of the old manager.
      * @param  int  $newManagerId  The ID of the new manager.
-     * @param  \Closure  $mailCallback  Callback to send notification email.
+     * @param Closure $mailCallback Callback to send notification email.
      * @return void
      */
     private function updateManager($managerColumn, $positionColumn, $role, $oldManagerId, $newManagerId, Closure $mailCallback)
     {
-        if (! filled($oldManagerId) || ! filled($newManagerId)) {
+        if (blank($oldManagerId) || blank($newManagerId)) {
             return;
         }
 
@@ -170,7 +171,7 @@ class SystemManagerController extends Controller
         if (emailSendingStatus() && $affectedUserIds->isNotEmpty()) {
             User::whereIn('id', $affectedUserIds)
                 ->cursor()
-                ->each(function ($user) use ($mailCallback) {
+                ->each(function ($user) use ($mailCallback): void {
                     $mailCallback($user);
                 });
         }

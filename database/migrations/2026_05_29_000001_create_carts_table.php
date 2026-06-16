@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('carts', function (Blueprint $table) {
+        Schema::create('carts', function (Blueprint $table): void {
             $table->id();
             // users.id is INT UNSIGNED (increments), so match with unsignedInteger.
             $table->unsignedInteger('user_id');

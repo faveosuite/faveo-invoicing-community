@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Agent\User;
 
+use Illuminate\Support\Facades\Date;
 use App\ExportDetail;
 use App\Jobs\AddUserToExternalService;
 use App\User;
 use Bus;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\DBTestCase;
@@ -408,6 +408,7 @@ class ClientControllerTest extends DBTestCase
         if (! is_dir(dirname($folderPath))) {
             mkdir(dirname($folderPath), 0777, true);
         }
+
         file_put_contents($folderPath, 'sample excel content');
 
         $detail = ExportDetail::create([
@@ -447,7 +448,7 @@ class ClientControllerTest extends DBTestCase
             'file' => $folderName,
             'file_path' => $folderPath,
             'name' => 'users',
-            'created_at' => Carbon::now()->subDays(7),
+            'created_at' => Date::now()->subDays(7),
         ]);
 
         $response = $this->getJson(route('download.exported.file', $detail->id));

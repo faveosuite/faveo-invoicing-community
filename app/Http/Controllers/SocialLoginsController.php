@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\SocialLogin;
 use Illuminate\Http\Request;
 
@@ -21,7 +22,7 @@ class SocialLoginsController extends Controller
         $limit = $request->input('limit', 10);
 
         $query = SocialLogin::select('id', 'type', 'client_id', 'client_secret', 'redirect_url', 'status')
-                 ->when($search, function ($q) use ($search) {
+                 ->when($search, function ($q) use ($search): void {
                      $q->where('type', 'like', "%{$search}%")
                        ->orWhere('client_id', 'like', "%{$search}%");
                  });
@@ -42,11 +43,11 @@ class SocialLoginsController extends Controller
     public function updateSocialLogin(Request $request)
     {
         $request->validate([
-            'client_id' => 'required_if:type,Google,Github,Linkedin',
-            'client_secret' => 'required_if:type,Google,Github,Linkedin',
-            'api_key' => 'required_if:type,Twitter',
-            'api_secret' => 'required_if:type,Twitter',
-            'redirect_url' => 'required',
+            'client_id' => ['required_if:type,Google,Github,Linkedin'],
+            'client_secret' => ['required_if:type,Google,Github,Linkedin'],
+            'api_key' => ['required_if:type,Twitter'],
+            'api_secret' => ['required_if:type,Twitter'],
+            'redirect_url' => ['required'],
         ],
             [
                 'client_id.required_if' => __('validation.social_login.client_id_required'),
@@ -65,7 +66,7 @@ class SocialLoginsController extends Controller
             ]);
 
             return successResponse(__('message.social_login_settings_updated'));
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.error_occurred_social_login'));
         }
     }

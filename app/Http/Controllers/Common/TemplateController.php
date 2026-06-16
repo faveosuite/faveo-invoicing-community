@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Common;
 
+use Exception;
+use Lang;
+use Logger;
+use Session;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Product\ProductController;
@@ -58,7 +62,7 @@ class TemplateController extends Controller
             ]);
 
             return successResponse('', $paginated);
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_fetch_templates'));
         }
     }
@@ -73,8 +77,8 @@ class TemplateController extends Controller
             $type = $this->type->pluck('name', 'id')->toArray();
 
             return view('themes.default1.common.template.create', compact('type', 'cartUrl'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -90,9 +94,9 @@ class TemplateController extends Controller
         try {
             $this->template->fill($request->input())->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('success', Lang::get('message.saved-successfully'));
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -107,6 +111,7 @@ class TemplateController extends Controller
             if (! $template) {
                 return errorResponse(__('message.template_not_found'));
             }
+
             $type = $this->type->pluck('name', 'id')->toArray();
             $templateType = TemplateType::find($template->type);
             $shortcodeName = $templateType ? $templateType->name : null;
@@ -123,7 +128,7 @@ class TemplateController extends Controller
             ];
 
             return successResponse(__('message.templates_fetched_successfully'), $templateIdData);
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_fetch_particular_template'));
         }
     }
@@ -131,9 +136,9 @@ class TemplateController extends Controller
     public function updateTemplate($id, Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'data' => 'required',
-            'type' => 'required',
+            'name' => ['required'],
+            'data' => ['required'],
+            'type' => ['required'],
         ], [
             'name.required' => __('validation.auth_controller.name_required'),
             'data.required' => __('message.content_required'),
@@ -148,7 +153,7 @@ class TemplateController extends Controller
             $template->fill($request->all())->save();
 
             return successResponse(__('message.template_update_success'), $template);
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.template_update_error'));
         }
     }
@@ -171,35 +176,36 @@ class TemplateController extends Controller
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
+                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
                 </div>';
                         //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
+
                 echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').
-                    '!</b> './* @scrutinizer ignore-type */\Lang::get('message.success').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').
+                    '!</b> './* @scrutinizer ignore-type */Lang::get('message.success').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
+                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
                 </div>';
             } else {
                 echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
+                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
                 </div>';
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.$e->getMessage().'
                 </div>';
@@ -233,8 +239,8 @@ class TemplateController extends Controller
                 $selected = $planId == $cheapestPlanId ? 'selected' : '';
                 $planOptions .= sprintf(
                     '<option value="%s" data-price="%s" data-description="%s" %s>%s</option>',
-                    htmlspecialchars($planId),
-                    htmlspecialchars($planPrice),
+                    htmlspecialchars((string) $planId),
+                    htmlspecialchars((string) $planPrice),
                     htmlspecialchars($description),
                     $selected,
                     htmlspecialchars($price)
@@ -249,8 +255,8 @@ class TemplateController extends Controller
                 .html()->input('hidden', 'id')->value($id);
 
             return $form;
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -280,20 +286,21 @@ class TemplateController extends Controller
 
             if (! empty($prices)) {
                 $minPrice = min($prices);
-                $cost = (new PageController())->currencyFormatWithSpan($minPrice, $currency);
+                $cost = new PageController()->currencyFormatWithSpan($minPrice, $currency);
             }
 
             return $cost;
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
     public function getPrice($months, $price, $priceDescription, $value, $cost, $currency, $offer, $product)
     {
         if (isset($offer) && $offer !== '' && $offer !== null) {
-            $cost = $cost - ($offer / 100) * $cost;
+            $cost -= ($offer / 100) * $cost;
         }
+
         $price1 = currencyFormat($cost, $code = $currency);
         $months = $cost == 0 ? $priceDescription : $months;
         $priceDescription = $priceDescription == '' ? $months : $priceDescription;
@@ -359,17 +366,17 @@ class TemplateController extends Controller
             }
 
             return $result;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
     public function toggle(Request $request)
     {
         return successResponse('',
-            \Session::put('toggleState', $request->toggleState === 'selected' ? 'yearly' : 'monthly')
+            Session::put('toggleState', $request->toggleState === 'selected' ? 'yearly' : 'monthly')
         );
     }
 
@@ -386,6 +393,7 @@ class TemplateController extends Controller
                 if (! $planDetails || is_null($planDetails['plan'])) {
                     continue;
                 }
+
                 $cost = rounding($planDetails['plan']->add_price); // Get price and round it
                 $currencyCode = $planDetails['currency']; // Get currency code
 
@@ -407,8 +415,8 @@ class TemplateController extends Controller
                 'prices' => $prices,
                 'cheapestPlanId' => $cheapestPlanId,
             ];
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
             return [
                 'prices' => [],

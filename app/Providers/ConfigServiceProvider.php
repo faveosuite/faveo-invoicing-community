@@ -2,11 +2,17 @@
 
 namespace App\Providers;
 
+use Override;
+use DB;
+use Throwable;
+use Exception;
+use Log;
 use Illuminate\Support\ServiceProvider;
 use Sentry\State\HubInterface;
 
 class ConfigServiceProvider extends ServiceProvider
 {
+    #[Override]
     public function register(): void
     {
         if (! isInstall()) {
@@ -20,7 +26,7 @@ class ConfigServiceProvider extends ServiceProvider
             //
             // \DB::table() instead of Eloquent: Model::$resolver is null until
             // DatabaseServiceProvider::boot(), which hasn't run yet at this stage.
-            $rows = \DB::table('common_settings')
+            $rows = DB::table('common_settings')
                 ->whereIn('option_name', ['debugging', 'sentry', 'cache'])
                 ->get()
                 ->keyBy(fn ($r) => "{$r->option_name}:{$r->optional_field}");
@@ -40,7 +46,7 @@ class ConfigServiceProvider extends ServiceProvider
             if ($cacheDriver = $rows->get('cache:driver')?->option_value) {
                 config(['cache.default' => $cacheDriver]);
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Fall back to .env values — app still boots correctly
         }
     }
@@ -58,8 +64,8 @@ class ConfigServiceProvider extends ServiceProvider
                     ?->getOptions()
                     ->setTracesSampleRate(config('sentry.traces_sample_rate') ?: null);
             }
-        } catch (\Exception $e) {
-            \Log::warning('ConfigServiceProvider: Sentry config failed — '.$e->getMessage());
+        } catch (Exception $e) {
+            Log::warning('ConfigServiceProvider: Sentry config failed — '.$e->getMessage());
         }
     }
 }

@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Common;
 
+use Illuminate\Support\Facades\Date;
 use App\ApiKey;
 use App\Http\Controllers\Common\Sms\MSG91Controller;
 use App\Model\Common\Msg91Status;
 use App\Model\Common\MsgDeliveryReports;
 use App\ThirdPartyApp;
 use App\User;
-use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -138,17 +138,15 @@ class MSG91ControllerTest extends DBTestCase
         ];
 
         $controller->shouldAllowMockingProtectedMethods();
-        $expectedUtcDate = Carbon::parse('2025-04-10 10:00:00', 'Asia/Kolkata')
+        $expectedUtcDate = Date::parse('2025-04-10 10:00:00', 'Asia/Kolkata')
             ->timezone('UTC')
             ->toDateTimeString();
         $controller->shouldReceive('processIndividualReport')
             ->once()
-            ->with(Mockery::on(function ($arg) use ($expectedUtcDate) {
-                return $arg['request_id'] === 'r1'
-                    && $arg['number'] === '555'
-                    && $arg['status'] === 'DELIVRD'
-                    && $arg['date'] === $expectedUtcDate;
-            }));
+            ->with(Mockery::on(fn($arg) => $arg['request_id'] === 'r1'
+                && $arg['number'] === '555'
+                && $arg['status'] === 'DELIVRD'
+                && $arg['date'] === $expectedUtcDate));
 
         $request = Request::create('/msg/reports/k/s', 'POST', [
             'data' => json_encode($reportsPayload),
@@ -335,7 +333,7 @@ class MSG91ControllerTest extends DBTestCase
         $this->createMsg91Log(['created_at' => now()->subDays(10)]);
         $log1 = $this->createMsg91Log();
         $log1->forceFill([
-            'created_at' => Carbon::create(2025, 7, 12)->startOfDay(),
+            'created_at' => Date::create(2025, 7, 12)->startOfDay(),
         ])->saveQuietly();
         $response = $this->getJson('/sms/reports?log_from=2025-07-12&log_till=2025-07-12');
 
@@ -348,15 +346,15 @@ class MSG91ControllerTest extends DBTestCase
         //filter by multiple date range (from and till are different)
         $log1 = $this->createMsg91Log();
         $log1->forceFill([
-            'created_at' => Carbon::create(2025, 7, 12)->startOfDay(),
+            'created_at' => Date::create(2025, 7, 12)->startOfDay(),
         ])->saveQuietly();
         $log2 = $this->createMsg91Log();
         $log2->forceFill([
-            'created_at' => Carbon::create(2025, 9, 12)->startOfDay(),
+            'created_at' => Date::create(2025, 9, 12)->startOfDay(),
         ])->saveQuietly();
         $log3 = $this->createMsg91Log();
         $log3->forceFill([
-            'created_at' => Carbon::create(2025, 10, 12)->startOfDay(),
+            'created_at' => Date::create(2025, 10, 12)->startOfDay(),
         ])->saveQuietly();
 
         $response = $this->getJson('/sms/reports?log_from=2025-07-12&log_till=2025-10-12');
@@ -373,7 +371,7 @@ class MSG91ControllerTest extends DBTestCase
         $log1 = $this->createMsg91Log();
 
         $log1->forceFill([
-            'created_at' => Carbon::create(2025, 7, 12)->startOfDay(),
+            'created_at' => Date::create(2025, 7, 12)->startOfDay(),
         ])->saveQuietly();
 
         $response = $this->getJson('/sms/reports?log_from=2025-07-12');

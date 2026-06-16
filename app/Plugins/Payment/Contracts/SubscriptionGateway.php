@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Payment\Contracts;
 
+use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Plugins\Payment\Dto\SubscriptionRequest;
 use App\Plugins\Payment\Dto\SubscriptionResult;
 
@@ -22,7 +23,7 @@ interface SubscriptionGateway
     /**
      * Open a recurring subscription and return the gateway's subscription record.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function createSubscription(SubscriptionRequest $request): SubscriptionResult;
 
@@ -30,14 +31,14 @@ interface SubscriptionGateway
      * Read a subscription's current status from the gateway (its own status
      * string, e.g. Stripe "active", Razorpay "authenticated").
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function getSubscriptionStatus(string $subscriptionId): string;
 
     /**
      * Cancel a subscription at the gateway. Returns the cancelled record.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function cancelSubscription(string $subscriptionId): SubscriptionResult;
 
@@ -49,7 +50,7 @@ interface SubscriptionGateway
      * change leaves the subscription inactive the driver cancels it and flags
      * SubscriptionResult::$raw['cancelled'] = true so the caller can mirror that.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function updateSubscriptionPrice(string $subscriptionId, SubscriptionRequest $request): SubscriptionResult;
 }

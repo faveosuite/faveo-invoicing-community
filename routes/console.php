@@ -15,21 +15,23 @@ use Illuminate\Support\Facades\Artisan;
 |
 */
 
-Artisan::command('inspire', function () {
+Artisan::command('inspire', function (): void {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('preinstall:check', function () {
+Artisan::command('preinstall:check', function (): void {
     try {
         $check_for_pre_installation = Setting::select('id')->first();
         if ($check_for_pre_installation) {
-            throw new \Exception('The data in database already exist. Please provide fresh database', 100);
+            throw new Exception('The data in database already exist. Please provide fresh database', 100);
         }
-    } catch (\Exception $ex) {
+    } catch (Exception $ex) {
         if ($ex->getCode() == 100) {
             $this->call('droptables');
         }
+
         //throw new \Exception($ex->getMessage());
     }
+
     $this->info('Preinstall has checked successfully');
 })->purpose('check for the pre installation');

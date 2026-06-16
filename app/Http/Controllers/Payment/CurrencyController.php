@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Payment;
 
+use Exception;
+use Session;
+use DB;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
@@ -25,7 +29,7 @@ class CurrencyController extends Controller
      * Get Currency List.
      *
      * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getCurrencyList(Request $request)
     {
@@ -40,14 +44,14 @@ class CurrencyController extends Controller
 
             // Query for currencies (include default currency so it can be shown with is_default flag)
             $currencyData = Currency::whereNotNull('name')
-                ->whereIn('id', function ($subQuery) {
+                ->whereIn('id', function ($subQuery): void {
                     $subQuery->selectRaw('MIN(id)')
                         ->from('currencies')
                         ->whereNotNull('name')
                         ->groupBy('name', 'code');
                 })
-                ->when($searchString, function ($q) use ($searchString) {
-                    $q->where(function ($inner) use ($searchString) {
+                ->when($searchString, function ($q) use ($searchString): void {
+                    $q->where(function ($inner) use ($searchString): void {
                         $inner->where('name', 'like', "%{$searchString}%")
                             ->orWhere('code', 'like', "%{$searchString}%")
                             ->orWhere('symbol', 'like', "%{$searchString}%");
@@ -57,20 +61,18 @@ class CurrencyController extends Controller
                 ->simplePaginate($limit);
 
             // Map data for JSON response
-            $currencyData->getCollection()->transform(function ($currency) use ($defaultCurrency) {
-                return [
-                    'id' => $currency->id,
-                    'name' => $currency->name,
-                    'code' => $currency->code,
-                    'symbol' => $currency->symbol,
-                    'status' => (bool) $currency->status,
-                    'is_default' => $currency->code === $defaultCurrency,
-                    'dashboard_currency' => (bool) $currency->dashboard_currency,
-                ];
-            });
+            $currencyData->getCollection()->transform(fn($currency) => [
+                'id' => $currency->id,
+                'name' => $currency->name,
+                'code' => $currency->code,
+                'symbol' => $currency->symbol,
+                'status' => (bool) $currency->status,
+                'is_default' => $currency->code === $defaultCurrency,
+                'dashboard_currency' => (bool) $currency->dashboard_currency,
+            ]);
 
             return successResponse(__('message.currency_list_retrieved_successfully'), $currencyData);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }
     }
@@ -88,12 +90,13 @@ class CurrencyController extends Controller
         if ($defaultCurrency == $currencyCode) {
             return  '<a class="btn btn-sm btn-warning btn-xs disabled" style="background-color:#f39c12;">&nbsp;&nbsp;'.__('message.default-currency').'</a>';
         }
+
         $currency = Currency::where('id', $id)->pluck('dashboard_currency')->first();
         if ($currency == 1) {
-            return'<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.\Session::token().'>'.'
+            return'<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.Session::token().'>'.'
                                     <button type="submit" class="btn btn-sm btn-success btn-xs"><i class="fa fa-check" style="color:white;"></i>&nbsp;&nbsp; '.__('message.show_on_dashboard').'</button></form>';
         } else {
-            return '<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.\Session::token().'>'.'
+            return '<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.Session::token().'>'.'
                                     <button type="submit" class="btn btn-sm btn-danger btn-xs"><i class="fa fa-times" style="color:white;"></i>&nbsp;&nbsp; '.__('message.show_on_dashboard').'</button></form>';
         }
     }
@@ -143,9 +146,9 @@ class CurrencyController extends Controller
 
             // $this->currency->fill($request->input())->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('success', Lang::get('message.saved-successfully'));
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -192,8 +195,8 @@ class CurrencyController extends Controller
             $currency->save();
 
             return response()->json(['success' => Lang::get('message.updated-successfully')]);
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -216,48 +219,49 @@ class CurrencyController extends Controller
                         } else {
                             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
+                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
                 </div>';
                             //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                         }
+
                         echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
 
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.success').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.success').'
 
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
+                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
                 </div>';
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.can-not-delete-default').'
+                        './* @scrutinizer ignore-type */Lang::get('message.can-not-delete-default').'
                 </div>';
                     }
                 }
             } else {
                 echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
+                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
                 </div>';
                 //echo \Lang::get('message.select-a-row');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
                     /* @scrutinizer ignore-type */
-                    \Lang::get('message.failed').'
+                    Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.$e->getMessage().'
                 </div>';
@@ -276,7 +280,7 @@ class CurrencyController extends Controller
     public function updatecurrency(Request $request)
     {
         try {
-            return \DB::transaction(function () use ($request) {
+            return DB::transaction(function () use ($request) {
                 $currency = Currency::findOrFail($request->input('current_id'));
 
                 $newStatus = $request->input('current_status') == '1' ? 0 : 1;
@@ -289,7 +293,7 @@ class CurrencyController extends Controller
                     'status' => $currency->status,
                 ]);
             });
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -304,7 +308,7 @@ class CurrencyController extends Controller
             ]);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }

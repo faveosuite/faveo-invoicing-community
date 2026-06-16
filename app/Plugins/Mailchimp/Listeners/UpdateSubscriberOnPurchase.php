@@ -2,6 +2,8 @@
 
 namespace App\Plugins\Mailchimp\Listeners;
 
+use Logger;
+use Throwable;
 use App\Model\Order\InvoiceItem;
 use App\Plugins\Mailchimp\Exceptions\MailchimpApiException;
 use App\Plugins\Mailchimp\Services\MailchimpService;
@@ -26,10 +28,10 @@ class UpdateSubscriberOnPurchase
         } catch (MailchimpApiException $e) {
             // 404 = member not subscribed yet; ignore
             if ($e->getHttpStatus() !== 404) {
-                \Logger::exception($e);
+                Logger::exception($e);
             }
-        } catch (\Throwable $e) {
-            \Logger::exception($e);
+        } catch (Throwable $e) {
+            Logger::exception($e);
         }
     }
 }

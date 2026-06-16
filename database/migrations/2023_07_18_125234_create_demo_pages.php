@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('demo_pages', function (Blueprint $table) {
+        Schema::create('demo_pages', function (Blueprint $table): void {
             $table->id();
             $table->boolean('status')->default(0);
             $table->timestamps();

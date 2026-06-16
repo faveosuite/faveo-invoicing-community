@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\User;
 
+use DB;
+use Exception;
 use App\Events\UserOrderDelete;
 use App\Model\Product\Subscription;
 use App\User;
@@ -23,9 +25,9 @@ class SoftDeleteController extends ClientController
         $limit = $request->input('limit', 10);
 
         $users = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at')
-            ->where(function ($query) use ($searchQuery) {
+            ->where(function ($query) use ($searchQuery): void {
                 $query->where('email', 'like', '%'.$searchQuery.'%')
-                    ->orWhere(\DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.$searchQuery.'%')
+                    ->orWhere(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.$searchQuery.'%')
                     ->orWhere('mobile', 'like', '%'.$searchQuery.'%')
                     ->orWhere('country', 'like', '%'.$searchQuery.'%')
                     ->orWhere('created_at', 'like', '%'.$searchQuery.'%');
@@ -68,9 +70,9 @@ class SoftDeleteController extends ClientController
         }
 
         try {
-            User::onlyTrashed()->whereIn('id', $ids)->get()->each(function ($user) {
-                $user->order()->pluck('id')->each(function ($tenant) {
-                    $installation_path = \DB::table('installation_details')
+            User::onlyTrashed()->whereIn('id', $ids)->get()->each(function ($user): void {
+                $user->order()->pluck('id')->each(function ($tenant): void {
+                    $installation_path = DB::table('installation_details')
                         ->where('order_id', $tenant)
                         ->where('installation_path', '!=', cloudCentralDomain())
                         ->value('installation_path');
@@ -99,7 +101,7 @@ class SoftDeleteController extends ClientController
             });
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

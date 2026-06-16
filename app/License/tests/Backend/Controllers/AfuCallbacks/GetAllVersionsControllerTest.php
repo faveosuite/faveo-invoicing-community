@@ -24,7 +24,7 @@ class GetAllVersionsControllerTest extends LicenseTestCase
         $validator->shouldReceive('isBanned')->once()->andReturn(false);
         $validator->shouldReceive('verifyAfuScriptSignature')->once()->andReturn(true);
 
-        $response = (new GetAllVersionsController($validator))->getAllVersions($this->moduleRequest([
+        $response = new GetAllVersionsController($validator)->getAllVersions($this->moduleRequest([
             'product_id' => $product->id,
             'product_key' => 'AFUKEY2',
             'user_local_path' => '/var/www/html',

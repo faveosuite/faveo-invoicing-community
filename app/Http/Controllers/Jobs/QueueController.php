@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Jobs;
 
+use Exception;
+use Throwable;
 use App\Http\Controllers\Common\PHPController as Controller;
 use App\Http\Requests\Queue\QueueRequest;
 use App\Model\Mailjob\FaveoQueue;
@@ -36,18 +38,16 @@ class QueueController extends Controller
 
             $queueData = $this->queue
                 ->select('id', 'name', 'status')
-                ->when($searchString, function ($query, $searchString) {
+                ->when($searchString, function ($query, $searchString): void {
                     $query->where('name', 'like', "%{$searchString}%");
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $queueData->getCollection()->transform(function ($queue) {
-                return [
-                    'id' => $queue->id,
-                    'QueueDetails' => $queue->getQueueDetails(),
-                ];
-            });
+            $queueData->getCollection()->transform(fn($queue) => [
+                'id' => $queue->id,
+                'QueueDetails' => $queue->getQueueDetails(),
+            ]);
 
             $data = [
                 'cron_path' => $cronPath,
@@ -57,7 +57,7 @@ class QueueController extends Controller
             ];
 
             return successResponse(__('message.queue_data_fetched_successfully'), $data);
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_fetching_queue'));
         }
     }
@@ -72,7 +72,7 @@ class QueueController extends Controller
             }
 
             return successResponse('', $queueIdData);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -105,7 +105,7 @@ class QueueController extends Controller
                 'service_id' => $id,
                 'updated_fields' => $values,
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong'), 500);
         }
     }
@@ -144,7 +144,7 @@ class QueueController extends Controller
                     'status' => $queue->status,
                 ],
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong'), 500);
         }
     }
@@ -221,7 +221,7 @@ class QueueController extends Controller
                 'driver' => $short,
                 'fields' => $fields,
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             return errorResponse(__('message.something_went_wrong'), 500);
         }
     }

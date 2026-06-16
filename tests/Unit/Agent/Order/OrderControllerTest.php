@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Agent\Order;
 
+use Illuminate\Support\Facades\Date;
 use App\Http\Controllers\License\LicenseController;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
-use Carbon\Carbon;
 use Event;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery\MockInterface;
@@ -72,8 +72,8 @@ class OrderControllerTest extends DBTestCase
 
         $data = $response->json('data.data');
 
-        $first = Carbon::parse($data[0]['order_date']);
-        $second = Carbon::parse($data[1]['order_date']);
+        $first = Date::parse($data[0]['order_date']);
+        $second = Date::parse($data[1]['order_date']);
 
         $this->assertTrue($first->greaterThanOrEqualTo($second));
     }
@@ -135,7 +135,7 @@ class OrderControllerTest extends DBTestCase
             ],
         ];
 
-        $this->mock(LicenseController::class, function (MockInterface $mock) use ($order, $mockResponse) {
+        $this->mock(LicenseController::class, function (MockInterface $mock) use ($order, $mockResponse): void {
             $mock->shouldReceive('getInstallationLogsDetails')
                 ->once()
                 ->with($order->serial_key)

@@ -2,6 +2,15 @@
 
 namespace App\Http\Controllers\Order;
 
+use App\Model\Order\OrderInvoiceRelation;
+use Lang;
+use Exception;
+use Illuminate\Support\Str;
+use Logger;
+use App\License\Services\LicenseService;
+use App\License\Services\InstallationService;
+use Auth;
+use DB;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
@@ -31,7 +40,7 @@ class ExtendedOrderController extends Controller
             if (! empty($cloud_domain)) {
                 $user_id = $invoice->user_id;
                 $cloudProductIds = CloudProducts::pluck('cloud_product');
-                $orderNumber = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))
+                $orderNumber = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))
                     ->whereIn('product', $cloudProductIds)
                     ->value('number');
                 if ($orderNumber) {
@@ -39,9 +48,9 @@ class ExtendedOrderController extends Controller
                 }
             }
 
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('success', Lang::get('message.saved-successfully'));
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -52,48 +61,36 @@ class ExtendedOrderController extends Controller
      * @param  int  $agents  No Of Agents
      * @return string The Final Serial Key after adding no of agents in the last 4 digits
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function generateSerialKey(int $productid, $agents)
     {
         try {
             $len = strlen($agents);
-            switch ($len) {//Get Last Four digits based on No.Of Agents
-                case '1':
-                    $lastFour = '000'.$agents;
-                    break;
-                case '2':
-
-                    $lastFour = '00'.$agents;
-                    break;
-                case '3':
-                    $lastFour = '0'.$agents;
-                    break;
-                case '4':
-                    $lastFour = $agents;
-
-                    break;
-                default:
-                    $lastFour = '0000';
-                    break;
-            }
-            $str = strtoupper(str_random(12));
+            $lastFour = match ((string) $len) {
+                '1' => '000'.$agents,
+                '2' => '00'.$agents,
+                '3' => '0'.$agents,
+                '4' => $agents,
+                default => '0000',
+            };
+            $str = strtoupper(Str::random(12));
             $licCode = $str.$lastFour;
 
             return $licCode;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            throw new \Exception($ex->getMessage());
+            throw new Exception($ex->getMessage());
         }
     }
 
     public function generateNumber()
     {
         try {
-            return rand('10000000', '99999999');
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+            return random_int('10000000', '99999999');
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -112,11 +109,11 @@ class ExtendedOrderController extends Controller
         $licenseExpiry = $order->subscription->ends_at;
         $updatesExpiry = $order->subscription->update_ends_at;
         $supportExpiry = $order->subscription->support_ends_at;
-        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain);
-        $l_expiry = strtotime($licenseExpiry) > 1 ? date('Y-m-d', strtotime($licenseExpiry)) : '';
-        $u_expiry = strtotime($updatesExpiry) > 1 ? date('Y-m-d', strtotime($updatesExpiry)) : '';
-        $s_expiry = strtotime($supportExpiry) > 1 ? date('Y-m-d', strtotime($supportExpiry)) : '';
-        $licenseService = app(\App\License\Services\LicenseService::class);
+        $ipAndDomain = LicenseService::parseIpAndDomain($order->domain);
+        $l_expiry = strtotime((string) $licenseExpiry) > 1 ? date('Y-m-d', strtotime((string) $licenseExpiry)) : '';
+        $u_expiry = strtotime((string) $updatesExpiry) > 1 ? date('Y-m-d', strtotime((string) $updatesExpiry)) : '';
+        $s_expiry = strtotime((string) $supportExpiry) > 1 ? date('Y-m-d', strtotime((string) $supportExpiry)) : '';
+        $licenseService = resolve(LicenseService::class);
         $existingLicense = $licenseService->findByCode($licenseCode);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
@@ -129,31 +126,32 @@ class ExtendedOrderController extends Controller
                 'license_ip' => $ipAndDomain['ip'],
             ]);
         }
+
         //Remove old installations so the install slots are freed for the new allowed domains
-        app(\App\License\Services\InstallationService::class)->deleteByLicenseCode($licenseCode);
+        resolve(InstallationService::class)->deleteByLicenseCode($licenseCode);
 
         return ['message' => 'success', 'update' => __('message.license_domain_updated')];
     }
 
     public function reissueLicense(Request $request)
     {
-        $request->validate(['id' => 'required']);
+        $request->validate(['id' => ['required']]);
 
         try {
             $order = Order::with('subscription')->findOrFail($request->input('id'));
 
-            if (\Auth::user()->role !== 'admin' && $order->client != \Auth::id()) {
+            if (Auth::user()->role !== 'admin' && $order->client != Auth::id()) {
                 return errorResponse(__('message.reissue_license_invalid_modification_data'), 403);
             }
 
             $licenseCode = $order->serial_key;
 
-            \DB::transaction(function () use ($order, $licenseCode) {
+            DB::transaction(function () use ($order, $licenseCode): void {
                 // Clear the bound domain so the license can be activated afresh.
                 $order->domain = '';
                 $order->save();
 
-                $licenseService = app(\App\License\Services\LicenseService::class);
+                $licenseService = resolve(LicenseService::class);
                 $existingLicense = $licenseService->findByCode($licenseCode);
 
                 if ($existingLicense) {
@@ -175,12 +173,12 @@ class ExtendedOrderController extends Controller
                 // user can re-install on a new domain. The install limit check
                 // counts rows regardless of installation_status, so deactivating
                 // (status => 0) would NOT free the slot — they must be removed.
-                app(\App\License\Services\InstallationService::class)
+                resolve(InstallationService::class)
                     ->deleteByLicenseCode($licenseCode);
             });
 
             return successResponse(__('message.license_reissued'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -191,7 +189,7 @@ class ExtendedOrderController extends Controller
      */
     private function toLicenseDate($date): string
     {
-        return $date && strtotime($date) > 1 ? date('Y-m-d', strtotime($date)) : '';
+        return $date && strtotime((string) $date) > 1 ? date('Y-m-d', strtotime((string) $date)) : '';
     }
 
     public function getAllowedDomains($seperateDomains)

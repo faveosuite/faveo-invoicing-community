@@ -2,6 +2,18 @@
 
 namespace App\Http\Controllers\Tenancy;
 
+use Logger;
+use Throwable;
+use Auth;
+use App\Http\Controllers\Common\PhpMailController;
+use Illuminate\Support\Str;
+use DB;
+use App\Model\Common\TemplateType;
+use App\Model\Product\Product;
+use App\License\Services\LicenseService;
+use Crypt;
+use App\License\Services\InstallationService;
+use Illuminate\Support\Facades\Date;
 use App\CloudPopUp;
 use App\Http\Controllers\Controller;
 use App\Jobs\ReportExport;
@@ -19,7 +31,6 @@ use App\Model\Product\CloudProducts;
 use App\Model\Product\Subscription;
 use App\ThirdPartyApp;
 use App\User;
-use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -47,9 +58,9 @@ class TenantController extends Controller
                 $cloudPopUp = CloudPopUp::find(1);
                 $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
-                throw_if($keys && ! $keys->app_key, new Exception(Lang::get('message.cloud_invalid_message')));
+                throw_if($keys && ! $keys->app_key, Exception::class, Lang::get('message.cloud_invalid_message'));
 
-                $app_key = optional($keys)->app_key;
+                $app_key = $keys?->app_key;
 
                 if ($response = $this->client->request(
                     'GET',
@@ -70,17 +81,16 @@ class TenantController extends Controller
                 $cloud = null;
                 $cloudPopUp = null;
             }
+
             $cloudButton = StatusSetting::value('cloud_button');
             $cloudDataCenters = CloudDataCenters::all();
 
             // Format the results as per the specified format
-            $regions = $cloudDataCenters->map(function ($center) {
-                return [
-                    'name' => ! empty($center->cloud_city) ? $center->cloud_city.', '.$center->cloud_countries : $center->cloud_state.', '.$center->cloud_countries,
-                    'latitude' => $center->latitude,
-                    'longitude' => $center->longitude,
-                ];
-            });
+            $regions = $cloudDataCenters->map(fn($center) => [
+                'name' => ! empty($center->cloud_city) ? $center->cloud_city.', '.$center->cloud_countries : $center->cloud_state.', '.$center->cloud_countries,
+                'latitude' => $center->latitude,
+                'longitude' => $center->longitude,
+            ]);
 
             return successResponse('', [
                 'de' => $de,
@@ -89,8 +99,8 @@ class TenantController extends Controller
                 'regions' => $regions,
                 'cloudPopUp' => $cloudPopUp,
             ]);
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return errorResponse(Lang::get('message.cloud_error_message'));
         }
@@ -105,7 +115,7 @@ class TenantController extends Controller
             ]);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
@@ -132,7 +142,7 @@ class TenantController extends Controller
                 ['query' => ['key' => $keys->app_key]]
             );
 
-            $data = json_decode($response->getBody(), true);
+            $data = json_decode((string) $response->getBody(), true);
 
             $tenants = collect($data['message'])->reject(fn ($t) => $t === null);
 
@@ -175,10 +185,8 @@ class TenantController extends Controller
             });
 
             if ($searchQuery) {
-                $tenantList = $tenantList->filter(function ($item) use ($searchQuery) {
-                    return isset($item['user']['name']) &&
-                        str_contains(strtolower($item['user']['name']), strtolower($searchQuery));
-                });
+                $tenantList = $tenantList->filter(fn($item) => isset($item['user']['name']) &&
+                    str_contains(strtolower($item['user']['name']), strtolower((string) $searchQuery)));
             }
 
             $tenantList = $tenantList->sortBy($sortField, SORT_REGULAR, $sortOrder)->values();
@@ -193,7 +201,7 @@ class TenantController extends Controller
             ]);
 
             return successResponse(__('message.tenants_fetched_successfully'), $paginator);
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             return errorResponse(__('message.something_went_wrong'), 500);
         }
     }
@@ -232,14 +240,14 @@ class TenantController extends Controller
             ]);
 
         $settings = Setting::find(1);
-        $userInformation = $request->has('userInfo') ? User::find($request->input('userInfo')) : \Auth::user();
+        $userInformation = $request->has('userInfo') ? User::find($request->input('userInfo')) : Auth::user();
 
         $userEmail = $userInformation->email;
         $userFirstName = $userInformation->first_name;
         $userLastName = $userInformation->last_name;
         $userId = $userInformation->id;
 
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
 
         try {
             $company = (string) $request->input('domain');
@@ -251,7 +259,7 @@ class TenantController extends Controller
             $faveoCloud = strtolower($company).'.'.cloudSubDomain();
 
             $dns_record = dns_get_record($faveoCloud, DNS_CNAME);
-            if (! strpos($faveoCloud, cloudSubDomain())) {
+            if (! strpos($faveoCloud, (string) cloudSubDomain())) {
                 if (empty($dns_record) || ! in_array(cloudSubDomain(), array_column($dns_record, 'target'))) {
                     return errorResponse(trans('message.cname'));
                     //return ['status' => 'false', 'message' => trans('message.cname')];
@@ -260,17 +268,17 @@ class TenantController extends Controller
 
             $licCode = Order::where('number', $request->input('orderNo'))->first()->serial_key;
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            if (! optional($keys)->app_key) {//Validate if the app key to be sent is valid or not
+            if (! $keys?->app_key) {//Validate if the app key to be sent is valid or not
                 return errorResponse(trans('message.something_bad'));
                 //return ['status' => 'false', 'message' => trans('message.something_bad')];
             }
 
-            $token = str_random(32);
-            \DB::table('third_party_tokens')->insert(['user_id' => $userId, 'token' => $token]);
+            $token = Str::random(32);
+            DB::table('third_party_tokens')->insert(['user_id' => $userId, 'token' => $token]);
             $client = new Client([]);
             $data = ['domain' => $faveoCloud, 'app_key' => $keys->app_key, 'token' => $token, 'lic_code' => $licCode, 'username' => $userEmail, 'userId' => $userId, 'timestamp' => time(), 'product' => $product, 'product_id' => $order[0]->product];
             $encodedData = http_build_query($data);
-            $hashedSignature = hash_hmac('sha256', $encodedData, $keys->app_secret);
+            $hashedSignature = hash_hmac('sha256', $encodedData, (string) $keys->app_secret);
             $response = $client->request(
                 'POST',
                 $this->cloud->cloud_central_domain.'/tenants', ['form_params' => $data, 'headers' => ['signature' => $hashedSignature]]
@@ -282,7 +290,7 @@ class TenantController extends Controller
             $result = json_decode($response);
             if ($result->status == 'fails') {
                 if ($result->message == 'Domain already taken. Please select a different domain') {
-                    $toDisplay = preg_replace('/\s+/', '', $product);
+                    $toDisplay = preg_replace('/\s+/', '', (string) $product);
                     $newRandomDomain = substr($toDisplay.str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 28);
 
                     return $this->createTenantWithRandomDomain($newRandomDomain, $request);
@@ -311,16 +319,16 @@ class TenantController extends Controller
                 ]);
 
                 //template
-                $template = \App\Model\Common\TemplateType::getSelectedTemplate('cloud_created');
+                $template = TemplateType::getSelectedTemplate('cloud_created');
                 $contact = getContactData();
 
-                $productName = \App\Model\Product\Product::find($order[0]->product)?->name ?? '';
+                $productName = Product::find($order[0]->product)?->name ?? '';
                 $type = $template?->type()->value('name') ?? '';
                 $subject = 'Your '.$productName.' is now ready for use. Get started!';
                 $message = (isset($result->reason) && $result->reason != '') ? __('message.'.$result->message, ['installationUrl' => $result->installationUrl, 'reason' => $result->reason]) :
                                         __('message.'.$result->message, ['installationUrl' => $result->installationUrl]);
 
-                $message = str_replace('website', strtolower($product), $message);
+                $message = str_replace('website', strtolower((string) $product), $message);
                 $message = str_replace('. You will receive password on your registered email', '', $message);
                 $userData = $message.'<br><br> Email:'.' '.$userEmail.'<br>'.'Password:'.' '.$result->password;
 
@@ -346,6 +354,7 @@ class TenantController extends Controller
                 if ($template) {
                     $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $template->type()->value('name'), $replace, $type);
                 }
+
                 if (isset($result->reason) && $result->reason != '') {
                     $data = ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason, 'Free_trial_domain' => $faveoCloud];
 
@@ -357,7 +366,7 @@ class TenantController extends Controller
                 return successResponse('', $data);
             }
         } catch (Exception $e) {
-            \Logger::exception($e);
+            Logger::exception($e);
             $message = $e->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;
             $this->googleChat($message);
 
@@ -370,9 +379,9 @@ class TenantController extends Controller
         try {
             $token = $request->input('token');
             $userId = $request->input('userId');
-            $faveoToken = \DB::table('third_party_tokens')->where('user_id', $userId)->value('token');
+            $faveoToken = DB::table('third_party_tokens')->where('user_id', $userId)->value('token');
             if ($faveoToken && $token == $faveoToken) {
-                \DB::table('third_party_tokens')->where('user_id', $userId)->delete();
+                DB::table('third_party_tokens')->where('user_id', $userId)->delete();
                 //delete third party token here
                 $response = ['status' => 'success', 'message' => 'Valid token'];
             } else {
@@ -391,10 +400,10 @@ class TenantController extends Controller
     {
         try {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            $token = str_random(32);
+            $token = Str::random(32);
             $data = ['id' => $request->input('id'), 'app_key' => $keys->app_key, 'deleteTenant' => true, 'token' => $token, 'timestamp' => time()];
             $encodedData = http_build_query($data);
-            $hashedSignature = hash_hmac('sha256', $encodedData, $keys->app_secret);
+            $hashedSignature = hash_hmac('sha256', $encodedData, (string) $keys->app_secret);
             $client = new Client([]);
             $response = $client->request(
                 'DELETE',
@@ -402,25 +411,26 @@ class TenantController extends Controller
             );
             $responseBody = (string) $response->getBody();
             $response = json_decode($responseBody);
-            $user = optional(\Auth::user())->email ?? 'Auto deletion';
+            $user = Auth::user()?->email ?? 'Auto deletion';
 
             if ($response->status == 'success') {
                 $this->deleteCronForTenant($request->input('id'));
-                \DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
+                DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
                 if (! empty($request->orderId)) {
                     $this->statusChange($request->orderId);
                 }
+
 //                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
                 if (! empty($request->orderId)) {
                     $encryptedKey = Order::where('number', $request->input('orderId'))->value('serial_key');
                     if ($encryptedKey) {
-                        app(\App\License\Services\LicenseService::class)
-                            ->reissueLicenseCloud(\Crypt::decrypt($encryptedKey));
+                        resolve(LicenseService::class)
+                            ->reissueLicenseCloud(Crypt::decrypt($encryptedKey));
                     }
                 }
 
-                $loggingUser = \Auth::check()
-                    ? "<a href='".url('clients/'.\Auth::id())."'>".\Auth::user()->first_name.' '.\Auth::user()->last_name.'</a>'
+                $loggingUser = Auth::check()
+                    ? "<a href='".url('clients/'.Auth::id())."'>".Auth::user()->first_name.' '.Auth::user()->last_name.'</a>'
                     : 'Auto deletion';
 
                 logActivity(
@@ -442,7 +452,7 @@ class TenantController extends Controller
                 return errorResponse(__('message.cloud_deleted_failed'));
             }
         } catch (Exception $e) {
-            \Logger::exception($e);
+            Logger::exception($e);
             $message = 'Tenant deletion error, Request '.json_encode($request->all()).'. Reason: '.$e->getMessage();
             $this->googleChat($message);
 
@@ -458,7 +468,7 @@ class TenantController extends Controller
     private function deleteCronForTenant($tenantId)
     {
         $client = new Client();
-        if (strpos($tenantId, cloudSubDomain())) {
+        if (strpos((string) $tenantId, (string) cloudSubDomain())) {
             $client->request('GET', env('CLOUD__DELETE_JOB_URL_NORMAL'), [
                 'auth' => [env('CLOUD_USER'), env('CLOUD_AUTH')],
                 'query' => [
@@ -492,7 +502,7 @@ class TenantController extends Controller
             $cloud->updateOrCreate(['id' => 1], ['cloud_central_domain' => $request->input('cloud_central_domain'), 'cloud_cname' => $request->input('cloud_cname')]);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
@@ -501,9 +511,9 @@ class TenantController extends Controller
     {
         if ($isDelete) {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            $token = str_random(32);
-            $order_id = Order::where('number', $orderNumber)->where('client', \Auth::user()->id)->value('id');
-            $installation_path = \DB::table('installation_details')->where('order_id', $order_id)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
+            $token = Str::random(32);
+            $order_id = Order::where('number', $orderNumber)->where('client', Auth::user()->id)->value('id');
+            $installation_path = DB::table('installation_details')->where('order_id', $order_id)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
             $response = $this->client->request(
                 'GET',
                 $this->cloud->cloud_central_domain.'/tenants', [
@@ -520,7 +530,7 @@ class TenantController extends Controller
                     if ($domainArray[$i]->domain == $installation_path) {
                         $data = ['id' => $domainArray[$i]->id, 'app_key' => $keys->app_key, 'deleteTenant' => true, 'token' => $token, 'timestamp' => time()];
                         $encodedData = http_build_query($data);
-                        $hashedSignature = hash_hmac('sha256', $encodedData, $keys->app_secret);
+                        $hashedSignature = hash_hmac('sha256', $encodedData, (string) $keys->app_secret);
                         $client = new Client([]);
                         $response = $client->request(
                             'DELETE',
@@ -528,15 +538,15 @@ class TenantController extends Controller
                         );
                         $responseBody = (string) $response->getBody();
                         $response = json_decode($responseBody);
-                        $user = optional(\Auth::user())->email ?? 'Auto deletion';
+                        $user = Auth::user()?->email ?? 'Auto deletion';
                         if ($response->status == 'success') {
                             $this->deleteCronForTenant($domainArray[$i]->id);
                             $this->reissueCloudLicense($order_id);
-                            Order::where('number', $orderNumber)->where('client', \Auth::user()->id)->delete();
-                            \DB::table('free_trial_allowed')->where('domain', $installation_path)->delete();
+                            Order::where('number', $orderNumber)->where('client', Auth::user()->id)->delete();
+                            DB::table('free_trial_allowed')->where('domain', $installation_path)->delete();
 
-                            $loggingUser = \Auth::check()
-                                ? "<a href='".url('clients/'.\Auth::id())."'>".\Auth::user()->first_name.' '.\Auth::user()->last_name.'</a>'
+                            $loggingUser = Auth::check()
+                                ? "<a href='".url('clients/'.Auth::id())."'>".Auth::user()->first_name.' '.Auth::user()->last_name.'</a>'
                                 : 'Auto deletion';
 
                             logActivity(
@@ -547,13 +557,13 @@ class TenantController extends Controller
 
                             $this->googleChat('Hello, it has come to my notice that '.$user.' has deleted this cloud instance '.$installation_path);
 
-                            return redirect()->back()->with('success', __('message.cloud_deleted_successfully'));
+                            return back()->with('success', __('message.cloud_deleted_successfully'));
                         } else {
-                            \Logger::exception(new Exception($response->message));
+                            Logger::exception(new Exception($response->message));
 
                             $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
 
-                            return redirect()->back()->with('fails', __('message.cloud_deleted_failed   '));
+                            return back()->with('fails', __('message.cloud_deleted_failed   '));
                         }
                     }
                 }
@@ -566,20 +576,21 @@ class TenantController extends Controller
     protected function reissueCloudLicense($order_id)
     {
         $order = Order::findorFail($order_id);
-        if (\Auth::user()->role != 'admin' && $order->client != \Auth::user()->id) {
+        if (Auth::user()->role != 'admin' && $order->client != Auth::user()->id) {
             return errorResponse(__('message.cannot_remove_license_installation'));
         }
+
         $order->domain = '';
         $licenseCode = $order->serial_key;
         $order->save();
         $licenseExpiry = $order->subscription->ends_at;
         $updatesExpiry = $order->subscription->update_ends_at;
         $supportExpiry = $order->subscription->support_ends_at;
-        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain);
-        $l_expiry = strtotime($licenseExpiry) > 1 ? date('Y-m-d', strtotime($licenseExpiry)) : '';
-        $u_expiry = strtotime($updatesExpiry) > 1 ? date('Y-m-d', strtotime($updatesExpiry)) : '';
-        $s_expiry = strtotime($supportExpiry) > 1 ? date('Y-m-d', strtotime($supportExpiry)) : '';
-        $licenseService = app(\App\License\Services\LicenseService::class);
+        $ipAndDomain = LicenseService::parseIpAndDomain($order->domain);
+        $l_expiry = strtotime((string) $licenseExpiry) > 1 ? date('Y-m-d', strtotime((string) $licenseExpiry)) : '';
+        $u_expiry = strtotime((string) $updatesExpiry) > 1 ? date('Y-m-d', strtotime((string) $updatesExpiry)) : '';
+        $s_expiry = strtotime((string) $supportExpiry) > 1 ? date('Y-m-d', strtotime((string) $supportExpiry)) : '';
+        $licenseService = resolve(LicenseService::class);
         $existingLicense = $licenseService->findByCode($licenseCode);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
@@ -592,8 +603,9 @@ class TenantController extends Controller
                 'license_ip' => $ipAndDomain['ip'],
             ]);
         }
+
         //Remove installations so the install slots are freed
-        app(\App\License\Services\InstallationService::class)->deleteByLicenseCode($licenseCode);
+        resolve(InstallationService::class)->deleteByLicenseCode($licenseCode);
 
         return ['message' => 'success', 'update' => __('message.license_installations_removed')];
     }
@@ -652,7 +664,7 @@ class TenantController extends Controller
                 'cloud_label_radio' => $request->input('cloud_label_radio')]);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
@@ -661,9 +673,9 @@ class TenantController extends Controller
     {
         $request->validate(
             [
-                'cloud_product' => 'required',
-                'cloud_free_plan' => 'required',
-                'cloud_product_key' => 'required',
+                'cloud_product' => ['required'],
+                'cloud_free_plan' => ['required'],
+                'cloud_product_key' => ['required'],
             ],
             [
                 'cloud_product.required' => __('validation.cloud_tenant.cloud_product_required'),
@@ -675,7 +687,7 @@ class TenantController extends Controller
             CloudProducts::create($request->all());
 
             return successResponse(__('message.saved_products'));
-        } catch(\Exception $e) {
+        } catch(Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
@@ -686,19 +698,19 @@ class TenantController extends Controller
             ini_set('memory_limit', '-1');
             $selectedColumns = $request->input('selected_columns', []);
             $searchParams = $request->input('search_params', []);
-            $email = \Auth::user()->email;
+            $email = Auth::user()->email;
             $driver = QueueService::where('status', '1')->first();
 
             if ($driver->name != 'Sync') {
-                app('queue')->setDefaultDriver($driver->short_name);
-                ReportExport::dispatch('tenats', $selectedColumns, $searchParams, $email)->onQueue('reports');
+                resolve('queue')->setDefaultDriver($driver->short_name);
+                dispatch(new ReportExport('tenats', $selectedColumns, $searchParams, $email))->onQueue('reports');
 
                 return response()->json(['message' => __('message.report_generation_in_progress')], 200);
             } else {
                 return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
             }
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return errorResponse($e->getMessage(), 500);
         }
@@ -724,7 +736,7 @@ class TenantController extends Controller
 
         return [
             'id' => $user->id,
-            'name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
+            'name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'email' => $user->email,
             'mobile' => ($user->mobile_code && $user->mobile)
                 ? '+'.$user->mobile_code.' '.$user->mobile
@@ -750,9 +762,9 @@ class TenantController extends Controller
         $price = PlanPrice::where('plan_id', $plan_id)->latest()->value('add_price');
         $plan = $price ? 'Paid Subscription' : 'Free Trial';
 
-        $expiry = Carbon::parse($subscription->ends_at)->format('d M Y');
+        $expiry = Date::parse($subscription->ends_at)->format('d M Y');
         $cloud_days = (int) ExpiryMailDay::whereNotNull('cloud_days')->value('cloud_days');
-        $deletion_date = ($expiry && $cloud_days) ? Carbon::parse($expiry)->addDays($cloud_days)->format('d M Y') : null;
+        $deletion_date = ($expiry && $cloud_days) ? Date::parse($expiry)->addDays($cloud_days)->format('d M Y') : null;
 
         return [
             'subscription_expiry' => $expiry ?: null,

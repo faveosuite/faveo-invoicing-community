@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,7 @@ return new class extends Migration
     public function up(): void
     {
         if (! Schema::hasColumn('payments', 'currency')) {
-            Schema::table('payments', function (Blueprint $table) {
+            Schema::table('payments', function (Blueprint $table): void {
                 $table->string('currency', 10)->nullable()->after('amount');
             });
         }
@@ -48,16 +49,17 @@ return new class extends Migration
         DB::table('payments')
             ->select('payments.id', 'users.country')
             ->leftJoin('users', 'users.id', '=', 'payments.user_id')
-            ->where(function ($q) {
+            ->where(function (Builder $q): void {
                 $q->whereNull('payments.currency')->orWhere('payments.currency', '');
             })
             ->orderBy('payments.id')
-            ->chunk(500, function ($rows) {
+            ->chunk(500, function ($rows): void {
                 foreach ($rows as $row) {
                     $currency = $row->country ? getCurrencyForClient($row->country) : null;
                     if (empty($currency)) {
                         $currency = 'USD';
                     }
+
                     DB::table('payments')->where('id', $row->id)->update(['currency' => $currency]);
                 }
             });
@@ -66,7 +68,7 @@ return new class extends Migration
     public function down(): void
     {
         if (Schema::hasColumn('payments', 'currency')) {
-            Schema::table('payments', function (Blueprint $table) {
+            Schema::table('payments', function (Blueprint $table): void {
                 $table->dropColumn('currency');
             });
         }

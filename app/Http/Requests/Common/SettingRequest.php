@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Common;
 
+use Override;
 use App\Http\Requests\Request;
 
 class SettingRequest extends Request
@@ -24,20 +25,21 @@ class SettingRequest extends Request
     public function rules()
     {
         return [
-            'company' => 'required',
-            'website' => 'url',
-            'phone' => 'regex:/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/',
-            'address' => 'required|max:300',
-            'logo' => 'mimes:png',
-            'driver' => 'required',
-            'port' => 'integer',
-            'email' => 'required|email|unique:users,email|unique:users,user_name',
-            'password' => 'required',
-            'error_email' => 'email',
+            'company' => ['required'],
+            'website' => ['url'],
+            'phone' => ['regex:/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/'],
+            'address' => ['required', 'max:300'],
+            'logo' => ['mimes:png'],
+            'driver' => ['required'],
+            'port' => ['integer'],
+            'email' => ['required', 'email', 'unique:users,email', 'unique:users,user_name'],
+            'password' => ['required'],
+            'error_email' => ['email'],
 
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

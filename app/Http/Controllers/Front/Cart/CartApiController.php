@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front\Cart;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\Cart\Resources\CartResource;
 use App\Http\Requests\Cart\AddCartItemRequest;
@@ -52,11 +53,11 @@ class CartApiController extends Controller
 
     public function applyCoupon(Request $request): JsonResponse
     {
-        $request->validate(['code' => 'required|string']);
+        $request->validate(['code' => ['required', 'string']]);
 
         try {
             $this->cartService->applyCoupon($request, $request->input('code'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage(), 422);
         }
 
@@ -75,7 +76,7 @@ class CartApiController extends Controller
     {
         $cart = $this->cartService->resolveCart($request)->load('items.product');
         $data = array_merge(
-            (new CartResource($cart))->toArray($request),
+            new CartResource($cart)->toArray($request),
             $this->cartService->checkoutExtras($cart, $request->user()),
         );
 
@@ -84,7 +85,7 @@ class CartApiController extends Controller
 
     public function placeOrder(Request $request): JsonResponse
     {
-        $request->validate(['gateway' => 'required|string']);
+        $request->validate(['gateway' => ['required', 'string']]);
 
         $user = $request->user();
         $cart = $this->cartService->resolveCart($request)->load('items.product');
@@ -112,6 +113,6 @@ class CartApiController extends Controller
     {
         $cart = $this->cartService->resolveCart($request);
 
-        return successResponse('', (new CartResource($cart))->resolve($request));
+        return successResponse('', new CartResource($cart)->resolve($request));
     }
 }

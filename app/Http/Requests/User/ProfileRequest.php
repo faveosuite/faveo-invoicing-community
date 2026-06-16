@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\User;
 
+use Auth;
+use Override;
 use App\Http\Requests\Request;
 use App\Rules\PhoneNumber;
 use App\Rules\StrongPassword;
@@ -26,24 +28,24 @@ class ProfileRequest extends Request
     public function rules()
     {
         if ($this->segment(1) == 'profile') {
-            $userid = \Auth::user()->id;
+            $userid = Auth::user()->id;
 
             return [
-                'first_name' => 'required',
-                'last_name' => 'required',
-                'company' => 'required|max:50',
-                'email' => 'required',
+                'first_name' => ['required'],
+                'last_name' => ['required'],
+                'company' => ['required', 'max:50'],
+                'email' => ['required'],
                 'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
-                'address' => 'required',
+                'address' => ['required'],
                 'user_name' => 'required|unique:users,user_name,'.$userid.'|unique:settings,email|unique:settings,company_email',
-                'timezone_id' => 'required',
-                'profile_pic' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-                'country' => 'required',
+                'timezone_id' => ['required'],
+                'profile_pic' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+                'country' => ['required'],
             ];
         }
 
         if ($this->segment(1) == 'my-profile') {
-            $userid = \Auth::user()->id;
+            $userid = Auth::user()->id;
 
             return [
                 'first_name' => 'required|min:3|max:30',
@@ -57,6 +59,7 @@ class ProfileRequest extends Request
 
             ];
         }
+
         if ($this->segment(1) == 'password' || $this->segment(1) == 'my-password') {
             return [
                 'old_password' => 'required|min:6',
@@ -88,6 +91,7 @@ class ProfileRequest extends Request
         }
     }
 
+    #[Override]
     public function messages()
     {
         return [

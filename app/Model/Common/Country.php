@@ -2,6 +2,9 @@
 
 namespace App\Model\Common;
 
+use Override;
+use App\Model\Payment\Currency;
+use App\User;
 use App\BaseModel;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -16,21 +19,22 @@ class Country extends BaseModel
         'status',
     ];
 
+    #[Override]
     protected static function booted(): void
     {
-        static::addGlobalScope('status', function (Builder $builder) {
+        static::addGlobalScope('status', function (Builder $builder): void {
             $builder->where('status', true);
         });
     }
 
     public function currency()
     {
-        return $this->belongsTo(\App\Model\Payment\Currency::class);
+        return $this->belongsTo(Currency::class);
     }
 
     public function users()
     {
-        return $this->hasMany(\App\User::class, 'country', 'country_code_char2');
+        return $this->hasMany(User::class, 'country', 'country_code_char2');
     }
 
     public function states()

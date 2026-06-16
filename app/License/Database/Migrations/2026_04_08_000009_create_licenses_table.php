@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('licenses', function (Blueprint $table) {
+        Schema::create('licenses', function (Blueprint $table): void {
             $table->id();
             $table->unsignedInteger('product_id');
             $table->unsignedInteger('user_id')->nullable();

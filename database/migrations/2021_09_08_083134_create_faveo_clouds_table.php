@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('faveo_cloud', function (Blueprint $table) {
+        Schema::create('faveo_cloud', function (Blueprint $table): void {
             $table->id();
             $table->string('cloud_central_domain')->nullable();
             $table->string('cron_server_url')->nullable();

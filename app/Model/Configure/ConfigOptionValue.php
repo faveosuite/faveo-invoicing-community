@@ -10,6 +10,7 @@ class ConfigOptionValue extends Model
     use HasFactory;
 
     protected $table = 'config_option_values';
+
     protected $guarded = [];
 
     // Define the relationship with ConfigOption

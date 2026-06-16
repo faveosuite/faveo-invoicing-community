@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Product;
 
+use Override;
 use App\Http\Requests\Request;
 
 class BundleRequest extends Request
@@ -24,11 +25,12 @@ class BundleRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required',
-            'items.*' => 'required',
+            'name' => ['required'],
+            'items.*' => ['required'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

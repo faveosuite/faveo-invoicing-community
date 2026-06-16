@@ -2,6 +2,17 @@
 
 namespace App\Model\Product;
 
+use App\Model\License\LicenseType;
+use App\Model\Order\Order;
+use App\Model\Payment\PromoProductRelation;
+use Override;
+use App\Model\Payment\Plan;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\License\Models\License;
+use App\License\Models\Installation;
+use App\License\Models\LicenseReport;
+use App\License\Models\LicenseCallback;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use App\BaseModel;
 use App\Facades\Attach;
 use App\Model\Configure\ConfigOption;
@@ -61,8 +72,8 @@ class Product extends BaseModel
     protected function getMappings(): array
     {
         return [
-            'type' => ['License Type', fn ($value) => $value ? \App\Model\License\LicenseType::find($value)?->name : 'No Type'],
-            'group' => ['Product Group', fn ($value) => $value ? \App\Model\Product\ProductGroup::find($value)?->name : 'No Group'],
+            'type' => ['License Type', fn ($value) => $value ? LicenseType::find($value)?->name : 'No Type'],
+            'group' => ['Product Group', fn ($value) => $value ? ProductGroup::find($value)?->name : 'No Group'],
             'file' => ['Product File', fn ($value) => $value],
             'image' => ['Product Image', fn ($value) => $value],
             'require_domain' => ['Require Domain', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
@@ -95,32 +106,32 @@ class Product extends BaseModel
 
     public function order()
     {
-        return $this->hasMany(\App\Model\Order\Order::class, 'product');
+        return $this->hasMany(Order::class, 'product');
     }
 
     public function subscription()
     {
-        return $this->hasMany(\App\Model\Product\Subscription::class);
+        return $this->hasMany(Subscription::class);
     }
 
     public function licenseType()
     {
-        return $this->belongsTo(\App\Model\License\LicenseType::class, 'type');
+        return $this->belongsTo(LicenseType::class, 'type');
     }
 
     public function price()
     {
-        return $this->hasMany(\App\Model\Product\Price::class);
+        return $this->hasMany(Price::class);
     }
 
     public function PromoRelation()
     {
-        return $this->hasMany(\App\Model\Payment\PromoProductRelation::class, 'product_id');
+        return $this->hasMany(PromoProductRelation::class, 'product_id');
     }
 
     public function tax()
     {
-        return $this->hasMany(\App\Model\Payment\TaxProductRelation::class, 'product_id');
+        return $this->hasMany(TaxProductRelation::class, 'product_id');
     }
 
     public function taxes()
@@ -135,9 +146,10 @@ class Product extends BaseModel
 
     public function productUpload()
     {
-        return $this->hasMany(\App\Model\Product\ProductUpload::class, 'product_id');
+        return $this->hasMany(ProductUpload::class, 'product_id');
     }
 
+    #[Override]
     public function delete()
     {
         $this->tax()->delete();
@@ -147,7 +159,7 @@ class Product extends BaseModel
         return parent::delete();
     }
 
-    public function getImageAttribute($value)
+    protected function getImageAttribute($value)
     {
         if (! $value) {
             $image = asset('common/images/image.png');
@@ -158,22 +170,22 @@ class Product extends BaseModel
         return $image;
     }
 
-    public function setParentAttribute($value)
+    protected function setParentAttribute($value)
     {
         $value = implode(',', $value);
         $this->attributes['parent'] = $value;
     }
 
-    public function getParentAttribute($value)
+    protected function getParentAttribute($value)
     {
-        $value = explode(',', $value);
+        $value = explode(',', (string) $value);
 
         return $value;
     }
 
     public function planRelation()
     {
-        $related = \App\Model\Payment\Plan::class;
+        $related = Plan::class;
 
         return $this->hasMany($related, 'product');
     }
@@ -203,13 +215,19 @@ class Product extends BaseModel
     }
 
     // Plugins bundled with this product (config options / order flow)
-    public function bundledPlugins(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    /**
+     * @return BelongsToMany<Product, $this, Pivot>
+     */
+    public function bundledPlugins(): BelongsToMany
     {
         return $this->belongsToMany(static::class, 'product_plugin_group', 'product_id', 'plugin_id');
     }
 
     // Plugins compatible with this product (store display / license lookup)
-    public function compatiblePlugins(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    /**
+     * @return BelongsToMany<Product, $this, Pivot>
+     */
+    public function compatiblePlugins(): BelongsToMany
     {
         return $this->belongsToMany(static::class, 'plugin_compatible_with_products', 'product_id', 'plugin_id');
     }
@@ -232,31 +250,31 @@ class Product extends BaseModel
 
     public function versions()
     {
-        return $this->hasMany(\App\Model\Product\ProductUpload::class, 'product_id');
+        return $this->hasMany(ProductUpload::class, 'product_id');
     }
 
     public function latestVersion()
     {
-        return $this->hasOne(\App\Model\Product\ProductUpload::class, 'product_id')->latest();
+        return $this->hasOne(ProductUpload::class, 'product_id')->latest();
     }
 
     public function licenses()
     {
-        return $this->hasMany(\App\License\Models\License::class, 'product_id');
+        return $this->hasMany(License::class, 'product_id');
     }
 
     public function installations()
     {
-        return $this->hasMany(\App\License\Models\Installation::class, 'product_id');
+        return $this->hasMany(Installation::class, 'product_id');
     }
 
     public function licenseReports()
     {
-        return $this->hasMany(\App\License\Models\LicenseReport::class, 'product_id');
+        return $this->hasMany(LicenseReport::class, 'product_id');
     }
 
     public function licenseCallbacks()
     {
-        return $this->hasMany(\App\License\Models\LicenseCallback::class, 'product_id');
+        return $this->hasMany(LicenseCallback::class, 'product_id');
     }
 }

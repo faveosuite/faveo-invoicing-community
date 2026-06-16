@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Override;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProductRenewalRequest extends FormRequest
@@ -24,11 +25,12 @@ class ProductRenewalRequest extends FormRequest
     public function rules()
     {
         return [
-            'domain' => 'required|no_http',
+            'domain' => ['required', 'no_http'],
 
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

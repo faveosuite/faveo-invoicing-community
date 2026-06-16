@@ -9,7 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('template_types', function (Blueprint $table) {
+        Schema::table('template_types', function (Blueprint $table): void {
             $table->unsignedInteger('selected_template_id')->nullable()->after('name');
             $table->foreign('selected_template_id')->references('id')->on('templates')->nullOnDelete();
         });
@@ -42,7 +42,7 @@ return new class extends Migration
 
         // For any type still without a selection, fall back to the first template of that type
         DB::table('template_types')->whereNull('selected_template_id')->get()
-            ->each(function ($type) {
+            ->each(function ($type): void {
                 $firstId = DB::table('templates')->where('type', $type->id)->value('id');
                 if ($firstId) {
                     DB::table('template_types')->where('id', $type->id)
@@ -53,7 +53,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('template_types', function (Blueprint $table) {
+        Schema::table('template_types', function (Blueprint $table): void {
             $table->dropForeign(['selected_template_id']);
             $table->dropColumn('selected_template_id');
         });

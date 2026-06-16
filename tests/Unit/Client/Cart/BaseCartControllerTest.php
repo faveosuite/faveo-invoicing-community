@@ -2,6 +2,10 @@
 
 namespace Tests\Unit\Client\Cart;
 
+use Exception;
+use Str;
+use Auth;
+use App\License\Services\InstallationService;
 use App\Facades\Cart;
 use App\Http\Controllers\Front\BaseCartController;
 use App\Http\Controllers\Front\CheckoutController;
@@ -37,7 +41,7 @@ class BaseCartControllerTest extends DBTestCase
         parent::setUp();
         $this->classObject = new BaseCartController();
         $this->classObject1 = new ClientController();
-        $this->request = app(Request::class);
+        $this->request = resolve(Request::class);
 //        $this->html1 = new Html($this->request);
         $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
         $this->html->shouldReceive('token')->andReturn('mocked-token');
@@ -90,7 +94,7 @@ class BaseCartControllerTest extends DBTestCase
     #[Group('quantity')]
     public function test_getCartValues_calculateAgentQtyPriceOfCartWhenInvalidProductPassed_throwsException()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Product not present in cart.');
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -185,7 +189,7 @@ class BaseCartControllerTest extends DBTestCase
     #[Group('quantity')]
     public function test_updateProductQty_updatesCartWhenModifyingQtyNotAllowed_throwsException()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Cannot Modify Quantity');
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -231,7 +235,7 @@ class BaseCartControllerTest extends DBTestCase
     #[Group('quantity')]
     public function test_reduceProductQty_updatesCartWhenModifyingQtyNotAllowed_throwsException()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Cannot Modify Quantity');
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -341,9 +345,9 @@ class BaseCartControllerTest extends DBTestCase
         );
         $checkoutController = new CheckoutController();
         $checkoutController->getAttributes($this->cart->getContent());
-        $response = $this->withSession(['nothingLeft' => 0, 'discount' => 300, 'priceRemaining' => 1, 'priceToBePaid' => 0])->call('post', 'checkout-and-pay', ['cost' => 0, 'payment_gateway' => '', 'invoice_id' => 0, 'checkout_token' => \Str::uuid()]);
+        $response = $this->withSession(['nothingLeft' => 0, 'discount' => 300, 'priceRemaining' => 1, 'priceToBePaid' => 0])->call('post', 'checkout-and-pay', ['cost' => 0, 'payment_gateway' => '', 'invoice_id' => 0, 'checkout_token' => Str::uuid()]);
         $response->assertStatus(200);
-        $amount = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
+        $amount = Payment::where('user_id', Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
         $this->assertEquals(10300, $amount);
     }
 
@@ -373,17 +377,17 @@ class BaseCartControllerTest extends DBTestCase
         $subscription = Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
         $serialKey = 'eertrertyuhgbvfdrgtyujhnbvfdrethgbf';
         $productId = 1;
-        $mock = Mockery::mock(\App\License\Services\InstallationService::class);
+        $mock = Mockery::mock(InstallationService::class);
         $mock->shouldReceive('getInstallationsByProduct')
             ->withAnyArgs()
             ->once()
             ->andReturn(['installed_path' => ['/mocked'], 'installed_ip' => [], 'installation_date' => [], 'installation_status' => []]);
 
-        $this->app->instance(\App\License\Services\InstallationService::class, $mock);
+        $this->app->instance(InstallationService::class, $mock);
 
         $response = $this->getPrivateMethod($this->classObject1, 'getOrder', [$order->id]);
 
-        $content = json_decode($response->getContent())->data;
+        $content = json_decode((string) $response->getContent())->data;
         $this->assertEquals($content->invoice->id, $invoice->id);
     }
 

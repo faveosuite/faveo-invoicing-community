@@ -2,13 +2,15 @@
 
 namespace App\Plugins\Mailchimp\Http\Client;
 
+use Throwable;
+use InvalidArgumentException;
 use App\Plugins\Mailchimp\Exceptions\MailchimpApiException;
 use App\Plugins\Mailchimp\Exceptions\MailchimpRateLimitException;
 use Illuminate\Support\Facades\Http;
 
 class MailchimpClient
 {
-    private string $baseUrl;
+    private readonly string $baseUrl;
 
     public function __construct(private readonly string $apiKey)
     {
@@ -29,7 +31,7 @@ class MailchimpClient
             $data = $this->get('/');
 
             return isset($data['account_id']);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -67,7 +69,7 @@ class MailchimpClient
             'POST' => $pending->post($url, $data),
             'PATCH' => $pending->patch($url, $data),
             'PUT' => $pending->put($url, $data),
-            default => throw new \InvalidArgumentException("Unsupported HTTP method: {$method}"),
+            default => throw new InvalidArgumentException("Unsupported HTTP method: {$method}"),
         };
 
         if ($response->status() === 429) {

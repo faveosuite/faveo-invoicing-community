@@ -76,12 +76,12 @@ class MailLog extends BaseModel
         return $this->belongsTo(LogCategory::class, 'log_category_id');
     }
 
-    public function getIsRetryAttribute()
+    protected function getIsRetryAttribute()
     {
         return in_array($this->status, ['failed', 'queued']) && (bool) $this->job_payload;
     }
 
-    public function getJobPayloadAttribute($value)
+    protected function getJobPayloadAttribute($value)
     {
         return $value ? Crypt::decrypt($value) : null;
     }

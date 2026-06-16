@@ -39,6 +39,7 @@ class TaxEngine
             if (! empty($rate['compound'])) {
                 continue;
             }
+
             $taxes[$rate['id']] = $price * ((float) $rate['rate'] / 100);
         }
 
@@ -48,6 +49,7 @@ class TaxEngine
             if (empty($rate['compound'])) {
                 continue;
             }
+
             $priceIncTax = $price + $preCompoundTotal;
             $taxes[$rate['id']] = $priceIncTax * ((float) $rate['rate'] / 100);
             $preCompoundTotal = array_sum($taxes);

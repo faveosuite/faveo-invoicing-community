@@ -2,6 +2,7 @@
 
 namespace App\License\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Model;
 
 class LicenseOption extends Model
@@ -14,7 +15,8 @@ class LicenseOption extends Model
         'option_group',
     ];
 
-    public function scopeGroup($query, $group)
+    #[Scope]
+    protected function group($query, $group)
     {
         return $query->where('option_group', $group);
     }

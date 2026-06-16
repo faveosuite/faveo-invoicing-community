@@ -2,6 +2,8 @@
 
 namespace App\License\Helpers;
 
+use DateTime;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class LicenseHelper
@@ -23,8 +25,8 @@ class LicenseHelper
             return false;
         }
 
-        $dt = \DateTime::createFromFormat($format, $datetime);
-        $errors = \DateTime::getLastErrors();
+        $dt = DateTime::createFromFormat($format, $datetime);
+        $errors = DateTime::getLastErrors();
 
         return $dt && empty($errors['warning_count']);
     }
@@ -68,7 +70,7 @@ class LicenseHelper
             ]);
 
             return 1;
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return 0;
         }
     }
@@ -91,6 +93,7 @@ class LicenseHelper
         if (strtolower($status) == 'active') {
             return 1;
         }
+
         if (strtolower($status) == 'inactive') {
             return 0;
         }
@@ -103,6 +106,7 @@ class LicenseHelper
         if (strtolower($status) == 'success') {
             return 1;
         }
+
         if (strtolower($status) == 'error') {
             return 0;
         }

@@ -27,12 +27,12 @@ class ClientRequest extends FormRequest
     public function rules()
     {
         return [
-            'client_fname' => 'string',
-            'client_lname' => 'string',
-            'client_email' => 'string|unique:users,client_email|email',
-            'client_active_date' => 'date',
-            'client_cancel_date' => 'date',
-            'client_status' => 'boolean',
+            'client_fname' => ['string'],
+            'client_lname' => ['string'],
+            'client_email' => ['string', 'unique:users,client_email', 'email'],
+            'client_active_date' => ['date'],
+            'client_cancel_date' => ['date'],
+            'client_status' => ['boolean'],
         ];
     }
 }

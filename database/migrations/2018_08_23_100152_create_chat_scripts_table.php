@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('chat_scripts')) {
-            Schema::create('chat_scripts', function (Blueprint $table) {
+            Schema::create('chat_scripts', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name', 255)->nullable();
                 $table->longtext('script')->nullable();

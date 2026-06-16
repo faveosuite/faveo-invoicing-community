@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Override;
 use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
@@ -12,9 +13,10 @@ class Comment extends Model
 
     public function user()
     {
-        return $this->belongsTo(\App\User::class);
+        return $this->belongsTo(User::class);
     }
 
+    #[Override]
     public function delete()
     {
         return parent::delete();

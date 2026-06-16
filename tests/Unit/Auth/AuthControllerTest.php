@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Auth;
 
+use Mail;
 use App\ApiKey;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
@@ -19,6 +20,7 @@ use Tests\TestCase;
 class AuthControllerTest extends TestCase
 {
     use DatabaseTransactions;
+
     protected $authController;
 
     protected function setUp(): void
@@ -63,7 +65,7 @@ class AuthControllerTest extends TestCase
 
         $request = new Request(['eid' => Crypt::encrypt($user->email)]);
 
-        $response = json_decode($this->authController->requestOtp($request)->getContent());
+        $response = json_decode((string) $this->authController->requestOtp($request)->getContent());
         $this->assertEquals(__('message.otp_verification.send_success'), $response->message);
     }
 
@@ -87,7 +89,7 @@ class AuthControllerTest extends TestCase
             ]);
         $this->app->instance(SmsOtpController::class, $smsController);
 
-        $response = json_decode($this->authController->verifyOtp($request)->getContent());
+        $response = json_decode((string) $this->authController->verifyOtp($request)->getContent());
 
         $this->assertEquals(__('message.otp_verified'), $response->message);
     }
@@ -112,7 +114,7 @@ class AuthControllerTest extends TestCase
             ]);
         $this->app->instance(SmsOtpController::class, $smsController);
 
-        $response = json_decode($this->authController->verifyOtp($request)->getContent());
+        $response = json_decode((string) $this->authController->verifyOtp($request)->getContent());
 
         $this->assertEquals(__('message.otp_invalid'), $response->message);
     }
@@ -129,7 +131,7 @@ class AuthControllerTest extends TestCase
             ->with($user->email, 'POST')
             ->andReturn(true);
 
-        $response = json_decode($this->authController->sendEmail($request)->getContent());
+        $response = json_decode((string) $this->authController->sendEmail($request)->getContent());
 
         $this->assertEquals(__('message.email_verification.send_success'), $response->message);
     }
@@ -137,14 +139,14 @@ class AuthControllerTest extends TestCase
     #[Test]
     public function test_it_handles_count_email_verification_attempts()
     {
-        \Mail::fake();
+        Mail::fake();
 
         $user = User::factory()->create();
 
         $request = new Request(['eid' => Crypt::encrypt($user->email)]);
 
         for ($i = 0; $i <= 4; $i++) {
-            json_decode($this->authController->sendEmail($request)->getContent(), 'GET');
+            json_decode((string) $this->authController->sendEmail($request)->getContent(), 'GET');
             AccountActivate::where('email', $user->email)->delete();
         }
 
@@ -152,7 +154,7 @@ class AuthControllerTest extends TestCase
 
         $this->assertEquals(4, $emailAttempts);
 
-        \Mail::assertNothingSent();
+        Mail::assertNothingSent();
     }
 
     #[Test]
@@ -160,7 +162,7 @@ class AuthControllerTest extends TestCase
     {
         $request = new Request(['eid' => Crypt::encrypt('nonexistent@example.com')]);
 
-        $response = json_decode($this->authController->sendEmail($request)->getContent());
+        $response = json_decode((string) $this->authController->sendEmail($request)->getContent());
 
         $this->assertEquals(__('message.email_verification.send_failure'), $response->message);
     }
@@ -175,7 +177,7 @@ class AuthControllerTest extends TestCase
 
         $this->authController->shouldReceive('sendActivation')->never();
 
-        $response = json_decode($this->authController->sendEmail($request)->getContent());
+        $response = json_decode((string) $this->authController->sendEmail($request)->getContent());
 
         $this->assertEquals(__('message.email_verification.already_sent'), $response->message);
     }
@@ -191,7 +193,7 @@ class AuthControllerTest extends TestCase
             ->with($user->email, 'GET')
             ->andReturn(true);
 
-        $response = json_decode($this->authController->sendEmail($request, 'GET')->getContent());
+        $response = json_decode((string) $this->authController->sendEmail($request, 'GET')->getContent());
 
         $this->assertEquals(__('message.email_verification.resend_success'), $response->message);
     }
@@ -203,7 +205,7 @@ class AuthControllerTest extends TestCase
 
         $this->authController->shouldReceive('sendActivation')->never();
 
-        $response = json_decode($this->authController->sendEmail($request)->getContent());
+        $response = json_decode((string) $this->authController->sendEmail($request)->getContent());
 
         $this->assertEquals(__('message.email_verification.send_failure'), $response->message);
     }

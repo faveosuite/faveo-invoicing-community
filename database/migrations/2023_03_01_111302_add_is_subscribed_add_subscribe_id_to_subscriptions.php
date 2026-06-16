@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('is_subscribed', 'subscribe_id')) {
-            Schema::table('subscriptions', function (Blueprint $table) {
+            Schema::table('subscriptions', function (Blueprint $table): void {
                 $table->boolean('is_subscribed')->nullable();
                 $table->string('subscribe_id')->nullable();
             });
@@ -28,7 +28,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('subscriptions', function (Blueprint $table) {
+        Schema::table('subscriptions', function (Blueprint $table): void {
             $table->dropColumn(['is_subscribed', 'subscribe_id']);
         });
     }

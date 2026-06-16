@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Override;
 use Config;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -25,11 +26,12 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
+    #[Override]
     public function boot()
     {
         $this->configureRateLimiting();
 
-        $this->routes(function () {
+        $this->routes(function (): void {
             $this->mapApiRoutes();
 
             $this->mapWebRoutes();
@@ -66,7 +68,7 @@ class RouteServiceProvider extends ServiceProvider
 
         $routeConfig['middleware'] = $middlewares;
 
-        Route::group($routeConfig, function () {
+        Route::group($routeConfig, function (): void {
             require base_path('routes/web.php');
         });
     }
@@ -123,9 +125,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function configureRateLimiting()
     {
-        RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-        });
+        RateLimiter::for('api', fn(Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
 
         // Web Rate Limiting
         RateLimiter::for('web', function (Request $request) {
@@ -136,6 +136,7 @@ class RouteServiceProvider extends ServiceProvider
                 if (request()->expectsJson()) {
                     return errorResponse(__('message.too_many_attempts'), 429);
                 }
+
                 abort(429);
             };
 

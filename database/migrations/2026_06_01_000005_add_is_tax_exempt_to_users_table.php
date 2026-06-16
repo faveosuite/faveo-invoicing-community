@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('users', 'is_tax_exempt')) {
-            Schema::table('users', function (Blueprint $table) {
+            Schema::table('users', function (Blueprint $table): void {
                 $table->boolean('is_tax_exempt')->default(false)->after('gstin');
             });
         }
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down()
     {
         if (Schema::hasColumn('users', 'is_tax_exempt')) {
-            Schema::table('users', function (Blueprint $table) {
+            Schema::table('users', function (Blueprint $table): void {
                 $table->dropColumn('is_tax_exempt');
             });
         }

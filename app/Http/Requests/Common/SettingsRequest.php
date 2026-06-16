@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Common;
 
+use Override;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SettingsRequest extends FormRequest
@@ -26,23 +27,24 @@ class SettingsRequest extends FormRequest
         $regex = '/^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i';
 
         return [
-            'company' => 'required|max:50',
-            'company_email' => 'required|email|unique:users,email|unique:users,user_name',
-            'title' => 'max:50',
+            'company' => ['required', 'max:50'],
+            'company_email' => ['required', 'email', 'unique:users,email', 'unique:users,user_name'],
+            'title' => ['max:50'],
             'website' => 'required|url|regex:'.$regex,
-            'phone' => 'required',
-            'address' => 'required',
-            'state' => 'required',
-            'country' => 'required',
-            'gstin' => 'max:15',
-            'default_currency' => 'required',
-            'admin-logo' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'fav-icon' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'logo' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'autorenewal_status' => 'sometimes',
+            'phone' => ['required'],
+            'address' => ['required'],
+            'state' => ['required'],
+            'country' => ['required'],
+            'gstin' => ['max:15'],
+            'default_currency' => ['required'],
+            'admin-logo' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'fav-icon' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'logo' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'autorenewal_status' => ['sometimes'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

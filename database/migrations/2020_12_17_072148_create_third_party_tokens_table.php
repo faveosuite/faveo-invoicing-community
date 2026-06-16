@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('third_party_tokens', function (Blueprint $table) {
+        Schema::create('third_party_tokens', function (Blueprint $table): void {
             $table->id();
             $table->integer('user_id')->unsigned();
             $table->string('token');

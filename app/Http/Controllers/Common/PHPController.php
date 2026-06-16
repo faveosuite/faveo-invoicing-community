@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Common;
 
+use Exception;
+use Lang;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -19,8 +21,8 @@ class PHPController extends Controller
         try {
             // make a small test
 
-            return function_exists('exec') && ! in_array('exec', array_map('trim', explode(', ', ini_get('disable_functions'))));
-        } catch (\Exception $ex) {
+            return function_exists('exec') && ! in_array('exec', array_map(trim(...), explode(', ', ini_get('disable_functions'))));
+        } catch (Exception) {
             return false;
         }
     }
@@ -41,18 +43,19 @@ class PHPController extends Controller
         if ($this->execEnabled()) {
             try {
                 $paths = array_unique(array_merge($paths, explode(' ', exec('whereis php'))));
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // @todo: system logging here
                 echo $e->getMessage();
             }
         }
+
         // validate detected / default PHP CLI
         // Because array_filter() preserves keys, you should consider the resulting array to be an associative array even if the original array had integer keys for there may be holes in your sequence of keys. This means that, for example, json_encode() will convert your result array into an object instead of an array. Call array_values() on the result array to guarantee json_encode() gives you an array.
 
         $paths = array_values(array_filter($paths, function ($path) {
             try {
                 return is_executable($path) && preg_match("/php[0-9\.a-z]{0,3}$/i", $path);
-            } catch (\Exception $e) {
+            } catch (Exception) {
                 // in case of open_basedir, just throw skip it
                 return true;
             }
@@ -67,18 +70,18 @@ class PHPController extends Controller
             $path = $request->get('path');
             $version = '7.2';
             if (! file_exists($path) || ! is_executable($path)) {
-                return errorResponse(\Lang::get('message.invalid-php-path'));
+                return errorResponse(Lang::get('message.invalid-php-path'));
             }
 
             if ($this->execEnabled()) {
                 $execScript = $path.' '.public_path('cron-test.php');
                 $version = exec($execScript, $output);
 
-                return (version_compare($version, '7.3', '>=') == 1) ? successResponse(\Lang::get('message.valid-php-path')) : errorResponse(\Lang::get('message.invalid-php-version-or-path'));
+                return (version_compare($version, '7.3', '>=') == 1) ? successResponse(Lang::get('message.valid-php-path')) : errorResponse(Lang::get('message.invalid-php-version-or-path'));
             }
 
-            return errorResponse(\Lang::get('message.please_enable_php_exec_for_cronjob_check'));
-        } catch (\Exception $e) {
+            return errorResponse(Lang::get('message.please_enable_php_exec_for_cronjob_check'));
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }

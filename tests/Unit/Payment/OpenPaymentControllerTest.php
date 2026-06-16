@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Payment;
 
+use Carbon\Carbon;
 use App\ApiKey;
 use App\Http\Controllers\Payment\OpenPaymentController;
 use App\Model\Payment\OpenPaymentOrder;
@@ -936,6 +937,6 @@ class OpenPaymentControllerTest extends DBTestCase
 
         $order->refresh();
 
-        $this->assertInstanceOf(\Carbon\Carbon::class, $order->paid_at);
+        $this->assertInstanceOf(Carbon::class, $order->paid_at);
     }
 }

@@ -8,16 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExportDetail extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'export_details';
+
     protected $fillable = ['user_id', 'file', 'file_path', 'name',
         'created_at',
     ];
 
     public function user()
     {
-        return $this->belongsTo(\App\User::class);
+        return $this->belongsTo(User::class);
     }
 
     protected $logName = 'reports';
@@ -27,6 +28,7 @@ class ExportDetail extends Model
     ];
 
     protected $logNameColumn = 'file';
+
     protected $requireLogUrl = false;
 
     protected $logUrl = [];

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Artisan;
 use App\Console\LoggableCommand;
 use Illuminate\Support\Facades\File;
 
@@ -46,7 +47,7 @@ class moveImages extends LoggableCommand
         }
 
         // Create storage links
-        \Artisan::call('storage:link');
+        Artisan::call('storage:link');
         $this->info('Storage links created.');
 
         $this->info('All images copied successfully.');

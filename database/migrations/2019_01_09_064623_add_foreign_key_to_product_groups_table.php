@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('product_groups', function (Blueprint $table) {
+        Schema::table('product_groups', function (Blueprint $table): void {
             if (! Schema::hasColumn('product_groups', 'pricing_templates_id')) {
                 $table->unsignedInteger('pricing_templates_id');
                 $table->foreign('pricing_templates_id')->references('id')->on('pricing_templates');
@@ -28,7 +28,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('product_groups', function (Blueprint $table) {
+        Schema::table('product_groups', function (Blueprint $table): void {
             $table->dropColumn('pricing_templates_id');
             $table->dropForeign('pricing_templates');
         });

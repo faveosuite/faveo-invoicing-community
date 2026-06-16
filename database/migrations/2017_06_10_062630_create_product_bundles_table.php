@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('product_bundles')) {
-            Schema::create('product_bundles', function (Blueprint $table) {
+            Schema::create('product_bundles', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name');
                 $table->timestamp('valid_from');

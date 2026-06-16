@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use RuntimeException;
+use Throwable;
+use Logger;
 use App\Model\CloudDataCenters;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
@@ -38,10 +41,10 @@ class FreeTrailController extends Controller
             $result = $this->freeTrialService->provision($user, $request->input('domain'), $cloudProduct);
 
             return successResponse(__('message.free_trial_started'), $result);
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             return errorResponse($e->getMessage());
-        } catch (\Throwable $e) {
-            \Logger::exception($e);
+        } catch (Throwable $e) {
+            Logger::exception($e);
 
             return errorResponse(__('message.cannot_generate_freetrial_cloud_instance'));
         }

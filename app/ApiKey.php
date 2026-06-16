@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ApiKey extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'api_keys';
 
     protected $fillable = ['rzp_key', 'rzp_secret', 'apilayer_key', 'bugsnag_api_key',

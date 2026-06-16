@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('free_trial_allowed', function (Blueprint $table) {
+        Schema::create('free_trial_allowed', function (Blueprint $table): void {
             $table->id();
             $table->integer('user_id');
             $table->integer('product_id');

@@ -2,6 +2,8 @@
 
 namespace App\Plugins\Zoho\Helpers;
 
+use Illuminate\Contracts\Database\Query\Builder;
+use InvalidArgumentException;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
 use Illuminate\Support\Collection;
@@ -26,7 +28,7 @@ class ZohoConnectHelper
     public static function getExistingMappings(string $platform, string $module)
     {
         $mappings = ZohoFieldMappings::with(['faveoLocalField', 'zohoField'])
-            ->whereHas('zohoField', function ($query) use ($platform, $module) {
+            ->whereHas('zohoField', function (Builder $query) use ($platform, $module): void {
                 $query->where('module', $module)
                     ->where('platform', $platform);
             })
@@ -131,7 +133,7 @@ class ZohoConnectHelper
             'zoho' => $data['selected_option'] = json_encode([
                 'value' => $selected['value'],
             ]),
-            default => throw new \InvalidArgumentException('Invalid selected type'),
+            default => throw new InvalidArgumentException('Invalid selected type'),
         };
 
         ZohoFieldMappings::updateOrCreate(

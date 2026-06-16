@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('version_notifications', function (Blueprint $table) {
+        Schema::create('version_notifications', function (Blueprint $table): void {
             $table->id();
             $table->string('notification_operation_ok', 250)->nullable();
             $table->string('notification_product_not_found', 250)->nullable();

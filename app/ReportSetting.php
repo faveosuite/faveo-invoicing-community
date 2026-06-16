@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ReportSetting extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'report_settings';
 
     protected $fillable = ['records'];

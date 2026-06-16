@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Http\Controllers\Github\GithubApiController;
+use Auth;
+use Hash;
+use DB;
+use Lang;
+use Logger;
+use Illuminate\Contracts\View\View;
 use app\Cart\UserCart;
 use App\Facades\Attach;
 use App\Http\Controllers\Controller;
@@ -9,7 +16,6 @@ use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Requests\User\ProfileRequest;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
-use App\Model\Product\Product;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -130,8 +136,8 @@ class BaseClientController extends Controller
     {
         $downloadPermission = LicensePermissionsController::getPermissionsForProduct($productid);
         if ($downloadPermission['allowDownloadTillExpiry'] == 1) {
-            if (strtotime($link['created_at']) < strtotime($orderEndDate->update_ends_at)) {
-                $githubApi = new \App\Http\Controllers\Github\GithubApiController();
+            if (strtotime((string) $link['created_at']) < strtotime((string) $orderEndDate->update_ends_at)) {
+                $githubApi = new GithubApiController();
                 $link1 = $githubApi->getCurl1($link['zipball_url']);
                 if ($link1['body'] == null) {
                     return '<p><a href='.$link1['header']['location']." 
@@ -141,7 +147,7 @@ class BaseClientController extends Controller
       </p>';
                 } else {
                     $string = $link1['body']['message'];
-                    preg_match_all('/https:\/\/[^\s,"]+/', $string, $matches);
+                    preg_match_all('/https:\/\/[^\s,"]+/', (string) $string, $matches);
                     $url = $matches[0][0];
 
                     return '<p><a href="'.$url.'" class="btn btn-sm btn-primary">
@@ -153,7 +159,7 @@ class BaseClientController extends Controller
             }
         } elseif ($downloadPermission['allowDownloadTillExpiry'] == 0) {
             if ($countExpiry == $countVersions) {
-                $githubApi = new \App\Http\Controllers\Github\GithubApiController();
+                $githubApi = new GithubApiController();
                 $link1 = $githubApi->getCurl1($link['zipball_url']);
                 if ($link1['body'] == null) {
                     return '<p><a href='.$link['zipball_url']." 
@@ -163,7 +169,7 @@ class BaseClientController extends Controller
       </p>';
                 } else {
                     $string = $link1['body']['message'];
-                    preg_match_all('/https:\/\/[^\s,"]+/', $string, $matches);
+                    preg_match_all('/https:\/\/[^\s,"]+/', (string) $string, $matches);
                     $url = $matches[0][0];
 
                     return '<p><a href="'.$url.'" class="btn btn-sm btn-primary">
@@ -187,21 +193,22 @@ class BaseClientController extends Controller
     public function postProfile(ProfileRequest $request)
     {
         try {
-            $user = \Auth::user();
+            $user = Auth::user();
             if ($request->hasFile('profile_pic')) {
                 $path = Attach::put('common/images/users/', $request->file('profile_pic'), null, true);
                 $user->profile_pic = basename($path);
             }
-            $user->first_name = strip_tags($request->input('first_name'));
-            $user->user_name = strip_tags($request->input('user_name'));
-            $user->last_name = strip_tags($request->input('last_name'));
+
+            $user->first_name = strip_tags((string) $request->input('first_name'));
+            $user->user_name = strip_tags((string) $request->input('user_name'));
+            $user->last_name = strip_tags((string) $request->input('last_name'));
             // Email & mobile are changed only through the verified OTP flow
             // (ProfileVerificationController); the profile save must not alter them.
-            $user->company = strip_tags($request->input('company'));
-            $user->gstin = strip_tags($request->input('gstin'));
-            $user->address = strip_tags($request->input('address'));
-            $user->town = strip_tags($request->input('town'));
-            $user->timezone_id = strip_tags($request->input('timezone_id'));
+            $user->company = strip_tags((string) $request->input('company'));
+            $user->gstin = strip_tags((string) $request->input('gstin'));
+            $user->address = strip_tags((string) $request->input('address'));
+            $user->town = strip_tags((string) $request->input('town'));
+            $user->timezone_id = strip_tags((string) $request->input('timezone_id'));
             $user->state = $request->input('state');
             $user->zip = strip_tags($request->input('zipcode') ?? $request->input('zip'));
             $user->company_size = $request->input('company_size');
@@ -210,7 +217,7 @@ class BaseClientController extends Controller
             $user->save();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.failed_to_update_profile'));
         }
     }
@@ -226,26 +233,26 @@ class BaseClientController extends Controller
     public function postPassword(ProfileRequest $request)
     {
         try {
-            $user = \Auth::user();
+            $user = Auth::user();
             $oldPassword = $request->input('old_password');
             $newPassword = $request->input('new_password');
 
-            if (! \Hash::check($oldPassword, $user->getAuthPassword())) {
+            if (! Hash::check($oldPassword, $user->getAuthPassword())) {
                 return errorResponse(__('message.incorrect_old_password'));
             }
 
-            $user->password = \Hash::make($newPassword);
+            $user->password = Hash::make($newPassword);
             $user->save();
 
             // Logout all other sessions if using web guard
             deleteUserSessions($user->id, $newPassword);
 
             // Remove password reset records
-            \DB::table('password_resets')->where('email', $user->email)->delete();
+            DB::table('password_resets')->where('email', $user->email)->delete();
 
-            return successResponse(\Lang::get('message.updated-successfully'));
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+            return successResponse(Lang::get('message.updated-successfully'));
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return errorResponse(__('message.failed_to_update_password'));
         }
@@ -269,7 +276,7 @@ class BaseClientController extends Controller
                 ->firstOrFail();
 
             if (! authorizeOwnership($userid, true)) {
-                return redirect()->back()->with('fails', __('message.unauthorized_action'));
+                return back()->with('fails', __('message.unauthorized_action'));
             }
 
             $invoiceIds = $order->invoiceRelation()->pluck('invoice_id');
@@ -289,7 +296,7 @@ class BaseClientController extends Controller
                 );
 
             $invoices = $invoice->with(['invoiceItem'])->where('id', $relation)
-                ->whereHas('invoiceItem', function ($query) use ($order) {
+                ->whereHas('invoiceItem', function ($query) use ($order): void {
                     $query->where('id', $order->invoice_item_id);
                 });
 
@@ -309,11 +316,13 @@ class BaseClientController extends Controller
                 if ($url) {
                     $url = '<a href='.url($url).'>'.$model->number.'</a>';
                 }
-                if (\Auth::user()->role == 'admin') {
+
+                if (Auth::user()->role == 'admin') {
                     $status = getStatusLabel($model->status);
                 } else {
-                    $status = getStatusLabel($model->status, 'badge');
+                    $status = getStatusLabel($model->status);
                 }
+
                 if ($status != 'Success' && $model->grand_total > 0) {
                     $payment = '  <a href='.url('autopaynow/'.$model->id).
                         " class='btn btn-light-scale-2 btn-sm text-dark'><i class='fa fa-credit-card'></i></a>";
@@ -325,7 +334,7 @@ class BaseClientController extends Controller
 
                 return [
                     'number' => $url,
-                    'products' => ucfirst($model->invoiceItem->value('product_name')),
+                    'products' => ucfirst((string) $model->invoiceItem->value('product_name')),
                     'date' => getDateHtml($model->date),
                     'total' => currencyFormat($model->grand_total, $code = $model->currency),
                     'status' => $status,
@@ -335,7 +344,7 @@ class BaseClientController extends Controller
 
             return successResponse('', $paginated);
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -363,7 +372,7 @@ class BaseClientController extends Controller
         try {
             return view('themes.default1.front.clients.subscription');
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -428,7 +437,7 @@ class BaseClientController extends Controller
      *  This returns to the client panel orders page.
      *
      * @param  Request  $request
-     * @return \Illuminate\Contracts\View\View|RedirectResponse
+     * @return View|RedirectResponse
      *
      * @throws Exception
      */
@@ -437,7 +446,7 @@ class BaseClientController extends Controller
         try {
             return view('themes.default1.front.clients.order1', compact('request'));
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -460,7 +469,7 @@ class BaseClientController extends Controller
      *  This returns to the cloud popup deletion.
      *
      * @param  $orderNumber
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      *
      * @throws Exception
      */

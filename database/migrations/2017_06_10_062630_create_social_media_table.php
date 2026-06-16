@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('social_media')) {
-            Schema::create('social_media', function (Blueprint $table) {
+            Schema::create('social_media', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('class');
                 $table->string('fa_class', 225);

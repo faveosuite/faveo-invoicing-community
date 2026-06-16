@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('countries');
 
-        Schema::create('countries', function (Blueprint $table) {
+        Schema::create('countries', function (Blueprint $table): void {
             $table->mediumIncrements('country_id');
             $table->char('country_code_char2', 2)->nullable();
             $table->char('country_code_char3', 3)->nullable();
@@ -37,7 +37,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('states_subdivisions', function (Blueprint $table) {
+        Schema::table('states_subdivisions', function (Blueprint $table): void {
             $table->dropForeign(['country_id']);
         });
 

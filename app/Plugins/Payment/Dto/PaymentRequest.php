@@ -8,7 +8,7 @@ namespace App\Plugins\Payment\Dto;
  * The amount is given in MAJOR currency units (e.g. 49.99, not 4999); each
  * gateway converts to minor units itself via {@see \App\Plugins\Payment\Support\Money}.
  */
-final class PaymentRequest
+final readonly class PaymentRequest
 {
     /**
      * @param  float  $amount  Amount to charge, in major currency units.
@@ -17,13 +17,13 @@ final class PaymentRequest
      * @param  array<string, scalar>  $metadata  Opaque key/values echoed back on confirmation (e.g. invoice id).
      */
     public function __construct(
-        public readonly float $amount,
-        public readonly string $currency,
-        public readonly string $reference,
-        public readonly ?Customer $customer = null,
-        public readonly ?string $description = null,
-        public readonly ?string $returnUrl = null,
-        public readonly array $metadata = [],
+        public float $amount,
+        public string $currency,
+        public string $reference,
+        public ?Customer $customer = null,
+        public ?string $description = null,
+        public ?string $returnUrl = null,
+        public array $metadata = [],
     ) {
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Facades;
 
+use Exception;
 use App\Traits\TaxCalculation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
@@ -71,7 +72,7 @@ class Cart extends Facade
         if ($recursive) {
             return (count($array) == count($array, COUNT_RECURSIVE)) ? false : true;
         } else {
-            foreach ($array as $k => $v) {
+            foreach ($array as $v) {
                 if (is_array($v)) {
                     return true;
                 } else {
@@ -94,9 +95,11 @@ class Cart extends Facade
         foreach ($data as $key => $value) {
             $item[$key] = $value;
         }
+
         if ($quantity != null) {
             $item['quantity'] = $quant + $quantity;
         }
+
         $cart->put($id, $item);
         $this->save($cart);
     }
@@ -159,19 +162,19 @@ class Cart extends Facade
             $currency = $cart['attributes']['currency'];
             $symbol = $cart['attributes']['currency'];
         } else {
-            throw new \Exception(__('message.product_not_in_cart'));
+            throw new Exception(__('message.product_not_in_cart'));
         }
 
         if ($canReduceAgent) {
             $price = $cart['price'] / $agtqty;
-            $agtqty = $agtqty - 1;
+            $agtqty -= 1;
             $price = $cart['price'] - $price;
         } else {
             $price = $cart['price'] / $agtqty;
 
-            $agtqty = $agtqty + 1;
+            $agtqty += 1;
 
-            $price = $price * $agtqty;
+            $price *= $agtqty;
         }
 
         return ['agtqty' => $agtqty, 'price' => $price, 'currency' => $currency, 'symbol' => $symbol, 'domain' => $cart['attributes']['domain']];

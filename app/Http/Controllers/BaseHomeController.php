@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use Illuminate\Support\Facades\Date;
+use App\License\Services\InstallationService;
+use App\License\Services\LicenseService;
+use Crypt;
+use Lang;
 use App\License\Models\Installation;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
@@ -14,11 +20,11 @@ class BaseHomeController extends Controller
 {
     public static function decryptByFaveoPrivateKey($encrypted)
     {
-        $encrypted = json_decode($encrypted);
+        $encrypted = json_decode((string) $encrypted);
         $sealed_data = $encrypted->seal;
         $envelope = $encrypted->envelope;
-        $input = base64_decode($sealed_data);
-        $einput = base64_decode($envelope);
+        $input = base64_decode((string) $sealed_data);
+        $einput = base64_decode((string) $envelope);
         $path = storage_path('app'.DIRECTORY_SEPARATOR.'private.key');
         $key_content = file_get_contents($path);
         $private_key = openssl_get_privatekey($key_content);
@@ -47,8 +53,8 @@ class BaseHomeController extends Controller
             } else {
                 return $this_order->domain;
             }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -67,8 +73,8 @@ class BaseHomeController extends Controller
             }
 
             return;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -87,8 +93,8 @@ class BaseHomeController extends Controller
                     ->first();
 
             return $this_order;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -101,8 +107,8 @@ class BaseHomeController extends Controller
 
     public function getDomain($url)
     {
-        $pieces = parse_url($url);
-        $domain = isset($pieces['host']) ? $pieces['host'] : '';
+        $pieces = parse_url((string) $url);
+        $domain = $pieces['host'] ?? '';
         if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
             return $regs['domain'];
         }
@@ -124,8 +130,8 @@ class BaseHomeController extends Controller
             } else {
                 return ['status' => 'fails', 'message' => 'this-is-an-invalid-request'];
             }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -156,7 +162,7 @@ class BaseHomeController extends Controller
                     $expiryDate = Subscription::where('order_id', $orderId)->pluck('update_ends_at')->first();
                     $subscription = Subscription::where('order_id', $orderId)->select('id', 'support_ends_at', 'version', 'update_ends_at', 'product_id', 'plan_id', 'ends_at')->first();
                     $data = $this->getData($subscription);
-                    if (\Carbon\Carbon::now()->toDateTimeString() < $expiryDate) {
+                    if (Date::now()->toDateTimeString() < $expiryDate) {
                         return ['status' => 'success', 'message' => 'New version available', 'data' => $data];
                     }
                 }
@@ -170,14 +176,14 @@ class BaseHomeController extends Controller
                     $expiryDate = Subscription::where('order_id', $orderForLicense->first()->id)->pluck('update_ends_at')->first();
                     $subscription = Subscription::where('order_id', $orderForLicense->first()->id)->select('id', 'support_ends_at', 'version', 'update_ends_at', 'product_id', 'plan_id', 'ends_at')->first();
                     $data = $this->getData($subscription);
-                    if (\Carbon\Carbon::now()->toDateTimeString() < $expiryDate) {
+                    if (Date::now()->toDateTimeString() < $expiryDate) {
                         return ['status' => 'success', 'message' => 'New version available', 'data' => $data];
                     }
                 }
             }
 
             return ['status' => 'fails', 'message' => 'do-not-allow-auto-update'];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $result = ['status' => 'fails', 'error' => $e->getMessage()];
 
             return $result;
@@ -188,7 +194,7 @@ class BaseHomeController extends Controller
     {
         $productName = Product::where('id', $subscription->product_id)->value('name');
         $plan = Plan::where('id', $subscription->plan_id)->value('name');
-        if (\Carbon\Carbon::now()->toDateTimeString() < $subscription->update_ends_at) {
+        if (Date::now()->toDateTimeString() < $subscription->update_ends_at) {
             $data = [
                 'product' => $productName,
                 'plan' => $plan,
@@ -232,11 +238,12 @@ class BaseHomeController extends Controller
                     if ($existingVersion && $existingVersion < $request->input('version')) {
                         $existingVersion = $request->input('version');
                     }
-                    app(\App\License\Services\InstallationService::class)->updateLogs([
+
+                    resolve(InstallationService::class)->updateLogs([
                         'license_code' => $licenseCode, 'root_url' => $url,
                         'version_number' => $request->input('version'), 'installation_ip' => $ip,
                     ]);
-                    Subscription::where('order_id', $order->id)->update(['version' => $existingVersion, 'version_updated_at' => (string) \Carbon\Carbon::now()]);
+                    Subscription::where('order_id', $order->id)->update(['version' => $existingVersion, 'version_updated_at' => (string) Date::now()]);
 
                     return ['status' => 'success', 'message' => 'version-updated-successfully'];
                 } else {
@@ -254,7 +261,7 @@ class BaseHomeController extends Controller
             }
 
             return ['status' => 'fails', 'message' => 'version-not updated'];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $result = ['status' => 'fails', 'error' => $e->getMessage()];
 
             return $result;
@@ -263,9 +270,9 @@ class BaseHomeController extends Controller
 
     public function getUserIP()
     {
-        $client = @$_SERVER['HTTP_CLIENT_IP'];
-        $forward = @$_SERVER['HTTP_X_FORWARDED_FOR'];
-        $remote = $_SERVER['REMOTE_ADDR'];
+        $client = @\Illuminate\Support\Facades\Request::server('HTTP_CLIENT_IP');
+        $forward = @\Illuminate\Support\Facades\Request::server('HTTP_X_FORWARDED_FOR');
+        $remote = \Illuminate\Support\Facades\Request::server('REMOTE_ADDR');
 
         if (filter_var($client, FILTER_VALIDATE_IP)) {
             $ip = $client;
@@ -284,21 +291,19 @@ class BaseHomeController extends Controller
             $licCode = $request->input('licenseCode'); //The license code already existing for older client
             $lastFour = $this->getLastFourDigistsOfLicenseCode($request->input('product'));
             $existingLicense = Order::select('id', 'client', 'product', 'serial_key')->get()
-                ->filter(function ($order) use ($licCode) {
-                    return $order->serial_key == $licCode;
-                })->first();
+                ->filter(fn($order) => $order->serial_key == $licCode)->first();
 
             if ($existingLicense) {//If the license code that is sent in the request exists in billing
-                app(\App\License\Services\InstallationService::class)->deleteByLicenseCode($licCode); //Delete the installations for the current license before updating license so that no Faveo installation exists on the user domain/IP path and the install slots are freed
+                resolve(InstallationService::class)->deleteByLicenseCode($licCode); //Delete the installations for the current license before updating license so that no Faveo installation exists on the user domain/IP path and the install slots are freed
 
-                $serial_key = substr($licCode, 0, 12).$lastFour; //The new License Code
+                $serial_key = substr((string) $licCode, 0, 12).$lastFour; //The new License Code
                 //Create new license in license manager with the new license code which has no. of agents in the last 4 digits.
-                $order = \App\Model\Order\Order::find($existingLicense->id);
-                $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain ?? '');
+                $order = Order::find($existingLicense->id);
+                $ipAndDomain = LicenseService::parseIpAndDomain($order->domain ?? '');
                 $licExpiry = $this->getLicenseExpiryDate($existingLicense);
                 $updExpiry = $this->getUpdatesExpiryDate($existingLicense);
                 $supExpiry = $this->getSupportExpiryDate($existingLicense);
-                app(\App\License\Services\LicenseService::class)->create([
+                resolve(LicenseService::class)->create([
                     'product_id' => $existingLicense->product,
                     'user_id' => $existingLicense->client,
                     'license_code' => $serial_key,
@@ -313,14 +318,14 @@ class BaseHomeController extends Controller
                     'license_status' => 1,
                 ]);
                 //Update the old license code with new one in billing.
-                $existingLicense->serial_key = \Crypt::encrypt(substr($licCode, 0, 12).$lastFour);
+                $existingLicense->serial_key = Crypt::encrypt(substr((string) $licCode, 0, 12).$lastFour);
                 $existingLicense->save();
                 //send the newly updated license code in response
                 $result = ['status' => 'success', 'updatedLicenseCode' => $existingLicense->serial_key];
 
                 return response()->json($result);
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $result = ['status' => 'fails', 'error' => $ex->getMessage()];
 
             return response()->json($result);
@@ -329,28 +334,18 @@ class BaseHomeController extends Controller
 
     public function getLastFourDigistsOfLicenseCode($productName)
     {
-        switch ($productName) {
-            case strpos($productName, 'Enterprise') > 0:
-            case strpos($productName, 'Company') > 0:
-                return '0000';
-
-            case strpos($productName, 'Freelancer') > 0:
-                return '0002';
-
-            case strpos($productName, 'Startup') > 0:
-                return '0005';
-
-            case strpos($productName, 'SME') > 0:
-                return '0010';
-
-            default:
-                throw new \Exception(\Lang::get('message.product_not_found'));
-        }
+        return match (true) {
+            strpos((string) $productName, 'Enterprise') > 0, strpos((string) $productName, 'Company') > 0 => '0000',
+            strpos((string) $productName, 'Freelancer') > 0 => '0002',
+            strpos((string) $productName, 'Startup') > 0 => '0005',
+            strpos((string) $productName, 'SME') > 0 => '0010',
+            default => throw new Exception(Lang::get('message.product_not_found')),
+        };
     }
 
     public function getUpdatesExpiryDate($existingLicense)
     {
-        $updatesDate = \Carbon\Carbon::parse(Subscription::where('order_id', $existingLicense->id)->value('update_ends_at'));
+        $updatesDate = Date::parse(Subscription::where('order_id', $existingLicense->id)->value('update_ends_at'));
         if (strtotime($updatesDate) < 0) {
             $updatesDate = '';
         }
@@ -360,7 +355,7 @@ class BaseHomeController extends Controller
 
     public function getLicenseExpiryDate($existingLicense)
     {
-        $licenseDate = \Carbon\Carbon::parse(Subscription::where('order_id', $existingLicense->id)->value('ends_at'));
+        $licenseDate = Date::parse(Subscription::where('order_id', $existingLicense->id)->value('ends_at'));
         if (strtotime($licenseDate) < 0) {
             $licenseDate = '';
         }
@@ -370,7 +365,7 @@ class BaseHomeController extends Controller
 
     public function getSupportExpiryDate($existingLicense)
     {
-        $supportDate = \Carbon\Carbon::parse(Subscription::where('order_id', $existingLicense->id)->value('support_ends_at'));
+        $supportDate = Date::parse(Subscription::where('order_id', $existingLicense->id)->value('support_ends_at'));
         if (strtotime($supportDate) < 0) {
             $supportDate = '';
         }

@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Session;
+use Exception;
+use Auth;
+use Hash;
+use Illuminate\Support\Facades\Date;
+use Lang;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Requests\ValidateSecretRequest;
 use App\Rules\Honeypot;
@@ -33,7 +40,7 @@ class Google2FAController extends Controller
 
     public function verify2fa()
     {
-        if (\Session::has('2fa:user:id')) {
+        if (Session::has('2fa:user:id')) {
             return successResponse('Redirect to 2fa');
 //            return view('themes.default1.front.enableTwoFactor');
         } else {
@@ -42,8 +49,8 @@ class Google2FAController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function enableTwoFactor(Request $request)
     {
@@ -70,8 +77,8 @@ class Google2FAController extends Controller
     }
 
     /**
-     * @param  App\Http\Requests\ValidateSecretRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param ValidateSecretRequest $request
+     * @return Response
      */
     public function postLoginValidateToken(ValidateSecretRequest $request)
     {
@@ -80,17 +87,17 @@ class Google2FAController extends Controller
             $userId = $session->get('2fa:user:id');
             $user = User::findOrFail($userId);
 
-            return $this->handleTwoFactorLogin($request, $user, '2fa-code', function ($user, $request) {
+            return $this->handleTwoFactorLogin($request, $user, '2fa-code', function ($user, $request): void {
                 $secret = Crypt::decrypt($user->google2fa_secret);
-                $isValid = (new Google2FA())->verifyKey($secret, $request->totp);
+                $isValid = new Google2FA()->verifyKey($secret, $request->totp);
 
                 if (! $isValid) {
                     // MUST throw — handleTwoFactorLogin proceeds to Auth::login unless
                     // validation aborts. A returned response here would be ignored.
-                    throw new \Exception(__('message.invalid_passcode'));
+                    throw new Exception(__('message.invalid_passcode'));
                 }
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -103,13 +110,13 @@ class Google2FAController extends Controller
     public function verifyPassword(Request $request)
     {
         if (! $request->user_password && $request->login_type == 'social') {
-            \Session::put('auth.password_confirmed_at', time());
+            Session::put('auth.password_confirmed_at', time());
 
             return successResponse('password_verified');
         } else {
-            $user = \Auth::user();
-            if (\Hash::check($request->input('user_password'), $user->getAuthPassword())) {
-                \Session::put('auth.password_confirmed_at', time());
+            $user = Auth::user();
+            if (Hash::check($request->input('user_password'), $user->getAuthPassword())) {
+                Session::put('auth.password_confirmed_at', time());
 
                 return successResponse('password_verified');
             } else {
@@ -128,27 +135,28 @@ class Google2FAController extends Controller
 
         if ($valid == true) {
             $user->is_2fa_enabled = 1;
-            $user->google2fa_activation_date = \Carbon\Carbon::now();
+            $user->google2fa_activation_date = Date::now();
             $user->save();
 
-            return successResponse(\Lang::get('message.valid_passcode'));
+            return successResponse(Lang::get('message.valid_passcode'));
         }
 
-        return errorResponse(\Lang::get('message.invalid_code_2fa'));
+        return errorResponse(Lang::get('message.invalid_code_2fa'));
     }
 
     /**
      * Disables 2FA for a user/agent, wipes out all the details related to 2FA from the Database.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      * @return json \Illuminate\Http\Response
      */
     public function disableTwoFactor(Request $request)
     {
         $user = $request->userId ? User::where('id', $request->userId)->first() : $request->user();
-        if (\Auth::user()->role != 'admin' && $user->id != \Auth::user()->id) {
+        if (Auth::user()->role != 'admin' && $user->id != Auth::user()->id) {
             return errorResponse(__('message.cannot_disable_2fa'));
         }
+
         $user->google2fa_secret = null;
         $user->google2fa_activation_date = null;
         $user->is_2fa_enabled = 0;
@@ -156,13 +164,13 @@ class Google2FAController extends Controller
 
         UserBackupCodes::where('user_id', $user->id)->delete();
 
-        return successResponse(\Lang::get('message.2fa_disabled'));
+        return successResponse(Lang::get('message.2fa_disabled'));
     }
 
     public function generateRecoveryCode()
     {
         $codes = $this->createCodes();
-        $userId = \Auth::user()->id;
+        $userId = Auth::user()->id;
 
         UserBackupCodes::where('user_id', $userId)->delete();
         foreach ($codes as $code) {
@@ -174,7 +182,7 @@ class Google2FAController extends Controller
 
     public function getRecoveryCode()
     {
-        $userId = \Auth::user()->id;
+        $userId = Auth::user()->id;
         $codes = UserBackupCodes::where('user_id', $userId)->pluck('backup_codes')->toArray();
 
         if (empty($codes)) {
@@ -221,18 +229,18 @@ class Google2FAController extends Controller
             $userId = $session->get('2fa:user:id');
             $user = User::findOrFail($userId);
 
-            return $this->handleTwoFactorLogin($request, $user, 'recovery-code', function ($user, $request) {
-                $code = \App\UserBackupCodes::where('user_id', $user->id)
+            return $this->handleTwoFactorLogin($request, $user, 'recovery-code', function ($user, $request): void {
+                $code = UserBackupCodes::where('user_id', $user->id)
                     ->where('backup_codes', $request->rec_code)
                     ->first();
 
                 if (! $code) {
-                    throw new \Exception(__('message.invalid_recovery_code'));
+                    throw new Exception(__('message.invalid_recovery_code'));
                 }
 
                 $code->delete();
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -261,7 +269,7 @@ class Google2FAController extends Controller
 
         // Normal login flow
         $request->session()->regenerate();
-        \Auth::login($user, $remember);
+        Auth::login($user, $remember);
 
         $loginController = new LoginController();
         $loginController->logActivityLogin($user);

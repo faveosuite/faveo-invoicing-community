@@ -21,7 +21,7 @@ class LanguageMiddleware
             $user = Auth::user();
 
             $lang = match (true) {
-                Session::has('language') => tap(Session::get('language'), function ($language) use ($user) {
+                Session::has('language') => tap(Session::get('language'), function ($language) use ($user): void {
                     $user->language = $language;
                     $user->save();
                 }),
@@ -42,7 +42,7 @@ class LanguageMiddleware
     protected function setLocale($lang)
     {
         if ($lang != '' && array_key_exists($lang, Config::get('languages'))) {
-            $availableLanguages = array_map('basename', File::directories(lang_path()));
+            $availableLanguages = array_map(basename(...), File::directories(lang_path()));
             in_array($lang, $availableLanguages) ? App::setLocale($lang) : App::setLocale('en');
         }
     }

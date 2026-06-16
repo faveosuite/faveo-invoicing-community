@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Order;
 
+use Auth;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Support\Facades\Date;
 use App\Http\Controllers\Controller;
 use App\License\Models\Installation;
 use App\Model\Order\Invoice;
@@ -48,12 +51,14 @@ class BaseRenewController extends Controller
             if ($invoice_item_id == 0) {
                 $invoice_item_id = $invoice->invoiceItem()->first()->id;
             }
+
             $item = InvoiceItem::find($invoice_item_id);
             $product = $this->getProductByProductId($item->product_id, $order);
             $user = $this->getUserById($order->client);
             if (! $user) {
                 throw new Exception(__('message.user_removed_database'));
             }
+
             if (! $product) {
                 throw new Exception(__('message.product_removed_database'));
             }
@@ -91,17 +96,17 @@ class BaseRenewController extends Controller
             $orderId = $request->input('order');
 
             if (! $planId) {
-                $currency = getCurrencyForClient(\Auth::user()->country);
+                $currency = getCurrencyForClient(Auth::user()->country);
 
                 return successResponse('', ['formatted_price' => currencyFormat(0, $currency)]);
             }
 
             $plan = Plan::find($planId);
-            $planDetails = userCurrencyAndPrice(\Auth::user()->id, $plan);
+            $planDetails = userCurrencyAndPrice(Auth::user()->id, $plan);
             $price = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
 
-            $agents = InvoiceItem::whereHas('invoice', fn ($q) => $q->whereHas('orders', fn ($q) => $q->where('orders.id', $orderId)))
+            $agents = InvoiceItem::whereHas('invoice', fn (Builder $q) => $q->whereHas('orders', fn (Builder $q) => $q->where('orders.id', $orderId)))
                 ->where('plan_id', $planId)
                 ->orderByDesc('id')
                 ->value('agents');
@@ -130,18 +135,19 @@ class BaseRenewController extends Controller
             if ($code != '') {
                 $product_cost = $controller->checkCode($code, $product->id, $currency);
             }
+
 //            if (!empty($agents) && in_array($product->id, cloudPopupProducts())) {
 //                $license_code = Order::where('id', $orderid)->value('serial_key');
 //                $cost = $cost * (int) substr($license_code, -4);
 //            }
             $renewalPrice = $cost; //Get Renewal Price before calculating tax over it to save as regular price of product
-            $controller = new \App\Http\Controllers\Order\InvoiceController();
+            $controller = new InvoiceController();
             $tax = $this->calculateTax($product->id, $user->state, $user->country);
             $tax_name = $tax['name'];
             $tax_rate = $tax['value'];
             $cost = rounding($controller->calculateTotal($tax_rate, $cost));
-            $number = rand(11111111, 99999999);
-            $date = \Carbon\Carbon::now();
+            $number = random_int(11111111, 99999999);
+            $date = Date::now();
             $invoice = Invoice::create([
                 'user_id' => $user->id,
                 'number' => $number,

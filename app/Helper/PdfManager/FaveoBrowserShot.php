@@ -8,9 +8,12 @@ use Spatie\Browsershot\Browsershot;
 class FaveoBrowserShot
 {
     private static bool $initialized = false;
+
     private static array $bins = [];
-    private const HOME_DIR = 'app/chrome-home';
-    private const PROFILE_DIR = 'app/chrome-profile';
+
+    private const string HOME_DIR = 'app/chrome-home';
+
+    private const string PROFILE_DIR = 'app/chrome-profile';
 
     public static function bootForLaravelPdf(): void
     {
@@ -28,7 +31,7 @@ class FaveoBrowserShot
     {
         self::init();
 
-        return (new Browsershot())
+        return new Browsershot()
             ->setNodeBinary(self::$bins['node'])
             ->setNpmBinary(self::$bins['npm'])
             ->setChromePath(self::$bins['chrome'])

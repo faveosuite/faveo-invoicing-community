@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\SubscriptionRenewalService;
+use Illuminate\Support\Facades\Date;
+use App\Http\Controllers\Common\PhpMailController;
+use App\Model\Common\TemplateType;
+use App\Services\Payment\SubscriptionService;
+use Exception;
+use Log;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
@@ -11,15 +18,19 @@ use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
 use App\Model\Product\Subscription;
 use App\Services\Payment\ProcessingFee;
-use Carbon\Carbon;
 
 abstract class PostSubscriptionHandleController
 {
     protected $invoiceModel;
+
     protected $orderModel;
+
     protected $statusSettingModel;
+
     protected $plan;
+
     protected $sub;
+
     protected $payment;
 
     public function __construct(Invoice $invoiceModel, Order $orderModel, StatusSetting $statusSettingModel, Plan $plan, Subscription $sub, Payment $payment)
@@ -62,7 +73,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $plan = $this->plan->find($subscription->plan_id);
 
         // Extend dates first — if this fails, invoice remains pending (safe to retry)
-        app(\App\Services\SubscriptionRenewalService::class)->extendDates($sub, (int) $plan->days, fromNowIfExpired: true);
+        resolve(SubscriptionRenewalService::class)->extendDates($sub, (int) $plan->days, fromNowIfExpired: true);
 
         $processingFee = $this->getProcessingFee($payment_method, $currency);
         $invoice->update(['processing_fee' => $processingFee, 'status' => 'success']);
@@ -80,7 +91,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             'amount' => $invoice->grand_total,
             'payment_method' => $payment_method,
             'payment_status' => 'success',
-            'created_at' => Carbon::now()->toDateTimeString(),
+            'created_at' => Date::now()->toDateTimeString(),
         ]);
     }
 
@@ -100,7 +111,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $currency = getCurrencyForClient($user->country);
         $paymentSuccessdata = 'Payment for '.$productName.' of '.$currency.' '.$total.' successful by '.$user->first_name.' '.$user->last_name.' Email: '.$user->email;
 
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
         $mail->SendEmail($setting->email, $setting->company_email, $paymentSuccessdata, 'payment-success', $template->type()->value('name'));
         $mail->payment_log($user->email, $payment, 'success', $order->number, null, $amount, 'Product renew');
     }
@@ -111,7 +122,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $setting = Setting::find(1);
         $currency = getCurrencyForClient($user->country);
         $paymentFailData = 'Payment for'.' '.'of'.' '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
         $mail->SendEmail($setting->email, $setting->company_email, $paymentFailData, 'payment-failed', Template::where('name', $template)->type()->value('name'));
         $mail->payment_log($user->email, $payment, 'failed', $order->number, $exceptionMessage, $amount, 'Product renew');
     }
@@ -121,17 +132,17 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $future_expiry = Subscription::find($sub);
         $contact = getContactData();
         //check in the settings
-        $settings = new \App\Model\Common\Setting();
+        $settings = new Setting();
         $setting = $settings::find(1);
 
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
         //template
-        $template = \App\Model\Common\TemplateType::getSelectedTemplate('payment_successfull');
+        $template = TemplateType::getSelectedTemplate('payment_successfull');
         $date = date_create($future_expiry->update_ends_at);
         $end = date_format($date, 'l, F j, Y ');
 
         $replace = [
-            'name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
+            'name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'product' => $product,
             'total' => currencyFormat($total, $code = $currency),
             'number' => $number,
@@ -149,22 +160,22 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
     {
         $contact = getContactData();
         //check in the settings
-        $settings = new \App\Model\Common\Setting();
+        $settings = new Setting();
         $setting = $settings::find(1);
 
         $this->disableAutorenewalStatusByOrderId($order->id);
 
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
         $mailer = $mail->setMailConfig($setting);
         //template
-        $template = \App\Model\Common\TemplateType::getSelectedTemplate('payment_failed');
+        $template = TemplateType::getSelectedTemplate('payment_failed');
         $url = url("autopaynow/$invoice->invoice_id");
         $type = '';
-        $replace = ['name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
+        $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'product' => $product_details->name,
             'total' => $total ? currencyFormat($total, $code = $currency) : 'N/A',
             'number' => $number,
-            'expiry' => date('d-m-Y', strtotime($end)),
+            'expiry' => date('d-m-Y', strtotime((string) $end)),
             'exception' => $exceptionMessage,
             'url' => $url,
             'contact' => $contact['contact'],
@@ -205,8 +216,8 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             $subscription = Subscription::where('order_id', $orderId)->first();
 
             $cancellationHandlers = collect([
-                'rzp_subscription' => fn ($subscribeId) => app(\App\Services\Payment\SubscriptionService::class)->cancelSubscription('Razorpay', $subscribeId),
-                'autoRenew_status' => fn ($subscribeId) => app(\App\Services\Payment\SubscriptionService::class)->cancelSubscription('Stripe', $subscribeId),
+                'rzp_subscription' => fn ($subscribeId) => resolve(SubscriptionService::class)->cancelSubscription('Razorpay', $subscribeId),
+                'autoRenew_status' => fn ($subscribeId) => resolve(SubscriptionService::class)->cancelSubscription('Stripe', $subscribeId),
             ]);
 
             if ($subscription->is_subscribed && $subscription->subscribe_id) {
@@ -220,8 +231,8 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
                 'autoRenew_status' => 0,
                 'rzp_subscription' => 0,
             ]);
-        } catch (\Exception $ex) {
-            \Log::error('Subscription cancellation failed: '.$ex->getMessage());
+        } catch (Exception $ex) {
+            Log::error('Subscription cancellation failed: '.$ex->getMessage());
 
             return;
         }

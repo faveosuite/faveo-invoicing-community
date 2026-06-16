@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('plans_periods_relation')) {
-            Schema::create('plans_periods_relation', function (Blueprint $table) {
+            Schema::create('plans_periods_relation', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->unsignedInteger('plan_id');
                 $table->unsignedInteger('period_id');

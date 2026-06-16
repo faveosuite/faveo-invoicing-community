@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use Auth;
+use Illuminate\Http\Request;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 
@@ -28,8 +30,8 @@ class Authenticate
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param Request $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -41,10 +43,11 @@ class Authenticate
                 return redirect()->guest('auth/login');
             }
         }
-        if (\Auth::user()->active == 1) {
+
+        if (Auth::user()->active == 1) {
             return $next($request);
         } else {
-            \Auth::logout();
+            Auth::logout();
 
             return redirect('home')->with('fails', 'Activate Your Account');
         }

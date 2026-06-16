@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Order;
 
+use Illuminate\Support\Facades\Date;
 use App\Http\Controllers\Controller;
 
 class Orders extends Controller
 {
-    public $orderid;
-
-    public function __construct($order_id)
+    public function __construct(public $orderid)
     {
-        $this->orderid = $order_id;
     }
 
     public function getOrder()
@@ -78,7 +76,7 @@ class Orders extends Controller
         $subscription = $this->getSubscription();
         if ($subscription) {
             $end = $subscription->ends_at;
-            $today = \Carbon\Carbon::now();
+            $today = Date::now();
             if ($today->gt($end)) {
                 $expired = true;
             }

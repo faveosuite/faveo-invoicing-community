@@ -16,7 +16,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('tax_rate_locations')) {
-            Schema::create('tax_rate_locations', function (Blueprint $table) {
+            Schema::create('tax_rate_locations', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->unsignedInteger('tax_rate_id');
                 $table->string('location_code', 200);

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('pricing_templates')) {
-            Schema::create('pricing_templates', function (Blueprint $table) {
+            Schema::create('pricing_templates', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->longText('data');
                 $table->string('image');

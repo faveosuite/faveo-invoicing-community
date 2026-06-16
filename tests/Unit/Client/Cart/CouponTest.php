@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Client\Cart;
 
+use Exception;
+use App\Http\Controllers\Payment\PromotionController;
 use App\Facades\Cart;
 use App\Model\Order\Invoice;
 use App\Model\Payment\Plan;
@@ -16,6 +18,7 @@ use Tests\DBTestCase;
 class CouponTest extends DBTestCase
 {
     use DatabaseTransactions;
+
     public $cart;
 
     public function setUp(): void
@@ -91,7 +94,7 @@ class CouponTest extends DBTestCase
     #[Group('coupon')]
     public function test_checkCode_whenExpiredCouponProvided()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->withoutMiddleware();
 
         $this->getLoggedInUser();
@@ -130,14 +133,14 @@ class CouponTest extends DBTestCase
             1,
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
-        $controller = new \App\Http\Controllers\Payment\PromotionController();
-        $response = $controller->checkCode('FAVEOCOUPON', $product->id);
+        $controller = new PromotionController();
+        $response = $controller->checkCode('FAVEOCOUPON');
     }
 
     #[Group('coupon')]
     public function test_checkCode_whenInvalidCouponProvided()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->withoutMiddleware();
         $this->getLoggedInUser();
         $user = $this->user;
@@ -166,7 +169,7 @@ class CouponTest extends DBTestCase
             1,
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
-        $controller = new \App\Http\Controllers\Payment\PromotionController();
-        $response = $controller->checkCode('FAVEOCOUPON123', $product->id);
+        $controller = new PromotionController();
+        $response = $controller->checkCode('FAVEOCOUPON123');
     }
 }

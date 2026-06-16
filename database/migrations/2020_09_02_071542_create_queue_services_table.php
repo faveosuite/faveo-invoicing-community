@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('queue_services')) {
-            Schema::create('queue_services', function (Blueprint $table) {
+            Schema::create('queue_services', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name');
                 $table->string('short_name');

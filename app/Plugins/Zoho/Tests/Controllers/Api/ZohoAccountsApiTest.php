@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Tests\Controllers\Api;
 
+use Throwable;
 use App\Plugins\Zoho\Controllers\Api\ZohoAccountsApi;
 use App\Plugins\Zoho\Controllers\Api\ZohoRegion;
 use App\Plugins\Zoho\Controllers\Exceptions\ZohoAccountsApiException;
@@ -118,7 +119,7 @@ class ZohoAccountsApiTest extends DBTestCase
 
         try {
             $this->api->generateAccessToken('test_code');
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             // Ignore response errors for this test
         }
 
@@ -138,7 +139,7 @@ class ZohoAccountsApiTest extends DBTestCase
 
         try {
             $this->api->refreshAccessToken('test_refresh_token');
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             // Ignore response errors for this test
         }
 
@@ -164,12 +165,10 @@ class ZohoAccountsApiTest extends DBTestCase
 
         try {
             $api->generateAccessToken('code');
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
         }
 
-        Http::assertSent(function ($request) {
-            return str_contains($request->url(), 'accounts.zoho.com/oauth/v2/token');
-        });
+        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'accounts.zoho.com/oauth/v2/token'));
     }
 
     public function test_it_uses_correct_endpoint_for_eu_region()
@@ -184,12 +183,10 @@ class ZohoAccountsApiTest extends DBTestCase
 
         try {
             $api->generateAccessToken('code');
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
         }
 
-        Http::assertSent(function ($request) {
-            return str_contains($request->url(), 'accounts.zoho.eu/oauth/v2/token');
-        });
+        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'accounts.zoho.eu/oauth/v2/token'));
     }
 
     public function test_it_uses_correct_endpoint_for_india_region()
@@ -204,12 +201,10 @@ class ZohoAccountsApiTest extends DBTestCase
 
         try {
             $api->generateAccessToken('code');
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
         }
 
-        Http::assertSent(function ($request) {
-            return str_contains($request->url(), 'accounts.zoho.in/oauth/v2/token');
-        });
+        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'accounts.zoho.in/oauth/v2/token'));
     }
 
     public function test_it_handles_error_in_refresh_token()

@@ -2,14 +2,18 @@
 
 namespace Tests\Unit\Admin\BillingInstaller;
 
+use Override;
+use Exception;
 use App\Http\Controllers\BillingInstaller\BillingDependencyController;
 use Tests\TestCase;
 
 class BillingDependencyControllerTest extends TestCase
 {
     private $validator;
+
     private $basePath;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->validator = new BillingDependencyController('test');
@@ -22,6 +26,7 @@ class BillingDependencyControllerTest extends TestCase
         }
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         // Clean up after each test
@@ -72,7 +77,7 @@ class BillingDependencyControllerTest extends TestCase
         try {
             $this->validator->validateDirectory($this->basePath, $errorCount);
             $this->fail('Expected exception was not thrown');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->assertStringContainsString('Expected exception was not thrown', $e->getMessage());
         }
     }

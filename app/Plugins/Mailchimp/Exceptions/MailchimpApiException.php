@@ -2,11 +2,12 @@
 
 namespace App\Plugins\Mailchimp\Exceptions;
 
+use Throwable;
 use RuntimeException;
 
 class MailchimpApiException extends RuntimeException
 {
-    public function __construct(string $message = '', private readonly int $httpStatus = 0, ?\Throwable $previous = null)
+    public function __construct(string $message = '', private readonly int $httpStatus = 0, ?Throwable $previous = null)
     {
         parent::__construct($message, $httpStatus, $previous);
     }

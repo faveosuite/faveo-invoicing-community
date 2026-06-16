@@ -2,6 +2,7 @@
 
 namespace App\Services\Tax;
 
+use App\Model\Payment\TaxOption;
 use App\Model\Common\Setting;
 use App\Model\Payment\TaxRate;
 
@@ -55,7 +56,7 @@ class TaxRateResolver
      */
     public function customerLocation($user): array
     {
-        $basedOn = optional(\App\Model\Payment\TaxOption::find(1))->tax_based_on ?: 'billing';
+        $basedOn = TaxOption::find(1)?->tax_based_on ?: 'billing';
 
         if ($basedOn === 'base' || ! $user) {
             $setting = Setting::first();
@@ -91,6 +92,7 @@ class TaxRateResolver
             if (! $this->locationMatches($rate, $postcode, $city)) {
                 continue;
             }
+
             $scored[] = [
                 'rate' => $rate,
                 'score' => $this->specificity($rate, $postcode, $city),
@@ -98,10 +100,8 @@ class TaxRateResolver
         }
 
         // Most specific first, stable within a priority.
-        usort($scored, function ($a, $b) {
-            return [$a['rate']->priority, -$a['score'], $a['rate']->id]
-                <=> [$b['rate']->priority, -$b['score'], $b['rate']->id];
-        });
+        usort($scored, fn($a, $b) => [$a['rate']->priority, -$a['score'], $a['rate']->id]
+            <=> [$b['rate']->priority, -$b['score'], $b['rate']->id]);
 
         $matched = [];
         $seenPriority = [];
@@ -110,6 +110,7 @@ class TaxRateResolver
             if (in_array($rate->priority, $seenPriority, true)) {
                 continue; // one rate per priority
             }
+
             $seenPriority[] = $rate->priority;
             $matched[] = [
                 'id' => (int) $rate->id,
@@ -132,7 +133,7 @@ class TaxRateResolver
             || $postcodeLocations->contains(fn ($loc) => $this->postcodeMatches($postcode, $loc->location_code));
 
         $cityOk = $cityLocations->isEmpty()
-            || $cityLocations->contains(fn ($loc) => strtoupper(trim($loc->location_code)) === $city);
+            || $cityLocations->contains(fn ($loc) => strtoupper(trim((string) $loc->location_code)) === $city);
 
         return $postcodeOk && $cityOk;
     }
@@ -146,7 +147,7 @@ class TaxRateResolver
 
         // Range: "12000...12999"
         if (str_contains($code, '...')) {
-            [$from, $to] = array_map('trim', explode('...', $code, 2));
+            [$from, $to] = array_map(trim(...), explode('...', $code, 2));
             if (is_numeric($from) && is_numeric($to) && is_numeric($postcode)) {
                 return (float) $postcode >= (float) $from && (float) $postcode <= (float) $to;
             }

@@ -2,6 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use Auth;
+use Session;
+use Illuminate\Http\Request;
 use App\DefaultPage;
 //use Illuminate\Routing\Middleware;
 use Cart;
@@ -34,37 +37,39 @@ class Admin
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param Request $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
         $defaulturl = DefaultPage::pluck('page_url')->first();
-        if (\Auth::user()->role == 'admin') {
+        if (Auth::user()->role == 'admin') {
             return $next($request);
-        } elseif (\Auth::user()->role == 'user') {
-            $url = \Session::get('session-url');
+        } elseif (Auth::user()->role == 'user') {
+            $url = Session::get('session-url');
             if ($url) {
-                $content = \Cart::getContent();
-                $currency = \Session::get('currency');
-                if (\Auth::user()->currency != $currency) {//If user currency is not equal to the cart currency then redirect to default url and clear his cart items and let the customer add the Product again so that the tax could be calculated properly
-                    foreach ($content as $key => $item) {
+                $content = Cart::getContent();
+                $currency = Session::get('currency');
+                if (Auth::user()->currency != $currency) {//If user currency is not equal to the cart currency then redirect to default url and clear his cart items and let the customer add the Product again so that the tax could be calculated properly
+                    foreach ($content as $item) {
                         $id = $item->id;
                         $this->cart->remove($id);
                     }
-                    \Session::forget('content');
+
+                    Session::forget('content');
 
                     return redirect($defaulturl);
                 }
-                $domain = \Session::get('domain');
+
+                $domain = Session::get('domain');
 
                 return redirect($url);
             }
 
             return redirect($defaulturl);
         } else {
-            \Auth::logout();
+            Auth::logout();
             if ($request->ajax()) {
                 return response('Unauthorized.', 401);
             } else {

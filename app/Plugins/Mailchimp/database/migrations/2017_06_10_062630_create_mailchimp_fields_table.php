@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('mailchimp_fields')) {
-            Schema::create('mailchimp_fields', function (Blueprint $table) {
+            Schema::create('mailchimp_fields', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('list_id');
                 $table->string('merge_id')->unique('merge_id');

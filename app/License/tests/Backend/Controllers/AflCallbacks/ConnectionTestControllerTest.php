@@ -18,7 +18,7 @@ class ConnectionTestControllerTest extends LicenseTestCase
         $validator = Mockery::mock(LicenseValidator::class);
         $validator->shouldReceive('isValidConnection')->once()->with(1, 'hash')->andReturn(true);
 
-        $response = (new ConnectionTestController($validator))->connection($this->moduleRequest([
+        $response = new ConnectionTestController($validator)->connection($this->moduleRequest([
             'product_id' => 1,
             'connection_hash' => 'hash',
         ], 'POST'));
@@ -35,7 +35,7 @@ class ConnectionTestControllerTest extends LicenseTestCase
         $validator = Mockery::mock(LicenseValidator::class);
         $validator->shouldReceive('isValidConnection')->once()->with(1, 'bad')->andReturn(false);
 
-        $response = (new ConnectionTestController($validator))->connection($this->moduleRequest([
+        $response = new ConnectionTestController($validator)->connection($this->moduleRequest([
             'product_id' => 1,
             'connection_hash' => 'bad',
         ], 'POST'));

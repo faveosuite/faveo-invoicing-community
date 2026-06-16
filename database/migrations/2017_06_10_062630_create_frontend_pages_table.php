@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('frontend_pages')) {
-            Schema::create('frontend_pages', function (Blueprint $table) {
+            Schema::create('frontend_pages', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('parent_page_id');
                 $table->string('slug');

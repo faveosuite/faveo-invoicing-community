@@ -2,6 +2,11 @@
 
 namespace Tests\Unit\Client\Stripe;
 
+use Stripe\StripeClient;
+use DB;
+use Auth;
+use Exception;
+use App\Http\Controllers\Common\BaseSettingsController;
 use App\ApiKey;
 use App\Facades\Attach;
 use App\FileSystemSettings;
@@ -45,11 +50,11 @@ class SettingsControllerTest extends DBTestCase
     // Helper method to set up the mock for the Stripe client
     protected function setupStripeClientMock($expectedArguments, $status)
     {
-        $stripeClientConstructorMock = Mockery::mock('\Stripe\StripeClient');
+        $stripeClientConstructorMock = Mockery::mock(StripeClient::class);
         $stripeClientConstructorMock->shouldReceive('paymentIntents->confirm')
             ->with('payment_intent_id', $expectedArguments)
             ->andReturn(['status' => $status]);
-        \DB::table('api_keys')->where('id', 1)->update(['stripe_secret' => 'sk_test_FIPEe0BihQ4Rn2exN1BhOotg']);
+        DB::table('api_keys')->where('id', 1)->update(['stripe_secret' => 'sk_test_FIPEe0BihQ4Rn2exN1BhOotg']);
 
         return $stripeClientConstructorMock;
     }
@@ -86,7 +91,7 @@ class SettingsControllerTest extends DBTestCase
     // Helper method to set up the Auth user
     protected function SetAuthUser()
     {
-        $user = \Auth::shouldReceive('user')->andReturn((object) [
+        $user = Auth::shouldReceive('user')->andReturn((object) [
             'first_name' => 'sowmi',
             'last_name' => 's',
             'email' => 'sowmi@gmail.com',
@@ -146,7 +151,7 @@ class SettingsControllerTest extends DBTestCase
             $this->SetAuthUser();
             $controller = new SettingsController($stripeClientConstructorMock);
             $response = $controller->handlePayment($requestMock, 50, 'INR', 'https://example.com/return-url', null);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->assertEquals('Invalid token id: 12345678904567890', $exception->getMessage());
         }
     }
@@ -201,7 +206,7 @@ class SettingsControllerTest extends DBTestCase
             'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $subscription = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
         $plan = Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        \DB::table('api_keys')->where('id', 1)->update(['rzp_key' => 'rzp_test_0UWbi4WpjuMCoC', 'rzp_secret' => 'jZbOckxf4RhwaUAgxzegwQqV']);
+        DB::table('api_keys')->where('id', 1)->update(['rzp_key' => 'rzp_test_0UWbi4WpjuMCoC', 'rzp_secret' => 'jZbOckxf4RhwaUAgxzegwQqV']);
         // Prepare mock data
         $days = 30;
         $product_name = 'Example Product';
@@ -401,14 +406,12 @@ class SettingsControllerTest extends DBTestCase
         ];
 
         // MOCK TRAIT METHOD
-        $mock = \Mockery::mock(\App\Http\Controllers\Common\BaseSettingsController::class)->makePartial();
+        $mock = Mockery::mock(BaseSettingsController::class)->makePartial();
         $mock->shouldAllowMockingProtectedMethods();
         $mock->shouldReceive('validateS3Credentials')->andReturn(true);
 
         // Bind so SettingsController will use this mock (it inherits the trait)
-        $this->app->bind(\App\Http\Controllers\Common\SettingsController::class, function () use ($mock) {
-            return $mock;
-        });
+        $this->app->bind(fn(): \App\Http\Controllers\Common\SettingsController => $mock);
 
         $response = $this->postJson('/file-storage-path', $payload);
 

@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('chat_scripts', function (Blueprint $table) {
+        Schema::table('chat_scripts', function (Blueprint $table): void {
             $table->boolean('non_authenticated')->default(0);
         });
     }
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('chat_scripts', function (Blueprint $table) {
+        Schema::table('chat_scripts', function (Blueprint $table): void {
             $table->dropColumn('non_authenticated');
         });
     }

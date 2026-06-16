@@ -24,9 +24,9 @@ class VersionRequest extends FormRequest
     public function rules()
     {
         return [
-            'product_id' => 'numeric',
-            'version_number' => 'string',
-            'version_status' => 'boolean',
+            'product_id' => ['numeric'],
+            'version_number' => ['string'],
+            'version_status' => ['boolean'],
         ];
     }
 }

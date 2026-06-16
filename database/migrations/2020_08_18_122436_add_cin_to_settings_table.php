@@ -13,10 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             if (! Schema::hasColumn('settings', 'cin_no')) {
                 $table->string('cin_no')->nullable();
             }
+
             if (! Schema::hasColumn('settings', 'gstin')) {
                 $table->string('gstin')->nullable();
             }
@@ -30,7 +31,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             $table->dropColumn('cin_no');
             $table->dropColumn('gstin');
         });

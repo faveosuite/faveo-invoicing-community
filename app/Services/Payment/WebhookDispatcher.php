@@ -30,7 +30,7 @@ class WebhookDispatcher
         return (new static)
             ->on(
                 ['invoice.payment_succeeded', 'invoice.payment_failed', 'customer.subscription.deleted'],
-                fn ($e) => app(SubscriptionWebhookService::class)->handleStripeEvent($e)
+                fn ($e) => resolve(SubscriptionWebhookService::class)->handleStripeEvent($e)
             )
             ->on(
                 ['checkout.session.completed', 'payment_intent.succeeded'],
@@ -47,7 +47,7 @@ class WebhookDispatcher
         return (new static)
             ->on(
                 ['subscription.charged', 'subscription.halted'],
-                fn ($e) => app(SubscriptionWebhookService::class)->handleRazorpayEvent($e)
+                fn ($e) => resolve(SubscriptionWebhookService::class)->handleRazorpayEvent($e)
             )
             ->on(
                 ['payment.captured', 'payment.failed'],
@@ -61,7 +61,7 @@ class WebhookDispatcher
     {
         if ($invoiceId = $object['metadata']['invoice_id'] ?? null) {
             if ($invoice = Invoice::find($invoiceId)) {
-                app(InvoicePaymentService::class)->confirm($invoice, 'Stripe', [
+                resolve(InvoicePaymentService::class)->confirm($invoice, 'Stripe', [
                     'payment_intent' => $object['payment_intent'] ?? $object['id'] ?? null,
                 ]);
             }
@@ -101,7 +101,7 @@ class WebhookDispatcher
         if ($invoiceId = $payment['notes']['invoice_id'] ?? null) {
             if ($invoice = Invoice::find($invoiceId)) {
                 if ($type === 'payment.captured') {
-                    app(InvoicePaymentService::class)->confirm($invoice, 'Razorpay', [
+                    resolve(InvoicePaymentService::class)->confirm($invoice, 'Razorpay', [
                         'razorpay_payment_id' => $payment['id'] ?? null,
                     ]);
                 }

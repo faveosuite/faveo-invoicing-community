@@ -2,6 +2,8 @@
 
 namespace App\License\Controllers;
 
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\License\Models\LicenseBannedHost;
 use App\License\Models\LicenseWhitelistIp;
@@ -21,6 +23,7 @@ class WhitelistIpsController extends Controller
             if (in_array($whitelist_host_ip, $bannedHosts)) {
                 return errorResponse($whitelist_host_ip.Lang::get('lang.already_exist_ip'), 500);
             }
+
             $whitelist = LicenseWhitelistIp::updateOrCreate(
                 ['id' => $id],
                 [
@@ -33,7 +36,7 @@ class WhitelistIpsController extends Controller
             $statusCode = $id ? 200 : 201;
 
             return successResponse($responseMessage, $whitelist, $statusCode);
-        } catch(\Exception $e) {
+        } catch(Exception $e) {
             return errorResponse($e, 404);
         }
     }
@@ -45,7 +48,7 @@ class WhitelistIpsController extends Controller
             $host_data->delete();
 
             return successResponse(Lang::get('lang.delete'), 201);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException) {
             return errorResponse(Lang::get('lang.invalid'), 404);
         }
     }
@@ -69,20 +72,16 @@ class WhitelistIpsController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
 
-        $records = LicenseWhitelistIp::when($searchQuery, function ($query) use ($searchQuery) {
-            return $query->where('whitelist_host_ip', 'like', '%'.$searchQuery.'%')
-                ->orWhere('whitelist_host_comments', 'like', '%'.$searchQuery.'%');
-        })->orderBy($sortField, $sortOrder)
+        $records = LicenseWhitelistIp::when($searchQuery, fn($query) => $query->where('whitelist_host_ip', 'like', '%'.$searchQuery.'%')
+            ->orWhere('whitelist_host_comments', 'like', '%'.$searchQuery.'%'))->orderBy($sortField, $sortOrder)
         ->paginate($perPage, ['*'], 'page', $page);
 
-        $records->getCollection()->transform(function ($record) {
-            return [
-                'id' => $record->id,
-                'whitelist_host_date' => $record->created_at ? $record->created_at->format('Y-m-d') : '',
-                'whitelist_host_ip' => $record->whitelist_host_ip,
-                'whitelist_host_comments' => $record->whitelist_host_comments,
-            ];
-        });
+        $records->getCollection()->transform(fn($record) => [
+            'id' => $record->id,
+            'whitelist_host_date' => $record->created_at ? $record->created_at->format('Y-m-d') : '',
+            'whitelist_host_ip' => $record->whitelist_host_ip,
+            'whitelist_host_comments' => $record->whitelist_host_comments,
+        ]);
 
         return successResponse(Lang::get('lang.view_whitelist_ip'), $records, 201);
     }

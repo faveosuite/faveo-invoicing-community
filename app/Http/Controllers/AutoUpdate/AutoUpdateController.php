@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers\AutoUpdate;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\License\Services\VersionService;
 use App\Model\Product\Product;
 
 class AutoUpdateController extends Controller
 {
-    protected VersionService $versionService;
-
-    public function __construct(VersionService $versionService)
+    public function __construct(protected VersionService $versionService)
     {
-        $this->versionService = $versionService;
     }
 
     /*
@@ -35,12 +33,12 @@ class AutoUpdateController extends Controller
     {
         $product = Product::where('product_sku', $product_sku)->first();
         if (! $product) {
-            throw new \Exception(__('message.product_not_found'));
+            throw new Exception(__('message.product_not_found'));
         }
 
         $version = $this->versionService->getVersionByNumber($product->id, $version_number);
         if (! $version) {
-            throw new \Exception(__('message.version_not_found'));
+            throw new Exception(__('message.version_not_found'));
         }
 
         // Version editing would require additional parameters

@@ -1,5 +1,64 @@
 <?php
 
+use App\Plugins\Stripe\ServiceProvider;
+use Illuminate\Auth\AuthServiceProvider;
+use Illuminate\Broadcasting\BroadcastServiceProvider;
+use Illuminate\Bus\BusServiceProvider;
+use Illuminate\Cache\CacheServiceProvider;
+use Illuminate\Foundation\Providers\ConsoleSupportServiceProvider;
+use Illuminate\Cookie\CookieServiceProvider;
+use Illuminate\Database\DatabaseServiceProvider;
+use Illuminate\Encryption\EncryptionServiceProvider;
+use Illuminate\Filesystem\FilesystemServiceProvider;
+use Illuminate\Foundation\Providers\FoundationServiceProvider;
+use Illuminate\Hashing\HashServiceProvider;
+use Illuminate\Mail\MailServiceProvider;
+use Illuminate\Notifications\NotificationServiceProvider;
+use Illuminate\Pagination\PaginationServiceProvider;
+use Illuminate\Pipeline\PipelineServiceProvider;
+use Illuminate\Queue\QueueServiceProvider;
+use Illuminate\Redis\RedisServiceProvider;
+use Illuminate\Auth\Passwords\PasswordResetServiceProvider;
+use Illuminate\Session\SessionServiceProvider;
+use Illuminate\Translation\TranslationServiceProvider;
+use Illuminate\Validation\ValidationServiceProvider;
+use Illuminate\View\ViewServiceProvider;
+use Torann\GeoIP\GeoIPServiceProvider;
+use Laravel\Tinker\TinkerServiceProvider;
+use App\Providers\AppServiceProvider;
+use App\Providers\EventServiceProvider;
+use App\Providers\HorizonServiceProvider;
+use App\Providers\RouteServiceProvider;
+use App\Providers\CustomValidationProvider;
+use App\License\LicenseServiceProvider;
+use Spatie\Activitylog\ActivitylogServiceProvider;
+use Spatie\Referer\RefererServiceProvider;
+use Darryldecode\Cart\CartServiceProvider;
+use Creativeorange\Gravatar\GravatarServiceProvider;
+use App\Providers\ImageUploadHelperServiceProvider;
+use Laravel\Socialite\SocialiteServiceProvider;
+use Maatwebsite\Excel\ExcelServiceProvider;
+use App\Providers\AttachmentHelperServiceProvider;
+use Spatie\Html\HtmlServiceProvider;
+use App\BillingLog\LaravelLogViewerServiceProvider;
+use App\Providers\LogServiceProvider;
+use App\Plugins\Recaptcha\RecaptchaServiceProvider;
+use App\Plugins\Zoho\Providers\ZohoServiceProvider;
+use App\Plugins\Mailchimp\MailchimpServiceProvider;
+use App\Providers\ConfigServiceProvider;
+use App\Cart\UserCart;
+use Spatie\Activitylog\ActivitylogFacade;
+use Darryldecode\Cart\Facades\CartFacade;
+use Torann\Currency\Facades\Currency;
+use Yajra\DataTables\Facades\DataTables;
+use Torann\GeoIP\Facades\GeoIP;
+use Spatie\Html\Facades\Html;
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Redis;
+use Creativeorange\Gravatar\Facades\Gravatar;
+use Laravel\Socialite\Facades\Socialite;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Facades\Log;
 use Illuminate\Support\Facades\Facade;
 
 return [
@@ -111,7 +170,7 @@ return [
 
     'previous_keys' => [
         ...array_filter(
-            explode(',', env('APP_PREVIOUS_KEYS', 'base64:G4WSQduFNvk9rYtoLS1ozg=='))
+            explode(',', (string) env('APP_PREVIOUS_KEYS', 'base64:G4WSQduFNvk9rYtoLS1ozg=='))
         ),
     ],
 
@@ -160,70 +219,70 @@ return [
 
         //
 
-        App\Plugins\Stripe\ServiceProvider::class,
+        ServiceProvider::class,
         App\Plugins\Razorpay\ServiceProvider::class,
         /*
          * Laravel Framework Service Providers...
          */
-        Illuminate\Auth\AuthServiceProvider::class,
-        Illuminate\Broadcasting\BroadcastServiceProvider::class,
-        Illuminate\Bus\BusServiceProvider::class,
-        Illuminate\Cache\CacheServiceProvider::class,
-        Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class,
-        Illuminate\Cookie\CookieServiceProvider::class,
-        Illuminate\Database\DatabaseServiceProvider::class,
-        Illuminate\Encryption\EncryptionServiceProvider::class,
-        Illuminate\Filesystem\FilesystemServiceProvider::class,
-        Illuminate\Foundation\Providers\FoundationServiceProvider::class,
-        Illuminate\Hashing\HashServiceProvider::class,
-        Illuminate\Mail\MailServiceProvider::class,
-        Illuminate\Notifications\NotificationServiceProvider::class,
-        Illuminate\Pagination\PaginationServiceProvider::class,
-        Illuminate\Pipeline\PipelineServiceProvider::class,
-        Illuminate\Queue\QueueServiceProvider::class,
-        Illuminate\Redis\RedisServiceProvider::class,
-        Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
-        Illuminate\Session\SessionServiceProvider::class,
-        Illuminate\Translation\TranslationServiceProvider::class,
-        Illuminate\Validation\ValidationServiceProvider::class,
-        Illuminate\View\ViewServiceProvider::class,
-        Torann\GeoIP\GeoIPServiceProvider::class,
+        AuthServiceProvider::class,
+        BroadcastServiceProvider::class,
+        BusServiceProvider::class,
+        CacheServiceProvider::class,
+        ConsoleSupportServiceProvider::class,
+        CookieServiceProvider::class,
+        DatabaseServiceProvider::class,
+        EncryptionServiceProvider::class,
+        FilesystemServiceProvider::class,
+        FoundationServiceProvider::class,
+        HashServiceProvider::class,
+        MailServiceProvider::class,
+        NotificationServiceProvider::class,
+        PaginationServiceProvider::class,
+        PipelineServiceProvider::class,
+        QueueServiceProvider::class,
+        RedisServiceProvider::class,
+        PasswordResetServiceProvider::class,
+        SessionServiceProvider::class,
+        TranslationServiceProvider::class,
+        ValidationServiceProvider::class,
+        ViewServiceProvider::class,
+        GeoIPServiceProvider::class,
         /*
          * Package Service Providers...
          */
-        Laravel\Tinker\TinkerServiceProvider::class,
+        TinkerServiceProvider::class,
 
         /*
          * Application Service Providers...
          */
-        App\Providers\AppServiceProvider::class,
+        AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\HorizonServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
-        App\Providers\CustomValidationProvider::class,
-        App\License\LicenseServiceProvider::class,
+        EventServiceProvider::class,
+        HorizonServiceProvider::class,
+        RouteServiceProvider::class,
+        CustomValidationProvider::class,
+        LicenseServiceProvider::class,
         // Illuminate\Support\Facades\Input::class,
-        Spatie\Activitylog\ActivitylogServiceProvider::class,
-        Spatie\Referer\RefererServiceProvider::class,
+        ActivitylogServiceProvider::class,
+        RefererServiceProvider::class,
         PragmaRX\Google2FALaravel\ServiceProvider::class,
-        Darryldecode\Cart\CartServiceProvider::class,
+        CartServiceProvider::class,
         // Voerro\Laravel\VisitorTracker\VisitorTrackerServiceProvider::class,
-        Creativeorange\Gravatar\GravatarServiceProvider::class,
+        GravatarServiceProvider::class,
         // Symfony\Component\Mailer\MailerInterface::class,
-        App\Providers\ImageUploadHelperServiceProvider::class,
-        Laravel\Socialite\SocialiteServiceProvider::class,
-        Maatwebsite\Excel\ExcelServiceProvider::class,
-        \App\Providers\AttachmentHelperServiceProvider::class,
-        Spatie\Html\HtmlServiceProvider::class,
-        \App\BillingLog\LaravelLogViewerServiceProvider::class,
-        \App\Providers\LogServiceProvider::class,
-        App\Plugins\Recaptcha\RecaptchaServiceProvider::class,
+        ImageUploadHelperServiceProvider::class,
+        SocialiteServiceProvider::class,
+        ExcelServiceProvider::class,
+        AttachmentHelperServiceProvider::class,
+        HtmlServiceProvider::class,
+        LaravelLogViewerServiceProvider::class,
+        LogServiceProvider::class,
+        RecaptchaServiceProvider::class,
         App\Providers\CartServiceProvider::class,
-        \App\Plugins\Zoho\Providers\ZohoServiceProvider::class,
-        App\Plugins\Mailchimp\MailchimpServiceProvider::class,
-        App\Providers\ConfigServiceProvider::class,
+        ZohoServiceProvider::class,
+        MailchimpServiceProvider::class,
+        ConfigServiceProvider::class,
     ],
 
     /*
@@ -238,20 +297,20 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'UserCart' => App\Cart\UserCart::class,
-        'Activity' => Spatie\Activitylog\ActivitylogFacade::class,
-        'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
-        'Currency' => \Torann\Currency\Facades\Currency::class,
-        'DataTables' => Yajra\DataTables\Facades\DataTables::class,
-        'GeoIP' => \Torann\GeoIP\Facades\GeoIP::class,
+        'UserCart' => UserCart::class,
+        'Activity' => ActivitylogFacade::class,
+        'Cart' => CartFacade::class,
+        'Currency' => Currency::class,
+        'DataTables' => DataTables::class,
+        'GeoIP' => GeoIP::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
-        'Html' => Spatie\Html\Facades\Html::class,
-        'Input' => Illuminate\Support\Facades\Input::class,
-        'Redis' => Illuminate\Support\Facades\Redis::class,
-        'Gravatar' => Creativeorange\Gravatar\Facades\Gravatar::class,
-        'Socialite' => Laravel\Socialite\Facades\Socialite::class,
-        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-        'Logger' => \App\Facades\Log::class,
+        'Html' => Html::class,
+        'Input' => Input::class,
+        'Redis' => Redis::class,
+        'Gravatar' => Gravatar::class,
+        'Socialite' => Socialite::class,
+        'Excel' => Excel::class,
+        'Logger' => Log::class,
 
     ])->toArray(),
 

@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('product_bundle_relations', function (Blueprint $table) {
+        Schema::table('product_bundle_relations', function (Blueprint $table): void {
             $table->foreign('bundle_id')->references('id')->on('product_bundles')->onUpdate('RESTRICT')->onDelete('RESTRICT');
             $table->foreign('product_id')->references('id')->on('products')->onUpdate('RESTRICT')->onDelete('RESTRICT');
         });
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('product_bundle_relations', function (Blueprint $table) {
+        Schema::table('product_bundle_relations', function (Blueprint $table): void {
             $table->dropForeign('product_bundle_relations_bundle_id_foreign');
             $table->dropForeign('product_bundle_relations_product_id_foreign');
         });

@@ -2,6 +2,9 @@
 
 namespace App\Model\Payment;
 
+use Override;
+use Str;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Model;
 
 class OpenPaymentOrder extends Model
@@ -31,22 +34,15 @@ class OpenPaymentOrder extends Model
         'paid_at',
     ];
 
-    protected $casts = [
-        'amount' => 'decimal:2',
-        'base_amount' => 'decimal:2',
-        'processing_fee' => 'decimal:2',
-        'processing_fee_rate' => 'decimal:2',
-        'paid_at' => 'datetime',
-    ];
-
     /**
      * Boot method to auto-generate transaction_id on creation.
      */
+    #[Override]
     protected static function boot()
     {
         parent::boot();
 
-        static::creating(function ($order) {
+        static::creating(function ($order): void {
             if (empty($order->transaction_id)) {
                 $order->transaction_id = self::generateTransactionId();
             }
@@ -59,7 +55,7 @@ class OpenPaymentOrder extends Model
      */
     public static function generateTransactionId(): string
     {
-        return 'txn_'.strtolower(\Str::ulid());
+        return 'txn_'.strtolower(Str::ulid());
     }
 
     /**
@@ -89,7 +85,8 @@ class OpenPaymentOrder extends Model
     /**
      * Scope for completed payments.
      */
-    public function scopeCompleted($query)
+    #[Scope]
+    protected function completed($query)
     {
         return $query->where('payment_status', 'completed');
     }
@@ -97,7 +94,8 @@ class OpenPaymentOrder extends Model
     /**
      * Scope for pending payments.
      */
-    public function scopePending($query)
+    #[Scope]
+    protected function pending($query)
     {
         return $query->where('payment_status', 'pending');
     }
@@ -105,7 +103,8 @@ class OpenPaymentOrder extends Model
     /**
      * Scope for failed payments.
      */
-    public function scopeFailed($query)
+    #[Scope]
+    protected function failed($query)
     {
         return $query->where('payment_status', 'failed');
     }
@@ -116,5 +115,16 @@ class OpenPaymentOrder extends Model
     public function getGatewayId(): ?string
     {
         return $this->gateway_transaction_id;
+    }
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'amount' => 'decimal:2',
+            'base_amount' => 'decimal:2',
+            'processing_fee' => 'decimal:2',
+            'processing_fee_rate' => 'decimal:2',
+            'paid_at' => 'datetime',
+        ];
     }
 }

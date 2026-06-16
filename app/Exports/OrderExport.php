@@ -10,15 +10,9 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 class OrderExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
-    protected $selectedColumns;
-    protected $ordersData;
-    protected $sheetIndex;
 
-    public function __construct($selectedColumns, $ordersData, $sheetIndex)
+    public function __construct(protected $selectedColumns, protected $ordersData, protected $sheetIndex)
     {
-        $this->selectedColumns = $selectedColumns;
-        $this->ordersData = $ordersData;
-        $this->sheetIndex = $sheetIndex;
     }
 
     public function collection()
@@ -43,9 +37,7 @@ class OrderExport implements FromCollection, WithHeadings, WithTitle
             'update_ends_at' => 'Expiry',
         ];
 
-        return array_map(function ($column) use ($headingsMap) {
-            return $headingsMap[$column] ?? $column;
-        }, $this->selectedColumns);
+        return array_map(fn($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
     }
 
     public function title(): string

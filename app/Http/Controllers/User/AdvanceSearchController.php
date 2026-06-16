@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\User;
 
+use Response;
+use Exception;
+use Logger;
 use App\Model\Order\Payment;
 use App\User;
 use Illuminate\Http\Request;
@@ -31,8 +34,9 @@ class AdvanceSearchController extends AdminOrderInvoiceController
         try {
             $term = trim($request->q);
             if (empty($term)) {
-                return \Response::json([]);
+                return Response::json([]);
             }
+
             $users = User::where('email', 'LIKE', '%'.$term.'%')
              ->orWhere('first_name', 'LIKE', '%'.$term.'%')
              ->orWhere('last_name', 'LIKE', '%'.$term.'%')
@@ -44,10 +48,10 @@ class AdvanceSearchController extends AdminOrderInvoiceController
                     'first_name' => $user->first_name, 'last_name' => $user->last_name, ];
             }
 
-            return \Response::json($formatted_users);
-        } catch (\Exception $e) {
+            return Response::json($formatted_users);
+        } catch (Exception $e) {
             // returns if try fails with exception meaagse
-            return redirect()->back()->with('fails', $e->getMessage());
+            return back()->with('fails', $e->getMessage());
         }
     }
 
@@ -67,7 +71,8 @@ class AdvanceSearchController extends AdminOrderInvoiceController
         if (array_key_exists('name', getStateByCode($client->country, $client->state))) {
             $client->state = getStateByCode($client->country, $client->state)['name'];
         }
-        $client->country = ucwords(strtolower(getCountryByCode($client->country)));
+
+        $client->country = ucwords(strtolower((string) getCountryByCode($client->country)));
 
         $displayData = ['currency' => $currency, 'client' => $client];
 
@@ -81,15 +86,15 @@ class AdvanceSearchController extends AdminOrderInvoiceController
             $balance = 0;
             foreach ($amounts as $amount) {
                 if ($amount) {
-                    $balance = $balance + $amount->amt_to_credit;
+                    $balance += $amount->amt_to_credit;
                 }
             }
 
             return $balance;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 }

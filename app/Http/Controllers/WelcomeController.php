@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Model\Common\Country;
 use Illuminate\Http\Request;
 
 class WelcomeController extends Controller
 {
-    private $request;
-
-    public function __construct(Request $request)
+    public function __construct(private readonly Request $request)
     {
         $this->middleware('auth', ['except' => ['getCode']]);
-        $this->request = $request;
     }
 
     public function getCode()
@@ -52,23 +50,21 @@ class WelcomeController extends Controller
 
             $countryList = Country::withCount('users')
                 ->where('country_name', '!=', '')
-                ->when($searchQuery, function ($query, $searchQuery) {
+                ->when($searchQuery, function ($query, $searchQuery): void {
                     $query->where('country_name', 'like', "%{$searchQuery}%");
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $countryList->getCollection()->transform(function ($country) {
-                return [
-                    'id' => $country->country_id,
-                    'country' => ucfirst($country->country_name ?? ''),
-                    'code' => $country->country_code_char2 ?? '',
-                    'count' => $country->users_count ?? 0,
-                ];
-            });
+            $countryList->getCollection()->transform(fn($country) => [
+                'id' => $country->country_id,
+                'country' => ucfirst($country->country_name ?? ''),
+                'code' => $country->country_code_char2 ?? '',
+                'count' => $country->users_count ?? 0,
+            ]);
 
             return successResponse('', $countryList);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong'), 500);
         }
     }

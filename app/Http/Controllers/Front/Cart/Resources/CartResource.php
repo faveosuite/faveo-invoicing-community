@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front\Cart\Resources;
 
+use Override;
 use App\Model\Payment\Currency;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -13,6 +14,7 @@ class CartResource extends JsonResource
      *
      * @return array<string, mixed>
      */
+    #[Override]
     public function toArray(Request $request): array
     {
         // Set cart relation on each item so CartItemResource can reach cart->currency

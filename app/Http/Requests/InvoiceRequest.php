@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Override;
 use Illuminate\Foundation\Http\FormRequest;
 
 class InvoiceRequest extends FormRequest
@@ -24,15 +25,16 @@ class InvoiceRequest extends FormRequest
     public function rules()
     {
         return [
-            'user' => 'required',
-            'date' => 'required|date',
-            'domain' => 'sometimes|nullable|regex:/^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$/i',
-            'plan' => 'required_if:subscription,true',
-            'price' => 'required',
-            'product' => 'required',
+            'user' => ['required'],
+            'date' => ['required', 'date'],
+            'domain' => ['sometimes', 'nullable', 'regex:/^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$/i'],
+            'plan' => ['required_if:subscription,true'],
+            'price' => ['required'],
+            'product' => ['required'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

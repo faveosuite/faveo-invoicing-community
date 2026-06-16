@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('installation_details', function (Blueprint $table) {
+        Schema::create('installation_details', function (Blueprint $table): void {
             $table->id();
             $table->string('installation_path')->nullable();
             $table->string('installation_ip')->nullable();

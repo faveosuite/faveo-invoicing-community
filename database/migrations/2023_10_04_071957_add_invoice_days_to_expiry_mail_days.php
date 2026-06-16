@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('expiry_mail_days', 'invoice_days')) {
-            Schema::table('expiry_mail_days', function (Blueprint $table) {
+            Schema::table('expiry_mail_days', function (Blueprint $table): void {
                 $table->string('invoice_days')->default(2);
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('expiry_mail_days', function (Blueprint $table) {
+        Schema::table('expiry_mail_days', function (Blueprint $table): void {
             $table->dropColumn('invoice_days');
         });
     }

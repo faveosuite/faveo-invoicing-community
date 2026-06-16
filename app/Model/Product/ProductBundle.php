@@ -2,6 +2,7 @@
 
 namespace App\Model\Product;
 
+use Override;
 use App\BaseModel;
 
 class ProductBundle extends BaseModel
@@ -12,9 +13,10 @@ class ProductBundle extends BaseModel
 
     public function relation()
     {
-        return $this->hasMany(\App\Model\Product\ProductBundleRelation::class, 'bundle_id');
+        return $this->hasMany(ProductBundleRelation::class, 'bundle_id');
     }
 
+    #[Override]
     public function delete()
     {
         $this->relation()->delete();

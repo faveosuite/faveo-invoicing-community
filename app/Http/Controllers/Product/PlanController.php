@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\Product;
 
+use Lang;
+use Exception;
+use DB;
+use Throwable;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Requests\PlanRequest;
 use App\Model\Payment\Currency;
@@ -46,7 +52,7 @@ class PlanController extends ExtendedPlanController
      * @param  Request  $request  Plan Form Details
      * @return [type] Saves Plan
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      *
      * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
      *
@@ -78,12 +84,13 @@ class PlanController extends ExtendedPlanController
                         'no_of_agents' => $request->no_of_agents,
                     ];
                 }
+
                 $this->plan->planPrice()->insert($dataForCreating);
             }
 
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
+            return back()->with('success', Lang::get('message.saved-successfully'));
         } catch (Exception $ex) {
-            return redirect()->back()->withj('fails', $ex->getMessage());
+            return back()->withj('fails', $ex->getMessage());
         }
     }
 
@@ -92,7 +99,7 @@ class PlanController extends ExtendedPlanController
      *
      * @param  Plan  $plan
      * @param  PlanRequest  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update(Plan $plan, PlanRequest $request)
     {
@@ -122,7 +129,7 @@ class PlanController extends ExtendedPlanController
             }
         }
 
-        return redirect()->back()->with('success', trans('message.updated-successfully'));
+        return back()->with('success', trans('message.updated-successfully'));
     }
 
     /**
@@ -143,36 +150,37 @@ class PlanController extends ExtendedPlanController
                     } else {
                         echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>". /* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '.
-                            /* @scrutinizer ignore-type */ \Lang::get('message.success').'
+                    <b>". /* @scrutinizer ignore-type */ Lang::get('message.alert').'!</b> '.
+                            /* @scrutinizer ignore-type */ Lang::get('message.success').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '. /* @scrutinizer ignore-type */ \Lang::get('message.no-record').'
+                        '. /* @scrutinizer ignore-type */ Lang::get('message.no-record').'
                 </div>';
                         //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
+
                 echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>". /* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */ \Lang::get('message.success').'
+                    <b>". /* @scrutinizer ignore-type */ Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */ Lang::get('message.success').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '. /* @scrutinizer ignore-type */ \Lang::get('message.deleted-successfully').'
+                        '. /* @scrutinizer ignore-type */ Lang::get('message.deleted-successfully').'
                 </div>';
             } else {
                 echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>". /* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */ \Lang::get('message.success').'
+                    <b>". /* @scrutinizer ignore-type */ Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */ Lang::get('message.success').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '. /* @scrutinizer ignore-type */ \Lang::get('message.select-a-row').'
+                        '. /* @scrutinizer ignore-type */ Lang::get('message.select-a-row').'
                 </div>';
                 //echo \Lang::get('message.select-a-row');
             }
-        } catch(\Exception $ex) {
+        } catch(Exception) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>". /* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '.
-                /* @scrutinizer ignore-type */ \Lang::get('message.cloud_plan_error').'
+                    <b>". /* @scrutinizer ignore-type */ Lang::get('message.alert').'!</b> '.
+                /* @scrutinizer ignore-type */ Lang::get('message.cloud_plan_error').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                   
                 </div>';
@@ -202,7 +210,7 @@ class PlanController extends ExtendedPlanController
             $result = ['subscription' => $checkSubscription, 'agentEnable' => $checkIfAgentEnabled];
 
             return response()->json($result);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $result = ['subscription' => $ex->getMessage()];
 
             return response()->json($result);
@@ -220,8 +228,8 @@ class PlanController extends ExtendedPlanController
             'planPrice:id,plan_id,currency',
             'productRelation:id,name',
         ])
-            ->when($searchQuery, function ($query, $searchQuery) {
-                $query->where(function ($q) use ($searchQuery) {
+            ->when($searchQuery, function ($query, $searchQuery): void {
+                $query->where(function ($q) use ($searchQuery): void {
                     $daysRange = $this->parsePeriodToDaysRange($searchQuery);
 
                     $q->where('name', 'like', "%$searchQuery%")
@@ -297,24 +305,22 @@ class PlanController extends ExtendedPlanController
 
             // Insert pricing data
             if ($request->filled('add_price')) {
-                $priceData = collect($request->add_price)->map(function ($addPrice, $key) use ($request, $plan) {
-                    return [
-                        'plan_id' => $plan->id,
-                        'currency' => $request->currency[$key],
-                        'add_price' => $addPrice,
-                        'renew_price' => $request->renew_price[$key],
-                        'offer_price' => $request->offer_price[$key] ?: null,
-                        'price_description' => $request->price_description,
-                        'product_quantity' => $request->product_quantity,
-                        'no_of_agents' => $request->no_of_agents,
-                    ];
-                })->toArray();
+                $priceData = collect($request->add_price)->map(fn($addPrice, $key) => [
+                    'plan_id' => $plan->id,
+                    'currency' => $request->currency[$key],
+                    'add_price' => $addPrice,
+                    'renew_price' => $request->renew_price[$key],
+                    'offer_price' => $request->offer_price[$key] ?: null,
+                    'price_description' => $request->price_description,
+                    'product_quantity' => $request->product_quantity,
+                    'no_of_agents' => $request->no_of_agents,
+                ])->all();
 
                 $plan->planPrice()->insert($priceData);
             }
 
             return successResponse(__('message.saved-successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -337,7 +343,7 @@ class PlanController extends ExtendedPlanController
             }
 
             return successResponse('', $plan);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -360,24 +366,22 @@ class PlanController extends ExtendedPlanController
             if ($request->filled('add_price')) {
                 $plan->planPrice()->delete();
 
-                $priceData = collect($request->add_price)->map(function ($addPrice, $key) use ($request, $plan) {
-                    return [
-                        'plan_id' => $plan->id,
-                        'currency' => $request->currency[$key],
-                        'add_price' => $addPrice,
-                        'renew_price' => $request->renew_price[$key],
-                        'offer_price' => $request->offer_price[$key] ?? null,
-                        'price_description' => $request->price_description,
-                        'product_quantity' => $request->product_quantity,
-                        'no_of_agents' => $request->no_of_agents,
-                    ];
-                })->toArray();
+                $priceData = collect($request->add_price)->map(fn($addPrice, $key) => [
+                    'plan_id' => $plan->id,
+                    'currency' => $request->currency[$key],
+                    'add_price' => $addPrice,
+                    'renew_price' => $request->renew_price[$key],
+                    'offer_price' => $request->offer_price[$key] ?? null,
+                    'price_description' => $request->price_description,
+                    'product_quantity' => $request->product_quantity,
+                    'no_of_agents' => $request->no_of_agents,
+                ])->all();
 
                 $plan->planPrice()->insert($priceData);
             }
 
             return successResponse(__('message.saved-successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -391,7 +395,7 @@ class PlanController extends ExtendedPlanController
         }
 
         try {
-            \DB::transaction(function () use ($ids) {
+            DB::transaction(function () use ($ids): void {
                 $plans = Plan::whereIn('id', $ids)->get();
 
                 foreach ($plans as $plan) {
@@ -400,7 +404,7 @@ class PlanController extends ExtendedPlanController
             });
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Throwable $ex) {
+        } catch (Throwable $ex) {
             return errorResponse($ex->getMessage());
         }
     }

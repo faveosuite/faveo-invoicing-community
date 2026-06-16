@@ -20,7 +20,7 @@ class LicenseApiControllerTest extends LicenseTestCase
             'license' => ['license_code' => 'LIC-API'],
         ]);
 
-        $response = (new LicenseApiController($service))->licenseInfo($this->moduleRequest([
+        $response = new LicenseApiController($service)->licenseInfo($this->moduleRequest([
             'license_code' => 'LIC-API',
         ]));
         $json = $this->assertSuccessfulJson($response);
@@ -35,7 +35,7 @@ class LicenseApiControllerTest extends LicenseTestCase
         $service = Mockery::mock(LicenseService::class);
         $service->shouldReceive('getLicenseInfo')->once()->with('missing')->andReturn(null);
 
-        $response = (new LicenseApiController($service))->licenseInfo($this->moduleRequest([
+        $response = new LicenseApiController($service)->licenseInfo($this->moduleRequest([
             'license_code' => 'missing',
         ]));
 
@@ -74,7 +74,7 @@ class LicenseApiControllerTest extends LicenseTestCase
             ['product_id' => 10],
         ]);
 
-        $response = (new LicenseApiController($service))->pluginLicense($this->moduleRequest([
+        $response = new LicenseApiController($service)->pluginLicense($this->moduleRequest([
             'license_code' => json_encode(['LIC-A', 'LIC-B']),
         ], 'POST'));
         $json = $this->assertSuccessfulJson($response);
@@ -89,7 +89,7 @@ class LicenseApiControllerTest extends LicenseTestCase
         $service = Mockery::mock(LicenseService::class);
         $service->shouldReceive('reissueLicenseCloud')->once()->with('LIC-API')->andReturn(2);
 
-        $response = (new LicenseApiController($service))->reissueLicenseCloud($this->moduleRequest([
+        $response = new LicenseApiController($service)->reissueLicenseCloud($this->moduleRequest([
             'license_code' => 'LIC-API',
         ], 'POST'));
         $json = $this->assertSuccessfulJson($response);

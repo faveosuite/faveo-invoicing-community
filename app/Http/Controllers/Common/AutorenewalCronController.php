@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Common;
 
+use Illuminate\Support\Facades\Date;
 use App\Http\Controllers\Controller;
 use App\Model\Product\Subscription;
 use Carbon\Carbon;
@@ -167,7 +168,7 @@ class AutorenewalCronController extends Controller
     {
         $dayUtc = new Carbon();
         $now = $dayUtc->toDateTimeString();
-        $past = Carbon::now()->subDays($day + 1);
+        $past = Date::now()->subDays($day + 1);
 
         $sub = Subscription::whereNotNull('update_ends_at')
                ->whereBetween('update_ends_at', [$past, $now]);

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('orders')) {
-            Schema::create('orders', function (Blueprint $table) {
+            Schema::create('orders', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('number')->unique('number');
                 $table->integer('invoice_id');

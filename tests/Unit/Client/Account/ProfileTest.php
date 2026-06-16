@@ -163,7 +163,7 @@ class ProfileTest extends DBTestCase
         $response->assertJsonStructure([
             'success', 'message']);
         $this->assertEquals(true, $content['success']);
-        $this->assertTrue(20 == strlen($content['message']['code']));
+        $this->assertTrue(20 == strlen((string) $content['message']['code']));
     }
 
     public function test_when_2fa_verify_password()

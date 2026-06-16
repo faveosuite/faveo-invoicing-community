@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Product;
 
+use Override;
 use App\Http\Requests\Request;
 
 class ProductRequest extends Request
@@ -24,20 +25,21 @@ class ProductRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required',
-            'type' => 'required',
-            'group' => 'required',
-            'subscription' => 'required',
-            'currency' => 'required',
+            'name' => ['required'],
+            'type' => ['required'],
+            'group' => ['required'],
+            'subscription' => ['required'],
+            'currency' => ['required'],
             // 'price'             => 'required',
-            'file' => 'required_without_all:github_owner,github_repository|mimes:zip',
-            'image' => 'required_without_all:github_owner,github_repository|mimes:png',
-            'github_owner' => 'required_without_all:file,image',
-            'github_repository' => 'required_without_all:file,image|required_if:type,2',
+            'file' => ['required_without_all:github_owner,github_repository', 'mimes:zip'],
+            'image' => ['required_without_all:github_owner,github_repository', 'mimes:png'],
+            'github_owner' => ['required_without_all:file,image'],
+            'github_repository' => ['required_without_all:file,image', 'required_if:type,2'],
 
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

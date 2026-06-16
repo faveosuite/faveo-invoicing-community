@@ -484,8 +484,8 @@ class PhoneNumberRuleTest extends DBTestCase
         $validator = Validator::make(
             $formData,
             [
-                'name' => 'required|string',
-                'email' => 'required|email',
+                'name' => ['required', 'string'],
+                'email' => ['required', 'email'],
                 'phone' => ['required', $rule],
             ]
         );
@@ -506,8 +506,8 @@ class PhoneNumberRuleTest extends DBTestCase
         $validator = Validator::make(
             $formData,
             [
-                'name' => 'required|string',
-                'email' => 'required|email',
+                'name' => ['required', 'string'],
+                'email' => ['required', 'email'],
                 'phone' => ['required', $rule],
             ]
         );

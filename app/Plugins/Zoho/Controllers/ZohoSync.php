@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Controllers;
 
+use Exception;
 use App\Plugins\Zoho\Models\ZohoFields;
 
 class ZohoSync
@@ -35,7 +36,7 @@ class ZohoSync
         return match ($platform) {
             'crm' => (string) $field['id'],
             'campaigns' => (string) $field['FIELD_ID'],
-            default => throw new \Exception("Unsupported platform {$platform}")
+            default => throw new Exception("Unsupported platform {$platform}")
         };
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Integrations\Campaigns\Controllers;
 
+use Exception;
 use App\Plugins\Zoho\Controllers\ZohoBaseController;
 use App\Plugins\Zoho\Controllers\ZohoSync;
 use App\Plugins\Zoho\Integrations\Campaigns\Facades\ZohoCampaigns;
@@ -33,14 +34,14 @@ class ZohoCampaignsController extends ZohoBaseController
             $this->campaigns()->syncTopics();
 
             // Sync Fields
-            app(ZohoSync::class)->sync(
+            resolve(ZohoSync::class)->sync(
                 platform: 'campaigns',
                 module: 'Contacts',
                 fields: $this->campaigns()->contactFields()->toArray()
             );
 
             return successResponse('Campaigns fields and topics synced successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -59,13 +60,13 @@ class ZohoCampaignsController extends ZohoBaseController
     {
         try {
             $data = $request->validate([
-                'email' => 'required|email',
+                'email' => ['required', 'email'],
             ]);
 
             $this->subscribe($data['email'], 'newsletter');
 
             return successResponse('Subscribed successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\License;
 
+use Exception;
+use Illuminate\Support\Facades\Date;
+use App\License\Models\Installation;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LocalizedLicenseRequest;
 use App\License\Services\InstallationService;
 use App\Model\Order\Order;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -19,13 +21,10 @@ use Illuminate\Support\Str;
 
 class LocalizedLicenseController extends Controller
 {
-    protected InstallationService $installationService;
-
-    public function __construct(InstallationService $installationService)
+    public function __construct(protected InstallationService $installationService)
     {
         $this->middleware('auth');
         $this->middleware('admin', ['except' => ['downloadFile', 'downloadPrivate', 'storeFile']]);
-        $this->installationService = $installationService;
     }
 
     private function postCurl($post_url, $post_info, $token = null)
@@ -102,7 +101,7 @@ class LocalizedLicenseController extends Controller
      * */
     public function downloadPrivateKeyAdmin($fileName)
     {
-        $value = explode('}', $fileName);
+        $value = explode('}', (string) $fileName);
         $orderNo = substr($value[0], 15);
         $fileName = storage_path('app/public/privateKey-'.$orderNo.'.txt');
 
@@ -121,7 +120,7 @@ class LocalizedLicenseController extends Controller
         $order->update(['license_mode' => $chose ? 'File' : 'Database']);
 
         if ($chose) {
-            app(EncryptDecryptController::class)->generateKeys($orderNo);
+            resolve(EncryptDecryptController::class)->generateKeys($orderNo);
         } else {
             $files = [
                 "publicKey-{$orderNo}.txt",
@@ -161,8 +160,8 @@ class LocalizedLicenseController extends Controller
                 });
 
             if ($searchQuery) {
-                $files = $files->filter(fn ($f) => str_contains(strtolower($f['file_name'] ?? ''), strtolower($searchQuery)) ||
-                    str_contains(strtolower($f['order_number'] ?? ''), strtolower($searchQuery))
+                $files = $files->filter(fn ($f) => str_contains(strtolower($f['file_name'] ?? ''), strtolower((string) $searchQuery)) ||
+                    str_contains(strtolower($f['order_number'] ?? ''), strtolower((string) $searchQuery))
                 )->values();
             }
 
@@ -176,7 +175,7 @@ class LocalizedLicenseController extends Controller
             ]);
 
             return successResponse('', $paginator);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
@@ -185,14 +184,14 @@ class LocalizedLicenseController extends Controller
     {
         try {
             $fileName = $request->input('file_name');
-            if (! $fileName || ! \Illuminate\Support\Str::startsWith($fileName, 'faveo-license')) {
+            if (! $fileName || ! Str::startsWith($fileName, 'faveo-license')) {
                 return errorResponse(__('message.invalid'));
             }
 
             Storage::disk('public')->delete($fileName);
 
             return successResponse(Lang::get('message.license_file_deleted', ['file' => $fileName]));
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
@@ -215,22 +214,25 @@ class LocalizedLicenseController extends Controller
                 $licenseExpiry = DB::table('subscriptions')->where('order_id', $id)->value('ends_at');
                 $updatesExpiry = DB::table('subscriptions')->where('order_id', $id)->value('update_ends_at');
                 $supportExpiry = DB::table('subscriptions')->where('order_id', $id)->value('support_ends_at');
-                if (Carbon::parse($licenseExpiry)->format('Y-m-d') < 1) {
+                if (Date::parse($licenseExpiry)->format('Y-m-d') < 1) {
                     $licenseExpiry = '--';
                 } else {
-                    $licenseExpiry = Carbon::parse($licenseExpiry)->format('Y-m-d');
+                    $licenseExpiry = Date::parse($licenseExpiry)->format('Y-m-d');
                 }
-                if (Carbon::parse($updatesExpiry)->format('Y-m-d') < 1) {
+
+                if (Date::parse($updatesExpiry)->format('Y-m-d') < 1) {
                     $updatesExpiry = '--';
                 } else {
-                    $updatesExpiry = Carbon::parse($updatesExpiry)->format('Y-m-d');
+                    $updatesExpiry = Date::parse($updatesExpiry)->format('Y-m-d');
                 }
-                if (Carbon::parse($supportExpiry)->format('Y-m-d') < 1) {
+
+                if (Date::parse($supportExpiry)->format('Y-m-d') < 1) {
                     $supportExpiry = '--';
                 } else {
-                    $supportExpiry = Carbon::parse($supportExpiry)->format('Y-m-d');
+                    $supportExpiry = Date::parse($supportExpiry)->format('Y-m-d');
                 }
-                \App\License\Models\Installation::updateOrCreate(
+
+                Installation::updateOrCreate(
                     ['license_code' => $licenseCode, 'installation_domain' => $domain],
                     ['installation_path' => $domain, 'version' => $Latestversion, 'installation_status' => 1]
                 );
@@ -331,7 +333,7 @@ class LocalizedLicenseController extends Controller
     {
         Storage::disk('public')->delete($fileName);
 
-        return redirect()->back()->with('success', Lang::get('message.license_file_deleted', ['file' => $fileName]));
+        return back()->with('success', Lang::get('message.license_file_deleted', ['file' => $fileName]));
     }
 
     //return an array with license data

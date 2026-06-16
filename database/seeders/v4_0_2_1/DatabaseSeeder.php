@@ -1,6 +1,7 @@
 <?php
 
 namespace Database\Seeders\v4_0_2_1;
+use DB;
 use Illuminate\Database\Seeder;
 use App\ReportColumn;
 use App\ReportSetting;
@@ -15,7 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         ReportColumn::truncate();
         ReportSetting::truncate();
 
@@ -29,7 +30,7 @@ class DatabaseSeeder extends Seeder
             TemplateTableSeeder::class,
         ]);
 
-         \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
     }
 
@@ -382,6 +383,7 @@ class ReportColumnSeeder extends Seeder
         ]);
     }
 }
+
 class ReportSettingSeeder extends Seeder
 {
     public function run()
@@ -401,7 +403,7 @@ class TemplateTableSeeder extends Seeder
 {
     public function run()
     {
-    
+
     Template::where('id',23)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
    <tbody>
    <tr>
@@ -420,7 +422,7 @@ class TemplateTableSeeder extends Seeder
    <td style="background: #fff; border-left: 1px solid #ccc; border-top: 1px solid #ccc; width: 40px; padding-top: 10px; padding-bottom: 10px;">&nbsp;</td>
    <td style="background: #fff; border-top: 1px solid #ccc; padding: 40px 0 10px 0; width: 560px;" align="left">Dear {{name}},<br /><br />
    <h1 style="color: #0088cc; font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; padding: 0; margin: 0;">Renew your subscription to continue using our services.</h1>
-  
+
    </td>
    <td style="background: #fff; border-right: 1px solid #ccc; border-top: 1px solid #ccc; width: 40px; padding-top: 10px; padding-bottom: 10px;">&nbsp;</td>
    </tr>

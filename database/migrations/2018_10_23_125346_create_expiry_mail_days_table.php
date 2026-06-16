@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('expiry_mail_days')) {
-            Schema::create('expiry_mail_days', function (Blueprint $table) {
+            Schema::create('expiry_mail_days', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('days', 255)->nullable();
                 $table->timestamps();

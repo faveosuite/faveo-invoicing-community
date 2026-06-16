@@ -2,15 +2,19 @@
 
 namespace App\Model\Order;
 
+use App\User;
+use Illuminate\Support\Facades\Date;
+use App\Model\Product\Subscription;
+use App\License\Models\Installation;
+use Override;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Invoice extends BaseModel
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'invoices';
 
     protected $fillable = [
@@ -18,11 +22,6 @@ class Invoice extends BaseModel
         'grand_total', 'currency', 'status', 'description', 'is_renewed',
         'processing_fee', 'billing_pay', 'cloud_domain', 'credits',
         'metadata',
-    ];
-
-    protected $casts = [
-        'date' => 'datetime',
-        'metadata' => 'array',
     ];
 
     protected $logName = 'invoice';
@@ -44,9 +43,9 @@ class Invoice extends BaseModel
     protected function getMappings(): array
     {
         return [
-            'user_id' => ['User', fn ($value) => \App\User::find($value)?->user_name],
+            'user_id' => ['User', fn ($value) => User::find($value)?->user_name],
             'number' => ['Invoice Number', fn ($value) => $value],
-            'date' => ['Invoice Date', fn ($value) => Carbon::parse($value)->toDateTimeString()],
+            'date' => ['Invoice Date', fn ($value) => Date::parse($value)->toDateTimeString()],
             'coupon_code' => ['Coupon Code', fn ($value) => $value],
             'grand_total' => ['Grand Total', fn ($value) => $value],
             'currency' => ['Currency', fn ($value) => $value],
@@ -64,14 +63,14 @@ class Invoice extends BaseModel
 
     public function invoiceItem()
     {
-        return $this->hasMany(\App\Model\Order\InvoiceItem::class, 'invoice_id');
+        return $this->hasMany(InvoiceItem::class, 'invoice_id');
     }
 
     // Many-to-many: one invoice covers multiple orders; one order appears on multiple invoices (renewals)
     public function orders()
     {
         return $this->belongsToMany(
-            \App\Model\Order\Order::class,
+            Order::class,
             'order_invoice_relations',
             'invoice_id',
             'order_id'
@@ -80,15 +79,15 @@ class Invoice extends BaseModel
 
     public function user()
     {
-        return $this->belongsTo(\App\User::class);
+        return $this->belongsTo(User::class);
     }
 
     // Subscriptions reached through the pivot: Invoice → order_invoice_relations → subscriptions
     public function subscriptions()
     {
         return $this->hasManyThrough(
-            \App\Model\Product\Subscription::class,
-            \App\Model\Order\OrderInvoiceRelation::class,
+            Subscription::class,
+            OrderInvoiceRelation::class,
             'invoice_id',
             'order_id',
             'id',
@@ -101,19 +100,20 @@ class Invoice extends BaseModel
         $orderIds = $this->orders()->pluck('orders.id');
         $licenseCodes = Order::whereIn('id', $orderIds)->get()->map->serial_key;
 
-        return \App\License\Models\Installation::whereIn('license_code', $licenseCodes);
+        return Installation::whereIn('license_code', $licenseCodes);
     }
 
     public function payment()
     {
-        return $this->hasMany(\App\Model\Order\Payment::class);
+        return $this->hasMany(Payment::class);
     }
 
-    public function getStatusAttribute($value)
+    protected function getStatusAttribute($value)
     {
-        return ucfirst($value);
+        return ucfirst((string) $value);
     }
 
+    #[Override]
     public function delete()
     {
         $this->orders()->detach();
@@ -122,5 +122,13 @@ class Invoice extends BaseModel
         $this->payment()->delete();
 
         return parent::delete();
+    }
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'date' => 'datetime',
+            'metadata' => 'array',
+        ];
     }
 }

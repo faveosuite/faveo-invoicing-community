@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cron_logs', function (Blueprint $table) {
+        Schema::create('cron_logs', function (Blueprint $table): void {
             $table->id();
             $table->string('command', 255)->index();
             $table->string('description', 255);

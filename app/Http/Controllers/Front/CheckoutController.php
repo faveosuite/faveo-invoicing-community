@@ -2,7 +2,19 @@
 
 namespace App\Http\Controllers\Front;
 
-use App\Http\Controllers\Common\MailChimpController;
+use Session;
+use Auth;
+use Exception;
+use Logger;
+use Illuminate\Support\Collection;
+use App\Http\Controllers\Order\InvoiceController;
+use Event;
+use App\Events\PaymentGateway;
+use App\Http\Controllers\Order\RenewController;
+use Illuminate\Support\Facades\Date;
+use App\Http\Controllers\Order\OrderController;
+use DB;
+use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Order\ExtendedBaseInvoiceController;
 use App\Http\Controllers\Tenancy\TenantController;
@@ -25,7 +37,6 @@ use App\Services\Payment\ProcessingFee;
 use App\Traits\Payment\PostPaymentHandle;
 use App\Traits\TaxCalculation;
 use App\User;
-use Carbon\Carbon;
 use Cart;
 use Darryldecode\Cart\CartCondition;
 use GuzzleHttp\Client;
@@ -116,11 +127,11 @@ class CheckoutController extends InfoController
     public function checkoutForm(Request $request)
     {
         if (! auth()->check()) {
-            \Session::put('content', Cart::getContent());
+            Session::put('content', Cart::getContent());
 
             if ($request->has('domain')) {
                 foreach ($request->input('domain') as $key => $value) {
-                    \Session::put("domain{$key}", $value);
+                    Session::put("domain{$key}", $value);
                 }
             }
 
@@ -141,9 +152,10 @@ class CheckoutController extends InfoController
             $domain = $request->input('domain');
             if ($domain) {//Store the Domain  in session when user Logged In
                 foreach ($domain as $key => $value) {
-                    \Session::put('domain'.$key, $value);
+                    Session::put('domain'.$key, $value);
                 }
             }
+
             $discountPrice = null;
             $price = [];
             $quantity = [];
@@ -151,23 +163,25 @@ class CheckoutController extends InfoController
                 $price = $item['price'];
                 $quantity = $item['quantity'];
                 $domain = $item['attributes']['domain'] ?? null;
-                if (! empty(\Session::get('code'))) {
-                    $price = \Session::get('oldPrice');
-                    $value = Promotion::where('code', \Session::get('code'))->value('value');
-                    $typeid = Promotion::where('code', \Session::get('code'))->value('type');
+                if (! empty(Session::get('code'))) {
+                    $price = Session::get('oldPrice');
+                    $value = Promotion::where('code', Session::get('code'))->value('value');
+                    $typeid = Promotion::where('code', Session::get('code'))->value('type');
                     $type = PromotionType::find($typeid);
                     $discountPrice = $type->name == 'Percentage' ? $price * (intval($value) / 100) : $value;
-                    \Session::put('discountPrice', $discountPrice);
+                    Session::put('discountPrice', $discountPrice);
                 }
-                \Session::put('cloud_domain', $domain);
-            }
-            if (\Session::has('priceRemaining')) {
-                $total = \Session::get('priceRemaining') > $this->cart->getTotal() ? \Session::get('priceRemaining') - $this->cart->getTotal() : \Session::get('discount');
-                \Session::forget('discount');
-                \Session::put('discount', $total);
+
+                Session::put('cloud_domain', $domain);
             }
 
-            $amt_to_credit = Payment::where('user_id', \Auth::user()->id)
+            if (Session::has('priceRemaining')) {
+                $total = Session::get('priceRemaining') > $this->cart->getTotal() ? Session::get('priceRemaining') - $this->cart->getTotal() : Session::get('discount');
+                Session::forget('discount');
+                Session::put('discount', $total);
+            }
+
+            $amt_to_credit = Payment::where('user_id', Auth::user()->id)
                 ->where('payment_method', 'Credit Balance')
                 ->where('payment_status', 'success')
                 ->where('amt_to_credit', '!=', 0)
@@ -182,13 +196,13 @@ class CheckoutController extends InfoController
                 }
             }
 
-            User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
+            User::where('id', Auth::user()->id)->update(['billing_pay_balance' => 0]);
             $cart = $this->cart;
 
-            return successResponse('', ['content' => $content, 'taxCondtions' => $taxConditions, 'discountPrice' => $discountPrice, 'domain' => $domain, 'amt_to_credit' => $amt_to_credit, 'curr' => $curr, 'cart' => $cart, 'curr' => $curr]);
+            return successResponse('', ['content' => $content, 'taxCondtions' => $taxConditions, 'discountPrice' => $discountPrice, 'domain' => $domain, 'amt_to_credit' => $amt_to_credit, 'cart' => $cart, 'curr' => $curr]);
             //return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr', 'cart'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
             return errorResponse($ex->getMessage());
             // return redirect()->back()->with('fails', $ex->getMessage());
@@ -207,19 +221,20 @@ class CheckoutController extends InfoController
             if (count($content) > 0) {//after ProductPurchase this is not true as cart is cleared
                 foreach ($content as $item) {
                     $cart_currency = $item['attributes']['currency']; //Get the currency of Product in the cart
-                    \Session::put('cart_currency', $cart_currency);
-                    $currency = getCurrencyForClient(\Auth::user()->country) != $cart_currency ? getCurrencyForClient(\Auth::user()->country) : $cart_currency; //If User Currency and cart currency are different the currency es set to user currency.
+                    Session::put('cart_currency', $cart_currency);
+                    $currency = getCurrencyForClient(Auth::user()->country) != $cart_currency ? getCurrencyForClient(Auth::user()->country) : $cart_currency; //If User Currency and cart currency are different the currency es set to user currency.
                     if ($cart_currency != $currency) {
                         $id = $item->id;
                         Cart::remove($id);
                     }
+
                     $require_domain = $item['associatedModel']['require_domain'];
                     $require = [];
                     if ($require_domain) {
                         $require[$key] = $item['associatedModel']['id'];
                     }
 
-                    $taxConditions = $this->calculateTax($item['associatedModel']['id'], \Auth::user()->state, \Auth::user()->country); //Calculate Tax Condition by passing ProductId
+                    $taxConditions = $this->calculateTax($item['associatedModel']['id'], Auth::user()->state, Auth::user()->country); //Calculate Tax Condition by passing ProductId
 //                    Cart::condition($taxConditions);
 
                     $this->cart->remove($item['id']);
@@ -237,10 +252,10 @@ class CheckoutController extends InfoController
 
                 return $taxConditions;
             }
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -257,14 +272,16 @@ class CheckoutController extends InfoController
         try {
             $paid = 0;
             $invoice = $this->invoice->find($invoiceid);
-            if ($invoice->user_id != \Auth::user()->id) {
+            if ($invoice->user_id != Auth::user()->id) {
                 return errorResponse(__('message.invalid_payment_modification'));
             }
+
             if (count($invoice->payment()->get())) {//If partial payment is made
                 $paid = array_sum($invoice->payment()->pluck('amount')->toArray());
-                $invoice->grand_total = $invoice->grand_total - $paid;
+                $invoice->grand_total -= $paid;
             }
-            $items = new \Illuminate\Support\Collection();
+
+            $items = new Collection();
             if ($invoice) {
                 $items = $invoice->invoiceItem()->get();
                 if (count($items) > 0) {
@@ -274,8 +291,8 @@ class CheckoutController extends InfoController
 
             return successResponse('', ['invoice' => $invoice, 'items' => $items, 'paid' => $paid, 'prduct' => $product]);
 //            return view('themes.default1.front.paynow', compact('invoice', 'items', 'product', 'paid'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
             return errorResponse($ex->getMessage());
         }
@@ -293,11 +310,11 @@ class CheckoutController extends InfoController
     {
         $isTrue = 1;
         $cost = $request->input('cost');
-        $discount = \Session::get('discount');
+        $discount = Session::get('discount');
 
-        if (\Session::has('nothingLeft')) {
-            User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
-            $isTrue = \Session::get('nothingLeft');
+        if (Session::has('nothingLeft')) {
+            User::where('id', Auth::user()->id)->update(['billing_pay_balance' => 1]);
+            $isTrue = Session::get('nothingLeft');
         }
 
         if ($isTrue != 0) {
@@ -311,30 +328,32 @@ class CheckoutController extends InfoController
                 }
             }
         }
+
         try {
-            $invoice_controller = new \App\Http\Controllers\Order\InvoiceController();
-            $info_cont = new \App\Http\Controllers\Front\InfoController();
+            $invoice_controller = new InvoiceController();
+            $info_cont = new InfoController();
             $payment_method = ($isTrue) ? $request->input('payment_gateway') : 'Credits';
-            \Session::put('payment_method', $payment_method);
+            Session::put('payment_method', $payment_method);
             $paynow = $this->checkregularPaymentOrRenewal($request->input('invoice_id'));
 
             $cost = $request->input('cost');
             $state = $this->getState();
 
             if ($paynow === false) {//When regular payment
-                if (\Session::get('generated_invoice_token') !== $request->input('checkout_token')) {
+                if (Session::get('generated_invoice_token') !== $request->input('checkout_token')) {
                     $invoice = $invoice_controller->generateInvoice();
-                    \Session::put('generated_invoice_token', $request->input('checkout_token'));
-                    \Session::put('generated_invoice', $invoice->id);
+                    Session::put('generated_invoice_token', $request->input('checkout_token'));
+                    Session::put('generated_invoice', $invoice->id);
                 } else {
-                    $invoiceId = \Session::get('generated_invoice');
+                    $invoiceId = Session::get('generated_invoice');
                     $invoice = $this->invoice->find($invoiceId);
                 }
-                $amount = (\Session::has('nothingLeft')) ? \Session::get('nothingLeft') : intval($this->cart->getTotal());
+
+                $amount = (Session::has('nothingLeft')) ? Session::get('nothingLeft') : intval($this->cart->getTotal());
 
                 if ($amount) {//If payment is for paid product
                     $this->cart->removeCartCondition('Processing fee');
-                    \Event::dispatch(new \App\Events\PaymentGateway(['request' => $request, 'invoice' => $invoice]));
+                    Event::dispatch(new PaymentGateway(['request' => $request, 'invoice' => $invoice]));
                 } else {
                     $show = true;
                     $date = getDateHtml($invoice->date);
@@ -343,24 +362,26 @@ class CheckoutController extends InfoController
                     $url = '';
 
                     $this->checkoutAction($invoice); //For free product generate invoice without payment
-                    $orderNumber = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->value('number');
+                    $orderNumber = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->value('number');
 
-                    $orders = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->get();
+                    $orders = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->get();
 
 //                    $url = view('themes.default1.front.postCheckoutTemplate', compact('invoice', 'date', 'product', 'items', 'orders', 'orderNumber', 'show'))->render();
                     $url = ['invoice' => $invoice, 'date' => $date, 'product' => $product, 'items' => $items, 'orders' => $orders, 'orderNumber' => $orderNumber, 'show' => $show];
                     // }
                     $this->cart->clear();
-                    if (\Session::has('nothingLeft')) {
-                        $do = ! (\Session::get('priceToBePaid') < \Session::get('priceRemaining'));
+                    if (Session::has('nothingLeft')) {
+                        $do = ! (Session::get('priceToBePaid') < Session::get('priceRemaining'));
 
                         $this->doTheDeed($invoice, $do);
-                        \Session::forget('nothingLeft');
+                        Session::forget('nothingLeft');
                     }
+
                     if (! empty($invoice->cloud_domain)) {
-                        $orderNumber = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->whereIn('product', cloudPopupProducts())->value('number');
-                        (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
+                        $orderNumber = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->whereIn('product', cloudPopupProducts())->value('number');
+                        new TenantController(new Client, new FaveoCloud())->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
                     }
+
                     if ($discount != null) {
                         $this->updateCredit($discount);
                     }
@@ -375,29 +396,32 @@ class CheckoutController extends InfoController
                 $invoice = $this->invoice->find($invoiceid);
 
                 $amount = intval($invoice->grand_total);
-                if (\Session::has('nothingLeft')) {
-                    $check = \Session::get('nothingLeft');
+                if (Session::has('nothingLeft')) {
+                    $check = Session::get('nothingLeft');
                 }
+
                 if ($amount) {//If payment is for paid product
-                    \Cart::removeCartCondition('Processing fee');
-                    \Event::dispatch(new \App\Events\PaymentGateway(['request' => $request, 'invoice' => $invoice]));
+                    Cart::removeCartCondition('Processing fee');
+                    Event::dispatch(new PaymentGateway(['request' => $request, 'invoice' => $invoice]));
                 } else {
                     $show = false;
                     $true = false;
-                    $control = new \App\Http\Controllers\Order\RenewController();
-                    $payment = new \App\Http\Controllers\Order\InvoiceController();
+                    $control = new RenewController();
+                    $payment = new InvoiceController();
                     if (! empty($invoice->billing_pay)) {
                         Invoice::where('id', $invoice->id)->update(['grand_total' => ($invoice->grand_total + $invoice->billing_pay)]);
                     }
+
                     $payment->recordPayment($invoice, 'Credits');
                     $date = getDateHtml($invoice->date);
                     $product = $this->product($invoice->id);
                     $items = $invoice->invoiceItem()->get();
 
                     $url = '';
-                    if ($control->checkRenew($invoice->is_renewed) || \Session::has('AgentAlteration')) {
+                    if ($control->checkRenew($invoice->is_renewed) || Session::has('AgentAlteration')) {
                         $true = true;
                     }
+
                     $this->checkoutAction($invoice, $true); //For free product generate invoice without payment
                     $order = OrderInvoiceRelation::where('invoice_id', $invoice->id)->value('order_id');
                     $orders = Order::where('id', $order)->get();
@@ -406,18 +430,21 @@ class CheckoutController extends InfoController
 //                    $url = view('themes.default1.front.postCheckoutTemplate', compact('invoice', 'date', 'product', 'items', 'orders', 'orderNumber', 'show'))->render();
                     $url = ['invoice' => $invoice, 'date' => $date, 'product' => $product, 'items' => $items, 'orders' => $orders, 'orderNumber' => $orderNumber, 'show' => $show];
 
-                    if (\Session::has('nothingLeft')) {
+                    if (Session::has('nothingLeft')) {
                         $this->doTheDeed($invoice);
-                        \Session::forget('nothingLeft');
+                        Session::forget('nothingLeft');
                     }
-                    if (\Session::has('agentIncreaseDate') || $control->checkRenew($invoice->is_renewed)) {
-                        $control = new \App\Http\Controllers\Order\RenewController();
-                        $control->successRenew($invoice, true);
+
+                    if (Session::has('agentIncreaseDate') || $control->checkRenew($invoice->is_renewed)) {
+                        $control = new RenewController();
+                        $control->successRenew($invoice);
                     }
+
                     if (! empty($invoice->cloud_domain)) {
-                        $orderNumber = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->whereIn('product', cloudPopupProducts())->value('number');
-                        (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
+                        $orderNumber = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->whereIn('product', cloudPopupProducts())->value('number');
+                        new TenantController(new Client, new FaveoCloud())->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
                     }
+
                     $this->performCloudActions($invoice);
                     $this->cart->clear();
 
@@ -425,7 +452,7 @@ class CheckoutController extends InfoController
                     return successResponse('Success', [$url]);
                 }
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
 //            return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -441,30 +468,30 @@ class CheckoutController extends InfoController
      */
     private function updateCredit($discount)
     {
-        $payUpdate = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
+        $payUpdate = Payment::where('user_id', Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
 
-        $pay = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
-        $formattedValue = currencyFormat(round($discount), getCurrencyForClient(\Auth::user()->country), true);
-        $payment_id = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
-        $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
-        $orderId = \Session::get('creditOrderId');
+        $pay = Payment::where('user_id', Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
+        $formattedValue = currencyFormat(round($discount), getCurrencyForClient(Auth::user()->country), true);
+        $payment_id = Payment::where('user_id', Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
+        $formattedPay = currencyFormat($pay, getCurrencyForClient(Auth::user()->country), true);
+        $orderId = Session::get('creditOrderId');
         $orderNumber = Order::where('id', $orderId)->value('number');
 
         if (! $payUpdate->isEmpty()) {
-            $pay = $pay + round($discount);
-            Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
+            $pay += round($discount);
+            Payment::where('user_id', Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
 
             $messageAdmin = 'An amount of '.$formattedValue.' has been added to the existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
                 '<a href="'.config('app.url').'/orders/'.$orderId.'">'.$orderNumber.'</a>.';
 
             $messageClient = 'An amount of '.$formattedValue.' has been added to your existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
                 '<a href="'.config('app.url').'/my-order/'.$orderId.'">'.$orderNumber.'</a>.';
-            CreditActivity::insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-            CreditActivity::insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+            CreditActivity::insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => Date::now(), 'updated_at' => Date::now()]);
+            CreditActivity::insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => Date::now(), 'updated_at' => Date::now()]);
         } else {
             $price = 0;
-            \Session::put('discount', round($discount));
-            (new ExtendedBaseInvoiceController())->mergeCreditBalance(\Auth::user()->id, round($discount), Carbon::now(), 'pending');
+            Session::put('discount', round($discount));
+            new ExtendedBaseInvoiceController()->mergeCreditBalance(Auth::user()->id, round($discount), Date::now(), 'pending');
         }
     }
 
@@ -486,7 +513,7 @@ class CheckoutController extends InfoController
             'target' => 'total',
             'value' => $value,
         ]);
-        \Cart::condition($updateValue);
+        Cart::condition($updateValue);
     }
 
     /**
@@ -502,9 +529,10 @@ class CheckoutController extends InfoController
         $paynow = false;
 
         if ($invoiceid) {
-            if (Invoice::find($invoiceid)->user_id != \Auth::user()->id) {
-                throw new \Exception(__('message.invalid_modification'));
+            if (Invoice::find($invoiceid)->user_id != Auth::user()->id) {
+                throw new Exception(__('message.invalid_modification'));
             }
+
             $paynow = true;
         }
 
@@ -531,10 +559,11 @@ class CheckoutController extends InfoController
                     $invoice->processing_fee = $value['value'];
                 }
             }
+
             // $invoice->processing_fee =
             $invoice->status = 'success';
             $invoice->save();
-            $user_id = \Auth::user()->id;
+            $user_id = Auth::user()->id;
 
             $url = '';
 
@@ -542,18 +571,18 @@ class CheckoutController extends InfoController
 
             //execute the order
             if (! $agent) {
-                $alreadyExecuted = \App\Model\Order\Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->exists();
+                $alreadyExecuted = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->exists();
                 if (! $alreadyExecuted) {
-                    $order = new \App\Http\Controllers\Order\OrderController();
+                    $order = new OrderController();
                     $order->executeOrder($invoice->id);
                 }
             }
 
             return 'success';
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -564,10 +593,10 @@ class CheckoutController extends InfoController
             $product = $this->product->find($invoiceItem->product_id);
 
             return $product;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            throw new \Exception($ex->getMessage());
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -582,13 +611,13 @@ class CheckoutController extends InfoController
      */
     private function doTheDeed($invoice, $do = true)
     {
-        Payment::where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->latest()->update(['payment_status' => 'success']);
-        $amt_to_credit = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
+        Payment::where('user_id', Auth::user()->id)->where('payment_method', 'Credit Balance')->latest()->update(['payment_status' => 'success']);
+        $amt_to_credit = Payment::where('user_id', Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
         if ($amt_to_credit && $do) {
             $amt_to_credit = (int) $amt_to_credit - (int) $invoice->billing_pay;
-            Payment::where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->where('payment_status', 'success')->update(['amt_to_credit' => $amt_to_credit]);
-            User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
-            $payment_id = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
+            Payment::where('user_id', Auth::user()->id)->where('payment_method', 'Credit Balance')->where('payment_status', 'success')->update(['amt_to_credit' => $amt_to_credit]);
+            User::where('id', Auth::user()->id)->update(['billing_pay_balance' => 0]);
+            $payment_id = DB::table('payments')->where('user_id', Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
             $formattedValue = currencyFormat($invoice->billing_pay, $invoice->currency, true);
             $messageAdmin = 'The payment balance of '.$formattedValue.' has been utilized or adjusted with this invoice.'.
                 ' You can view the details of the invoice '.
@@ -598,8 +627,8 @@ class CheckoutController extends InfoController
                 ' You can view the details of the invoice '.
                 '<a href="'.config('app.url').'/my-invoice/'.$invoice->id.'">'.$invoice->number.'</a>.';
 
-            \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-            \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+            DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => Date::now(), 'updated_at' => Date::now()]);
+            DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => Date::now(), 'updated_at' => Date::now()]);
         }
     }
 
@@ -612,13 +641,13 @@ class CheckoutController extends InfoController
      */
     private function performCloudActions($invoice)
     {
-        $cloud = new \App\Http\Controllers\Tenancy\CloudExtraActivities(new Client, new FaveoCloud());
+        $cloud = new CloudExtraActivities(new Client, new FaveoCloud());
 
         if ($cloud->checkUpgradeDowngrade()) {
             $this->cloudUpDownGradeOps($cloud, $invoice);
         } elseif ($cloud->checkAgentAlteration()) {
             $this->cloudAgentAlterationOps($cloud, $invoice);
-        } elseif (\Session::has('AgentAlterationRenew')) { // Added missing parentheses
+        } elseif (Session::has('AgentAlterationRenew')) { // Added missing parentheses
             $this->cloudAgentAlterationRenew($cloud, $invoice);
         }
     }
@@ -633,13 +662,13 @@ class CheckoutController extends InfoController
      */
     private function cloudUpDownGradeOps($cloud, $invoice)
     {
-        $oldLicense = \Session::get('upgradeOldLicense');
-        $installationPath = \Session::get('upgradeInstallationPath');
-        $productId = \Session::get('upgradeProductId');
-        $licenseCode = \Session::get('upgradeSerialKey');
-        $terminatedOrderId = (int) \Session::get('upgradeorderId', 0);
-        $newActiveOrderId = (int) \Session::get('upgradeNewActiveOrder', 0);
-        $upgradeDiscount = \Session::has('discount') ? (float) \Session::get('discount') : null;
+        $oldLicense = Session::get('upgradeOldLicense');
+        $installationPath = Session::get('upgradeInstallationPath');
+        $productId = Session::get('upgradeProductId');
+        $licenseCode = Session::get('upgradeSerialKey');
+        $terminatedOrderId = (int) Session::get('upgradeorderId', 0);
+        $newActiveOrderId = (int) Session::get('upgradeNewActiveOrder', 0);
+        $upgradeDiscount = Session::has('discount') ? (float) Session::get('discount') : null;
         $this->doTheDeed($invoice, false);
         $cloud->doTheProductUpgradeDowngrade($licenseCode, $installationPath, $productId, $oldLicense, $terminatedOrderId, $newActiveOrderId, $upgradeDiscount);
         $this->perfromUpdateSubscription($invoice);
@@ -655,12 +684,12 @@ class CheckoutController extends InfoController
      */
     private function cloudAgentAlterationOps($cloud, $invoice)
     {
-        $subId = \Session::get('AgentAlteration'); // use if needed in the future
-        $newAgents = \Session::get('newAgents');
-        $orderId = \Session::get('orderId');
-        $installationPath = \Session::get('installation_path');
-        $productId = \Session::get('product_id');
-        $oldLicense = \Session::get('oldLicense');
+        $subId = Session::get('AgentAlteration'); // use if needed in the future
+        $newAgents = Session::get('newAgents');
+        $orderId = Session::get('orderId');
+        $installationPath = Session::get('installation_path');
+        $productId = Session::get('product_id');
+        $oldLicense = Session::get('oldLicense');
         $cloud->doTheAgentAltering($newAgents, $oldLicense, $orderId, $installationPath, $productId);
         $this->perfromUpdateSubscription($invoice);
     }
@@ -675,11 +704,11 @@ class CheckoutController extends InfoController
      */
     private function cloudAgentAlterationRenew($cloud, $invoice)
     {
-        $newAgents = \Session::get('newAgentsRenew');
-        $orderId = \Session::get('orderIdRenew');
-        $installationPath = \Session::get('installation_pathRenew');
-        $productId = \Session::get('product_idRenew');
-        $oldLicense = \Session::get('oldLicenseRenew');
+        $newAgents = Session::get('newAgentsRenew');
+        $orderId = Session::get('orderIdRenew');
+        $installationPath = Session::get('installation_pathRenew');
+        $productId = Session::get('product_idRenew');
+        $oldLicense = Session::get('oldLicenseRenew');
         $cloud->doTheAgentAltering($newAgents, $oldLicense, $orderId, $installationPath, $productId);
         $this->perfromUpdateSubscription($invoice);
     }
@@ -688,7 +717,7 @@ class CheckoutController extends InfoController
     public function perfromUpdateSubscription($invoice)
     {
         $orderId = OrderInvoiceRelation::where('invoice_id', $invoice->id)->latest()->value('order_id');
-        $term_order_id = \DB::table('terminated_order_upgrade')->where('upgraded_order_id', $orderId)->value('terminated_order_id');
+        $term_order_id = DB::table('terminated_order_upgrade')->where('upgraded_order_id', $orderId)->value('terminated_order_id');
         $terminatedOrder = Order::find($term_order_id);
         if ($terminatedOrder) {
             $oldSubscription = Subscription::where('order_id', $terminatedOrder->id)->first();

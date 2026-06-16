@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\BillingInstaller;
 
+use Lang;
 use App\Http\Controllers\Controller;
 use Config;
 use Exception;
@@ -93,26 +94,26 @@ class DatabaseSetupController extends Controller
     private function checkDBPrerequisites(array &$results, bool &$mysqli_ok, object $connection): void
     {
         if (mysqli_select_db($connection, DB_NAME)) {
-            $results[] = new TestResult(\Lang::get('installer_messages.database').' '.DB_NAME.' '.\Lang::get('installer_messages.selected'), STATUS_OK);
+            $results[] = new TestResult(Lang::get('installer_messages.database').' '.DB_NAME.' '.Lang::get('installer_messages.selected'), STATUS_OK);
             $mysqli_version = mysqli_get_server_info($connection);
             $dbVersion = mysqli_get_server_version($connection);
             if ($this->compareMySqlAndMariDB($dbVersion)) {
-                $results[] = new TestResult(\Lang::get('installer_messages.mysql_version_is').' '.$mysqli_version, STATUS_OK);
+                $results[] = new TestResult(Lang::get('installer_messages.mysql_version_is').' '.$mysqli_version, STATUS_OK);
                 $sql = 'SHOW TABLES FROM '.DB_NAME;
                 $res = mysqli_query($connection, $sql);
                 if (mysqli_fetch_array($res) === null) {
-                    $results[] = new TestResult(\Lang::get('installer_messages.database_empty'));
+                    $results[] = new TestResult(Lang::get('installer_messages.database_empty'));
                     $mysqli_ok = true;
                 } else {
-                    $results[] = new TestResult(\Lang::get('installer_messages.database_not_empty'), STATUS_ERROR);
+                    $results[] = new TestResult(Lang::get('installer_messages.database_not_empty'), STATUS_ERROR);
                     $mysqli_ok = false;
                 }
             } else {
-                $results[] = new TestResult(\Lang::get('installer_messages.mysql_version_is').' '.$mysqli_version.' '.\Lang::get('installer_messages.mysql_version_required'), STATUS_ERROR);
+                $results[] = new TestResult(Lang::get('installer_messages.mysql_version_is').' '.$mysqli_version.' '.Lang::get('installer_messages.mysql_version_required'), STATUS_ERROR);
                 $mysqli_ok = false;
             }
         } else {
-            echo '<br><br><p id="fail">'.\Lang::get('installer_messages.database_connection_unsuccessful').' '.mysqli_connect_error().'</p>';
+            echo '<br><br><p id="fail">'.Lang::get('installer_messages.database_connection_unsuccessful').' '.mysqli_connect_error().'</p>';
             $mysqli_ok = false;
         }
     }
@@ -163,13 +164,14 @@ class DatabaseSetupController extends Controller
 
                 return $connection;
             }
+
             $this->setupConfig(DB_HOST, DB_USER, DB_PASS, '', [DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, DB_SSL_VERIFY_PEER_CERT]);
             if (! mysqli_real_connect($connection, DB_HOST, DB_USER, DB_PASS, DB_NAME)) {
                 return false;
             }
 
             return $connection;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -194,15 +196,15 @@ class DatabaseSetupController extends Controller
                     }
 
                     if ($connection) {
-                        $results[] = new TestResult(\Lang::get('installer_messages.connected_as').' '.DB_USER.'@'.DB_HOST.DB_PORT, STATUS_OK);
+                        $results[] = new TestResult(Lang::get('installer_messages.connected_as').' '.DB_USER.'@'.DB_HOST.DB_PORT, STATUS_OK);
                         $this->checkDBPrerequisites($results, $mysqli_ok, $connection);
                     } else {
                         $mysqli_ok = false;
-                        $results[] = new TestResult(\Lang::get('installer_messages.failed_connection').' '.mysqli_connect_error(), STATUS_ERROR);
+                        $results[] = new TestResult(Lang::get('installer_messages.failed_connection').' '.mysqli_connect_error(), STATUS_ERROR);
                     }
                 }
             } catch (Exception $e) {
-                $results[] = new TestResult(\Lang::get('installer_messages.failed_connection').' '.$e->getMessage(), STATUS_ERROR);
+                $results[] = new TestResult(Lang::get('installer_messages.failed_connection').' '.$e->getMessage(), STATUS_ERROR);
                 $mysqli_ok = false;
             }
         }
@@ -210,14 +212,10 @@ class DatabaseSetupController extends Controller
         return ['results' => $results, 'mysqli_ok' => $mysqli_ok];
     }
 }
+
 class TestResult
 {
-    public $message;
-    public $status;
-
-    public function __construct($message, $status = STATUS_OK)
+    public function __construct(public $message, public $status = STATUS_OK)
     {
-        $this->message = $message;
-        $this->status = $status;
     }
 }

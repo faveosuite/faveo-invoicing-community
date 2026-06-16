@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Exception;
+use Config;
+use Cache;
 use App\ApiKey;
 use App\Facades\Cart;
 use App\Http\Controllers\Front\CartController;
@@ -24,6 +27,7 @@ use Session;
 class LoginController extends BaseAuthController
 {
     use AuthenticatesUsers;
+
     /*
     |--------------------------------------------------------------------------
     | Login Controller
@@ -67,6 +71,7 @@ class LoginController extends BaseAuthController
             if ($status) {
                 $status->terms = (bool) $status->terms;
             }
+
             $apiKeys = ApiKey::select('nocaptcha_sitekey', 'terms_url')->first();
             $analyticsTag = ChatScript::where('google_analytics', 1)->where('on_registration', 1)->value('google_analytics_tag');
             $location = getLocation();
@@ -83,7 +88,7 @@ class LoginController extends BaseAuthController
                 'location' => $location,
                 'social' => $social,
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -157,7 +162,7 @@ class LoginController extends BaseAuthController
             $this->logActivityLogin($user);
 
             return successResponse('', ['redirect' => $this->redirectPath()]);
-        } catch(\Exception $ex) {
+        } catch(Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -249,9 +254,9 @@ class LoginController extends BaseAuthController
     {
         $details = SocialLogin::where('type', $provider)->first();
 
-        \Config::set("services.$provider.redirect", $details->redirect_url);
-        \Config::set("services.$provider.client_id", $details->client_id);
-        \Config::set("services.$provider.client_secret", $details->client_secret);
+        Config::set("services.$provider.redirect", $details->redirect_url);
+        Config::set("services.$provider.client_id", $details->client_id);
+        Config::set("services.$provider.client_secret", $details->client_secret);
 
         //return Socialite::driver($provider)->redirect();
         return successResponse('success', ['url' => Socialite::driver($provider)->redirect()->getTargetUrl()]);
@@ -269,9 +274,9 @@ class LoginController extends BaseAuthController
     public function handler($provider)
     {
         $details = SocialLogin::where('type', $provider)->first();
-        \Config::set("services.$provider.redirect", $details->redirect_url);
-        \Config::set("services.$provider.client_id", $details->client_id);
-        \Config::set("services.$provider.client_secret", $details->client_secret);
+        Config::set("services.$provider.redirect", $details->redirect_url);
+        Config::set("services.$provider.client_id", $details->client_id);
+        Config::set("services.$provider.client_secret", $details->client_secret);
 
         $githubUser = Socialite::driver($provider)->user();
         $location = getLocation();
@@ -300,7 +305,7 @@ class LoginController extends BaseAuthController
                 'timezone_id' => getTimezoneByName($location['timezone']),
                 'state' => $state['id'],
                 'town' => $location['city'],
-                'country' => Country::where('country_name', strtoupper($location['country']))->value('country_code_char2'),
+                'country' => Country::where('country_name', strtoupper((string) $location['country']))->value('country_code_char2'),
             ]);
             $user->active = 1;
             $user->role = 'user';
@@ -323,6 +328,7 @@ class LoginController extends BaseAuthController
 
             return redirect(url('verify-2fa'));
         }
+
         if (Auth::check()) {
             $this->convertCart();
 
@@ -359,7 +365,7 @@ class LoginController extends BaseAuthController
             $user->save();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
 //            Session::flash('error', __('message.please_enter_details'));
         }
@@ -386,12 +392,12 @@ class LoginController extends BaseAuthController
                 $plan = Plan::find($content->id);
 
                 // If plan or product is missing, throw to remove it
-                throw_if(! $plan || ! $plan->product, new \Exception('Invalid plan or product.'));
+                throw_if(! $plan || ! $plan->product, Exception::class, 'Invalid plan or product.');
 
                 $price = $cartController->planCost($plan->product, $user->id, $content['id']);
 
                 if (! empty($content['attributes']['domain'])) {
-                    $price = $price * $content['attributes']['agents'];
+                    $price *= $content['attributes']['agents'];
                 }
 
                 $cart->update($content['id'], [
@@ -403,12 +409,13 @@ class LoginController extends BaseAuthController
                         'domain' => $content['attributes']['domain'],
                     ],
                 ]);
-            } catch (\Exception $e) {
+            } catch (Exception) {
                 // Remove item if any exception occurs (missing plan/product or pricing failure)
                 $cart->remove($content['id']);
                 continue;
             }
         }
+
         Session::forget('toggleState');
     }
 
@@ -450,8 +457,8 @@ class LoginController extends BaseAuthController
             RateLimiter::clear($key);
         }
 
-        \Cache::forget("penalty_level:{$context}:{$identifier}");
-        \Cache::forget("penalty_applied:{$context}:{$identifier}");
+        Cache::forget("penalty_level:{$context}:{$identifier}");
+        Cache::forget("penalty_applied:{$context}:{$identifier}");
     }
 
     public function logActivityLogin($user): void

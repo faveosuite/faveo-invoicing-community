@@ -4,7 +4,6 @@ namespace App\License\Controllers\Update;
 
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
-use App\License\Models\Installation;
 use App\License\Models\VersionCallback;
 use App\License\Requests\VersionRequest;
 use App\Model\Product\Product;
@@ -64,8 +63,8 @@ class AfuVersionsController extends Controller
         if ($api_action_success == '1') { //code between {} tags is identical in files with the same name in /aus_admin and /aus_api directories
             $optional_api_parameters_array = ['version_install_file', 'version_install_query', 'version_raw_install_query', 'version_upgrade_file', 'version_upgrade_query', 'version_raw_upgrade_query', 'version_install_limit', 'version_upgrade_limit', 'version_changelog', 'version_expire_date', 'version_comments']; //optional API parameters for this page
             foreach ($optional_api_parameters_array as $optional_api_parameter) { //in case some required parameter was not submitted, set its value empty to prevent "undefined variable" errors
-                if (! isset($$optional_api_parameter)) {
-                    $$optional_api_parameter = '';
+                if (! isset(${$optional_api_parameter})) {
+                    ${$optional_api_parameter} = '';
                 }
             }
 
@@ -114,28 +113,28 @@ class AfuVersionsController extends Controller
                     }
 
                     if (! empty($_FILES['version_install_file']['tmp_name'])) { //format version_install_file like product-title-version-number-installation-archive-random-string.extension
-                        $version_install_file = generateFileName(ARCHIVES_DIRECTORY, slugifyText("$product_title-$version_number-installation-archive-".generateRandomString(8)).'.'.pathinfo($_FILES['version_install_file']['name'], PATHINFO_EXTENSION));
+                        $version_install_file = generateFileName(ARCHIVES_DIRECTORY, slugifyText("$product_title-$version_number-installation-archive-".generateRandomString(8)).'.'.pathinfo((string) $_FILES['version_install_file']['name'], PATHINFO_EXTENSION));
                     } else {
                         $version_install_file = '';
                     }
+
                     if (! empty($_FILES['version_upgrade_file']['tmp_name'])) { //format version_upgrade_file like product-title-version-number-upgrade-archive-random-string.extension
-                        $version_upgrade_file = generateFileName(ARCHIVES_DIRECTORY, slugifyText("$product_title-$version_number-upgrade-archive-".generateRandomString(8)).'.'.pathinfo($_FILES['version_upgrade_file']['name'], PATHINFO_EXTENSION));
+                        $version_upgrade_file = generateFileName(ARCHIVES_DIRECTORY, slugifyText("$product_title-$version_number-upgrade-archive-".generateRandomString(8)).'.'.pathinfo((string) $_FILES['version_upgrade_file']['name'], PATHINFO_EXTENSION));
                     } else {
-                        //$version_upgrade_file="";
-                        $version_upgrade_file = $version_upgrade_file;
                     }
 
                     if (! empty($_FILES['version_install_query']['tmp_name'])) { //format version_install_query like product-title-version-number-install-query-random-string.extension
-                        $version_install_query = generateFileName(QUERIES_DIRECTORY, slugifyText("$product_title-$version_number-installation-query-".generateRandomString(8)).'.'.pathinfo($_FILES['version_install_query']['name'], PATHINFO_EXTENSION));
+                        $version_install_query = generateFileName(QUERIES_DIRECTORY, slugifyText("$product_title-$version_number-installation-query-".generateRandomString(8)).'.'.pathinfo((string) $_FILES['version_install_query']['name'], PATHINFO_EXTENSION));
                     } else {
                         $version_install_query = '';
                     }
 
                     if (! empty($_FILES['version_upgrade_query']['tmp_name'])) { //format version_upgrade_query like product-title-version-number-upgrade-query-random-string.extension
-                        $version_upgrade_query = generateFileName(QUERIES_DIRECTORY, slugifyText("$product_title-$version_number-upgrade-query-".generateRandomString(8)).'.'.pathinfo($_FILES['version_upgrade_query']['name'], PATHINFO_EXTENSION));
+                        $version_upgrade_query = generateFileName(QUERIES_DIRECTORY, slugifyText("$product_title-$version_number-upgrade-query-".generateRandomString(8)).'.'.pathinfo((string) $_FILES['version_upgrade_query']['name'], PATHINFO_EXTENSION));
                     } else {
                         $version_upgrade_query = '';
                     }
+
                     $added_record = ProductUpload::updateOrCreate(
                         ['version' => $version_number, 'product_id' => $product_id],
                         [
@@ -302,12 +301,13 @@ class AfuVersionsController extends Controller
         if (empty($version_id) || ! LicenseHelper::validateIntegerValue($version_id) || empty($rows_array = ProductUpload::where('id', $version_id)->get()->toArray())) { //invalid record
             return errorResponse(Lang::get('lang.invalid'), 404);
         }
+
         $api_action_success = 1;
         if ($api_action_success == 1 & $api_error_detected == 0) { //code between {} tags is identical in files with the same name in /aus_admin and /aus_api directories, EXCEPT redirectInvalidRecord($script_name); line
             $optional_api_parameters_array = ['version_install_file', 'version_install_query', 'version_raw_install_query', 'version_upgrade_file', 'version_upgrade_query', 'version_raw_upgrade_query', 'version_install_limit', 'version_upgrade_limit', 'version_changelog', 'version_expire_date', 'version_comments']; //optional API parameters for this page
             foreach ($optional_api_parameters_array as $optional_api_parameter) { //in case some required parameter was not submitted, set its value empty to prevent "undefined variable" errors
-                if (! isset($$optional_api_parameter)) {
-                    $$optional_api_parameter = '';
+                if (! isset(${$optional_api_parameter})) {
+                    ${$optional_api_parameter} = '';
                 }
             }
 
@@ -369,25 +369,25 @@ class AfuVersionsController extends Controller
                     }
 
                     if (! empty($_FILES['version_install_file']['tmp_name'])) { //format version_install_file like product-title-version-number-installation-archive-random-string.extension
-                        $version_install_file = generateFileName(ARCHIVES_DIRECTORY, slugifyText("$product_title-$version_number-installation-archive-".generateRandomString(8)).'.'.pathinfo($_FILES['version_install_file']['name'], PATHINFO_EXTENSION));
+                        $version_install_file = generateFileName(ARCHIVES_DIRECTORY, slugifyText("$product_title-$version_number-installation-archive-".generateRandomString(8)).'.'.pathinfo((string) $_FILES['version_install_file']['name'], PATHINFO_EXTENSION));
                     } else {
                         $version_install_file = '';
                     }
 
                     if (! empty($_FILES['version_upgrade_file']['tmp_name'])) { //format version_upgrade_file like product-title-version-number-upgrade-archive-random-string.extension
-                        $version_upgrade_file = generateFileName(ARCHIVES_DIRECTORY, slugifyText("$product_title-$version_number-upgrade-archive-".generateRandomString(8)).'.'.pathinfo($_FILES['version_upgrade_file']['name'], PATHINFO_EXTENSION));
+                        $version_upgrade_file = generateFileName(ARCHIVES_DIRECTORY, slugifyText("$product_title-$version_number-upgrade-archive-".generateRandomString(8)).'.'.pathinfo((string) $_FILES['version_upgrade_file']['name'], PATHINFO_EXTENSION));
                     } else {
                         $version_upgrade_file = '';
                     }
 
                     if (! empty($_FILES['version_install_query']['tmp_name'])) { //format version_install_query like product-title-version-number-install-query-random-string.extension
-                        $version_install_query = generateFileName(QUERIES_DIRECTORY, slugifyText("$product_title-$version_number-installation-query-".generateRandomString(8)).'.'.pathinfo($_FILES['version_install_query']['name'], PATHINFO_EXTENSION));
+                        $version_install_query = generateFileName(QUERIES_DIRECTORY, slugifyText("$product_title-$version_number-installation-query-".generateRandomString(8)).'.'.pathinfo((string) $_FILES['version_install_query']['name'], PATHINFO_EXTENSION));
                     } else {
                         $version_install_query = '';
                     }
 
                     if (! empty($_FILES['version_upgrade_query']['tmp_name'])) { //format version_upgrade_query like product-title-version-number-upgrade-query-random-string.extension
-                        $version_upgrade_query = generateFileName(QUERIES_DIRECTORY, slugifyText("$product_title-$version_number-upgrade-query-".generateRandomString(8)).'.'.pathinfo($_FILES['version_upgrade_query']['name'], PATHINFO_EXTENSION));
+                        $version_upgrade_query = generateFileName(QUERIES_DIRECTORY, slugifyText("$product_title-$version_number-upgrade-query-".generateRandomString(8)).'.'.pathinfo((string) $_FILES['version_upgrade_query']['name'], PATHINFO_EXTENSION));
                     } else {
                         $version_upgrade_query = '';
                     }
@@ -439,6 +439,7 @@ class AfuVersionsController extends Controller
                     } else {
                         $version_upgrade_count = $rows_array[0]['version_upgrade_count']; //use old value when no reset is needed
                     }
+
                     $updated_records = ProductUpload::updateOrCreate(
                         ['id' => $version_id],
                         [
@@ -635,6 +636,7 @@ class AfuVersionsController extends Controller
                     } catch (Exception $e) {
                         $transaction_errors_array[] = $e->getMessage();
                     }
+
                     if (! empty(array_filter($transaction_errors_array))) { //one of queries failed, revert whole transaction
                         DB::rollBack();
                         $removed_records = 0;
@@ -670,6 +672,7 @@ class AfuVersionsController extends Controller
             } else {
                 $version_comments .= "($product_max_active_versions active versions supported - expired on $version_expire_date after adding version $version_number)";
             }
+
             $versionId = DB::select(
                 '(SELECT version_id
               FROM (SELECT version_id
@@ -750,24 +753,28 @@ class AfuVersionsController extends Controller
                 $error_details .= 'Invalid installation archive format or size (ZIP archive, 100 MB max).';
             }
         }
+
         if (! empty($version_upgrade_file)) {
             if (! empty($version_upgrade_file->getLinkTarget()) && ! validateFile($version_upgrade_file->getLinkTarget(), $version_upgrade_file->getClientOriginalName(), ['application/zip'], ['zip'], 104857600)) {
                 $error_detected = 1;
                 $error_details .= 'Invalid upgrade archive format or size (ZIP archive, 100 MB max).';
             }
         }
+
         if (! empty($version_install_query)) {
             if (! empty($version_install_query->getLinkTarget()) && ! validateFile($version_install_query->getLinkTarget(), $version_install_query->getClientOriginalName(), ['application/zip'], ['zip'], 1048576)) {
                 $error_detected = 1;
                 $error_details .= 'Invalid installation query format or size (ZIP archive, 1 MB max).';
             }
         }
+
         if (! empty($version_upgrade_query)) {
             if (! empty($version_upgrade_query->getLinkTarget()) && ! validateFile($version_upgrade_query->getLinkTarget(), $version_install_query->getClientOriginalName(), ['application/zip'], ['zip'], 1048576)) {
                 $error_detected = 1;
                 $error_details .= 'Invalid upgrade query format or size (ZIP archive, 1 MB max).';
             }
         }
+
         if (! empty($version_install_limit) && ! LicenseHelper::validateIntegerValue($version_install_limit)) {
             $error_detected = 1;
             $error_details .= 'Invalid version installations limit.';
@@ -801,14 +808,15 @@ class AfuVersionsController extends Controller
     {
         if (! empty($version_install_file)) {
             if (! empty($version_install_file->getLinkTarget())) { //format version_install_file like product-title-version-number-installation-archive-random-string.extension
-                $version_install_file = generateFileName(ARCHIVES_DIRECTORY, slugifyText("$product_title-$version_number-installation-archive-".generateRandomString(8)).'.'.pathinfo($version_install_file->getClientOriginalName(), PATHINFO_EXTENSION));
+                $version_install_file = generateFileName(ARCHIVES_DIRECTORY, slugifyText("$product_title-$version_number-installation-archive-".generateRandomString(8)).'.'.pathinfo((string) $version_install_file->getClientOriginalName(), PATHINFO_EXTENSION));
             }
         } else {
             $version_install_file = '';
         }
+
         if (! empty($version_upgrade_file)) {
             if (! empty($version_upgrade_file->getLinkTarget())) { //format version_upgrade_file like product-title-version-number-upgrade-archive-random-string.extension
-                $version_upgrade_file = generateFileName(ARCHIVES_DIRECTORY, slugifyText("$product_title-$version_number-upgrade-archive-".generateRandomString(8)).'.'.pathinfo($version_upgrade_file->getClientOriginalName(), PATHINFO_EXTENSION));
+                $version_upgrade_file = generateFileName(ARCHIVES_DIRECTORY, slugifyText("$product_title-$version_number-upgrade-archive-".generateRandomString(8)).'.'.pathinfo((string) $version_upgrade_file->getClientOriginalName(), PATHINFO_EXTENSION));
             }
         } else {
             $version_upgrade_file = '';
@@ -816,7 +824,7 @@ class AfuVersionsController extends Controller
 
         if (! empty($version_install_query)) {
             if (! empty($version_install_query->getLinkTarget())) { //format version_install_query like product-title-version-number-install-query-random-string.extension
-                $version_install_query = generateFileName(QUERIES_DIRECTORY, slugifyText("$product_title-$version_number-installation-query-".generateRandomString(8)).'.'.pathinfo($version_install_query->getClientOriginalName(), PATHINFO_EXTENSION));
+                $version_install_query = generateFileName(QUERIES_DIRECTORY, slugifyText("$product_title-$version_number-installation-query-".generateRandomString(8)).'.'.pathinfo((string) $version_install_query->getClientOriginalName(), PATHINFO_EXTENSION));
             }
         } else {
             $version_install_query = '';
@@ -824,7 +832,7 @@ class AfuVersionsController extends Controller
 
         if (! empty($version_upgrade_query)) {
             if (! empty($version_upgrade_query->getLinkTarget())) { //format version_upgrade_query like product-title-version-number-upgrade-query-random-string.extension
-                $version_upgrade_query = generateFileName(QUERIES_DIRECTORY, slugifyText("$product_title-$version_number-upgrade-query-".generateRandomString(8)).'.'.pathinfo($version_upgrade_query->getClientOriginalName(), PATHINFO_EXTENSION));
+                $version_upgrade_query = generateFileName(QUERIES_DIRECTORY, slugifyText("$product_title-$version_number-upgrade-query-".generateRandomString(8)).'.'.pathinfo((string) $version_upgrade_query->getClientOriginalName(), PATHINFO_EXTENSION));
             }
         } else {
             $version_upgrade_query = '';
@@ -872,18 +880,21 @@ class AfuVersionsController extends Controller
                     $this->deleteFileDirectory(ARCHIVES_DIRECTORY, [$rows_array[0]['version_install_file']]); //delete old version_install_file (if any)
                 }
             }
+
             if (! empty($version_upgrade_file)) {
                 if (! empty($versionUpgradeTempName)) { //move uploaded version_upgrade_file
                     move_uploaded_file($versionUpgradeTempName, ARCHIVES_DIRECTORY."/$version_upgrade_file");
                     $this->deleteFileDirectory(ARCHIVES_DIRECTORY, [$rows_array[0]['version_upgrade_file']]); //delete old version_upgrade_file (if any)
                 }
             }
+
             if (! empty($version_install_query)) {
                 if (! empty($versionInstallQueryTempName)) { //move uploaded version_install_query
                     move_uploaded_file($versionInstallQueryTempName, QUERIES_DIRECTORY."/$version_install_query");
                     $this->deleteFileDirectory(QUERIES_DIRECTORY, [$rows_array[0]['version_install_query']]); //delete old version_install_query (if any)
                 }
             }
+
             if (! empty($version_upgrade_query)) {
                 if (! empty($versionUpgradeQueryTempName)) { //move uploaded version_upgrade_query
                     move_uploaded_file($versionUpgradeQueryTempName, QUERIES_DIRECTORY."/$version_upgrade_query");
@@ -912,12 +923,15 @@ class AfuVersionsController extends Controller
         if (! empty($version_install_file)) {
             $versionInstallTempName = $version_install_file->getLinkTarget();
         }
+
         if (! empty($version_upgrade_file)) {
             $versionUpgradeTempName = $version_upgrade_file->getLinkTarget();
         }
+
         if (! empty($version_install_query)) {
             $versionInstallQueryTempName = $version_install_query->getLinkTarget();
         }
+
         if (! empty($version_upgrade_query)) {
             $versionUpgradeQueryTempName = $version_upgrade_query->getLinkTarget();
         }
@@ -933,15 +947,19 @@ class AfuVersionsController extends Controller
         if (! is_dir($archives)) {
             @mkdir($archives, 0755, true);
         }
+
         if (! is_dir($queries)) {
             @mkdir($queries, 0755, true);
         }
+
         if (! defined('SCRIPT_ROOT_DIRECTORY')) {
             define('SCRIPT_ROOT_DIRECTORY', __DIR__);
         }
+
         if (! defined('ARCHIVES_DIRECTORY')) {
             define('ARCHIVES_DIRECTORY', $archives);
         }
+
         if (! defined('QUERIES_DIRECTORY')) {
             define('QUERIES_DIRECTORY', $queries);
         }

@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('tax_product_relations', function (Blueprint $table) {
+        Schema::table('tax_product_relations', function (Blueprint $table): void {
             // Fetch all indexes for the tax_product_relations table
             $indexes = DB::select('SHOW INDEX FROM tax_product_relations');
 
@@ -54,7 +54,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('tax_product_relations', function (Blueprint $table) {
+        Schema::table('tax_product_relations', function (Blueprint $table): void {
             $table->dropForeign('tax_product_relations_product_id_foreign');
             $table->dropForeign('tax_product_relations_tax_id_foreign');
         });

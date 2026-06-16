@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('subscriptions')) {
-            Schema::create('subscriptions', function (Blueprint $table) {
+            Schema::create('subscriptions', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('user_id');
                 $table->integer('plan_id');

@@ -2,6 +2,9 @@
 
 namespace App\Plugins\Razorpay\Controllers;
 
+use Exception;
+use App\Jobs\CancelGatewaySubscriptionsJob;
+use Razorpay\Api\Errors\BadRequestError;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
@@ -32,7 +35,7 @@ class SettingsController extends Controller
                 'auto_renewal' => (bool) ($status->razorpay_auto_renewal ?? false),
                 'webhook_url' => url('webhook/razorpay'),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -40,11 +43,11 @@ class SettingsController extends Controller
     public function updateApiKey(Request $request)
     {
         $request->validate([
-            'rzp_key' => 'required|string',
-            'rzp_secret' => 'required|string',
-            'webhook_secret' => 'nullable|string',
-            'processing_fee' => 'nullable|numeric|min:0|max:100',
-            'auto_renewal' => 'nullable|boolean',
+            'rzp_key' => ['required', 'string'],
+            'rzp_secret' => ['required', 'string'],
+            'webhook_secret' => ['nullable', 'string'],
+            'processing_fee' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'auto_renewal' => ['nullable', 'boolean'],
         ], [
             'rzp_key.required' => __('message.razorpay_key_required'),
             'rzp_secret.required' => __('message.razorpay_secret_required'),
@@ -72,14 +75,12 @@ class SettingsController extends Controller
                 StatusSetting::find(1)->update(['razorpay_auto_renewal' => $enabling ? 1 : 0]);
 
                 if (! $enabling) {
-                    \App\Jobs\CancelGatewaySubscriptionsJob::dispatch('razorpay');
+                    dispatch(new CancelGatewaySubscriptionsJob('razorpay'));
                 }
             }
 
             return successResponse(__('message.razorpay_settings_updated_successfully'));
-        } catch (\Razorpay\Api\Errors\BadRequestError $e) {
-            return errorResponse($e->getMessage());
-        } catch (\Exception $e) {
+        } catch (BadRequestError|Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

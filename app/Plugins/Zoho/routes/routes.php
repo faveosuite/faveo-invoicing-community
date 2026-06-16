@@ -7,7 +7,7 @@ use App\Plugins\Zoho\Controllers\ZohoOAuthController;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\ZohoCampaignsController;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\ZohoCrmController;
 
-Route::prefix('zoho')->group(function () {
+Route::prefix('zoho')->group(function (): void {
     Route::get('demo', function () {
         $freeProducts = Product::whereIn(
             'id',
@@ -36,7 +36,7 @@ Route::prefix('zoho')->group(function () {
     Route::post('mapping/save', [ZohoCrmController::class, 'updateMapping']);
 
     // Campaigns Routes
-    Route::prefix('campaigns')->group(function () {
+    Route::prefix('campaigns')->group(function (): void {
         Route::get('{module}/mapping/data', [ZohoCampaignsController::class, 'getCampaignsMappedFields']);
         Route::get('contacts/fields', [ZohoCampaignsController::class, 'getCampaignsContactFields']);
         Route::post('subscribe', [ZohoCampaignsController::class, 'subscribeCampaign']);
@@ -44,7 +44,7 @@ Route::prefix('zoho')->group(function () {
     });
 
     // Crm Routes
-    Route::prefix('crm')->group(function () {
+    Route::prefix('crm')->group(function (): void {
         Route::get('{module}/mapping/data', [ZohoCrmController::class, 'getCrmMappedFields']);
         Route::get('contacts/fields', [ZohoCrmController::class, 'getCrmContactsFields']);
         Route::get('accounts/fields', [ZohoCrmController::class, 'getCrmAccountsFields']);

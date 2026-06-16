@@ -2,8 +2,10 @@
 
 namespace Tests\Unit\Common;
 
+use Illuminate\Support\Facades\Date;
+use Closure;
+use App\Model\Payment\TaxOption;
 use Cache;
-use Carbon\Carbon;
 use Tests\DBTestCase;
 
 class HelpersTest extends DBTestCase
@@ -12,16 +14,16 @@ class HelpersTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $this->user->timezone()->updateOrCreate(['name' => 'Asia/Kolkata']);
-        $this->assertEquals('Jan 1, 2001, 5:30 am', getTimeInLoggedInUserTimeZone(Carbon::now()->startOfMillennium()));
+        $this->assertEquals('Jan 1, 2001, 5:30 am', getTimeInLoggedInUserTimeZone(Date::now()->startOfMillennium()));
     }
 
     public function test_getTimeInLoggedInUserTimeZone_cachesUserTimezoneForFiveSeconds()
     {
         $this->getLoggedInUser('admin');
 
-        Cache::shouldReceive('remember')->once()->withArgs(['user_timezone_'.$this->user->id, 5, \Closure::class])->andReturn('Asia/Kolkata');
+        Cache::shouldReceive('remember')->once()->withArgs(['user_timezone_'.$this->user->id, 5, Closure::class])->andReturn('Asia/Kolkata');
 
-        getTimeInLoggedInUserTimeZone(Carbon::now()->startOfMillennium());
+        getTimeInLoggedInUserTimeZone(Date::now()->startOfMillennium());
     }
 
     public function test_getDateHtml_whenDateTimeStringIsPassedAsNull_shouldReturnDash()
@@ -35,7 +37,7 @@ class HelpersTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $now = Carbon::now();
+        $now = Date::now();
 
         $expectedDateTime = $now->clone()->setTimezone('Asia/Kolkata')->format('M j, Y, g:i a');
         $expectedDate = $now->clone()->setTimezone('Asia/Kolkata')->format('M j, Y');
@@ -117,7 +119,7 @@ class HelpersTest extends DBTestCase
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
-        $tax_rule = new \App\Model\Payment\TaxOption();
+        $tax_rule = new TaxOption();
         $rule = $tax_rule->findOrFail(1)->update(['rounding' => 0]);
         $price = rounding('999.6677777');
         $this->assertEquals($price, '999.67');

@@ -2,6 +2,7 @@
 
 namespace App\Model\Common;
 
+use App\Model\Product\ProductGroup;
 use Illuminate\Database\Eloquent\Model;
 
 class PricingTemplate extends Model
@@ -12,6 +13,6 @@ class PricingTemplate extends Model
 
     public function productGroups()
     {
-        return $this->hasMany(\App\Model\Product\ProductGroup::class);
+        return $this->hasMany(ProductGroup::class);
     }
 }

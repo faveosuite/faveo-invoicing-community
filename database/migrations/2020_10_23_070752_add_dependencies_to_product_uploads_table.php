@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('product_uploads', function (Blueprint $table) {
+        Schema::table('product_uploads', function (Blueprint $table): void {
             if (! Schema::hasColumn('product_uploads', 'dependencies')) {
                 $table->json('dependencies')->nullable();
             }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('product_uploads', function (Blueprint $table) {
+        Schema::table('product_uploads', function (Blueprint $table): void {
             $table->dropColumn('dependencies');
         });
     }

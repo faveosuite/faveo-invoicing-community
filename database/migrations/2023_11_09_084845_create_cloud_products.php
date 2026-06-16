@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('cloud_products', function (Blueprint $table) {
+        Schema::create('cloud_products', function (Blueprint $table): void {
             $table->id();
             $table->integer('cloud_product')->unsigned();
             $table->integer('cloud_free_plan')->unsigned();

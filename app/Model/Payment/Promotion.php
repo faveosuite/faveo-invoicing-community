@@ -2,6 +2,7 @@
 
 namespace App\Model\Payment;
 
+use Override;
 use App\BaseModel;
 use App\Model\Product\Product;
 use App\Traits\SystemActivityLogsTrait;
@@ -9,8 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Promotion extends BaseModel
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'promotions';
 
     protected $fillable = ['code', 'type', 'uses', 'value', 'start', 'expiry'];
@@ -41,12 +42,13 @@ class Promotion extends BaseModel
 
     public function relation()
     {
-        return $this->hasMany(\App\Model\Payment\PromoProductRelation::class, 'promotion_id');
+        return $this->hasMany(PromoProductRelation::class, 'promotion_id');
     }
 
+    #[Override]
     public function delete()
     {
-        $this->relation->each(function ($relation) {
+        $this->relation->each(function ($relation): void {
             $relation->delete();
         });
 
@@ -55,14 +57,14 @@ class Promotion extends BaseModel
 
     public function promotionType()
     {
-        return $this->belongsTo(\App\Model\Payment\PromotionType::class, 'type', 'id');
+        return $this->belongsTo(PromotionType::class, 'type', 'id');
     }
 
     public function products()
     {
         return $this->hasOneThrough(
             Product::class,
-            \App\Model\Payment\PromoProductRelation::class,
+            PromoProductRelation::class,
             'promotion_id',
             'id',
             'id',

@@ -9,8 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Testing\TestResponse;
-use Mockery;
-use Session;
 use Tests\DBTestCase;
 
 class InstallerControllerTest extends DBTestCase
@@ -44,7 +42,7 @@ class InstallerControllerTest extends DBTestCase
         $response = $controller->checkPreInstall();
 
         $this->assertEquals(200, $response->status());
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode((string) $response->getContent(), true);
         $this->assertEquals('Pre migration has been tested successfully', $data['result']['success']);
         $this->assertEquals('Migrating tables in database', $data['result']['next']);
     }

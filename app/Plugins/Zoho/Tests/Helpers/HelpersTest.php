@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Tests\Helpers;
 
+use DB;
 use App\Plugins\Zoho\Controllers\Api\ZohoRegion;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
@@ -142,7 +143,7 @@ class HelpersTest extends DBTestCase
 
     public function test_zoho_mapped_fields_skips_missing_zoho_field()
     {
-        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         $localField = FaveoLocalFields::create([
             'field_key' => 'test',

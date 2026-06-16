@@ -9,7 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->boolean('installation_logs_status')->default(0);
             $table->boolean('license_reports_cleanup_status')->default(0);
             $table->boolean('license_callbacks_cleanup_status')->default(0);
@@ -40,7 +40,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->dropColumn([
                 'installation_logs_status',
                 'license_reports_cleanup_status',

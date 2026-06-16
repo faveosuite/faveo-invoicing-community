@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('configurable_options')) {
-            Schema::create('configurable_options', function (Blueprint $table) {
+            Schema::create('configurable_options', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('group_id')->unsigned()->index('configurable_options_group_id_foreign');
                 $table->integer('type');

@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Payment\Gateways;
 
+use Throwable;
 use App\Plugins\Payment\Contracts\CardPaymentGateway;
 use App\Plugins\Payment\Contracts\PaymentGateway;
 use App\Plugins\Payment\Contracts\SubscriptionGateway;
@@ -37,10 +38,10 @@ use Stripe\Webhook;
  *   $result  = $stripe->capturePayment(['session_id' => $session->id]);
  *   if ($result->paid) { ... }
  */
-final class StripeGateway implements PaymentGateway, SubscriptionGateway, CardPaymentGateway
+final readonly class StripeGateway implements PaymentGateway, SubscriptionGateway, CardPaymentGateway
 {
     /** @var array<int, string> */
-    private const SUPPORTED = [
+    private const array SUPPORTED = [
         'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN', 'BAM', 'BBD',
         'BDT', 'BGN', 'BIF', 'BMD', 'BND', 'BOB', 'BRL', 'BSD', 'BWP', 'BYN', 'BZD', 'CAD',
         'CDF', 'CHF', 'CLP', 'CNY', 'COP', 'CRC', 'CVE', 'CZK', 'DJF', 'DKK', 'DOP', 'DZD',
@@ -55,9 +56,9 @@ final class StripeGateway implements PaymentGateway, SubscriptionGateway, CardPa
     ];
 
     public function __construct(
-        private readonly string $secretKey,
-        private readonly string $publishableKey = '',
-        private readonly string $webhookSecret = '',
+        private string $secretKey,
+        private string $publishableKey = '',
+        private string $webhookSecret = '',
     ) {
     }
 
@@ -248,7 +249,7 @@ final class StripeGateway implements PaymentGateway, SubscriptionGateway, CardPa
             Webhook::constructEvent($rawPayload, $signature, $this->webhookSecret);
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             return false;
         }
     }

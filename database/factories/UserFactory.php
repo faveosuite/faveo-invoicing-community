@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Illuminate\Support\Str;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -34,7 +35,7 @@ class UserFactory extends Factory
             'zip' => $this->faker->postcode(),
             'password' => 'Rivara@12',
             'timezone_id' => 79,
-            'remember_token' => str_random(10),
+            'remember_token' => Str::random(10),
             'mobile_verified' => 1,
             'role' => 'user',
             'active' => 1,

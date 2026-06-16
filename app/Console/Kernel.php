@@ -2,6 +2,27 @@
 
 namespace App\Console;
 
+use App\Console\Commands\Inspire;
+use App\Console\Commands\Install;
+use App\Console\Commands\DropTables;
+use App\Console\Commands\InstallDB;
+use App\Console\Commands\ExpiryCron;
+use App\Console\Commands\SyncDatabaseToLatestVersion;
+use App\Console\Commands\RenewalCron;
+use App\Console\Commands\AutorenewalExpirymail;
+use App\Console\Commands\PostExpiryCron;
+use App\Console\Commands\moveImages;
+use App\Console\Commands\invoiceDeletion;
+use App\Console\Commands\CleanupMsg91Reports;
+use App\Console\Commands\ReoonLogsDeletion;
+use App\Console\Commands\FailedMessageDelivery;
+use Override;
+use App\Model\Mailjob\Condition;
+use File;
+use Schema;
+use Config;
+use App\Http\Controllers\Common\PhpMailController;
+use Exception;
 use App\BillingLog\Console\Commands\DeleteLogs;
 use App\Console\Commands\SetupTestEnv;
 use App\Jobs\NotifyMail;
@@ -22,30 +43,31 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         //
-        \App\Console\Commands\Inspire::class,
-        \App\Console\Commands\Install::class,
-        \App\Console\Commands\DropTables::class,
-        \App\Console\Commands\InstallDB::class,
-        \App\Console\Commands\ExpiryCron::class,
+        Inspire::class,
+        Install::class,
+        DropTables::class,
+        InstallDB::class,
+        ExpiryCron::class,
         SetupTestEnv::class,
-        \App\Console\Commands\SyncDatabaseToLatestVersion::class,
-        \App\Console\Commands\RenewalCron::class,
-        \App\Console\Commands\AutorenewalExpirymail::class,
-        \App\Console\Commands\PostExpiryCron::class,
-        \App\Console\Commands\moveImages::class,
-        \App\Console\Commands\invoiceDeletion::class,
-        \App\Console\Commands\CleanupMsg91Reports::class,
+        SyncDatabaseToLatestVersion::class,
+        RenewalCron::class,
+        AutorenewalExpirymail::class,
+        PostExpiryCron::class,
+        moveImages::class,
+        invoiceDeletion::class,
+        CleanupMsg91Reports::class,
         DeleteLogs::class,
-        \App\Console\Commands\ReoonLogsDeletion::class,
-        \App\Console\Commands\FailedMessageDelivery::class,
+        ReoonLogsDeletion::class,
+        FailedMessageDelivery::class,
     ];
 
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @param Schedule $schedule
      * @return void
      */
+    #[Override]
     protected function schedule(Schedule $schedule)
     {
         $this->execute($schedule, 'expiryMail');
@@ -61,7 +83,7 @@ class Kernel extends ConsoleKernel
 
         // Schedule the cloudEmail method
         //Should not be touched unless you are changing something with cloud
-        $schedule->call(function () {
+        $schedule->call(function (): void {
             $lockFilePath = storage_path('cloudEmail.lock');
 
             // Check if the lock file exists
@@ -85,7 +107,7 @@ class Kernel extends ConsoleKernel
         $this->execute($schedule, 'licenseVersionsCleanup');
 
         if (config('database.DB_INSTALL')) {
-            $condition = new \App\Model\Mailjob\Condition();
+            $condition = new Condition();
             $command = $condition->getConditionValue($task = 'cloud');
             $this->getCondition($schedule->job(new NotifyMail), $command);
         }
@@ -94,45 +116,55 @@ class Kernel extends ConsoleKernel
     public function execute($schedule, $task)
     {
         $env = base_path('.env');
-        if (\File::exists($env) && (env('DB_INSTALL') == 1)) {
+        if (File::exists($env) && (env('DB_INSTALL') == 1)) {
             $expiryMailStatus = StatusSetting::pluck('expiry_mail')->first();
             $logDeleteStatus = StatusSetting::pluck('activity_log_delete')->first();
             $RenewalexpiryMailStatus = StatusSetting::pluck('subs_expirymail')->first();
             $postExpirystatus = StatusSetting::pluck('post_expirymail')->first();
             $invoiceDeletionstatus = StatusSetting::pluck('invoice_deletion_status')->first();
             $delLogDays = ActivityLogDay::pluck('days')->first();
-            if (\Schema::hasColumn('status_settings', 'msg91_report_delete_status')) {
+            if (Schema::hasColumn('status_settings', 'msg91_report_delete_status')) {
                 $msgDeletionStatus = StatusSetting::value('msg91_report_delete_status');
             }
-            if (\Schema::hasColumn('status_settings', 'reoon_deletion_status')) {
+
+            if (Schema::hasColumn('status_settings', 'reoon_deletion_status')) {
                 $reoonStatus = StatusSetting::pluck('reoon_deletion_status')->first();
             }
-            if (\Schema::hasColumn('status_settings', 'system_log_status')) {
+
+            if (Schema::hasColumn('status_settings', 'system_log_status')) {
                 $systemLogsStatus = StatusSetting::pluck('system_log_status')->first();
             }
-            if (\Schema::hasColumn('status_settings', 'installation_logs_status')) {
+
+            if (Schema::hasColumn('status_settings', 'installation_logs_status')) {
                 $installationLogsStatus = StatusSetting::value('installation_logs_status');
             }
-            if (\Schema::hasColumn('status_settings', 'license_reports_cleanup_status')) {
+
+            if (Schema::hasColumn('status_settings', 'license_reports_cleanup_status')) {
                 $licenseReportsStatus = StatusSetting::value('license_reports_cleanup_status');
             }
-            if (\Schema::hasColumn('status_settings', 'license_callbacks_cleanup_status')) {
+
+            if (Schema::hasColumn('status_settings', 'license_callbacks_cleanup_status')) {
                 $licenseCallbacksStatus = StatusSetting::value('license_callbacks_cleanup_status');
             }
-            if (\Schema::hasColumn('status_settings', 'license_crack_reports_cleanup_status')) {
+
+            if (Schema::hasColumn('status_settings', 'license_crack_reports_cleanup_status')) {
                 $licenseCrackStatus = StatusSetting::value('license_crack_reports_cleanup_status');
             }
-            if (\Schema::hasColumn('status_settings', 'license_system_reports_cleanup_status')) {
+
+            if (Schema::hasColumn('status_settings', 'license_system_reports_cleanup_status')) {
                 $licenseSystemStatus = StatusSetting::value('license_system_reports_cleanup_status');
             }
-            if (\Schema::hasColumn('status_settings', 'license_versions_cleanup_status')) {
+
+            if (Schema::hasColumn('status_settings', 'license_versions_cleanup_status')) {
                 $licenseVersionsStatus = StatusSetting::value('license_versions_cleanup_status');
             }
+
             if ($delLogDays == null) {
                 $delLogDays = 99999999;
             }
-            \Config::set('activitylog.delete_records_older_than_days', $delLogDays);
-            $condition = new \App\Model\Mailjob\Condition();
+
+            Config::set('activitylog.delete_records_older_than_days', $delLogDays);
+            $condition = new Condition();
             $command = $condition->getConditionValue($task);
             switch ($task) {
                 case 'expiryMail':
@@ -201,30 +233,19 @@ class Kernel extends ConsoleKernel
     {
         $condition = $command['condition'];
         $at = $command['at'];
-        switch ($condition) {
-            case 'everyMinute':
-                return $schedule->everyMinute();
-            case 'everyFiveMinutes':
-                return $schedule->everyFiveMinutes();
-            case 'everyTenMinutes':
-                return $schedule->everyTenMinutes();
-            case 'everyThirtyMinutes':
-                return $schedule->everyThirtyMinutes();
-            case 'hourly':
-                return $schedule->hourly();
-            case 'daily':
-                return $schedule->daily();
-            case 'dailyAt':
-                return $this->getConditionWithOption($schedule, $condition, $at);
-            case 'weekly':
-                return $schedule->weekly();
-            case 'monthly':
-                return $schedule->monthly();
-            case 'yearly':
-                return $schedule->yearly();
-            default:
-                return $schedule->everyMinute();
-        }
+        return match ($condition) {
+            'everyMinute' => $schedule->everyMinute(),
+            'everyFiveMinutes' => $schedule->everyFiveMinutes(),
+            'everyTenMinutes' => $schedule->everyTenMinutes(),
+            'everyThirtyMinutes' => $schedule->everyThirtyMinutes(),
+            'hourly' => $schedule->hourly(),
+            'daily' => $schedule->daily(),
+            'dailyAt' => $this->getConditionWithOption($schedule, $condition, $at),
+            'weekly' => $schedule->weekly(),
+            'monthly' => $schedule->monthly(),
+            'yearly' => $schedule->yearly(),
+            default => $schedule->everyMinute(),
+        };
     }
 
     public function getConditionWithOption($schedule, $command, $at)
@@ -240,6 +261,7 @@ class Kernel extends ConsoleKernel
      *
      * @return void
      */
+    #[Override]
     protected function commands()
     {
         require base_path('routes/console.php');
@@ -251,7 +273,7 @@ class Kernel extends ConsoleKernel
         try {
             $contact = getContactData();
             $setting = Setting::find(1);
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
+            $mail = new PhpMailController();
             $clouds = cloudemailsend::cursor();
 
             foreach ($clouds as $cloud) {
@@ -261,7 +283,7 @@ class Kernel extends ConsoleKernel
                     cloudemailsend::where('domain', $cloud->domain)->delete();
                 }
             }
-        } catch(\Exception $e) {
+        } catch(Exception $e) {
             $this->googleChat($e->getMessage());
         }
     }
@@ -277,12 +299,13 @@ class Kernel extends ConsoleKernel
 
                 return true;
             }
-        } catch (\Exception $e) {
+        } catch (Exception) {
             $this->prepareMessages($domain, $counter, $user);
 
             // The domain is not reachable or the SSL certificate is invalid.
             return false;
         }
+
         $this->prepareMessages($domain, $counter, $user);
 
         return false;
@@ -322,6 +345,7 @@ class Kernel extends ConsoleKernel
                     $this->googleChat('Hello, It has come to my notice that this domain has not been created successfully Domain name:'.$domain.' and this is their email: '.$user.'&#10060;'."\u{2716}\u{2716}\u{2716}");
                 }
             }
+
             // Remove the lock file
             unlink($lockFilePath);
         }

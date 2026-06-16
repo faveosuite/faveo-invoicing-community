@@ -2,6 +2,8 @@
 
 namespace App\License\Models;
 
+use Override;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -21,15 +23,11 @@ class InstallationLog extends Model
         'installation_status',
     ];
 
-    protected $casts = [
-        'installation_last_active_date' => 'datetime',
-        'installation_status' => 'integer',
-    ];
-
     /**
      * Scope: filter by license code.
      */
-    public function scopeForLicense($query, string $licenseCode)
+    #[Scope]
+    protected function forLicense($query, string $licenseCode)
     {
         return $query->where('license_code', $licenseCode);
     }
@@ -37,8 +35,17 @@ class InstallationLog extends Model
     /**
      * Scope: order by most recent activity.
      */
-    public function scopeRecent($query)
+    #[Scope]
+    protected function recent($query)
     {
         return $query->orderBy('installation_last_active_date', 'desc');
+    }
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'installation_last_active_date' => 'datetime',
+            'installation_status' => 'integer',
+        ];
     }
 }

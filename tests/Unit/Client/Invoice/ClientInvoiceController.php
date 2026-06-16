@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Client\Invoice;
 
+use PHPUnit\Framework\Attributes\Group;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -20,13 +21,13 @@ class ClientInvoiceController extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->request = app(Request::class);
+        $this->request = resolve(Request::class);
         $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
         $this->html->shouldReceive('token')->andReturn('mocked-token');
         $this->app->instance(Html::class, $this->html);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('invoice')]
+    #[Group('invoice')]
     public function test_return_invoice_details_correctly()
     {
         $user = User::factory()->create();
@@ -66,7 +67,7 @@ class ClientInvoiceController extends DBTestCase
         $this->assertEquals($content['data']['data'][0]['status'], 'Unpaid');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('invoice')]
+    #[Group('invoice')]
     public function test_deleting_invoice()
     {
         $user = User::factory()->create();
@@ -86,7 +87,7 @@ class ClientInvoiceController extends DBTestCase
         ]);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('invoice')]
+    #[Group('invoice')]
     public function test_delete_fails_when_invoice_item_does_not_exist()
     {
         $user = User::factory()->create();
@@ -103,7 +104,7 @@ class ClientInvoiceController extends DBTestCase
         ]);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('invoice')]
+    #[Group('invoice')]
     public function test_returns_individual_invoice()
     {
         $user = User::factory()->create();
@@ -116,7 +117,7 @@ class ClientInvoiceController extends DBTestCase
         $response->assertSessionHas('fails', 'Invoice not found.');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('invoice')]
+    #[Group('invoice')]
     public function test_when_user_id_is_not_same_as_authorized_user()
     {
         $user = User::factory()->create();
@@ -129,7 +130,7 @@ class ClientInvoiceController extends DBTestCase
         $response->assertSessionHas('fails', 'Cannot view invoice. Invalid modification of data.');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('invoice')]
+    #[Group('invoice')]
     public function test_when_user_invoice_id_are_correct()
     {
         $user = User::factory()->create();
@@ -156,6 +157,7 @@ class ClientInvoiceController extends DBTestCase
         while (ob_get_level() > 1) {
             ob_end_clean();
         }
+
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['payments', 'items', 'user', 'processingFeeAmount', 'statusText', 'statusClass'],
@@ -163,7 +165,7 @@ class ClientInvoiceController extends DBTestCase
         $this->assertEquals($user->id, $content['data']['user']['id']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('invoice')]
+    #[Group('invoice')]
     public function test_individual_data_in_datatable()
     {
         $user = User::factory()->create();
@@ -180,7 +182,7 @@ class ClientInvoiceController extends DBTestCase
         $this->assertEquals($content['data']['data'][0]['number'], '<a href='.url('my-invoice/'.$invoice->id).'>'.$invoice->number.'</a>');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('invoice')]
+    #[Group('invoice')]
     public function test_invoice_generate_pdf()
     {
         $user = User::factory()->create();
@@ -192,7 +194,7 @@ class ClientInvoiceController extends DBTestCase
         $this->assertEquals($content['message'], 'No invoice id');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('invoice')]
+    #[Group('invoice')]
     public function test_when_wrong_id_given()
     {
         $user = User::factory()->create();
@@ -203,7 +205,7 @@ class ClientInvoiceController extends DBTestCase
         $response->assertSessionHas('fails', 'Invalid Invoice');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('invoice')]
+    #[Group('invoice')]
     public function test_generate_invoice_when_all_data_given()
     {
         $user = User::factory()->create();

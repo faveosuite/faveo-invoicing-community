@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Common\Dependency;
 use App\Http\Controllers\Controller;
 use Auth;
 use Closure;
-use Illuminate\Http\Request;
 
 class BaseDependencyController extends Controller
 {

@@ -25,6 +25,7 @@ class ReportsController extends Controller
             foreach ($report_ids_array as $report_id) {
                 $this->removed_records += $this->deleteReport($report_id, $this->removed_records);
             }
+
             if (! LicenseHelper::validateIntegerValue($this->removed_records)) {
                 $this->action_success = 0;
                 $this->error_details .= Lang::get('lang.inavalid_records');
@@ -35,8 +36,9 @@ class ReportsController extends Controller
             $this->action_success = 0;
             $this->error_details .= Lang::get('lang.no_record_selected');
         }
+
         $page_message = $this->whichReportDeleted($whichReport, $this->action_success, $this->removed_records, $this->error_details);
-        LicenseHelper::logAdminReport(strip_tags($page_message), 1, 1, $this->action_success);
+        LicenseHelper::logAdminReport(strip_tags((string) $page_message), 1, 1, $this->action_success);
 
         return response(['message' => $page_message]);
     }
@@ -73,14 +75,14 @@ class ReportsController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
 
-        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+        $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
         $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], true) ? $sortField : 'id';
 
         $reportsQuery = LicenseReport::query()
             ->with('user:id,email')
             ->where('report_system', 1)
-            ->when($searchQuery, function ($query, $searchQuery) {
-                $query->where(function ($query) use ($searchQuery) {
+            ->when($searchQuery, function ($query, $searchQuery): void {
+                $query->where(function ($query) use ($searchQuery): void {
                     $query->where('report_text', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('report_status', 'LIKE', '%'.$this->reportStatusFormatter($searchQuery).'%');
                 });
@@ -88,17 +90,15 @@ class ReportsController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $reportsQuery->getCollection()->transform(function (LicenseReport $report) {
-            return [
-                'id' => $report->id,
-                'account_id' => $report->user_id,
-                'license_code' => $report->license_code,
-                'report_text' => $report->report_text,
-                'report_date_time' => $report->report_date_time,
-                'report_status' => $report->report_status,
-                'user_formatted' => optional($report->user)->email ?? 'System',
-            ];
-        });
+        $reportsQuery->getCollection()->transform(fn(LicenseReport $report) => [
+            'id' => $report->id,
+            'account_id' => $report->user_id,
+            'license_code' => $report->license_code,
+            'report_text' => $report->report_text,
+            'report_date_time' => $report->report_date_time,
+            'report_status' => $report->report_status,
+            'user_formatted' => $report->user?->email ?? 'System',
+        ]);
 
         return successResponse(Lang::get('lang.SystemReport_Show'), $reportsQuery, 200);
     }
@@ -111,7 +111,7 @@ class ReportsController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
 
-        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+        $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
         $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], true) ? $sortField : 'id';
 
         $crakingReports = LicenseReport::query()
@@ -121,8 +121,8 @@ class ReportsController extends Controller
             ->where('report_system', 0)
             ->where('report_text', 'not like', '%upgrade%')
             ->where('report_text', 'not like', '%file_to_download%')
-            ->when($searchQuery, function ($query) use ($searchQuery) {
-                $query->where(function ($query) use ($searchQuery) {
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($query) use ($searchQuery): void {
                     $query->where('report_text', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('report_status', 'LIKE', '%'.$this->reportStatusFormatter($searchQuery).'%')
                         ->orWhere('license_code', 'LIKE', '%'.str_replace('-', '', $searchQuery).'%');
@@ -134,17 +134,15 @@ class ReportsController extends Controller
         $licenseIdsByCode = License::whereIn('license_code', $crakingReports->pluck('license_code')->filter()->unique())
             ->pluck('id', 'license_code');
 
-        $crakingReports->getCollection()->transform(function (LicenseReport $report) use ($licenseIdsByCode) {
-            return [
-                'id' => $report->id,
-                'user_id' => $report->user_id,
-                'license_code' => $report->license_code,
-                'report_text' => $report->report_text,
-                'report_date_time' => $report->report_date_time,
-                'report_status' => $report->report_status,
-                'license_id' => $licenseIdsByCode[$report->license_code] ?? null,
-            ];
-        });
+        $crakingReports->getCollection()->transform(fn(LicenseReport $report) => [
+            'id' => $report->id,
+            'user_id' => $report->user_id,
+            'license_code' => $report->license_code,
+            'report_text' => $report->report_text,
+            'report_date_time' => $report->report_date_time,
+            'report_status' => $report->report_status,
+            'license_id' => $licenseIdsByCode[$report->license_code] ?? null,
+        ]);
 
         return successResponse(Lang::get('lang.CrackingReport_Show'), $crakingReports, 200);
     }
@@ -157,17 +155,17 @@ class ReportsController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
 
-        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+        $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
         $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], true) ? $sortField : 'id';
 
         $LicenseReports = LicenseReport::query()
             ->with('user:id,email')
             ->whereNotNull('license_code')
-            ->when($searchQuery, function ($query) use ($searchQuery) {
-                $query->where(function ($query) use ($searchQuery) {
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($query) use ($searchQuery): void {
                     $query->where('report_text', 'like', '%'.$searchQuery.'%')
                         ->orWhere('report_status', 'LIKE', '%'.$this->reportStatusFormatter($searchQuery).'%')
-                        ->orWhereHas('user', function ($userQuery) use ($searchQuery) {
+                        ->orWhereHas('user', function ($userQuery) use ($searchQuery): void {
                             $userQuery->where('email', 'like', '%'.$searchQuery.'%');
                         })
                         ->orWhere('license_code', 'like', '%'.str_replace('-', '', $searchQuery).'%')
@@ -180,18 +178,16 @@ class ReportsController extends Controller
         $licenseIdsByCode = License::whereIn('license_code', $LicenseReports->pluck('license_code')->filter()->unique())
             ->pluck('id', 'license_code');
 
-        $LicenseReports->getCollection()->transform(function (LicenseReport $report) use ($licenseIdsByCode) {
-            return [
-                'id' => $report->id,
-                'client_id' => $report->user_id,
-                'report_text' => $report->report_text,
-                'license_code' => $report->license_code,
-                'report_date_time' => $report->report_date_time,
-                'report_status' => $report->report_status,
-                'client_email' => optional($report->user)->email,
-                'license_id' => $licenseIdsByCode[$report->license_code] ?? null,
-            ];
-        });
+        $LicenseReports->getCollection()->transform(fn(LicenseReport $report) => [
+            'id' => $report->id,
+            'client_id' => $report->user_id,
+            'report_text' => $report->report_text,
+            'license_code' => $report->license_code,
+            'report_date_time' => $report->report_date_time,
+            'report_status' => $report->report_status,
+            'client_email' => $report->user?->email,
+            'license_id' => $licenseIdsByCode[$report->license_code] ?? null,
+        ]);
 
         return successResponse(Lang::get('lang.LicenseReport_Show'), $LicenseReports, 200);
     }
@@ -204,16 +200,16 @@ class ReportsController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
 
-        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+        $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
         $sortField = in_array($sortField, ['id', 'user_id', 'product_id', 'report_text', 'report_date_time', 'report_status'], true) ? $sortField : 'id';
 
         $updateReports = LicenseReport::query()
             ->with('product:id,name')
             ->where('report_text', 'like', '%upgrade%')
-            ->when($searchQuery, function ($query) use ($searchQuery) {
-                $query->where(function ($query) use ($searchQuery) {
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($query) use ($searchQuery): void {
                     $query->where('report_text', 'like', '%'.$searchQuery.'%')
-                        ->orWhereHas('product', function ($productQuery) use ($searchQuery) {
+                        ->orWhereHas('product', function ($productQuery) use ($searchQuery): void {
                             $productQuery->where('name', 'like', '%'.$searchQuery.'%');
                         })
                         ->orWhere('report_status', 'LIKE', '%'.$this->reportStatusFormatter($searchQuery).'%')
@@ -223,17 +219,15 @@ class ReportsController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $updateReports->getCollection()->transform(function (LicenseReport $report) {
-            return [
-                'id' => $report->id,
-                'user_id' => $report->user_id,
-                'report_text' => $report->report_text,
-                'report_date_time' => $report->report_date_time,
-                'report_status' => $report->report_status,
-                'product_title' => optional($report->product)->name,
-                'product_id' => $report->product_id,
-            ];
-        });
+        $updateReports->getCollection()->transform(fn(LicenseReport $report) => [
+            'id' => $report->id,
+            'user_id' => $report->user_id,
+            'report_text' => $report->report_text,
+            'report_date_time' => $report->report_date_time,
+            'report_status' => $report->report_status,
+            'product_title' => $report->product?->name,
+            'product_id' => $report->product_id,
+        ]);
 
         return successResponse(Lang::get('lang.report_update'), $updateReports, 200);
     }
@@ -243,9 +237,11 @@ class ReportsController extends Controller
         if (strtolower($status) == 'success') {
             $status = 'success';
         }
+
         if (strtolower($status) == 'error') {
             $status = 'error';
         }
+
         if (strtolower($status) == 'pending') {
             $status = 'pending';
         }

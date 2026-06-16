@@ -7,11 +7,11 @@
 
 namespace App\Http\Controllers\Common\Twitter;
 
-class Request
+use Stringable;
+
+class Request implements Stringable
 {
     protected $parameters;
-
-    protected $httpMethod;
 
     protected $httpUrl;
 
@@ -24,11 +24,10 @@ class Request
      * @param  string  $httpUrl
      * @param  array|null  $parameters
      */
-    public function __construct($httpMethod, $httpUrl, array $parameters = [])
+    public function __construct(protected $httpMethod, $httpUrl, array $parameters = [])
     {
         $parameters = array_merge(Util::parseParameters(parse_url($httpUrl, PHP_URL_QUERY)), $parameters);
         $this->parameters = $parameters;
-        $this->httpMethod = $httpMethod;
         $this->httpUrl = $httpUrl;
     }
 
@@ -45,8 +44,8 @@ class Request
     public static function fromConsumerAndToken(
         Consumer $consumer,
         ?Token $token = null,
-        $httpMethod,
-        $httpUrl,
+        $httpMethod = null,
+        $httpUrl = null,
         array $parameters = []
     ) {
         $defaults = [
@@ -79,7 +78,7 @@ class Request
      */
     public function getParameter($name)
     {
-        return isset($this->parameters[$name]) ? $this->parameters[$name] : null;
+        return $this->parameters[$name] ?? null;
     }
 
     /**
@@ -146,7 +145,7 @@ class Request
      */
     public function getNormalizedHttpMethod()
     {
-        return strtoupper($this->httpMethod);
+        return strtoupper((string) $this->httpMethod);
     }
 
     /**
@@ -157,7 +156,7 @@ class Request
      */
     public function getNormalizedHttpUrl()
     {
-        $parts = parse_url($this->httpUrl);
+        $parts = parse_url((string) $this->httpUrl);
 
         $scheme = $parts['scheme'];
         $host = strtolower($parts['host']);
@@ -204,12 +203,14 @@ class Request
         $first = true;
         $out = 'Authorization: OAuth';
         foreach ($this->parameters as $k => $v) {
-            if (substr($k, 0, 5) != 'oauth') {
+            if (!str_starts_with((string) $k, 'oauth')) {
                 continue;
             }
+
             if (is_array($v)) {
                 throw new TwitterOAuthException('Arrays not supported in headers');
             }
+
             $out .= ($first) ? ' ' : ', ';
             $out .= /* @scrutinizer ignore-type */Util::urlencodeRfc3986($k).'="'.
             /* @scrutinizer ignore-type */Util::urlencodeRfc3986($v).'"';
@@ -222,7 +223,7 @@ class Request
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->toUrl();
     }

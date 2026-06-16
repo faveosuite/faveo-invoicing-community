@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('widgets', 'allow_social_media')) {
-            Schema::table('widgets', function (Blueprint $table) {
+            Schema::table('widgets', function (Blueprint $table): void {
                 $table->boolean('allow_social_media')->default(0);
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('widgets', function (Blueprint $table) {
+        Schema::table('widgets', function (Blueprint $table): void {
             $table->dropColumn('allow_social_media');
         });
     }

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('widgets')) {
-            Schema::create('widgets', function (Blueprint $table) {
+            Schema::create('widgets', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name');
                 $table->string('type');

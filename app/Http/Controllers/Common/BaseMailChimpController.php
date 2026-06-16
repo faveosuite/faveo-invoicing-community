@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Common;
 
+use Lang;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class BaseMailChimpController extends Controller
 
             return $result;
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -26,7 +27,7 @@ class BaseMailChimpController extends Controller
 
             return $result;
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -38,17 +39,19 @@ class BaseMailChimpController extends Controller
             $interestGroupIdForNo = '';
             $interestGroupIdForYes = '';
             $merge_fields = $this->field($email);
-            $hash = md5($email);
+            $hash = md5((string) $email);
             $isPaidStatus = StatusSetting::select()->value('mailchimp_ispaid_status');
             $productStatusStatus = StatusSetting::select()->value('mailchimp_product_status');
             if ($isPaidStatus == 1) {
                 $interestGroupIdForNo = $this->relation->is_paid_no; //Interest GroupId for IsPaid Is No
                 $interestGroupIdForYes = $this->relation->is_paid_yes; //Interest GroupId for IsPaid Is Yes
             }
+
             if ($productStatusStatus == 1) {
                 $productGroupId = $this->groupRelation->where('agora_product_id', $productid)
                 ->pluck('mailchimp_group_cat_id')->first();
             }
+
             if ($interestGroupIdForNo && $productGroupId) {
                 $result = $this->mailchimp->patch("lists/$this->list_id/members/$hash", [
                     'interests' => [$interestGroupIdForNo => true, $interestGroupIdForYes => false, $productGroupId => true],
@@ -73,17 +76,19 @@ class BaseMailChimpController extends Controller
     {
         try {
             $merge_fields = $this->field($email);
-            $hash = md5($email);
+            $hash = md5((string) $email);
             $isPaidStatus = StatusSetting::select()->value('mailchimp_ispaid_status');
             $productStatusStatus = StatusSetting::select()->value('mailchimp_product_status');
             if ($isPaidStatus == 1) {
                 $interestGroupIdForNo = $this->relation->is_paid_no; //Interest GroupId for IsPaid Is No
                 $interestGroupIdForYes = $this->relation->is_paid_yes; //Interest GroupId for IsPaid Is Yes
             }
+
             if ($productStatusStatus == 1) {
                 $productGroupId = $this->groupRelation->where('agora_product_id', $productid)
                 ->pluck('mailchimp_group_cat_id')->first();
             }
+
             if ($interestGroupIdForNo && $productGroupId) {
                 $result = $this->mailchimp->patch("lists/$this->list_id/members/$hash", [
                     'interests' => [$interestGroupIdForNo => false, $interestGroupIdForYes => true, $productGroupId => true],
@@ -99,8 +104,9 @@ class BaseMailChimpController extends Controller
                     'interests' => [$productGroupId => true],
                 ]);
             }
+
             //refer to https://us7.api.mailchimp.com/playground
-        } catch (\Exception $ex) {
+        } catch (\Exception) {
         }
     }
 
@@ -111,7 +117,7 @@ class BaseMailChimpController extends Controller
 
             return $result;
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -123,8 +129,8 @@ class BaseMailChimpController extends Controller
             $selectedList[] = $set->list_id;
 
             return view('themes.default1.common.mailchimp.settings', compact('set', 'allists', 'selectedList'));
-        } catch (\Exception $ex) {
-            return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
+        } catch (\Exception) {
+            return errorResponse(Lang::get('message.mailchimp_apikey_error'));
         }
     }
 
@@ -140,9 +146,9 @@ class BaseMailChimpController extends Controller
             $this->addListsToAgora();
             $data = ['list_id' => 1];
 
-            return successResponse(\Lang::get('message.mailchimp_setting_successfully_saved'), $data);
-        } catch (\Exception $ex) {
-            return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
+            return successResponse(Lang::get('message.mailchimp_setting_successfully_saved'), $data);
+        } catch (\Exception) {
+            return errorResponse(Lang::get('message.mailchimp_apikey_error'));
         }
     }
 
@@ -156,6 +162,7 @@ class BaseMailChimpController extends Controller
                     $agora->delete();
                 }
             }
+
             foreach ($lists['lists'] as $list) {
                 $name = $list->name;
                 $list_id = $list->id;
@@ -164,9 +171,10 @@ class BaseMailChimpController extends Controller
                     'list_id' => $list_id,
                 ]);
             }
+
             //return redirect()->back()->with('success', \Lang::get('message.mailchimp-list-added-to-agora'));
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\License;
 
+use Exception;
+use Logger;
 use App\Http\Controllers\Controller;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
@@ -39,33 +41,29 @@ class LicensePermissionsController extends Controller
             $allPermissions = LicensePermission::select('id', 'permissions')->get();
 
             $licenseTypes = LicenseType::with('permissions:id,permissions')
-                ->when($searchString, function ($query) use ($searchString) {
+                ->when($searchString, function ($query) use ($searchString): void {
                     $query->where('name', 'like', "%$searchString%");
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $data = $licenseTypes->getCollection()->map(function ($license) use ($allPermissions) {
-                return [
-                    'id' => $license->id,
-                    'name' => $license->name,
-                    'permissions' => $license->permissions->pluck('permissions'),
-                    'all_permissions' => $allPermissions->map(function ($perm) use ($license) {
-                        return [
-                            'id' => $perm->id,
-                            'permissions' => $perm->permissions,
-                            'assigned' => $license->permissions->contains('id', $perm->id),
-                        ];
-                    }),
-                ];
-            });
+            $data = $licenseTypes->getCollection()->map(fn($license) => [
+                'id' => $license->id,
+                'name' => $license->name,
+                'permissions' => $license->permissions->pluck('permissions'),
+                'all_permissions' => $allPermissions->map(fn($perm) => [
+                    'id' => $perm->id,
+                    'permissions' => $perm->permissions,
+                    'assigned' => $license->permissions->contains('id', $perm->id),
+                ]),
+            ]);
 
             $licenseTypes->setCollection($data);
 
             return successResponse(__('message.license_types_permissions_fetched'), [
                 'license_types' => $licenseTypes,
             ]);
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
@@ -85,8 +83,8 @@ class LicensePermissionsController extends Controller
             $licenseType->permissions()->sync($request->input('permissionid'));
 
             return successResponse(__('message.permissions_updated_successfully'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
             return errorResponse($ex->getMessage());
         }
@@ -163,9 +161,9 @@ class LicensePermissionsController extends Controller
             }
 
             return $result;
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            Logger::exception($ex);
+            throw new Exception($ex->getMessage());
         }
     }
 }

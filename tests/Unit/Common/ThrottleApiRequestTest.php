@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Common;
 
+use RuntimeException;
+use Mockery;
 use Cache;
 use Illuminate\Cache\Lock;
 use Illuminate\Contracts\Cache\LockTimeoutException;
@@ -142,7 +144,7 @@ class ThrottleApiRequestTest extends TestCase
 
     public function test_cacheExceptionDoesNotThrow()
     {
-        Cache::shouldReceive('lock')->andThrow(new \RuntimeException('Cache down'));
+        Cache::shouldReceive('lock')->andThrow(new RuntimeException('Cache down'));
 
         // Should not throw, the function should silently return
         throttleApiRequest('https://api.example.com/users');
@@ -152,7 +154,7 @@ class ThrottleApiRequestTest extends TestCase
 
     public function test_lockTimeoutExceptionDoesNotThrow()
     {
-        $mockLock = \Mockery::mock(Lock::class);
+        $mockLock = Mockery::mock(Lock::class);
         $mockLock->shouldReceive('block')->andThrow(new LockTimeoutException());
 
         Cache::shouldReceive('lock')->andReturn($mockLock);
@@ -230,8 +232,8 @@ class ThrottleApiRequestTest extends TestCase
     {
         // Use a spy to verify the TTL passed to Cache::put
         Cache::shouldReceive('lock')->andReturnUsing(function () {
-            $mockLock = \Mockery::mock(Lock::class);
-            $mockLock->shouldReceive('block')->andReturnUsing(function ($timeout, $callback) {
+            $mockLock = Mockery::mock(Lock::class);
+            $mockLock->shouldReceive('block')->andReturnUsing(function ($timeout, $callback): void {
                 $callback();
             });
 
@@ -239,9 +241,7 @@ class ThrottleApiRequestTest extends TestCase
         });
 
         Cache::shouldReceive('get')->andReturn(microtime(true));
-        Cache::shouldReceive('put')->once()->withArgs(function ($key, $value, $ttl) {
-            return $ttl === 300;
-        })->andReturnTrue();
+        Cache::shouldReceive('put')->once()->withArgs(fn($key, $value, $ttl) => $ttl === 300)->andReturnTrue();
 
         throttleApiRequest('https://api.example.com/ttl');
     }

@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('third_party_apps', function (Blueprint $table) {
+        Schema::create('third_party_apps', function (Blueprint $table): void {
             $table->id();
             $table->string('app_name')->nullable();
             $table->char('app_key', 32)->nullable();

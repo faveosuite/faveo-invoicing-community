@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Order;
 
+use Lang;
+use Illuminate\Support\Facades\Date;
+use App\Model\Order\OrderInvoiceRelation;
+use Logger;
+use App\User;
 use App\Http\Controllers\Controller;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
@@ -82,9 +87,9 @@ class ExtendedBaseInvoiceController extends Controller
             $payment->invoice_id = '--';
             $paymentReceived = $payment->fill($request->all())->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
+            return back()->with('success', Lang::get('message.saved-successfully'));
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -92,7 +97,7 @@ class ExtendedBaseInvoiceController extends Controller
     {
         $totalSum = '0';
         $invoice = Invoice::where('id', $invoiceid)->first();
-        $date = date('m/d/Y', strtotime($invoice->date));
+        $date = date('m/d/Y', strtotime((string) $invoice->date));
         $payment = Payment::where('invoice_id', $invoiceid)->pluck('amount')->toArray();
         if ($payment) {
             $totalSum = array_sum($payment);
@@ -119,11 +124,11 @@ class ExtendedBaseInvoiceController extends Controller
             $status = $request->input('status');
             $paid = $request->input('paid');
             $invoice = Invoice::where('id', $invoiceid)->update(['grand_total' => $total, 'status' => $status,
-                'date' => \Carbon\Carbon::parse($request->input('date')), ]);
-            $order = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))->update(['price_override' => $total]);
+                'date' => Date::parse($request->input('date')), ]);
+            $order = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))->update(['price_override' => $total]);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -146,7 +151,7 @@ class ExtendedBaseInvoiceController extends Controller
                 $clientid,
                 $request->input('invoiceChecked', []),
                 $request->input('payment_method'),
-                \Carbon\Carbon::parse($request->input('payment_date')),
+                Date::parse($request->input('payment_date')),
                 $request->input('totalAmt'),
                 $request->input('invoiceAmount', []),
                 (float) $request->input('amtToCredit', 0),
@@ -155,7 +160,7 @@ class ExtendedBaseInvoiceController extends Controller
             );
 
             return successResponse(__('message.payment_updated_succcessfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }
     }
@@ -197,6 +202,7 @@ class ExtendedBaseInvoiceController extends Controller
                     } else {
                         $invoice->status = 'pending';
                     }
+
                     $invoice->save();
                 }
             }
@@ -217,7 +223,7 @@ class ExtendedBaseInvoiceController extends Controller
                 ]);
             }
         } catch (Exception $ex) {
-            \Logger::exception($ex);
+            Logger::exception($ex);
 
             // Re-throw so the calling action returns a proper JSON error response.
             throw $ex;
@@ -241,7 +247,7 @@ class ExtendedBaseInvoiceController extends Controller
 
         $current = (float) (clone $existing)->sum('amt_to_credit');
         $currency = (clone $existing)->orderBy('id', 'desc')->value('currency')
-            ?: \App\User::where('id', $userId)->value('currency');
+            ?: User::where('id', $userId)->value('currency');
         $existing->delete();
 
         $total = $current + (float) $amount;
@@ -280,14 +286,14 @@ class ExtendedBaseInvoiceController extends Controller
                 $clientid,
                 $request->input('invoiceChecked', []),
                 $request->input('payment_method'),
-                \Carbon\Carbon::parse($request->input('payment_date')),
+                Date::parse($request->input('payment_date')),
                 $request->input('invoiceAmount', []),
                 'success'
             );
 
             return successResponse(__('message.payment_updated_succcessfully'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
             return errorResponse($ex->getMessage(), 500);
         }
@@ -351,6 +357,7 @@ class ExtendedBaseInvoiceController extends Controller
                     } else {
                         $invoice->status = 'pending';
                     }
+
                     $invoice->save();
                 }
             }
@@ -379,7 +386,7 @@ class ExtendedBaseInvoiceController extends Controller
                 ]);
             }
         } catch (Exception $ex) {
-            \Logger::exception($ex);
+            Logger::exception($ex);
 
             // Re-throw so the calling action returns a proper JSON error response.
             throw $ex;

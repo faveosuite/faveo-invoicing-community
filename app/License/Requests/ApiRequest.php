@@ -28,18 +28,18 @@ class ApiRequest extends FormRequest
     {
         return [
 
-            'api_key_secret' => 'required|string|unique:afl_api_keys,api_key_secret',
+            'api_key_secret' => ['required', 'string', 'unique:afl_api_keys,api_key_secret'],
             /*'api_key_ip'     => 'string',*/
-            'api_key_clients_add' => 'required|boolean',
-            'api_key_clients_edit' => 'required|boolean',
-            'api_key_licenses_add' => 'required|boolean',
-            'api_key_licenses_edit' => 'required|boolean',
-            'api_key_products_add' => 'required|boolean',
-            'api_key_products_edit' => 'required|boolean',
-            'api_key_installations_edit' => 'required|boolean',
-            'api_key_search' => 'required|boolean',
-            'api_key_status' => 'required|boolean',
-            'api_key_description' => 'required|max:250',
+            'api_key_clients_add' => ['required', 'boolean'],
+            'api_key_clients_edit' => ['required', 'boolean'],
+            'api_key_licenses_add' => ['required', 'boolean'],
+            'api_key_licenses_edit' => ['required', 'boolean'],
+            'api_key_products_add' => ['required', 'boolean'],
+            'api_key_products_edit' => ['required', 'boolean'],
+            'api_key_installations_edit' => ['required', 'boolean'],
+            'api_key_search' => ['required', 'boolean'],
+            'api_key_status' => ['required', 'boolean'],
+            'api_key_description' => ['required', 'max:250'],
         ];
     }
 }

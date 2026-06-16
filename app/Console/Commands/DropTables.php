@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use Schema;
+use Exception;
 use App\Console\LoggableCommand;
 use DB;
 
@@ -39,10 +41,8 @@ class DropTables extends LoggableCommand
     public function handleAndLog()
     {
         $database = env('DB_DATABASE');
-        $droplist = \Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
-        $droplist = implode(',', array_map(function ($table) {
-            return "`$table`";
-        }, $droplist));
+        $droplist = Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
+        $droplist = implode(',', array_map(fn($table) => "`$table`", $droplist));
 
         try {
             DB::statement('SET FOREIGN_KEY_CHECKS = 0');
@@ -53,7 +53,7 @@ class DropTables extends LoggableCommand
             DB::statement('SET FOREIGN_KEY_CHECKS = 1');
 
             $this->comment(PHP_EOL.'All tables were dropped successfully.'.PHP_EOL);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Log the error or handle it accordingly
             $this->error($e->getMessage());
         }

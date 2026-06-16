@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('mailchimp_group_agora_relations')) {
-            Schema::create('mailchimp_group_agora_relations', function (Blueprint $table) {
+            Schema::create('mailchimp_group_agora_relations', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('mailchimp_group_cat_id', 255)->nullable();
                 $table->string('agora_product_id', 255)->nullable();

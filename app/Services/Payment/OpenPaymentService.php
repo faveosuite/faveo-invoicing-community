@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Model\Common\Setting;
 use App\Model\Common\TemplateType;
@@ -39,7 +40,7 @@ class OpenPaymentService
      * Open a payment for an order and return the gateway's client config.
      * Records the gateway's session/order id so a later callback can be matched.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function start(OpenPaymentOrder $order): PaymentSession
     {
@@ -55,7 +56,7 @@ class OpenPaymentService
      * invoice panel's PlaceOrderPage). Returns clientConfig with client_secret
      * and payment_intent_id for the browser to call confirmCardPayment.
      *
-     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     * @throws PaymentException
      */
     public function startCardPayment(OpenPaymentOrder $order): PaymentSession
     {

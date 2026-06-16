@@ -113,6 +113,6 @@ class InstallationServiceTest extends LicenseTestCase
         $this->assertTrue($byLicense->contains('id', $matching->id));
         $this->assertSame(['matching-install.test'], $details['installed_path']);
         $this->assertSame(['10.0.0.5'], $details['installed_ip']);
-        $this->assertSame([1], array_map('intval', $details['installation_status']));
+        $this->assertSame([1], array_map(intval(...), $details['installation_status']));
     }
 }

@@ -31,7 +31,7 @@ class AfuVersionsControllerTest extends LicenseTestCase
             'version_status' => 9,
         ]);
 
-        $response = json_decode($this->controller->versionAdd($request), true);
+        $response = json_decode((string) $this->controller->versionAdd($request), true);
 
         $this->assertSame(0, $response['action_success']);
         $this->assertSame(1, $response['error_detected']);

@@ -5,7 +5,6 @@ namespace App\License\Controllers\AflCallbacks;
 use App\License\Controllers\Traits\AflCallbackHelpers;
 use App\License\Helpers\LicenseValidator;
 use App\License\Models\Installation;
-use App\License\Models\License;
 use App\License\Services\InstallationService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -14,13 +13,8 @@ class LicenseInstallController extends Controller
 {
     use AflCallbackHelpers;
 
-    protected LicenseValidator $validator;
-    protected InstallationService $installationService;
-
-    public function __construct(LicenseValidator $validator, InstallationService $installationService)
+    public function __construct(protected LicenseValidator $validator, protected InstallationService $installationService)
     {
-        $this->validator = $validator;
-        $this->installationService = $installationService;
     }
 
     /**
@@ -111,7 +105,7 @@ class LicenseInstallController extends Controller
             // Count other installations (different IP or domain)
             $otherInstallations = Installation::where('product_id', $product_id)
                 ->where('license_code', $license->license_code)
-                ->where(function ($query) use ($ip, $installation_domain) {
+                ->where(function ($query) use ($ip, $installation_domain): void {
                     $query->where('installation_ip', '!=', $ip)
                         ->orWhere('installation_domain', '!=', $installation_domain);
                 })
@@ -125,7 +119,7 @@ class LicenseInstallController extends Controller
 
             // Total installations check (catches cases where limit was reduced after installations)
             $allInstallations = Installation::where('product_id', $product_id)
-                ->where(function ($query) use ($client_id, $license) {
+                ->where(function ($query) use ($client_id, $license): void {
                     $query->where('user_id', $client_id)
                         ->whereNotNull('user_id')
                         ->orWhere('license_code', $license->license_code);

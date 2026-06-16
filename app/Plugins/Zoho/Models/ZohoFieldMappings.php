@@ -11,6 +11,9 @@ class ZohoFieldMappings extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return BelongsTo<FaveoLocalFields, $this>
+     */
     public function faveoLocalField(): BelongsTo
     {
         return $this->belongsTo(
@@ -20,6 +23,9 @@ class ZohoFieldMappings extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<ZohoFields, $this>
+     */
     public function zohoField(): BelongsTo
     {
         return $this->belongsTo(

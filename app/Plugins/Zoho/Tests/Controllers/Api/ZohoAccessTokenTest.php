@@ -176,11 +176,9 @@ class ZohoAccessTokenTest extends DBTestCase
 
         $this->accessToken->get(1);
 
-        Http::assertSent(function ($request) {
-            return str_contains($request->url(), 'accounts.zoho.eu') &&
-                   str_contains($request->url(), 'client_id=specific_client_id') &&
-                   str_contains($request->url(), 'client_secret=specific_client_secret');
-        });
+        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'accounts.zoho.eu') &&
+               str_contains((string) $request->url(), 'client_id=specific_client_id') &&
+               str_contains((string) $request->url(), 'client_secret=specific_client_secret'));
     }
 
     public function test_it_saves_new_access_token_after_refresh()

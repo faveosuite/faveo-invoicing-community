@@ -15,7 +15,7 @@ final class Money
      *
      * @var array<string, int>
      */
-    private const EXPONENTS = [
+    private const array EXPONENTS = [
         // zero-decimal
         'BIF' => 0, 'CLP' => 0, 'DJF' => 0, 'GNF' => 0, 'ISK' => 0, 'JPY' => 0, 'KMF' => 0,
         'KRW' => 0, 'PYG' => 0, 'RWF' => 0, 'UGX' => 0, 'UYI' => 0, 'VND' => 0, 'VUV' => 0,

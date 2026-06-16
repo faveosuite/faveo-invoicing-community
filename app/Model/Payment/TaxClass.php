@@ -2,6 +2,7 @@
 
 namespace App\Model\Payment;
 
+use Deprecated;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 
@@ -34,17 +35,17 @@ class TaxClass extends BaseModel
     /** Generic tax rates that belong to this class (joined on slug). */
     public function rates()
     {
-        return $this->hasMany(\App\Model\Payment\TaxRate::class, 'tax_class', 'slug');
+        return $this->hasMany(TaxRate::class, 'tax_class', 'slug');
     }
 
-    /** @deprecated legacy India-GST taxes table; kept for historical data. */
+    #[Deprecated(message: 'legacy India-GST taxes table; kept for historical data.')]
     public function tax()
     {
-        return $this->hasMany(\App\Model\Payment\Tax::class, 'tax_classes_id');
+        return $this->hasMany(Tax::class, 'tax_classes_id');
     }
 
     public function tax_product_relation()
     {
-        return $this->hasMany(\App\Model\Payment\TaxProductRelation::class, 'tax_class_id');
+        return $this->hasMany(TaxProductRelation::class, 'tax_class_id');
     }
 }

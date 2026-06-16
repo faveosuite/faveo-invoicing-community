@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use Auth;
+use Session;
+use Log;
 use App\Jobs\SendWhatsappMessage;
 use App\Model\Common\StatusSetting;
 use App\WhatsappIntegration;
@@ -21,7 +25,9 @@ use Illuminate\Support\Facades\Http;
 class WhatsappController extends Controller
 {
     protected $base_url;
+
     protected $api_version;
+
     protected $endpoint;
 
     public function __construct()
@@ -56,7 +62,7 @@ class WhatsappController extends Controller
                 'config_id' => $config_id,
                 'verify_token' => $verify_token,
             ]);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
@@ -74,7 +80,7 @@ class WhatsappController extends Controller
             StatusSetting::where('id', 1)->update(['whatsapp_status' => 1]);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
@@ -93,13 +99,13 @@ class WhatsappController extends Controller
                 : 'created_at';
 
             $users = WhatsappIntegrationUser::with('user:id,first_name,last_name,email')
-                ->when($searchString, function ($query) use ($searchString) {
-                    $query->where(function ($q) use ($searchString) {
+                ->when($searchString, function ($query) use ($searchString): void {
+                    $query->where(function ($q) use ($searchString): void {
                         $q->where('phone_number', 'like', "%{$searchString}%")
                             ->orWhere('waba_id', 'like', "%{$searchString}%")
                             ->orWhere('phone_number_id', 'like', "%{$searchString}%")
                             ->orWhere('business_id', 'like', "%{$searchString}%")
-                            ->orWhereHas('user', function ($userQuery) use ($searchString) {
+                            ->orWhereHas('user', function ($userQuery) use ($searchString): void {
                                 $userQuery->where('first_name', 'like', "%{$searchString}%")
                                     ->orWhere('last_name', 'like', "%{$searchString}%")
                                     ->orWhere('email', 'like', "%{$searchString}%");
@@ -122,12 +128,12 @@ class WhatsappController extends Controller
                     'phone_number_id' => $model->phone_number_id,
                     'business_id' => $model->business_id,
                     'callback_url' => $model->user_callback_url,
-                    'created_at' => optional($model->created_at)->format('Y-m-d H:i'),
+                    'created_at' => $model->created_at?->format('Y-m-d H:i'),
                 ];
             });
 
             return successResponse('', $users);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
@@ -141,11 +147,11 @@ class WhatsappController extends Controller
     public function whatsappClientNumbers(Request $request, $orderid)
     {
         try {
-            $query = WhatsappIntegrationUser::where('user_id', \Auth::id())
+            $query = WhatsappIntegrationUser::where('user_id', Auth::id())
                 ->where('order_id', $orderid);
 
-            if ($search = trim($request->input('search-query', ''))) {
-                $query->where(function ($q) use ($search) {
+            if ($search = trim((string) $request->input('search-query', ''))) {
+                $query->where(function ($q) use ($search): void {
                     $q->where('phone_number', 'like', "%{$search}%")
                         ->orWhere('waba_id', 'like', "%{$search}%")
                         ->orWhere('phone_number_id', 'like', "%{$search}%")
@@ -169,11 +175,11 @@ class WhatsappController extends Controller
                 'phone_number_id' => $model->phone_number_id,
                 'business_id' => $model->business_id,
                 'callback_url' => $model->user_callback_url,
-                'created_at' => optional($model->created_at)->format('Y-m-d H:i'),
+                'created_at' => $model->created_at?->format('Y-m-d H:i'),
             ]);
 
             return successResponse('', $paginated);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
@@ -185,7 +191,7 @@ class WhatsappController extends Controller
      */
     public function urlSave(Request $request)
     {
-        \Session::put('whatsapp_url', $request->input('url'));
+        Session::put('whatsapp_url', $request->input('url'));
 
         return successResponse('success');
     }
@@ -202,22 +208,22 @@ class WhatsappController extends Controller
             $accessToken = $this->getToken($request->input('code'));
 
             WhatsappIntegrationUser::create([
-                'user_id' => \Auth::id(),
+                'user_id' => Auth::id(),
                 'waba_id' => $wabaId,
                 'phone_number_id' => $phoneNumberId,
                 'business_id' => $request->input('business_id'),
-                'user_callback_url' => \Session::get('whatsapp_url'),
+                'user_callback_url' => Session::get('whatsapp_url'),
                 'access_token' => $accessToken,
                 'order_id' => $request->input('order_id'),
                 'phone_number' => $this->getNumber($phoneNumberId, $accessToken),
             ]);
-            \Session::forget('whatsapp_url');
+            Session::forget('whatsapp_url');
 
             Http::withToken($accessToken)
                 ->post("https://graph.facebook.com/v17.0/{$wabaId}/subscribed_apps");
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
@@ -244,8 +250,8 @@ class WhatsappController extends Controller
     public function webhookUrlEdit(Request $request)
     {
         $request->validate([
-            'id' => 'required|integer|exists:whatsapp_integration_user,id',
-            'url' => 'required|string',
+            'id' => ['required', 'integer', 'exists:whatsapp_integration_user,id'],
+            'url' => ['required', 'string'],
         ]);
 
         $record = WhatsappIntegrationUser::findOrFail($request->input('id'));
@@ -258,7 +264,7 @@ class WhatsappController extends Controller
             $record->update(['user_callback_url' => $request->input('url')]);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
@@ -281,7 +287,7 @@ class WhatsappController extends Controller
             $record->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $exception) {
+        } catch (Exception) {
             $record->delete();
 
             return errorResponse(__('message.whatsapp_deregister_meta_failed'));
@@ -314,18 +320,19 @@ class WhatsappController extends Controller
                 if (isset($change['statuses'])) {
                     return response()->json(['ignored' => 'status update'], 200);
                 }
+
                 if (! isset($change['messages'])) {
                     return response()->json(['ignored' => 'not a message'], 200);
                 }
 
-                SendWhatsappMessage::dispatch($rawBody)->onQueue('whatsapp');
+                dispatch(new SendWhatsappMessage($rawBody))->onQueue('whatsapp');
 
                 return response('EVENT_RECEIVED', 200);
             }
 
             return response('Method Not Allowed', 405);
-        } catch (\Exception $exception) {
-            \Log::debug('whatsappWebhook', [$exception->getMessage()]);
+        } catch (Exception $exception) {
+            Log::debug('whatsappWebhook', [$exception->getMessage()]);
         }
     }
 
@@ -336,7 +343,7 @@ class WhatsappController extends Controller
      */
     private function canManage(WhatsappIntegrationUser $record): bool
     {
-        $user = \Auth::user();
+        $user = Auth::user();
 
         return $user->role === 'admin' || (int) $record->user_id === (int) $user->id;
     }

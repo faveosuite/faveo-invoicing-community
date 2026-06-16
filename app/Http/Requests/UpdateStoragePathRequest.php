@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Override;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateStoragePathRequest extends FormRequest
@@ -14,11 +15,12 @@ class UpdateStoragePathRequest extends FormRequest
     public function rules()
     {
         return [
-            'disk' => 'required|string',
-            'path' => 'string|nullable',
+            'disk' => ['required', 'string'],
+            'path' => ['string', 'nullable'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

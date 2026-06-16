@@ -29,7 +29,7 @@ class TaxCalculationTest extends DBTestCase
         $user = User::factory()->create();
         $setting = Setting::factory()->create(['state' => 'Tamilnadu']);
         $product = Product::factory()->create();
-        $cont = new \App\Http\Controllers\Order\InvoiceController();
+        $cont = new InvoiceController();
         $tax = $this->classObject->calculateTax($product->id, $user->state, $user->country, true);
         $this->assertEquals($tax['name'], 'null');
         $this->assertEquals($tax['value'], '0%');

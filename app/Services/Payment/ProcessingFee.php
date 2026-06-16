@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use Throwable;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -28,7 +29,7 @@ class ProcessingFee
 
         try {
             return (float) DB::table(strtolower($gateway))->value('processing_fee');
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return 0.0;
         }
     }

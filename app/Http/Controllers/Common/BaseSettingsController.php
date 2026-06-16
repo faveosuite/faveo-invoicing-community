@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers\Common;
 
+use DB;
+use Lang;
+use Exception;
+use Illuminate\Support\Facades\Date;
+use App\Model\Mailjob\Condition;
 use App\ApiKey;
 use App\Http\Controllers\Common\PHPController as PaymentSettingsController;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 
@@ -29,9 +33,11 @@ class BaseSettingsController extends PaymentSettingsController
             if (array_key_exists('parent', $properties)) {
                 unset($properties['parent']);
             }
+
             foreach ($properties as $key => $value) {
                 $display[] = '<strong>'.'ucfirst'($key).'</strong>'.' : '.$value.'<br/>';
             }
+
             $updated = (count($properties) > 0) ? implode('', $display) : '--';
 
             return $updated;
@@ -68,44 +74,45 @@ class BaseSettingsController extends PaymentSettingsController
             $ids = $request->input('select');
             if (! empty($ids)) {
                 foreach ($ids as $id) {
-                    $email = \DB::table('email_log')->where('id', $id)->delete();
+                    $email = DB::table('email_log')->where('id', $id)->delete();
                     if ($email) {
                         // $email->delete();
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
 
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                        /* @scrutinizer ignore-type */     \Lang::get('message.failed').'
+                        <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                        /* @scrutinizer ignore-type */     Lang::get('message.failed').'
 
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
+                            './* @scrutinizer ignore-type */Lang::get('message.no-record').'
                     </div>';
                         //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
+
                 echo "<div class='alert alert-success alert-dismissable'>
                         <i class='fa fa-ban'></i>
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '
-                        ./* @scrutinizer ignore-type */\Lang::get('message.success').'
+                        <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '
+                        ./* @scrutinizer ignore-type */Lang::get('message.success').'
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */ \Lang::get('message.deleted-successfully').'
+                            './* @scrutinizer ignore-type */ Lang::get('message.deleted-successfully').'
                     </div>';
             } else {
                 echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
-                        <b>"./* @scrutinizer ignore-type */ \Lang::get('message.alert').
-                        '!</b> './* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                        <b>"./* @scrutinizer ignore-type */ Lang::get('message.alert').
+                        '!</b> './* @scrutinizer ignore-type */Lang::get('message.failed').'
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */ \Lang::get('message.select-a-row').'
+                            './* @scrutinizer ignore-type */ Lang::get('message.select-a-row').'
                     </div>';
                 //echo \Lang::get('message.select-a-row');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                        /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                        <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                        /* @scrutinizer ignore-type */Lang::get('message.failed').'
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                             '.$e->getMessage().'
                     </div>';
@@ -123,23 +130,23 @@ class BaseSettingsController extends PaymentSettingsController
         $till = request()->input('log_till');
 
         return $baseQuery
-            ->when(request()->filled('module'), function ($query) {
+            ->when(request()->filled('module'), function ($query): void {
                 $modules = (array) request()->module;
                 $query->whereIn('activity_log.log_name', $modules);
             })
-            ->when(request()->filled('event'), function ($query) {
+            ->when(request()->filled('event'), function ($query): void {
                 $events = (array) request()->event;
                 $query->whereIn('activity_log.event', $events);
             })
-            ->when(request()->filled('performed_by'), function ($query) {
+            ->when(request()->filled('performed_by'), function ($query): void {
                 $performedBy = (array) request()->performed_by;
                 $query->whereIn('activity_log.causer_id', $performedBy);
             })
-            ->when($from, function ($query) use ($from) {
-                $query->where('activity_log.created_at', '>=', Carbon::parse($from)->startOfDay());
+            ->when($from, function ($query) use ($from): void {
+                $query->where('activity_log.created_at', '>=', Date::parse($from)->startOfDay());
             })
-            ->when($till, function ($query) use ($till) {
-                $query->where('activity_log.created_at', '<=', Carbon::parse($till)->endOfDay());
+            ->when($till, function ($query) use ($till): void {
+                $query->where('activity_log.created_at', '<=', Date::parse($till)->endOfDay());
             });
     }
 
@@ -170,7 +177,7 @@ class BaseSettingsController extends PaymentSettingsController
                 $from = empty($value) ? 'null' : $escape($value);
                 $to = isset($attributes[$key]) ? $escape($attributes[$key]) : 'null';
 
-                $formatted[] = trans('message.updated').' '.ucfirst($key).' '
+                $formatted[] = trans('message.updated').' '.ucfirst((string) $key).' '
                     .trans('message.from').' '.$from.' '
                     .trans('message.to').' '.$to;
             }
@@ -179,7 +186,7 @@ class BaseSettingsController extends PaymentSettingsController
         if ($event === 'created') {
             foreach ($attributes as $key => $value) {
                 if (! empty($value) && $value !== '--') {
-                    $formatted[] = trans('message.set').' '.ucfirst($key).' '
+                    $formatted[] = trans('message.set').' '.ucfirst((string) $key).' '
                         .trans('message.to').' '.$escape($value);
                 }
             }
@@ -212,7 +219,7 @@ class BaseSettingsController extends PaymentSettingsController
         // $command = ":- <pre>***** php $cronUrl schedule:run >> /dev/null 2>&1</pre>";
         // $shared = ":- <pre>/usr/bin/php-cli -q  $cronUrl schedule:run >> /dev/null 2>&1</pre>";
         $warn = '';
-        $condition = new \App\Model\Mailjob\Condition();
+        $condition = new Condition();
 
         $commands = [
             'everyMinute' => 'Every Minute',
@@ -283,12 +290,13 @@ class BaseSettingsController extends PaymentSettingsController
                 $selectedDays[] = $daysList;
             }
         }
+
         $delLogDays = ['720' => '720 Days', '365' => '365 days', '180' => '180 Days',
             '150' => '150 Days', '60' => '60 Days', '30' => '30 Days', '15' => '15 Days', '5' => '5 Days', '2' => '2 Days', '0' => 'Delete All Logs', ];
         $beforeLogDay[] = ActivityLogDay::first()->days;
-        $selectedDays = json_decode(ExpiryMailDay::first()->days, true);
-        $Auto_expiryday[] = json_decode(ExpiryMailDay::first()->autorenewal_days, true);
-        $post_expiryday[] = json_decode(ExpiryMailDay::first()->postexpiry_days, true);
+        $selectedDays = json_decode((string) ExpiryMailDay::first()->days, true);
+        $Auto_expiryday[] = json_decode((string) ExpiryMailDay::first()->autorenewal_days, true);
+        $post_expiryday[] = json_decode((string) ExpiryMailDay::first()->postexpiry_days, true);
         $beforeCloudDay[] = ExpiryMailDay::first()->cloud_days;
         $invoiceDeletionDay[] = ExpiryMailDay::first()->invoice_days;
         $msgDeletionDays[] = ExpiryMailDay::first()->msg91_days;
@@ -350,37 +358,41 @@ class BaseSettingsController extends PaymentSettingsController
         } else {
             $allStatus->expiry_mail = 0;
         }
+
         if ($request->activity) {
             $allStatus->activity_log_delete = $request->activity;
         } else {
             $allStatus->activity_log_delete = 0;
         }
+
         if ($request->subs_expirymail) {
             $allStatus->subs_expirymail = $request->subs_expirymail;
         } else {
             $allStatus->subs_expirymail = 0;
         }
+
         if ($request->postsubs_expirymail) {
             $allStatus->post_expirymail = $request->postsubs_expirymail;
         } else {
             $allStatus->post_expirymail = 0;
         }
-        $allStatus->cloud_mail_status = $request->cloud_cron ? $request->cloud_cron : 0;
-        $allStatus->invoice_deletion_status = $request->invoice_cron ? $request->invoice_cron : 0;
-        $allStatus->msg91_report_delete_status = $request->msg91_cron ? $request->msg91_cron : 0;
-        $allStatus->reoon_deletion_status = $request->reoon_cron ? $request->reoon_cron : 0;
-        $allStatus->system_log_status = $request->systemlogs_cron ? $request->systemlogs_cron : 0;
-        $allStatus->installation_logs_status = $request->installationlogs_cron ? $request->installationlogs_cron : 0;
-        $allStatus->license_reports_cleanup_status = $request->licensereports_cron ? $request->licensereports_cron : 0;
-        $allStatus->license_callbacks_cleanup_status = $request->licensecallbacks_cron ? $request->licensecallbacks_cron : 0;
-        $allStatus->license_crack_reports_cleanup_status = $request->licensecrack_cron ? $request->licensecrack_cron : 0;
-        $allStatus->license_system_reports_cleanup_status = $request->licensesystem_cron ? $request->licensesystem_cron : 0;
-        $allStatus->license_versions_cleanup_status = $request->licenseversions_cron ? $request->licenseversions_cron : 0;
+
+        $allStatus->cloud_mail_status = $request->cloud_cron ?: 0;
+        $allStatus->invoice_deletion_status = $request->invoice_cron ?: 0;
+        $allStatus->msg91_report_delete_status = $request->msg91_cron ?: 0;
+        $allStatus->reoon_deletion_status = $request->reoon_cron ?: 0;
+        $allStatus->system_log_status = $request->systemlogs_cron ?: 0;
+        $allStatus->installation_logs_status = $request->installationlogs_cron ?: 0;
+        $allStatus->license_reports_cleanup_status = $request->licensereports_cron ?: 0;
+        $allStatus->license_callbacks_cleanup_status = $request->licensecallbacks_cron ?: 0;
+        $allStatus->license_crack_reports_cleanup_status = $request->licensecrack_cron ?: 0;
+        $allStatus->license_system_reports_cleanup_status = $request->licensesystem_cron ?: 0;
+        $allStatus->license_versions_cleanup_status = $request->licenseversions_cron ?: 0;
         $allStatus->save();
         $this->saveConditions();
 
         /* redirect to Index page with Success Message */
-        return redirect('job-scheduler')->with('success', \Lang::get('message.updated-successfully'));
+        return redirect('job-scheduler')->with('success', Lang::get('message.updated-successfully'));
     }
 
     //Save the Cron Days for expiry Mails and Activity Log
@@ -396,7 +408,7 @@ class BaseSettingsController extends PaymentSettingsController
 
         // $cloudDays = is_array($request->input('cloud_days')) ? $request->input('cloud_days') : [$request->input('cloud_days')];
 
-        \DB::table('expiry_mail_days')->update([
+        DB::table('expiry_mail_days')->update([
             'cloud_days' => $request->input('cloud_days'),
             'invoice_days' => $request->input('invoice_days'),
             'msg91_days' => $request->input('msg91_days'),
@@ -411,7 +423,7 @@ class BaseSettingsController extends PaymentSettingsController
         ]);
         ActivityLogDay::findOrFail(1)->update(['days' => $request->logdelday]);
 
-        return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+        return back()->with('success', Lang::get('message.updated-successfully'));
     }
 
     //Save Google recaptcha site key and secret in Database

@@ -2,7 +2,15 @@
 
 namespace App\Http\Controllers\BillingInstaller;
 
-use App;
+use Schema;
+use Illuminate\Support\Str;
+use Validator;
+use Predis\Client;
+use App\Model\Common\Timezone;
+use Hash;
+use App\Model\Common\Setting;
+use Logger;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SyncBillingToLatestVersion;
 use App\Http\Requests\StoreLanguageRequest;
@@ -26,7 +34,7 @@ class InstallerController extends Controller
      * Post configurationcheck
      * checking prerequisites.
      *
-     * @return \Illuminate\Http\JsonResponse view
+     * @return JsonResponse view
      */
     public function configurationcheck(Request $request)
     {
@@ -37,7 +45,7 @@ class InstallerController extends Controller
         ]);
         Session::put(array_merge($inputs, ['default' => 'mysql', 'db_ssl_key' => $inputs['db_ssl_key'] ?? null, 'db_ssl_cert' => $inputs['db_ssl_cert'] ?? null, 'db_ssl_ca' => $inputs['db_ssl_ca'] ?? null, 'db_ssl_verify' => $inputs['db_ssl_verify'] ?? null]));
 
-        return Redirect::route('database');
+        return to_route('database');
     }
 
     public function checkPreInstall()
@@ -58,7 +66,8 @@ class InstallerController extends Controller
             if (Cache::get('databasename') != env('DB_DATABASE')) {
                 throw new Exception(\Lang::get('installer_messages.db_connection_error'), 500);
             }
-            $tableNames = \Schema::getTableListing(
+
+            $tableNames = Schema::getTableListing(
                 schema: DB::getDatabaseName(),
                 schemaQualified: false
             );
@@ -66,11 +75,11 @@ class InstallerController extends Controller
             $tableNames = array_unique(array_merge(['migrations'], $tableNames));
             if (count($tableNames) === 1) {
                 $this->rollBackMigration();
-                (new SyncBillingToLatestVersion())->sync();
+                new SyncBillingToLatestVersion()->sync();
 
                 if (Cache::get('dummy_data_installation')) {
                     $path = base_path().DIRECTORY_SEPARATOR.'DB'.DIRECTORY_SEPARATOR.'dummy-data.sql';
-                    \DB::unprepared(file_get_contents($path));
+                    DB::unprepared(file_get_contents($path));
                 }
             }
         } catch (Exception $ex) {
@@ -151,11 +160,11 @@ class InstallerController extends Controller
             'DB_ENGINE' => 'InnoDB',
             'CACHE_DRIVER' => 'file',
             'SESSION_DRIVER' => 'file',
-            'SESSION_COOKIE_NAME' => 'agora_'.rand(0, 10000),
+            'SESSION_COOKIE_NAME' => 'agora_'.random_int(0, 10000),
             'QUEUE_CONNECTION' => 'sync',
             'PROBE_PASS_PHRASE' => md5(uniqid()),
             'BROADCAST_DRIVER' => 'pusher',
-            'PUSHER_APP_ID' => str_random(16),
+            'PUSHER_APP_ID' => Str::random(16),
             'PUSHER_APP_KEY' => md5(uniqid()),
             'PUSHER_APP_SECRET' => md5(uniqid()),
             'PUSHER_APP_CLUSTER' => 'mt1',
@@ -209,7 +218,7 @@ class InstallerController extends Controller
         file_put_contents($env, $txt1.PHP_EOL, FILE_APPEND | LOCK_EX);
 
         foreach ($redisConfig as $key => $value) {
-            $line = strtoupper($key).'='.$value.PHP_EOL;
+            $line = strtoupper((string) $key).'='.$value.PHP_EOL;
             file_put_contents($env, $line, FILE_APPEND | LOCK_EX);
         }
 
@@ -242,7 +251,7 @@ class InstallerController extends Controller
     public function accountcheck(Request $request)
     {
         // Validation rules and custom messages
-        $validator = \Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:20',
             'last_name' => 'required|string|max:20',
             'user_name' => [
@@ -283,7 +292,7 @@ class InstallerController extends Controller
                 ]);
 
                 try {
-                    $redis = new \Predis\Client([
+                    $redis = new Client([
                         'scheme' => 'tcp',
                         'host' => $redisConfig['redis_host'],
                         'password' => $redisConfig['redis_password'] ?? null,
@@ -297,21 +306,22 @@ class InstallerController extends Controller
 
                 $this->updateInstallEnv($request->input('environment'), $request->input('cache_driver'), $redisConfig);
             }
+
             $timezone = $request->input('timezone');
             $language = $request->input('language');
-            $changed = $this->changeLanguage($language);
-            $timeZoneId = App\Model\Common\Timezone::where('name', $timezone)->value('id');
+            $changed = self::changeLanguage($language);
+            $timeZoneId = Timezone::where('name', $timezone)->value('id');
 
             if (! $changed) {
-                return Redirect::back()->with('fails', 'Invalid language');
+                return back()->with('fails', 'Invalid language');
             }
 
             $user = User::where('id', 1)->update([
                 'first_name' => $request->input('first_name'),
                 'last_name' => $request->input('last_name'),
-                'user_name' => strtolower($request->input('user_name')),
-                'email' => strtolower($request->input('email')),
-                'password' => \Hash::make($request->input('password')),
+                'user_name' => strtolower((string) $request->input('user_name')),
+                'email' => strtolower((string) $request->input('email')),
+                'password' => Hash::make($request->input('password')),
                 'active' => 1,
                 'role' => 'admin',
                 'mobile_verified' => 1,
@@ -319,8 +329,8 @@ class InstallerController extends Controller
             ]);
 
             // Update the initial company settings
-            DB::transaction(function () use ($timeZoneId) {
-                App\Model\Common\Setting::where('id', 1)
+            DB::transaction(function () use ($timeZoneId): void {
+                Setting::where('id', 1)
                     ->update([
                         'title' => 'Agora Invoicing',
                         'favicon_title' => 'Agora Invoicing',
@@ -335,12 +345,12 @@ class InstallerController extends Controller
             // checking if the user have been created
             if ($user) {
                 Cache::forever('getting-started', 'getting-started');
-                Cache::forever('env', $request->input('environment'), 'production');
+                Cache::forever('env', $request->input('environment'));
             }
 
             // Return success response
             return successResponse(\Lang::get('installer_messages.setup_completed'), 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Return error response in case of exception
             return errorResponse($e->getMessage(), 400);
         }
@@ -348,15 +358,15 @@ class InstallerController extends Controller
 
     public function getTimeZoneDropDown()
     {
-        $timezonesList = \App\Model\Common\Timezone::get();
+        $timezonesList = Timezone::get();
         $display = [];
         foreach ($timezonesList as $timezone) {
             $location = $timezone->location;
             if ($location) {
-                $start = strpos($location, '(');
-                $end = strpos($location, ')', $start + 1);
+                $start = strpos((string) $location, '(');
+                $end = strpos((string) $location, ')', $start + 1);
                 $length = $end - $start;
-                $result = substr($location, $start + 1, $length - 1);
+                $result = substr((string) $location, $start + 1, $length - 1);
                 $display[] = ['id' => $timezone->id, 'name' => '('.$result.')'.' '.$timezone->name];
             }
         }
@@ -379,7 +389,7 @@ class InstallerController extends Controller
     public function languageList()
     {
         try {
-            $languageList = array_map('basename', File::directories(lang_path()));
+            $languageList = array_map(basename(...), File::directories(lang_path()));
             $languages = [];
 
             foreach ($languageList as $key => $langLocale) {
@@ -393,8 +403,8 @@ class InstallerController extends Controller
             }
 
             return successResponse('', collect($languages)->sortBy('name')->values()->all());
-        } catch (\Exception $exception) {
-            \Logger::exception($exception);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
             return errorResponse($exception->getMessage());
         }
@@ -416,7 +426,7 @@ class InstallerController extends Controller
             $user->save();
 
             return successResponse('Language set successfully');
-        } catch (\Exception $exception) {
+        } catch (Exception) {
             return errorResponse('error could not change the language');
         }
     }
@@ -433,10 +443,10 @@ class InstallerController extends Controller
         if ($errorCount == '0' && $errorCount == 0) {
             Cache::forever('pre-db', 'pre-db');
 
-            return Redirect::route('db-setup');
+            return to_route('db-setup');
         }
 
-        return redirect()->back();
+        return back();
     }
 
     public function database(Request $request)
@@ -445,7 +455,7 @@ class InstallerController extends Controller
         if (Cache::get('config-check') == 'config-check') {
             return view('themes.default1.installer.databaseMigration');
         } else {
-            return Redirect::route('config-check');
+            return to_route('config-check');
         }
     }
 
@@ -468,7 +478,7 @@ class InstallerController extends Controller
 
             return view('themes.default1.installer.view5');
         } else {
-            return Redirect::route('db-setup');
+            return to_route('db-setup');
         }
     }
 
@@ -482,7 +492,7 @@ class InstallerController extends Controller
 
             return view('themes.default1.installer.finalPage');
         } else {
-            return Redirect::route('get-start');
+            return to_route('get-start');
         }
     }
 
@@ -515,7 +525,7 @@ class InstallerController extends Controller
             $user->save();
 
             return successResponse('Language set successfully');
-        } catch (\Exception $exception) {
+        } catch (Exception) {
             return errorResponse('error could not change the language');
         }
     }

@@ -2,7 +2,9 @@
 
 namespace App\Plugins\Zoho\Controllers\Exceptions;
 
-class ZohoApiException extends \Exception
+use Exception;
+
+class ZohoApiException extends Exception
 {
     public function __construct(
         protected string $errorId,

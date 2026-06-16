@@ -1,11 +1,27 @@
 <?php
 
+use Illuminate\Support\Facades\Date;
+use App\Model\Common\State;
+use App\Model\Common\Timezone;
+use App\Model\Payment\TaxOption;
+use Illuminate\Mail\MailServiceProvider;
+use App\Model\Common\FaveoCloud;
+use App\CloudPopUp;
+use App\Model\Product\CloudProducts;
+use Illuminate\Cache\ArrayStore;
+use Carbon\CarbonInterval;
+use App\Model\Payment\PlanPrice;
+use App\Model\Product\Product;
+use App\Http\Controllers\Common\PaymentSettingsController;
+use Illuminate\Support\Sleep;
+use Illuminate\Http\JsonResponse;
+use App\Model\Common\CommonSettings;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use App\FileSystemSettings;
 use App\License\Models\Installation;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
-use App\Model\Payment\Plan;
 use App\Model\Product\ProductUpload;
 use App\Traits\TaxCalculation;
 use App\User;
@@ -19,12 +35,12 @@ use Spatie\Activitylog\Support\ActivityLogStatus;
 function getLocation($ip = null)
 {
     try {
-        $location = \GeoIP::getLocation($ip);
+        $location = GeoIP::getLocation($ip);
 
         return $location;
     } catch (Exception $ex) {
-        \Logger::exception($ex);
-        $location = \Config::get('geoip.default_location');
+        Logger::exception($ex);
+        $location = Config::get('geoip.default_location');
 
         return $location;
     }
@@ -46,7 +62,7 @@ function mime($type)
         $type == 'png' ||
         $type == 'jpeg' ||
         $type == 'gif' ||
-        starts_with($type, 'image')) {
+        \Illuminate\Support\Str::startsWith($type, 'image')) {
         return 'image';
     }
 }
@@ -55,7 +71,7 @@ function isInstall()
 {
     $check = false;
     $env = base_path('.env');
-    if (\File::exists($env) && env('DB_INSTALL') == 1) {
+    if (File::exists($env) && env('DB_INSTALL') == 1) {
         $check = true;
     }
 
@@ -68,7 +84,7 @@ function isInstall()
  *
  * @param  string|array  $message  Error message
  * @param  int  $statusCode
- * @return \Illuminate\Http\JsonResponse json response
+ * @return JsonResponse json response
  */
 function errorResponse($message, $statusCode = 400)
 {
@@ -123,12 +139,12 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = null)
 
         try {
             $timezone = new DateTimeZone($tz);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $timezone = new DateTimeZone('UTC');
         }
 
         return $date->setTimezone($timezone)->format($format ?? systemDateTimeFormat());
-    } catch (Exception $e) {
+    } catch (Exception) {
         return $dateTimeString;
     }
 }
@@ -139,7 +155,7 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = null)
 function systemDateTimeFormat(): string
 {
     return Cache::remember('system_datetime_format', 60, function () {
-        $setting = \App\Model\Common\Setting::select('date_format', 'time_format')->first();
+        $setting = Setting::select('date_format', 'time_format')->first();
 
         return ($setting->date_format ?? 'd/m/Y').' '.($setting->time_format ?? 'H:i');
     });
@@ -151,7 +167,7 @@ function systemDateTimeFormat(): string
 function systemTimezone(): string
 {
     return Cache::remember('system_timezone', 60, function () {
-        $setting = \App\Model\Common\Setting::with('timezone:id,name')->select('timezone_id')->first();
+        $setting = Setting::with('timezone:id,name')->select('timezone_id')->first();
 
         return $setting->timezone->name ?? 'UTC';
     });
@@ -169,33 +185,36 @@ function getDateHtml(?string $dateTimeString = null)
         if (! $dateTimeString) {
             return '--';
         }
+
         $date = getTimeInLoggedInUserTimeZone($dateTimeString, 'M j, Y');
         $dateTime = getTimeInLoggedInUserTimeZone($dateTimeString);
 
         return "<label data-toggle='tooltip'style='font-weight:500; margin: 0px' data-placement='top' title='".$dateTime."'>".$date.'</label>';
-    } catch (Exception $e) {
+    } catch (Exception) {
         return '--';
     }
 }
+
 function getDateHtmlcopy(?string $dateTimeString = null)
 {
     try {
         if (! $dateTimeString) {
             return '--';
         }
+
         $date = getTimeInLoggedInUserTimeZone($dateTimeString, 'M j, Y');
         $dateTime = getTimeInLoggedInUserTimeZone($dateTimeString);
 
         return "<label data-toggle='tooltip' style='font-weight:500; margin: 0px' data-placement='top' title='".$dateTimeString."'>".$date.'</label>';
-    } catch (Exception $e) {
+    } catch (Exception) {
         return '--';
     }
 }
 
 function getExpiryLabel($expiryDate, $badge = 'badge')
 {
-    $expiry = Carbon::parse($expiryDate);
-    $now = Carbon::now();
+    $expiry = Date::parse($expiryDate);
+    $now = Date::now();
 
     return [
         'date' => $expiry,
@@ -206,9 +225,7 @@ function getExpiryLabel($expiryDate, $badge = 'badge')
 function getVersionAndLabel($productVersion, $productId, $path = null)
 {
     // Get latest version from cache
-    $latestVersion = \Cache::remember('latest_'.$productId, 10, function () use ($productId) {
-        return ProductUpload::where('product_id', $productId)->latest()->value('version');
-    });
+    $latestVersion = Cache::remember('latest_'.$productId, 10, fn() => ProductUpload::where('product_id', $productId)->latest()->value('version'));
 
     // Fallback to installation detail if version not provided
     if (! $productVersion && $path) {
@@ -233,25 +250,18 @@ function tooltip($tootipText = '')
 
 function getStatusLabel($status)
 {
-    switch ($status) {
-        case 'Success':
-            return __('message.paid');
-
-        case 'Pending':
-            return __('message.unpaid');
-
-        case 'renewed':
-            return __('message.renewed');
-
-        default:
-            return __('message.partially_paid');
-    }
+    return match ($status) {
+        'Success' => __('message.paid'),
+        'Pending' => __('message.unpaid'),
+        'renewed' => __('message.renewed'),
+        default => __('message.partially_paid'),
+    };
 }
 
 function getCountryByCode($code)
 {
     try {
-        $country = \App\Model\Common\Country::where('country_code_char2', $code)->first();
+        $country = Country::where('country_code_char2', $code)->first();
         if ($country) {
             return $country->country_name;
         }
@@ -263,7 +273,7 @@ function getCountryByCode($code)
 function findCountryByGeoip($iso)
 {
     try {
-        $country = \App\Model\Common\Country::where('country_code_char2', $iso)->first();
+        $country = Country::where('country_code_char2', $iso)->first();
         if ($country) {
             return $country->country_code_char2;
         } else {
@@ -277,7 +287,7 @@ function findCountryByGeoip($iso)
 function findStateByRegionId($iso)
 {
     try {
-        $states = \App\Model\Common\State::where('country_code', $iso)
+        $states = State::where('country_code', $iso)
             ->pluck('state_subdivision_name', 'iso2')->toArray();
 
         return $states;
@@ -289,7 +299,7 @@ function findStateByRegionId($iso)
 function getTimezoneByName($name)
 {
     try {
-        $timezone = \App\Model\Common\Timezone::where('name', $name)->first();
+        $timezone = Timezone::where('name', $name)->first();
         if ($timezone) {
             $timezone = $timezone->id;
         } else {
@@ -320,7 +330,7 @@ function getStateByCode($country, $state)
     try {
         $result = ['id' => '', 'name' => ''];
 
-        $subregion = \App\Model\Common\State::where('country_code', $country)
+        $subregion = State::where('country_code', $country)
             ->where('iso2', $state)
             ->first();
 
@@ -353,7 +363,7 @@ function userCurrencyAndPrice($userid, $plan, $productid = '')
             'symbol' => $currencyAndSymbol['currency_symbol'],
             'plan' => $currencyAndSymbol['userPlan'],
         ];
-    } catch (\Exception $ex) {
+    } catch (Exception) {
         return [
             'currency' => '',
             'symbol' => '',
@@ -372,9 +382,7 @@ function getCountry($userid)
         return User::where('id', $userid)->value('country');
     }
 
-    $location = cache()->remember('user_location', 60, function () {
-        return getLocation();
-    });
+    $location = cache()->remember('user_location', 60, fn() => getLocation());
 
     return $location['iso_code'] ? findCountryByGeoip($location['iso_code']) : null;
 }
@@ -411,7 +419,7 @@ function getCurrencySymbolAndPriceForPlans($countryCode, $plan)
  */
 function getCurrencyForClient($countryCode)
 {
-    $country = Country::with(['currency' => function ($query) {
+    $country = Country::with(['currency' => function ($query): void {
         $query->where('status', 1);
     }])->where('country_code_char2', $countryCode)->first();
 
@@ -437,7 +445,7 @@ function currencyFormat($amount = null, $currency = null, $includeSymbol = true,
         }
 
         return Number::currency($amount, $currency, $locale);
-    } catch (\Throwable $e) {
+    } catch (Throwable) {
         return $amount;
     }
 }
@@ -446,7 +454,7 @@ function getLocalesByCurrency(string $currencyCode)
 {
     return cache()->rememberForever("currency_locale_{$currencyCode}", function () use ($currencyCode) {
         $firstMatch = null;
-        foreach (\ResourceBundle::getLocales('') as $locale) {
+        foreach (ResourceBundle::getLocales('') as $locale) {
             try {
                 $fmt = new NumberFormatter($locale, NumberFormatter::CURRENCY);
                 $defaultCurrency = $fmt->getTextAttribute(NumberFormatter::CURRENCY_CODE);
@@ -454,11 +462,12 @@ function getLocalesByCurrency(string $currencyCode)
                     if ($firstMatch === null) {
                         $firstMatch = $locale;
                     }
+
                     if (str_starts_with($locale, 'en_')) {
                         return $locale;
                     }
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable) {
             }
         }
 
@@ -477,7 +486,7 @@ function getCurrencyPrecision($currency)
 function rounding($price)
 {
     try {
-        $tax_rule = new \App\Model\Payment\TaxOption();
+        $tax_rule = new TaxOption();
         $rule = $tax_rule->findOrFail(1);
         $rounding = $rule->rounding;
         if ($rounding) {
@@ -485,14 +494,14 @@ function rounding($price)
         } else {
             return round($price, 2);
         }
-    } catch (Exception $ex) {
+    } catch (Exception) {
     }
 }
 
 function userCountryId()
 {
-    if (\Auth::check()) {
-        $country = Country::where('country_code_char2', \Auth::user()->country)->first()->country_id;
+    if (Auth::check()) {
+        $country = Country::where('country_code_char2', Auth::user()->country)->first()->country_id;
     } else {
         $location = getLocation();
         $country = Country::where('country_code_char2', $location['iso_code'])->first()->country_id;
@@ -509,7 +518,7 @@ function userCountryId()
 function getIndianCurrencyFormat($number)
 {
     $explrestunits = '';
-    $number = explode('.', $number);
+    $number = explode('.', (string) $number);
     $num = $number[0];
     if (strlen($num) > 3) {
         $lastthree = substr($num, strlen($num) - 3, strlen($num));
@@ -524,10 +533,12 @@ function getIndianCurrencyFormat($number)
                 $explrestunits .= $expunit[$i].',';
             }
         }
+
         $thecash = $explrestunits.$lastthree;
     } else {
         $thecash = $num;
     }
+
     if (! empty($number[1])) {
         if (strlen($number[1]) == 1) {
             return $thecash.'.'.$number[1].'0';
@@ -577,33 +588,33 @@ function setServiceConfig($emailConfig)
 {
     $sendingProtocol = $emailConfig->driver;
     if ($sendingProtocol && $sendingProtocol != 'smtp' && $sendingProtocol != 'mail') {
-        $services = \Config::get("services.$sendingProtocol");
+        $services = Config::get("services.$sendingProtocol");
         $dynamicServiceConfig = [];
 
         //loop over it and assign according to the keys given by user
         foreach ($services as $key => $value) {
-            $dynamicServiceConfig[$key] = isset($emailConfig[$key]) ? $emailConfig[$key] : $value;
+            $dynamicServiceConfig[$key] = $emailConfig[$key] ?? $value;
         }
 
         //setting that service configuration
-        \Config::set("services.$sendingProtocol", $dynamicServiceConfig);
+        Config::set("services.$sendingProtocol", $dynamicServiceConfig);
     } else {
-        \Config::set('mail.sendmail', '/usr/sbin/sendmail -t -i -f'.$emailConfig['email']);
+        Config::set('mail.sendmail', '/usr/sbin/sendmail -t -i -f'.$emailConfig['email']);
 
-        \Config::set('mail.host', $emailConfig['host']);
-        \Config::set('mail.port', $emailConfig['port']);
-        \Config::set('mail.password', $emailConfig['password']);
-        \Config::set('mail.security', $emailConfig['encryption']);
+        Config::set('mail.host', $emailConfig['host']);
+        Config::set('mail.port', $emailConfig['port']);
+        Config::set('mail.password', $emailConfig['password']);
+        Config::set('mail.security', $emailConfig['encryption']);
     }
 
     //setting mail driver as $sending protocol
-    \Config::set('mail.driver', $sendingProtocol);
-    \Config::set('mail.from.address', $emailConfig['email']);
-    \Config::set('mail.from.name', $emailConfig['company']);
-    \Config::set('mail.username', $emailConfig['email']);
+    Config::set('mail.driver', $sendingProtocol);
+    Config::set('mail.from.address', $emailConfig['email']);
+    Config::set('mail.from.name', $emailConfig['company']);
+    Config::set('mail.username', $emailConfig['email']);
 
     //setting the config again in the service container
-    new \Illuminate\Mail\MailServiceProvider(app())->register();
+    new MailServiceProvider(app())->register();
 }
 
 function persistentCache($key, Closure $closure, $noOfSeconds = 30, array $variables = [])
@@ -634,7 +645,7 @@ function installationStatusLabel($installedPath)
 function getRootUrl($url, $remove_scheme, $remove_www, $remove_path, $remove_last_slash)
 {
     if (filter_var($url, FILTER_VALIDATE_URL)) {
-        $url_array = parse_url($url); //parse URL into arrays like $url_array['scheme'], $url_array['host'], etc
+        $url_array = parse_url((string) $url); //parse URL into arrays like $url_array['scheme'], $url_array['host'], etc
 
         $url = str_ireplace($url_array['scheme'].'://', '', $url); //make URL without scheme, so no :// is included when searching for first or last /
 
@@ -659,13 +670,13 @@ function getRootUrl($url, $remove_scheme, $remove_www, $remove_path, $remove_las
         }
 
         if ($remove_last_slash == 1) { //remove / from the end of URL if it exists
-            while (substr($url, -1) == '/') { //use cycle in case URL already contained multiple // at the end
+            while (str_ends_with($url, '/')) { //use cycle in case URL already contained multiple // at the end
                 $url = substr($url, 0, -1);
             }
         }
     }
 
-    return trim($url);
+    return trim((string) $url);
 }
 
 function getContactData()
@@ -693,28 +704,28 @@ function getContactData()
 
 function cloudSubDomain()
 {
-    $cloudSubDomain = \App\Model\Common\FaveoCloud::find(1);
+    $cloudSubDomain = FaveoCloud::find(1);
 
-    return optional($cloudSubDomain)->cloud_cname;
+    return $cloudSubDomain?->cloud_cname;
 }
 
 function cloudCentralDomain()
 {
-    $cloudSubDomain = \App\Model\Common\FaveoCloud::find(1);
+    $cloudSubDomain = FaveoCloud::find(1);
 
-    return str_replace('https://', '', optional($cloudSubDomain)->cloud_central_domain);
+    return str_replace('https://', '', $cloudSubDomain?->cloud_central_domain);
 }
 
 function cloudPopUpDetails()
 {
-    $cloudPop = \App\CloudPopUp::find(1);
+    $cloudPop = CloudPopUp::find(1);
 
     return $cloudPop;
 }
 
 function cloudPopupProducts()
 {
-    return \App\Model\Product\CloudProducts::pluck('cloud_product')->toArray();
+    return CloudProducts::pluck('cloud_product')->toArray();
 }
 
 function getPreReleaseStatusLabel($status, $badge = 'badge')
@@ -740,17 +751,17 @@ function getPreReleaseStatusLabel($status, $badge = 'badge')
 function createDB(string $dbName)
 {
     try {
-        \DB::purge('mysql');
+        DB::purge('mysql');
         // removing old db
-        \DB::connection('mysql')->getPdo()->exec("DROP DATABASE IF EXISTS `{$dbName}`");
+        DB::connection('mysql')->getPdo()->exec("DROP DATABASE IF EXISTS `{$dbName}`");
 
         // Creating testing_db
-        \DB::connection('mysql')->getPdo()->exec("CREATE DATABASE `{$dbName}`");
+        DB::connection('mysql')->getPdo()->exec("CREATE DATABASE `{$dbName}`");
         //disconnecting it will remove database config from the memory so that new database name can be
         // populated
-        \DB::disconnect('mysql');
+        DB::disconnect('mysql');
     } catch (Exception $e) {
-        return redirect()->back()->with('fails', $e->getMessage());
+        return back()->with('fails', $e->getMessage());
     }
 }
 
@@ -771,7 +782,7 @@ function isS3Enabled()
  *                       variable name, and the value is the new value to set.
  * @return void
  *
- * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the .env file is not found.
+ * @throws FileNotFoundException If the .env file is not found.
  */
 function setEnvValue(array $data)
 {
@@ -798,14 +809,14 @@ function downloadExternalFile($url, $filename)
     $client = new Client();
     $response = $client->get($url, ['stream' => true]);
 
-    return response()->stream(function () use ($response) {
+    return response()->stream(function () use ($response): void {
         $stream = $response->getBody();
         while (! $stream->eof()) {
             echo $stream->read(1024);
         }
     }, 200, [
         'Content-Type' => 'application/zip',
-        'Content-Disposition' => 'attachment; filename="'.basename($filename).'.zip"',
+        'Content-Disposition' => 'attachment; filename="'.basename((string) $filename).'.zip"',
         'Expires' => 0,
         'Cache-Control' => 'no-cache',
     ]);
@@ -826,12 +837,12 @@ function rateLimitForKeyIp($key, $maxAttempts, $decayMinutes, $ip)
     $decaySeconds = $decayMinutes * 60;
 
     // Command 1: Check and handle non-persistent cache.
-    if (Cache::getStore() instanceof Illuminate\Cache\ArrayStore) {
+    if (Cache::getStore() instanceof ArrayStore) {
         return handleArrayStoreRateLimit($IpKey, $maxAttempts, $decaySeconds);
     }
 
     // Command 2: Handle persistent cache using RateLimiter.
-    if (! RateLimiter::attempt($IpKey, $maxAttempts, function () {
+    if (! RateLimiter::attempt($IpKey, $maxAttempts, function (): void {
     }, $decaySeconds)) {
         $remainingTime = RateLimiter::availableIn($IpKey);
 
@@ -887,7 +898,7 @@ function handleArrayStoreRateLimit($IpKey, $maxAttempts, $decaySeconds)
  */
 function formatDuration(int $seconds): string
 {
-    return \Carbon\CarbonInterval::seconds($seconds)
+    return CarbonInterval::seconds($seconds)
         ->cascade()
         ->forHumans([
             'short' => false,
@@ -897,16 +908,16 @@ function formatDuration(int $seconds): string
 
 function isJson($string)
 {
-    json_decode($string);
+    json_decode((string) $string);
 
     return json_last_error() === JSON_ERROR_NONE;
 }
 
 function getUrl()
 {
-    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'];
-    $path = dirname($_SERVER['SCRIPT_NAME']);
+    $protocol = (isset($_SERVER['HTTPS']) && \Illuminate\Support\Facades\Request::server('HTTPS') === 'on') ? 'https' : 'http';
+    $host = \Illuminate\Support\Facades\Request::server('HTTP_HOST');
+    $path = dirname((string) \Illuminate\Support\Facades\Request::server('SCRIPT_NAME'));
 
     return $protocol.'://'.$host.$path;
 }
@@ -920,6 +931,7 @@ function isRtlForLang()
 {
     return in_array(app()->getLocale(), ['ar', 'he']);
 }
+
 /**
  * Honeypot field metadata for JS/SPA clients. Mirrors honeypotField() but returns
  * the parts as data so a Vue component can render the hidden field and submit the
@@ -962,11 +974,12 @@ function createUrl(string $path): string
 {
     $baseUrl = getUrl();
 
-    return rtrim($baseUrl, '/').'/'.ltrim($path, '/');
+    return rtrim((string) $baseUrl, '/').'/'.ltrim($path, '/');
 }
+
 function isAgentAllowed($productId, $planId): bool
 {
-    $planAgents = \App\Model\Payment\PlanPrice::where('plan_id', $planId)
+    $planAgents = PlanPrice::where('plan_id', $planId)
         ->value('no_of_agents');
 
     // No agents configured → immediately false
@@ -979,17 +992,18 @@ function isAgentAllowed($productId, $planId): bool
         return true;
     }
 
-    return (bool) \App\Model\Product\Product::find($productId)
+    return (bool) Product::find($productId)
         ->value('can_modify_agent');
 }
+
 function isCurrencySupportedForPayments(string $currency, array|string $paymentMethods): bool
 {
     $currency = strtoupper($currency);
     $methods = is_array($paymentMethods) ? $paymentMethods : [$paymentMethods];
-    $pluginMap = (new \App\Http\Controllers\Common\PaymentSettingsController)->getPaymentPluginMap();
+    $pluginMap = (new PaymentSettingsController)->getPaymentPluginMap();
 
     foreach ($methods as $method) {
-        $method = strtolower($method);
+        $method = strtolower((string) $method);
         if (! isset($pluginMap[$method]) || ! array_key_exists($currency, $pluginMap[$method]['supported_currencies'])) {
             return false;
         }
@@ -1003,10 +1017,10 @@ function getMinimumAmountForPayments(string $currency, string $paymentMethod): f
     $method = strtolower($paymentMethod);
 
     if (! isCurrencySupportedForPayments($currency, $method)) {
-        throw new \InvalidArgumentException('Currency not supported for payments');
+        throw new InvalidArgumentException('Currency not supported for payments');
     }
 
-    $pluginMap = (new \App\Http\Controllers\Common\PaymentSettingsController())->getPaymentPluginMap();
+    $pluginMap = new PaymentSettingsController()->getPaymentPluginMap();
 
     $amount = (float) ($pluginMap[$method]['supported_currencies'][$currency] ?? 1);
 
@@ -1034,8 +1048,9 @@ function calculateUnitCost($currency, $cost)
     // Default to 2 decimals if currency not listed
     $decimals = $decimalPlaces[$currency] ?? 2;
 
-    return ($decimals === 0) ? (int) round($cost) : (int) round($cost * pow(10, $decimals));
+    return ($decimals === 0) ? (int) round($cost) : (int) round($cost * 10 ** $decimals);
 }
+
 /**
  * log the actions in log files.
  *
@@ -1046,7 +1061,7 @@ function calculateUnitCost($currency, $cost)
  */
 function loging($context, $message, $level = 'error', $array = [])
 {
-    \Log::$level($message.':-:-:-'.$context, $array);
+    Log::$level($message.':-:-:-'.$context, $array);
 }
 
 /**
@@ -1063,7 +1078,7 @@ function loging($context, $message, $level = 'error', $array = [])
 function deleteUserSessions(int $userId, string $password): void
 {
     if (config('session.driver') !== 'file') {
-        \Auth::logoutOtherDevices($password);
+        Auth::logoutOtherDevices($password);
 
         return;
     }
@@ -1105,18 +1120,19 @@ function deleteUserSessions(int $userId, string $password): void
  * Format a given datetime string to UTC timezone.
  *
  * @param  string|null  $datetime  The datetime string to format.
- * @return \Carbon\Carbon|null The formatted datetime in UTC or null if input is invalid.
+ * @return Carbon|null The formatted datetime in UTC or null if input is invalid.
  */
 function toFormatDateAndTime($datetime)
 {
     if (! $datetime) {
         return null;
     }
+
     // Decode if URL encoded
     $datetime = urldecode($datetime);
 
     // Parse using app timezone
-    $carbon = Carbon::parse($datetime, config('app.timezone'));
+    $carbon = Date::parse($datetime, config('app.timezone'));
 
     // Return in UTC
     return $carbon->clone()->setTimezone('UTC');
@@ -1166,11 +1182,11 @@ function logActivity(
     array $properties = []
 ): void {
     $defaultLogName = config('activitylog.default_log_name');
-    $logStatus = app(ActivityLogStatus::class);
+    $logStatus = resolve(ActivityLogStatus::class);
 
     $actor = $user ?? (Auth::check() ? Auth::user() : null);
 
-    $log = app(ActivityLogger::class)
+    $log = resolve(ActivityLogger::class)
         ->useLog($module ?? $defaultLogName)
         ->setLogStatus($logStatus)
         ->event($event)
@@ -1185,8 +1201,8 @@ function getUserStateWithCountry($country = null, $state = null)
 {
     $user = auth()->user();
 
-    $country = $country ?? $user->country ?? '';
-    $state = $state ?? $user->state ?? '';
+    $country ??= $user->country ?? '';
+    $state ??= $user->state ?? '';
 
     return trim("{$country}-{$state}", '-');
 }
@@ -1200,9 +1216,7 @@ function getSupportedCountriesForIntlInput()
 
     $unsupportedIso = ['BV', 'PN', 'GS', 'UM', 'HM'];
 
-    return collect($countries)->reject(function ($name, $iso) use ($unsupportedIso) {
-        return in_array(strtoupper($iso), $unsupportedIso);
-    })->toArray();
+    return collect($countries)->reject(fn($name, $iso) => in_array(strtoupper((string) $iso), $unsupportedIso))->toArray();
 }
 
 /**
@@ -1210,7 +1224,7 @@ function getSupportedCountriesForIntlInput()
  */
 function isV3Api(): bool
 {
-    return str_contains(str_replace(\Request::root().'/', '', \URL::current()), 'v3/');
+    return str_contains(str_replace(Request::root().'/', '', URL::current()), 'v3/');
 }
 
 /**
@@ -1227,7 +1241,7 @@ function themeAsset(string $key): string
     $path = config("theme.assets.{$key}", '');
 
     if (config('theme.use_cdn')) {
-        return rtrim(config('theme.cdn_base', ''), '/').'/'.ltrim($path, '/');
+        return rtrim((string) config('theme.cdn_base', ''), '/').'/'.ltrim((string) $path, '/');
     }
 
     return asset($path);
@@ -1246,11 +1260,11 @@ function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds 
     $waitSeconds = 0;
 
     try {
-        \Cache::lock($key.'_lock', 5)->block(3, function () use ($key, $interval, &$waitSeconds) {
+        Cache::lock($key.'_lock', 5)->block(3, function () use ($key, $interval, &$waitSeconds): void {
             $now = microtime(true);
 
             // next allowed execution time
-            $nextAllowed = \Cache::get($key, $now);
+            $nextAllowed = Cache::get($key, $now);
 
             // if previous requests already reserved future slots
             if ($nextAllowed > $now) {
@@ -1261,16 +1275,16 @@ function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds 
             }
 
             // reserve next slot
-            \Cache::put($key, $nextAllowed, 300);
+            Cache::put($key, $nextAllowed, 300);
         });
-    } catch (\Throwable $e) {
+    } catch (Throwable) {
         // NEVER fail API because limiter failed
         return;
     }
 
     // each request waits its OWN turn
     if ($waitSeconds > 0) {
-        usleep((int) ($waitSeconds * 1_000_000));
+        Sleep::usleep((int) ($waitSeconds * 1_000_000));
     }
 }
 
@@ -1294,9 +1308,9 @@ function authorizeOwnership(int $userID, bool $allowAdmin = false): bool
  * Format exception response with exception details.
  *
  * @param  Exception  $exception  Exception instance
- * @return \Illuminate\Http\JsonResponse json response
+ * @return JsonResponse json response
  */
-function exceptionResponse(Throwable $exception): \Illuminate\Http\JsonResponse
+function exceptionResponse(Throwable $exception): JsonResponse
 {
     return response()->json(
         [
@@ -1319,7 +1333,7 @@ function exceptionResponse(Throwable $exception): \Illuminate\Http\JsonResponse
 function assetLink(string $type, string $key): string
 {
     // if request is language, it should append & language to it
-    return asset(\Config::get('link.'.$type.'.'.$key));
+    return asset(Config::get('link.'.$type.'.'.$key));
 }
 
 /**
@@ -1330,7 +1344,7 @@ function assetLink(string $type, string $key): string
  */
 function bundleLink(string $url): string
 {
-    $baseUrl = asset($url).'?version='.\Config::get('app.tags');
+    $baseUrl = asset($url).'?version='.Config::get('app.tags');
 
     // if the call is for a language file, we should append language too in the url
     // REASON: we are sending cache headers while sending language response, which will improve performance since the browser
@@ -1347,7 +1361,7 @@ function bundleLink(string $url): string
 
 function commonSettings($option, $optionField, $returnColumn = 'option_value')
 {
-    return \App\Model\Common\CommonSettings::where('option_name', $option)
+    return CommonSettings::where('option_name', $option)
         ->where('optional_field', $optionField)
         ->value($returnColumn);
 }

@@ -28,7 +28,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
             'license_mode' => 'Database',
         ])->create();
 
-        $this->mock(EncryptDecryptController::class, function (MockInterface $mock) {
+        $this->mock(EncryptDecryptController::class, function (MockInterface $mock): void {
             $mock->shouldReceive('generateKeys')
                 ->once()
                 ->with('ORD123');

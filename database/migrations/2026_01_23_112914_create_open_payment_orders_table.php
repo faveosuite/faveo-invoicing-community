@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         if (! Schema::hasTable('open_payment_orders')) {
-            Schema::create('open_payment_orders', function (Blueprint $table) {
+            Schema::create('open_payment_orders', function (Blueprint $table): void {
                 $table->id();
                 $table->string('name', 100);
                 $table->string('email');

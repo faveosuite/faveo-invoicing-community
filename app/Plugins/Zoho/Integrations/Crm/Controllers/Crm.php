@@ -24,7 +24,7 @@ class Crm
 
         $this->zohoApi = new ZohoCrmApi(
             getZohoRegion($crmIntegration->client->region),
-            app(ZohoAccessToken::class),
+            resolve(ZohoAccessToken::class),
             $crmIntegration->id
         );
     }

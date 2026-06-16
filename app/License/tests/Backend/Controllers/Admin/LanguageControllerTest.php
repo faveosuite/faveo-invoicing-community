@@ -15,7 +15,7 @@ class LanguageControllerTest extends LicenseTestCase
     {
         app()->setLocale('en');
 
-        $response = (new LanguageController())->getLanguageFile();
+        $response = new LanguageController()->getLanguageFile();
 
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('text/javascript', $response->headers->get('Content-Type'));

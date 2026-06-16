@@ -2,6 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Cache;
+use Exception;
+use Illuminate\Support\Str;
 use App\Console\LoggableCommand;
 use App\Http\Controllers\BillingInstaller\BillingDependencyController;
 use App\Http\Controllers\BillingInstaller\InstallerController;
@@ -82,7 +85,7 @@ class Install extends LoggableCommand
             //Check ssl options
             $this->configureSslOptions();
 
-            \Cache::put('search-driver', 'database');
+            Cache::put('search-driver', 'database');
 
             // Create .env
             $this->install->env(
@@ -103,7 +106,7 @@ class Install extends LoggableCommand
             $this->info('');
             $this->call('preinstall:check');
             $this->maybeInstallDb();
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->error($ex->getMessage());
         }
     }
@@ -116,7 +119,7 @@ class Install extends LoggableCommand
      */
     public function formatAppUrl(string $url): string
     {
-        if (str_finish($url, '/')) {
+        if (Str::finish($url, '/')) {
             $url = rtrim($url, '/ ');
         }
 
@@ -173,10 +176,11 @@ class Install extends LoggableCommand
         $canInstall = true;
         $arrayOfRequisites = [];
         $errorCount = 0;
-        $connectionStatus = (new BillingDependencyController('probe'))->checkSSLCertificateOnDomain($arrayOfRequisites, $errorCount, $appUrl)[0]['connection'];
+        $connectionStatus = new BillingDependencyController('probe')->checkSSLCertificateOnDomain($arrayOfRequisites, $errorCount, $appUrl)[0]['connection'];
         if ($connectionStatus != 'Valid SSL certificate found, application can be served securely over HTTPS') {
             $canInstall = false;
         }
+
         $this->table(['Requisites', 'Status'], [['requisite' => 'ssl_certificate', 'status' => $connectionStatus]]);
 
         return $canInstall;
@@ -223,9 +227,7 @@ class Install extends LoggableCommand
         $this->dbname = $this->option('dbname') ?: $this->ask('Enter your database name');
         $this->dbuser = $this->option('dbuser') ?: $this->ask('Enter your database username');
         $this->dbpass = $this->option('dbpass') ?: $this->ask('Enter your database password');
-        $this->port = $this->option('sqlport') !== null
-            ? $this->option('sqlport')
-            : $this->ask('Enter your SQL port (leave blank if none)', null);
+        $this->port = $this->option('sqlport') ?? $this->ask('Enter your SQL port (leave blank if none)', null);
     }
 
     /**
@@ -261,7 +263,7 @@ class Install extends LoggableCommand
             'migrate', 'dummy', 'env',
         ];
 
-        if (array_filter($options, fn ($opt) => $this->option($opt))) {
+        if (array_filter($options, $this->option(...))) {
             $migrateOption = trim((string) $this->option('migrate'));
 
             $migrate = filter_var($migrateOption === '' ? $this->confirm('Do you want to migrate tables now?') : $migrateOption, FILTER_VALIDATE_BOOLEAN);

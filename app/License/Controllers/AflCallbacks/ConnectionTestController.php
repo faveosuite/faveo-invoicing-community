@@ -11,11 +11,8 @@ class ConnectionTestController extends Controller
 {
     use AflCallbackHelpers;
 
-    protected LicenseValidator $validator;
-
-    public function __construct(LicenseValidator $validator)
+    public function __construct(protected LicenseValidator $validator)
     {
-        $this->validator = $validator;
     }
 
     /**

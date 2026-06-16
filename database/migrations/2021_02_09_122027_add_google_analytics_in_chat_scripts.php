@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('chat_scripts', function (Blueprint $table) {
+        Schema::table('chat_scripts', function (Blueprint $table): void {
             $table->boolean('on_registration')->default(0);
             $table->boolean('on_every_page')->default(1);
             $table->boolean('google_analytics')->default(1);
@@ -28,7 +28,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('chat_scripts', function (Blueprint $table) {
+        Schema::table('chat_scripts', function (Blueprint $table): void {
             $table->dropColumn('on_registration');
             $table->dropColumn('on_every_page');
             $table->dropColumn('google_analytics');

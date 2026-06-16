@@ -2,8 +2,11 @@
 
 namespace App\Traits;
 
+use Illuminate\Support\Facades\Date;
+use Cart;
+use Exception;
+use Lang;
 use App\Model\Order\Invoice;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -15,8 +18,8 @@ trait CoupCodeAndInvoiceSearch
     public function advanceSearch($request)
     {
         return Invoice::with(['user:id,first_name,last_name,email,mobile,mobile_code,country', 'payment', 'invoiceItem'])
-            ->when($request->name, function ($query, $name) {
-                $query->whereHas('user', function ($q) use ($name) {
+            ->when($request->name, function ($query, $name): void {
+                $query->whereHas('user', function ($q) use ($name): void {
                     $q->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', ["%{$name}%"]);
                 });
             })
@@ -26,9 +29,9 @@ trait CoupCodeAndInvoiceSearch
             )
             ->when($request->currency, fn ($query, $currency) => $query->where('currency', $currency)
             )
-            ->when($request->from_date && $request->to_date, function ($query) use ($request) {
-                $from = Carbon::parse($request->from_date)->startOfDay();
-                $to = Carbon::parse($request->to_date)->endOfDay();
+            ->when($request->from_date && $request->to_date, function ($query) use ($request): void {
+                $from = Date::parse($request->from_date)->startOfDay();
+                $to = Date::parse($request->to_date)->endOfDay();
                 $query->whereBetween('date', [$from, $to]);
             });
     }
@@ -38,9 +41,10 @@ trait CoupCodeAndInvoiceSearch
         try {
             $invoice = Invoice::find($invoiceid);
             $processingFee = '';
-            foreach (\Cart::getConditionsByType('fee') as $processFee) {
+            foreach (Cart::getConditionsByType('fee') as $processFee) {
                 $processingFee = $processFee->getValue();
             }
+
             $invoice_status = 'pending';
 
             $payment = $this->payment->create([
@@ -60,6 +64,7 @@ trait CoupCodeAndInvoiceSearch
             if ($total_paid >= $invoice->grand_total) {
                 $invoice_status = 'success';
             }
+
             if ($invoice) {
                 $sessionValue = $this->getCodeFromSession();
                 $code = $sessionValue['code'];
@@ -71,8 +76,8 @@ trait CoupCodeAndInvoiceSearch
             }
 
             return $payment;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -91,7 +96,7 @@ trait CoupCodeAndInvoiceSearch
             $this->invoice->whereIn('id', $ids)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -109,41 +114,43 @@ trait CoupCodeAndInvoiceSearch
                             $invoice->status = 'pending';
                             $invoice->save();
                         }
+
                         $payment->delete();
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> 
-                    './* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */ Lang::get('message.alert').'!</b> 
+                    './* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
+                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
                 </div>';
                         //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
+
                 echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
                     /* @scrutinizer ignore-type */
-                    \Lang::get('message.success').'
+                    Lang::get('message.success').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
+                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
                 </div>';
             } else {
                 echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
+                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
                 </div>';
                 //echo \Lang::get('message.select-a-row');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */ \Lang::get('message.failed').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */ Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.$e->getMessage().'
                 </div>';
@@ -183,13 +190,14 @@ trait CoupCodeAndInvoiceSearch
                         } else {
                             $invoice->status = 'pending';
                         }
+
                         $invoice->save();
                     }
                 }
             }
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

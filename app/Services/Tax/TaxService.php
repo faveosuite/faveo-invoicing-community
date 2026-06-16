@@ -18,8 +18,8 @@ use App\Model\Payment\TaxProductRelation;
 class TaxService
 {
     public function __construct(
-        private TaxRateResolver $resolver,
-        private TaxEngine $engine,
+        private readonly TaxRateResolver $resolver,
+        private readonly TaxEngine $engine,
     ) {
     }
 
@@ -52,6 +52,7 @@ class TaxService
         if (! $option || (int) $option->tax_enable !== 1) {
             return $empty;
         }
+
         if ($user && ! empty($user->is_tax_exempt)) {
             return $empty;
         }

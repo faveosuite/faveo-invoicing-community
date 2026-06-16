@@ -2,6 +2,11 @@
 
 namespace Tests\Unit\Subscription;
 
+use DB;
+use App\Http\Controllers\License\LicensePermissionsController;
+use Mail;
+use Illuminate\Support\Facades\Date;
+use Artisan;
 use App\ApiKey;
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
 use App\Http\Controllers\Subscription\SubscriptionController;
@@ -15,7 +20,6 @@ use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
-use Carbon\Carbon;
 use Tests\DBTestCase;
 
 class SubscriptionControllerTest extends DBTestCase
@@ -66,7 +70,7 @@ class SubscriptionControllerTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Helpdesk 1 year', 'product' => $product->id, 'days' => 365]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $controller = $this->instantiateDependencies();
-        $response = (new SubscriptionController($controller))->getOnDayExpiryInfoSubs();
+        $response = new SubscriptionController($controller)->getOnDayExpiryInfoSubs();
         $this->assertEmpty($response);
     }
 
@@ -86,7 +90,7 @@ class SubscriptionControllerTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Helpdesk 1 year', 'product' => $product->id, 'days' => 365]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $controller = $this->instantiateDependencies();
-        $response = (new SubscriptionController($controller))->getOnDayExpiryInfoSubs();
+        $response = new SubscriptionController($controller)->getOnDayExpiryInfoSubs();
         $this->assertEmpty($response);
     }
 
@@ -161,20 +165,20 @@ class SubscriptionControllerTest extends DBTestCase
         $currency = 'INR';
         $cost = 10;
         $end = date('Y-m-d H:m:i');
-        \DB::table('auto_renewals')->insert([
+        DB::table('auto_renewals')->insert([
             'user_id' => $user->id,
             'customer_id' => 'cus_Pnj9QJLaBK6Hu7',
             'order_id' => $order->id,
             'payment_method' => 'stripe',
             'payment_intent_id' => 'pm_1Oy7hGI0SyY30M2QxKcYp9Jo',
         ]);
-        $stripePaymentDetails = \DB::table('auto_renewals')
+        $stripePaymentDetails = DB::table('auto_renewals')
             ->where('order_id', $order->id)
             ->where('user_id', $user->id)
             ->first();
 
         // Mock the LicensePermissionsController
-        $this->mock(\App\Http\Controllers\License\LicensePermissionsController::class, function ($mock) {
+        $this->mock(LicensePermissionsController::class, function ($mock): void {
             $mock->shouldReceive('getPermissionsForProduct')
                 ->andReturn([
                     'generateLicenseExpiryDate' => 1,
@@ -237,7 +241,7 @@ class SubscriptionControllerTest extends DBTestCase
     public function test_autorenewal_when_there_is_no_plan_for_the_order()
     {
         $this->withoutMiddleware();
-        \Mail::fake();
+        Mail::fake();
         StatusSetting::first()->update(['subs_expirymail' => 1]);
         $user = User::factory()->create([
             'role' => 'user',
@@ -275,22 +279,22 @@ class SubscriptionControllerTest extends DBTestCase
             'plan_id' => $plan->id,
         ]);
 
-        $id = \DB::table('subscriptions')->insertGetId([
+        $id = DB::table('subscriptions')->insertGetId([
             'user_id' => $user->id,
             'plan_id' => $plan->id,
             'order_id' => $order->id,
             'product_id' => $product->id,
             'is_subscribed' => 1,
             'autoRenew_status' => 1,
-            'update_ends_at' => Carbon::now()->addDays(1)->toDateString(),
+            'update_ends_at' => Date::now()->addDays(1)->toDateString(),
         ]);
 
-        $subscription = \DB::table('subscriptions')->where('id', $id)->first();
+        $subscription = DB::table('subscriptions')->where('id', $id)->first();
 
         $this->assertTrue((bool) $subscription->autoRenew_status);
         $this->assertTrue((bool) $subscription->is_subscribed);
 
-        \Artisan::call('renewal:cron');
+        Artisan::call('renewal:cron');
 
         $this->assertDatabaseHas('subscriptions', [
             'id' => $subscription->id,

@@ -2,6 +2,8 @@
 
 namespace App\Services\Payment;
 
+use RuntimeException;
+use Illuminate\Support\Facades\Date;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
@@ -13,7 +15,6 @@ use App\Model\Payment\TaxOption;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\User;
-use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,7 @@ class FreeTrialService
     }
 
     /**
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function checkEligibility(User $user, CloudProducts $cloudProduct): void
     {
@@ -35,12 +36,12 @@ class FreeTrialService
             ->exists();
 
         if ($used) {
-            throw new \RuntimeException(__('message.limit_is_up'));
+            throw new RuntimeException(__('message.limit_is_up'));
         }
     }
 
     /**
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function provision(User $user, string $domain, CloudProducts $cloudProduct): array
     {
@@ -54,13 +55,13 @@ class FreeTrialService
 
             $order = (new OrderController)->executeOrder($invoice->id)
                 ->firstWhere('product', $product->id)
-                ?? throw new \RuntimeException(__('message.cannot_generate_freetrial_cloud_instance'));
+                ?? throw new RuntimeException(__('message.cannot_generate_freetrial_cloud_instance'));
 
             $result = new TenantController(new Client(), new FaveoCloud())
                 ->createTenant(new Request(['orderNo' => $order->number, 'domain' => $domain]));
 
             if (($result['status'] ?? '') === 'false') {
-                throw new \RuntimeException($result['message'] ?? __('message.cannot_generate_freetrial_cloud_instance'));
+                throw new RuntimeException($result['message'] ?? __('message.cannot_generate_freetrial_cloud_instance'));
             }
 
             DB::table('free_trial_allowed')->insert([
@@ -88,8 +89,8 @@ class FreeTrialService
 
         return Invoice::create([
             'user_id' => $user->id,
-            'number' => rand(11111111, 99999999),
-            'date' => Carbon::now(),
+            'number' => random_int(11111111, 99999999),
+            'date' => Date::now(),
             'grand_total' => $grandTotal,
             'status' => 'success',
             'currency' => $currency,

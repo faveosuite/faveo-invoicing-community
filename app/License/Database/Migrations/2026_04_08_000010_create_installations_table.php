@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('installations', function (Blueprint $table) {
+        Schema::create('installations', function (Blueprint $table): void {
             $table->id();
             $table->unsignedInteger('product_id');
             $table->unsignedInteger('user_id')->nullable();

@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Mailchimp;
 
+use Override;
 use App\Events\UserRegisteredEvent;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Plugins\Mailchimp\Http\Client\MailchimpClient;
@@ -17,10 +18,11 @@ use Illuminate\Support\ServiceProvider;
 
 class MailchimpServiceProvider extends ServiceProvider
 {
+    #[Override]
     public function register(): void
     {
         // Bind MailchimpClient — resolved fresh from the stored API key each time
-        $this->app->bind(MailchimpClient::class, function () {
+        $this->app->bind(function (): MailchimpClient {
             $apiKey = MailchimpSetting::value('api_key') ?? '';
 
             return new MailchimpClient($apiKey);
@@ -30,13 +32,11 @@ class MailchimpServiceProvider extends ServiceProvider
         $this->app->singleton(ContactBuilder::class);
 
         // MailchimpService — singleton so it's created once per request
-        $this->app->singleton(MailchimpService::class, function ($app) {
-            return new MailchimpService(
-                $app->make(MailchimpClient::class),
-                $app->make(ContactBuilder::class),
-                MailchimpSetting::firstOrNew(),
-            );
-        });
+        $this->app->singleton(fn($app): MailchimpService => new MailchimpService(
+            $app->make(MailchimpClient::class),
+            $app->make(ContactBuilder::class),
+            MailchimpSetting::firstOrNew(),
+        ));
 
         // Listener singletons
         $this->app->singleton(SubscribeUserOnRegister::class);
@@ -51,8 +51,8 @@ class MailchimpServiceProvider extends ServiceProvider
 
         Event::listen(UserRegisteredEvent::class, SubscribeUserOnRegister::class);
 
-        app(NewsletterManager::class)->register(
-            new MailchimpNewsletterProvider(app(MailchimpService::class))
+        resolve(NewsletterManager::class)->register(
+            new MailchimpNewsletterProvider(resolve(MailchimpService::class))
         );
     }
 }

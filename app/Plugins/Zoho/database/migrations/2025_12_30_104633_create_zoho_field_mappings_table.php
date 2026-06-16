@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('zoho_field_mappings', function (Blueprint $table) {
+        Schema::create('zoho_field_mappings', function (Blueprint $table): void {
             $table->id();
 
             // Zoho field reference

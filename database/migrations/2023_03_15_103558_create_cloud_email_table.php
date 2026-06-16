@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('cloud_email', function (Blueprint $table) {
+        Schema::create('cloud_email', function (Blueprint $table): void {
             $table->id();
             $table->longText('result_message');
             $table->longText('user');

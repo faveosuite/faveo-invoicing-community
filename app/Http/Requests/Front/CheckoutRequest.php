@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Front;
 
+use Override;
 use App\Http\Requests\Request;
 
 class CheckoutRequest extends Request
@@ -26,13 +27,13 @@ class CheckoutRequest extends Request
         //dd($this->method() );
         if ($this->method() == 'POST') {
             return [
-                'first_name' => 'required',
-                'last_name' => 'required',
-                'company' => 'required',
-                'mobile' => 'regex:/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/',
-                'address' => 'required',
-                'zip' => 'required|min:5|numeric',
-                'email' => 'required|email|unique:users,email',
+                'first_name' => ['required'],
+                'last_name' => ['required'],
+                'company' => ['required'],
+                'mobile' => ['regex:/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/'],
+                'address' => ['required'],
+                'zip' => ['required', 'min:5', 'numeric'],
+                'email' => ['required', 'email', 'unique:users,email'],
                 //'payment_gateway' => 'required',
             ];
         } elseif ($this->method() == 'PATCH') {
@@ -49,6 +50,7 @@ class CheckoutRequest extends Request
         }
     }
 
+    #[Override]
     public function messages()
     {
         return [

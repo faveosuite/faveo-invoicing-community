@@ -2,6 +2,10 @@
 
 namespace App\License\Models;
 
+use Override;
+use App\Model\Product\Product;
+use App\Model\Product\ProductUpload;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -17,24 +21,34 @@ class VersionInstallation extends Model
         'installation_status',
     ];
 
-    protected $casts = [
-        'installation_status' => 'integer',
-        'product_id' => 'integer',
-        'version_id' => 'integer',
-    ];
-
+    /**
+     * @return BelongsTo<Product, $this>
+     */
     public function product(): BelongsTo
     {
-        return $this->belongsTo(\App\Model\Product\Product::class, 'product_id');
+        return $this->belongsTo(Product::class, 'product_id');
     }
 
+    /**
+     * @return BelongsTo<ProductUpload, $this>
+     */
     public function version(): BelongsTo
     {
-        return $this->belongsTo(\App\Model\Product\ProductUpload::class, 'version_id');
+        return $this->belongsTo(ProductUpload::class, 'version_id');
     }
 
-    public function scopeActive($query)
+    #[Scope]
+    protected function active($query)
     {
         return $query->where('installation_status', 1);
+    }
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'installation_status' => 'integer',
+            'product_id' => 'integer',
+            'version_id' => 'integer',
+        ];
     }
 }

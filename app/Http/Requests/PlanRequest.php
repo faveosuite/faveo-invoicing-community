@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Override;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,26 +16,26 @@ class PlanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
+            'name' => ['required'],
 
             // Main array
-            'currency' => 'required|array',
+            'currency' => ['required', 'array'],
 
             // Other arrays must match currency count
-            'add_price' => 'required|array|array_size_equals:currency',
-            'renew_price' => 'required|array|array_size_equals:currency',
-            'offer_price' => 'nullable|array|array_size_equals:currency',
+            'add_price' => ['required', 'array', 'array_size_equals:currency'],
+            'renew_price' => ['required', 'array', 'array_size_equals:currency'],
+            'offer_price' => ['nullable', 'array', 'array_size_equals:currency'],
 
             // Element-level checks
-            'currency.*' => 'required_with:currency',
-            'add_price.*' => 'required_with:currency|integer|min:0|max:10000000',
-            'renew_price.*' => 'required_with:currency|integer|min:0|max:1000000',
+            'currency.*' => ['required_with:currency'],
+            'add_price.*' => ['required_with:currency', 'integer', 'min:0', 'max:10000000'],
+            'renew_price.*' => ['required_with:currency', 'integer', 'min:0', 'max:1000000'],
             'offer_price.*' => ['nullable', 'numeric', 'between:0,100'],
 
-            'product' => 'required',
-            'days' => 'nullable|numeric',
-            'product_quantity' => 'required_without:no_of_agents|integer|min:0',
-            'no_of_agents' => 'required_without:product_quantity|integer|min:0',
+            'product' => ['required'],
+            'days' => ['nullable', 'numeric'],
+            'product_quantity' => ['required_without:no_of_agents', 'integer', 'min:0'],
+            'no_of_agents' => ['required_without:product_quantity', 'integer', 'min:0'],
             'status' => [
                 'required',
                 Rule::unique('plans')
@@ -43,11 +44,12 @@ class PlanRequest extends FormRequest
                         ->where('days', $this->days)
                         ->where('status', 1)
                     )
-                    ->ignore(optional($this->route('plan'))->id),
+                    ->ignore($this->route('plan')?->id),
             ],
         ];
     }
 
+    #[Override]
     public function messages(): array
     {
         return [

@@ -7,22 +7,16 @@
 
 namespace App\Http\Controllers\Common\Twitter;
 
-class Token
+use Stringable;
+
+class Token implements Stringable
 {
-    /** @var string */
-    public $key;
-
-    /** @var string */
-    public $secret;
-
     /**
      * @param  string  $key  The OAuth Token
      * @param  string  $secret  The OAuth Token Secret
      */
-    public function __construct($key, $secret)
+    public function __construct(public $key, public $secret)
     {
-        $this->key = $key;
-        $this->secret = $secret;
     }
 
     /**
@@ -31,7 +25,7 @@ class Token
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf('oauth_token=%s&oauth_token_secret=%s',
             Util::urlencodeRfc3986($this->key),

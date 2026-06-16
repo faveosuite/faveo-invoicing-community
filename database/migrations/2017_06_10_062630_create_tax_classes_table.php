@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('tax_classes')) {
-            Schema::create('tax_classes', function (Blueprint $table) {
+            Schema::create('tax_classes', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name');
                 $table->timestamps();

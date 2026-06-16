@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('settings')) {
-            Schema::create('settings', function (Blueprint $table) {
+            Schema::create('settings', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('company')->default('Ladybird web solution');
                 $table->string('website')->default('http://www.ladybirdweb.com/');

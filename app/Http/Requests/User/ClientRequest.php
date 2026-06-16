@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\User;
 
+use Override;
 use App\Http\Requests\Request;
 use App\Rules\PhoneNumber;
 
@@ -27,17 +28,17 @@ class ClientRequest extends Request
         switch ($this->method()) {
             case 'PUT':
                 return [
-                    'first_name' => 'required',
-                    'last_name' => 'required',
-                    'company' => 'required',
-                    'email' => 'required|email|unique:users|unique:settings,email|unique:settings,company_email',
-                    'address' => 'required',
+                    'first_name' => ['required'],
+                    'last_name' => ['required'],
+                    'company' => ['required'],
+                    'email' => ['required', 'email', 'unique:users', 'unique:settings,email', 'unique:settings,company_email'],
+                    'address' => ['required'],
                     'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
-                    'country' => 'required|exists:countries,country_code_char2',
-                    'timezone_id' => 'required',
-                    'user_name' => 'unique:users,user_name|unique:settings,email|unique:settings,company_email',
-                    'zip' => 'regex:/^[a-zA-Z0-9]+$/',
-                    'position' => 'prohibited_if:role,user',
+                    'country' => ['required', 'exists:countries,country_code_char2'],
+                    'timezone_id' => ['required'],
+                    'user_name' => ['unique:users,user_name', 'unique:settings,email', 'unique:settings,company_email'],
+                    'zip' => ['regex:/^[a-zA-Z0-9]+$/'],
+                    'position' => ['prohibited_if:role,user'],
                 ];
 
             case 'PATCH':
@@ -61,6 +62,7 @@ class ClientRequest extends Request
         }
     }
 
+    #[Override]
     public function messages()
     {
         return [

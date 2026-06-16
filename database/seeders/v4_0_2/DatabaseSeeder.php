@@ -2,8 +2,8 @@
 
 namespace Database\Seeders\v4_0_2;
 
+use DB;
 use Illuminate\Database\Seeder;
-use App\Model\Product\ProductUpload;
 use App\ReleaseType;
 use App\Model\License\LicenseType;
 use App\Model\Common\TemplateType;
@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         ReleaseType::truncate();
         LicenseType::where('id',7)->delete();
 
@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             TemplateTableSeeder::class,
         ]);
 
-        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }
 

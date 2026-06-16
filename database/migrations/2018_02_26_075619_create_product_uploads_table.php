@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('product_uploads')) {
-            Schema::create('product_uploads', function (Blueprint $table) {
+            Schema::create('product_uploads', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('product_id')->unsigned();
                 $table->foreign('product_id')->references('id')->on('products');

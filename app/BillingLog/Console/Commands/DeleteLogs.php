@@ -2,12 +2,11 @@
 
 namespace App\BillingLog\Console\Commands;
 
+use Illuminate\Support\Facades\Date;
 use App\BillingLog\Controllers\LogViewController;
 use App\Console\LoggableCommand;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\ExpiryMailDay;
-use Carbon\Carbon;
-use Illuminate\Console\Command;
 
 class DeleteLogs extends LoggableCommand
 {
@@ -48,7 +47,7 @@ class DeleteLogs extends LoggableCommand
 
         $days = ExpiryMailDay::value('system_logs_days');
 
-        $deleteBefore = Carbon::now()->subDays($days)->endOfDay();
+        $deleteBefore = Date::now()->subDays($days)->endOfDay();
 
         (new LogViewController)->deleteLogsByDate(
             ['mail', 'cron', 'exception', 'failed_jobs'],

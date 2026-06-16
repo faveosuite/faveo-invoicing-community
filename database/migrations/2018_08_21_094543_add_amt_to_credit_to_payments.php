@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('payments', 'amt_to_credit')) {
-            Schema::table('payments', function (Blueprint $table) {
+            Schema::table('payments', function (Blueprint $table): void {
                 $table->string('amt_to_credit', 255)->nullable();
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('payments', function (Blueprint $table) {
+        Schema::table('payments', function (Blueprint $table): void {
             $table->dropColumn('amt_to_credit');
         });
     }

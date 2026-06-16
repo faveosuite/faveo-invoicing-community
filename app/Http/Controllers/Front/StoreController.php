@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Front;
 
+use Illuminate\Contracts\Database\Query\Builder;
+use Auth;
 use App\Http\Controllers\Controller;
 use App\Model\CloudDataCenters;
 use App\Model\Payment\Currency;
@@ -41,9 +43,9 @@ class StoreController extends Controller
         ])
             ->where('group', $groupId)
             ->where('hidden', '!=', 1)
-            ->whereHas('planRelation', fn ($q) => $q
+            ->whereHas('planRelation', fn (Builder $q) => $q
                 ->where('status', 1)
-                ->whereHas('planPrice', fn ($pq) => $pq->where('currency', $currency))
+                ->whereHas('planPrice', fn (Builder $pq) => $pq->where('currency', $currency))
             )
             ->orderBy('id')
             ->get()
@@ -74,8 +76,8 @@ class StoreController extends Controller
 
     private function resolveCurrency(): string
     {
-        if (\Auth::check()) {
-            return getCurrencyForClient(\Auth::user()->country);
+        if (Auth::check()) {
+            return getCurrencyForClient(Auth::user()->country);
         }
 
         $ip = request()->ip();

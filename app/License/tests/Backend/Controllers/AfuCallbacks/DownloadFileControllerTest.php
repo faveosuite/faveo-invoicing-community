@@ -21,7 +21,7 @@ class DownloadFileControllerTest extends LicenseTestCase
         $validator->shouldReceive('isValidAfuRequest')->once()->andReturn(true);
         $validator->shouldReceive('isBanned')->once()->andReturn(false);
 
-        $response = (new DownloadFileController($validator))->downloadFile($this->moduleRequest([
+        $response = new DownloadFileController($validator)->downloadFile($this->moduleRequest([
             'product_id' => $product->id,
             'product_key' => 'AFUKEY3',
             'version_number' => 'missing',

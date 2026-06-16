@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Common;
 
+use App\Plugins\Mailchimp\Listeners\UpdateSubscriberOnPurchase;
+use Throwable;
+use Logger;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\InvoiceItem;
@@ -30,7 +33,7 @@ class ExternalServiceController extends Controller
 
     public function updateSubscriberForMailchimpProduct(int $productId, int $userId, InvoiceItem $item): void
     {
-        app(\App\Plugins\Mailchimp\Listeners\UpdateSubscriberOnPurchase::class)
+        resolve(UpdateSubscriberOnPurchase::class)
             ->handle($productId, $userId, $item);
     }
 
@@ -49,9 +52,9 @@ class ExternalServiceController extends Controller
                 ? 'paid_products'
                 : 'free_products';
 
-            app(ZohoCampaignsController::class)->subscribeWithTag($email, $type, $productName ?? $type);
-        } catch (\Throwable $e) {
-            \Logger::exception($e);
+            resolve(ZohoCampaignsController::class)->subscribeWithTag($email, $type, $productName ?? $type);
+        } catch (Throwable $e) {
+            Logger::exception($e);
         }
     }
 }

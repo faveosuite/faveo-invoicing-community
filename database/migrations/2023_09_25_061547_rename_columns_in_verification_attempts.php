@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('verification_attempts', function (Blueprint $table) {
+        Schema::table('verification_attempts', function (Blueprint $table): void {
             $table->renameColumn('type', 'mobile_attempt')->nullabe();
             $table->renameColumn('attempt_count', 'email_attempt')->nullable();
         });
@@ -26,7 +26,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('verification_attempts', function (Blueprint $table) {
+        Schema::table('verification_attempts', function (Blueprint $table): void {
             $table->renameColumn('mobile_attempt', 'type');
             $table->renameColumn('email_attempt', 'attempt_count');
         });

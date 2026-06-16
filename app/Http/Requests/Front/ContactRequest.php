@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Front;
 
+use Override;
+use Illuminate\Contracts\Validation\ValidationRule;
 use App\Rules\Honeypot;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -18,17 +20,17 @@ class ContactRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         if ($this->is('contact-us')) {
             return [
-                'conName' => 'required',
-                'email' => 'required|email',
-                'conmessage' => 'required',
-                'Mobile' => 'required',
-                'country_code' => 'required',
+                'conName' => ['required'],
+                'email' => ['required', 'email'],
+                'conmessage' => ['required'],
+                'Mobile' => ['required'],
+                'country_code' => ['required'],
                 'contact' => [new Honeypot()],
             ];
         } elseif ($this->is('demo-request')) {
@@ -43,6 +45,7 @@ class ContactRequest extends FormRequest
         }
     }
 
+    #[Override]
     public function messages()
     {
         return [

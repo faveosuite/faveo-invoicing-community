@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('activity_log', 'event')) {
-            Schema::table('activity_log', function (Blueprint $table) {
+            Schema::table('activity_log', function (Blueprint $table): void {
                 $table->string('event')->nullable();
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('activity_log', function (Blueprint $table) {
+        Schema::table('activity_log', function (Blueprint $table): void {
             $table->dropColumn('event');
         });
     }

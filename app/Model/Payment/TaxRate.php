@@ -2,6 +2,9 @@
 
 namespace App\Model\Payment;
 
+use Override;
+use App\Model\Common\Country;
+use App\Model\Common\State;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 
@@ -18,14 +21,6 @@ class TaxRate extends BaseModel
     protected $fillable = [
         'name', 'country', 'state', 'rate', 'priority',
         'compound', 'tax_class', 'display_order', 'active',
-    ];
-
-    protected $casts = [
-        'rate' => 'float',
-        'priority' => 'integer',
-        'compound' => 'boolean',
-        'display_order' => 'integer',
-        'active' => 'boolean',
     ];
 
     protected $logName = 'tax';
@@ -47,13 +42,13 @@ class TaxRate extends BaseModel
             'country' => [
                 'Country',
                 fn ($value) => $value
-                    ? \App\Model\Common\Country::where('country_code_char2', $value)->value('country_name')
+                    ? Country::where('country_code_char2', $value)->value('country_name')
                     : 'All Countries',
             ],
             'state' => [
                 'State',
                 fn ($value) => $value
-                    ? \App\Model\Common\State::where('iso2', $value)->value('state_subdivision_name')
+                    ? State::where('iso2', $value)->value('state_subdivision_name')
                     : 'All States',
             ],
             'rate' => ['Tax Rate (%)', fn ($value) => $value],
@@ -66,11 +61,22 @@ class TaxRate extends BaseModel
 
     public function locations()
     {
-        return $this->hasMany(\App\Model\Payment\TaxRateLocation::class, 'tax_rate_id');
+        return $this->hasMany(TaxRateLocation::class, 'tax_rate_id');
     }
 
     public function taxClass()
     {
-        return $this->belongsTo(\App\Model\Payment\TaxClass::class, 'tax_class', 'slug');
+        return $this->belongsTo(TaxClass::class, 'tax_class', 'slug');
+    }
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'rate' => 'float',
+            'priority' => 'integer',
+            'compound' => 'boolean',
+            'display_order' => 'integer',
+            'active' => 'boolean',
+        ];
     }
 }

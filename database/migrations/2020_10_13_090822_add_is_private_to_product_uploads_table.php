@@ -13,10 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('product_uploads', function (Blueprint $table) {
+        Schema::table('product_uploads', function (Blueprint $table): void {
             if (! Schema::hasColumn('product_uploads', 'is_private')) {
                 $table->boolean('is_private')->default(0);
             }
+
             if (! Schema::hasColumn('product_uploads', 'is_restricted')) {
                 $table->boolean('is_restricted')->default(0);
             }
@@ -30,7 +31,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('product_uploads', function (Blueprint $table) {
+        Schema::table('product_uploads', function (Blueprint $table): void {
             $table->dropColumn('is_private');
             $table->dropColumn('is_restricted');
         });

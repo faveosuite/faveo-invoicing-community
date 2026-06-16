@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('templates')) {
-            Schema::create('templates', function (Blueprint $table) {
+            Schema::create('templates', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name');
                 $table->integer('type')->unsigned()->index('templates_type_foreign');

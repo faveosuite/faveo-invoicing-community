@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Order;
 
+use Exception;
+use App\Payment_log;
+use Lang;
+use Auth;
+use Logger;
 use App\Events\UserOrderDelete;
 use App\Http\Requests\Order\OrderRequest;
 use App\Jobs\ReportExport;
@@ -104,17 +109,18 @@ class OrderController extends BaseOrderController
                     $name = getCountryByCode($user->country) ?? $user->country;
                     $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), true);
                 }
+
                 $installedVersions = $order->installationDetail ? $order->installationDetail->pluck('version')->toArray() : [];
                 $latestVersion = count($installedVersions) ? max($installedVersions) : null;
 
-                $licenseAgents = substr($order->serial_key, 12, 16) === '0000'
+                $licenseAgents = substr((string) $order->serial_key, 12, 16) === '0000'
                     ? 'Unlimited'
-                    : intval(substr($order->serial_key, 12, 16), 10);
+                    : intval(substr((string) $order->serial_key, 12, 16), 10);
 
                 return [
                     'id' => $order->id,
                     'number' => $order->number,
-                    'order_status' => ucfirst($order->order_status),
+                    'order_status' => ucfirst((string) $order->order_status),
                     'product_name' => $order->productRelation?->name,
                     'product_id' => $order->product,
                     'group' => $order->productRelation?->groupRelation?->name,
@@ -125,14 +131,14 @@ class OrderController extends BaseOrderController
                     'agents' => $licenseAgents,
                     'status' => ! empty($order->installationDetail) ? 'Active' : 'Inactive',
                     'order_date' => $order->created_at,
-                    'update_ends_at' => strtotime($order->subscription->ends_at) > 1 ? $order->subscription->ends_at : null,
+                    'update_ends_at' => strtotime((string) $order->subscription->ends_at) > 1 ? $order->subscription->ends_at : null,
                     'subscription_updated_at' => $order->subscription->updated_at,
                     'user' => $user,
                 ];
             });
 
             return successResponse('', $paginated);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -154,12 +160,12 @@ class OrderController extends BaseOrderController
         $subscription = $order->subscription;
 
         $expiryDates = [
-            'subscription_end' => $subscription && strtotime($subscription->ends_at) > 1 ? getExpiryLabel($subscription->ends_at) : null,
-            'update_end' => $subscription && strtotime($subscription->update_ends_at) > 1 ? getExpiryLabel($subscription->update_ends_at) : null,
-            'support_end' => $subscription && strtotime($subscription->support_ends_at) > 1 ? getExpiryLabel($subscription->support_ends_at) : null,
+            'subscription_end' => $subscription && strtotime((string) $subscription->ends_at) > 1 ? getExpiryLabel($subscription->ends_at) : null,
+            'update_end' => $subscription && strtotime((string) $subscription->update_ends_at) > 1 ? getExpiryLabel($subscription->update_ends_at) : null,
+            'support_end' => $subscription && strtotime((string) $subscription->support_ends_at) > 1 ? getExpiryLabel($subscription->support_ends_at) : null,
         ];
 
-        $paymentLog = \App\Payment_log::where('order', $order->number)
+        $paymentLog = Payment_log::where('order', $order->number)
             ->where('payment_type', 'Payment method updated')
             ->orderBy('id', 'desc')
             ->first(['payment_method', 'date']);
@@ -190,7 +196,7 @@ class OrderController extends BaseOrderController
             ])->values()->all();
 
             return successResponse('', $installationDetails);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -207,9 +213,9 @@ class OrderController extends BaseOrderController
             $order = $this->order->where('id', $id)->first();
             $order->fill($request->input())->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return back()->with('success', Lang::get('message.updated-successfully'));
+        } catch (Exception $e) {
+            return back()->with('fails', $e->getMessage());
         }
     }
 
@@ -235,7 +241,7 @@ class OrderController extends BaseOrderController
             $this->order->whereIn('id', $orderIds)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -250,8 +256,8 @@ class OrderController extends BaseOrderController
             }
 
             return $planid;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -271,8 +277,8 @@ class OrderController extends BaseOrderController
             }
 
             return $status;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -320,7 +326,7 @@ class OrderController extends BaseOrderController
                 'renewal', 'inact_ins', 'version',
             ]);
 
-            $email = \Auth::user()->email;
+            $email = Auth::user()->email;
 
             $driver = QueueService::where('status', '1')->first();
 
@@ -328,14 +334,14 @@ class OrderController extends BaseOrderController
                 return errorResponse(__('message.cannot_sync_queue_driver'));
             }
 
-            app('queue')->setDefaultDriver($driver->short_name);
+            resolve('queue')->setDefaultDriver($driver->short_name);
 
-            ReportExport::dispatch('orders', $selectedColumns, $searchParams, $email)
+            dispatch(new ReportExport('orders', $selectedColumns, $searchParams, $email))
                 ->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return errorResponse($e->getMessage());
         }
@@ -358,12 +364,12 @@ class OrderController extends BaseOrderController
 
             $payments = Payment::whereIn('invoice_id', $invoiceIds)
                 ->select(['id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at'])
-                ->when($searchQuery, function ($query) use ($searchQuery) {
-                    $query->where(function ($q) use ($searchQuery) {
+                ->when($searchQuery, function ($query) use ($searchQuery): void {
+                    $query->where(function ($q) use ($searchQuery): void {
                         $q->where('payment_method', 'like', "%{$searchQuery}%")
                             ->orWhere('payment_status', 'like', "%{$searchQuery}%")
                             ->orWhere('amount', 'like', "%{$searchQuery}%")
-                            ->orWhereHas('invoice', function ($inv) use ($searchQuery) {
+                            ->orWhereHas('invoice', function ($inv) use ($searchQuery): void {
                                 $inv->where('number', 'like', "%{$searchQuery}%");
                             });
                     });
@@ -371,20 +377,18 @@ class OrderController extends BaseOrderController
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $payments->getCollection()->transform(function ($payment) {
-                return [
-                    'id' => $payment->id,
-                    'invoice_number' => $payment->invoice->number,
-                    'user_id' => $payment->user_id,
-                    'amount' => currencyFormat($payment->amount, $payment->invoice->currency),
-                    'payment_method' => $payment->payment_method,
-                    'payment_status' => $payment->payment_status,
-                    'created_at' => $payment->created_at,
-                ];
-            });
+            $payments->getCollection()->transform(fn($payment) => [
+                'id' => $payment->id,
+                'invoice_number' => $payment->invoice->number,
+                'user_id' => $payment->user_id,
+                'amount' => currencyFormat($payment->amount, $payment->invoice->currency),
+                'payment_method' => $payment->payment_method,
+                'payment_status' => $payment->payment_status,
+                'created_at' => $payment->created_at,
+            ]);
 
             return successResponse('', $payments);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -403,16 +407,14 @@ class OrderController extends BaseOrderController
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
 
-        $invoices->getCollection()->transform(function ($invoice) {
-            return [
-                'id' => $invoice->id,
-                'number' => $invoice->number,
-                'amount' => currencyFormat($invoice->grand_total, $invoice->currency),
-                'status' => $invoice->status,
-                'date' => $invoice->date,
-                'products' => $invoice->invoiceItem->pluck('product_name')->toArray(),
-            ];
-        });
+        $invoices->getCollection()->transform(fn($invoice) => [
+            'id' => $invoice->id,
+            'number' => $invoice->number,
+            'amount' => currencyFormat($invoice->grand_total, $invoice->currency),
+            'status' => $invoice->status,
+            'date' => $invoice->date,
+            'products' => $invoice->invoiceItem->pluck('product_name')->toArray(),
+        ]);
 
         return successResponse('', $invoices);
     }

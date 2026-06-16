@@ -11,15 +11,8 @@ class UsersExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
 
-    protected $selectedColumns;
-    protected $usersData;
-    protected $sheetIndex;
-
-    public function __construct($selectedColumns, $usersData, $sheetIndex)
+    public function __construct(protected $selectedColumns, protected $usersData, protected $sheetIndex)
     {
-        $this->selectedColumns = $selectedColumns;
-        $this->usersData = $usersData;
-        $this->sheetIndex = $sheetIndex;
     }
 
     public function collection()
@@ -40,9 +33,7 @@ class UsersExport implements FromCollection, WithHeadings, WithTitle
             'is_2fa_enabled' => '2FA status',
         ];
 
-        return array_map(function ($column) use ($headingsMap) {
-            return $headingsMap[$column] ?? $column;
-        }, $this->selectedColumns);
+        return array_map(fn($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
     }
 
     public function title(): string

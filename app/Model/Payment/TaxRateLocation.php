@@ -16,6 +16,6 @@ class TaxRateLocation extends BaseModel
 
     public function taxRate()
     {
-        return $this->belongsTo(\App\Model\Payment\TaxRate::class, 'tax_rate_id');
+        return $this->belongsTo(TaxRate::class, 'tax_rate_id');
     }
 }

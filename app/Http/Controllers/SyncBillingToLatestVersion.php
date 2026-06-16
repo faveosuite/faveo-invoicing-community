@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Cache;
 use App\Model\Common\Setting;
 use App\Model\Mailjob\QueueService;
 use Artisan;
@@ -30,7 +31,7 @@ class SyncBillingToLatestVersion
             }
 
             // Setting::first()->update(['version'=> 'v'.$latestVersion]);
-            \DB::table('settings')->update(['version' => 'v'.$latestVersion]);
+            DB::table('settings')->update(['version' => 'v'.$latestVersion]);
 
             $this->cacheDbVersion();
             $this->clearViewCache();
@@ -56,7 +57,7 @@ class SyncBillingToLatestVersion
                 $this->writeToEnvAndRunConfigClear('DB_ENGINE', 'InnoDB');
                 $tables = DB::select('SHOW TABLES');
                 foreach ($tables as $table) {
-                    foreach ($table as $key => $value) {
+                    foreach ($table as $value) {
                         DB::statement('ALTER TABLE '.$value.' ENGINE = InnoDB');
                     }
                 }
@@ -85,11 +86,11 @@ class SyncBillingToLatestVersion
 
     private function cacheDbVersion()
     {
-        $filesystemVersion = \Config::get('app.version');
-        \Cache::forget($filesystemVersion);
-        $dbversion = \Cache::remember($filesystemVersion, 3600, function () {//Caching version for 1 hr
-            return Setting::first()->value('version');
-        });
+        $filesystemVersion = Config::get('app.version');
+        Cache::forget($filesystemVersion);
+        $dbversion = Cache::remember($filesystemVersion, 3600, 
+            //Caching version for 1 hr
+            fn() => Setting::first()->value('version'));
     }
 
     private function getPHPCompatibleVersionString(string $version): string
@@ -104,7 +105,7 @@ class SyncBillingToLatestVersion
         }
 
         $olderVersion = Setting::first()->version;
-        $olderVersion = $olderVersion ? $olderVersion : 'v0.0.0';
+        $olderVersion = $olderVersion ?: 'v0.0.0';
 
         return $this->getPHPCompatibleVersionString($olderVersion);
     }
@@ -144,7 +145,7 @@ class SyncBillingToLatestVersion
     private function updateMigrationTable(string $olderVersion)
     {
         if ($olderVersion != '0.0.0') {
-            \Artisan::call('migrate', ['--force' => true]);
+            Artisan::call('migrate', ['--force' => true]);
         }
     }
 

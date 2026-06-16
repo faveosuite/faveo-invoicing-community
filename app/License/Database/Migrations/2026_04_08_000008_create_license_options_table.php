@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('license_options', function (Blueprint $table) {
+        Schema::create('license_options', function (Blueprint $table): void {
             $table->id();
             $table->string('option_key')->index();
             $table->text('option_value')->nullable();

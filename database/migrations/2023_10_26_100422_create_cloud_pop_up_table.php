@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('cloud_pop_up', function (Blueprint $table) {
+        Schema::create('cloud_pop_up', function (Blueprint $table): void {
             $table->id();
             $table->binary('cloud_top_message');
             $table->binary('cloud_label_field');

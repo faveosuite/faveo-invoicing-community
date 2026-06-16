@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Override;
 use App\Events\UserOrderDelete;
 use App\Helper\PdfManager\FaveoBrowserShot;
 use App\Listeners\CloudDeletion;
@@ -25,9 +26,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
 
-        Validator::extend('no_http', function ($attribute, $value, $parameters, $validator) {
-            return strpos($value, 'http://') === false && strpos($value, 'https://') === false;
-        });
+        Validator::extend('no_http', fn($attribute, $value, $parameters, $validator) => !str_contains((string) $value, 'http://') && !str_contains((string) $value, 'https://'));
 
         Collection::macro('paginate', function ($perPage, $total = null, $page = null, $pageName = 'page') {
             $page = $page ?: LengthAwarePaginator::resolveCurrentPage($pageName);
@@ -55,16 +54,10 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
+    #[Override]
     public function register()
     {
         $this->app->singleton(NewsletterManager::class);
-
-        $this->app->alias('bugsnag.logger', \Illuminate\Contracts\Logging\Log::class);
-        $this->app->alias('bugsnag.logger', \Psr\Log\LoggerInterface::class);
-
-        $this->app->bind('\Symfony\Component\Mailer\MailerInterface::class', 'ProviderRepository');
-
-        // $this->app->bind('\Symfony\Component\Mailer\MailerInterface::class',  'Illuminate\Foundation\ProviderRepository::class');
     }
 
     /**
@@ -79,13 +72,13 @@ class AppServiceProvider extends ServiceProvider
             string $directory,
             array $excludedFiles = [],
             array $excludedFolders = []
-        ) {
+        ): void {
             if (! File::isDirectory($directory)) {
                 return;
             }
 
-            $excludedFiles = array_map('basename', $excludedFiles);
-            $excludedFolders = array_map('basename', $excludedFolders);
+            $excludedFiles = array_map(basename(...), $excludedFiles);
+            $excludedFolders = array_map(basename(...), $excludedFolders);
 
             // Remove files
             foreach (File::files($directory) as $file) {

@@ -2,6 +2,10 @@
 
 namespace Tests\Unit;
 
+use Mail;
+use Symfony\Component\Mime\Email;
+use Swift_Events_EventListener;
+
 /**
  * tracks outgoing mails
  * NOTE: if mails has been sent in a queue and that queue has been mocked then, email assertions will
@@ -15,7 +19,7 @@ trait MailTracker
     public function setUpForMailTracker()
     {
         parent::setUp();
-        \Mail::getSymfonyTransport()
+        Mail::getSymfonyTransport()
                 ->registerPlugin(new TestingMailEventListener($this));
     }
 
@@ -36,18 +40,16 @@ trait MailTracker
         );
     }
 
-    public function addEmail(\Symfony\Component\Mime\Email $email)
+    public function addEmail(Email $email)
     {
         $this->emails[] = $email;
     }
 }
-class TestingMailEventListener implements \Swift_Events_EventListener
-{
-    protected $test;
 
-    public function __construct($testClass)
+class TestingMailEventListener implements Swift_Events_EventListener
+{
+    public function __construct(protected $test)
     {
-        $this->test = $testClass;
     }
 
     public function beforeSendPerformed($event)

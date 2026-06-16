@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Common\Sms;
 
+use Log;
+use Illuminate\Support\Facades\Date;
+use Exception;
+use Logger;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Msg91Status;
 use App\Model\Common\MsgDeliveryReports;
 use App\Model\Common\StatusSetting;
 use App\ThirdPartyApp;
-use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 
@@ -37,11 +40,12 @@ class MSG91Controller extends Controller
         if (! $this->validateThirdPartyRequest($app_key, $app_secret)) {
             return;
         }
+
         try {
             $jsonData = $request->input('data');
 
             if (empty($jsonData)) {
-                \Log::warning('MSG91 webhook received empty data', $request->all());
+                Log::warning('MSG91 webhook received empty data', $request->all());
 
                 return;
             }
@@ -49,19 +53,19 @@ class MSG91Controller extends Controller
             // Ensure data is an array
             $reports = is_string($jsonData) ? collect(json_decode($jsonData, true)) : collect($jsonData);
 
-            $reports->each(function ($reportGroup) {
-                collect($reportGroup['report'])->each(function ($singleReport) use ($reportGroup) {
+            $reports->each(function ($reportGroup): void {
+                collect($reportGroup['report'])->each(function ($singleReport) use ($reportGroup): void {
                     $this->processIndividualReport([
                         'request_id' => $reportGroup['requestId'],
                         'number' => $singleReport['number'],
                         'status' => $singleReport['status'],
-                        'date' => Carbon::parse($singleReport['date'], 'Asia/Kolkata')->timezone('UTC')->toDateTimeString() ?? now()->utc()->toDateTimeString(),
+                        'date' => Date::parse($singleReport['date'], 'Asia/Kolkata')->timezone('UTC')->toDateTimeString() ?? now()->utc()->toDateTimeString(),
                         'failure_reason' => $singleReport['failedReason'] ?? null,
                     ]);
                 });
             });
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return;
         }
@@ -179,11 +183,11 @@ class MSG91Controller extends Controller
 
             // Search filter
             if (! empty($searchString)) {
-                $baseQuery->where(function ($q) use ($searchString) {
+                $baseQuery->where(function ($q) use ($searchString): void {
                     $q->where('request_id', 'like', "%$searchString%")
                         ->orWhere('mobile_number', 'like', "%$searchString%")
                         ->orWhereHas('readableStatus', fn ($q) => $q->where('status_label', 'like', "%$searchString%"))
-                        ->orWhereHas('user', function ($sub) use ($searchString) {
+                        ->orWhereHas('user', function ($sub) use ($searchString): void {
                             $sub->where('email', 'like', "%$searchString%")
                                 ->orWhere('user_name', 'like', "%$searchString%")
                                 ->orWhere('first_name', 'like', "%$searchString%")
@@ -221,7 +225,7 @@ class MSG91Controller extends Controller
             });
 
             return successResponse(__('message.msg91_reports_fetched'), $logs);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
@@ -236,7 +240,7 @@ class MSG91Controller extends Controller
                 ->distinct()->orderBy('action')->pluck('action');
 
             return successResponse('', compact('statuses', 'sources', 'actions'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -251,12 +255,12 @@ class MSG91Controller extends Controller
         $search = $this->request->input('search-query');
 
         if (! empty($search)) {
-            $query->where(function ($q) use ($search) {
+            $query->where(function ($q) use ($search): void {
                 $q->where('request_id', 'like', "%$search%")
-                    ->orWhereHas('readableStatus', function ($q) use ($search) {
+                    ->orWhereHas('readableStatus', function ($q) use ($search): void {
                         $q->where('status_label', 'like', "%$search%");
                     })
-                    ->orWhereHas('user', function ($sub) use ($search) {
+                    ->orWhereHas('user', function ($sub) use ($search): void {
                         $sub->where('email', 'like', "%$search%")
                             ->orWhere('user_name', 'like', "%$search%")
                             ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"]);
@@ -276,62 +280,62 @@ class MSG91Controller extends Controller
 
         return $query
             // Request ID Filter
-            ->when($request->filled('request_id'), function ($q) use ($request) {
+            ->when($request->filled('request_id'), function ($q) use ($request): void {
                 $q->where('request_id', 'like', '%'.$request->request_id.'%');
             })
 
             // Full Name Filter
-            ->when($request->filled('full_name'), function ($q) use ($request) {
-                $q->whereHas('user', function ($subQuery) use ($request) {
+            ->when($request->filled('full_name'), function ($q) use ($request): void {
+                $q->whereHas('user', function ($subQuery) use ($request): void {
                     $subQuery->whereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ['%'.$request->full_name.'%']);
                 });
             })
 
             // Email Filter
-            ->when($request->filled('email'), function ($q) use ($request) {
-                $q->whereHas('user', function ($subQuery) use ($request) {
+            ->when($request->filled('email'), function ($q) use ($request): void {
+                $q->whereHas('user', function ($subQuery) use ($request): void {
                     $subQuery->where('email', 'like', '%'.$request->email.'%');
                 });
             })
 
             // Mobile Number Filter
-            ->when($request->filled('mobile_number'), function ($q) use ($request) {
-                $q->when($request->filled('country_iso'), function ($q) use ($request) {
+            ->when($request->filled('mobile_number'), function ($q) use ($request): void {
+                $q->when($request->filled('country_iso'), function ($q) use ($request): void {
                     $q->where('country_iso', $request->country_iso);
                 })->where('mobile_number', 'like', '%'.$request->mobile_number.'%');
             })
 
             // Status Filter
-            ->when($request->filled('status'), function ($q) use ($request) {
-                $q->whereHas('readableStatus', function ($subQuery) use ($request) {
+            ->when($request->filled('status'), function ($q) use ($request): void {
+                $q->whereHas('readableStatus', function ($subQuery) use ($request): void {
                     $subQuery->where('status_label', 'like', '%'.$request->status.'%');
                 });
             })
 
             // Source Filter
-            ->when($request->filled('source'), function ($q) use ($request) {
+            ->when($request->filled('source'), function ($q) use ($request): void {
                 $q->where('source', 'like', '%'.$request->source.'%');
             })
 
             // Action Filter
-            ->when($request->filled('action'), function ($q) use ($request) {
+            ->when($request->filled('action'), function ($q) use ($request): void {
                 $q->where('action', 'like', '%'.$request->action.'%');
             })
 
             // Failure Reason Filter
-            ->when($request->filled('failure_reason'), function ($q) use ($request) {
+            ->when($request->filled('failure_reason'), function ($q) use ($request): void {
                 $q->where('failure_reason', 'like', '%'.$request->failure_reason.'%');
             })
 
             // Date Range Filter (with safe logic)
-            ->when($from || $till, function ($q) use ($from, $till) {
+            ->when($from || $till, function ($q) use ($from, $till): void {
                 $from = $from
-                    ? Carbon::parse($from)->startOfDay()
+                    ? Date::parse($from)->startOfDay()
                     : CarbonImmutable::startOfTime();
 
                 $till = $till
-                    ? Carbon::parse($till)->endOfDay()
-                    : Carbon::now();
+                    ? Date::parse($till)->endOfDay()
+                    : Date::now();
 
                 if ($from->lessThanOrEqualTo($till)) {
                     $q->whereBetween('created_at', [$from, $till]);

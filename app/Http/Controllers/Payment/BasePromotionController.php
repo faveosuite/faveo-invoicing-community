@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Payment;
 
+use Illuminate\Support\Str;
+use Exception;
+use Lang;
+use App\Http\Controllers\Front\CartController;
+use Session;
 use App\Http\Controllers\Controller;
 use App\Model\Payment\Promotion;
 
@@ -10,8 +15,8 @@ class BasePromotionController extends Controller
     public function getCode()
     {
         try {
-            return successResponse('', strtoupper(str_random(6)));
-        } catch (\Exception $ex) {
+            return successResponse('', strtoupper(Str::random(6)));
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -27,42 +32,46 @@ class BasePromotionController extends Controller
                     return  $price - $percentage;
                 case 2://Fixed amount
                     if ($value > $price) {
-                        throw new \Exception(__('message.invalid_coupon_code'));
+                        throw new Exception(__('message.invalid_coupon_code'));
                     } else {
                         return $price - $value;
                     }
             }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
     public function getPromotionDetails($code)
     {
         if (empty($code)) {
-            throw new \Exception(__('message.no_coupon_code_applied'));
+            throw new Exception(__('message.no_coupon_code_applied'));
         }
+
         $promo = Promotion::where('code', $code)->first();
         //check promotion code is valid
         if (! $promo) {
-            throw new \Exception(__('message.invalid_coupon_code'));
+            throw new Exception(__('message.invalid_coupon_code'));
         }
+
         $relation = $promo->relation()->get();
         //check the relation between code and product
         if (count($relation) == 0) {
-            throw new \Exception(\Lang::get('message.no-product-related-to-this-code'));
+            throw new Exception(Lang::get('message.no-product-related-to-this-code'));
         }
+
         //check the usess
-        $cont = new \App\Http\Controllers\Payment\PromotionController();
+        $cont = new PromotionController();
         $uses = $cont->checkNumberOfUses($code);
 
         if ($uses != 'success') {
-            throw new \Exception(\Lang::get('message.usage-of-code-completed'));
+            throw new Exception(Lang::get('message.usage-of-code-completed'));
         }
+
         //check for the expiry date
         $expiry = $this->checkExpiry($code);
         if ($expiry != 'success') {
-            throw new \Exception(\Lang::get('message.usage-of-code-expired'));
+            throw new Exception(Lang::get('message.usage-of-code-expired'));
         }
 
         return $promo;
@@ -73,17 +82,18 @@ class BasePromotionController extends Controller
         try {
             $planid = '';
             $promotion = Promotion::findOrFail($promoid);
-            $cart_control = new \App\Http\Controllers\Front\CartController();
+            $cart_control = new CartController();
             if (checkPlanSession()) {
-                $planid = \Session::get('plan');
+                $planid = Session::get('plan');
             }
+
             $price = $cart_control->planCost($productid, $userid, $planid);
-            \Session::put('oldPrice', $price);
+            Session::put('oldPrice', $price);
             $updated_price = $this->findCost($promotion->type, $promotion->value, $price, $productid);
 
             return $updated_price;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 }

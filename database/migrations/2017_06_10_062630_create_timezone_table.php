@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('timezone')) {
-            Schema::create('timezone', function (Blueprint $table) {
+            Schema::create('timezone', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('name')->nullable();
                 $table->string('location')->nullable();

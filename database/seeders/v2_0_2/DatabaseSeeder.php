@@ -2,10 +2,8 @@
 
 namespace Database\Seeders\v2_0_2;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Model\Common\TemplateType;
-use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use DB;
 

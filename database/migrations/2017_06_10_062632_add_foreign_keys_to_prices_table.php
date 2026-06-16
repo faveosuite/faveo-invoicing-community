@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('prices', function (Blueprint $table) {
+        Schema::table('prices', function (Blueprint $table): void {
             // Fetch all indexes for the prices table
             $indexes = DB::select('SHOW INDEX FROM prices');
 
@@ -45,7 +45,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('prices', function (Blueprint $table) {
+        Schema::table('prices', function (Blueprint $table): void {
             $table->dropForeign('prices_product_id_foreign');
         });
     }

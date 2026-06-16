@@ -2,6 +2,7 @@
 
 namespace App\License\Controllers\Admin;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\LicenseBannedHost;
@@ -38,10 +39,12 @@ class BannedHostController extends Controller
         if (empty($banned_host_ip)) {
             return errorResponse(Lang::get('lang.banned_empty'), 400);
         }
+
         $whitelistIpExists = LicenseWhitelistIp::where('whitelist_host_ip', $banned_host_ip)->exists();
         if ($whitelistIpExists) {
             return errorResponse(Lang::get('lang.banned_ip_in_whitelist'), 400);
         }
+
         $banned = new LicenseBannedHost([
             'banned_host_ip' => $banned_host_ip,
             'comments' => $comments,
@@ -70,13 +73,16 @@ class BannedHostController extends Controller
         empty($rows_array = LicenseBannedHost::where('id', $id)->get()->toArray())) { //invalid record
             return errorResponse(Lang::get('lang.banned_host_not_found'), 404);
         }
+
         if (empty($banned_host_ip)) {
             return errorResponse(Lang::get('lang.banned_empty'), 400);
         }
+
         $whitelistIpExists = LicenseWhitelistIp::where('whitelist_host_ip', $banned_host_ip)->exists();
         if ($whitelistIpExists) {
             return errorResponse(Lang::get('lang.banned_ip_in_whitelist'), 400);
         }
+
         $banned = LicenseBannedHost::where('id', $id)->update([
             'banned_host_ip' => $banned_host_ip,
             'comments' => $comments,
@@ -115,7 +121,7 @@ class BannedHostController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
 
-        $banned = LicenseBannedHost::where(function ($query) use ($searchQuery) {
+        $banned = LicenseBannedHost::where(function (Builder $query) use ($searchQuery): void {
             $query->where('banned_host_ip', 'LIKE', '%'.$searchQuery.'%')
                 ->orWhere('comments', 'LIKE', '%'.$searchQuery.'%');
         })

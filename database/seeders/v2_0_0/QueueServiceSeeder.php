@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\v2_0_0;
 
+use App\Model\Mailjob\QueueService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +19,7 @@ class QueueServiceSeeder extends Seeder
         DB::table('queue_services')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        \App\Model\Mailjob\QueueService::create([
+        QueueService::create([
             'id' => 1,
             'name' => 'Sync',
             'short_name' => 'sync',
@@ -28,7 +29,7 @@ class QueueServiceSeeder extends Seeder
 
         ]);
 
-        \App\Model\Mailjob\QueueService::create([
+        QueueService::create([
             'id' => 2,
             'name' => 'Database',
             'short_name' => 'database',
@@ -38,7 +39,7 @@ class QueueServiceSeeder extends Seeder
 
         ]);
 
-        \App\Model\Mailjob\QueueService::create([
+        QueueService::create([
             'id' => 3,
             'name' => 'Beanstalkd',
             'short_name' => 'beanstalkd',
@@ -48,7 +49,7 @@ class QueueServiceSeeder extends Seeder
 
         ]);
 
-        \App\Model\Mailjob\QueueService::create([
+        QueueService::create([
             'id' => 4,
             'name' => 'SQS',
             'short_name' => 'sqs',
@@ -58,7 +59,7 @@ class QueueServiceSeeder extends Seeder
 
         ]);
 
-        \App\Model\Mailjob\QueueService::create([
+        QueueService::create([
             'id' => 5,
             'name' => 'Iron',
             'short_name' => 'iron',
@@ -68,7 +69,7 @@ class QueueServiceSeeder extends Seeder
 
         ]);
 
-        \App\Model\Mailjob\QueueService::create([
+        QueueService::create([
             'id' => 6,
             'name' => 'Redis',
             'short_name' => 'redis',

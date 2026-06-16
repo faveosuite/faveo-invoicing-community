@@ -2,6 +2,9 @@
 
 namespace App\Model\Payment;
 
+use App\Model\Product\Product;
+use Override;
+use DB;
 use App\BaseModel;
 use App\Model\Configure\ConfigOption;
 use App\Traits\SystemActivityLogsTrait;
@@ -32,7 +35,7 @@ class Plan extends BaseModel
     {
         return [
             'name' => ['Plan Name', fn ($value) => $value],
-            'product' => ['Product', fn ($value) => \App\Model\Product\Product::find($value)?->name],
+            'product' => ['Product', fn ($value) => Product::find($value)?->name],
             'allow_tax' => ['Allow Tax', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
             'days' => ['Plan Days', fn ($value) => $value],
             'status' => ['Status', fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
@@ -41,22 +44,23 @@ class Plan extends BaseModel
 
     public function planPrice()
     {
-        return $this->hasMany(\App\Model\Payment\PlanPrice::class);
+        return $this->hasMany(PlanPrice::class);
     }
 
     public function productRelation()
     {
-        return $this->belongsTo(\App\Model\Product\Product::class, 'product', 'id');
+        return $this->belongsTo(Product::class, 'product', 'id');
     }
 
     public function periods()
     {
-        return $this->belongstoMany(\App\Model\Payment\Period::class, 'plans_periods_relation')->withTimestamps();
+        return $this->belongstoMany(Period::class, 'plans_periods_relation')->withTimestamps();
     }
 
+    #[Override]
     public function delete()
     {
-        return \DB::transaction(function () {
+        return DB::transaction(function () {
             $this->planPrice()->delete();
 
             return parent::delete();

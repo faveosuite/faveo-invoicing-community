@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use Log;
 use App\Http\Controllers\Controller;
-use App\Model\Order\Order;
-use App\Model\Product\Product;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -48,7 +47,7 @@ class ApiController extends Controller
 
         $json = json_decode($content, true);
 
-        \Log::channel('csp')->info('CSP Report Received', $json ?? ['raw' => $content]);
+        Log::channel('csp')->info('CSP Report Received', $json ?? ['raw' => $content]);
 
         return successResponse('CSP report received successfully', 200);
     }

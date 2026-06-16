@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Tests\Integrations\Crm\Controllers;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\ZohoCrmController;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
@@ -213,7 +214,7 @@ class ZohoCrmControllerTest extends DBTestCase
 
     public function test_it_throws_exception_when_user_not_found()
     {
-        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->expectException(ModelNotFoundException::class);
 
         $this->controller->addUserDataToCrm('nonexistent@example.com');
     }
@@ -247,8 +248,6 @@ class ZohoCrmControllerTest extends DBTestCase
 
         $this->controller->addUserDataToCrm('user@example.com');
 
-        Http::assertSent(function ($request) {
-            return str_contains($request->url(), 'Contacts');
-        });
+        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'Contacts'));
     }
 }

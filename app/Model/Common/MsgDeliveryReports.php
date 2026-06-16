@@ -23,6 +23,7 @@ class MsgDeliveryReports extends Model
         'source',
         'action',
     ];
+
     protected $appends = ['formatted_sender_id'];
 
     public function readableStatus()
@@ -30,7 +31,7 @@ class MsgDeliveryReports extends Model
         return $this->belongsTo(Msg91Status::class, 'status', 'status_code');
     }
 
-    public function getFormattedSenderIdAttribute()
+    protected function getFormattedSenderIdAttribute()
     {
         return strtoupper($this->sender_id);
     }

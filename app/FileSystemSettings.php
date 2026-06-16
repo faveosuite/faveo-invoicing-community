@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class FileSystemSettings extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'settings_filesystem';
 
     protected $fillable = [

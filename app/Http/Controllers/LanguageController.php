@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use Config;
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
 use Illuminate\Http\Request;
@@ -77,7 +79,7 @@ class LanguageController extends Controller
     {
         $files = $this->getLanguageFileArray($path);
         foreach ($files as $file) {
-            $name = basename($file, '.php');
+            $name = basename((string) $file, '.php');
             if (array_key_exists($name, $languageArray)) {
                 $languageArray[$name] = array_merge($languageArray[$name], require $file);
             } else {
@@ -103,7 +105,7 @@ class LanguageController extends Controller
             $sortField = $request->input('sort-field', 'name');
             $limit = $request->input('limit', 10);
 
-            $languages = Language::when($searchString, function ($query) use ($searchString) {
+            $languages = Language::when($searchString, function ($query) use ($searchString): void {
                 $query->where('name', 'like', "%$searchString%")
                     ->orWhere('locale', 'like', "%$searchString%");
             })
@@ -119,7 +121,7 @@ class LanguageController extends Controller
             }, $result['data']);
 
             return successResponse(__('message.language_fetched'), $result);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -128,8 +130,8 @@ class LanguageController extends Controller
     {
         try {
             $request->validate([
-                'locale' => 'required|string|exists:languages,locale',
-                'status' => 'required|boolean',
+                'locale' => ['required', 'string', 'exists:languages,locale'],
+                'status' => ['required', 'boolean'],
             ]);
 
             $language = Language::where('locale', $request->input('locale'))->firstOrFail();
@@ -137,7 +139,7 @@ class LanguageController extends Controller
             $language->save();
 
             return successResponse(__('message.language_status_updated_successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -145,14 +147,14 @@ class LanguageController extends Controller
     public function setDefaultLanguage(Request $request)
     {
         try {
-            $request->validate(['locale' => 'required|string|exists:languages,locale']);
+            $request->validate(['locale' => ['required', 'string', 'exists:languages,locale']]);
 
             $setting = Setting::first();
             $setting->content = $request->input('locale');
             $setting->save();
 
             return successResponse(__('message.language_set_as_default'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -160,13 +162,13 @@ class LanguageController extends Controller
     public function fetchLangDropdownUsers()
     {
         try {
-            $languageList = array_map('basename', File::directories(lang_path()));
+            $languageList = array_map(basename(...), File::directories(lang_path()));
             $dbLanguages = Language::all()->keyBy('locale');
 
             $languages = [];
 
             foreach ($languageList as $key => $langLocale) {
-                $languageConfig = \Config::get("languages.$langLocale", ['', '']);
+                $languageConfig = Config::get("languages.$langLocale", ['', '']);
 
                 $languages[] = [
                     'id' => $key,
@@ -180,7 +182,7 @@ class LanguageController extends Controller
             $languages = collect($languages)->sortBy('name')->values()->all();
 
             return successResponse(__('message.language_fetched'), $languages);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }

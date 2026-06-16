@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('conditions')) {
-            Schema::create('conditions', function (Blueprint $table) {
+            Schema::create('conditions', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('job', 255)->nullable();
                 $table->string('value', 255)->nullable();

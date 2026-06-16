@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('installation_logs', function (Blueprint $table) {
+        Schema::create('installation_logs', function (Blueprint $table): void {
             $table->id();
             $table->string('license_code')->index();
             $table->string('version_number')->nullable();

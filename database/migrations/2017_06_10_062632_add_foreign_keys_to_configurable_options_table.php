@@ -28,7 +28,7 @@ return new class extends Migration
 
         // If the foreign key does not exist, add it
         if (! $foreignKeyExists) {
-            Schema::table('configurable_options', function (Blueprint $table) {
+            Schema::table('configurable_options', function (Blueprint $table): void {
                 $table->foreign('group_id')
                     ->references('id')
                     ->on('product_groups')
@@ -45,7 +45,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('configurable_options', function (Blueprint $table) {
+        Schema::table('configurable_options', function (Blueprint $table): void {
             $table->dropForeign('configurable_options_group_id_foreign');
         });
     }

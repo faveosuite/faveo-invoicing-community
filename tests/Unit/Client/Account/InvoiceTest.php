@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Client\Account;
 
+use Exception;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use Tests\DBTestCase;
@@ -16,7 +17,7 @@ class InvoiceTest extends DBTestCase
     #[Group('ClientController')]
     public function test_Invoices()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->withoutMiddleware();
         $this->getLoggedInUser();
         $user = $this->user;
@@ -38,6 +39,6 @@ class InvoiceTest extends DBTestCase
             'items' => $invoiceItem,
             'user' => $user,
         ]);
-        $response->setExpectedException(\Exception::class);
+        $response->setExpectedException(Exception::class);
     }
 }

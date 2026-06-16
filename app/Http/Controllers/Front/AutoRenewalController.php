@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Front;
 
+use Auth;
+use Exception;
+use Logger;
 use App\Auto_renewal;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
@@ -28,7 +31,7 @@ class AutoRenewalController extends Controller
     public function stripeSession(Request $request, int $order)
     {
         $order = $this->authorizedOrder($order);
-        $currency = getCurrencyForClient(\Auth::user()->country);
+        $currency = getCurrencyForClient(Auth::user()->country);
         $amount = getMinimumAmountForPayments($currency, 'stripe');
         $symbol = Currency::where('code', $currency)->value('symbol') ?? $currency;
 
@@ -43,7 +46,7 @@ class AutoRenewalController extends Controller
                 'display_amount' => $amount,
                 'currency_symbol' => $symbol,
             ]));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -69,14 +72,15 @@ class AutoRenewalController extends Controller
 
             try {
                 $this->payments->manager()->gateway('Stripe')->refundPayment($paymentIntentId);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Already refunded on a prior attempt — log and continue.
                 $this->logPayment($order, 'stripe', 'refund_skipped', $e->getMessage());
             }
+
             $this->saveRenewal($order, 'stripe', $paymentIntentId);
 
             return successResponse(__('message.card_details_updated_successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logPayment($order, 'stripe', 'failed', $e->getMessage());
 
             return errorResponse(__('message.something_different_payment'));
@@ -94,7 +98,7 @@ class AutoRenewalController extends Controller
             $session = $this->payments->start('Razorpay', $this->buildRequest($order, 'razorpay'));
 
             return successResponse('', $session->clientConfig);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -121,7 +125,7 @@ class AutoRenewalController extends Controller
             $this->saveRenewal($order, 'razorpay', $request->input('razorpay_payment_id'));
 
             return successResponse(__('message.card_details_updated_successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logPayment($order, 'razorpay', 'failed', $e->getMessage());
 
             return errorResponse($e->getMessage());
@@ -141,7 +145,7 @@ class AutoRenewalController extends Controller
             $this->cancelSubscription($subscription);
 
             return successResponse(__('message.auto_subscription_disabled'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -158,7 +162,7 @@ class AutoRenewalController extends Controller
 
     private function buildRequest(Order $order, string $gateway, string $nonce = ''): GatewayPaymentRequest
     {
-        $user = \Auth::user();
+        $user = Auth::user();
         $currency = getCurrencyForClient($user->country);
 
         $amount = getMinimumAmountForPayments($currency, $gateway);
@@ -187,7 +191,7 @@ class AutoRenewalController extends Controller
     private function saveRenewal(Order $order, string $gateway, string $paymentRef): void
     {
         Auto_renewal::create([
-            'user_id' => \Auth::user()->id,
+            'user_id' => Auth::user()->id,
             'customer_id' => $paymentRef,
             'payment_method' => $gateway,
             'order_id' => $order->id,
@@ -205,15 +209,15 @@ class AutoRenewalController extends Controller
 
     private function cancelSubscription(Subscription $subscription): void
     {
-        $service = app(SubscriptionService::class);
+        $service = resolve(SubscriptionService::class);
 
         if ($subscription->subscribe_id) {
             $gateway = $subscription->rzp_subscription ? 'Razorpay' : 'Stripe';
             try {
                 $service->cancelSubscription($gateway, $subscription->subscribe_id);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Already cancelled at gateway — continue to reset local state
-                \Logger::warning("Subscription cancel skipped [{$gateway}]: ".$e->getMessage());
+                Logger::warning("Subscription cancel skipped [{$gateway}]: ".$e->getMessage());
             }
         }
 
@@ -227,8 +231,8 @@ class AutoRenewalController extends Controller
 
     private function logPayment(Order $order, string $gateway, string $status, string $note = ''): void
     {
-        (new PhpMailController())->payment_log(
-            \Auth::user()->email, $gateway, $status, $order->number, $note ?: null, 0, 'Payment method updated'
+        new PhpMailController()->payment_log(
+            Auth::user()->email, $gateway, $status, $order->number, $note ?: null, 0, 'Payment method updated'
         );
     }
 }

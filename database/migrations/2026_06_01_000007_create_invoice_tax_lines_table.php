@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('invoice_tax_lines')) {
-            Schema::create('invoice_tax_lines', function (Blueprint $table) {
+            Schema::create('invoice_tax_lines', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->unsignedInteger('invoice_id');
                 $table->unsignedInteger('invoice_item_id')->nullable();

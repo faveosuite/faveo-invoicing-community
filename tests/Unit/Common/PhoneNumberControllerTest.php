@@ -2,6 +2,9 @@
 
 namespace Tests\Unit\Common;
 
+use libphonenumber\PhoneNumberType;
+use libphonenumber\NumberParseException;
+use libphonenumber\PhoneNumberUtil;
 use App\Http\Controllers\Common\PhoneNumberController;
 use Tests\DBTestCase;
 
@@ -584,7 +587,7 @@ class PhoneNumberControllerTest extends DBTestCase
         $result = $this->getPrivateMethod(
             $this->controller,
             'getNumberTypeName',
-            [\libphonenumber\PhoneNumberType::MOBILE]
+            [PhoneNumberType::MOBILE]
         );
 
         $this->assertEquals('MOBILE', $result);
@@ -595,7 +598,7 @@ class PhoneNumberControllerTest extends DBTestCase
         $result = $this->getPrivateMethod(
             $this->controller,
             'getNumberTypeName',
-            [\libphonenumber\PhoneNumberType::FIXED_LINE]
+            [PhoneNumberType::FIXED_LINE]
         );
 
         $this->assertEquals('FIXED_LINE', $result);
@@ -606,7 +609,7 @@ class PhoneNumberControllerTest extends DBTestCase
         $result = $this->getPrivateMethod(
             $this->controller,
             'getNumberTypeName',
-            [\libphonenumber\PhoneNumberType::TOLL_FREE]
+            [PhoneNumberType::TOLL_FREE]
         );
 
         $this->assertEquals('TOLL_FREE', $result);
@@ -617,7 +620,7 @@ class PhoneNumberControllerTest extends DBTestCase
         $result = $this->getPrivateMethod(
             $this->controller,
             'getNumberTypeName',
-            [\libphonenumber\PhoneNumberType::VOIP]
+            [PhoneNumberType::VOIP]
         );
 
         $this->assertEquals('VOIP', $result);
@@ -628,7 +631,7 @@ class PhoneNumberControllerTest extends DBTestCase
         $result = $this->getPrivateMethod(
             $this->controller,
             'getErrorMessage',
-            [\libphonenumber\NumberParseException::INVALID_COUNTRY_CODE]
+            [NumberParseException::INVALID_COUNTRY_CODE]
         );
 
         $this->assertEquals('Invalid country calling code', $result);
@@ -639,7 +642,7 @@ class PhoneNumberControllerTest extends DBTestCase
         $result = $this->getPrivateMethod(
             $this->controller,
             'getErrorMessage',
-            [\libphonenumber\NumberParseException::NOT_A_NUMBER]
+            [NumberParseException::NOT_A_NUMBER]
         );
 
         $this->assertEquals('The string does not appear to be a phone number', $result);
@@ -650,7 +653,7 @@ class PhoneNumberControllerTest extends DBTestCase
         $result = $this->getPrivateMethod(
             $this->controller,
             'getErrorMessage',
-            [\libphonenumber\NumberParseException::TOO_SHORT_NSN]
+            [NumberParseException::TOO_SHORT_NSN]
         );
 
         $this->assertEquals('Phone number is too short', $result);
@@ -661,7 +664,7 @@ class PhoneNumberControllerTest extends DBTestCase
         $result = $this->getPrivateMethod(
             $this->controller,
             'getErrorMessage',
-            [\libphonenumber\NumberParseException::TOO_LONG]
+            [NumberParseException::TOO_LONG]
         );
 
         $this->assertEquals('Phone number is too long', $result);
@@ -672,7 +675,7 @@ class PhoneNumberControllerTest extends DBTestCase
         $result = $this->getPrivateMethod(
             $this->controller,
             'getErrorMessage',
-            [\libphonenumber\NumberParseException::TOO_SHORT_AFTER_IDD]
+            [NumberParseException::TOO_SHORT_AFTER_IDD]
         );
 
         $this->assertEquals('Phone number is too short after International Direct Dialing prefix', $result);
@@ -791,7 +794,7 @@ class PhoneNumberControllerTest extends DBTestCase
         $controller = new PhoneNumberController();
         $phoneUtil = $this->getPrivateProperty($controller, 'phoneUtil');
 
-        $this->assertInstanceOf(\libphonenumber\PhoneNumberUtil::class, $phoneUtil);
+        $this->assertInstanceOf(PhoneNumberUtil::class, $phoneUtil);
     }
 
     public function test_validate_with_national_format_and_country_code()

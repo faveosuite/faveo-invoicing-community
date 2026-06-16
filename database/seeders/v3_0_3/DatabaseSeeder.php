@@ -3,7 +3,6 @@
 namespace Database\Seeders\v3_0_3;
 use Illuminate\Database\Seeder;
 use App\Model\Common\TemplateType;
-use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Demo_page;
 use Illuminate\Support\Facades\DB;
@@ -152,7 +151,7 @@ class TemplateTableSeeder extends Seeder
     </tbody>
     </table>
     <p>&nbsp;</p>']);
-        
+
     Template::where('id',4)->update(['name' => 'Purchase confirmation', 'type' => 7, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
     <tbody>
     <tr>
@@ -230,8 +229,8 @@ class TemplateTableSeeder extends Seeder
     </tbody>
     </table>
     <p>&nbsp;</p>']);
-        
-        
+
+
     Template::where('id',5)->update(['name' => 'Reset your password', 'type' => 2, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
     <tbody>
     <tr>
@@ -358,9 +357,9 @@ class TemplateTableSeeder extends Seeder
 </tbody>
 </table>
 <p>&nbsp;</p>']); 
-        
-       
-            
+
+
+
 Template::where('id',7)->update(['name' => 'URGENT: Order has expired', 'type' => 5, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
@@ -517,7 +516,7 @@ Template::where('id',9)->update(['name' => 'Your New Sales Manager', 'type' => 9
 <p>Regards,</p>
 <p>{{manager_first_name}} {{manager_last_name}}</p>
 <p>Sales Manager,<br />Mobile: {{manager_code}} {{manager_mobile}}<br />Skype ID: {{manager_skype}}<br />Email: {{manager_email}}</p>']);        
-            
+
 Template::where('id',10)->update(['name' => 'Your New Sales Manager', 'type' => 10, 'url' => 'null', 'data' => '<p>Dear {{name}},</p>
 <p>This is {{manager_first_name}} {{manager_last_name}}.</p>
 <p>From now onwards I will be your one point of contact. I will follow up with you as well as with our team. Please feel free to get in touch with me anytime if you have any issues with regard to your account. You can also add me on Skype. My ID is mentioned in my signature. It is a pleasure to have you on board and I look forward to effective conversations with you in future.</p>
@@ -525,8 +524,8 @@ Template::where('id',10)->update(['name' => 'Your New Sales Manager', 'type' => 
 <p>Regards,</p>
 <p>{{manager_first_name}} {{manager_last_name}}</p>
 <p>Account Manager,<br />Mobile: {{manager_code}} {{manager_mobile}}<br />Skype ID: {{manager_skype}}<br />Email: {{manager_email}}</p>']);                
-             
-          
+
+
 Template::where('id',12)->update(['name' => 'Consolidated renewal reminder', 'type' => 12, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
@@ -601,7 +600,7 @@ Template::where('id',12)->update(['name' => 'Consolidated renewal reminder', 'ty
 </tbody>
 </table>
 <p>&nbsp;</p>']); 
-                
+
 Template::where('id',13)->update(['name' => 'Auto payment successfull', 'type' => 13, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
@@ -672,7 +671,7 @@ Template::where('id',13)->update(['name' => 'Auto payment successfull', 'type' =
 </tbody>
 </table>
 <p>&nbsp;</p>']); 
-                
+
 Template::where('id',14)->update(['name' => 'Auto payment failed', 'type' => 14, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
@@ -758,8 +757,8 @@ Template::where('id',15)->delete();
 Template::where('id',16)->delete();
 Template::where('id',17)->delete();
 Template::where('id',18)->delete();
-                
-                
+
+
 Template::where('id',19)->update(['name' => 'URGENT: Order has been deleted', 'type' => 19, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
@@ -891,6 +890,7 @@ Template::create(['id' => 20, 'name' => 'New instance created', 'type' => 20, 'u
 
 
 }
+
 class PricingTemplateSeeder extends Seeder
 {
     public function run()
@@ -903,7 +903,7 @@ class PricingTemplateSeeder extends Seeder
                                 <div class="plan-price">
                        <div class="content-switcher-wrapper">
                                                 <div class="content-switcher left-50pct transform3dx-n50 active" data-content-switcher-id="pricingTable1" data-content-switcher-rel="1">
-                                                
+
                     <span class="price">{{price-year}}</span>
 
                      <span class="strike">{{strike-priceyear}}</span>
@@ -913,11 +913,11 @@ class PricingTemplateSeeder extends Seeder
                     <div>{{url}} </div>                                                 
                                                                     </div>
                                                                     <div class="content-switcher left-50pct transform3dx-n50" data-content-switcher-id="pricingTable1" data-content-switcher-rel="2">
-                                                                        
+
                     <span class="price">{{price}}</span>
                      <span class="strike">{{strike-price}}</span>
                                                                                         <label class="price-label">{{pricemonth-description}}</label><br> <br>                                                                                        
-                                                                            
+
                      <div class="subscription table-responsive">{{subscription}}</div><br>
 
                     <div>{{url}} </div>                                                 
@@ -928,18 +928,18 @@ class PricingTemplateSeeder extends Seeder
 
                                                     </div>
 
-                      
+
                                                     <div class="plan-features">
                                                         <ul>
                                                         <li>{{feature}}</li>
                                                     </ul>
-                                                         
+
                                                     </div>
                                                     <div class="plan-footer">
-                                          
-                                                  
+
+
                                                     </div>
-                                                    
+
                             </div>
                         </div>']);
          DB::table('pricing_templates')->where('id',2)->delete();
@@ -952,16 +952,16 @@ class PricingTemplateSeeder extends Seeder
                  <div class="plan-price">
                  <div class="content-switcher-wrapper">
                                                                 <div class="content-switcher left-50pct transform3dx-n50 active" data-content-switcher-id="pricingTable1" data-content-switcher-rel="1">
-                                                                    
+
                                                                         <span class="price">{{price-year}}</span>
                  <span class="strike">{{strike-priceyear}}</span>
                                                                                     <label class="price-label">{{price-description}}</label><br><br>
                  <div class="subscription">{{subscription}}</div>
                 <br>
                 <div>{{url}} </div>                                                 </div>
-                                                                
+
                                                                 <div class="content-switcher left-50pct transform3dx-n50" data-content-switcher-id="pricingTable1" data-content-switcher-rel="2">
-                                                                    
+
                                                                         <span class="price">{{price}}</span>
 
                  <span class="strike">{{strike-price}}</span>                                                                   <label class="price-label">{{pricemonth-description}}</label><br><br>
@@ -978,13 +978,13 @@ class PricingTemplateSeeder extends Seeder
                  <ul>
                  <li>{{feature}}</li>
                  </ul>
-                 
+
                  </div>
                  <div class="plan-footer">
 
-                 
+
                  </div>
-                 
+
                  </div>
                  </div>']);
     }

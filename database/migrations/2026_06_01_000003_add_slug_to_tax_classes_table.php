@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (Schema::hasTable('tax_classes') && ! Schema::hasColumn('tax_classes', 'slug')) {
-            Schema::table('tax_classes', function (Blueprint $table) {
+            Schema::table('tax_classes', function (Blueprint $table): void {
                 $table->string('slug', 200)->default('')->after('name');
             });
         }
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down()
     {
         if (Schema::hasColumn('tax_classes', 'slug')) {
-            Schema::table('tax_classes', function (Blueprint $table) {
+            Schema::table('tax_classes', function (Blueprint $table): void {
                 $table->dropColumn('slug');
             });
         }

@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Providers;
 
+use Override;
 use App\Events\UserRegisteredEvent;
 use App\Plugins\Zoho\Controllers\Api\{
     ZohoAccessToken,
@@ -29,6 +30,7 @@ class ZohoServiceProvider extends ServiceProvider
     /**
      * Register all services.
      */
+    #[Override]
     public function register(): void
     {
         $this->mergeConfigFrom(
@@ -52,13 +54,9 @@ class ZohoServiceProvider extends ServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $this->app->singleton('zoho.accounts.campaigns', function () {
-            return $this->makeAccountsApi('campaigns');
-        });
+        $this->app->singleton('zoho.accounts.campaigns', fn() => $this->makeAccountsApi('campaigns'));
 
-        $this->app->singleton('zoho.accounts.crm', function () {
-            return $this->makeAccountsApi('crm');
-        });
+        $this->app->singleton('zoho.accounts.crm', fn() => $this->makeAccountsApi('crm'));
 
         /*
         |--------------------------------------------------------------------------
@@ -66,9 +64,7 @@ class ZohoServiceProvider extends ServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $this->app->singleton(ZohoAccessToken::class, function ($app) {
-            return new ZohoAccessToken();
-        });
+        $this->app->singleton(fn($app): ZohoAccessToken => new ZohoAccessToken());
 
         /*
         |--------------------------------------------------------------------------
@@ -76,7 +72,7 @@ class ZohoServiceProvider extends ServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $this->app->singleton(ZohoCampaignsApi::class, function ($app) {
+        $this->app->singleton(function ($app): ZohoCampaignsApi {
             $integration = $this->getIntegration('campaigns');
 
             return new ZohoCampaignsApi(
@@ -86,7 +82,7 @@ class ZohoServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->singleton(ZohoCrmApi::class, function ($app) {
+        $this->app->singleton(function ($app): ZohoCrmApi {
             $integration = $this->getIntegration('crm');
 
             return new ZohoCrmApi(
@@ -102,13 +98,9 @@ class ZohoServiceProvider extends ServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $this->app->singleton('zoho.campaigns', function ($app) {
-            return new Campaigns();
-        });
+        $this->app->singleton('zoho.campaigns', fn($app) => new Campaigns());
 
-        $this->app->singleton('zoho.crm', function ($app) {
-            return new Crm();
-        });
+        $this->app->singleton('zoho.crm', fn($app) => new Crm());
     }
 
     /**
@@ -134,7 +126,7 @@ class ZohoServiceProvider extends ServiceProvider
         Event::listen(UserRegisteredEvent::class, SyncUserToZohoCrm::class);
         Event::listen(UserRegisteredEvent::class, SyncUserToZohoCampaigns::class);
 
-        app(NewsletterManager::class)->register(new ZohoCampaignsNewsletterProvider());
+        resolve(NewsletterManager::class)->register(new ZohoCampaignsNewsletterProvider());
     }
 
     /**

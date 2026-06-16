@@ -14,7 +14,7 @@ class Timezone extends BaseModel
 
     protected $appends = ['timezone_name'];
 
-    public function getTimezoneNameAttribute()
+    protected function getTimezoneNameAttribute()
     {
         $extractGMT = explode(' ', $this->location);
         $timezone = reset($extractGMT).' '.$this->name;

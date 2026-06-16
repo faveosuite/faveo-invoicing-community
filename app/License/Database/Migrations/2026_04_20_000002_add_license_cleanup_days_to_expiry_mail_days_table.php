@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('expiry_mail_days', function (Blueprint $table) {
+        Schema::table('expiry_mail_days', function (Blueprint $table): void {
             $table->integer('installation_logs_expire_days')->nullable();
             $table->integer('license_reports_cleanup_days')->nullable();
             $table->integer('license_callbacks_cleanup_days')->nullable();
@@ -20,7 +20,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('expiry_mail_days', function (Blueprint $table) {
+        Schema::table('expiry_mail_days', function (Blueprint $table): void {
             $table->dropColumn([
                 'installation_logs_expire_days',
                 'license_reports_cleanup_days',

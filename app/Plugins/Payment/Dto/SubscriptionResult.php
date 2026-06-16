@@ -12,16 +12,16 @@ namespace App\Plugins\Payment\Dto;
  * (Stripe latest_invoice / hosted_invoice_url, Razorpay short_url) without the
  * package having to model every one of them.
  */
-final class SubscriptionResult
+final readonly class SubscriptionResult
 {
     /**
      * @param  array<string, mixed>  $raw
      */
     public function __construct(
-        public readonly string $gateway,
-        public readonly ?string $id,
-        public readonly string $status,
-        public readonly array $raw = [],
+        public string $gateway,
+        public ?string $id,
+        public string $status,
+        public array $raw = [],
     ) {
     }
 }

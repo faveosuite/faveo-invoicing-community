@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Common;
 
+use App\Model\Common\Setting;
 use App\Http\Controllers\Controller;
 use App\Model\Common\TemplateType;
 use App\Model\Mailjob\ExpiryMailDay;
@@ -61,6 +62,7 @@ class BaseCronController extends Controller
                 if (count($this->get0DaysUsers()) > 0) {
                     array_push($sub, $this->get0DaysSubscription());
                 }
+
                 if (count($this->getPlus1Users()) > 0) {
                     array_push($sub, $this->getPlus1Subscription());
                 }
@@ -202,7 +204,7 @@ class BaseCronController extends Controller
         $product_type = $product->type;
         $expiryDays = ExpiryMailDay::first()->cloud_days;
         //check in the settings
-        $setting = \App\Model\Common\Setting::find(1);
+        $setting = Setting::find(1);
         //template
         $template = TemplateType::getSelectedTemplate('subscription_going_to_end_mail');
         $data = $template->data;
@@ -212,7 +214,7 @@ class BaseCronController extends Controller
         $delDate = strtotime($end.' +'.$expiryDays.' days');
         $deletionDate = date('l, F j, Y', $delDate);
 
-        $replace = ['name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
+        $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'deletionDate' => ($product_type == '4') ? $deletionDate : '',
             'product_type' => ($product_type == '4') ? 'Deletion Date' : '',
             'expiry' => $end,
@@ -225,7 +227,7 @@ class BaseCronController extends Controller
 
         ];
         $type = $template?->type()->value('name') ?? '';
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
@@ -240,10 +242,10 @@ class BaseCronController extends Controller
         $renewPrice = PlanPrice::where('plan_id', $plan_id->plan_id)->where('currency', $currency)->value('renew_price');
         $expiryDays = ExpiryMailDay::first()->cloud_days;
         //check in the settings
-        $settings = new \App\Model\Common\Setting();
+        $settings = new Setting();
         $setting = $settings->where('id', 1)->first();
 
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
 
         //template
         $template = TemplateType::getSelectedTemplate('auto_subscription_going_to_end');
@@ -254,7 +256,7 @@ class BaseCronController extends Controller
         $delDate = strtotime($end.' +'.$expiryDays.' days');
         $deletionDate = date('l, F j, Y', $delDate);
 
-        $replace = ['name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
+        $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'renewPrice' => currencyFormat($renewPrice, $code = $currency),
             'deletionDate' => ($product_type == '4') ? $deletionDate : '',
             'product_type' => ($product_type == '4') ? 'Deletion Date' : '',
@@ -281,10 +283,10 @@ class BaseCronController extends Controller
         $expiryDays = ExpiryMailDay::first()->cloud_days;
 
         //check in the settings
-        $settings = new \App\Model\Common\Setting();
+        $settings = new Setting();
         $setting = $settings->where('id', 1)->first();
 
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+        $mail = new PhpMailController();
 
         //template
         $template = TemplateType::getSelectedTemplate('subscription_over_mail');
@@ -295,7 +297,7 @@ class BaseCronController extends Controller
         $delDate = strtotime($end.' +'.$expiryDays.' days');
         $deletionDate = date('l, F j, Y', $delDate);
 
-        $replace = ['name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
+        $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'deletionDate' => ($product_type == '4') ? $deletionDate : '',
             'product_type' => ($product_type == '4') ? 'Deletion Date' : '',
             'expiry' => $end,

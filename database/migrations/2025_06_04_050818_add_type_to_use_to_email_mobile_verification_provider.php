@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('email_mobile_validation_providers', function (Blueprint $table) {
+        Schema::table('email_mobile_validation_providers', function (Blueprint $table): void {
             $table->boolean('to_use')->default(false)->after('accepted_output');
             $table->string('type')->nullable()->after('provider');
         });
@@ -22,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('email_mobile_validation_providers', function (Blueprint $table) {
+        Schema::table('email_mobile_validation_providers', function (Blueprint $table): void {
             $table->dropColumn('to_use');
             $table->dropColumn('type');
         });

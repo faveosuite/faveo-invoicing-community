@@ -154,59 +154,53 @@ class DatabaseSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // Chunked bulk inserts for currencies
-        $currencies->chunk(500)->each(function($chunk){
+        $currencies->chunk(500)->each(function($chunk): void{
             DB::table('currencies')->insert(
-                $chunk->map(function($c){
-                    return [
-                        'id' => $c['id'],
-                        'code' => $c['code'],
-                        'name' => $c['name'],
-                        'symbol' => $c['symbol'],
-                        'dashboard_currency' => $c['code'] === 'USD' ? 1 : 0,
-                        'status' => $c['code'] === 'USD' ? 1 : 0,
-                    ];
-                })->toArray()
+                $chunk->map(fn($c) => [
+                    'id' => $c['id'],
+                    'code' => $c['code'],
+                    'name' => $c['name'],
+                    'symbol' => $c['symbol'],
+                    'dashboard_currency' => $c['code'] === 'USD' ? 1 : 0,
+                    'status' => $c['code'] === 'USD' ? 1 : 0,
+                ])->toArray()
             );
         });
 
         // Chunked bulk inserts for countries
-        $countries->chunk(500)->each(function($chunk){
+        $countries->chunk(500)->each(function($chunk): void{
             DB::table('countries')->insert(
-                $chunk->map(function($c){
-                    return [
-                        'country_id' => $c['country_id'],
-                        'country_code_char2' => $c['country_code_char2'],
-                        'country_code_char3' => $c['country_code_char3'],
-                        'country_name' => $c['country_name'],
-                        'numcode' => $c['numcode'],
-                        'phonecode' => $c['phonecode'],
-                        'capital' => $c['capital'],
-                        'latitude' => $c['latitude'],
-                        'longitude' => $c['longitude'],
-                        'emoji' => $c['emoji'],
-                        'emojiU' => $c['emojiU'],
-                        'currency_id' => $c['currency_id'],
-                        'status' => $c['country_code_char2'] === 'AQ' ? 0 : 1,
-                    ];
-                })->toArray()
+                $chunk->map(fn($c) => [
+                    'country_id' => $c['country_id'],
+                    'country_code_char2' => $c['country_code_char2'],
+                    'country_code_char3' => $c['country_code_char3'],
+                    'country_name' => $c['country_name'],
+                    'numcode' => $c['numcode'],
+                    'phonecode' => $c['phonecode'],
+                    'capital' => $c['capital'],
+                    'latitude' => $c['latitude'],
+                    'longitude' => $c['longitude'],
+                    'emoji' => $c['emoji'],
+                    'emojiU' => $c['emojiU'],
+                    'currency_id' => $c['currency_id'],
+                    'status' => $c['country_code_char2'] === 'AQ' ? 0 : 1,
+                ])->toArray()
             );
         });
 
         // Chunked bulk inserts for states
-        $states->chunk(500)->each(function($chunk){
+        $states->chunk(500)->each(function($chunk): void{
             DB::table('states_subdivisions')->insert(
-                $chunk->map(function($s){
-                    return [
-                        'state_subdivision_id' => $s['state_subdivision_id'],
-                        'state_subdivision_name' => $s['state_subdivision_name'],
-                        'country_code' => $s['country_code'],
-                        'iso2' => $s['iso2'],
-                        'primary_level_name' => $s['primary_level_name'],
-                        'latitude' => $s['latitude'],
-                        'longitude' => $s['longitude'],
-                        'country_id' => $s['country_id'],
-                    ];
-                })->toArray()
+                $chunk->map(fn($s) => [
+                    'state_subdivision_id' => $s['state_subdivision_id'],
+                    'state_subdivision_name' => $s['state_subdivision_name'],
+                    'country_code' => $s['country_code'],
+                    'iso2' => $s['iso2'],
+                    'primary_level_name' => $s['primary_level_name'],
+                    'latitude' => $s['latitude'],
+                    'longitude' => $s['longitude'],
+                    'country_id' => $s['country_id'],
+                ])->toArray()
             );
         });
 

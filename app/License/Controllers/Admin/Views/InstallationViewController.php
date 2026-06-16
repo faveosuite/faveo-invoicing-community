@@ -26,9 +26,9 @@ class InstallationViewController extends Controller
                 'installation_domain' => $installation->installation_domain,
                 'installation_date' => $installation->installation_date,
                 'installation_status' => $installation->installation_status,
-                'product_title' => optional($installation->product)->name,
-                'client_email' => optional($installation->user)->email,
-                'license_id' => optional($installation->license)->id,
+                'product_title' => $installation->product?->name,
+                'client_email' => $installation->user?->email,
+                'license_id' => $installation->license?->id,
             ];
         }
 
@@ -45,8 +45,8 @@ class InstallationViewController extends Controller
         $installationDomain = Installation::where('id', $id)->value('installation_domain');
         $callbacks = LicenseCallback::where('callback_domain', $installationDomain)
             ->select('id', 'callback_ip', 'callback_domain', 'callback_date_time', 'callback_status')
-            ->when($searchQuery, function ($query) use ($searchQuery) {
-                $query->where(function ($query) use ($searchQuery) {
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($query) use ($searchQuery): void {
                     $query->where('callback_ip', 'like', '%'.$searchQuery.'%')
                         ->orWhere('callback_domain', 'like', '%'.$searchQuery.'%')
                         ->orWhere('callback_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')

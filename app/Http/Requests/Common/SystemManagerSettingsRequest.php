@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Common;
 
+use Override;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SystemManagerSettingsRequest extends FormRequest
@@ -17,20 +19,21 @@ class SystemManagerSettingsRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'existingAccManager' => 'nullable|required_with:newAccManager|integer',
-            'newAccManager' => 'nullable|required_with:existingAccManager|integer|different:existingAccManager',
-            'existingSaleManager' => 'nullable|required_with:newSaleManager|integer',
-            'newSaleManager' => 'nullable|required_with:existingSaleManager|integer|different:existingSaleManager',
-            'autoAssignAccount' => 'required|boolean',
-            'autoAssignSales' => 'required|boolean',
+            'existingAccManager' => ['nullable', 'required_with:newAccManager', 'integer'],
+            'newAccManager' => ['nullable', 'required_with:existingAccManager', 'integer', 'different:existingAccManager'],
+            'existingSaleManager' => ['nullable', 'required_with:newSaleManager', 'integer'],
+            'newSaleManager' => ['nullable', 'required_with:existingSaleManager', 'integer', 'different:existingSaleManager'],
+            'autoAssignAccount' => ['required', 'boolean'],
+            'autoAssignSales' => ['required', 'boolean'],
         ];
     }
 
+    #[Override]
     public function messages(): array
     {
         return [

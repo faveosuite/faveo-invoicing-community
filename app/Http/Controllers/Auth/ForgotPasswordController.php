@@ -2,6 +2,15 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Support\Str;
+use App\Model\User\Password;
+use Illuminate\Support\Facades\Date;
+use App\User;
+use App\Model\Common\Setting;
+use App\Model\Common\TemplateType;
+use App\Http\Controllers\Common\PhpMailController;
+use Exception;
+use Illuminate\Http\Response;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
@@ -47,8 +56,8 @@ class ForgotPasswordController extends Controller
     /**
      * Send a reset link to the given user.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function sendResetLinkEmail(Request $request)
     {
@@ -71,23 +80,24 @@ class ForgotPasswordController extends Controller
                 return errorResponse(__('message.too_many_forgot_attempts', ['time' => $rateLimit['remainingTime']]));
             }
 
-            $token = str_random(40);
-            $password = new \App\Model\User\Password();
+            $token = Str::random(40);
+            $password = new Password();
             if ($password->where('email', $email)->first()) {
                 $password->where('email', $email)->delete();
             }
-            $activate = $password->create(['email' => $email, 'token' => $token, 'created_at' => \Carbon\Carbon::now()]);
+
+            $activate = $password->create(['email' => $email, 'token' => $token, 'created_at' => Date::now()]);
             $token = $activate->token;
 
             $url = url("password/reset/$token");
 
-            $user = new \App\User();
+            $user = new User();
             $user = $user->where('email', $email)->firstOrFail();
 
             //check in the settings
-            $setting = \App\Model\Common\Setting::find(1);
+            $setting = Setting::find(1);
             //template
-            $template = \App\Model\Common\TemplateType::getSelectedTemplate('forgot_password_mail');
+            $template = TemplateType::getSelectedTemplate('forgot_password_mail');
 
             $contact = getContactData();
             $replace = ['name' => $user->first_name.' '.$user->last_name, 'url' => $url, 'contact_us' => $setting->website, 'contact' => $contact['contact'],
@@ -99,7 +109,7 @@ class ForgotPasswordController extends Controller
             $data = $template->data;
             $type = $template?->type()->value('name') ?? '';
             if (emailSendingStatus()) {
-                $mail = new \App\Http\Controllers\Common\PhpMailController();
+                $mail = new PhpMailController();
                 $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 
                 return successResponse(__('validation.forgot_email_validation'));
@@ -108,7 +118,7 @@ class ForgotPasswordController extends Controller
             }
 
             return successResponse(__('validation.forgot_email_validation'));
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return successResponse(__('validation.forgot_email_validation'));
         }
     }

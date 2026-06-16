@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('email_log')) {
-            Schema::create('email_log', function (Blueprint $table) {
+            Schema::create('email_log', function (Blueprint $table): void {
                 $table->id();
                 $table->dateTime('date');
                 $table->string('from')->nullable();

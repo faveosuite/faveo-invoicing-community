@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Order;
 
+use Illuminate\Support\Facades\Date;
+use DB;
 use App\Http\Controllers\Controller;
 use App\Model\Order\Order;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class OrderSearchController extends Controller
@@ -19,13 +20,13 @@ class OrderSearchController extends Controller
     public function advanceOrderSearch(Request $request)
     {
         $query = Order::with([
-            'user' => function ($q) {
+            'user' => function ($q): void {
                 $q->withTrashed()
                     ->select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country');
             },
             'productRelation.groupRelation',
             'installationDetail',
-            'subscription' => function ($q) {
+            'subscription' => function ($q): void {
                 $q->with('plan');
             },
         ]);
@@ -43,7 +44,7 @@ class OrderSearchController extends Controller
 
         if (in_array($request->renewal, ['expiring_subscription', 'expired_subscription'])) {
             $query->orderByDesc(
-                \App\Model\Product\Subscription::select('update_ends_at')
+                Subscription::select('update_ends_at')
                     ->whereColumn('subscriptions.order_id', 'orders.id')
                     ->limit(1)
             );
@@ -79,15 +80,15 @@ class OrderSearchController extends Controller
         $field = $request->renewal ? 'subscription.update_ends_at' : 'created_at';
 
         if ($request->from && $request->till) {
-            $from = Carbon::parse($request->from)->startOfDay();
-            $till = Carbon::parse($request->till)->endOfDay();
+            $from = Date::parse($request->from)->startOfDay();
+            $till = Date::parse($request->till)->endOfDay();
 
             $query->whereBetween($field, [$from, $till]);
         } elseif ($request->from) {
-            $from = Carbon::parse($request->from)->startOfDay();
+            $from = Date::parse($request->from)->startOfDay();
             $query->whereDate($field, '>=', $from);
         } elseif ($request->till) {
-            $till = Carbon::parse($request->till)->endOfDay();
+            $till = Date::parse($request->till)->endOfDay();
             $query->whereDate($field, '<=', $till);
         }
     }
@@ -95,8 +96,8 @@ class OrderSearchController extends Controller
     private function filterDomain($query, $domain)
     {
         if ($domain) {
-            $domain = rtrim($domain, '/');
-            $query->whereHas('installation', function ($q) use ($domain) {
+            $domain = rtrim((string) $domain, '/');
+            $query->whereHas('installation', function ($q) use ($domain): void {
                 $q->where('installation_path', 'like', "%$domain%");
             });
         }
@@ -108,9 +109,9 @@ class OrderSearchController extends Controller
             return;
         }
 
-        $minus30 = Carbon::now()->subDays(30);
+        $minus30 = Date::now()->subDays(30);
 
-        $query->whereHas('subscription', function ($q) use ($filter, $minus30) {
+        $query->whereHas('subscription', function ($q) use ($filter, $minus30): void {
             if ($filter === 'installed') {
                 $q->whereColumn('created_at', '!=', 'updated_at');
             } elseif ($filter === 'not_installed') {
@@ -130,19 +131,19 @@ class OrderSearchController extends Controller
             return;
         }
 
-        $now = Carbon::now();
+        $now = Date::now();
 
         if ($renewal === 'expired_subscription') {
-            $query->whereHas('subscription', function ($q) use ($now) {
+            $query->whereHas('subscription', function ($q) use ($now): void {
                 $q->where('update_ends_at', '<', $now);
             });
         } elseif ($renewal === 'active_subscription') {
-            $query->whereHas('subscription', function ($q) use ($now) {
+            $query->whereHas('subscription', function ($q) use ($now): void {
                 $q->where('update_ends_at', '>=', $now);
             });
         } elseif ($renewal === 'expiring_subscription') {
             $thirtyDaysFromNow = $now->copy()->addDays(30);
-            $query->whereHas('subscription', function ($q) use ($now, $thirtyDaysFromNow) {
+            $query->whereHas('subscription', function ($q) use ($now, $thirtyDaysFromNow): void {
                 $q->whereBetween('update_ends_at', [$now, $thirtyDaysFromNow]);
             });
         }
@@ -160,7 +161,7 @@ class OrderSearchController extends Controller
             $latest = Subscription::where('product_id', $productId)->orderBy('version', 'desc')->value('version');
         }
 
-        $query->whereHas('subscription', function ($q) use ($version, $latest) {
+        $query->whereHas('subscription', function ($q) use ($version, $latest): void {
             if ($version === 'Latest') {
                 $q->where('version', $latest);
             } elseif ($version === 'Outdated') {
@@ -173,33 +174,33 @@ class OrderSearchController extends Controller
 
     public function applyOrdersSearch($query, $search)
     {
-        return $query->when($search, function ($q) use ($search) {
-            $q->where(function ($q) use ($search) {
+        return $query->when($search, function ($q) use ($search): void {
+            $q->where(function ($q) use ($search): void {
                 // Search in order-level columns
                 $q->where('number', 'like', "%{$search}%")
                     ->orWhere('order_status', 'like', "%{$search}%")
 
                     // Search in user-related fields
-                    ->orWhereHas('user', function ($uq) use ($search) {
+                    ->orWhereHas('user', function ($uq) use ($search): void {
                         $uq->where('email', 'like', "%{$search}%")
                             ->orWhere('mobile', 'like', "%{$search}%")
                             ->orWhere('first_name', 'like', "%{$search}%")
                             ->orWhere('last_name', 'like', "%{$search}%")
                             ->orWhere('country', 'like', "%{$search}%")
-                            ->orWhere(\DB::raw('CONCAT(first_name, " ", last_name)'), 'like', "%{$search}%");
+                            ->orWhere(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', "%{$search}%");
                     })
 
                     // Search in product relation (product name)
-                    ->orWhereHas('productRelation', function ($pq) use ($search) {
+                    ->orWhereHas('productRelation', function ($pq) use ($search): void {
                         $pq->where('name', 'like', "%{$search}%");
                     })
 
                     // Search in subscription & plan
-                    ->orWhereHas('subscription', function ($sq) use ($search) {
+                    ->orWhereHas('subscription', function ($sq) use ($search): void {
                         $sq->where('version', 'like', "%{$search}%")
                             ->orWhere('updated_at', 'like', "%{$search}%")
                             ->orWhere('update_ends_at', 'like', "%{$search}%")
-                            ->orWhereHas('plan', function ($pq) use ($search) {
+                            ->orWhereHas('plan', function ($pq) use ($search): void {
                                 $pq->where('name', 'like', "%{$search}%");
                             });
                     });

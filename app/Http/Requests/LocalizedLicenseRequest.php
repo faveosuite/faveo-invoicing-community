@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Override;
 use Illuminate\Foundation\Http\FormRequest;
 
 class LocalizedLicenseRequest extends FormRequest
@@ -24,10 +25,11 @@ class LocalizedLicenseRequest extends FormRequest
     public function rules()
     {
         return [
-            'domain' => 'required|url',
+            'domain' => ['required', 'url'],
         ];
     }
 
+    #[Override]
     public function messages()
     {
         return [

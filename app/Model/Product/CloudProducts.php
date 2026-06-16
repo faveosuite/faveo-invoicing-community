@@ -32,8 +32,8 @@ class CloudProducts extends BaseModel
         $plan = Plan::find($this->cloud_free_plan)?->name ?? 'Unknown Plan';
 
         return [
-            'cloud_product' => ['Product Name', fn ($value) => \App\Model\Product\Product::find($value)?->name],
-            'cloud_free_plan' => ['Free Plan', fn ($value) => \App\Model\Payment\Plan::find($value)?->name],
+            'cloud_product' => ['Product Name', fn ($value) => Product::find($value)?->name],
+            'cloud_free_plan' => ['Free Plan', fn ($value) => Plan::find($value)?->name],
             'cloud_product_key' => ['Product Key', fn ($value) => $value],
             'trial_status' => [
                 "Trial Status for {$product} (Plan : {$plan})",
@@ -44,7 +44,7 @@ class CloudProducts extends BaseModel
 
     public function getLogNameColumn()
     {
-        return \App\Model\Product\Product::find($this->cloud_product)?->name
+        return Product::find($this->cloud_product)?->name
             ?? $this->cloud_product;
     }
 

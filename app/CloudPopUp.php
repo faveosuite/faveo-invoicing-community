@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class CloudPopUp extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'cloud_pop_up';
 
     protected $guarded = [];

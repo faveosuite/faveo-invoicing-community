@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Common;
 
+use Mail;
 use Exception;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 
@@ -13,12 +14,13 @@ class CommonMailer
             if (! $config) {
                 return false;
             }
+
             $transport = new EsmtpTransport($config['host'], $config['port']);
             $transport->setUsername($config['username']);
             $transport->setPassword($config['password']);
 
             // Set the mailer
-            \Mail::setSymfonyTransport($transport);
+            Mail::setSymfonyTransport($transport);
 
             return true;
         } catch (Exception $e) {

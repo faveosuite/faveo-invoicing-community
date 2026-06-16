@@ -2,6 +2,7 @@
 
 namespace App\License\Helpers;
 
+use DateTime;
 use App\License\Models\License;
 use App\License\Models\LicenseBannedHost;
 use App\License\Models\LicensePlugin;
@@ -128,7 +129,7 @@ class LicenseValidator
 
         // Check IP restriction (supports comma-separated IPs)
         if (! empty($license->license_ip)) {
-            $licensed_ips = array_map('trim', explode(',', $license->license_ip));
+            $licensed_ips = array_map(trim(...), explode(',', (string) $license->license_ip));
             if (! in_array($ip, $licensed_ips)) {
                 return ['valid' => false, 'error' => 'invalid_ip', 'data' => ['ip' => $ip]];
             }
@@ -136,14 +137,8 @@ class LicenseValidator
 
         // Check domain restriction (supports comma-separated domains, uses stripos)
         if (! empty($license->license_domain)) {
-            $licensed_domains = array_map('trim', explode(',', $license->license_domain));
-            $domain_valid = false;
-            foreach ($licensed_domains as $domain) {
-                if (stripos($root_url, $domain) !== false) {
-                    $domain_valid = true;
-                    break;
-                }
-            }
+            $licensed_domains = array_map(trim(...), explode(',', (string) $license->license_domain));
+            $domain_valid = array_any($licensed_domains, fn($domain) => stripos($root_url, (string) $domain) !== false);
             if (! $domain_valid) {
                 return ['valid' => false, 'error' => 'invalid_domain', 'data' => ['domain' => $root_url]];
             }
@@ -225,8 +220,8 @@ class LicenseValidator
             return false;
         }
 
-        $dt = \DateTime::createFromFormat($format, $datetime);
-        $errors = \DateTime::getLastErrors();
+        $dt = DateTime::createFromFormat($format, $datetime);
+        $errors = DateTime::getLastErrors();
 
         return $dt && empty($errors['warning_count']);
     }

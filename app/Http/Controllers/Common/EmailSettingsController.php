@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Common;
 
+use Exception;
+use Mail;
+use Config;
+use Throwable;
+use Illuminate\Mail\SentMessage;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Email\EmailSettingRequest;
 use App\Model\Common\Setting;
@@ -10,6 +15,7 @@ use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 class EmailSettingsController extends Controller
 {
     protected $emailConfig;
+
     protected $error;
 
     public function __construct()
@@ -22,7 +28,7 @@ class EmailSettingsController extends Controller
     {
         try {
             $this->emailConfig = $emailConfig;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error = $e;
 
             return false;
@@ -35,7 +41,7 @@ class EmailSettingsController extends Controller
             $set = $settings->find(1);
 
             return successResponse('', $set);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -50,11 +56,12 @@ class EmailSettingsController extends Controller
             if (! $this->checkSendConnection($this->emailConfig)) {
                 return errorResponse($this->errorhandler());
             }
+
             $this->emailConfig->sending_status = 1;
             $this->emailConfig->save();
 
             return successResponse(__('message.email_settings_saved'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -100,7 +107,7 @@ class EmailSettingsController extends Controller
             }
 
             return $this->checkServices();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error = $e;
 
             return false;
@@ -117,6 +124,7 @@ class EmailSettingsController extends Controller
         if (function_exists('mail')) {
             return true;
         }
+
         $this->error = __('message.php_mail_disabled');
 
         return false;
@@ -125,7 +133,7 @@ class EmailSettingsController extends Controller
     /**
      * Checks services status by raw sending mail and waiting for the response.
      *
-     * @return \Illuminate\Mail\SentMessage true if success else false
+     * @return SentMessage true if success else false
      */
     private function checkServices()
     {
@@ -133,10 +141,10 @@ class EmailSettingsController extends Controller
             $protocolName = $this->emailConfig->sending_protocol;
 
             //sending a text message and checking if respond comes. If yes, connection is considered to be successful
-            return \Mail::raw("This is a test mail for successful $protocolName connection", function ($message) {
+            return Mail::raw("This is a test mail for successful $protocolName connection", function ($message): void {
                 $message->to($this->emailConfig->email_address);
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error = $e;
 
             return false;
@@ -153,14 +161,14 @@ class EmailSettingsController extends Controller
     private function checkSMTPConnection()
     {
         try {
-            $transport = new  EsmtpTransport(\Config::get('mail.host'), \Config::get('mail.port'));
-            $transport->setUsername(\Config::get('mail.username'));
-            $transport->setPassword(\Config::get('mail.password'));
+            $transport = new  EsmtpTransport(Config::get('mail.host'), Config::get('mail.port'));
+            $transport->setUsername(Config::get('mail.username'));
+            $transport->setPassword(Config::get('mail.password'));
 
             $transport->start();
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->error = $e;
 
             return false;

@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SocialMedia extends BaseModel
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'social_media';
 
     protected $fillable = ['class', 'fa_class', 'name', 'link'];

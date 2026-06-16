@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Mailchimp\Http\Controllers;
 
+use Throwable;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Mailchimp\MailchimpField;
 use App\Model\Common\Mailchimp\MailchimpFieldAgoraRelation;
@@ -30,8 +31,8 @@ class SettingsController extends Controller
 
             if ($apiKey) {
                 try {
-                    $listsData = app(MailchimpService::class)->getLists(20, 0);
-                } catch (\Throwable) {
+                    $listsData = resolve(MailchimpService::class)->getLists(20, 0);
+                } catch (Throwable) {
                     // bad key or network — return empty
                 }
             }
@@ -44,7 +45,7 @@ class SettingsController extends Controller
                 'lists_total' => $listsData['total'],
                 'lists_has_more' => $listsData['has_more'],
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -57,7 +58,7 @@ class SettingsController extends Controller
             $count = max(1, min(50, (int) $request->input('count', 20)));
             $offset = max(0, (int) $request->input('offset', 0));
 
-            $result = app(MailchimpService::class)->getLists($count, $offset);
+            $result = resolve(MailchimpService::class)->getLists($count, $offset);
 
             return successResponse('', $result);
         } catch (MailchimpApiException $e) {
@@ -69,7 +70,7 @@ class SettingsController extends Controller
 
     public function saveApiKey(UpdateSettingsRequest $request): JsonResponse
     {
-        $apiKey = trim($request->input('mailchimp_auth_key'));
+        $apiKey = trim((string) $request->input('mailchimp_auth_key'));
         $status = $request->input('status', 0);
 
         $client = new MailchimpClient($apiKey);
@@ -83,14 +84,14 @@ class SettingsController extends Controller
             StatusSetting::find(1)->update(['mailchimp_status' => $status]);
 
             app()->forgetInstance(MailchimpService::class);
-            $listsData = app(MailchimpService::class)->getLists(20, 0);
+            $listsData = resolve(MailchimpService::class)->getLists(20, 0);
 
             return successResponse(__('message.mailchimp_setting'), [
                 'lists' => $listsData['lists'],
                 'lists_total' => $listsData['total'],
                 'lists_has_more' => $listsData['has_more'],
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -99,7 +100,7 @@ class SettingsController extends Controller
 
     public function saveListSettings(Request $request): JsonResponse
     {
-        $request->validate(['list_id' => 'required|string']);
+        $request->validate(['list_id' => ['required', 'string']]);
 
         try {
             MailchimpSetting::firstOrNew(['id' => 1])->fill([
@@ -108,7 +109,7 @@ class SettingsController extends Controller
             ])->save();
 
             return successResponse(__('message.mailchimp_setting_successfully_saved'));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -118,7 +119,7 @@ class SettingsController extends Controller
     public function syncMergeFields(): JsonResponse
     {
         try {
-            app(MailchimpService::class)->syncMergeFields();
+            resolve(MailchimpService::class)->syncMergeFields();
             $fields = MailchimpField::where('list_id', MailchimpSetting::value('list_id'))
                 ->pluck('name', 'tag');
 
@@ -133,7 +134,7 @@ class SettingsController extends Controller
     public function syncInterestGroups(): JsonResponse
     {
         try {
-            $service = app(MailchimpService::class);
+            $service = resolve(MailchimpService::class);
             $service->syncInterestGroups();
 
             $listId = MailchimpSetting::value('list_id');
@@ -166,8 +167,8 @@ class SettingsController extends Controller
                 ->orderBy('id')->get();
             $status = StatusSetting::select('mailchimp_product_status', 'mailchimp_ispaid_status')->first();
             try {
-                $categories = app(MailchimpService::class)->getInterestCategories();
-            } catch (\Throwable) {
+                $categories = resolve(MailchimpService::class)->getInterestCategories();
+            } catch (Throwable) {
                 $categories = [];
             }
 
@@ -180,7 +181,7 @@ class SettingsController extends Controller
                 'status' => $status,
                 'categories' => $categories,
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -193,7 +194,7 @@ class SettingsController extends Controller
             MailchimpFieldAgoraRelation::firstOrNew(['id' => 1])->fill($request->all())->save();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -220,7 +221,7 @@ class SettingsController extends Controller
             }
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -229,14 +230,14 @@ class SettingsController extends Controller
 
     public function saveIsPaidMapping(Request $request): JsonResponse
     {
-        $request->validate(['group' => 'required|string']);
+        $request->validate(['group' => ['required', 'string']]);
 
         try {
             $categoryId = $request->input('group');
 
             // Validate that the category has Yes/No options
-            $options = app(MailchimpService::class)->getInterestGroupOptions($categoryId);
-            $names = array_map(fn ($o) => strtolower($o['name']), $options);
+            $options = resolve(MailchimpService::class)->getInterestGroupOptions($categoryId);
+            $names = array_map(fn ($o) => strtolower((string) $o['name']), $options);
 
             $hasYes = count(array_intersect($names, ['yes', 'true'])) > 0;
             $hasNo = count(array_intersect($names, ['no', 'false'])) > 0;
@@ -245,7 +246,7 @@ class SettingsController extends Controller
                 return errorResponse(__('message.group_dropdown_values_required'));
             }
 
-            app(MailchimpService::class)->mapIsPaidInterests($categoryId);
+            resolve(MailchimpService::class)->mapIsPaidInterests($categoryId);
 
             return successResponse(__('message.settings_updated_successfully'));
         } catch (MailchimpApiException $e) {
@@ -273,10 +274,10 @@ class SettingsController extends Controller
 
     public function subscribeFromWidget(Request $request): JsonResponse
     {
-        $request->validate(['newsletterEmail' => 'required|email']);
+        $request->validate(['newsletterEmail' => ['required', 'email']]);
 
         try {
-            app(MailchimpService::class)->subscribeEmail($request->input('newsletterEmail'));
+            resolve(MailchimpService::class)->subscribeEmail($request->input('newsletterEmail'));
 
             return successResponse(__('message.email_added_to_mailchimp'));
         } catch (MailchimpApiException $e) {

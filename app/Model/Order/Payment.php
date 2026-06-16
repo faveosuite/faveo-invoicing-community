@@ -2,6 +2,7 @@
 
 namespace App\Model\Order;
 
+use App\User;
 use App\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -16,12 +17,12 @@ class Payment extends BaseModel
 
     public function invoice()
     {
-        return $this->belongsTo(\App\Model\Order\Invoice::class);
+        return $this->belongsTo(Invoice::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(\App\User::class);
+        return $this->belongsTo(User::class);
     }
 
     //    public function setCreatedAtAttribute($value) {

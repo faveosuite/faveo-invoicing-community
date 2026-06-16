@@ -2,6 +2,7 @@
 
 namespace App\Model\Front;
 
+use Illuminate\Support\Facades\Date;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -40,12 +41,12 @@ class FrontendPage extends BaseModel
             'type' => ['Type', fn ($value) => $value],
             'created_at' => [
                 'Publishing Date',
-                fn ($value) => \Carbon\Carbon::parse($value)->format('d M Y, h:i A'),
+                fn ($value) => Date::parse($value)->format('d M Y, h:i A'),
             ],
         ];
     }
 
-    public function setSlugAttribute($value)
+    protected function setSlugAttribute($value)
     {
         $this->attributes['slug'] = str_replace(' ', '', $value);
     }

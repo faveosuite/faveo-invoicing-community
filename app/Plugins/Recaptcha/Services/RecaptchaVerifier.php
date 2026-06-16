@@ -2,6 +2,8 @@
 
 namespace App\Plugins\Recaptcha\Services;
 
+use Http;
+
 class RecaptchaVerifier
 {
     /**
@@ -15,7 +17,7 @@ class RecaptchaVerifier
         string $expectedHostname,
         float $scoreThreshold = 0.5
     ) {
-        $httpResponse = \Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+        $httpResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => $secretKey,
             'response' => $response,
             'remoteip' => $ip,

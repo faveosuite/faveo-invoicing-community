@@ -2,14 +2,16 @@
 
 namespace App\Model\License;
 
+use App\Model\Product\Product;
+use Override;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LicenseType extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'license_types';
 
     protected $fillable = ['id', 'name'];
@@ -42,9 +44,10 @@ class LicenseType extends Model
 
     public function products()
     {
-        return $this->hasMany(\App\Model\Product\Product::class, 'type');
+        return $this->hasMany(Product::class, 'type');
     }
 
+    #[Override]
     public function delete()
     {
         $this->permissions()->detach();

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('tax_by_states', 'state_code')) {
-            Schema::table('tax_by_states', function (Blueprint $table) {
+            Schema::table('tax_by_states', function (Blueprint $table): void {
                 $table->string('state_code');
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('tax_by_states', function (Blueprint $table) {
+        Schema::table('tax_by_states', function (Blueprint $table): void {
             $table->dropColumn('state_code');
         });
     }

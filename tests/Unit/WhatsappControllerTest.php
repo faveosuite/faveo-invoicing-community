@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use App\FailedWhatsappMessage;
 use App\Http\Controllers\WhatsappController;
 use App\Model\Order\Order;
 use App\User;

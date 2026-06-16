@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Model\Order\Order;
+use Crypt;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Contracts\Encryption\DecryptException;
 
@@ -27,33 +29,33 @@ class WhatsappIntegrationUser extends BaseModel
     protected function getMappings(): array
     {
         return [
-            'user_id' => ['User', fn ($value) => \App\User::find($value)?->user_name],
+            'user_id' => ['User', fn ($value) => User::find($value)?->user_name],
             'phone_number' => ['Phone Number', fn ($value) => $value],
             'phone_number_id' => ['Phone Number Id', fn ($value) => $value],
             'waba_id' => ['WabaId Id', fn ($value) => $value],
-            'order_id' => ['Order Number', fn ($value) => \App\Model\Order\Order::find($value)?->number],
+            'order_id' => ['Order Number', fn ($value) => Order::find($value)?->number],
             'user_callback_url' => ['Callback Url', fn ($value) => $value],
             'business_id' => ['Business Id', fn ($value) => $value],
         ];
     }
 
-    public function setAccessTokenAttribute($value)
+    protected function setAccessTokenAttribute($value)
     {
         try {
-            $this->attributes['access_token'] = \Crypt::encrypt($value);
-        } catch (DecryptException $ex) {
+            $this->attributes['access_token'] = Crypt::encrypt($value);
+        } catch (DecryptException) {
             // if encryption fails, store original value
             $this->attributes['access_token'] = $value;
         }
     }
 
-    public function getAccessTokenAttribute($value)
+    protected function getAccessTokenAttribute($value)
     {
         try {
-            $decrypted = \Crypt::decrypt($value);
+            $decrypted = Crypt::decrypt($value);
 
             return $decrypted;
-        } catch (DecryptException $ex) {
+        } catch (DecryptException) {
             return $value;
         }
     }

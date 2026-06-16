@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Payment;
 
+use Override;
 use Illuminate\Foundation\Http\FormRequest;
 
 class OpenPaymentRequest extends FormRequest
@@ -20,25 +21,26 @@ class OpenPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:100',
-            'email' => 'required|email',
-            'mobile' => 'required|string|min:8|max:20',
-            'address' => 'required|string',
-            'city' => 'required|string',
-            'state' => 'required|string',
-            'zip' => 'required|string|max:15',
-            'country' => 'required|string',
-            'company' => 'required|string',
-            'amount' => 'required|numeric|min:1',
-            'currency' => 'required|in:INR,USD',
-            'gateway' => 'required|in:Razorpay,Stripe',
-            'description' => 'nullable|string',
+            'name' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'email'],
+            'mobile' => ['required', 'string', 'min:8', 'max:20'],
+            'address' => ['required', 'string'],
+            'city' => ['required', 'string'],
+            'state' => ['required', 'string'],
+            'zip' => ['required', 'string', 'max:15'],
+            'country' => ['required', 'string'],
+            'company' => ['required', 'string'],
+            'amount' => ['required', 'numeric', 'min:1'],
+            'currency' => ['required', 'in:INR,USD'],
+            'gateway' => ['required', 'in:Razorpay,Stripe'],
+            'description' => ['nullable', 'string'],
         ];
     }
 
     /**
      * Get custom messages for validator errors.
      */
+    #[Override]
     public function messages(): array
     {
         return [

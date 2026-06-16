@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('settings_filesystem', function (Blueprint $table) {
+        Schema::table('settings_filesystem', function (Blueprint $table): void {
             $table->string('node_path')->nullable();
             $table->string('npm_path')->nullable();
             $table->string('chrome_path')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('settings_filesystem', function (Blueprint $table) {
+        Schema::table('settings_filesystem', function (Blueprint $table): void {
             $table->dropColumn([
                 'node_path',
                 'npm_path',

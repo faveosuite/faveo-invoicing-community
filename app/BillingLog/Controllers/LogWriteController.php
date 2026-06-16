@@ -2,10 +2,11 @@
 
 namespace App\BillingLog\Controllers;
 
+use Illuminate\Support\Facades\Date;
+use Illuminate\Database\Eloquent\Model;
 use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\LogCategory;
 use App\BillingLog\Model\MailLog;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Throwable;
@@ -51,7 +52,7 @@ class LogWriteController
             $cronLog->update([
                 'status' => 'failed',
                 'exception_log_id' => $exceptionLog?->id,
-                'duration' => (int) Carbon::now()->diffInSeconds($cronLog->created_at, true),
+                'duration' => (int) Date::now()->diffInSeconds($cronLog->created_at, true),
             ]);
         } catch (Throwable $e) {
             $this->exception($e, 'cron');
@@ -71,7 +72,7 @@ class LogWriteController
 
             $cronLog->update([
                 'status' => 'completed',
-                'duration' => (int) Carbon::now()->diffInSeconds($cronLog->created_at, true),
+                'duration' => (int) Date::now()->diffInSeconds($cronLog->created_at, true),
             ]);
         } catch (Throwable $e) {
             $this->exception($e, 'cron');
@@ -96,7 +97,7 @@ class LogWriteController
                 'line' => $e->getLine(),
                 'trace' => nl2br($e->getTraceAsString()),
             ]);
-        } catch (Throwable $fallback) {
+        } catch (Throwable) {
             // ignore exception
         }
     }
@@ -114,7 +115,7 @@ class LogWriteController
      * @param  string|null  $categoryName
      * @param  string  $status
      * @param  string  $source
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @return Model|null
      */
     public function logMailByCategory(
         string $senderMail,
@@ -124,7 +125,7 @@ class LogWriteController
         string $subject,
         string $body,
         ?string $categoryName = null,
-    ): ?\Illuminate\Database\Eloquent\Model {
+    ): ?Model {
         try {
             $category = LogCategory::firstOrCreate(['name' => $categoryName ?? 'default']);
 
@@ -191,15 +192,15 @@ class LogWriteController
     {
         // Validation
         $validated = $request->validate([
-            'to_date' => 'nullable|date',
-            'log_types' => 'required|array|min:1',
-            'log_types.*' => 'in:cron,exception,mail,systemLogs,failed_jobs',
+            'to_date' => ['nullable', 'date'],
+            'log_types' => ['required', 'array', 'min:1'],
+            'log_types.*' => ['in:cron,exception,mail,systemLogs,failed_jobs'],
         ]);
 
         // Parse to_date with end of day
-        $toDate = $validated['to_date'] ? Carbon::parse($validated['to_date'])->endOfDay() : null;
+        $toDate = $validated['to_date'] ? Date::parse($validated['to_date'])->endOfDay() : null;
 
-        (new LogViewController())->deleteLogsByDate($validated['log_types'], $toDate);
+        new LogViewController()->deleteLogsByDate($validated['log_types'], $toDate);
 
         return successResponse(__('message.logs_deleted_successfully'));
     }

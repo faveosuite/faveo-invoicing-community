@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('auto_renewals', 'invoice_number')) {
-            Schema::table('auto_renewals', function (Blueprint $table) {
+            Schema::table('auto_renewals', function (Blueprint $table): void {
                 $table->string('invoice_number')->nullable();
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('auto_renewals', function (Blueprint $table) {
+        Schema::table('auto_renewals', function (Blueprint $table): void {
             $table->dropColumn('invoice_number');
         });
     }

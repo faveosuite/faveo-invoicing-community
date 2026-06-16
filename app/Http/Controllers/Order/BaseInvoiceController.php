@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Order;
 
+use Exception;
+use Session;
+use Illuminate\Support\Facades\Date;
+use Lang;
+use Logger;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Payment\Promotion;
@@ -16,14 +21,17 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         if ($whenDateNotSet) {
             return $whenDateNotSet;
         }
+
         $whenStartDateSet = $this->whenStartDateSet($start, $end, $now);
         if ($whenStartDateSet) {
             return $whenStartDateSet;
         }
+
         $whenEndDateSet = $this->whenEndDateSet($start, $end, $now);
         if ($whenEndDateSet) {
             return $whenEndDateSet;
         }
+
         $whenBothAreSet = $this->whenBothSet($start, $end, $now);
         if ($whenBothAreSet) {
             return $whenBothAreSet;
@@ -98,23 +106,23 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
                 $amount
             );
 
-            return redirect()->back()->with('success', __('message.payment_accepted_succcessfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return back()->with('success', __('message.payment_accepted_succcessfully'));
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
     public function domain($id)
     {
         try {
-            if (\Session::has('domain'.$id)) {
-                $domain = \Session::get('domain'.$id);
+            if (Session::has('domain'.$id)) {
+                $domain = Session::get('domain'.$id);
             } else {
                 $domain = '';
             }
 
             return $domain;
-        } catch (\Exception $ex) {
+        } catch (Exception) {
         }
     }
 
@@ -126,13 +134,13 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
 
                 $start = $promotion->start;
                 $end = $promotion->expiry;
-                $now = \Carbon\Carbon::now();
+                $now = Date::now();
                 $getExpiryStatus = $this->getExpiryStatus($start, $end, $now);
 
                 return $getExpiryStatus;
             }
-        } catch (\Exception $ex) {
-            throw new \Exception(\Lang::get('message.check-expiry'));
+        } catch (Exception) {
+            throw new Exception(Lang::get('message.check-expiry'));
         }
     }
 
@@ -145,6 +153,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         if ($total == '') {
             $total = 0;
         }
+
         $number = $request->input('number');
         $invoiceId = Invoice::where('number', $number)->value('id');
         $invoiceItem = InvoiceItem::where('invoice_id', $invoiceId)->update(['subtotal' => $total]);
@@ -155,7 +164,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
     {
         try {
             $total = intval($total);
-            $rates = explode(',', $rate);
+            $rates = explode(',', (string) $rate);
             $rule = new TaxOption();
             $rule = $rule->findOrFail(1);
             if ($rule->inclusive == 0) {
@@ -168,10 +177,10 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
             }
 
             return intval(round($total));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
 
-            throw new \Exception($ex->getMessage());
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -188,9 +197,9 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
     {
         $code = '';
         $codevalue = '';
-        if (\Session::has('code')) {//If coupon code is applied get it here from Session
-            $code = \Session::get('code');
-            $codevalue = \Session::get('codevalue');
+        if (Session::has('code')) {//If coupon code is applied get it here from Session
+            $code = Session::get('code');
+            $codevalue = Session::get('codevalue');
         }
 
         return ['code' => $code, 'codevalue' => $codevalue];

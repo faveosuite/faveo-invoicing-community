@@ -2,9 +2,9 @@
 
 namespace Database\Factories\Model\Payment;
 
+use Illuminate\Support\Facades\Date;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -25,8 +25,8 @@ class PromotionFactory extends Factory
             'type' => $typeId,
             'uses' => $this->faker->numberBetween(1, 50),
             'value' => $value,
-            'start' => Carbon::now()->subDays(rand(1, 3))->format('Y-m-d H:i:s'),
-            'expiry' => Carbon::now()->addDays(rand(3, 10))->format('Y-m-d H:i:s'),
+            'start' => Date::now()->subDays(random_int(1, 3))->format('Y-m-d H:i:s'),
+            'expiry' => Date::now()->addDays(random_int(3, 10))->format('Y-m-d H:i:s'),
         ];
     }
 }

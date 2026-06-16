@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\License;
 
+use Exception;
+use Illuminate\Http\Response;
 use App\Model\License\LicenseType;
 use Illuminate\Http\Request;
 
@@ -31,7 +33,7 @@ class LicenseSettingsController extends LicensePermissionsController
 
             $query = $this->licenseType
                           ->select('id', 'name')
-                          ->when($searchString, function ($q) use ($searchString) {
+                          ->when($searchString, function ($q) use ($searchString): void {
                               $q->where('name', 'LIKE', "%$searchString%");
                           });
 
@@ -39,7 +41,7 @@ class LicenseSettingsController extends LicensePermissionsController
                 ->simplePaginate($limit);
 
             return successResponse('', $licenseTypes);
-        } catch (\Exception $ex) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
@@ -47,8 +49,8 @@ class LicenseSettingsController extends LicensePermissionsController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function createLicense(Request $request)
     {
@@ -56,7 +58,7 @@ class LicenseSettingsController extends LicensePermissionsController
             $productType = $this->licenseType->fill($request->input())->save();
 
             return successResponse(__('message.saved-successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -73,7 +75,7 @@ class LicenseSettingsController extends LicensePermissionsController
             }
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -82,7 +84,7 @@ class LicenseSettingsController extends LicensePermissionsController
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function deleteLicense(Request $request)
     {
@@ -101,7 +103,7 @@ class LicenseSettingsController extends LicensePermissionsController
             }
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -112,7 +114,7 @@ class LicenseSettingsController extends LicensePermissionsController
             $type = $this->licenseType->select('id', 'name')->findOrFail($id);
 
             return successResponse('', $type);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

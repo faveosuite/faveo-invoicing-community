@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Common\Sms;
 
+use Exception;
+use Logger;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\User;
@@ -78,8 +80,8 @@ class SmsOtpController extends Controller
                 'status' => $response->status(),
                 'body' => $response->json() ?? [],
             ];
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
 
             return $this->errorPayload('There was an error processing your request');
         }
@@ -265,8 +267,8 @@ class SmsOtpController extends Controller
                     'send'
                 );
             }
-        } catch (\Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $e) {
+            Logger::exception($e);
         }
     }
 

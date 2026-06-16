@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pipedrive_groups', function (Blueprint $table) {
+        Schema::create('pipedrive_groups', function (Blueprint $table): void {
             $table->id();
             $table->string('group_name');
             $table->timestamps();

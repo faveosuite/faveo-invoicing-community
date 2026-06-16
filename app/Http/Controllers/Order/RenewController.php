@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers\Order;
 
+use App\Services\SubscriptionRenewalService;
+use Illuminate\Support\Facades\Date;
+use App\License\Services\InstallationService;
+use App\License\Services\LicenseService;
+use Auth;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\License\Models\Installation;
 use App\Model\Common\FaveoCloud;
@@ -14,7 +21,6 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Traits\TaxCalculation;
 use App\User;
-use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -71,7 +77,7 @@ class RenewController extends BaseRenewController
             $sub = $this->sub->find($id);
             $currency = userCurrencyAndPrice($sub->user_id, $plan)['currency'];
             if ($isAgentIncrease) {
-                app(\App\Services\SubscriptionRenewalService::class)->extendDates($sub, $days);
+                resolve(SubscriptionRenewalService::class)->extendDates($sub, $days);
             }
 
             $invoice = $this->invoiceBySubscriptionId($id, $planid, $cost, $currency, $agents);
@@ -106,7 +112,7 @@ class RenewController extends BaseRenewController
 
             $days = Plan::findOrFail($sub->plan_id)->days;
 
-            app(\App\Services\SubscriptionRenewalService::class)->extendDates($sub, (int) $days);
+            resolve(SubscriptionRenewalService::class)->extendDates($sub, (int) $days);
         } catch (Exception $ex) {
             throw new Exception($ex->getMessage());
         }
@@ -118,13 +124,13 @@ class RenewController extends BaseRenewController
         $domain = $sub->order->domain;
         $orderNo = $sub->order->number;
         $licenseCode = $sub->order->serial_key;
-        $expiryDate = $updatesExpiry ? Carbon::parse($updatesExpiry)->format('Y-m-d') : '';
-        $licenseExpiry = $licenseExpiry ? Carbon::parse($licenseExpiry)->format('Y-m-d') : '';
-        $supportExpiry = $supportExpiry ? Carbon::parse($supportExpiry)->format('Y-m-d') : '';
-        $installService = app(\App\License\Services\InstallationService::class);
-        $licenseService = app(\App\License\Services\LicenseService::class);
+        $expiryDate = $updatesExpiry ? Date::parse($updatesExpiry)->format('Y-m-d') : '';
+        $licenseExpiry = $licenseExpiry ? Date::parse($licenseExpiry)->format('Y-m-d') : '';
+        $supportExpiry = $supportExpiry ? Date::parse($supportExpiry)->format('Y-m-d') : '';
+        $installService = resolve(InstallationService::class);
+        $licenseService = resolve(LicenseService::class);
         $noOfAllowedInstallation = $installService->countActiveInstallations($licenseCode);
-        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($domain);
+        $ipAndDomain = LicenseService::parseIpAndDomain($domain);
         $existingLicense = $licenseService->findByCode($licenseCode);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
@@ -169,7 +175,7 @@ class RenewController extends BaseRenewController
     public function createOrderInvoiceRelation($orderid, $invoiceid)
     {
         try {
-            $relation = new \App\Model\Order\OrderInvoiceRelation();
+            $relation = new OrderInvoiceRelation();
             $relation->create([
                 'order_id' => $orderid,
                 'invoice_id' => $invoiceid,
@@ -186,11 +192,13 @@ class RenewController extends BaseRenewController
             if (! $product) {
                 throw new Exception(__('message.product_removed_database'));
             }
+
             $currency = $this->getUserCurrencyById($userid);
             $price = $product->price()->where('currency', $currency)->first();
             if (! $price) {
                 throw new Exception(__('message.price_removed_database'));
             }
+
             $cost = $price->sales_price;
             if (! $cost) {
                 $cost = $price->regular_price;
@@ -205,7 +213,7 @@ class RenewController extends BaseRenewController
     public function tax($product, $cost, $user)
     {
         try {
-            $controller = new \App\Http\Controllers\Order\InvoiceController();
+            $controller = new InvoiceController();
             $tax = $this->calculateTax($product->id, $user->state, $user->country);
             $tax_name = $tax['name'];
             $tax_rate = $tax['value'];
@@ -213,8 +221,8 @@ class RenewController extends BaseRenewController
             $grand_total = $controller->calculateTotal($tax_rate, $cost);
 
             return rounding($grand_total);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 
@@ -250,12 +258,15 @@ class RenewController extends BaseRenewController
                 if (empty($installation_path)) {
                     return response(['status' => false, 'message' => trans('message.no_installation_found')]);
                 }
+
                 if ($this->checktheAgent($agents, $installation_path)) {
                     return response(['status' => false, 'message' => trans('message.agent_reduce')]);
                 }
+
                 $license = Order::where('id', $order_id)->value('serial_key');
-                (new CloudExtraActivities(new Client, new FaveoCloud()))->doTheAgentAltering($agents, $license, $order_id, $installation_path, $sub->product_id);
+                new CloudExtraActivities(new Client, new FaveoCloud())->doTheAgentAltering($agents, $license, $order_id, $installation_path, $sub->product_id);
             }
+
             $renew = $this->renewBySubId($id, $planid, $payment_method, $cost, $code = '', true, $agents);
 
             Subscription::where('order_id', $order_id)->update(['plan_id' => $planid]);
@@ -284,8 +295,9 @@ class RenewController extends BaseRenewController
             $sub = $this->sub->find($id);
             $userid = $sub->user_id;
             if (User::onlyTrashed()->find($userid)) {//If User is soft deleted for this order
-                throw new \Exception(__('message.user_order_suspended'));
+                throw new Exception(__('message.user_order_suspended'));
             }
+
             $productid = $sub->product_id;
             $plans = $this->plan->pluck('name', 'id')->toArray();
             $data = ['id' => $id,
@@ -306,7 +318,7 @@ class RenewController extends BaseRenewController
     {
         try {
             $request->validate(
-                ['plan' => 'required'],
+                ['plan' => ['required']],
                 ['plan.required' => __('validation.plan_renewal.plan_required')]
             );
 
@@ -319,12 +331,12 @@ class RenewController extends BaseRenewController
                 return successResponse(trans('message.existings_invoice'), ['invoice_id' => $existingUnpaidInvoice->invoice_id]);
             }
 
-            $planDetails = userCurrencyAndPrice(\Auth::user()->id, $plan);
+            $planDetails = userCurrencyAndPrice(Auth::user()->id, $plan);
             $price = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
             $noOfAgentsPerPlan = (int) $planDetails['plan']->no_of_agents;
 
-            $agents = InvoiceItem::whereHas('invoice', fn ($q) => $q->whereHas('orders', fn ($q) => $q->where('orders.id', $sub->order_id))
+            $agents = InvoiceItem::whereHas('invoice', fn (Builder $q) => $q->whereHas('orders', fn (Builder $q) => $q->where('orders.id', $sub->order_id))
             )
                 ->orderByDesc('id')
                 ->value('agents');
@@ -337,7 +349,7 @@ class RenewController extends BaseRenewController
             $invoiceid = $items->invoice_id;
 
             return successResponse('', ['invoice_id' => $invoiceid]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -346,7 +358,7 @@ class RenewController extends BaseRenewController
     {
         $invoice_id = OrderInvoiceRelation::where('order_id', $subscription->order_id)->latest()->value('invoice_id');
 
-        $latestInvoiceItem = InvoiceItem::whereHas('invoice', function ($query) use ($invoice_id, $planId) {
+        $latestInvoiceItem = InvoiceItem::whereHas('invoice', function (Builder $query) use ($invoice_id, $planId): void {
             $query->where('invoice_id', $invoice_id)
                 ->where('is_renewed', 1)
                 ->where('status', 'pending')
@@ -386,7 +398,7 @@ class RenewController extends BaseRenewController
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
-            $date = \Carbon\Carbon::parse($sub->ends_at);
+            $date = Date::parse($sub->ends_at);
             $expiry_date = $date->addDays($days);
         }
 
@@ -398,7 +410,7 @@ class RenewController extends BaseRenewController
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
-            $date = \Carbon\Carbon::parse($sub->update_ends_at);
+            $date = Date::parse($sub->update_ends_at);
             $expiry_date = $date->addDays($days);
         }
 
@@ -410,7 +422,7 @@ class RenewController extends BaseRenewController
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
-            $date = \Carbon\Carbon::parse($sub->support_ends_at);
+            $date = Date::parse($sub->support_ends_at);
             $expiry_date = $date->addDays($days);
         }
 
@@ -427,7 +439,7 @@ class RenewController extends BaseRenewController
         );
         $response = explode('{', (string) $response->getBody());
 
-        $response = array_first($response);
+        $response = Arr::first($response);
 
         return json_decode($response);
     }

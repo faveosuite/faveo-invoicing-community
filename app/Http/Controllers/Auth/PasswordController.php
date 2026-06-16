@@ -2,6 +2,16 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Exception;
+use App\Model\User\Password;
+use App\User;
+use Hash;
+use Illuminate\Support\Str;
+use App\Model\Common\Setting;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
+use App\Http\Controllers\Common\PhpMailController;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\PasswordBroker;
@@ -26,8 +36,8 @@ class PasswordController extends Controller
     /**
      * Create a new password controller instance.
      *
-     * @param  \Illuminate\Contracts\Auth\Guard  $auth
-     * @param  \Illuminate\Contracts\Auth\PasswordBroker  $passwords
+     * @param Guard $auth
+     * @param PasswordBroker $passwords
      * @return void
      */
     public function __construct(Guard $auth, PasswordBroker $passwords)
@@ -39,7 +49,7 @@ class PasswordController extends Controller
     {
         try {
             return view('themes.default1.front.auth.password');
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return redirect()->with('fails', $ex->getMessage());
         }
     }
@@ -48,7 +58,7 @@ class PasswordController extends Controller
      * Display the password reset view for the given token.
      *
      * @param  string  $token
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function getReset($token = null)
     {
@@ -63,7 +73,7 @@ class PasswordController extends Controller
      * Reset the given user's password.
      *
      * @param  Request  $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function postReset(Request $request)
     {
@@ -79,25 +89,25 @@ class PasswordController extends Controller
         ]);
         $token = $request->input('token');
         $pass = $request->input('password');
-        $password = new \App\Model\User\Password();
+        $password = new Password();
         $password = $password->where('token', $token)->first();
         if ($password) {
-            $user = new \App\User();
+            $user = new User();
             $user = $user->where('email', $password->email)->first();
             if ($user) {
-                $user->password = \Hash::make($pass);
+                $user->password = Hash::make($pass);
                 $user->save();
 
                 return redirect('auth/login')->with('success', __('message.password_changed_successfully'));
             } else {
-                return redirect()->back()
+                return back()
                     ->withInput($request->only('email'))
                     ->withErrors([
                         'email' => __('message.invalid_email'),
                     ]);
             }
         } else {
-            return redirect()->back()
+            return back()
                 ->withInput($request->only('email'))
                 ->withErrors([
                     'email' => __('message.invalid_email'),
@@ -108,8 +118,8 @@ class PasswordController extends Controller
     /**
      * Send a reset link to the given user.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function sendResetLinkEmail(Request $request)
     {
@@ -120,8 +130,8 @@ class PasswordController extends Controller
                 'email.exists' => __('validation.custom_email.exists'),
             ]);
         $email = $request->input('email');
-        $token = str_random(40);
-        $password = new \App\Model\User\Password();
+        $token = Str::random(40);
+        $password = new Password();
         if ($password->where('email', $email)->first()) {
             $token = $password->where('email', $email)->first()->token;
         } else {
@@ -130,16 +140,17 @@ class PasswordController extends Controller
         }
 
         $url = url("password/reset/$token");
-        $user = new \App\User();
+        $user = new User();
         $user = $user->where('email', $email)->first();
         if (! $user) {
-            return redirect()->back()->with('fails', __('message.invalid_email'));
+            return back()->with('fails', __('message.invalid_email'));
         }
+
         //check in the settings
-        $settings = new \App\Model\Common\Setting();
+        $settings = new Setting();
         $setting = $settings->where('id', 1)->first();
         //template
-        $templates = new \App\Model\Common\Template();
+        $templates = new Template();
         $temp_id = $setting->forgot_password;
         $template = $templates->where('id', $temp_id)->first();
         $from = $setting->email;
@@ -150,14 +161,15 @@ class PasswordController extends Controller
         $type = '';
         if ($template) {
             $type_id = $template->type;
-            $temp_type = new \App\Model\Common\TemplateType();
+            $temp_type = new TemplateType();
             $type = $temp_type->where('id', $type_id)->first()->name;
         }
-        $mail = new \App\Http\Controllers\Common\PhpMailController();
+
+        $mail = new PhpMailController();
         if ($emailSendingStatus) {
             $mail->sendEmail($from, $to, $data, $subject, $replace, $type);
         }
 
-        return redirect()->back()->with('success', __('message.resets_instruction').$to.'. '.__('message.check_junk_folder'));
+        return back()->with('success', __('message.resets_instruction').$to.'. '.__('message.check_junk_folder'));
     }
 }

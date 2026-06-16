@@ -54,7 +54,7 @@ class InstallationController extends Controller
             'installation_status' => $request->get('installation_status'),
         ]);
 
-        $name = optional($installation->product)->name;
+        $name = $installation->product?->name;
         $pageMessage = "{$name} installation on {$installation->installation_domain} ({$installation->installation_ip}) updated.";
         LicenseHelper::logAdminReport(strip_tags($pageMessage), 0, 1, 1);
 
@@ -78,7 +78,7 @@ class InstallationController extends Controller
         $pluginProductIds = LicensePlugin::where('license_id', $licenseId)->pluck('product_id');
 
         return Installation::where('license_code', $installation->license_code)
-            ->where(function ($query) use ($id, $pluginProductIds) {
+            ->where(function ($query) use ($id, $pluginProductIds): void {
                 $query->where('id', $id)->orWhereIn('product_id', $pluginProductIds);
             })
             ->delete();
@@ -89,13 +89,13 @@ class InstallationController extends Controller
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query');
-        $sortOrder = strtolower($request->input('sort_order', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $sortOrder = strtolower((string) $request->input('sort_order', 'desc')) === 'asc' ? 'asc' : 'desc';
         $sortField = in_array($request->input('sort_field', 'id'), ['id', 'product_id', 'user_id', 'license_code', 'installation_ip', 'installation_domain', 'installation_date', 'installation_status'], true) ? $request->input('sort_field', 'id') : 'id';
 
         $installations = Installation::query()
             ->with(['product:id,name', 'user:id,email', 'license:id,license_code'])
-            ->when($searchQuery, function ($query) use ($searchQuery) {
-                $query->where(function ($q) use ($searchQuery) {
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($q) use ($searchQuery): void {
                     $q->whereHas('user', fn ($u) => $u->where('email', 'like', '%'.$searchQuery.'%'))
                         ->orWhereHas('product', fn ($p) => $p->where('name', 'like', '%'.$searchQuery.'%'))
                         ->orWhere('license_code', 'like', '%'.str_replace('-', '', $searchQuery).'%')
@@ -107,21 +107,19 @@ class InstallationController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $installations->getCollection()->transform(function (Installation $installation) {
-            return [
-                'id' => $installation->id,
-                'product_id' => $installation->product_id,
-                'client_id' => $installation->user_id,
-                'license_code' => $installation->license_code,
-                'installation_ip' => $installation->installation_ip,
-                'installation_domain' => $installation->installation_domain,
-                'installation_date' => $installation->installation_date,
-                'installation_status' => $installation->installation_status,
-                'product_title' => optional($installation->product)->name,
-                'client_email' => optional($installation->user)->email,
-                'license_id' => optional($installation->license)->id,
-            ];
-        });
+        $installations->getCollection()->transform(fn(Installation $installation) => [
+            'id' => $installation->id,
+            'product_id' => $installation->product_id,
+            'client_id' => $installation->user_id,
+            'license_code' => $installation->license_code,
+            'installation_ip' => $installation->installation_ip,
+            'installation_domain' => $installation->installation_domain,
+            'installation_date' => $installation->installation_date,
+            'installation_status' => $installation->installation_status,
+            'product_title' => $installation->product?->name,
+            'client_email' => $installation->user?->email,
+            'license_id' => $installation->license?->id,
+        ]);
 
         return successResponse(Lang::get('license::lang.Install_show'), $installations);
     }

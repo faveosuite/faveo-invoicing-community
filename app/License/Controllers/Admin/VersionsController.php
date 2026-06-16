@@ -17,16 +17,16 @@ class VersionsController extends Controller
         $sortField = $request->input('sort_field', 'id');
         $allowedSortFields = ['id', 'product_id', 'version', 'created_at', 'status'];
         $sortField = in_array($sortField, $allowedSortFields, true) ? $sortField : 'id';
-        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+        $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
 
         $versions = ProductUpload::query()
             ->with(['product:id,name'])
             ->withCount('callbacks as callback_count')
-            ->when($searchQuery, function ($query) use ($searchQuery) {
-                $query->where(function ($q) use ($searchQuery) {
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($q) use ($searchQuery): void {
                     $q->where('version', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('created_at', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhereHas('product', function ($productQuery) use ($searchQuery) {
+                        ->orWhereHas('product', function ($productQuery) use ($searchQuery): void {
                             $productQuery->where('name', 'LIKE', '%'.$searchQuery.'%');
                         });
                 });
@@ -34,18 +34,16 @@ class VersionsController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $versions->getCollection()->transform(function (ProductUpload $version) {
-            return [
-                'id' => $version->id,
-                'product_id' => $version->product_id,
-                'version_number' => $version->version,
-                'version_date' => $version->created_at,
-                'version_status' => $version->status,
-                'version_install_count' => $version->version_install_count ?? 0,
-                'product_title' => optional($version->product)->name,
-                'callback_count' => $version->callback_count,
-            ];
-        });
+        $versions->getCollection()->transform(fn(ProductUpload $version) => [
+            'id' => $version->id,
+            'product_id' => $version->product_id,
+            'version_number' => $version->version,
+            'version_date' => $version->created_at,
+            'version_status' => $version->status,
+            'version_install_count' => $version->version_install_count ?? 0,
+            'product_title' => $version->product?->name,
+            'callback_count' => $version->callback_count,
+        ]);
 
         return successResponse('', $versions);
     }

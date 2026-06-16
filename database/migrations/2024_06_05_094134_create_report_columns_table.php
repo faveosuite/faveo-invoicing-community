@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('report_columns', function (Blueprint $table) {
+        Schema::create('report_columns', function (Blueprint $table): void {
             $table->id();
             $table->string('key')->nullable();
             $table->string('label')->nullable();

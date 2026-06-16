@@ -9,6 +9,7 @@ use Illuminate\Support\Arr;
 class ZohoAccessToken
 {
     protected array $accessToken = [];
+
     protected array $refreshToken = [];
 
     public function get(int $integrationId): string
@@ -42,11 +43,11 @@ class ZohoAccessToken
 
         $refreshToken = ZohoOAuthToken::findRefreshToken($integrationId)->refresh_token;
 
-        $response = (new ZohoAccountsApi(
+        $response = new ZohoAccountsApi(
             $zohoIntegration->client_id,
             $zohoIntegration->client_secret,
             getZohoRegion($zohoIntegration->region)
-        ))->refreshAccessToken(
+        )->refreshAccessToken(
             $refreshToken
         );
 

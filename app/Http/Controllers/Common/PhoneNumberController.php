@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Common;
 
+use Exception;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberType;
@@ -9,7 +10,7 @@ use libphonenumber\PhoneNumberUtil;
 
 class PhoneNumberController
 {
-    private PhoneNumberUtil $phoneUtil;
+    private readonly PhoneNumberUtil $phoneUtil;
 
     public function __construct()
     {
@@ -277,7 +278,7 @@ class PhoneNumberController
             $example = $this->phoneUtil->getExampleNumberForType($countryCode, $type);
 
             return $this->phoneUtil->format($example, PhoneNumberFormat::INTERNATIONAL);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return null;
         }
     }
@@ -292,7 +293,7 @@ class PhoneNumberController
     {
         try {
             return $this->phoneUtil->getCountryCodeForRegion($countryCode);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return null;
         }
     }

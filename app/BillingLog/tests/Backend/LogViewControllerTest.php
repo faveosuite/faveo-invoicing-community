@@ -2,6 +2,10 @@
 
 namespace App\BillingLog\tests\Backend;
 
+use Logger;
+use Illuminate\Support\Facades\Date;
+use DB;
+use Str;
 use App\BillingLog\Controllers\LogWriteController;
 use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\ExceptionLog;
@@ -10,7 +14,6 @@ use App\BillingLog\Model\MailLog;
 use App\Model\Order\Order;
 use App\Payment_log;
 use App\User;
-use Carbon\Carbon;
 use Exception;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -34,8 +37,8 @@ class LogViewControllerTest extends DBTestCase
     #[Group('exception-logs')]
     public function test_exceptionLogs_withoutFilters()
     {
-        \Logger::exception(new Exception('test_exception_1'));
-        \Logger::exception(new Exception('test_exception_2'));
+        Logger::exception(new Exception('test_exception_1'));
+        Logger::exception(new Exception('test_exception_2'));
 
         $response = $this->postJson('/logs/exception', $this->defaultExceptionPayload());
 
@@ -49,8 +52,8 @@ class LogViewControllerTest extends DBTestCase
     #[Group('exception-logs')]
     public function test_exceptionLogs_withSearchQuery()
     {
-        \Logger::exception(new Exception('test_exception_1'));
-        \Logger::exception(new Exception('test_exception_2'));
+        Logger::exception(new Exception('test_exception_1'));
+        Logger::exception(new Exception('test_exception_2'));
 
         $payload = $this->defaultExceptionPayload(['search-query' => 'test_exception_1']);
 
@@ -66,7 +69,7 @@ class LogViewControllerTest extends DBTestCase
     public function test_exceptionLogs_withLimit()
     {
         foreach (range(1, 5) as $i) {
-            \Logger::exception(new Exception("test_exception_$i"));
+            Logger::exception(new Exception("test_exception_$i"));
         }
 
         $payload = $this->defaultExceptionPayload(['limit' => 3]);
@@ -80,7 +83,7 @@ class LogViewControllerTest extends DBTestCase
     #[Group('exception-logs')]
     public function test_exceptionLogs_withFutureDateSearch()
     {
-        \Logger::exception(new Exception('test_exception_1'));
+        Logger::exception(new Exception('test_exception_1'));
 
         $payload = $this->defaultExceptionPayload(['search-query' => '3000-11-27']);
 
@@ -96,9 +99,9 @@ class LogViewControllerTest extends DBTestCase
         $cat1 = LogCategory::create(['name' => 'test_category_1']);
         $cat2 = LogCategory::create(['name' => 'test_category_2']);
 
-        \Logger::exception(new Exception('exception_one'), $cat1->name);
-        \Logger::exception(new Exception('exception_two'), $cat1->name);
-        \Logger::exception(new Exception('exception_two'), $cat2->name);
+        Logger::exception(new Exception('exception_one'), $cat1->name);
+        Logger::exception(new Exception('exception_two'), $cat1->name);
+        Logger::exception(new Exception('exception_two'), $cat2->name);
 
         $payload = $this->defaultExceptionPayload(['category' => $cat1->id]);
 
@@ -116,9 +119,9 @@ class LogViewControllerTest extends DBTestCase
     public function test_cronLogs_withCategoryAndStatus()
     {
         LogCategory::create(['name' => 'database:sync']);
-        $cronLog = \Logger::cron('database:sync', 'Update DB to latest version');
-        \Logger::cron('testing-setup', 'Create an testing environment');
-        \Logger::cronCompleted($cronLog->id);
+        $cronLog = Logger::cron('database:sync', 'Update DB to latest version');
+        Logger::cron('testing-setup', 'Create an testing environment');
+        Logger::cronCompleted($cronLog->id);
 
         $payload = $this->defaultCronPayload(['category' => 'database:sync', 'status' => 'completed']);
 
@@ -131,11 +134,11 @@ class LogViewControllerTest extends DBTestCase
     #[Group('cron-logs')]
     public function test_cronLogs_withLimit()
     {
-        $log1 = \Logger::cron('database:sync', 'Update DB to latest version');
-        $log2 = \Logger::cron('database:sync', 'Update DB to latest version');
+        $log1 = Logger::cron('database:sync', 'Update DB to latest version');
+        $log2 = Logger::cron('database:sync', 'Update DB to latest version');
 
-        \Logger::cronCompleted($log1->id);
-        \Logger::cronCompleted($log2->id);
+        Logger::cronCompleted($log1->id);
+        Logger::cronCompleted($log2->id);
 
         $payload = $this->defaultCronPayload(['limit' => 1]);
 
@@ -148,13 +151,13 @@ class LogViewControllerTest extends DBTestCase
     #[Group('cron-logs')]
     public function test_cronLogs_withCreatedAtFilter()
     {
-        $log1 = \Logger::cron('database:sync', 'Update DB to latest version');
-        $log2 = \Logger::cron('database:sync', 'Update DB to latest version');
+        $log1 = Logger::cron('database:sync', 'Update DB to latest version');
+        $log2 = Logger::cron('database:sync', 'Update DB to latest version');
 
-        CronLog::where('id', $log1->id)->update(['created_at' => Carbon::now()->subDay()]);
+        CronLog::where('id', $log1->id)->update(['created_at' => Date::now()->subDay()]);
 
-        \Logger::cronCompleted($log1->id);
-        \Logger::cronCompleted($log2->id);
+        Logger::cronCompleted($log1->id);
+        Logger::cronCompleted($log2->id);
 
         $response = $this->postJson('/logs/cron', $this->defaultCronPayload());
 
@@ -226,7 +229,7 @@ class LogViewControllerTest extends DBTestCase
             'start' => 0,
             'length' => 10,
             'search' => ['value' => '', 'regex' => false],
-            'date' => Carbon::now()->toDateString(),
+            'date' => Date::now()->toDateString(),
             'category' => $this->defaultCategoryId,
             'log_type' => 'exception',
         ], $overrides);
@@ -237,7 +240,7 @@ class LogViewControllerTest extends DBTestCase
         return array_merge([
             'start' => 0,
             'length' => 10,
-            'date' => Carbon::now()->toDateString(),
+            'date' => Date::now()->toDateString(),
             'category' => 'database:sync',
             'status' => 'completed',
         ], $overrides);
@@ -252,7 +255,7 @@ class LogViewControllerTest extends DBTestCase
             'start' => 0,
             'length' => 10,
             'search' => ['value' => '', 'regex' => false],
-            'date' => Carbon::now()->toDateString(),
+            'date' => Date::now()->toDateString(),
             'category' => $this->defaultCategoryId,
             'log_type' => 'mail',
             'status' => 'queued',
@@ -266,7 +269,7 @@ class LogViewControllerTest extends DBTestCase
             'searchable' => true,
             'orderable' => true,
             'search' => ['value' => '', 'regex' => false],
-        ])->toArray();
+        ])->all();
     }
 
     private function logMailByCategory(
@@ -278,15 +281,14 @@ class LogViewControllerTest extends DBTestCase
         $status = 'queued',
         $categoryName = 'test_category'
     ) {
-        return (new LogWriteController())->logMailByCategory(
+        return new LogWriteController()->logMailByCategory(
             $senderMail,
             $receiverMail,
             $cc,
             $bcc,
             $subject,
             'This is a test email body.',
-            $categoryName,
-            $status
+            $categoryName
         );
     }
 
@@ -326,6 +328,7 @@ class LogViewControllerTest extends DBTestCase
         $response->assertStatus(200)
                  ->assertJsonFragment(['message' => 'Logs deleted successfully']);
     }
+
     /*
      * Delete Mail Log Test Cases
      */
@@ -562,14 +565,14 @@ class LogViewControllerTest extends DBTestCase
         $category = LogCategory::create(['name' => 'database:sync']);
 
         //Create OLD cron log — should be deleted
-        $oldCronLog = \Logger::cron('database:sync', 'Old cron execution');
-        \DB::table('cron_logs')->where('id', $oldCronLog->id)->update([
+        $oldCronLog = Logger::cron('database:sync', 'Old cron execution');
+        DB::table('cron_logs')->where('id', $oldCronLog->id)->update([
             'created_at' => now()->subDays(10),
         ]);
 
         // Create NEW cron log — should remain
-        $newCronLog = \Logger::cron('database:sync', 'Recent cron execution');
-        \DB::table('cron_logs')->where('id', $newCronLog->id)->update([
+        $newCronLog = Logger::cron('database:sync', 'Recent cron execution');
+        DB::table('cron_logs')->where('id', $newCronLog->id)->update([
             'created_at' => now(),
         ]);
 
@@ -590,8 +593,8 @@ class LogViewControllerTest extends DBTestCase
     public function test_it_deletes_failed_job_logs()
     {
         // Create OLD failed job — should be deleted
-        $oldFailedId = \DB::table('failed_jobs')->insertGetId([
-            'uuid' => \Str::uuid(),
+        $oldFailedId = DB::table('failed_jobs')->insertGetId([
+            'uuid' => Str::uuid(),
             'connection' => 'database',
             'queue' => 'default',
             'payload' => json_encode(['job' => 'ProcessOld']),
@@ -600,8 +603,8 @@ class LogViewControllerTest extends DBTestCase
         ]);
 
         // Create NEW failed job — should remain
-        $newFailedId = \DB::table('failed_jobs')->insertGetId([
-            'uuid' => \Str::uuid(),
+        $newFailedId = DB::table('failed_jobs')->insertGetId([
+            'uuid' => Str::uuid(),
             'connection' => 'database',
             'queue' => 'default',
             'payload' => json_encode(['job' => 'ProcessNew']),
@@ -697,7 +700,7 @@ class LogViewControllerTest extends DBTestCase
         // Search by status
         $response3 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->status);
         $response3->assertStatus(200)
-                  ->assertJsonFragment(['status' => ucfirst($paymentLog->status)]);
+                  ->assertJsonFragment(['status' => ucfirst((string) $paymentLog->status)]);
 
         // Search by order number
         $response4 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->order);
@@ -711,12 +714,12 @@ class LogViewControllerTest extends DBTestCase
         // Search by payment type
         $response6 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->payment_type);
         $response6->assertStatus(200)
-                  ->assertJsonFragment(['description' => ucfirst($paymentLog->payment_type)]);
+                  ->assertJsonFragment(['description' => ucfirst((string) $paymentLog->payment_type)]);
 
         // Search by payment method
         $response7 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->payment_method);
         $response7->assertStatus(200)
-                  ->assertJsonFragment(['payment_method' => ucfirst($paymentLog->payment_method)]);
+                  ->assertJsonFragment(['payment_method' => ucfirst((string) $paymentLog->payment_method)]);
     }
 
     public function test_payment_log_applies_all_filters_together()
@@ -733,7 +736,7 @@ class LogViewControllerTest extends DBTestCase
             'created_at' => now()->subDay(),
         ]);
         $paymentLog1->forceFill([
-            'created_at' => Carbon::create(2025, 7, 12)->startOfDay(),
+            'created_at' => Date::create(2025, 7, 12)->startOfDay(),
         ])->saveQuietly();
 
         $paymentLog2 = $this->createPaymentLog([
@@ -745,7 +748,7 @@ class LogViewControllerTest extends DBTestCase
             'created_at' => now()->subDay(),
         ]);
         $paymentLog2->forceFill([
-            'created_at' => Carbon::create(2025, 9, 12)->startOfDay(),
+            'created_at' => Date::create(2025, 9, 12)->startOfDay(),
         ])->saveQuietly();
 
         $paymentLog3 = $this->createPaymentLog([
@@ -757,7 +760,7 @@ class LogViewControllerTest extends DBTestCase
             'created_at' => now()->subDay(),
         ]);
         $paymentLog3->forceFill([
-            'created_at' => Carbon::create(2025, 10, 12)->startOfDay(),
+            'created_at' => Date::create(2025, 10, 12)->startOfDay(),
         ])->saveQuietly();
 
         // filter by same date (from and till)

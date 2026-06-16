@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Models;
 
+use Override;
 use Illuminate\Database\Eloquent\Model;
 
 class ZohoFields extends Model
@@ -30,8 +31,12 @@ class ZohoFields extends Model
     /**
      * Attribute casting.
      */
-    protected $casts = [
-        'is_mandatory' => 'boolean',
-        'raw_metadata' => 'array',
-    ];
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'is_mandatory' => 'boolean',
+            'raw_metadata' => 'array',
+        ];
+    }
 }

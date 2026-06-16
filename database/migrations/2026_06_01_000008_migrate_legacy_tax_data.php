@@ -95,6 +95,7 @@ return new class extends Migration
             if ($isNull($row->i_gst)) {
                 continue;
             }
+
             $this->insertRate('GST', 'IN', (string) $row->state_code, (float) $row->i_gst);
         }
     }
@@ -122,6 +123,7 @@ return new class extends Migration
             if ($rate <= 0) {
                 continue;
             }
+
             $this->insertRate(
                 $row->name ?: 'Tax',
                 (string) ($row->country ?? ''),

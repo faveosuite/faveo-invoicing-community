@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Admin\Invoice;
 
+use Darryldecode\Cart\CartCondition;
+use Cart;
 use App\Http\Controllers\Order\InvoiceController;
 use App\Http\Requests\InvoiceRequest;
 use App\Model\Common\Setting;
@@ -29,11 +31,11 @@ class InvoiceControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $setting = Setting::factory()->create(['default_currency' => 'INR']);
-        $taxCondition = new \Darryldecode\Cart\CartCondition([
+        $taxCondition = new CartCondition([
             'name' => 'GST', 'type' => 'tax',
             'value' => 5,
         ]);
-        \Cart::add([
+        Cart::add([
             'id' => $product->id,
             'name' => $product->name,
             'price' => 1000,
@@ -54,11 +56,11 @@ class InvoiceControllerTest extends DBTestCase
         $setting = Setting::factory()->create(['default_currency' => 'INR']);
         $product = Product::factory()->create();
         $plan = Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $taxCondition = new \Darryldecode\Cart\CartCondition([
+        $taxCondition = new CartCondition([
             'name' => 'GST', 'type' => 'tax',
             'value' => 5,
         ]);
-        \Cart::add([
+        Cart::add([
             'id' => $product->id,
             'name' => $product->name,
             'price' => 1000,
@@ -68,7 +70,7 @@ class InvoiceControllerTest extends DBTestCase
             'associatedModel' => $product,
         ]);
         $invoice = $this->classObject->generateInvoice();
-        foreach (\Cart::getContent() as $cart) {
+        foreach (Cart::getContent() as $cart) {
             $invoiceItem = $this->classObject->createInvoiceItems($invoice->id, $cart);
             $this->assertDatabaseHas('invoice_items', ['invoice_id' => $invoice->id]);
         }
@@ -86,7 +88,7 @@ class InvoiceControllerTest extends DBTestCase
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => $this->user->currency, 'add_price' => '1000', 'renew_price' => '500', 'product_quantity' => 1, 'no_of_agents' => 0]);
 
         $invoice = $this->classObject->invoiceGenerateByForm(new InvoiceRequest(['user' => $this->user->id, 'date' => '09/16/2020', 'product' => $product->id, 'price' => $planPrice->add_price, 'code' => '', 'quantity' => $planPrice->product_quantity, 'plan' => $plan->id, 'subscription' => true, 'description' => '']));
-        $message = json_decode($invoice->getContent())->message->success;
+        $message = json_decode((string) $invoice->getContent())->message->success;
         $this->assertEquals($message, 'Invoice generated successfully');
     }
 }

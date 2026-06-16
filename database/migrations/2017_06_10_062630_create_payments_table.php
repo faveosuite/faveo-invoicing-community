@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('payments')) {
-            Schema::create('payments', function (Blueprint $table) {
+            Schema::create('payments', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('parent_id');
                 $table->integer('invoice_id');

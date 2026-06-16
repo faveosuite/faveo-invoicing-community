@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use Exception;
+use Logger;
 use App\Model\Product\Subscription;
 use App\Services\Payment\SubscriptionService;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -27,12 +29,12 @@ class CancelGatewaySubscriptionsJob implements ShouldQueue
             ->where('is_subscribed', 1)
             ->whereNotNull('subscribe_id')
             ->where('subscribe_id', '!=', '')
-            ->chunkById(50, function ($subscriptions) use ($service, $statusField) {
+            ->chunkById(50, function ($subscriptions) use ($service, $statusField): void {
                 foreach ($subscriptions as $subscription) {
                     try {
                         $service->cancelSubscription(ucfirst($this->gateway), $subscription->subscribe_id);
-                    } catch (\Exception $e) {
-                        \Logger::warning("Failed to cancel {$this->gateway} subscription {$subscription->subscribe_id}: ".$e->getMessage());
+                    } catch (Exception $e) {
+                        Logger::warning("Failed to cancel {$this->gateway} subscription {$subscription->subscribe_id}: ".$e->getMessage());
                     }
 
                     $subscription->update([

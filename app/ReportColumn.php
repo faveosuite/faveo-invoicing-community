@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class ReportColumn extends Model
 {
     use HasFactory;
+
     protected $table = 'report_columns';
+
     protected $fillable = [
         'key',
         'label',

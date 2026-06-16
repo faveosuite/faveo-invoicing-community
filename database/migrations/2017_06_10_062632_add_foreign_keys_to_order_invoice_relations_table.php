@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('order_invoice_relations', function (Blueprint $table) {
+        Schema::table('order_invoice_relations', function (Blueprint $table): void {
             // Get all indexes for the order_invoice_relations table
             $indexes = DB::select('SHOW INDEX FROM order_invoice_relations');
 
@@ -55,7 +55,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('order_invoice_relations', function (Blueprint $table) {
+        Schema::table('order_invoice_relations', function (Blueprint $table): void {
             $table->dropForeign('order_invoice_relations_invoice_id_foreign');
             $table->dropForeign('order_invoice_relations_order_id_foreign');
         });

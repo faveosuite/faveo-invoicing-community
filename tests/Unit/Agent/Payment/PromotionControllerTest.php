@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Agent\Payment;
 
+use Illuminate\Support\Facades\Date;
 use App\Model\Payment\PromoProductRelation;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Product\Product;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -34,8 +34,8 @@ class PromotionControllerTest extends DBTestCase
             'type' => $type,
             'value' => $rawValue,
             'uses' => $overrides['uses'] ?? 10,
-            'start' => Carbon::now()->toDateTimeString(),
-            'expiry' => Carbon::now()->addDays(10)->toDateTimeString(),
+            'start' => Date::now()->toDateTimeString(),
+            'expiry' => Date::now()->addDays(10)->toDateTimeString(),
             'applied' => $product->id,
         ], $overrides);
     }
@@ -260,8 +260,8 @@ class PromotionControllerTest extends DBTestCase
             'type' => $type1->id,
             'value' => 30,
             'uses' => 5,
-            'start' => Carbon::now()->toDateTimeString(),
-            'expiry' => Carbon::now()->addDays(7)->toDateTimeString(),
+            'start' => Date::now()->toDateTimeString(),
+            'expiry' => Date::now()->addDays(7)->toDateTimeString(),
             'applied' => $product->id,
         ];
 
@@ -307,8 +307,8 @@ class PromotionControllerTest extends DBTestCase
             'type' => $type2->id,   // 2 => store value as int
             'value' => 200,
             'uses' => 2,
-            'start' => Carbon::now()->toDateTimeString(),
-            'expiry' => Carbon::now()->addDays(3)->toDateTimeString(),
+            'start' => Date::now()->toDateTimeString(),
+            'expiry' => Date::now()->addDays(3)->toDateTimeString(),
             'applied' => $product->id,
         ];
 
@@ -336,8 +336,8 @@ class PromotionControllerTest extends DBTestCase
             'type' => $type->id,
             'value' => 10,
             'uses' => 1,
-            'start' => Carbon::now()->toDateTimeString(),
-            'expiry' => Carbon::now()->addDays(1)->toDateTimeString(),
+            'start' => Date::now()->toDateTimeString(),
+            'expiry' => Date::now()->addDays(1)->toDateTimeString(),
             'applied' => Product::factory()->create()->id,
         ];
 

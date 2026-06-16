@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\ServiceProvider;
 
+use App\Http\Controllers\Front\CheckoutController;
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Model\licence\Licence;
 use App\Model\Licence\LicencedOrganization;
@@ -23,7 +25,7 @@ class ServiceProviderController extends Controller
         $this->middleware('auth');
         $this->middleware('service.provider');
 
-        $cart = new \App\Http\Controllers\Front\CheckoutController();
+        $cart = new CheckoutController();
         $auth = ''; //$cart->GetXdeskAuthOrganization();
         $this->org = $auth;
 
@@ -50,8 +52,8 @@ class ServiceProviderController extends Controller
     {
         try {
             return view('themes.default1.serviceprovider.orders');
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -59,20 +61,20 @@ class ServiceProviderController extends Controller
     {
         try {
             return view('themes.default1.serviceprovider.sla');
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 
     public function pricing()
     {
         try {
-            $licence = new \App\Model\licence\Licence();
+            $licence = new Licence();
             $licences = $licence->get();
 
             return view('themes.default1.serviceprovider.pricing', compact('licences'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (Exception $ex) {
+            return back()->with('fails', $ex->getMessage());
         }
     }
 }

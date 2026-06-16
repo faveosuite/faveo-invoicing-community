@@ -13,7 +13,7 @@ Route::post('mail-chimp/subscribe', [SettingsController::class, 'subscribeFromWi
     ->middleware('recaptcha:mailChimp');
 
 // ── Admin settings (auth + admin middleware inherited from web.php group) ──────
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'admin'])->group(function (): void {
     // Settings page — replaces GET settings/mailchimp
     Route::get('settings/mailchimp', [SettingsController::class, 'getSettings']);
 

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('faveo_queues')) {
-            Schema::create('faveo_queues', function (Blueprint $table) {
+            Schema::create('faveo_queues', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->integer('service_id');
                 $table->string('key');

@@ -18,21 +18,22 @@ class InvoiceItem extends BaseModel
 
     public function taxLines()
     {
-        return $this->hasMany(\App\Model\Order\InvoiceTaxLine::class, 'invoice_item_id');
+        return $this->hasMany(InvoiceTaxLine::class, 'invoice_item_id');
     }
 
-    public function setDomainAttribute($value)
+    protected function setDomainAttribute($value)
     {
         $this->attributes['domain'] = $this->get_domain($value);
     }
 
     public function get_domain($url)
     {
-        $pieces = parse_url($url);
-        $domain = isset($pieces['host']) ? $pieces['host'] : '';
+        $pieces = parse_url((string) $url);
+        $domain = $pieces['host'] ?? '';
         if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
             return $regs['domain'];
         }
+
         if (! $domain) {
             $domain = $pieces['path'];
         }
@@ -42,7 +43,7 @@ class InvoiceItem extends BaseModel
 
     public function order()
     {
-        return $this->hasOne(\App\Model\Order\Order::class, 'invoice_item_id');
+        return $this->hasOne(Order::class, 'invoice_item_id');
     }
 
     public function invoice()

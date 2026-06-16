@@ -2,6 +2,8 @@
 
 namespace App\Model\Common;
 
+use Crypt;
+use Exception;
 use App\Facades\Attach;
 use App\Model\Payment\Currency;
 use App\Traits\SystemActivityLogsTrait;
@@ -10,8 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
-    use HasFactory, SystemActivityLogsTrait;
-
+    use HasFactory;
+    use SystemActivityLogsTrait;
     protected $table = 'settings';
 
     protected $fillable = ['company', 'website', 'phone', 'logo', 'phone_country_iso',
@@ -92,18 +94,18 @@ class Setting extends Model
         ];
     }
 
-    public function getPasswordAttribute($value)
+    protected function getPasswordAttribute($value)
     {
         if ($value) {
-            $value = \Crypt::decrypt($value);
+            $value = Crypt::decrypt($value);
         }
 
         return $value;
     }
 
-    public function setPasswordAttribute($value)
+    protected function setPasswordAttribute($value)
     {
-        $value = \Crypt::encrypt($value);
+        $value = Crypt::encrypt($value);
         $this->attributes['password'] = $value;
     }
 
@@ -113,22 +115,22 @@ class Setting extends Model
             return $value
                 ? Attach::getUrlPath($path.'/'.$value)
                 : $default;
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return $default;
         }
     }
 
-    public function getLogoAttribute($value)
+    protected function getLogoAttribute($value)
     {
         return $this->getImage($value, 'images', asset('images/agora-invoicing.png'));
     }
 
-    public function getAdminLogoAttribute($value)
+    protected function getAdminLogoAttribute($value)
     {
         return $this->getImage($value, 'admin/images', asset('images/agora_admin_logo.png'));
     }
 
-    public function getFavIconAttribute($value)
+    protected function getFavIconAttribute($value)
     {
         return $this->getImage($value, 'common/images', asset('images/faveo.png'));
     }
@@ -155,6 +157,6 @@ class Setting extends Model
 
     public function timezone()
     {
-        return $this->belongsTo(\App\Model\Common\Timezone::class, 'timezone_id');
+        return $this->belongsTo(Timezone::class, 'timezone_id');
     }
 }

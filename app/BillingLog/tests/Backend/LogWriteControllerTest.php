@@ -2,11 +2,13 @@
 
 namespace App\BillingLog\tests\Backend;
 
+use Illuminate\Support\Facades\Date;
+use Illuminate\Validation\ValidationException;
+use ReflectionClass;
 use App\BillingLog\Controllers\LogWriteController;
 use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\ExceptionLog;
 use App\BillingLog\Model\MailLog;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
@@ -48,7 +50,7 @@ class LogWriteControllerTest extends TestCase
             'status' => 'running',
         ]);
 
-        Carbon::setTestNow(now()->addSeconds(5));
+        Date::setTestNow(now()->addSeconds(5));
         $this->controller->cronCompleted($log->id);
 
         $this->assertDatabaseHas('cron_logs', [
@@ -68,7 +70,7 @@ class LogWriteControllerTest extends TestCase
             'status' => 'running',
         ]);
 
-        Carbon::setTestNow(now()->addSeconds(10));
+        Date::setTestNow(now()->addSeconds(10));
         $this->controller->cronFailed($log->id, new Exception('Cron failed'));
 
         $this->assertDatabaseHas('cron_logs', [
@@ -186,7 +188,7 @@ class LogWriteControllerTest extends TestCase
     #[Group('log-deletion')]
     public function delete_logs_validates_request()
     {
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
 
         $request = new Request([
             'log_types' => ['invalid-type'],
@@ -199,9 +201,8 @@ class LogWriteControllerTest extends TestCase
      */
     protected function invokeMethod(&$object, $methodName, array $parameters = [])
     {
-        $reflection = new \ReflectionClass(get_class($object));
+        $reflection = new ReflectionClass($object::class);
         $method = $reflection->getMethod($methodName);
-        $method->setAccessible(true);
 
         return $method->invokeArgs($object, $parameters);
     }

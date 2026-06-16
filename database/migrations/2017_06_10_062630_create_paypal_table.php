@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('paypal')) {
-            Schema::create('paypal', function (Blueprint $table) {
+            Schema::create('paypal', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('business');
                 $table->string('cmd');

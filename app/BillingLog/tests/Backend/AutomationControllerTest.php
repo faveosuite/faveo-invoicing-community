@@ -2,6 +2,7 @@
 
 namespace App\BillingLog\tests\Backend;
 
+use Illuminate\Support\Facades\Date;
 use App\BillingLog\Controllers\AutomationController;
 use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\ExceptionLog;
@@ -10,7 +11,6 @@ use App\BillingLog\Model\MailLog;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mail;
 use PHPUnit\Framework\Attributes\Group;
@@ -58,7 +58,7 @@ class AutomationControllerTest extends TestCase
         CronLog::create([
             'command' => $command,
             'status' => 'success',
-            'created_at' => Carbon::parse($date)->startOfDay(),
+            'created_at' => Date::parse($date)->startOfDay(),
         ]);
 
         $response = $this->getJson("/log-category-list?date={$date}&log_type=cron");
@@ -90,7 +90,7 @@ class AutomationControllerTest extends TestCase
         MailLog::create([
             'log_category_id' => $category->id,
             'status' => 'sent',
-            'created_at' => Carbon::parse($date)->startOfDay(),
+            'created_at' => Date::parse($date)->startOfDay(),
         ]);
 
         $response = $this->getJson("/log-category-list?date={$date}&log_type=mail");
@@ -113,7 +113,7 @@ class AutomationControllerTest extends TestCase
 
         ExceptionLog::create([
             'log_category_id' => $category->id,
-            'created_at' => Carbon::parse($date)->startOfDay(),
+            'created_at' => Date::parse($date)->startOfDay(),
         ]);
 
         $response = $this->getJson("/log-category-list?date={$date}&log_type=exception");

@@ -8,17 +8,17 @@ namespace App\Plugins\Payment\Dto;
  * $paid is the only field a caller must check; $reference carries the gateway
  * transaction id (Stripe PaymentIntent id, Razorpay payment id) for records.
  */
-final class PaymentResult
+final readonly class PaymentResult
 {
     /**
      * @param  array<string, mixed>  $raw
      */
     public function __construct(
-        public readonly bool $paid,
-        public readonly string $gateway,
-        public readonly ?string $reference = null,
-        public readonly string $status = '',
-        public readonly array $raw = [],
+        public bool $paid,
+        public string $gateway,
+        public ?string $reference = null,
+        public string $status = '',
+        public array $raw = [],
     ) {
     }
 }

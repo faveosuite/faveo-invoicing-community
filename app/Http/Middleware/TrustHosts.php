@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Override;
 use Illuminate\Http\Middleware\TrustHosts as Middleware;
 
 class TrustHosts extends Middleware
@@ -11,6 +12,7 @@ class TrustHosts extends Middleware
      *
      * @return array<int, string|null>
      */
+    #[Override]
     public function hosts()
     {
         return [

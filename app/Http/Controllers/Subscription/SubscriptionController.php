@@ -2,6 +2,14 @@
 
 namespace App\Http\Controllers\Subscription;
 
+use Illuminate\Support\Facades\Date;
+use Illuminate\Contracts\Database\Query\Builder;
+use Exception;
+use App\Services\Payment\ProcessingFee;
+use DB;
+use App\Services\Payment\SubscriptionService;
+use Logger;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Auto_renewal;
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
 use App\Http\Controllers\Controller;
@@ -18,7 +26,6 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
-use Carbon\Carbon;
 
 class SubscriptionController extends Controller
 {
@@ -61,25 +68,25 @@ class SubscriptionController extends Controller
         $subscriptions = collect();
 
         foreach ($days as $day) {
-            $endDate = Carbon::now()->addDays($day)->toDateString();
+            $endDate = Date::now()->addDays($day)->toDateString();
 
             $subscriptions = $subscriptions->merge(
                 Subscription::query()
                     ->select(['subscriptions.*', 'orders.id as order_id', 'subscriptions.id as id'])
                     ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
-                    ->where(fn ($q) => $q
+                    ->where(fn (Builder $q) => $q
                         ->whereDate('subscriptions.update_ends_at', $endDate)
                         ->orWhereDate('subscriptions.support_ends_at', $endDate)
                         ->orWhereDate('subscriptions.ends_at', $endDate)
                     )
-                    ->where(fn ($q) => $q
+                    ->where(fn (Builder $q) => $q
                         ->when($stripeEnabled, fn ($q) => $q
                             // status=1: needs gateway subscription created
                             // status=3: active, renewal invoice pre-created for webhook
-                            ->orWhere(fn ($q) => $q->where('subscriptions.is_subscribed', 1)->whereIn('subscriptions.autoRenew_status', [1, 3]))
+                            ->orWhere(fn (Builder $q) => $q->where('subscriptions.is_subscribed', 1)->whereIn('subscriptions.autoRenew_status', [1, 3]))
                         )
                         ->when($razorpayEnabled, fn ($q) => $q
-                            ->orWhere(fn ($q) => $q->where('subscriptions.is_subscribed', 1)->whereIn('subscriptions.rzp_subscription', [1, 3]))
+                            ->orWhere(fn (Builder $q) => $q->where('subscriptions.is_subscribed', 1)->whereIn('subscriptions.rzp_subscription', [1, 3]))
                         )
                     )
                     ->get()
@@ -106,10 +113,10 @@ class SubscriptionController extends Controller
         $subscriptions = collect();
 
         foreach ($days as $day) {
-            $endDate = Carbon::now()->addDays($day)->toDateString();
+            $endDate = Date::now()->addDays($day)->toDateString();
 
             $subscriptions = $subscriptions->merge(
-                Subscription::where(fn ($q) => $q
+                Subscription::where(fn (\Illuminate\Contracts\Database\Eloquent\Builder $q) => $q
                     ->whereDate('update_ends_at', $endDate)
                     ->orWhereDate('support_ends_at', $endDate)
                     ->orWhereDate('ends_at', $endDate)
@@ -132,12 +139,12 @@ class SubscriptionController extends Controller
             return [];
         }
 
-        $decoded = json_decode($raw);
+        $decoded = json_decode((string) $raw);
         if (json_last_error() !== JSON_ERROR_NONE || ! $decoded) {
             return [];
         }
 
-        return array_map('intval', (array) $decoded);
+        return array_map(intval(...), (array) $decoded);
     }
 
     // ── Per-subscription renewal ──────────────────────────────────────────
@@ -163,11 +170,11 @@ class SubscriptionController extends Controller
             $paymentMethod = $this->resolvePaymentMethod($subscription);
 
             if (is_null($planDetails['plan'])) {
-                throw new \Exception(__('message.order_no_active_plan_cancelled', ['order_number' => $order->number]));
+                throw new Exception(__('message.order_no_active_plan_cancelled', ['order_number' => $order->number]));
             }
 
             $cost = $this->calculateRenewalCost($subscription, $planDetails, $order);
-            $cost = \App\Services\Payment\ProcessingFee::addTo($cost, $paymentMethod);
+            $cost = ProcessingFee::addTo($cost, $paymentMethod);
 
             if ($cost == 0) {
                 $subscription->update(['is_subscribed' => 0]);
@@ -190,7 +197,7 @@ class SubscriptionController extends Controller
             // invoice.payment_succeeded (Stripe) or subscription.charged (Razorpay)
             // and SubscriptionWebhookController handles fulfillment. No polling needed.
             $this->createSubscriptionsForEnabledUsers($stripeDetails, $product, $unitCost, $currency, $plan, $subscription, $invoice, $order, $user, $cost, $subscription->update_ends_at);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->PostSubscriptionHandle->sendFailedPayment(
                 $cost, $ex->getMessage(), $user,
                 $order?->number, $subscriptionData->update_ends_at,
@@ -204,6 +211,7 @@ class SubscriptionController extends Controller
         if ($subscription->autoRenew_status != '0') {
             return 'stripe';
         }
+
         if ($subscription->rzp_subscription != '0') {
             return 'razorpay';
         }
@@ -218,7 +226,7 @@ class SubscriptionController extends Controller
         if (isAgentAllowed($subscription->product_id, $subscription->plan_id)) {
             $pricePerAgent = $price / $planDetails['plan']->no_of_agents;
 
-            return (float) $this->getPriceforCloud($order, $pricePerAgent);
+            return $this->getPriceforCloud($order, $pricePerAgent);
         }
 
         return $price;
@@ -226,12 +234,12 @@ class SubscriptionController extends Controller
 
     private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, $user, Plan $plan, float $cost, string $currency): Invoice
     {
-        $latestInvoiceId = \DB::table('order_invoice_relations')
+        $latestInvoiceId = DB::table('order_invoice_relations')
             ->where('order_id', $subscription->order_id)
             ->latest()
             ->value('invoice_id');
 
-        $existingItem = \DB::table('invoice_items')
+        $existingItem = DB::table('invoice_items')
             ->where('invoice_id', $latestInvoiceId)
             ->where('product_id', $subscription->product_id)
             ->first();
@@ -248,13 +256,13 @@ class SubscriptionController extends Controller
             }
         }
 
-        $originalInvoiceId = \DB::table('order_invoice_relations')
+        $originalInvoiceId = DB::table('order_invoice_relations')
             ->where('order_id', $order->id)
             ->oldest()
             ->value('invoice_id');
 
-        $agents = \DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents');
-        $invoiceItem = (new BaseRenewController())->generateInvoice($product, $user, $order->id, $plan->id, $cost, '', $agents, $currency);
+        $agents = DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents');
+        $invoiceItem = new BaseRenewController()->generateInvoice($product, $user, $order->id, $plan->id, $cost, '', $agents, $currency);
 
         return Invoice::findOrFail($invoiceItem->invoice_id);
     }
@@ -264,12 +272,12 @@ class SubscriptionController extends Controller
     public function checkSubscriptionStatus(object $subscription): void
     {
         try {
-            $invoiceId = \DB::table('order_invoice_relations')
+            $invoiceId = DB::table('order_invoice_relations')
                 ->where('order_id', $subscription->order_id)
                 ->latest()
                 ->value('invoice_id');
 
-            $item = \DB::table('invoice_items')->where('invoice_id', $invoiceId)->where('product_id', $subscription->product_id)->first();
+            $item = DB::table('invoice_items')->where('invoice_id', $invoiceId)->where('product_id', $subscription->product_id)->first();
             $invoice = Invoice::where('id', $item?->invoice_id)->where('status', 'pending')->first();
 
             if (! $invoice) {
@@ -284,22 +292,22 @@ class SubscriptionController extends Controller
             $sub = Subscription::find($subscription->id);
 
             if ($sub->subscribe_id && $sub->rzp_subscription == '2') {
-                $status = app(\App\Services\Payment\SubscriptionService::class)->getStatus('Razorpay', $sub->subscribe_id);
+                $status = resolve(SubscriptionService::class)->getStatus('Razorpay', $sub->subscribe_id);
                 match ($status) {
                     'authenticated' => $this->handleAuthenticatedSubscription($sub, $invoice, $cost, $user, $order, $productName, 'razorpay'),
                     'expired' => $sub->update(['rzp_subscription' => '1', 'subscribe_id' => '']),
                     default => null,
                 };
             } elseif ($sub->subscribe_id && $sub->autoRenew_status == '2') {
-                $status = app(\App\Services\Payment\SubscriptionService::class)->getStatus('Stripe', $sub->subscribe_id);
+                $status = resolve(SubscriptionService::class)->getStatus('Stripe', $sub->subscribe_id);
                 match ($status) {
                     'active' => $this->handleAuthenticatedSubscription($sub, $invoice, $cost, $user, $order, $productName, 'stripe'),
                     'incomplete_expired' => $sub->update(['autoRenew_status' => '1', 'subscribe_id' => '']),
                     default => null,
                 };
             }
-        } catch (\Exception $ex) {
-            \Logger::error($ex->getMessage());
+        } catch (Exception $ex) {
+            Logger::error($ex->getMessage());
         }
     }
 
@@ -331,7 +339,7 @@ class SubscriptionController extends Controller
 
     private function handleStripeSubscription($stripeDetails, Product $product, $unitCost, string $currency, Plan $plan, Subscription $subscription, Invoice $invoice, Order $order, $user, $cost): void
     {
-        $response = (new SettingsController())->handleStripeAutoPay($stripeDetails, $product, $unitCost, $currency, $plan);
+        $response = new SettingsController()->handleStripeAutoPay($stripeDetails, $product, $unitCost, $currency, $plan);
 
         if ($response->status === 'active') {
             Subscription::where('id', $subscription->id)->update(['subscribe_id' => $response->id, 'autoRenew_status' => '3']);
@@ -359,7 +367,7 @@ class SubscriptionController extends Controller
 
     private function handleRazorpaySubscription($unitCost, Plan $plan, Product $product, Invoice $invoice, string $currency, Subscription $subscription, $user, Order $order, $end): void
     {
-        $response = (new RazorpayController())->handleRzpAutoPay($unitCost, $plan->days, $product->name, $invoice, $currency, $subscription, $user, $order, $end, $product);
+        $response = new RazorpayController()->handleRzpAutoPay($unitCost, $plan->days, $product->name, $invoice, $currency, $subscription, $user, $order, $end, $product);
 
         if ($response->status === 'created') {
             $cost = $this->calculateReverseUnitCost($currency, $unitCost);
@@ -387,7 +395,7 @@ class SubscriptionController extends Controller
         ];
 
         return match ($decimalPlaces[$currency] ?? 2) {
-            0 => (float) round((int) $cost),
+            0 => round((int) $cost),
             3 => round((int) $cost) / 1000,
             default => round((int) $cost) / 100,
         };
@@ -410,21 +418,21 @@ class SubscriptionController extends Controller
         $order = Order::find($subscription->order_id);
 
         $replace = [
-            'name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
+            'name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'product' => $product->name,
             'total' => currencyFormat($cost, $currency),
             'contact' => $contact['contact'],
             'logo' => $contact['logo'],
-            'expiry_date' => Carbon::tomorrow()->format('d M Y'),
+            'expiry_date' => Date::tomorrow()->format('d M Y'),
             'reply_email' => $setting->company_email,
             'application_title' => $setting->title,
             'company_title' => $setting->company,
             'url' => $url,
             'number' => $order?->number,
-            'date' => Carbon::parse($subscription->update_ends_at)->format('d M Y'),
+            'date' => Date::parse($subscription->update_ends_at)->format('d M Y'),
         ];
 
-        (new \App\Http\Controllers\Common\PhpMailController())
+        new PhpMailController()
             ->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $template->type()->value('name'));
     }
 }

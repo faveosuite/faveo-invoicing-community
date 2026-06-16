@@ -38,8 +38,8 @@ class LicenseViewController extends Controller
             'license_date' => $license->license_date,
             'license_updates_date' => $license->license_updates_date,
             'license_status' => $license->license_status,
-            'product_title' => optional($license->product)->name,
-            'client_email' => optional($license->user)->email,
+            'product_title' => $license->product?->name,
+            'client_email' => $license->user?->email,
             'license_order_url' => $license->license_order_number ?? '',
             'installation_counts' => $license->installation_counts,
             'latest_call_backs' => $license->latest_call_backs,
@@ -66,8 +66,8 @@ class LicenseViewController extends Controller
             ->select('id', 'user_id as client_id', 'installation_domain', 'installation_ip', 'installation_date', 'installation_status')
             ->where('license_code', $license->license_code)
             ->when($license->client_id, fn ($query) => $query->where('user_id', $license->client_id))
-            ->when($searchQuery, function ($query) use ($searchQuery) {
-                $query->where(function ($q) use ($searchQuery) {
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($q) use ($searchQuery): void {
                     $q->where('installation_domain', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('installation_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('installation_date', 'LIKE', '%'.$searchQuery.'%');
@@ -94,8 +94,8 @@ class LicenseViewController extends Controller
 
         $licenseCallBacks = LicenseCallback::where('user_id', $license->client_id)
             ->where('license_code', $license->license_code)
-            ->when($searchQuery, function ($query) use ($searchQuery) {
-                $query->where(function ($q) use ($searchQuery) {
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($q) use ($searchQuery): void {
                     $q->where('callback_domain', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('callback_status', 'LIKE', '%'.LicenseHelper::successErrorFormatter($searchQuery).'%')
                         ->orWhere('callback_date_time', 'LIKE', '%'.$searchQuery.'%');
@@ -129,7 +129,7 @@ class LicenseViewController extends Controller
         }
 
         $installationLogs = InstallationLog::where('license_code', $license->license_code)
-            ->when($searchQuery, function ($query) use ($searchQuery) {
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
                 $query->where('installation_domain', 'LIKE', '%'.$searchQuery.'%')
                     ->orWhere('installation_ip', 'LIKE', '%'.$searchQuery.'%');
             })

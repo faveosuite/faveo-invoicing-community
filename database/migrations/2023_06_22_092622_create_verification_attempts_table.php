@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('verification_attempts')) {
-            Schema::create('verification_attempts', function (Blueprint $table) {
+            Schema::create('verification_attempts', function (Blueprint $table): void {
                 $table->bigIncrements('id');
                 $table->integer('user_id')->unsigned()->index('verification_attempts_user_id_foreign');
                 $table->string('type');

@@ -42,11 +42,12 @@ class InstallationService
         $domain = $data['root_url'] ?? $data['installation_domain'] ?? '';
         // Extract raw domain
         if (! empty($domain)) {
-            $scheme = parse_url($domain, PHP_URL_SCHEME);
+            $scheme = parse_url((string) $domain, PHP_URL_SCHEME);
             if (empty($scheme)) {
                 $domain = 'http://'.$domain;
             }
-            $domain = str_ireplace('www.', '', parse_url($domain, PHP_URL_HOST) ?? $domain);
+
+            $domain = str_ireplace('www.', '', parse_url((string) $domain, PHP_URL_HOST) ?? $domain);
         }
 
         $log = InstallationLog::updateOrCreate(

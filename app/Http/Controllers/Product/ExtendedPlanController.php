@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Product;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Model\Payment\Period;
 use Illuminate\Http\Request;
@@ -41,7 +42,7 @@ class ExtendedPlanController extends Controller
 
                 return response(Period::create($data));
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $result = [$ex->getMessage()];
 
             return response()->json(compact('result'), 500);

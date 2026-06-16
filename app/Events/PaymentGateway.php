@@ -8,16 +8,13 @@ class PaymentGateway extends Event
 {
     use SerializesModels;
 
-    public $para;
-
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($para)
+    public function __construct(public $para)
     {
-        $this->para = $para;
     }
 
     /**

@@ -13,10 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('widgets', function (Blueprint $table) {
+        Schema::table('widgets', function (Blueprint $table): void {
             if (! Schema::hasColumn('widgets', 'allow_tweets')) {
                 $table->boolean('allow_tweets')->nullable();
             }
+
             if (! Schema::hasColumn('widgets', 'allow_mailchimp')) {
                 $table->boolean('allow_mailchimp')->nullable();
             }
@@ -30,7 +31,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('widgets', function (Blueprint $table) {
+        Schema::table('widgets', function (Blueprint $table): void {
             $table->dropColumn([
                 'allow_tweets', 'allow_mailchimp',
             ]);

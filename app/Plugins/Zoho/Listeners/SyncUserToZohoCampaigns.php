@@ -21,6 +21,6 @@ class SyncUserToZohoCampaigns extends BaseExternalSyncListener
 
     protected function sync(User $user): void
     {
-        app(ZohoCampaignsController::class)->subscribe($user->email, 'newsletter');
+        resolve(ZohoCampaignsController::class)->subscribe($user->email, 'newsletter');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Model\Product;
 
+use Override;
 use App\BaseModel;
 
 class Addon extends BaseModel
@@ -14,9 +15,10 @@ class Addon extends BaseModel
 
     public function relation()
     {
-        return $this->hasMany(\App\Model\Product\ProductAddonRelation::class);
+        return $this->hasMany(ProductAddonRelation::class);
     }
 
+    #[Override]
     public function delete()
     {
         $this->relation()->delete();

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasTable('api_keys')) {
-            Schema::create('api_keys', function (Blueprint $table) {
+            Schema::create('api_keys', function (Blueprint $table): void {
                 $table->increments('id');
                 $table->string('rzp_key', 255)->nullable();
                 $table->string('rzp_secret', 255)->nullable();

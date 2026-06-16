@@ -15,7 +15,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('invoice_items', 'tax_rate_id')) {
-            Schema::table('invoice_items', function (Blueprint $table) {
+            Schema::table('invoice_items', function (Blueprint $table): void {
                 $table->unsignedInteger('tax_rate_id')->nullable()->after('tax_code');
             });
         }
@@ -24,7 +24,7 @@ return new class extends Migration
     public function down()
     {
         if (Schema::hasColumn('invoice_items', 'tax_rate_id')) {
-            Schema::table('invoice_items', function (Blueprint $table) {
+            Schema::table('invoice_items', function (Blueprint $table): void {
                 $table->dropColumn('tax_rate_id');
             });
         }

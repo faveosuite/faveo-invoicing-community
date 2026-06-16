@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('templates', 'reply_to')) {
-            Schema::table('templates', function (Blueprint $table) {
+            Schema::table('templates', function (Blueprint $table): void {
                 $table->string('reply_to')->nullable();
             });
         }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('templates', function (Blueprint $table) {
+        Schema::table('templates', function (Blueprint $table): void {
             $table->dropColumn('reply_to');
         });
     }

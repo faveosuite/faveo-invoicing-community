@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Illuminate\Http\Request;
 use Closure;
 use Symfony\Component\HttpFoundation\HeaderBag;
 
@@ -13,7 +14,7 @@ class AddJsonAcceptHeader
     /**
      * Add JSON HTTP_ACCEPT header for an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -34,13 +35,7 @@ class AddJsonAcceptHeader
 
     private function isAllowedWithoutApiKey($request): bool
     {
-        foreach ($this->allowedEndpoints as $value) {
-            if (str_contains($request->url(), $value)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($this->allowedEndpoints, fn($value) => str_contains((string) $request->url(), (string) $value));
     }
 
 //    private function validateSettings($request)

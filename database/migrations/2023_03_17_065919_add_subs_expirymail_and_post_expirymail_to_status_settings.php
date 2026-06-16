@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         if (! Schema::hasColumn('subs_expirymail', 'post_expirymail')) {
-            Schema::table('status_settings', function (Blueprint $table) {
+            Schema::table('status_settings', function (Blueprint $table): void {
                 $table->boolean('subs_expirymail')->default(0);
                 $table->boolean('post_expirymail')->default(0);
             });
@@ -28,7 +28,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('status_settings', function (Blueprint $table) {
+        Schema::table('status_settings', function (Blueprint $table): void {
             $table->dropColumn(['subs_expirymail', 'post_expirymail']);
         });
     }

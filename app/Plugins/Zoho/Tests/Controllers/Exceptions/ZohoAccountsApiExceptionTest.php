@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Tests\Controllers\Exceptions;
 
+use Exception;
 use App\Plugins\Zoho\Controllers\Exceptions\ZohoAccountsApiException;
 use App\Plugins\Zoho\Controllers\Exceptions\ZohoApiException;
 use Tests\DBTestCase;
@@ -43,7 +44,7 @@ class ZohoAccountsApiExceptionTest extends DBTestCase
         $this->assertStringContainsString('invalid or expired', $exception->getMessage());
     }
 
-    public function test_invalid_client_exception_can_be_thrown()
+    public function test_invalid_client_exception_can_be_thrown(): never
     {
         $this->expectException(ZohoAccountsApiException::class);
         $this->expectExceptionMessage('client_id');
@@ -51,7 +52,7 @@ class ZohoAccountsApiExceptionTest extends DBTestCase
         throw ZohoAccountsApiException::invalidClient();
     }
 
-    public function test_invalid_client_secret_exception_can_be_thrown()
+    public function test_invalid_client_secret_exception_can_be_thrown(): never
     {
         $this->expectException(ZohoAccountsApiException::class);
         $this->expectExceptionMessage('client_secret');
@@ -59,7 +60,7 @@ class ZohoAccountsApiExceptionTest extends DBTestCase
         throw ZohoAccountsApiException::invalidClientSecret();
     }
 
-    public function test_invalid_code_exception_can_be_thrown()
+    public function test_invalid_code_exception_can_be_thrown(): never
     {
         $this->expectException(ZohoAccountsApiException::class);
         $this->expectExceptionMessage('authorization code');
@@ -81,7 +82,7 @@ class ZohoAccountsApiExceptionTest extends DBTestCase
     {
         try {
             throw ZohoAccountsApiException::invalidClientSecret();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->assertInstanceOf(ZohoAccountsApiException::class, $e);
             $this->assertEquals('invalid_client_secret', $e->getErrorId());
         }

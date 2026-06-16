@@ -2,6 +2,7 @@
 
 namespace App\BillingLog;
 
+use Override;
 use App\BillingLog\Console\Commands\DeleteLogs;
 use Blade;
 use Illuminate\Support\ServiceProvider;
@@ -36,6 +37,7 @@ class LaravelLogViewerServiceProvider extends ServiceProvider
     /**
      * Register the application services.
      */
+    #[Override]
     public function register(): void
     {
         $routesFile = app_path('BillingLog/routes.php');

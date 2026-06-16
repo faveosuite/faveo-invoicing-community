@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Payment;
 
+use DB;
+use Exception;
+use Throwable;
+use Illuminate\Contracts\Database\Query\Builder;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payment\OpenPaymentRequest;
@@ -36,7 +40,7 @@ class OpenPaymentController extends Controller
     {
         try {
             // Lock fee server-side — client cannot manipulate it
-            $feeRate = (float) (\DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
+            $feeRate = (float) (DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
             $baseAmount = round((float) $request->amount, 2);
             $fee = round($baseAmount * $feeRate / 100, 2);
             $total = round($baseAmount + $fee, 2);  // gateway always reads this directly
@@ -62,7 +66,7 @@ class OpenPaymentController extends Controller
             ]);
 
             return successResponse('Order created successfully', ['order' => $order]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse('Failed to create order: '.$e->getMessage());
         }
     }
@@ -85,9 +89,9 @@ class OpenPaymentController extends Controller
                 'rzp_key' => $apiKeys->rzp_key,
                 'stripe_key' => $this->payments->publishableKey(),
             ]);
-        } catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException) {
             return errorResponse('Order not found', 404);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse('Failed to get order details: '.$e->getMessage());
         }
     }
@@ -101,7 +105,7 @@ class OpenPaymentController extends Controller
     public function preparePayment(Request $request)
     {
         $request->validate([
-            'order_id' => 'required|integer',
+            'order_id' => ['required', 'integer'],
         ]);
 
         try {
@@ -112,9 +116,9 @@ class OpenPaymentController extends Controller
             }
 
             return successResponse('', $this->payments->start($order)->clientConfig);
-        } catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException) {
             return errorResponse('Order not found', 404);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return errorResponse('Failed to prepare payment: '.$e->getMessage());
         }
     }
@@ -126,7 +130,7 @@ class OpenPaymentController extends Controller
      */
     public function stripeCardSession(Request $request)
     {
-        $request->validate(['order_id' => 'required|exists:open_payment_orders,id']);
+        $request->validate(['order_id' => ['required', 'exists:open_payment_orders,id']]);
 
         try {
             $order = OpenPaymentOrder::findOrFail($request->order_id);
@@ -140,7 +144,7 @@ class OpenPaymentController extends Controller
             $order->update(['gateway_transaction_id' => $session->id]);
 
             return successResponse('', $session->clientConfig);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return errorResponse('Failed to create card session: '.$e->getMessage());
         }
     }
@@ -151,10 +155,10 @@ class OpenPaymentController extends Controller
     public function verifyRazorpayPayment(Request $request)
     {
         $request->validate([
-            'order_id' => 'required|exists:open_payment_orders,id',
-            'razorpay_payment_id' => 'required|string',
-            'razorpay_order_id' => 'required|string',
-            'razorpay_signature' => 'required|string',
+            'order_id' => ['required', 'exists:open_payment_orders,id'],
+            'razorpay_payment_id' => ['required', 'string'],
+            'razorpay_order_id' => ['required', 'string'],
+            'razorpay_signature' => ['required', 'string'],
         ]);
 
         try {
@@ -167,9 +171,9 @@ class OpenPaymentController extends Controller
             return $paid
                 ? successResponse('Payment successful!', ['order' => $order->fresh()])
                 : errorResponse('Payment verification failed.', 400);
-        } catch (SignatureVerificationException $e) {
+        } catch (SignatureVerificationException) {
             return errorResponse('Payment verification failed: Invalid signature.', 400);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse('Payment verification failed: '.$e->getMessage(), 500);
         }
     }
@@ -180,8 +184,8 @@ class OpenPaymentController extends Controller
     public function verifyStripePayment(Request $request)
     {
         $request->validate([
-            'order_id' => 'required|exists:open_payment_orders,id',
-            'payment_intent_id' => 'required|string',
+            'order_id' => ['required', 'exists:open_payment_orders,id'],
+            'payment_intent_id' => ['required', 'string'],
         ]);
 
         try {
@@ -192,7 +196,7 @@ class OpenPaymentController extends Controller
             return $paid
                 ? successResponse('Payment successful!', ['order' => $order->fresh()])
                 : errorResponse('Payment not completed.', 400);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse('Payment verification failed: '.$e->getMessage(), 500);
         }
     }
@@ -226,11 +230,11 @@ class OpenPaymentController extends Controller
     public function calculate(Request $request)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:0',
-            'gateway' => 'required|string',
+            'amount' => ['required', 'numeric', 'min:0'],
+            'gateway' => ['required', 'string'],
         ]);
 
-        $feeRate = (float) (\DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
+        $feeRate = (float) (DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
         $baseAmount = round((float) $request->amount, 2);
         $fee = round($baseAmount * $feeRate / 100, 2);
         $total = round($baseAmount + $fee, 2);
@@ -254,7 +258,7 @@ class OpenPaymentController extends Controller
 
         $gateways = $gatewayNames->map(function ($name) {
             $table = strtolower($name);
-            $fee = \DB::table($table)->value('processing_fee');
+            $fee = DB::table($table)->value('processing_fee');
 
             return ['name' => $name, 'processing_fee' => (float) ($fee ?? 0)];
         })->values();
@@ -281,7 +285,7 @@ class OpenPaymentController extends Controller
 
             $search = $request->input('search-query') ?: $request->input('search');
             if ($search) {
-                $query->where(function ($q) use ($search) {
+                $query->where(function (Builder $q) use ($search): void {
                     $q->where('name', 'like', "%{$search}%")
                       ->orWhere('email', 'like', "%{$search}%")
                       ->orWhere('company', 'like', "%{$search}%")
@@ -326,7 +330,7 @@ class OpenPaymentController extends Controller
                 ->paginate($perPage);
 
             return successResponse('', $orders);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse('Failed to fetch orders: '.$e->getMessage());
         }
     }
@@ -344,9 +348,9 @@ class OpenPaymentController extends Controller
                 ->firstOrFail();
 
             return successResponse('', ['order' => $order]);
-        } catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException) {
             return errorResponse('Order not found', 404);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse('Failed to get order: '.$e->getMessage());
         }
     }

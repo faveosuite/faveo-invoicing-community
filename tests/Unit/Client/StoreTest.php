@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Client;
 
+use PHPUnit\Framework\Attributes\Group;
 use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Front\PageController;
 use App\Model\Payment\Plan;
@@ -18,6 +19,7 @@ use Tests\DBTestCase;
 class StoreTest extends DBTestCase
 {
     private $con;
+
     private $con1;
 
     protected function setUp(): void
@@ -25,13 +27,13 @@ class StoreTest extends DBTestCase
         parent::setUp();
         $this->con = new TemplateController();
         $this->con1 = new PageController();
-        $this->request = app(Request::class);
+        $this->request = resolve(Request::class);
         $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
         $this->html->shouldReceive('token')->andReturn('mocked-token');
         $this->app->instance(Html::class, $this->html);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('store')]
+    #[Group('store')]
     public function test_store_has_groups()
     {
         $user = User::factory()->create();
@@ -46,7 +48,7 @@ class StoreTest extends DBTestCase
         $response->assertStatus(200);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('store')]
+    #[Group('store')]
     public function test_store_get_monthly_price()
     {
         $user = User::factory()->create(['country' => 'US']);
@@ -61,7 +63,7 @@ class StoreTest extends DBTestCase
         $this->assertEquals($response, '<span class="price-unit">$</span>200.00');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('store')]
+    #[Group('store')]
     public function test_store_monthly_price_more_days()
     {
         $user = User::factory()->create();
@@ -75,7 +77,7 @@ class StoreTest extends DBTestCase
         $this->assertEquals($response, 'Free');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('store')]
+    #[Group('store')]
     public function test_store_yearly_price()
     {
         $user = User::factory()->create();
@@ -89,7 +91,7 @@ class StoreTest extends DBTestCase
         $this->assertEquals($response, '<span class="price-unit" id="'.$plan->id.'">$</span>500.00');
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('store')]
+    #[Group('store')]
     public function test_store_get_price_description()
     {
         $user = User::factory()->create();
@@ -103,7 +105,7 @@ class StoreTest extends DBTestCase
         $this->assertEquals($response, $planPrice->price_description);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('store')]
+    #[Group('store')]
     public function test_store_get_number_of_agents_monthly()
     {
         $user = User::factory()->create();
@@ -117,7 +119,7 @@ class StoreTest extends DBTestCase
         $this->assertEquals($response, "per month for <strong> $planPrice->no_of_agents agent</strong>");
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('store')]
+    #[Group('store')]
     public function test_store_get_url()
     {
         $user = User::factory()->create();
@@ -133,7 +135,7 @@ class StoreTest extends DBTestCase
         $this->assertEquals('Order Now', $response['button']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('store')]
+    #[Group('store')]
     public function test_store_when_product_registered_in_cloud()
     {
         $user = User::factory()->create();
@@ -151,7 +153,7 @@ class StoreTest extends DBTestCase
         $this->assertEquals('cloud', $response['type']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('store')]
+    #[Group('store')]
     public function test_store_get_offer_price_monthly()
     {
         $user = User::factory()->create(['country' => 'US']);
@@ -169,7 +171,7 @@ class StoreTest extends DBTestCase
         $this->assertEquals($response['30_days'], $planPrice->offer_price);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('store')]
+    #[Group('store')]
     public function test_store_get_offer_price_yearly()
     {
         $user = User::factory()->create(['country' => 'US']);

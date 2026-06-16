@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('cloud_data_centers', function (Blueprint $table) {
+        Schema::create('cloud_data_centers', function (Blueprint $table): void {
             $table->id();
             $table->string('cloud_countries');
             $table->string('cloud_state');

@@ -2,6 +2,8 @@
 
 namespace App\Plugins\Recaptcha;
 
+use App\Plugins\Recaptcha\Middleware\RecaptchaMiddleware;
+use Override;
 use Illuminate\Support\ServiceProvider;
 
 class RecaptchaServiceProvider extends ServiceProvider
@@ -37,12 +39,13 @@ class RecaptchaServiceProvider extends ServiceProvider
     protected function registerMiddleware(): void
     {
         // Register recaptcha middleware
-        $this->app['router']->aliasMiddleware('recaptcha', \App\Plugins\Recaptcha\Middleware\RecaptchaMiddleware::class);
+        $this->app['router']->aliasMiddleware('recaptcha', RecaptchaMiddleware::class);
     }
 
     /**
      * Get the services provided by the provider.
      */
+    #[Override]
     public function provides(): array
     {
         return ['recaptcha'];

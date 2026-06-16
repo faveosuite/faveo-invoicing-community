@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Common\Dependency;
 
+use App\Model\Payment\Currency;
 use App\Model\Common\Bussiness;
 use App\Model\Common\PricingTemplate;
 use App\Model\License\LicenseType;
@@ -57,15 +58,13 @@ class NonPublicDependencies extends BaseDependencyController
         $this->sortField = 'code';
         $this->sortOrder = 'asc';
 
-        $baseQuery = $this->baseQuery(new \App\Model\Payment\Currency)
+        $baseQuery = $this->baseQuery(new Currency)
             ->where('status', 1)
-            ->when($this->searchQuery, function ($query, $searchQuery) {
+            ->when($this->searchQuery, function ($query, $searchQuery): void {
                 $query->where('code', 'like', "%{$searchQuery}%");
             });
 
-        return $this->get('currencies', $baseQuery, function ($item) {
-            return ['id' => $item->code, 'name' => $item->code];
-        });
+        return $this->get('currencies', $baseQuery, fn($item) => ['id' => $item->code, 'name' => $item->code]);
     }
 
     private function managers()
@@ -78,8 +77,8 @@ class NonPublicDependencies extends BaseDependencyController
         $baseQuery = $this->baseQuery(new User)
             ->select('id', 'first_name', 'last_name', 'email')
                 ->where('position', $role)
-                ->when($this->searchQuery, function ($query, $search) {
-                    $query->where(function ($q) use ($search) {
+                ->when($this->searchQuery, function ($query, $search): void {
+                    $query->where(function ($q) use ($search): void {
                         $q->where('email', 'like', "%{$search}%")
                             ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
                     });
@@ -99,13 +98,11 @@ class NonPublicDependencies extends BaseDependencyController
 
         $baseQuery = $this->baseQuery(new Product)
             ->where('invoice_hidden', 0)
-                ->when($this->searchQuery, function ($query, $searchQuery) {
+                ->when($this->searchQuery, function ($query, $searchQuery): void {
                     $query->where('name', 'like', "%{$searchQuery}%");
                 });
 
-        return $this->get('products', $baseQuery, function ($item) {
-            return ['id' => $item->id, 'name' => $item->name];
-        });
+        return $this->get('products', $baseQuery, fn($item) => ['id' => $item->id, 'name' => $item->name]);
     }
 
     private function industries()
@@ -149,13 +146,11 @@ class NonPublicDependencies extends BaseDependencyController
 
         $baseQuery = $this->baseQuery(new Plan)
             ->where('product', $productId)
-            ->when($this->searchQuery, function ($query, $searchQuery) {
+            ->when($this->searchQuery, function ($query, $searchQuery): void {
                 $query->where('name', 'like', "%{$searchQuery}%");
             });
 
-        return $this->get('plans', $baseQuery, function ($item) {
-            return ['id' => $item->id, 'name' => $item->name, 'days' => $item->days];
-        });
+        return $this->get('plans', $baseQuery, fn($item) => ['id' => $item->id, 'name' => $item->name, 'days' => $item->days]);
     }
 
     private function licenseTypes()
@@ -165,7 +160,7 @@ class NonPublicDependencies extends BaseDependencyController
 
         $baseQuery = $this->baseQuery(new LicenseType)
             ->select('id', 'name')
-            ->when($this->searchQuery, function ($query, $searchQuery) {
+            ->when($this->searchQuery, function ($query, $searchQuery): void {
                 $query->where('name', 'like', "%{$searchQuery}%");
             });
 
@@ -179,7 +174,7 @@ class NonPublicDependencies extends BaseDependencyController
 
         $baseQuery = $this->baseQuery(new ProductGroup)
             ->select('id', 'name')
-            ->when($this->searchQuery, function ($query, $searchQuery) {
+            ->when($this->searchQuery, function ($query, $searchQuery): void {
                 $query->where('name', 'like', "%{$searchQuery}%");
             });
 
@@ -193,7 +188,7 @@ class NonPublicDependencies extends BaseDependencyController
 
         $baseQuery = $this->baseQuery(new TaxClass)
             ->select('id', 'name')
-            ->when($this->searchQuery, function ($query, $searchQuery) {
+            ->when($this->searchQuery, function ($query, $searchQuery): void {
                 $query->where('name', 'like', "%{$searchQuery}%");
             });
 
@@ -224,7 +219,7 @@ class NonPublicDependencies extends BaseDependencyController
 
         $baseQuery = $this->baseQuery(new PricingTemplate)
             ->select('id', 'name', 'image')
-            ->when($this->searchQuery, function ($query, $searchQuery) {
+            ->when($this->searchQuery, function ($query, $searchQuery): void {
                 $query->where('name', 'like', "%{$searchQuery}%");
             });
 
@@ -238,8 +233,8 @@ class NonPublicDependencies extends BaseDependencyController
 
         $baseQuery = $this->baseQuery(new User)
             ->select('id', 'first_name', 'last_name', 'email')
-            ->when($this->searchQuery, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
+            ->when($this->searchQuery, function ($query, $search): void {
+                $query->where(function ($q) use ($search): void {
                     $q->where('email', 'like', "%{$search}%")
                       ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
                 });
@@ -259,13 +254,11 @@ class NonPublicDependencies extends BaseDependencyController
 
         $baseQuery = $this->baseQuery(new Product)
             ->select('id', 'name')
-            ->when($this->searchQuery, function ($query, $searchQuery) {
+            ->when($this->searchQuery, function ($query, $searchQuery): void {
                 $query->where('name', 'like', "%{$searchQuery}%");
             });
 
-        return $this->get('products', $baseQuery, function ($item) {
-            return ['id' => $item->id, 'name' => $item->name];
-        });
+        return $this->get('products', $baseQuery, fn($item) => ['id' => $item->id, 'name' => $item->name]);
     }
 
     private function pluginProducts()
@@ -281,7 +274,7 @@ class NonPublicDependencies extends BaseDependencyController
             ->select('id', 'name')
             ->where('type', $pluginTypeId)
             ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
-            ->when($this->searchQuery, function ($query, $searchQuery) {
+            ->when($this->searchQuery, function ($query, $searchQuery): void {
                 $query->where('name', 'like', "%{$searchQuery}%");
             });
 

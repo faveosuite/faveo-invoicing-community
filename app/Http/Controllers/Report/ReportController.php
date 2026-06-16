@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Report;
 
+use Lang;
+use DB;
+use Exception;
 use App\ExportDetail;
 use App\Http\Controllers\Controller;
 use App\ReportSetting;
@@ -32,32 +35,34 @@ class ReportController extends Controller
                         $relativeFilePath = str_replace(storage_path('app/'), '', $report->file_path);
                         Storage::delete($relativeFilePath);
                     }
+
                     $report->delete();
                 } else {
                     echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.success').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.success').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
+                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
                 </div>';
                     //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                 }
             }
+
             echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.success').'
+                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */Lang::get('message.success').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
+                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
                 </div>';
         } else {
             echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */ \Lang::get('message.success').'
+                    <b>"./* @scrutinizer ignore-type */ Lang::get('message.alert').'!</b> '.
+                    /* @scrutinizer ignore-type */ Lang::get('message.success').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
+                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
                 </div>';
         }
     }
@@ -72,13 +77,13 @@ class ReportController extends Controller
     public function addRecords(Request $request)
     {
         $request->validate([
-            'records' => 'required|integer|min:1|max:3000',
+            'records' => ['required', 'integer', 'min:1', 'max:3000'],
         ]);
         $settings = ReportSetting::first();
         $settings->records = $request->records;
         $settings->save();
 
-        return redirect()->back()->with('success', __('message.settings_updated_successfully'));
+        return back()->with('success', __('message.settings_updated_successfully'));
     }
 
     public function getAllReports(Request $request)
@@ -90,9 +95,9 @@ class ReportController extends Controller
 
         $reports = ExportDetail::with(['user:id,first_name,last_name'])
             ->where('user_id', auth()->id())
-            ->when($searchQuery, function ($query) use ($searchQuery) {
-                $query->where(function ($q) use ($searchQuery) {
-                    $q->whereHas('user', function ($q2) use ($searchQuery) {
+            ->when($searchQuery, function ($query) use ($searchQuery): void {
+                $query->where(function ($q) use ($searchQuery): void {
+                    $q->whereHas('user', function ($q2) use ($searchQuery): void {
                         $q2->where('first_name', 'like', "%{$searchQuery}%")
                             ->orWhere('last_name', 'like', "%{$searchQuery}%");
                     })
@@ -103,8 +108,8 @@ class ReportController extends Controller
             ->simplePaginate($limit);
 
         $reports->getCollection()->transform(function ($report) {
-            $fileType = strtoupper(pathinfo($report->file, PATHINFO_EXTENSION)) ?: 'XLSX';
-            $type = $report->name ? ucfirst($report->name).' Report' : 'Report';
+            $fileType = strtoupper(pathinfo((string) $report->file, PATHINFO_EXTENSION)) ?: 'XLSX';
+            $type = $report->name ? ucfirst((string) $report->name).' Report' : 'Report';
 
             return [
                 'id' => $report->id,
@@ -128,7 +133,7 @@ class ReportController extends Controller
         }
 
         try {
-            \DB::transaction(function () use ($ids) {
+            DB::transaction(function () use ($ids): void {
                 $reports = ExportDetail::where('user_id', auth()->id())
                     ->whereIn('id', $ids)->get();
 
@@ -137,12 +142,13 @@ class ReportController extends Controller
                         $relativeFilePath = str_replace(storage_path('app/'), '', $report->file_path);
                         Storage::delete($relativeFilePath);
                     }
+
                     $report->delete();
                 }
             });
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -155,7 +161,7 @@ class ReportController extends Controller
     public function updateReportsSettings(Request $request)
     {
         $validated = $request->validate([
-            'records' => 'required|integer|min:1|max:3000',
+            'records' => ['required', 'integer', 'min:1', 'max:3000'],
         ]);
 
         $settings = ReportSetting::first();

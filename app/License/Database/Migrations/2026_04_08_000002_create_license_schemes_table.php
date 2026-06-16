@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('license_schemes', function (Blueprint $table) {
+        Schema::create('license_schemes', function (Blueprint $table): void {
             $table->id();
             $table->text('scheme_query');
             $table->tinyInteger('scheme_status')->default(1);

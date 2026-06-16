@@ -2,8 +2,12 @@
 
 namespace App\License\Console\Commands;
 
+use Exception;
+use Closure;
+use Illuminate\Database\ConnectionInterface;
+use RuntimeException;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -24,17 +28,26 @@ class LicenseDataMigration extends Command
 
     protected $description = 'Migrate data from the external license database into the billing database';
 
-    private const CHUNK_SIZE = 200;
-    private const INSERT_BATCH_SIZE = 50;
+    private const int CHUNK_SIZE = 200;
+
+    private const int INSERT_BATCH_SIZE = 50;
 
     private array $productMap = [];
+
     private array $licenseMap = [];
+
     private array $versionMap = [];
+
     private array $licenseCodeUserMap = [];
+
     private array $includedCodes = [];
+
     private int $skippedUsers = 0;
+
     private int $resolvedViaOrder = 0;
+
     private ?string $tempDatabase = null;
+
     private string $now;
 
     public function handle(): int
@@ -58,7 +71,7 @@ class LicenseDataMigration extends Command
             $this->printSummary();
 
             return Command::SUCCESS;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('Migration failed: '.$e->getMessage());
             Log::error('License data migration failed', [
                 'message' => $e->getMessage(),
@@ -81,7 +94,7 @@ class LicenseDataMigration extends Command
 
         if ($this->option('include-codes')) {
             $this->includedCodes = array_filter(array_map(
-                'trim',
+                trim(...),
                 explode(',', $this->option('include-codes'))
             ));
         }
@@ -95,23 +108,23 @@ class LicenseDataMigration extends Command
     private function executeSteps(): void
     {
         $steps = [
-            ['Building product mapping', fn () => $this->buildProductMapping()],
-            ['Migrating licenses', fn () => $this->migrateLicenses()],
-            ['Migrating installations', fn () => $this->migrateInstallations()],
-            ['Migrating license callbacks', fn () => $this->migrateLicenseCallbacks()],
-            ['Migrating license schemes', fn () => $this->migrateLicenseSchemes()],
-            ['Migrating license notifications', fn () => $this->migrateLicenseNotifications()],
-            ['Migrating banned hosts', fn () => $this->migrateBannedHosts()],
-            ['Migrating whitelist IPs', fn () => $this->migrateWhitelistIps()],
-            ['Migrating license reports', fn () => $this->migrateLicenseReports()],
-            ['Migrating product versions', fn () => $this->migrateProductVersions()],
-            ['Migrating version callbacks', fn () => $this->migrateVersionCallbacks()],
-            ['Migrating version installations', fn () => $this->migrateVersionInstallations()],
-            ['Migrating version notifications', fn () => $this->migrateVersionNotifications()],
-            ['Migrating license plugins', fn () => $this->migrateLicensePlugins()],
-            ['Migrating license options', fn () => $this->migrateLicenseOptions()],
-            ['Migrating installation logs', fn () => $this->migrateInstallationLogs()],
-            ['Updating product columns', fn () => $this->updateProductColumns()],
+            ['Building product mapping', $this->buildProductMapping(...)],
+            ['Migrating licenses', $this->migrateLicenses(...)],
+            ['Migrating installations', $this->migrateInstallations(...)],
+            ['Migrating license callbacks', $this->migrateLicenseCallbacks(...)],
+            ['Migrating license schemes', $this->migrateLicenseSchemes(...)],
+            ['Migrating license notifications', $this->migrateLicenseNotifications(...)],
+            ['Migrating banned hosts', $this->migrateBannedHosts(...)],
+            ['Migrating whitelist IPs', $this->migrateWhitelistIps(...)],
+            ['Migrating license reports', $this->migrateLicenseReports(...)],
+            ['Migrating product versions', $this->migrateProductVersions(...)],
+            ['Migrating version callbacks', $this->migrateVersionCallbacks(...)],
+            ['Migrating version installations', $this->migrateVersionInstallations(...)],
+            ['Migrating version notifications', $this->migrateVersionNotifications(...)],
+            ['Migrating license plugins', $this->migrateLicensePlugins(...)],
+            ['Migrating license options', $this->migrateLicenseOptions(...)],
+            ['Migrating installation logs', $this->migrateInstallationLogs(...)],
+            ['Updating product columns', $this->updateProductColumns(...)],
         ];
 
         $total = count($steps);
@@ -156,7 +169,7 @@ class LicenseDataMigration extends Command
         string $sourceTable,
         string $destTable,
         string $primaryKey,
-        \Closure $transformer,
+        Closure $transformer,
         ?string $productKey = null,
         bool $ignoreDuplicates = false,
     ): int {
@@ -168,13 +181,14 @@ class LicenseDataMigration extends Command
             ->map($transformer)
             ->filter()
             ->chunk(self::INSERT_BATCH_SIZE)
-            ->each(function ($batch) use ($destTable, $ignoreDuplicates, &$count) {
+            ->each(function ($batch) use ($destTable, $ignoreDuplicates, &$count): void {
                 $rows = $batch->all();
                 if ($ignoreDuplicates) {
                     DB::table($destTable)->insertOrIgnore($rows);
                 } else {
                     DB::table($destTable)->insert($rows);
                 }
+
                 $count += count($rows);
             });
 
@@ -391,7 +405,7 @@ class LicenseDataMigration extends Command
         $this->licenseDb()->table('afl_products')
             ->whereNull('deleted_at')
             ->lazyById(self::CHUNK_SIZE, 'product_id')
-            ->each(function (object $lp) use ($billingBySku, $billingByName) {
+            ->each(function (object $lp) use ($billingBySku, $billingByName): void {
                 $sku = $lp->product_sku ?? null;
 
                 if ($sku && $billingBySku->has($sku)) {
@@ -419,6 +433,7 @@ class LicenseDataMigration extends Command
                 if ($sku) {
                     $billingBySku[$sku] = $newId;
                 }
+
                 $billingByName[$lp->product_title] = $newId;
                 $this->warn("  Created new product: {$lp->product_title} (ID: {$newId})");
             });
@@ -436,7 +451,7 @@ class LicenseDataMigration extends Command
 
         $this->licenseDb()->table('afl_licenses')
             ->lazyById(self::CHUNK_SIZE, 'license_id')
-            ->each(function (object $lic) use (&$count, $orderUserMap) {
+            ->each(function (object $lic) use (&$count, $orderUserMap): void {
                 $newProductId = $this->productMap[$lic->product_id] ?? null;
                 if (! $newProductId) {
                     $this->warn("  Skipping license #{$lic->license_id} - orphaned product #{$lic->product_id}");
@@ -500,7 +515,7 @@ class LicenseDataMigration extends Command
 
         $this->licenseDb()->table('afu_versions')
             ->lazyById(self::CHUNK_SIZE, 'version_id')
-            ->each(function (object $ver) use (&$count) {
+            ->each(function (object $ver) use (&$count): void {
                 $newProductId = $this->productMap[$ver->product_id] ?? null;
                 if (! $newProductId) {
                     return;
@@ -520,7 +535,7 @@ class LicenseDataMigration extends Command
                     ]);
                     $this->versionMap[$ver->version_id] = $newId;
                     $count++;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->warn("  Skipping version #{$ver->version_id}: ".$e->getMessage());
                 }
             });
@@ -605,7 +620,7 @@ class LicenseDataMigration extends Command
         $this->licenseDb()->table('afl_products')
             ->whereNull('deleted_at')
             ->lazyById(self::CHUNK_SIZE, 'product_id')
-            ->each(function (object $lp) use ($afuProducts, &$count) {
+            ->each(function (object $lp) use ($afuProducts, &$count): void {
                 $billingProductId = $this->productMap[$lp->product_id] ?? null;
                 if (! $billingProductId) {
                     return;
@@ -623,6 +638,7 @@ class LicenseDataMigration extends Command
                     if ($afuProduct->product_key) {
                         $updateData['product_key'] = $afuProduct->product_key;
                     }
+
                     if ($afuProduct->product_max_active_versions) {
                         $updateData['product_max_active_versions'] = $afuProduct->product_max_active_versions;
                     }
@@ -665,7 +681,7 @@ class LicenseDataMigration extends Command
         DB::purge('license');
     }
 
-    private function licenseDb(): \Illuminate\Database\ConnectionInterface
+    private function licenseDb(): ConnectionInterface
     {
         return DB::connection('license');
     }
@@ -673,7 +689,7 @@ class LicenseDataMigration extends Command
     private function importSqlFile(string $filePath): void
     {
         if (! file_exists($filePath) || ! is_readable($filePath)) {
-            throw new \RuntimeException("SQL file not found or not readable: {$filePath}");
+            throw new RuntimeException("SQL file not found or not readable: {$filePath}");
         }
 
         $host = $this->option('host') ?: config('database.connections.mysql.host', 'localhost');
@@ -696,6 +712,7 @@ class LicenseDataMigration extends Command
                 $cmd[] = "--port={$port}";
             }
         }
+
         $cmd[] = "--user={$username}";
         $cmd[] = $this->tempDatabase;
 
@@ -714,7 +731,7 @@ class LicenseDataMigration extends Command
         if (! is_resource($process)) {
             DB::statement("DROP DATABASE IF EXISTS `{$this->tempDatabase}`");
             $this->tempDatabase = null;
-            throw new \RuntimeException('Failed to start mysql process. Ensure the mysql CLI is installed and in PATH.');
+            throw new RuntimeException('Failed to start mysql process. Ensure the mysql CLI is installed and in PATH.');
         }
 
         $stderr = stream_get_contents($pipes[2]);
@@ -725,7 +742,7 @@ class LicenseDataMigration extends Command
         if ($exitCode !== 0) {
             DB::statement("DROP DATABASE IF EXISTS `{$this->tempDatabase}`");
             $this->tempDatabase = null;
-            throw new \RuntimeException("SQL import failed (exit code {$exitCode}): {$stderr}");
+            throw new RuntimeException("SQL import failed (exit code {$exitCode}): {$stderr}");
         }
 
         $this->info("SQL file imported successfully into '{$this->tempDatabase}'.");
@@ -741,9 +758,10 @@ class LicenseDataMigration extends Command
         try {
             DB::purge('license');
             DB::statement("DROP DATABASE IF EXISTS `{$this->tempDatabase}`");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->warn("Could not drop temporary database '{$this->tempDatabase}': ".$e->getMessage());
         }
+
         $this->tempDatabase = null;
     }
 
@@ -764,6 +782,7 @@ class LicenseDataMigration extends Command
                 DB::table($table)->truncate();
             }
         }
+
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }
 
@@ -778,7 +797,7 @@ class LicenseDataMigration extends Command
 
     private function cleanDate(?string $date): ?string
     {
-        $parsed = rescue(fn () => Carbon::parse($date), null, false);
+        $parsed = rescue(fn () => Date::parse($date), null, false);
 
         return $parsed?->year > 0 ? $parsed->toDateTimeString() : null;
     }

@@ -30,9 +30,9 @@ class SetupTestEnv extends LoggableCommand
      */
     public function handleAndLog()
     {
-        $dbUsername = $this->option('username') ? $this->option('username') : env('DB_USERNAME');
-        $dbPassword = $this->option('password') ? $this->option('password') : env('DB_PASSWORD');
-        $dbName = $this->option('database') ? $this->option('database') : 'billing_testing_db';
+        $dbUsername = $this->option('username') ?: env('DB_USERNAME');
+        $dbPassword = $this->option('password') ?: env('DB_PASSWORD');
+        $dbName = $this->option('database') ?: 'billing_testing_db';
 
         $dbPassword = ! $dbPassword ? '' : $dbPassword;
         $this->setupConfig($dbUsername, $dbPassword, '', 'Innodb');
@@ -148,15 +148,15 @@ class SetupTestEnv extends LoggableCommand
      */
     private function createDB(string $dbName)
     {
-        \DB::purge('mysql');
+        DB::purge('mysql');
         // removing old db
-        \DB::connection('mysql')->getPdo()->exec("DROP DATABASE IF EXISTS `{$dbName}`");
+        DB::connection('mysql')->getPdo()->exec("DROP DATABASE IF EXISTS `{$dbName}`");
 
         // Creating testing_db
-        \DB::connection('mysql')->getPdo()->exec("CREATE DATABASE `{$dbName}`");
+        DB::connection('mysql')->getPdo()->exec("CREATE DATABASE `{$dbName}`");
         //disconnecting it will remove database config from the memory so that new database name can be
         // populated
-        \DB::disconnect('mysql');
+        DB::disconnect('mysql');
     }
 
     private function handleSeeder()
@@ -164,9 +164,7 @@ class SetupTestEnv extends LoggableCommand
         $latestVersion = preg_replace('#v\.|v#', '', str_replace('_', '.', Config::get('app.version')));
         $seedersPath = database_path('seeders');
         $seederVersions = scandir($seedersPath);
-        $seederVersions = array_filter($seederVersions, function ($dir) {
-            return preg_match('/^v[\d_]+(?:_[A-Za-z\d]+)*$/', $dir);
-        });
+        $seederVersions = array_filter($seederVersions, fn($dir) => preg_match('/^v[\d_]+(?:_[A-Za-z\d]+)*$/', (string) $dir));
         natsort($seederVersions);
         foreach ($seederVersions as $version) {
             if (version_compare($version, $latestVersion, '<=')) {

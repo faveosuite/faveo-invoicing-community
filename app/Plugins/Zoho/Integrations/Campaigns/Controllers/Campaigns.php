@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Integrations\Campaigns\Controllers;
 
+use RuntimeException;
 use App\Plugins\Zoho\Controllers\Api\ZohoAccessToken;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Api\ZohoCampaignsApi;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Exceptions\TagNotFoundException;
@@ -36,7 +37,7 @@ class Campaigns
 
         $this->zohoApi = new ZohoCampaignsApi(
             getZohoRegion($campaignsIntegration->client->region),
-            app(ZohoAccessToken::class),
+            resolve(ZohoAccessToken::class),
             $campaignsIntegration->id
         );
 
@@ -198,7 +199,7 @@ class Campaigns
         $listKey = Arr::get($this->lists->get($listName, []), 'listKey');
 
         if ($listKey === null && $list === null) {
-            throw new \RuntimeException(sprintf('Cannot resolve list %s', $listName));
+            throw new RuntimeException(sprintf('Cannot resolve list %s', $listName));
         }
 
         return $listKey ?? $list;
@@ -221,7 +222,7 @@ class Campaigns
 
         $configuredTopics = collect(config('zoho_campaigns.topics', []));
 
-        foreach ($configuredTopics as $key => $topicConfig) {
+        foreach ($configuredTopics as $topicConfig) {
             $name = trim($topicConfig['name'] ?? '');
             $description = trim($topicConfig['description'] ?? '');
 
@@ -249,9 +250,7 @@ class Campaigns
 
         $topics = collect($this->zohoApi->topics());
 
-        $matched = $topics->first(function ($topic) use ($topicName) {
-            return strtolower(trim($topic['topicName'] ?? '')) === $topicName;
-        });
+        $matched = $topics->first(fn($topic) => strtolower(trim($topic['topicName'] ?? '')) === $topicName);
 
         if ($matched) {
             return $matched['topicId'] ?? null;

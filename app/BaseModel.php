@@ -2,6 +2,9 @@
 
 namespace App;
 
+use Override;
+use HTMLPurifier_Config;
+use HTMLPurifier;
 use File;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,6 +24,7 @@ class BaseModel extends Model
         'product_description',
     ];
 
+    #[Override]
     public function setAttribute($property, $value)
     {
         // require_once base_path('vendor'.DIRECTORY_SEPARATOR.'htmlpurifier'
@@ -32,13 +36,15 @@ class BaseModel extends Model
         if (! File::exists($path)) {
             File::makeDirectory($path, $mode = 0777, true, true);
         }
-        $config = \HTMLPurifier_Config::createDefault();
-        $purifier = new \HTMLPurifier($config);
+
+        $config = HTMLPurifier_Config::createDefault();
+        $purifier = new HTMLPurifier($config);
         if (! is_array($value) && ! in_array($property, $this->purifyExcept)) {
-            if ($value != strip_tags($value)) {
+            if ($value != strip_tags((string) $value)) {
                 $value = $purifier->purify($value);
             }
         }
+
         parent::setAttribute($property, $value);
     }
 }
