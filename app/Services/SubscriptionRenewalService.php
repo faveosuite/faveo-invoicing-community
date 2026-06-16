@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Date;
-use App\License\Services\LicenseService;
-use App\License\Services\InstallationService;
 use App\Http\Controllers\License\LicensePermissionsController;
+use App\License\Services\InstallationService;
+use App\License\Services\LicenseService;
 use App\Model\Order\Order;
 use App\Model\Product\Subscription;
+use Illuminate\Support\Facades\Date;
 
 class SubscriptionRenewalService
 {

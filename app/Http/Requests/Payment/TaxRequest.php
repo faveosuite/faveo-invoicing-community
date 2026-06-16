@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Payment;
 
-use Override;
 use App\Http\Requests\Request;
+use Override;
 
 class TaxRequest extends Request
 {

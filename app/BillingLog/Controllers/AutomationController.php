@@ -2,10 +2,6 @@
 
 namespace App\BillingLog\Controllers;
 
-use Illuminate\Support\Facades\Date;
-use DB;
-use Lang;
-use Exception;
 use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\ExceptionLog;
 use App\BillingLog\Model\LogCategory;
@@ -13,9 +9,13 @@ use App\BillingLog\Model\MailLog;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use Carbon\Carbon;
+use DB;
+use Exception;
 use Illuminate\Container\Container;
 use Illuminate\Http\Request;
 use Illuminate\Queue\Jobs\Job;
+use Illuminate\Support\Facades\Date;
+use Lang;
 use Logger;
 
 class AutomationController extends Job implements \Illuminate\Contracts\Queue\Job
@@ -56,7 +56,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->groupBy('command', 'status')
             ->cursor()
             ->groupBy('command')
-            ->map(fn($logs, $command) => array_merge([
+            ->map(fn ($logs, $command) => array_merge([
                 'command' => $command,
                 'name' => Lang::has('log::lang.'.$command)
                     ? __('log::lang.'.$command)
@@ -73,7 +73,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->groupBy('log_category_id', 'status')
             ->cursor()
             ->groupBy('log_category_id')
-            ->map(fn($logs, $categoryId) => array_merge([
+            ->map(fn ($logs, $categoryId) => array_merge([
                 'id' => $categoryId,
                 'name' => ($key = $categoryNames[$categoryId] ?? '')
                     ? (Template::where('type', TemplateType::where('name', $key)->value('id'))->value('name')
@@ -90,7 +90,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->whereBetween('created_at', [$date->copy()->startOfDay(), $date->endOfDay()])
             ->groupBy('log_category_id')
             ->get()
-            ->map(fn($log) => [
+            ->map(fn ($log) => [
                 'id' => $log->log_category_id,
                 'name' => ($key = $categoryNames[$log->log_category_id] ?? '')
                     ? (Lang::has("log::lang.$key") ? __("log::lang.$key") : $key)

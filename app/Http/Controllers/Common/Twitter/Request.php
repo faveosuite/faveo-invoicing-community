@@ -203,7 +203,7 @@ class Request implements Stringable
         $first = true;
         $out = 'Authorization: OAuth';
         foreach ($this->parameters as $k => $v) {
-            if (!str_starts_with((string) $k, 'oauth')) {
+            if (! str_starts_with((string) $k, 'oauth')) {
                 continue;
             }
 

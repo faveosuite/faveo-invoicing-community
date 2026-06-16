@@ -2,12 +2,12 @@
 
 namespace App\License\Controllers\Admin;
 
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\LicenseBannedHost;
 use App\License\Models\LicenseWhitelistIp;
 use App\License\Requests\BannedHostRequest;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 

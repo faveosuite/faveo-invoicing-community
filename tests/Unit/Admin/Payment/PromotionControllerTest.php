@@ -2,9 +2,6 @@
 
 namespace Tests\Unit\Admin\Payment;
 
-use Exception;
-use Session;
-use Cart;
 use App\Http\Controllers\Payment\PromotionController;
 use App\Model\Order\Invoice;
 use App\Model\Payment\Currency;
@@ -12,7 +9,10 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Payment\Promotion;
 use App\Model\Product\Product;
+use Cart;
+use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Session;
 use Tests\DBTestCase;
 
 class PromotionControllerTest extends DBTestCase

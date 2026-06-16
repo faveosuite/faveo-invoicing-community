@@ -2,26 +2,26 @@
 
 namespace App\Model\Product;
 
-use App\Model\License\LicenseType;
-use App\Model\Order\Order;
-use App\Model\Payment\PromoProductRelation;
-use Override;
-use App\Model\Payment\Plan;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\License\Models\License;
-use App\License\Models\Installation;
-use App\License\Models\LicenseReport;
-use App\License\Models\LicenseCallback;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use App\BaseModel;
 use App\Facades\Attach;
+use App\License\Models\Installation;
+use App\License\Models\License;
+use App\License\Models\LicenseCallback;
+use App\License\Models\LicenseReport;
 use App\Model\Configure\ConfigOption;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
+use App\Model\License\LicenseType;
+use App\Model\Order\Order;
+use App\Model\Payment\Plan;
+use App\Model\Payment\PromoProductRelation;
 use App\Model\Payment\TaxClass;
 use App\Model\Payment\TaxProductRelation;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Override;
 
 class Product extends BaseModel
 {

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-use Illuminate\Support\Str;
-use Illuminate\Http\Response;
 use App\ThirdPartyApp;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class ThirdPartyAppController extends Controller
 {
@@ -58,7 +58,7 @@ class ThirdPartyAppController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return Response
      */
     public function createThirdPartyApp(Request $request)
@@ -92,8 +92,8 @@ class ThirdPartyAppController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
-     * @param ThirdPartyApp $thirdPartyApp
+     * @param  Request  $request
+     * @param  ThirdPartyApp  $thirdPartyApp
      * @return Response
      */
     public function updateThirdPartyApp(Request $request, $id)
@@ -123,7 +123,7 @@ class ThirdPartyAppController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param ThirdPartyApp $thirdPartyApp
+     * @param  ThirdPartyApp  $thirdPartyApp
      * @return Response
      */
     public function deleteThirdPartyApp(Request $request)

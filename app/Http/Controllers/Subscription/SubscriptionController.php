@@ -2,15 +2,8 @@
 
 namespace App\Http\Controllers\Subscription;
 
-use Illuminate\Support\Facades\Date;
-use Illuminate\Contracts\Database\Query\Builder;
-use Exception;
-use App\Services\Payment\ProcessingFee;
-use DB;
-use App\Services\Payment\SubscriptionService;
-use Logger;
-use App\Http\Controllers\Common\PhpMailController;
 use App\Auto_renewal;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Order\BaseRenewController;
@@ -25,7 +18,14 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Stripe\Controllers\SettingsController;
+use App\Services\Payment\ProcessingFee;
+use App\Services\Payment\SubscriptionService;
 use App\User;
+use DB;
+use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Support\Facades\Date;
+use Logger;
 
 class SubscriptionController extends Controller
 {

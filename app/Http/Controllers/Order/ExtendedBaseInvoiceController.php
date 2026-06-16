@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Order;
 
-use Lang;
-use Illuminate\Support\Facades\Date;
-use App\Model\Order\OrderInvoiceRelation;
-use Logger;
-use App\User;
 use App\Http\Controllers\Controller;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
+use App\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Lang;
+use Logger;
 
 class ExtendedBaseInvoiceController extends Controller
 {

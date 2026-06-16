@@ -2,10 +2,10 @@
 
 namespace Database\Factories\Model\Payment;
 
-use Illuminate\Support\Facades\Date;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 
 class PromotionFactory extends Factory

@@ -2,12 +2,12 @@
 
 namespace App\Plugins\Mailchimp\Listeners;
 
-use Logger;
-use Throwable;
 use App\Model\Order\InvoiceItem;
 use App\Plugins\Mailchimp\Exceptions\MailchimpApiException;
 use App\Plugins\Mailchimp\Services\MailchimpService;
 use App\User;
+use Logger;
+use Throwable;
 
 class UpdateSubscriberOnPurchase
 {

@@ -2,11 +2,11 @@
 
 namespace App\Plugins\Zoho\Tests\Helpers;
 
-use DB;
 use App\Plugins\Zoho\Controllers\Api\ZohoRegion;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
+use DB;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 

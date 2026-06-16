@@ -2,11 +2,11 @@
 
 namespace App\Model\Payment;
 
-use Override;
+use App\BaseModel;
 use App\Model\Common\Country;
 use App\Model\Common\State;
-use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Override;
 
 /**
  * A generic tax rate (WooCommerce-style). See the create_tax_rates migration
@@ -68,6 +68,7 @@ class TaxRate extends BaseModel
     {
         return $this->belongsTo(TaxClass::class, 'tax_class', 'slug');
     }
+
     #[Override]
     protected function casts(): array
     {

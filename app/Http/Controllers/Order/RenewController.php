@@ -2,15 +2,10 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Services\SubscriptionRenewalService;
-use Illuminate\Support\Facades\Date;
-use App\License\Services\InstallationService;
-use App\License\Services\LicenseService;
-use Auth;
-use Illuminate\Contracts\Database\Query\Builder;
-use Illuminate\Support\Arr;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\License\Models\Installation;
+use App\License\Services\InstallationService;
+use App\License\Services\LicenseService;
 use App\Model\Common\FaveoCloud;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
@@ -19,11 +14,16 @@ use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\SubscriptionRenewalService;
 use App\Traits\TaxCalculation;
 use App\User;
+use Auth;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Date;
 use Session;
 
 class RenewController extends BaseRenewController

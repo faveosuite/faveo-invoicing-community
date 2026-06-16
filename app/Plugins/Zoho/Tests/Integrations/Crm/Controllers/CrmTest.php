@@ -2,12 +2,12 @@
 
 namespace App\Plugins\Zoho\Tests\Integrations\Crm\Controllers;
 
-use Illuminate\Support\Collection;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\Crm;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 use App\Plugins\Zoho\Models\ZohoOAuthClient;
 use App\Plugins\Zoho\Models\ZohoOAuthToken;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Tests\DBTestCase;
 
@@ -88,7 +88,7 @@ class CrmTest extends DBTestCase
             'Email' => 'test@example.com',
         ]);
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'Accounts'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'Accounts'));
     }
 
     public function test_it_updates_crm_record()
@@ -105,7 +105,7 @@ class CrmTest extends DBTestCase
             'Phone' => '1234567890',
         ]);
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'Contacts') &&
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'Contacts') &&
                str_contains((string) $request->url(), '123456'));
     }
 
@@ -121,7 +121,7 @@ class CrmTest extends DBTestCase
 
         $this->crm->delete('Leads', '789');
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'Leads') &&
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'Leads') &&
                str_contains((string) $request->url(), '789'));
     }
 
@@ -133,6 +133,6 @@ class CrmTest extends DBTestCase
 
         $this->crm->records('Deals', ['per_page' => 50, 'page' => 2]);
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'Deals'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'Deals'));
     }
 }

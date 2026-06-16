@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Front\Cart;
 
-use Illuminate\Support\Facades\Date;
-use Throwable;
-use Exception;
 use App\Http\Controllers\Common\SettingsController;
 use App\Model\Cart\Cart;
 use App\Model\Cart\CartItem;
@@ -15,9 +12,12 @@ use App\Model\Payment\Promotion;
 use App\Model\Payment\TaxOption;
 use App\Services\Payment\ProcessingFee;
 use App\Services\Tax\TaxService;
+use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class CartService
 {
@@ -428,7 +428,7 @@ class CartService
                 return [];
             }
 
-            return array_map(fn($name) => ['name' => $name, 'processing_fee' => ProcessingFee::percent($name) ?: null], $names);
+            return array_map(fn ($name) => ['name' => $name, 'processing_fee' => ProcessingFee::percent($name) ?: null], $names);
         } catch (Throwable) {
             return [];
         }

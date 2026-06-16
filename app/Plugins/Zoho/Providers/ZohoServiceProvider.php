@@ -2,7 +2,6 @@
 
 namespace App\Plugins\Zoho\Providers;
 
-use Override;
 use App\Events\UserRegisteredEvent;
 use App\Plugins\Zoho\Controllers\Api\{
     ZohoAccessToken,
@@ -19,6 +18,7 @@ use App\Plugins\Zoho\Models\ZohoIntegration;
 use App\Services\NewsletterManager;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class ZohoServiceProvider extends ServiceProvider
 {
@@ -54,9 +54,9 @@ class ZohoServiceProvider extends ServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $this->app->singleton('zoho.accounts.campaigns', fn() => $this->makeAccountsApi('campaigns'));
+        $this->app->singleton('zoho.accounts.campaigns', fn () => $this->makeAccountsApi('campaigns'));
 
-        $this->app->singleton('zoho.accounts.crm', fn() => $this->makeAccountsApi('crm'));
+        $this->app->singleton('zoho.accounts.crm', fn () => $this->makeAccountsApi('crm'));
 
         /*
         |--------------------------------------------------------------------------
@@ -64,7 +64,7 @@ class ZohoServiceProvider extends ServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $this->app->singleton(fn($app): ZohoAccessToken => new ZohoAccessToken());
+        $this->app->singleton(fn ($app): ZohoAccessToken => new ZohoAccessToken());
 
         /*
         |--------------------------------------------------------------------------
@@ -98,9 +98,9 @@ class ZohoServiceProvider extends ServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $this->app->singleton('zoho.campaigns', fn($app) => new Campaigns());
+        $this->app->singleton('zoho.campaigns', fn ($app) => new Campaigns());
 
-        $this->app->singleton('zoho.crm', fn($app) => new Crm());
+        $this->app->singleton('zoho.crm', fn ($app) => new Crm());
     }
 
     /**

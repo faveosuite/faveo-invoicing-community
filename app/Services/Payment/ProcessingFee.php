@@ -2,8 +2,8 @@
 
 namespace App\Services\Payment;
 
-use Throwable;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 /**
  * Processing fee — the single source of truth for payment-gateway fees.

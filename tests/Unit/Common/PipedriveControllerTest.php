@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Common;
 
-use ReflectionClass;
 use App\ApiKey;
 use App\Http\Controllers\Common\PipedriveController;
 use App\Model\Common\PipedriveField;
@@ -13,6 +12,7 @@ use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Mockery;
+use ReflectionClass;
 use Tests\DBTestCase;
 
 class PipedriveControllerTest extends DBTestCase

@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Common;
 
-use RuntimeException;
-use Mockery;
 use Cache;
 use Illuminate\Cache\Lock;
 use Illuminate\Contracts\Cache\LockTimeoutException;
+use Mockery;
+use RuntimeException;
 use Tests\TestCase;
 
 class ThrottleApiRequestTest extends TestCase
@@ -241,7 +241,7 @@ class ThrottleApiRequestTest extends TestCase
         });
 
         Cache::shouldReceive('get')->andReturn(microtime(true));
-        Cache::shouldReceive('put')->once()->withArgs(fn($key, $value, $ttl) => $ttl === 300)->andReturnTrue();
+        Cache::shouldReceive('put')->once()->withArgs(fn ($key, $value, $ttl) => $ttl === 300)->andReturnTrue();
 
         throttleApiRequest('https://api.example.com/ttl');
     }

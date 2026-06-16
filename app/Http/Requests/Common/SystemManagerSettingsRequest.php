@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Common;
 
-use Override;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class SystemManagerSettingsRequest extends FormRequest
 {

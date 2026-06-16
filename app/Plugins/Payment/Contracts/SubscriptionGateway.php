@@ -2,9 +2,9 @@
 
 namespace App\Plugins\Payment\Contracts;
 
-use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Plugins\Payment\Dto\SubscriptionRequest;
 use App\Plugins\Payment\Dto\SubscriptionResult;
+use App\Plugins\Payment\Exceptions\PaymentException;
 
 /**
  * Contract for gateways that support recurring subscriptions.

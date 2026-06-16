@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Common;
 
-use Exception;
-use Mail;
-use Config;
-use Throwable;
-use Illuminate\Mail\SentMessage;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Email\EmailSettingRequest;
 use App\Model\Common\Setting;
+use Config;
+use Exception;
+use Illuminate\Mail\SentMessage;
+use Mail;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
+use Throwable;
 
 class EmailSettingsController extends Controller
 {

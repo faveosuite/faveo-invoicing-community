@@ -2,11 +2,11 @@
 
 namespace App\Plugins\Mailchimp\Services;
 
-use App\Model\Common\StatusSetting;
-use App\Model\Common\Mailchimp\MailchimpGroupAgoraRelation;
 use App\Model\Common\Country;
 use App\Model\Common\Mailchimp\MailchimpFieldAgoraRelation;
+use App\Model\Common\Mailchimp\MailchimpGroupAgoraRelation;
 use App\Model\Common\Setting;
+use App\Model\Common\StatusSetting;
 use App\User;
 
 class ContactBuilder

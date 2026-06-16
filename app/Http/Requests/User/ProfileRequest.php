@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests\User;
 
-use Auth;
-use Override;
 use App\Http\Requests\Request;
 use App\Rules\PhoneNumber;
 use App\Rules\StrongPassword;
+use Auth;
+use Override;
 
 class ProfileRequest extends Request
 {

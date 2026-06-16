@@ -3,11 +3,11 @@
 namespace App\Rules;
 
 use Arr;
-use Str;
+use Closure;
 use Crypt;
 use Exception;
-use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Str;
 
 class Honeypot implements ValidationRule
 {

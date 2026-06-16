@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Artisan;
 use App\Console\LoggableCommand;
+use Artisan;
 use Illuminate\Support\Facades\File;
 
 class moveImages extends LoggableCommand

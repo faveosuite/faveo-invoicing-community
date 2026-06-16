@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Github;
 
-use Lang;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
@@ -10,6 +9,7 @@ use App\Model\Product\Subscription;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Lang;
 
 class GithubController extends Controller
 {

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Common\Dependency;
 
-use App\Model\Payment\Currency;
 use App\Model\Common\Bussiness;
 use App\Model\Common\PricingTemplate;
 use App\Model\License\LicenseType;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PromotionType;
@@ -64,7 +64,7 @@ class NonPublicDependencies extends BaseDependencyController
                 $query->where('code', 'like', "%{$searchQuery}%");
             });
 
-        return $this->get('currencies', $baseQuery, fn($item) => ['id' => $item->code, 'name' => $item->code]);
+        return $this->get('currencies', $baseQuery, fn ($item) => ['id' => $item->code, 'name' => $item->code]);
     }
 
     private function managers()
@@ -102,7 +102,7 @@ class NonPublicDependencies extends BaseDependencyController
                     $query->where('name', 'like', "%{$searchQuery}%");
                 });
 
-        return $this->get('products', $baseQuery, fn($item) => ['id' => $item->id, 'name' => $item->name]);
+        return $this->get('products', $baseQuery, fn ($item) => ['id' => $item->id, 'name' => $item->name]);
     }
 
     private function industries()
@@ -150,7 +150,7 @@ class NonPublicDependencies extends BaseDependencyController
                 $query->where('name', 'like', "%{$searchQuery}%");
             });
 
-        return $this->get('plans', $baseQuery, fn($item) => ['id' => $item->id, 'name' => $item->name, 'days' => $item->days]);
+        return $this->get('plans', $baseQuery, fn ($item) => ['id' => $item->id, 'name' => $item->name, 'days' => $item->days]);
     }
 
     private function licenseTypes()
@@ -258,7 +258,7 @@ class NonPublicDependencies extends BaseDependencyController
                 $query->where('name', 'like', "%{$searchQuery}%");
             });
 
-        return $this->get('products', $baseQuery, fn($item) => ['id' => $item->id, 'name' => $item->name]);
+        return $this->get('products', $baseQuery, fn ($item) => ['id' => $item->id, 'name' => $item->name]);
     }
 
     private function pluginProducts()

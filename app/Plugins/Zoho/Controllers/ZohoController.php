@@ -2,8 +2,6 @@
 
 namespace App\Plugins\Zoho\Controllers;
 
-use Throwable;
-use Logger;
 use App\Http\Controllers\Common\ExternalServiceController;
 use App\Http\Controllers\Controller;
 use App\Jobs\AddUserToExternalService;
@@ -12,6 +10,8 @@ use App\Plugins\Zoho\Integrations\Campaigns\Controllers\ZohoCampaignsController;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\ZohoCrmController;
 use App\User;
 use Illuminate\Http\Request;
+use Logger;
+use Throwable;
 
 class ZohoController extends Controller
 {

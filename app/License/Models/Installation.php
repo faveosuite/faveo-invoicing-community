@@ -2,12 +2,12 @@
 
 namespace App\License\Models;
 
-use Override;
 use App\Model\Product\Product;
 use App\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Override;
 
 class Installation extends Model
 {
@@ -56,6 +56,7 @@ class Installation extends Model
     {
         return $query->where('installation_status', 1);
     }
+
     #[Override]
     protected function casts(): array
     {

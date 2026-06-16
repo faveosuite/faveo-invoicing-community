@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Override;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Override;
 
 class PlanRequest extends FormRequest
 {

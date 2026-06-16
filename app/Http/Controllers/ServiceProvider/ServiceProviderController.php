@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\ServiceProvider;
 
-use App\Http\Controllers\Front\CheckoutController;
-use Exception;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Front\CheckoutController;
 use App\Model\licence\Licence;
 use App\Model\Licence\LicencedOrganization;
 use App\Model\licence\Sla;
 use App\Model\licence\SlaServiceRelation;
 use App\Model\Product\Service;
 use App\Organization;
+use Exception;
 
 class ServiceProviderController extends Controller
 {

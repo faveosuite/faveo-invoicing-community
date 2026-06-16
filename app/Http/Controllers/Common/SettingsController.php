@@ -2,22 +2,6 @@
 
 namespace App\Http\Controllers\Common;
 
-use Mailchimp\Mailchimp;
-use Exception;
-use Logger;
-use Lang;
-use App\Model\Common\Template;
-use App\Model\Common\Timezone;
-use App\Model\Mailjob\ExpiryMailDay;
-use App\Model\Mailjob\ActivityLogDay;
-use App\Model\Mailjob\Condition;
-use DB;
-use App\Model\Common\FaveoCloud;
-use Illuminate\Support\Facades\Date;
-use Illuminate\Contracts\Database\Query\Builder;
-use App\Model\Common\CommonSettings;
-use Sentry\State\HubInterface;
-use App\ThirdPartyApp;
 use App\ApiKey;
 use App\CloudPopUp;
 use App\Email_log;
@@ -26,26 +10,42 @@ use App\Facades\Attach;
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Http\Requests\Common\SettingsRequest;
 use App\Model\CloudDataCenters;
+use App\Model\Common\CommonSettings;
 use App\Model\Common\Country;
 use App\Model\Common\EmailMobileValidationProviders;
+use App\Model\Common\FaveoCloud;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\PipedriveGroups;
 use App\Model\Common\Setting;
 use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
+use App\Model\Common\Timezone;
 use App\Model\Github\Github;
+use App\Model\Mailjob\ActivityLogDay;
+use App\Model\Mailjob\Condition;
+use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Mailjob\QueueService;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Plugin;
 use App\Model\Product\Product;
 use App\Payment_log;
+use App\ThirdPartyApp;
 use App\User;
 use Cache;
+use DB;
+use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
+use Lang;
+use Logger;
+use Mailchimp\Mailchimp;
+use Sentry\State\HubInterface;
 use Spatie\Activitylog\Models\Activity;
 
 class SettingsController extends BaseSettingsController
@@ -823,7 +823,7 @@ class SettingsController extends BaseSettingsController
             $activitySortColumn = $activitySortMap[$sortField] ?? 'activity_log.'.$sortField;
             $logs = $query->orderBy($activitySortColumn, $sortOrder)->simplePaginate($limit);
 
-            $logs->getCollection()->transform(fn($row) => [
+            $logs->getCollection()->transform(fn ($row) => [
                 'id' => $row->id,
                 'module' => $row->log_name ?? '—',
                 'event' => ucfirst($row->event ?? '—'),
@@ -918,7 +918,7 @@ class SettingsController extends BaseSettingsController
             $paymentSortColumn = $paymentSortMap[$sortField] ?? 'payment_logs.'.$sortField;
             $logs = $query->orderBy($paymentSortColumn, $sortOrder)->simplePaginate($limit);
 
-            $logs->getCollection()->transform(fn($row) => [
+            $logs->getCollection()->transform(fn ($row) => [
                 'id' => $row->id,
                 'date' => $row->date ? Date::parse($row->date)->format('Y-m-d H:i') : '—',
                 'user' => $row->user_name ? trim((string) $row->user_name) : ($row->from ?? '—'),

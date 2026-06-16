@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use Throwable;
-use Logger;
 use App\Contracts\NewsletterProvider;
+use Logger;
+use Throwable;
 
 class NewsletterManager
 {
@@ -37,6 +37,6 @@ class NewsletterManager
 
     public function hasEnabledProviders(): bool
     {
-        return array_any($this->providers, fn($provider) => $provider->isEnabled());
+        return array_any($this->providers, fn ($provider) => $provider->isEnabled());
     }
 }

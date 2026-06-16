@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Common;
 
-use Lang;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
 use Illuminate\Http\Request;
+use Lang;
 
 class BaseMailChimpController extends Controller
 {

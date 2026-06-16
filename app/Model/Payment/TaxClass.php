@@ -2,9 +2,9 @@
 
 namespace App\Model\Payment;
 
-use Deprecated;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Deprecated;
 
 class TaxClass extends BaseModel
 {

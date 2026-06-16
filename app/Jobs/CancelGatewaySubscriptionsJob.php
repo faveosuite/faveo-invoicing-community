@@ -2,12 +2,12 @@
 
 namespace App\Jobs;
 
-use Exception;
-use Logger;
 use App\Model\Product\Subscription;
 use App\Services\Payment\SubscriptionService;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Logger;
 
 /**
  * Cancels all active gateway subscriptions for a given gateway.

@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Client;
 
-use PHPUnit\Framework\Attributes\Group;
 use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Front\PageController;
 use App\Model\Payment\Plan;
@@ -13,6 +12,7 @@ use App\Model\Product\ProductGroup;
 use App\User;
 use Illuminate\Http\Request;
 use Mockery;
+use PHPUnit\Framework\Attributes\Group;
 use Spatie\Html\Html;
 use Tests\DBTestCase;
 

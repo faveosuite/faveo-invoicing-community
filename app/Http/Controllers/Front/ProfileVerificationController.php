@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Front;
 
-use Exception;
-use Log;
-use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\Auth\BaseAuthController;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
@@ -14,7 +11,10 @@ use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
 use App\User;
+use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Log;
 use RateLimiter;
 
 class ProfileVerificationController extends BaseAuthController

@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-use Illuminate\Support\Facades\Date;
+use App\License\Models\Installation;
 use App\License\Services\InstallationService;
 use App\License\Services\LicenseService;
-use Crypt;
-use Lang;
-use App\License\Models\Installation;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use Crypt;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Lang;
 
 class BaseHomeController extends Controller
 {
@@ -291,7 +291,7 @@ class BaseHomeController extends Controller
             $licCode = $request->input('licenseCode'); //The license code already existing for older client
             $lastFour = $this->getLastFourDigistsOfLicenseCode($request->input('product'));
             $existingLicense = Order::select('id', 'client', 'product', 'serial_key')->get()
-                ->filter(fn($order) => $order->serial_key == $licCode)->first();
+                ->filter(fn ($order) => $order->serial_key == $licCode)->first();
 
             if ($existingLicense) {//If the license code that is sent in the request exists in billing
                 resolve(InstallationService::class)->deleteByLicenseCode($licCode); //Delete the installations for the current license before updating license so that no Faveo installation exists on the user domain/IP path and the install slots are freed

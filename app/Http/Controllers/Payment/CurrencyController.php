@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Payment;
 
-use Exception;
-use Session;
-use DB;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
+use DB;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lang;
+use Session;
 
 class CurrencyController extends Controller
 {
@@ -61,7 +61,7 @@ class CurrencyController extends Controller
                 ->simplePaginate($limit);
 
             // Map data for JSON response
-            $currencyData->getCollection()->transform(fn($currency) => [
+            $currencyData->getCollection()->transform(fn ($currency) => [
                 'id' => $currency->id,
                 'name' => $currency->name,
                 'code' => $currency->code,

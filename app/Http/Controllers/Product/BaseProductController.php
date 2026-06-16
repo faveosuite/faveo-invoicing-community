@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers\Product;
 
-use Auth;
-use Exception;
-use Logger;
-use App\Model\Order\Invoice;
-use Lang;
-use App\Http\Controllers\Github\GithubController;
-use App\License\Services\LicenseService;
 use App\Facades\Attach;
+use App\Http\Controllers\Github\GithubController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Models\Installation;
+use App\License\Services\LicenseService;
+use App\Model\Order\Invoice;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\ThirdPartyApp;
 use App\User;
+use Auth;
+use Exception;
 use Illuminate\Http\Request;
+use Lang;
+use Logger;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 

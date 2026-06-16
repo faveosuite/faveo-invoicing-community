@@ -2,11 +2,11 @@
 
 namespace App\Traits\Order;
 
-use Exception;
-use Illuminate\Support\Facades\Date;
 use App\Model\Product\Subscription;
 use App\Services\SubscriptionRenewalService;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 
 trait UpdateDates
 {

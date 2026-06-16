@@ -2,8 +2,8 @@
 
 namespace Tests\Browser\Pages;
 
-use Override;
 use Laravel\Dusk\Page as BasePage;
+use Override;
 
 abstract class Page extends BasePage
 {

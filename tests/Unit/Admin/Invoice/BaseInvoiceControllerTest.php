@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Admin\Invoice;
 
-use App\Model\Payment\TaxOption;
 use App\Http\Controllers\Order\BaseInvoiceController;
+use App\Model\Payment\TaxOption;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 

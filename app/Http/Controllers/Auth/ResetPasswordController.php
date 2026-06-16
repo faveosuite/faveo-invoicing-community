@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\Auth;
 
-use DB;
-use Illuminate\Support\Facades\Date;
-use Session;
-use Exception;
-use App\Model\User\Password;
-use Hash;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Model\User\Password;
 use App\Rules\Honeypot;
 use App\Rules\StrongPassword;
 use App\User;
+use DB;
+use Exception;
+use Hash;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Session;
 
 class ResetPasswordController extends Controller
 {
@@ -85,7 +85,7 @@ class ResetPasswordController extends Controller
     /**
      * Reset the given user's password.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return RedirectResponse|JsonResponse
      */
     public function reset(Request $request)

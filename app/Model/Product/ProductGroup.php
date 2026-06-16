@@ -2,11 +2,11 @@
 
 namespace App\Model\Product;
 
-use App\Model\Common\PricingTemplate;
-use Override;
 use App\BaseModel;
+use App\Model\Common\PricingTemplate;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Override;
 
 class ProductGroup extends BaseModel
 {

@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Common;
 
-use Mockery;
 use App\Http\Controllers\Common\SettingsController;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Mockery;
 use Tests\DBTestCase;
 
 class BaseSettingsControllerTest extends DBTestCase

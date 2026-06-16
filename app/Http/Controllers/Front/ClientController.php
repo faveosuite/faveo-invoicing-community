@@ -2,27 +2,15 @@
 
 namespace App\Http\Controllers\Front;
 
-use DB;
-use Auth;
-use Illuminate\Contracts\Database\Query\Builder;
-use App\Payment_log;
-use App\License\Models\Installation;
-use App\Model\Payment\PlanPrice;
-use App\Model\Common\Country;
-use Logger;
-use Override;
-use App\Services\Payment\ProcessingFee;
-use App\Http\Controllers\Common\SettingsController;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Session;
-use Stripe\StripeClient;
-use App\Http\Controllers\Common\PhpMailController;
-use Illuminate\Http\JsonResponse;
 use App\ApiKey;
 use App\Auto_renewal;
+use App\Http\Controllers\Common\PhpMailController;
+use App\Http\Controllers\Common\SettingsController;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Order\RenewController;
+use App\License\Models\Installation;
+use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
@@ -33,14 +21,26 @@ use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
+use App\Payment_log;
+use App\Services\Payment\ProcessingFee;
 use App\User;
 use App\WhatsappIntegration;
+use Auth;
+use DB;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Logger;
+use Override;
+use Session;
+use Stripe\StripeClient;
 
 class ClientController extends BaseClientController
 {
@@ -396,7 +396,7 @@ class ClientController extends BaseClientController
                 ->orderBy('date', 'desc')
                 ->paginate(10);
 
-            $paginated->getCollection()->transform(fn($model) => [
+            $paginated->getCollection()->transform(fn ($model) => [
                 'id' => $model->id,
                 'number' => $model->number,
                 'date' => $model->date,
@@ -809,7 +809,7 @@ class ClientController extends BaseClientController
 
         // Add more cloud IDs until we have a generic way to differentiate
         if (in_array($product->id, cloudPopupProducts())) {
-            $plans = array_filter($plans, fn($value) => stripos((string) $value, 'free') === false);
+            $plans = array_filter($plans, fn ($value) => stripos((string) $value, 'free') === false);
         }
 
         return $plans;
@@ -893,7 +893,7 @@ class ClientController extends BaseClientController
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
-            $paginated->getCollection()->transform(fn($payment) => [
+            $paginated->getCollection()->transform(fn ($payment) => [
                 'id' => $payment->id,
                 'invoice_number' => $payment->invoice?->number ?? '—',
                 'amount' => currencyFormat($payment->amount, $payment->invoice?->currency ?? ''),

@@ -2,12 +2,12 @@
 
 namespace Tests\Unit\Agent\User;
 
-use Illuminate\Support\Facades\Date;
 use App\ExportDetail;
 use App\Jobs\AddUserToExternalService;
 use App\User;
 use Bus;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Date;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\DBTestCase;
 

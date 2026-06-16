@@ -2,17 +2,17 @@
 
 namespace App\Exceptions;
 
-use Override;
-use Log;
-use Sentry\Laravel\Integration;
-use Logger;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Validation\ValidationException;
+use Log;
+use Logger;
+use Override;
 use PDOException;
+use Sentry\Laravel\Integration;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

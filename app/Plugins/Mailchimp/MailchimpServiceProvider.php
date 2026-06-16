@@ -2,7 +2,6 @@
 
 namespace App\Plugins\Mailchimp;
 
-use Override;
 use App\Events\UserRegisteredEvent;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Plugins\Mailchimp\Http\Client\MailchimpClient;
@@ -15,6 +14,7 @@ use App\Plugins\Mailchimp\Services\MailchimpService;
 use App\Services\NewsletterManager;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class MailchimpServiceProvider extends ServiceProvider
 {
@@ -32,7 +32,7 @@ class MailchimpServiceProvider extends ServiceProvider
         $this->app->singleton(ContactBuilder::class);
 
         // MailchimpService — singleton so it's created once per request
-        $this->app->singleton(fn($app): MailchimpService => new MailchimpService(
+        $this->app->singleton(fn ($app): MailchimpService => new MailchimpService(
             $app->make(MailchimpClient::class),
             $app->make(ContactBuilder::class),
             MailchimpSetting::firstOrNew(),

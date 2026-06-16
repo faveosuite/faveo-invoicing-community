@@ -2,17 +2,17 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Http\Request;
 use App\ThirdPartyApp;
 use Closure;
+use Illuminate\Http\Request;
 
 class VerifyThirdPartyApps
 {
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
+     * @param  Request  $request
+     * @param  Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)

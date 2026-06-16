@@ -2,11 +2,11 @@
 
 namespace App\BillingLog\Console\Commands;
 
-use Illuminate\Support\Facades\Date;
 use App\BillingLog\Controllers\LogViewController;
 use App\Console\LoggableCommand;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\ExpiryMailDay;
+use Illuminate\Support\Facades\Date;
 
 class DeleteLogs extends LoggableCommand
 {

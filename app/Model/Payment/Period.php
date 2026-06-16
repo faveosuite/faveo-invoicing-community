@@ -2,8 +2,8 @@
 
 namespace App\Model\Payment;
 
-use Override;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 class Period extends Model
 {

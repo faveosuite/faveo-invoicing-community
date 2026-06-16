@@ -2,14 +2,10 @@
 
 namespace Tests\Unit\Client\Stripe;
 
-use Stripe\StripeClient;
-use DB;
-use Auth;
-use Exception;
-use App\Http\Controllers\Common\BaseSettingsController;
 use App\ApiKey;
 use App\Facades\Attach;
 use App\FileSystemSettings;
+use App\Http\Controllers\Common\BaseSettingsController;
 use App\Http\Controllers\RazorpayController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
@@ -22,13 +18,17 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
+use Auth;
 use Cartalyst\Stripe\Laravel\Facades\Stripe;
 use Config;
+use DB;
+use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Mockery;
+use Stripe\StripeClient;
 use Tests\DBTestCase;
 
 class SettingsControllerTest extends DBTestCase
@@ -411,7 +411,7 @@ class SettingsControllerTest extends DBTestCase
         $mock->shouldReceive('validateS3Credentials')->andReturn(true);
 
         // Bind so SettingsController will use this mock (it inherits the trait)
-        $this->app->bind(fn(): \App\Http\Controllers\Common\SettingsController => $mock);
+        $this->app->bind(fn (): \App\Http\Controllers\Common\SettingsController => $mock);
 
         $response = $this->postJson('/file-storage-path', $payload);
 

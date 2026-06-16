@@ -3,8 +3,8 @@
 namespace App;
 
 use App\Model\Order\Order;
-use Crypt;
 use App\Traits\SystemActivityLogsTrait;
+use Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 
 class WhatsappIntegrationUser extends BaseModel

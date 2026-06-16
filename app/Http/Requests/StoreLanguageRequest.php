@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
-use Override;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\File;
+use Override;
 
 class StoreLanguageRequest extends FormRequest
 {

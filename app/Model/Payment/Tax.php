@@ -2,9 +2,9 @@
 
 namespace App\Model\Payment;
 
+use App\BaseModel;
 use App\Model\Common\Country;
 use App\Model\Common\State;
-use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 
 class Tax extends BaseModel

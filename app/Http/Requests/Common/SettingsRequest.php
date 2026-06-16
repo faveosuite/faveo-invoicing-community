@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Common;
 
-use Override;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class SettingsRequest extends FormRequest
 {

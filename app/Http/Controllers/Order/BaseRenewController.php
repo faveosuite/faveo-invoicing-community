@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Order;
 
-use Auth;
-use Illuminate\Contracts\Database\Query\Builder;
-use Illuminate\Support\Facades\Date;
 use App\Http\Controllers\Controller;
 use App\License\Models\Installation;
 use App\Model\Order\Invoice;
@@ -14,8 +11,11 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Traits\TaxCalculation;
+use Auth;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 
 class BaseRenewController extends Controller
 {

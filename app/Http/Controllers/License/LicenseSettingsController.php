@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\License;
 
-use Exception;
-use Illuminate\Http\Response;
 use App\Model\License\LicenseType;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class LicenseSettingsController extends LicensePermissionsController
 {
@@ -49,7 +49,7 @@ class LicenseSettingsController extends LicensePermissionsController
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return Response
      */
     public function createLicense(Request $request)

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Common;
 
-use Mailchimp\Mailchimp;
-use Lang;
 use App\Model\Common\Country;
 use App\Model\Common\Mailchimp\MailchimpField;
 use App\Model\Common\Mailchimp\MailchimpFieldAgoraRelation;
@@ -17,6 +15,8 @@ use App\Model\Product\Product;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
+use Lang;
+use Mailchimp\Mailchimp;
 
 class MailChimpController extends BaseMailChimpController
 {

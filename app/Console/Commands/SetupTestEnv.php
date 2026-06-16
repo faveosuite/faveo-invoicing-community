@@ -164,7 +164,7 @@ class SetupTestEnv extends LoggableCommand
         $latestVersion = preg_replace('#v\.|v#', '', str_replace('_', '.', Config::get('app.version')));
         $seedersPath = database_path('seeders');
         $seederVersions = scandir($seedersPath);
-        $seederVersions = array_filter($seederVersions, fn($dir) => preg_match('/^v[\d_]+(?:_[A-Za-z\d]+)*$/', (string) $dir));
+        $seederVersions = array_filter($seederVersions, fn ($dir) => preg_match('/^v[\d_]+(?:_[A-Za-z\d]+)*$/', (string) $dir));
         natsort($seederVersions);
         foreach ($seederVersions as $version) {
             if (version_compare($version, $latestVersion, '<=')) {

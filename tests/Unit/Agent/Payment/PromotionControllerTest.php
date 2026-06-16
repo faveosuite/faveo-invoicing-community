@@ -2,12 +2,12 @@
 
 namespace Tests\Unit\Agent\Payment;
 
-use Illuminate\Support\Facades\Date;
 use App\Model\Payment\PromoProductRelation;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Product\Product;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Date;
 use Tests\DBTestCase;
 
 class PromotionControllerTest extends DBTestCase

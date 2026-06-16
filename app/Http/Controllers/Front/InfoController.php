@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Front;
 
-use Auth;
 use App\Http\Controllers\Controller;
 use App\Model\Common\State;
 use App\Model\Payment\TaxByState;
+use Auth;
 
 class InfoController extends Controller
 {

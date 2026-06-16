@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use Session;
-use Exception;
-use Auth;
-use Hash;
-use Illuminate\Support\Facades\Date;
-use Lang;
-use Illuminate\Http\Response;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Requests\ValidateSecretRequest;
 use App\Rules\Honeypot;
 use App\User;
 use App\UserBackupCodes;
+use Auth;
+use Exception;
+use Hash;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Date;
+use Lang;
 use ParagonIE\ConstantTime\Base32;
 use PragmaRX\Google2FAQRCode\Google2FA;
 use RateLimiter;
+use Session;
 
 class Google2FAController extends Controller
 {
@@ -49,7 +49,7 @@ class Google2FAController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return Response
      */
     public function enableTwoFactor(Request $request)
@@ -77,7 +77,7 @@ class Google2FAController extends Controller
     }
 
     /**
-     * @param ValidateSecretRequest $request
+     * @param  ValidateSecretRequest  $request
      * @return Response
      */
     public function postLoginValidateToken(ValidateSecretRequest $request)
@@ -147,7 +147,7 @@ class Google2FAController extends Controller
     /**
      * Disables 2FA for a user/agent, wipes out all the details related to 2FA from the Database.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return json \Illuminate\Http\Response
      */
     public function disableTwoFactor(Request $request)

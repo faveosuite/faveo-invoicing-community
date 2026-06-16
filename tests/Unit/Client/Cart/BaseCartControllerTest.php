@@ -2,14 +2,11 @@
 
 namespace Tests\Unit\Client\Cart;
 
-use Exception;
-use Str;
-use Auth;
-use App\License\Services\InstallationService;
 use App\Facades\Cart;
 use App\Http\Controllers\Front\BaseCartController;
 use App\Http\Controllers\Front\CheckoutController;
 use App\Http\Controllers\Front\ClientController;
+use App\License\Services\InstallationService;
 use App\Model\Common\Setting;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
@@ -26,10 +23,13 @@ use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
 use App\Model\Product\Subscription;
 use App\User;
+use Auth;
+use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Mockery;
 use Spatie\Html\Html;
+use Str;
 use Tests\DBTestCase;
 
 class BaseCartControllerTest extends DBTestCase

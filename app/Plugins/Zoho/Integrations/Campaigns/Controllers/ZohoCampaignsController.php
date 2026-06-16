@@ -2,13 +2,13 @@
 
 namespace App\Plugins\Zoho\Integrations\Campaigns\Controllers;
 
-use Exception;
 use App\Plugins\Zoho\Controllers\ZohoBaseController;
 use App\Plugins\Zoho\Controllers\ZohoSync;
 use App\Plugins\Zoho\Integrations\Campaigns\Facades\ZohoCampaigns;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
 use App\User;
+use Exception;
 use Illuminate\Http\Request;
 
 class ZohoCampaignsController extends ZohoBaseController

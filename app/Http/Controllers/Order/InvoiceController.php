@@ -2,17 +2,9 @@
 
 namespace App\Http\Controllers\Order;
 
-use Str;
-use Exception;
-use Auth;
-use Illuminate\Support\Facades\Date;
-use DB;
-use Session;
-use App\Http\Controllers\Payment\PromotionController;
-use Logger;
-use App\Services\Payment\ProcessingFee;
 use App\Facades\Cart;
 use App\Http\Controllers\Front\CartController;
+use App\Http\Controllers\Payment\PromotionController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Requests\InvoiceRequest;
 use App\Jobs\ReportExport;
@@ -34,14 +26,22 @@ use App\Model\Payment\TaxByState;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\Price;
 use App\Model\Product\Product;
+use App\Services\Payment\ProcessingFee;
 use App\Traits\CoupCodeAndInvoiceSearch;
 use App\Traits\PaymentsAndInvoices;
 use App\Traits\TaxCalculation;
 use App\User;
+use Auth;
+use DB;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Logger;
+use Session;
 use Spatie\LaravelPdf\Enums\Format;
 use Spatie\LaravelPdf\Facades\Pdf;
+use Str;
 
 class InvoiceController extends TaxRatesAndCodeExpiryController
 {

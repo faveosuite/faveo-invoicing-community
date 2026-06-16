@@ -43,7 +43,7 @@ class CallBackController extends Controller
         $licenseIdsByCode = License::whereIn('license_code', $paginatedCallbacks->pluck('license_code')->filter()->unique())
             ->pluck('id', 'license_code');
 
-        $paginatedCallbacks->getCollection()->transform(fn(LicenseCallback $callback) => [
+        $paginatedCallbacks->getCollection()->transform(fn (LicenseCallback $callback) => [
             'id' => $callback->id,
             'product_id' => $callback->product_id,
             'user_id' => $callback->user_id,

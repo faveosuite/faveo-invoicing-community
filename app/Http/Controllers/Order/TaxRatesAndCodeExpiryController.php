@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Http\Controllers\Payment\PromotionController;
-use Lang;
-use App\Model\Order\OrderInvoiceRelation;
-use Exception;
-use App\Model\Common\Setting;
 use App\Http\Controllers\Common\PhpMailController;
+use App\Http\Controllers\Payment\PromotionController;
 use App\Http\Controllers\User\AdvanceSearchController;
+use App\Model\Common\Setting;
 use App\Model\Common\TemplateType;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use App\User;
+use Exception;
+use Lang;
 
 class TaxRatesAndCodeExpiryController extends BaseInvoiceController
 {

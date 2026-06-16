@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Common;
 
-use DB;
-use Lang;
-use Exception;
-use Illuminate\Support\Facades\Date;
-use App\Model\Mailjob\Condition;
 use App\ApiKey;
 use App\Http\Controllers\Common\PHPController as PaymentSettingsController;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\ActivityLogDay;
+use App\Model\Mailjob\Condition;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
+use DB;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Lang;
 use Spatie\Activitylog\Models\Activity;
 
 class BaseSettingsController extends PaymentSettingsController

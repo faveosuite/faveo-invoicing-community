@@ -2,10 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Date;
-use DB;
-use Illuminate\Database\Eloquent\Collection;
-use Exception;
 use App\Model\Common\Setting;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
@@ -16,7 +12,11 @@ use App\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use DateTime;
+use DB;
+use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 
 class DashboardController extends Controller
 {
@@ -529,7 +529,7 @@ class DashboardController extends Controller
             ->get();
 
         // Group by currency and sum payments
-        return $invoices->groupBy('currency')->map(fn($invoicesGroup) => $invoicesGroup->sum(fn($invoice) => $invoice->payment->sum('amount')));
+        return $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(fn ($invoice) => $invoice->payment->sum('amount')));
     }
 
     public function getYearlySalesByCurrency()
@@ -543,7 +543,7 @@ class DashboardController extends Controller
             ->get();
 
         // Group by currency and sum payments
-        return $invoices->groupBy('currency')->map(fn($invoicesGroup) => $invoicesGroup->sum(fn($invoice) => $invoice->payment->sum('amount')));
+        return $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(fn ($invoice) => $invoice->payment->sum('amount')));
     }
 
     public function getMonthlySalesByCurrency()
@@ -555,7 +555,7 @@ class DashboardController extends Controller
             ->get();
 
         // Group by currency and sum payments
-        return $invoices->groupBy('currency')->map(fn($invoicesGroup) => $invoicesGroup->sum(fn($invoice) => $invoice->payment->sum('amount')));
+        return $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(fn ($invoice) => $invoice->payment->sum('amount')));
     }
 
     public function getAllPendingPayments()
@@ -566,7 +566,7 @@ class DashboardController extends Controller
             ->get();
 
         // Group by currency and sum pending amounts
-        $totals = $invoices->groupBy('currency')->map(fn($invoicesGroup) => $invoicesGroup->sum(function ($invoice) {
+        $totals = $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(function ($invoice) {
             $paidAmount = $invoice->payment->sum('amount');
 
             return $invoice->grand_total - $paidAmount;

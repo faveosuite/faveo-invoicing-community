@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Admin\BillingInstaller;
 
-use Override;
-use Exception;
 use App\Http\Controllers\BillingInstaller\BillingDependencyController;
+use Exception;
+use Override;
 use Tests\TestCase;
 
 class BillingDependencyControllerTest extends TestCase

@@ -2,16 +2,16 @@
 
 namespace App\Plugins\Zoho\Tests\Controllers;
 
-use Illuminate\Validation\ValidationException;
-use Exception;
-use InvalidArgumentException;
 use App\Plugins\Zoho\Controllers\ZohoOAuthController;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 use App\Plugins\Zoho\Models\ZohoOAuthClient;
+use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 use Tests\DBTestCase;
 
 class ZohoOAuthControllerTest extends DBTestCase

@@ -2,16 +2,16 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Http\Request;
 use Closure;
+use Illuminate\Http\Request;
 
 class IsInstalled
 {
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
+     * @param  Request  $request
+     * @param  Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)

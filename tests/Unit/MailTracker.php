@@ -3,8 +3,8 @@
 namespace Tests\Unit;
 
 use Mail;
-use Symfony\Component\Mime\Email;
 use Swift_Events_EventListener;
+use Symfony\Component\Mime\Email;
 
 /**
  * tracks outgoing mails

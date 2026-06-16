@@ -2,44 +2,44 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Model\Product\Product;
-use Hash;
-use Swift_TransportException;
-use Exception;
-use Logger;
-use App\Model\Common\Setting;
-use App\Model\Common\TemplateType;
-use App\Model\Common\Template;
-use App\Http\Controllers\Common\PhpMailController;
-use DB;
-use Auth;
-use ZipArchive;
-use RecursiveIteratorIterator;
-use RecursiveDirectoryIterator;
-use Log;
-use Str;
-use App\Model\Common\Bussiness;
-use App\Model\Common\State;
-use App\Model\Order\Payment;
-use Illuminate\Support\Facades\Date;
 use App\Comment;
 use App\ExportDetail;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Requests\User\ClientRequest;
 use App\Jobs\AddUserToExternalService;
 use App\Jobs\ReportExport;
+use App\Model\Common\Bussiness;
 use App\Model\Common\Country;
+use App\Model\Common\Setting;
+use App\Model\Common\State;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
+use App\Model\Order\Payment;
+use App\Model\Product\Product;
 use App\Model\User\AccountActivate;
 use App\ReportColumn;
 use App\Traits\PaginationTotal;
 use App\Traits\PaymentsAndInvoices;
 use App\User;
 use App\UserLinkReport;
+use Auth;
 use Carbon\CarbonImmutable;
+use DB;
+use Exception;
+use Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Lang;
+use Log;
+use Logger;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use Str;
+use Swift_TransportException;
+use ZipArchive;
 
 class ClientController extends AdvanceSearchController
 {
@@ -564,7 +564,7 @@ class ClientController extends AdvanceSearchController
                 'account_manager' => $accountManagers,
                 'sales_manager' => $salesManagers,
             ])
-                ->flatMap(fn($collection, $role) => $collection->map(fn($u) => $u->first_name.' '.$u->last_name.' ('.__("message.$role").')'))
+                ->flatMap(fn ($collection, $role) => $collection->map(fn ($u) => $u->first_name.' '.$u->last_name.' ('.__("message.$role").')'))
                 ->implode(', ');
 
             return errorResponse(__('message.deletion_blocked', [
@@ -830,7 +830,7 @@ class ClientController extends AdvanceSearchController
             $comments = Comment::with('user:id,first_name,last_name')
                 ->where('user_id', $id)->latest()
                 ->get()
-                ->map(fn($c) => [
+                ->map(fn ($c) => [
                     'id' => $c->id,
                     'description' => $c->description,
                     'created_at' => $c->created_at,

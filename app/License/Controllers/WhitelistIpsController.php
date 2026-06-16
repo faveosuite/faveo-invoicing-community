@@ -2,12 +2,12 @@
 
 namespace App\License\Controllers;
 
-use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\License\Models\LicenseBannedHost;
 use App\License\Models\LicenseWhitelistIp;
 use App\License\Requests\whitelistIpsRequest;
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 
@@ -72,11 +72,11 @@ class WhitelistIpsController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
 
-        $records = LicenseWhitelistIp::when($searchQuery, fn($query) => $query->where('whitelist_host_ip', 'like', '%'.$searchQuery.'%')
+        $records = LicenseWhitelistIp::when($searchQuery, fn ($query) => $query->where('whitelist_host_ip', 'like', '%'.$searchQuery.'%')
             ->orWhere('whitelist_host_comments', 'like', '%'.$searchQuery.'%'))->orderBy($sortField, $sortOrder)
         ->paginate($perPage, ['*'], 'page', $page);
 
-        $records->getCollection()->transform(fn($record) => [
+        $records->getCollection()->transform(fn ($record) => [
             'id' => $record->id,
             'whitelist_host_date' => $record->created_at ? $record->created_at->format('Y-m-d') : '',
             'whitelist_host_ip' => $record->whitelist_host_ip,

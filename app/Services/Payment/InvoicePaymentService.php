@@ -2,13 +2,13 @@
 
 namespace App\Services\Payment;
 
-use Throwable;
-use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Http\Controllers\Common\SettingsController;
 use App\Model\Order\Invoice;
 use App\Plugins\Payment\Dto\Customer;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentSession;
+use App\Plugins\Payment\Exceptions\PaymentException;
+use Throwable;
 
 /**
  * Invoice-payment domain logic.

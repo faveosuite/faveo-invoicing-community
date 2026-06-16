@@ -3,10 +3,10 @@
 namespace App\Model\License;
 
 use App\Model\Product\Product;
-use Override;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 class LicenseType extends Model
 {

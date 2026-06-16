@@ -2,28 +2,28 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Exception;
-use Lang;
-use Auth;
-use Session;
-use Illuminate\Support\Facades\Date;
-use App\Model\Common\State;
-use App\Model\Common\Setting;
-use App\Model\Common\Template;
-use App\Http\Controllers\Common\TemplateController;
-use App\Http\Controllers\Common\PhpMailController;
-use App\Model\Common\Country;
 use App\ApiKey;
 use App\Events\UserRegisteredEvent;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
+use App\Http\Controllers\Common\TemplateController;
+use App\Model\Common\Country;
+use App\Model\Common\Setting;
+use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
 use App\User;
 use App\VerificationAttempt;
+use Auth;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Date;
+use Lang;
 use RateLimiter;
+use Session;
 
 class AuthController extends BaseAuthController
 {

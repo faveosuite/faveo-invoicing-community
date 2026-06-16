@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use Override;
-use Illuminate\Http\Request;
 use Closure;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
+use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
+use Override;
 
 class VerifyCsrfToken extends BaseVerifier
 {
@@ -35,8 +35,8 @@ class VerifyCsrfToken extends BaseVerifier
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
+     * @param  Request  $request
+     * @param  Closure  $next
      * @return mixed
      */
     #[Override]

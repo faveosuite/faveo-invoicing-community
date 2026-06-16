@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\User;
 
-use Auth;
-use App\Model\Common\Timezone;
-use App\Model\Common\Bussiness;
-use Exception;
-use Lang;
-use DB;
 use App\Facades\Attach;
 use App\Http\Controllers\Auth\BaseAuthController;
 use App\Http\Requests\User\ProfileRequest;
+use App\Model\Common\Bussiness;
+use App\Model\Common\Timezone;
+use Auth;
+use DB;
+use Exception;
 use Hash;
+use Lang;
 
 class ProfileController extends BaseAuthController
 {

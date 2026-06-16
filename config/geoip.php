@@ -1,10 +1,10 @@
 <?php
 
+use Torann\GeoIP\Services\IPApi;
+use Torann\GeoIP\Services\IPData;
+use Torann\GeoIP\Services\IPGeoLocation;
 use Torann\GeoIP\Services\MaxMindDatabase;
 use Torann\GeoIP\Services\MaxMindWebService;
-use Torann\GeoIP\Services\IPApi;
-use Torann\GeoIP\Services\IPGeoLocation;
-use Torann\GeoIP\Services\IPData;
 
 return [
     /*

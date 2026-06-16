@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Common;
 
-use Illuminate\Support\Facades\Date;
-use Closure;
 use App\Model\Payment\TaxOption;
 use Cache;
+use Closure;
+use Illuminate\Support\Facades\Date;
 use Tests\DBTestCase;
 
 class HelpersTest extends DBTestCase

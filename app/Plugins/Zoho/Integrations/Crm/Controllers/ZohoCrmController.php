@@ -2,13 +2,13 @@
 
 namespace App\Plugins\Zoho\Integrations\Crm\Controllers;
 
-use Exception;
 use App\Plugins\Zoho\Controllers\ZohoBaseController;
 use App\Plugins\Zoho\Controllers\ZohoSync;
 use App\Plugins\Zoho\Integrations\Crm\Facades\ZohoCrm;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
 use App\User;
+use Exception;
 use Illuminate\Http\Request;
 
 class ZohoCrmController extends ZohoBaseController

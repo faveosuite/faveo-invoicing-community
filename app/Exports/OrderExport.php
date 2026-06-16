@@ -37,7 +37,7 @@ class OrderExport implements FromCollection, WithHeadings, WithTitle
             'update_ends_at' => 'Expiry',
         ];
 
-        return array_map(fn($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
+        return array_map(fn ($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
     }
 
     public function title(): string

@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Agent\Order;
 
-use Illuminate\Support\Facades\Date;
 use App\Http\Controllers\License\LicenseController;
 use App\Model\Common\StatusSetting;
 use App\Model\License\LicensePermission;
@@ -10,6 +9,7 @@ use App\Model\License\LicenseType;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Date;
 use Mockery\MockInterface;
 use Tests\DBTestCase;
 

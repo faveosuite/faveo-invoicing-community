@@ -2,8 +2,8 @@
 
 namespace App\Model\Order;
 
-use App\User;
 use App\BaseModel;
+use App\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Payment extends BaseModel

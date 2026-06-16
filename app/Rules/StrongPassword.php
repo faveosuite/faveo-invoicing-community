@@ -2,10 +2,10 @@
 
 namespace App\Rules;
 
-use Lang;
-use Illuminate\Translation\PotentiallyTranslatedString;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
+use Lang;
 
 class StrongPassword implements ValidationRule
 {
@@ -14,7 +14,7 @@ class StrongPassword implements ValidationRule
      *
      * @param  string  $attribute
      * @param  mixed  $value
-     * @param Closure(string):PotentiallyTranslatedString $fail
+     * @param  Closure(string):PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

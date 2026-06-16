@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Product;
 
-use Exception;
 use App\Http\Controllers\Controller;
 use App\Model\License\LicenseType;
 use App\Model\Product\Product;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 

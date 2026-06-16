@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Common;
 
-use App\Plugins\Mailchimp\Listeners\UpdateSubscriberOnPurchase;
-use Throwable;
-use Logger;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\InvoiceItem;
 use App\Model\Product\Product;
+use App\Plugins\Mailchimp\Listeners\UpdateSubscriberOnPurchase;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\ZohoCampaignsController;
 use App\User;
+use Logger;
+use Throwable;
 
 class ExternalServiceController extends Controller
 {

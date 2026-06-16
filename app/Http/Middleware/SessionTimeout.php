@@ -2,13 +2,13 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Support\Facades\Date;
 use Carbon\Carbon;
 use Closure;
 use HTTP;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Session;
 
 class SessionTimeout

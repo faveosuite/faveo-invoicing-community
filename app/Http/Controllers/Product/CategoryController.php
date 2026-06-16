@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Product;
 
-use Lang;
-use Exception;
-use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Model\Product\ProductCategory;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Lang;
 
 class CategoryController extends Controller
 {

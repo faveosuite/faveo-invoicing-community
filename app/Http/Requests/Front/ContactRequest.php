@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Front;
 
-use Override;
-use Illuminate\Contracts\Validation\ValidationRule;
 use App\Rules\Honeypot;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class ContactRequest extends FormRequest
 {

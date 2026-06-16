@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use Override;
 use Illuminate\Http\Middleware\TrustHosts as Middleware;
+use Override;
 
 class TrustHosts extends Middleware
 {

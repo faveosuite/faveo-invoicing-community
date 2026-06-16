@@ -2,12 +2,12 @@
 
 namespace Tests\Browser\Auth;
 
-use Str;
 use App\Model\Common\StatusSetting;
 use App\Model\User\AccountActivate;
 use App\User;
 use Laravel\Dusk\Browser;
 use PHPUnit\Framework\Attributes\Group;
+use Str;
 use Tests\Browser\Helpers\DuskHelper;
 use Tests\DuskTestCase;
 

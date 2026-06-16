@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Cache;
 use App\Model\Common\Setting;
 use App\Model\Mailjob\QueueService;
 use Artisan;
+use Cache;
 use Config;
 use DB;
 use Exception;
@@ -88,9 +88,9 @@ class SyncBillingToLatestVersion
     {
         $filesystemVersion = Config::get('app.version');
         Cache::forget($filesystemVersion);
-        $dbversion = Cache::remember($filesystemVersion, 3600, 
+        $dbversion = Cache::remember($filesystemVersion, 3600,
             //Caching version for 1 hr
-            fn() => Setting::first()->value('version'));
+            fn () => Setting::first()->value('version'));
     }
 
     private function getPHPCompatibleVersionString(string $version): string

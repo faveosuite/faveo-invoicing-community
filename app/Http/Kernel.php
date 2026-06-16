@@ -2,34 +2,34 @@
 
 namespace App\Http;
 
-use Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance;
-use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
-use Illuminate\Session\Middleware\StartSession;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Http\Middleware\LanguageMiddleware;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Spatie\Referer\CaptureReferer;
-use App\Http\Middleware\VerifyCsrfToken;
-use Illuminate\Routing\Middleware\SubstituteBindings;
+use App\Http\Middleware\AddJsonAcceptHeader;
 use App\Http\Middleware\Admin;
-use App\Http\Middleware\RedirectIfAuthenticated;
-use Illuminate\Auth\Middleware\Authenticate;
-use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
+use App\Http\Middleware\BlockFailedVerifications;
+use App\Http\Middleware\CheckPulseEnabled;
 use App\Http\Middleware\Install;
 use App\Http\Middleware\IsInstalled;
+use App\Http\Middleware\LanguageMiddleware;
+use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\SecurityEnforcer;
+use App\Http\Middleware\SessionTimeout;
+use App\Http\Middleware\VerifyCsrfToken;
 use App\Http\Middleware\VerifyThirdPartyApps;
+use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
+use Illuminate\Auth\Middleware\RequirePassword;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance;
+use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Routing\Middleware\ValidateSignature;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 use PragmaRX\Google2FALaravel\Middleware;
-use App\Http\Middleware\CheckPulseEnabled;
-use App\Http\Middleware\BlockFailedVerifications;
-use App\Http\Middleware\SessionTimeout;
-use App\Http\Middleware\AddJsonAcceptHeader;
-use Illuminate\Auth\Middleware\RequirePassword;
-use App\Http\Middleware\SecurityEnforcer;
-use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Spatie\Csp\AddCspHeaders;
+use Spatie\Referer\CaptureReferer;
 
 class Kernel extends HttpKernel
 {

@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Exception;
-use Config;
-use Cache;
 use App\ApiKey;
 use App\Facades\Cart;
 use App\Http\Controllers\Front\CartController;
@@ -16,6 +13,9 @@ use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\SocialLogin;
 use App\User;
+use Cache;
+use Config;
+use Exception;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

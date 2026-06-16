@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Payment;
 
-use Illuminate\Support\Str;
-use Exception;
-use Lang;
-use App\Http\Controllers\Front\CartController;
-use Session;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Front\CartController;
 use App\Model\Payment\Promotion;
+use Exception;
+use Illuminate\Support\Str;
+use Lang;
+use Session;
 
 class BasePromotionController extends Controller
 {

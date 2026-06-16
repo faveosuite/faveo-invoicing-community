@@ -2,8 +2,8 @@
 
 namespace App\Model\Payment;
 
-use App\Model\Product\Product;
 use App\BaseModel;
+use App\Model\Product\Product;
 
 class TaxProductRelation extends BaseModel
 {

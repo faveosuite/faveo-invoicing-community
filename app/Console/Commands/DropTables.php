@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Schema;
-use Exception;
 use App\Console\LoggableCommand;
 use DB;
+use Exception;
+use Schema;
 
 class DropTables extends LoggableCommand
 {
@@ -42,7 +42,7 @@ class DropTables extends LoggableCommand
     {
         $database = env('DB_DATABASE');
         $droplist = Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
-        $droplist = implode(',', array_map(fn($table) => "`$table`", $droplist));
+        $droplist = implode(',', array_map(fn ($table) => "`$table`", $droplist));
 
         try {
             DB::statement('SET FOREIGN_KEY_CHECKS = 0');

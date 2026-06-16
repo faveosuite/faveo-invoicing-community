@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
-use Session;
-use Exception;
-use Log;
 use App\FailedWhatsappMessage;
 use App\WhatsappIntegrationUser;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Log;
+use Session;
 
 class SendWhatsappMessage implements ShouldQueue
 {

@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Auth;
 
-use Mail;
 use App\ApiKey;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
@@ -14,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use Mail;
 use Mockery;
 use Tests\TestCase;
 

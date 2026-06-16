@@ -2,11 +2,11 @@
 
 namespace App\Traits;
 
-use Throwable;
-use Exception;
-use Auth;
 use App\Model\Payment\TaxOption;
 use App\Services\Tax\TaxService;
+use Auth;
+use Exception;
+use Throwable;
 
 /**
  * Backward-compatible adapter over the generic tax engine

@@ -2,14 +2,10 @@
 
 namespace App\Http\Controllers\Front;
 
-use Exception;
-use Logger;
-use Auth;
-use App\Http\Controllers\Order\RenewController;
-use App\Http\Controllers\Payment\PromotionController;
-use Lang;
 use App\Facades\Cart;
 use App\Http\Controllers\Common\TemplateController;
+use App\Http\Controllers\Order\RenewController;
+use App\Http\Controllers\Payment\PromotionController;
 use App\Model\Common\Setting;
 use App\Model\Order\Invoice;
 use App\Model\Payment\Currency;
@@ -19,8 +15,12 @@ use App\Model\Payment\Tax;
 use App\Model\Payment\TaxByState;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\Product;
-//use Cart;
+use Auth;
+use Exception;
 use Illuminate\Http\Request;
+use Lang;
+//use Cart;
+use Logger;
 use Session;
 
 class CartController extends BaseCartController
@@ -221,7 +221,7 @@ class CartController extends BaseCartController
                 }
             }
 
-            $cartCollection = $this->cart->getContent()->sortByDesc(fn($item) => (int) $item['id']);
+            $cartCollection = $this->cart->getContent()->sortByDesc(fn ($item) => (int) $item['id']);
             $cart = $this->cart;
 
             return successResponse('', ['cartCollection' => $cartCollection, 'cart' => $cart]);

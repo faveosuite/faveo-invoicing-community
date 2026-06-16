@@ -2,9 +2,9 @@
 
 namespace App\Plugins\Zoho\Tests\Controllers;
 
-use Exception;
 use App\Plugins\Zoho\Controllers\ZohoSync;
 use App\Plugins\Zoho\Models\ZohoFields;
+use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 

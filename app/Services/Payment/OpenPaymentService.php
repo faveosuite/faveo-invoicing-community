@@ -2,7 +2,6 @@
 
 namespace App\Services\Payment;
 
-use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Model\Common\Setting;
 use App\Model\Common\TemplateType;
@@ -10,6 +9,7 @@ use App\Model\Payment\OpenPaymentOrder;
 use App\Plugins\Payment\Dto\Customer;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentSession;
+use App\Plugins\Payment\Exceptions\PaymentException;
 
 /**
  * Open-payment domain logic.

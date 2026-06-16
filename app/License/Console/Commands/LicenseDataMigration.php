@@ -2,16 +2,16 @@
 
 namespace App\License\Console\Commands;
 
-use Exception;
 use Closure;
-use Illuminate\Database\ConnectionInterface;
-use RuntimeException;
-use Illuminate\Support\Facades\Date;
+use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use RuntimeException;
 
 class LicenseDataMigration extends Command
 {

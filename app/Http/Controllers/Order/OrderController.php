@@ -2,11 +2,6 @@
 
 namespace App\Http\Controllers\Order;
 
-use Exception;
-use App\Payment_log;
-use Lang;
-use Auth;
-use Logger;
 use App\Events\UserOrderDelete;
 use App\Http\Requests\Order\OrderRequest;
 use App\Jobs\ReportExport;
@@ -22,8 +17,13 @@ use App\Model\Product\Price;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
+use App\Payment_log;
 use App\User;
+use Auth;
+use Exception;
 use Illuminate\Http\Request;
+use Lang;
+use Logger;
 
 class OrderController extends BaseOrderController
 {
@@ -377,7 +377,7 @@ class OrderController extends BaseOrderController
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $payments->getCollection()->transform(fn($payment) => [
+            $payments->getCollection()->transform(fn ($payment) => [
                 'id' => $payment->id,
                 'invoice_number' => $payment->invoice->number,
                 'user_id' => $payment->user_id,
@@ -407,7 +407,7 @@ class OrderController extends BaseOrderController
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
 
-        $invoices->getCollection()->transform(fn($invoice) => [
+        $invoices->getCollection()->transform(fn ($invoice) => [
             'id' => $invoice->id,
             'number' => $invoice->number,
             'amount' => currencyFormat($invoice->grand_total, $invoice->currency),

@@ -2,10 +2,10 @@
 
 namespace App\BillingLog;
 
-use Override;
 use App\BillingLog\Console\Commands\DeleteLogs;
 use Blade;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class LaravelLogViewerServiceProvider extends ServiceProvider
 {

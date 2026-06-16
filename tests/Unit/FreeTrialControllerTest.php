@@ -2,10 +2,10 @@
 
 namespace Tests\Unit;
 
-use Exception;
 use App\Http\Controllers\FreeTrailController;
 use App\Model\Product\Product;
 use App\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Tests\DBTestCase;

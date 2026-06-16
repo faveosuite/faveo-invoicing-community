@@ -2,11 +2,11 @@
 
 namespace App\Plugins\Zoho\Helpers;
 
-use Illuminate\Contracts\Database\Query\Builder;
-use InvalidArgumentException;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
 
 class ZohoConnectHelper
 {

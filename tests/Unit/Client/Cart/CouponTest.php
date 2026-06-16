@@ -2,9 +2,8 @@
 
 namespace Tests\Unit\Client\Cart;
 
-use Exception;
-use App\Http\Controllers\Payment\PromotionController;
 use App\Facades\Cart;
+use App\Http\Controllers\Payment\PromotionController;
 use App\Model\Order\Invoice;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
@@ -12,6 +11,7 @@ use App\Model\Payment\PromoProductRelation;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Product\Product;
+use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 

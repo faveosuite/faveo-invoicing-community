@@ -2,8 +2,6 @@
 
 namespace App\Services\Payment;
 
-use Logger;
-use DB;
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
 use App\Http\Controllers\Order\BaseRenewController;
 use App\Model\Order\Invoice;
@@ -12,6 +10,8 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
+use DB;
+use Logger;
 
 /**
  * Handles subscription renewal fulfillment triggered by gateway webhooks.

@@ -2,14 +2,14 @@
 
 namespace App\Model\Order;
 
-use App\User;
-use Illuminate\Support\Facades\Date;
-use App\Model\Product\Subscription;
-use App\License\Models\Installation;
-use Override;
 use App\BaseModel;
+use App\License\Models\Installation;
+use App\Model\Product\Subscription;
 use App\Traits\SystemActivityLogsTrait;
+use App\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Date;
+use Override;
 
 class Invoice extends BaseModel
 {
@@ -123,6 +123,7 @@ class Invoice extends BaseModel
 
         return parent::delete();
     }
+
     #[Override]
     protected function casts(): array
     {

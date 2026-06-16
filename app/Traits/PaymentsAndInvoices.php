@@ -3,16 +3,16 @@
 namespace App\Traits;
 
 use App\Http\Controllers\User\ClientController;
-use Exception;
-use Logger;
-use Auth;
-use Cart;
-use Illuminate\Support\Facades\Date;
-use Input;
 use App\Model\Order\Invoice;
 use App\Model\Order\Payment;
 use App\Model\Product\Product;
+use Auth;
+use Cart;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Input;
+use Logger;
 
 //////////////////////////////////////////////////////////////////////////////
 // PAYMENTS AND EXTRA FUNCTIONALITIES FOR INVOICES

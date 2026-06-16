@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Github;
 
-use Exception;
 use App\Http\Controllers\Controller;
 use App\Model\Github\Github;
+use Exception;
 
 class GithubApiController extends Controller
 {

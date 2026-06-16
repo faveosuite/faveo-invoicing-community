@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\User;
 
-use Override;
 use App\Http\Requests\Request;
 use App\Rules\PhoneNumber;
+use Override;
 
 class ClientRequest extends Request
 {

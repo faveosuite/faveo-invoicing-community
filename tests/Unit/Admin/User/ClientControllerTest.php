@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Admin\User;
 
-use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\User\ClientController;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
@@ -13,6 +12,7 @@ use App\ReportColumn;
 use App\User;
 use App\UserLinkReport;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Tests\DBTestCase;
 
 class ClientControllerTest extends DBTestCase

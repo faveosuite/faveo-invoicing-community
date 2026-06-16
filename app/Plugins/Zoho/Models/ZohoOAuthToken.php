@@ -2,13 +2,13 @@
 
 namespace App\Plugins\Zoho\Models;
 
-use Override;
-use Illuminate\Support\Facades\Date;
 use Attribute;
 use Carbon\Carbon;
 use Crypt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Date;
+use Override;
 
 class ZohoOAuthToken extends Model
 {
@@ -33,6 +33,7 @@ class ZohoOAuthToken extends Model
 
     /**
      * Parent integration.
+     *
      * @return BelongsTo<ZohoIntegration, $this>
      */
     public function integration(): BelongsTo
@@ -102,6 +103,7 @@ class ZohoOAuthToken extends Model
 
         return $this->expires_at->isAfter($validAt ?? Date::now());
     }
+
     #[Override]
     protected function casts(): array
     {

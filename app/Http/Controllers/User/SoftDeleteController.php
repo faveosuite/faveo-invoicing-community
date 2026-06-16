@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\User;
 
-use DB;
-use Exception;
 use App\Events\UserOrderDelete;
 use App\Model\Product\Subscription;
 use App\User;
+use DB;
+use Exception;
 use Illuminate\Http\Request;
 
 class SoftDeleteController extends ClientController

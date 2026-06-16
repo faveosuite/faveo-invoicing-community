@@ -2,21 +2,13 @@
 
 namespace App\Http\Controllers\Front;
 
-use Session;
-use Auth;
-use Exception;
-use Logger;
-use Illuminate\Support\Collection;
-use App\Http\Controllers\Order\InvoiceController;
-use Event;
 use App\Events\PaymentGateway;
-use App\Http\Controllers\Order\RenewController;
-use Illuminate\Support\Facades\Date;
-use App\Http\Controllers\Order\OrderController;
-use DB;
-use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Order\ExtendedBaseInvoiceController;
+use App\Http\Controllers\Order\InvoiceController;
+use App\Http\Controllers\Order\OrderController;
+use App\Http\Controllers\Order\RenewController;
+use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\CreditActivity;
 use App\Model\Common\FaveoCloud;
@@ -37,11 +29,19 @@ use App\Services\Payment\ProcessingFee;
 use App\Traits\Payment\PostPaymentHandle;
 use App\Traits\TaxCalculation;
 use App\User;
+use Auth;
 use Cart;
 use Darryldecode\Cart\CartCondition;
+use DB;
+use Event;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Date;
+use Logger;
+use Session;
 
 class CheckoutController extends InfoController
 {

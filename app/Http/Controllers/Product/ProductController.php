@@ -3,12 +3,6 @@
 namespace App\Http\Controllers\Product;
 
 // use Illuminate\Http\Request;
-use Exception;
-use Logger;
-use Validator;
-use Lang;
-use App\Model\Order\OrderInvoiceRelation;
-use DB;
 use App\Facades\Attach;
 use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\License\LicensePermissionsController;
@@ -16,6 +10,7 @@ use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\License\LicenseType;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
@@ -28,11 +23,16 @@ use App\Model\Product\ProductGroup;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Traits\Upload\ChunkUpload;
+use DB;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Lang;
+use Logger;
+use Validator;
 
 // use Input;
 
@@ -506,7 +506,7 @@ class ProductController extends BaseProductController
             })
             ->paginate($limit, ['*'], 'page', $page);
 
-        $productsQuery->getCollection()->transform(fn($item) => ['id' => $item->id, 'name' => $item->name]);
+        $productsQuery->getCollection()->transform(fn ($item) => ['id' => $item->id, 'name' => $item->name]);
 
         return successResponse('', $productsQuery);
     }
@@ -704,7 +704,7 @@ class ProductController extends BaseProductController
                 ->orderBy($sortField, $sortOrder)
                 ->paginate($limit, ['*'], 'page', $page);
 
-            $uploads->getCollection()->transform(fn($u) => [
+            $uploads->getCollection()->transform(fn ($u) => [
                 'id' => $u->id,
                 'title' => $u->title,
                 'description' => $u->description,

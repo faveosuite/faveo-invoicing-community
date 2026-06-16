@@ -1,7 +1,7 @@
 <?php
 
-use Spatie\Referer\Sources\UtmSource;
 use Spatie\Referer\Sources\RequestHeader;
+use Spatie\Referer\Sources\UtmSource;
 
 return [
 

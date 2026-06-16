@@ -2,40 +2,40 @@
 
 namespace App\Http\Controllers\Tenancy;
 
-use Logger;
-use Throwable;
-use Auth;
-use App\Http\Controllers\Common\PhpMailController;
-use Illuminate\Support\Str;
-use DB;
-use App\Model\Common\TemplateType;
-use App\Model\Product\Product;
-use App\License\Services\LicenseService;
-use Crypt;
-use App\License\Services\InstallationService;
-use Illuminate\Support\Facades\Date;
 use App\CloudPopUp;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
 use App\Jobs\ReportExport;
+use App\License\Services\InstallationService;
+use App\License\Services\LicenseService;
 use App\Model\CloudDataCenters;
 use App\Model\Common\Country;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\TemplateType;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\InstallationDetail;
 use App\Model\Order\Order;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
+use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\ThirdPartyApp;
 use App\User;
+use Auth;
+use Crypt;
+use DB;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Str;
+use Logger;
+use Throwable;
 
 class TenantController extends Controller
 {
@@ -86,7 +86,7 @@ class TenantController extends Controller
             $cloudDataCenters = CloudDataCenters::all();
 
             // Format the results as per the specified format
-            $regions = $cloudDataCenters->map(fn($center) => [
+            $regions = $cloudDataCenters->map(fn ($center) => [
                 'name' => ! empty($center->cloud_city) ? $center->cloud_city.', '.$center->cloud_countries : $center->cloud_state.', '.$center->cloud_countries,
                 'latitude' => $center->latitude,
                 'longitude' => $center->longitude,
@@ -185,7 +185,7 @@ class TenantController extends Controller
             });
 
             if ($searchQuery) {
-                $tenantList = $tenantList->filter(fn($item) => isset($item['user']['name']) &&
+                $tenantList = $tenantList->filter(fn ($item) => isset($item['user']['name']) &&
                     str_contains(strtolower($item['user']['name']), strtolower((string) $searchQuery)));
             }
 

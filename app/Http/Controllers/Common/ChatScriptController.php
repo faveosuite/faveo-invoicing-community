@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Common;
 
-use Exception;
-use Logger;
-use Log;
-use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Model\Common\ChatScript;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Log;
+use Logger;
 
 class ChatScriptController extends Controller
 {
@@ -37,7 +37,7 @@ class ChatScriptController extends Controller
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $scripts->getCollection()->transform(fn($script) => [
+            $scripts->getCollection()->transform(fn ($script) => [
                 'id' => $script->id,
                 'name' => $script->name,
                 'checkbox' => $script->id,
@@ -53,7 +53,7 @@ class ChatScriptController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return Response
      */
     public function createScript(Request $request)
@@ -104,7 +104,7 @@ class ChatScriptController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param  int  $id
      * @return Response
      */

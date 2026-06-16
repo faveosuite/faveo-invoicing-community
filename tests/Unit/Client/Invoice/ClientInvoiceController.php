@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Client\Invoice;
 
-use PHPUnit\Framework\Attributes\Group;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -13,6 +12,7 @@ use App\Model\Product\Product;
 use App\User;
 use Illuminate\Http\Request;
 use Mockery;
+use PHPUnit\Framework\Attributes\Group;
 use Spatie\Html\Html;
 use Tests\DBTestCase;
 

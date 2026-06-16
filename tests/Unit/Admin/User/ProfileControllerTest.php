@@ -3,13 +3,13 @@
 namespace Tests\Unit\Admin\User;
 
 use App\Http\Controllers\User\ProfileController;
-use Auth;
-use Hash;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Date;
 use App\Model\User\Password;
 use App\User;
+use Auth;
+use Hash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Str;
 use Mockery;
 use Tests\DBTestCase;
 

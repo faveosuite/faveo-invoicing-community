@@ -2,11 +2,11 @@
 
 namespace App\Plugins\Zoho\Tests\Controllers;
 
-use Exception;
 use App\Plugins\Zoho\Controllers\ZohoController;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\ZohoCampaignsController;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\ZohoCrmController;
 use App\User;
+use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 

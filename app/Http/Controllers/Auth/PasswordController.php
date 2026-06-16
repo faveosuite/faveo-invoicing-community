@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Exception;
-use App\Model\User\Password;
-use App\User;
-use Hash;
-use Illuminate\Support\Str;
+use App\Http\Controllers\Common\PhpMailController;
+use App\Http\Controllers\Controller;
 use App\Model\Common\Setting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
-use App\Http\Controllers\Common\PhpMailController;
-use Illuminate\Http\Response;
-use App\Http\Controllers\Controller;
+use App\Model\User\Password;
+use App\User;
+use Exception;
+use Hash;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class PasswordController extends Controller
 {
@@ -36,8 +36,8 @@ class PasswordController extends Controller
     /**
      * Create a new password controller instance.
      *
-     * @param Guard $auth
-     * @param PasswordBroker $passwords
+     * @param  Guard  $auth
+     * @param  PasswordBroker  $passwords
      * @return void
      */
     public function __construct(Guard $auth, PasswordBroker $passwords)
@@ -118,7 +118,7 @@ class PasswordController extends Controller
     /**
      * Send a reset link to the given user.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return Response
      */
     public function sendResetLinkEmail(Request $request)

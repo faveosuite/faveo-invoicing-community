@@ -2,19 +2,19 @@
 
 namespace App\Plugins\Stripe\Controllers;
 
-use App\Model\Common\StatusSetting;
-use Exception;
-use App\Jobs\CancelGatewaySubscriptionsJob;
-use Arr;
-use App\Services\Payment\SubscriptionService;
-use App\Plugins\Payment\Dto\SubscriptionRequest;
-use Logger;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
+use App\Jobs\CancelGatewaySubscriptionsJob;
+use App\Model\Common\StatusSetting;
+use App\Plugins\Payment\Dto\SubscriptionRequest;
 use App\Services\Payment\ProcessingFee;
+use App\Services\Payment\SubscriptionService;
 use App\Traits\Payment\PostPaymentHandle;
 use App\User;
+use Arr;
+use Exception;
 use Illuminate\Http\Request;
+use Logger;
 use Stripe\Exception\AuthenticationException;
 use Stripe\StripeClient;
 

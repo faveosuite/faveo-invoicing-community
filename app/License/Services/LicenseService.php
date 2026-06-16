@@ -17,7 +17,7 @@ class LicenseService
      */
     public function create(array $data): License
     {
-        return DB::transaction(fn() => License::create([
+        return DB::transaction(fn () => License::create([
             'product_id' => $data['product_id'],
             'user_id' => $data['user_id'] ?? $data['client_id'] ?? null,
             'license_code' => $data['license_code'] ?? $this->generateLicenseCode(),
@@ -243,7 +243,7 @@ class LicenseService
 
         return LicenseOption::where('option_group', (string) $license->id)
             ->get()
-            ->map(fn($option) => [
+            ->map(fn ($option) => [
                 'license_code' => $license->license_code,
                 'id' => $option->id,
                 'option_group' => $option->option_group,

@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Payment;
 
-use Exception;
-use App\Model\Common\State;
-use Illuminate\Support\Str;
-use App\Model\Payment\TaxProductRelation;
-use Validator;
 use App\Http\Controllers\Controller;
+use App\Model\Common\State;
 use App\Model\Payment\TaxClass;
 use App\Model\Payment\TaxOption;
+use App\Model\Payment\TaxProductRelation;
 use App\Model\Payment\TaxRate;
 use App\Model\Payment\TaxRateLocation;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Validator;
 
 /**
  * Admin CRUD for the generic tax engine. Operates on `tax_rates` (+ optional
@@ -67,7 +67,7 @@ class TaxController extends Controller
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $rates->getCollection()->transform(fn($rate) => [
+            $rates->getCollection()->transform(fn ($rate) => [
                 'id' => $rate->id,
                 'name' => $rate->name,
                 'country' => $rate->country ?: 'All',

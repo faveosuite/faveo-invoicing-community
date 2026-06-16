@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Front\Cart;
 
-use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\Cart\Resources\CartResource;
 use App\Http\Requests\Cart\AddCartItemRequest;
 use App\Http\Requests\Cart\UpdateCartItemRequest;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

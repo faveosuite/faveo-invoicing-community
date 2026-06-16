@@ -2,13 +2,13 @@
 
 namespace App\License\Helpers;
 
-use DateTime;
 use App\License\Models\License;
 use App\License\Models\LicenseBannedHost;
 use App\License\Models\LicensePlugin;
 use App\License\Models\LicenseWhitelistIp;
 use App\Model\Product\Product;
 use App\User;
+use DateTime;
 use Illuminate\Http\Request;
 
 class LicenseValidator
@@ -138,7 +138,7 @@ class LicenseValidator
         // Check domain restriction (supports comma-separated domains, uses stripos)
         if (! empty($license->license_domain)) {
             $licensed_domains = array_map(trim(...), explode(',', (string) $license->license_domain));
-            $domain_valid = array_any($licensed_domains, fn($domain) => stripos($root_url, (string) $domain) !== false);
+            $domain_valid = array_any($licensed_domains, fn ($domain) => stripos($root_url, (string) $domain) !== false);
             if (! $domain_valid) {
                 return ['valid' => false, 'error' => 'invalid_domain', 'data' => ['domain' => $root_url]];
             }

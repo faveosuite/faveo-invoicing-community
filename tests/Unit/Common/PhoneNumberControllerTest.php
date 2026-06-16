@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Common;
 
-use libphonenumber\PhoneNumberType;
-use libphonenumber\NumberParseException;
-use libphonenumber\PhoneNumberUtil;
 use App\Http\Controllers\Common\PhoneNumberController;
+use libphonenumber\NumberParseException;
+use libphonenumber\PhoneNumberType;
+use libphonenumber\PhoneNumberUtil;
 use Tests\DBTestCase;
 
 class PhoneNumberControllerTest extends DBTestCase

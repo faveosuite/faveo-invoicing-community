@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Payment;
 
-use Carbon\Carbon;
 use App\ApiKey;
 use App\Http\Controllers\Payment\OpenPaymentController;
 use App\Model\Payment\OpenPaymentOrder;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
 use Tests\DBTestCase;

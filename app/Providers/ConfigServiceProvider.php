@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
-use Override;
 use DB;
-use Throwable;
 use Exception;
-use Log;
 use Illuminate\Support\ServiceProvider;
+use Log;
+use Override;
 use Sentry\State\HubInterface;
+use Throwable;
 
 class ConfigServiceProvider extends ServiceProvider
 {

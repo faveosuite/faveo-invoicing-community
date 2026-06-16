@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Common\Dependency;
 
-use Lang;
-use Exception;
 use App\Model\Common\Country;
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
 use App\Model\Common\State;
 use App\Model\Common\Timezone;
+use Exception;
 use Illuminate\Http\Request;
+use Lang;
 
 class DependencyController extends NonPublicDependencies
 {
@@ -57,7 +57,7 @@ class DependencyController extends NonPublicDependencies
             ->whereRaw("concat(location, ' ', name) LIKE ?", ['%'.$this->searchQuery.'%'])
             ->select('id', 'name', 'location');
 
-        return $this->get('time_zones', $baseQuery, fn($element) => (object) ['id' => $element->id, 'name' => $element->timezone_name]);
+        return $this->get('time_zones', $baseQuery, fn ($element) => (object) ['id' => $element->id, 'name' => $element->timezone_name]);
     }
 
     /**
@@ -91,7 +91,7 @@ class DependencyController extends NonPublicDependencies
             ->where('country_name', 'LIKE', '%'.$this->searchQuery.'%')
             ->select('country_id', 'country_name', 'country_code_char2', 'phonecode');
 
-        return $this->get('countries', $baseQuery, fn($element) => (object) [
+        return $this->get('countries', $baseQuery, fn ($element) => (object) [
             'id' => $element->country_id,
             'name' => $element->country_name,
             'code' => $element->country_code_char2,
@@ -115,7 +115,7 @@ class DependencyController extends NonPublicDependencies
             ->where('country_code', strtoupper((string) $iso))
             ->select('state_subdivision_name', 'state_subdivision_id', 'iso2');
 
-        return $this->get('states', $baseQuery, fn($element) => (object) [
+        return $this->get('states', $baseQuery, fn ($element) => (object) [
             'id' => $element->state_subdivision_id,
             'name' => $element->state_subdivision_name,
             'iso2' => $element->iso2,

@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Support\Str;
-use App\Model\User\Password;
-use Illuminate\Support\Facades\Date;
-use App\User;
-use App\Model\Common\Setting;
-use App\Model\Common\TemplateType;
-use App\Http\Controllers\Common\PhpMailController;
-use Exception;
-use Illuminate\Http\Response;
 use App\ApiKey;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
+use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\TemplateType;
+use App\Model\User\Password;
 use App\Rules\Honeypot;
+use App\User;
+use Exception;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Str;
 
 class ForgotPasswordController extends Controller
 {
@@ -56,7 +56,7 @@ class ForgotPasswordController extends Controller
     /**
      * Send a reset link to the given user.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return Response
      */
     public function sendResetLinkEmail(Request $request)

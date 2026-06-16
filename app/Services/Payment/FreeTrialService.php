@@ -2,8 +2,6 @@
 
 namespace App\Services\Payment;
 
-use RuntimeException;
-use Illuminate\Support\Facades\Date;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
@@ -17,7 +15,9 @@ use App\Model\Product\Product;
 use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class FreeTrialService
 {

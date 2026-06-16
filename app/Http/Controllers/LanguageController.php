@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-use Config;
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
+use Config;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;

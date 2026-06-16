@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Front;
 
-use Exception;
-use App\Model\Common\Setting;
-use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Http\Controllers\Controller;
+use App\Model\Common\Mailchimp\MailchimpSetting;
+use App\Model\Common\Setting;
 use App\Model\Common\SocialMedia;
 use App\Model\Common\StatusSetting;
 use App\Model\Front\Widgets;
+use Exception;
 use Illuminate\Http\Request;
 
 class WidgetController extends Controller
@@ -35,7 +35,7 @@ class WidgetController extends Controller
             // Base query
             $widgets = $this->widget
                 ->select('id', 'name', 'type', 'created_at', 'content')
-                ->when($searchString, fn($query) => $query->where(function ($q) use ($searchString): void {
+                ->when($searchString, fn ($query) => $query->where(function ($q) use ($searchString): void {
                     $q->where('name', 'like', "%{$searchString}%")
                         ->orWhere('type', 'like', "%{$searchString}%");
                 }))
@@ -44,7 +44,7 @@ class WidgetController extends Controller
 
             $total = $widgets->count();
 
-            $widgets->getCollection()->transform(fn($widget) => [
+            $widgets->getCollection()->transform(fn ($widget) => [
                 'id' => $widget->id,
                 'name' => ucfirst((string) $widget->name),
                 'type' => $widget->type,

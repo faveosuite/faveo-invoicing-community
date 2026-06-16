@@ -2,10 +2,10 @@
 
 namespace App\Jobs;
 
-use Illuminate\Foundation\Queue\Queueable;
 use App\BillingLog\Model\MailLog;
 use App\Http\Controllers\Common\PhpMailController;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
 
 class SendEmail implements ShouldQueue
 {

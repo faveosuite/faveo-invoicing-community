@@ -2,8 +2,8 @@
 
 namespace App\Model\Product;
 
-use Override;
 use App\BaseModel;
+use Override;
 
 class Type extends BaseModel
 {

@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers\Order;
 
-use Illuminate\Support\Collection;
 use App\Http\Controllers\Common\MailChimpController;
-use Exception;
-use Illuminate\Support\Facades\Date;
-use App\Model\Common\Setting;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Services\LicenseService;
+use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\Configure\ProductPluginGroup;
@@ -27,6 +24,9 @@ use App\Traits\Order\UpdateDates;
 use App\User;
 use Carbon\Carbon;
 use Crypt;
+use Exception;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Date;
 
 class BaseOrderController extends ExtendedOrderController
 {
@@ -391,7 +391,7 @@ class BaseOrderController extends ExtendedOrderController
         }
 
         // Format the configuration options
-        return $products->flatMap(fn($product) => $product->configOptions->flatMap(fn($configOption) => $configOption->configOptionValues->map(fn($configOptionValue) => [
+        return $products->flatMap(fn ($product) => $product->configOptions->flatMap(fn ($configOption) => $configOption->configOptionValues->map(fn ($configOptionValue) => [
             'product_id' => $product->id,
             'option_group' => $configOption->configGroup->config_group_name,
             'option_name' => $configOption->config_option_name,

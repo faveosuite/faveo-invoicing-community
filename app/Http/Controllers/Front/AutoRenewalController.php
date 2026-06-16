@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Front;
 
-use Auth;
-use Exception;
-use Logger;
 use App\Auto_renewal;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
@@ -15,7 +12,10 @@ use App\Plugins\Payment\Dto\Customer as PaymentCustomer;
 use App\Plugins\Payment\Dto\PaymentRequest as GatewayPaymentRequest;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\SubscriptionService;
+use Auth;
+use Exception;
 use Illuminate\Http\Request;
+use Logger;
 
 class AutoRenewalController extends Controller
 {

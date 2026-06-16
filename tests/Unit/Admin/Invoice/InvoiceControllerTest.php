@@ -2,8 +2,6 @@
 
 namespace Tests\Unit\Admin\Invoice;
 
-use Darryldecode\Cart\CartCondition;
-use Cart;
 use App\Http\Controllers\Order\InvoiceController;
 use App\Http\Requests\InvoiceRequest;
 use App\Model\Common\Setting;
@@ -11,6 +9,8 @@ use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
+use Cart;
+use Darryldecode\Cart\CartCondition;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 

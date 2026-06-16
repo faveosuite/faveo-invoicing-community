@@ -2,7 +2,6 @@
 
 namespace App\Plugins\Payment\Gateways;
 
-use Razorpay\Api\Errors\Error;
 use App\Plugins\Payment\Contracts\PaymentGateway;
 use App\Plugins\Payment\Contracts\SubscriptionGateway;
 use App\Plugins\Payment\Dto\PaymentRequest;
@@ -14,6 +13,7 @@ use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Plugins\Payment\Exceptions\SignatureVerificationException;
 use App\Plugins\Payment\Support\Money;
 use Razorpay\Api\Api;
+use Razorpay\Api\Errors\Error;
 use Razorpay\Api\Errors\SignatureVerificationError;
 
 /**

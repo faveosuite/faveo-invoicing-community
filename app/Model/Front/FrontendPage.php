@@ -2,10 +2,10 @@
 
 namespace App\Model\Front;
 
-use Illuminate\Support\Facades\Date;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Date;
 
 class FrontendPage extends BaseModel
 {

@@ -2,10 +2,9 @@
 
 namespace Tests\Unit\Client\Order;
 
-use PHPUnit\Framework\Attributes\Group;
 use App\ApiKey;
-use App\Model\Common\Setting;
 use App\License\Services\InstallationService;
+use App\Model\Common\Setting;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
@@ -21,6 +20,7 @@ use App\Model\Product\Subscription;
 use App\User;
 use Illuminate\Http\Request;
 use Mockery;
+use PHPUnit\Framework\Attributes\Group;
 use Spatie\Html\Html;
 use Tests\DBTestCase;
 

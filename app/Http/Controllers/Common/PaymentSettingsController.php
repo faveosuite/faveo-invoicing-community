@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Common;
 
-use Exception;
-use Zipper;
-use Lang;
 use App\Http\Controllers\Controller;
 use App\Model\Plugin;
+use Exception;
 use Illuminate\Http\Request;
+use Lang;
+use Zipper;
 
 class PaymentSettingsController extends Controller
 {

@@ -2,11 +2,11 @@
 
 namespace App\License\Models;
 
-use Override;
 use App\Model\Product\Product;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Override;
 
 class LicenseCallback extends Model
 {
@@ -45,6 +45,7 @@ class LicenseCallback extends Model
     {
         return $this->belongsTo(License::class, 'license_code', 'license_code');
     }
+
     #[Override]
     protected function casts(): array
     {

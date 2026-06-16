@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Common;
 
-use Throwable;
-use Redis;
-use RuntimeException;
-use Predis\Client;
-use Memcached;
 use App\Http\Controllers\Controller;
 use App\Model\Common\CommonSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Memcached;
+use Predis\Client;
+use Redis;
+use RuntimeException;
+use Throwable;
 
 class CacheSettingsController extends Controller
 {
