@@ -7,7 +7,7 @@ import App from './Admin.vue'
 import router from './routes/admin/adminRouter'
 import pinia from './plugins/pinia.js'
 import i18n from './plugins/i18n.js'
-import { ServerTable } from 'v-tables-3'
+import { ServerTable, ClientTable } from 'v-tables-3'
 import VueProgressBar from '@aacassandra/vue3-progressbar'
 
 import GlobalLoader from './components/Reusable/GlobalLoader.vue'
@@ -72,6 +72,7 @@ import(`./themes/${theme}/index.js`).then(async themeModule => {
     app.use(i18n)
     app.use(VueProgressBar, progressBarOptions)
     app.use(ServerTable, {}, 'bootstrap4', {})
+    app.use(ClientTable, {}, 'bootstrap4', {})
     app.use(FloatingVue)
 
     // Boot datetime settings — non-blocking, UTC fallback stays active until resolved

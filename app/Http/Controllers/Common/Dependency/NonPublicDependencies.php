@@ -45,6 +45,8 @@ class NonPublicDependencies extends BaseDependencyController
                 return $this->pricingTemplates();
             case 'all-products':
                 return $this->allProducts();
+            case 'plugin-products':
+                return $this->pluginProducts();
             case 'users':
                 return $this->allSystemUsers();
         }
@@ -264,5 +266,25 @@ class NonPublicDependencies extends BaseDependencyController
         return $this->get('products', $baseQuery, function ($item) {
             return ['id' => $item->id, 'name' => $item->name];
         });
+    }
+
+    private function pluginProducts()
+    {
+        $this->sortField = 'name';
+        $this->sortOrder = 'asc';
+
+        $pluginTypeId = LicenseType::where('name', 'plugin')->value('id');
+
+        $excludeId = (int) $this->request->input('exclude');
+
+        $baseQuery = $this->baseQuery(new Product)
+            ->select('id', 'name')
+            ->where('type', $pluginTypeId)
+            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
+            ->when($this->searchQuery, function ($query, $searchQuery) {
+                $query->where('name', 'like', "%{$searchQuery}%");
+            });
+
+        return $this->get('products', $baseQuery, fn ($item) => ['id' => $item->id, 'name' => $item->name]);
     }
 }

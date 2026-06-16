@@ -26,6 +26,11 @@
                                 <i class="fas fa-code-branch me-1"></i>{{ __('message.versions') }}
                             </a>
                         </li>
+                        <li class="nav-item" v-if="!isPluginProduct">
+                            <a class="nav-link" :class="{ active: tab === 'plugins' }" href="#" @click.prevent="tab = 'plugins'">
+                                <i class="fas fa-puzzle-piece me-1"></i>Plugins
+                            </a>
+                        </li>
                     </ul>
 
                     <div class="p-3">
@@ -344,6 +349,10 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Plugins Tab -->
+                        <div v-if="!isPluginProduct" v-show="tab === 'plugins'">
+                            <ProductPluginMapping :productId="route.params.id" :baseUrl="baseUrl" />
+                        </div>
                     </div>
                 </div>
 
@@ -380,6 +389,7 @@ import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import Tooltip from '@/components/Reusable/Tooltip.vue'
 import ImageField from '@/components/Reusable/FormField/ImageField.vue'
 import VersionTableActions from './components/VersionTableActions.vue'
+import ProductPluginMapping from './components/ProductPluginMapping.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
 const COMPONENT = 'products-edit'
@@ -396,6 +406,8 @@ const selectedImage = ref(null)
 const taxClasses = ref([])
 const tab = ref(route.query.tab === 'versions' ? 'versions' : 'details')
 const githubEnabled = ref(false)
+
+const isPluginProduct = computed(() => form.typeObj?.name?.toLowerCase() === 'plugin')
 
 const fileSourceOptions = computed(() => {
     const list = [

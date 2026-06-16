@@ -3381,4 +3381,7 @@ return [
     'sentry_performance' => 'Sentry Performance Tracing',
     'sentry_performance_tooltip' => 'Traces a sample of requests to monitor application response times in Sentry.',
     'sentry_performance_desc' => 'Enable performance tracing to track slow transactions and bottlenecks.',
+
+    'plugin_compatible_tooltip' => 'This plugin works with this product. It may come included with the product if it is also marked as Bundled, or the customer can purchase it separately as an add-on. Marking a plugin as Compatible means it is supported and recognised as working alongside this product.',
+    'plugin_bundled_tooltip'    => 'This plugin is included with the product automatically. When a customer buys this product, they get this plugin too — no extra steps or extra payment needed. Because it comes with the product, it is also marked as Compatible automatically and cannot be unchecked.',
 ];

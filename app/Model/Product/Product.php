@@ -202,6 +202,18 @@ class Product extends BaseModel
         return $this->hasMany(ProductPluginGroup::class, 'plugin_id');
     }
 
+    // Plugins bundled with this product (config options / order flow)
+    public function bundledPlugins(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(static::class, 'product_plugin_group', 'product_id', 'plugin_id');
+    }
+
+    // Plugins compatible with this product (store display / license lookup)
+    public function compatiblePlugins(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(static::class, 'plugin_compatible_with_products', 'product_id', 'plugin_id');
+    }
+
     public function configOptions()
     {
         return $this->hasMany(ConfigOption::class, 'product_id');
