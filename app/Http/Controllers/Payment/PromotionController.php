@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Payment;
 
+use Illuminate\Contracts\Database\Query\Builder;
 use App\Facades\Cart;
 use App\Http\Controllers\Order\InvoiceController;
 use App\Http\Requests\Payment\PromotionRequest;
@@ -303,12 +304,12 @@ class PromotionController extends BasePromotionController
             },
         ])
             ->when($searchQuery, function ($q) use ($searchQuery): void {
-                $q->where(function ($query) use ($searchQuery): void {
+                $q->where(function (Builder $query) use ($searchQuery): void {
                     $query->where('code', 'like', "%{$searchQuery}%")
-                        ->orWhereHas('products', function ($q) use ($searchQuery): void {
+                        ->orWhereHas('products', function (Builder $q) use ($searchQuery): void {
                             $q->where('name', 'like', "%{$searchQuery}%");
                         })
-                        ->orWhereHas('promotionType', function ($q) use ($searchQuery): void {
+                        ->orWhereHas('promotionType', function (Builder $q) use ($searchQuery): void {
                             $q->where('name', 'like', "%{$searchQuery}%");
                         });
                 });

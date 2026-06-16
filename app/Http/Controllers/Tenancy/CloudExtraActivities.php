@@ -81,7 +81,7 @@ class CloudExtraActivities extends Controller
         ]);
         $response = explode('{', (string) $response->getBody());
 
-        return json_decode(Arr::first($response));
+        return json_decode((string) Arr::first($response));
     }
 
     public function domainCloudAutofill()

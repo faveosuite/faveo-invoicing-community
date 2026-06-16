@@ -10,6 +10,7 @@ class SocialMedia extends BaseModel
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'social_media';
 
     protected $fillable = ['class', 'fa_class', 'name', 'link'];

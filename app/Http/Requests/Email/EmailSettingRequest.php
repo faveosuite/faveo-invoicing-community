@@ -40,7 +40,7 @@ class EmailSettingRequest extends FormRequest
             ];
         } else {
             return [
-                'driver' => 'required',
+                'driver' => ['required'],
                 'email' => [
                     'required',
                     'email',

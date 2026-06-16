@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Payment;
 
+use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\Controller;
 use App\Model\Common\State;
 use App\Model\Payment\TaxClass;
@@ -58,7 +59,7 @@ class TaxController extends Controller
                     $query->where('tax_class', (string) $request->input('tax_class'));
                 })
                 ->when($searchString, function ($query) use ($searchString): void {
-                    $query->where(function ($q) use ($searchString): void {
+                    $query->where(function (Builder $q) use ($searchString): void {
                         $q->where('name', 'like', "%{$searchString}%")
                             ->orWhere('country', 'like', "%{$searchString}%")
                             ->orWhere('state', 'like', "%{$searchString}%");

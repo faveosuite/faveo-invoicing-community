@@ -12,6 +12,7 @@ class Promotion extends BaseModel
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'promotions';
 
     protected $fillable = ['code', 'type', 'uses', 'value', 'start', 'expiry'];

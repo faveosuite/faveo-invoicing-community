@@ -48,44 +48,44 @@ class ProfileRequest extends Request
             $userid = Auth::user()->id;
 
             return [
-                'first_name' => 'required|min:3|max:30',
-                'last_name' => 'required|max:30',
+                'first_name' => ['required', 'min:3', 'max:30'],
+                'last_name' => ['required', 'max:30'],
                 'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
                 'email' => 'required|email|unique:users,email,'.$userid,
-                'company' => 'required|max:50',
-                'address' => 'required',
-                'country' => 'required|exists:countries,country_code_char2',
-                'profile_pic' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
+                'company' => ['required', 'max:50'],
+                'address' => ['required'],
+                'country' => ['required', 'exists:countries,country_code_char2'],
+                'profile_pic' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
 
             ];
         }
 
         if ($this->segment(1) == 'password' || $this->segment(1) == 'my-password') {
             return [
-                'old_password' => 'required|min:6',
+                'old_password' => ['required', 'min:6'],
                 'new_password' => [
                     'required',
                     new StrongPassword(),
                     'different:old_password',
                 ],
-                'confirm_password' => 'required|same:new_password',
+                'confirm_password' => ['required', 'same:new_password'],
             ];
         }
 
         if ($this->segment(1) == 'auth') {
             return [
-                'first_name' => 'required|min:2|max:30',
-                'last_name' => 'required|max:30',
-                'email' => 'required|email|unique:users|unique:settings,email|unique:settings,company_email',
-                'company' => 'required|max:50',
+                'first_name' => ['required', 'min:2', 'max:30'],
+                'last_name' => ['required', 'max:30'],
+                'email' => ['required', 'email', 'unique:users', 'unique:settings,email', 'unique:settings,company_email'],
+                'company' => ['required', 'max:50'],
                 'mobile' => ['required', 'unique:users', new PhoneNumber($this->mobile_country_iso)],
-                'address' => 'required|string|regex:/^[^<>]*$/',
-                'terms' => 'sometimes',
+                'address' => ['required', 'string', 'regex:/^[^<>]*$/'],
+                'terms' => ['sometimes'],
                 'password' => [
                     'required',
                     new StrongPassword(),
                 ],
-                'password_confirmation' => 'required|same:password',
+                'password_confirmation' => ['required', 'same:password'],
                 // 'country'               => 'required|exists:countries,country_code_char2',
             ];
         }

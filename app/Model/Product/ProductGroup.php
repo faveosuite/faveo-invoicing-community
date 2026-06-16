@@ -12,6 +12,7 @@ class ProductGroup extends BaseModel
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'product_groups';
 
     protected $fillable = ['id', 'name', 'headline', 'tagline', 'available_payment', 'hidden', 'cart_link', 'pricing_templates_id', 'status'];

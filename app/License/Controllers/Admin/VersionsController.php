@@ -2,6 +2,7 @@
 
 namespace App\License\Controllers\Admin;
 
+use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\Controller;
 use App\Model\Product\ProductUpload;
 use Illuminate\Http\Request;
@@ -23,10 +24,10 @@ class VersionsController extends Controller
             ->with(['product:id,name'])
             ->withCount('callbacks as callback_count')
             ->when($searchQuery, function ($query) use ($searchQuery): void {
-                $query->where(function ($q) use ($searchQuery): void {
+                $query->where(function (Builder $q) use ($searchQuery): void {
                     $q->where('version', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('created_at', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhereHas('product', function ($productQuery) use ($searchQuery): void {
+                        ->orWhereHas('product', function (Builder $productQuery) use ($searchQuery): void {
                             $productQuery->where('name', 'LIKE', '%'.$searchQuery.'%');
                         });
                 });

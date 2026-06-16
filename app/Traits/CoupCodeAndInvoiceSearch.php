@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Illuminate\Contracts\Database\Query\Builder;
 use App\Model\Order\Invoice;
 use Cart;
 use Exception;
@@ -19,7 +20,7 @@ trait CoupCodeAndInvoiceSearch
     {
         return Invoice::with(['user:id,first_name,last_name,email,mobile,mobile_code,country', 'payment', 'invoiceItem'])
             ->when($request->name, function ($query, $name): void {
-                $query->whereHas('user', function ($q) use ($name): void {
+                $query->whereHas('user', function (Builder $q) use ($name): void {
                     $q->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', ["%{$name}%"]);
                 });
             })

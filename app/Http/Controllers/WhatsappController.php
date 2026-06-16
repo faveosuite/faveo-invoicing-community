@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Contracts\Database\Query\Builder;
 use App\Jobs\SendWhatsappMessage;
 use App\Model\Common\StatusSetting;
 use App\WhatsappIntegration;
@@ -100,12 +101,12 @@ class WhatsappController extends Controller
 
             $users = WhatsappIntegrationUser::with('user:id,first_name,last_name,email')
                 ->when($searchString, function ($query) use ($searchString): void {
-                    $query->where(function ($q) use ($searchString): void {
+                    $query->where(function (Builder $q) use ($searchString): void {
                         $q->where('phone_number', 'like', "%{$searchString}%")
                             ->orWhere('waba_id', 'like', "%{$searchString}%")
                             ->orWhere('phone_number_id', 'like', "%{$searchString}%")
                             ->orWhere('business_id', 'like', "%{$searchString}%")
-                            ->orWhereHas('user', function ($userQuery) use ($searchString): void {
+                            ->orWhereHas('user', function (Builder $userQuery) use ($searchString): void {
                                 $userQuery->where('first_name', 'like', "%{$searchString}%")
                                     ->orWhere('last_name', 'like', "%{$searchString}%")
                                     ->orWhere('email', 'like', "%{$searchString}%");

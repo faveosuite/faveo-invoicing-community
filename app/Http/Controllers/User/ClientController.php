@@ -45,6 +45,7 @@ class ClientController extends AdvanceSearchController
 {
     use PaginationTotal;
     use PaymentsAndInvoices;
+
     public $user;
 
     public $activate;

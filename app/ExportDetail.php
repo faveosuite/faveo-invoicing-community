@@ -10,6 +10,7 @@ class ExportDetail extends Model
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'export_details';
 
     protected $fillable = ['user_id', 'file', 'file_path', 'name',

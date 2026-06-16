@@ -2,6 +2,7 @@
 
 namespace App\License\Controllers\Admin;
 
+use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
@@ -95,9 +96,9 @@ class InstallationController extends Controller
         $installations = Installation::query()
             ->with(['product:id,name', 'user:id,email', 'license:id,license_code'])
             ->when($searchQuery, function ($query) use ($searchQuery): void {
-                $query->where(function ($q) use ($searchQuery): void {
-                    $q->whereHas('user', fn ($u) => $u->where('email', 'like', '%'.$searchQuery.'%'))
-                        ->orWhereHas('product', fn ($p) => $p->where('name', 'like', '%'.$searchQuery.'%'))
+                $query->where(function (Builder $q) use ($searchQuery): void {
+                    $q->whereHas('user', fn (Builder $u) => $u->where('email', 'like', '%'.$searchQuery.'%'))
+                        ->orWhereHas('product', fn (Builder $p) => $p->where('name', 'like', '%'.$searchQuery.'%'))
                         ->orWhere('license_code', 'like', '%'.str_replace('-', '', $searchQuery).'%')
                         ->orWhere('installation_ip', 'like', '%'.$searchQuery.'%')
                         ->orWhere('installation_status', 'like', '%'.LicenseHelper::statusFormatter($searchQuery).'%')

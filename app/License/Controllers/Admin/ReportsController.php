@@ -2,6 +2,7 @@
 
 namespace App\License\Controllers\Admin;
 
+use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\License;
@@ -82,7 +83,7 @@ class ReportsController extends Controller
             ->with('user:id,email')
             ->where('report_system', 1)
             ->when($searchQuery, function ($query, $searchQuery): void {
-                $query->where(function ($query) use ($searchQuery): void {
+                $query->where(function (Builder $query) use ($searchQuery): void {
                     $query->where('report_text', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('report_status', 'LIKE', '%'.$this->reportStatusFormatter($searchQuery).'%');
                 });
@@ -122,7 +123,7 @@ class ReportsController extends Controller
             ->where('report_text', 'not like', '%upgrade%')
             ->where('report_text', 'not like', '%file_to_download%')
             ->when($searchQuery, function ($query) use ($searchQuery): void {
-                $query->where(function ($query) use ($searchQuery): void {
+                $query->where(function (Builder $query) use ($searchQuery): void {
                     $query->where('report_text', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('report_status', 'LIKE', '%'.$this->reportStatusFormatter($searchQuery).'%')
                         ->orWhere('license_code', 'LIKE', '%'.str_replace('-', '', $searchQuery).'%');
@@ -162,10 +163,10 @@ class ReportsController extends Controller
             ->with('user:id,email')
             ->whereNotNull('license_code')
             ->when($searchQuery, function ($query) use ($searchQuery): void {
-                $query->where(function ($query) use ($searchQuery): void {
+                $query->where(function (Builder $query) use ($searchQuery): void {
                     $query->where('report_text', 'like', '%'.$searchQuery.'%')
                         ->orWhere('report_status', 'LIKE', '%'.$this->reportStatusFormatter($searchQuery).'%')
-                        ->orWhereHas('user', function ($userQuery) use ($searchQuery): void {
+                        ->orWhereHas('user', function (Builder $userQuery) use ($searchQuery): void {
                             $userQuery->where('email', 'like', '%'.$searchQuery.'%');
                         })
                         ->orWhere('license_code', 'like', '%'.str_replace('-', '', $searchQuery).'%')
@@ -207,9 +208,9 @@ class ReportsController extends Controller
             ->with('product:id,name')
             ->where('report_text', 'like', '%upgrade%')
             ->when($searchQuery, function ($query) use ($searchQuery): void {
-                $query->where(function ($query) use ($searchQuery): void {
+                $query->where(function (Builder $query) use ($searchQuery): void {
                     $query->where('report_text', 'like', '%'.$searchQuery.'%')
-                        ->orWhereHas('product', function ($productQuery) use ($searchQuery): void {
+                        ->orWhereHas('product', function (Builder $productQuery) use ($searchQuery): void {
                             $productQuery->where('name', 'like', '%'.$searchQuery.'%');
                         })
                         ->orWhere('report_status', 'LIKE', '%'.$this->reportStatusFormatter($searchQuery).'%')

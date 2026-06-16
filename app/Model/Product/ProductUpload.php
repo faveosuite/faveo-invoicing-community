@@ -14,6 +14,7 @@ class ProductUpload extends Model
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'product_uploads';
 
     protected $fillable = ['product_id', 'title', 'description', 'version', 'file', 'is_private', 'is_restricted', 'release_type', 'dependencies', 'version_expire_date', 'version_install_count', 'status'];

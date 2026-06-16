@@ -507,9 +507,9 @@ class PageController extends Controller
                                 $q->whereIn('days', [30, 31])
                                     ->whereHas('planPrice', fn (Builder $pq) => $pq->where('currency', $currencyAndSymbol));
                             })
-                            ->whereHas('planRelation', function ($q) use ($currencyAndSymbol): void {
+                            ->whereHas('planRelation', function (Builder $q) use ($currencyAndSymbol): void {
                                 $q->whereIn('days', [365, 366])
-                                    ->whereHas('planPrice', fn ($pq) => $pq->where('currency', $currencyAndSymbol));
+                                    ->whereHas('planPrice', fn (Builder $pq) => $pq->where('currency', $currencyAndSymbol));
                             });
                     });
             })

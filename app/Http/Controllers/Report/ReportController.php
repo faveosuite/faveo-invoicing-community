@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Report;
 
+use Illuminate\Contracts\Database\Query\Builder;
 use App\ExportDetail;
 use App\Http\Controllers\Controller;
 use App\ReportSetting;
@@ -96,8 +97,8 @@ class ReportController extends Controller
         $reports = ExportDetail::with(['user:id,first_name,last_name'])
             ->where('user_id', auth()->id())
             ->when($searchQuery, function ($query) use ($searchQuery): void {
-                $query->where(function ($q) use ($searchQuery): void {
-                    $q->whereHas('user', function ($q2) use ($searchQuery): void {
+                $query->where(function (Builder $q) use ($searchQuery): void {
+                    $q->whereHas('user', function (Builder $q2) use ($searchQuery): void {
                         $q2->where('first_name', 'like', "%{$searchQuery}%")
                             ->orWhere('last_name', 'like', "%{$searchQuery}%");
                     })

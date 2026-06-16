@@ -10,6 +10,7 @@ class ReportSetting extends Model
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'report_settings';
 
     protected $fillable = ['records'];

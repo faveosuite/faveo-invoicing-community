@@ -45,16 +45,16 @@ class ClientRequest extends Request
                 $id = $this->segment(2);
 
                 return [
-                    'first_name' => 'required',
-                    'last_name' => 'required',
+                    'first_name' => ['required'],
+                    'last_name' => ['required'],
                     'email' => 'required|email|unique:users,email,'.$this->getSegmentFromEnd().',id|unique:settings,email|unique:settings,company_email',
-                    'company' => 'required',
-                    'address' => 'required',
+                    'company' => ['required'],
+                    'address' => ['required'],
                     'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
-                    'timezone_id' => 'required',
+                    'timezone_id' => ['required'],
                     'user_name' => 'unique:users,user_name,'.$id.'|unique:settings,email|unique:settings,company_email',
-                    'zip' => 'regex:/^[a-zA-Z0-9]+$/',
-                    'position' => 'prohibited_if:role,user',
+                    'zip' => ['regex:/^[a-zA-Z0-9]+$/'],
+                    'position' => ['prohibited_if:role,user'],
                 ];
 
             default:

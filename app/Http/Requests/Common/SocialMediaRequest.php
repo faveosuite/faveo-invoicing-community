@@ -33,7 +33,7 @@ class SocialMediaRequest extends FormRequest
             ];
         } elseif ($this->method() == 'PATCH') {
             return [
-                'name' => 'required',
+                'name' => ['required'],
                 'link' => 'required|url|regex:'.$regex,
             ];
         }

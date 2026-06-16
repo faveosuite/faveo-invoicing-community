@@ -15,6 +15,7 @@ class Invoice extends BaseModel
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'invoices';
 
     protected $fillable = [

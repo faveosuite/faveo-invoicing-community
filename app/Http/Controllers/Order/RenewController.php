@@ -441,6 +441,6 @@ class RenewController extends BaseRenewController
 
         $response = Arr::first($response);
 
-        return json_decode($response);
+        return json_decode((string) $response);
     }
 }

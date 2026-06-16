@@ -12,6 +12,7 @@ class LicenseType extends Model
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'license_types';
 
     protected $fillable = ['id', 'name'];

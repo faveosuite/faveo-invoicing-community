@@ -14,6 +14,7 @@ class Setting extends Model
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'settings';
 
     protected $fillable = ['company', 'website', 'phone', 'logo', 'phone_country_iso',

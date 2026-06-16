@@ -2,6 +2,7 @@
 
 namespace App\License\Controllers\Admin;
 
+use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
@@ -161,9 +162,9 @@ class LicenseController extends Controller
             ->withCount(['installations as installation_counts', 'callbacks as call_backs_count'])
             ->withMax('callbacks as latest_call_backs', 'callback_date_time')
             ->when($searchQuery, function ($query) use ($searchQuery): void {
-                $query->where(function ($q) use ($searchQuery): void {
-                    $q->whereHas('user', fn ($u) => $u->where('email', 'like', '%'.$searchQuery.'%'))
-                        ->orWhereHas('product', fn ($p) => $p->where('name', 'like', '%'.$searchQuery.'%'))
+                $query->where(function (Builder $q) use ($searchQuery): void {
+                    $q->whereHas('user', fn (Builder $u) => $u->where('email', 'like', '%'.$searchQuery.'%'))
+                        ->orWhereHas('product', fn (Builder $p) => $p->where('name', 'like', '%'.$searchQuery.'%'))
                         ->orWhere('license_code', 'like', '%'.str_replace('-', '', $searchQuery).'%')
                         ->orWhere('license_ip', 'like', '%'.$searchQuery.'%')
                         ->orWhere('license_limit', 'like', '%'.$searchQuery.'%')

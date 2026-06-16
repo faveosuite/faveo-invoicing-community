@@ -11,6 +11,7 @@ class PipedriveField extends Model
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'pipedrive_fields';
 
     protected $fillable = [

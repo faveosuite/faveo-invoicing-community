@@ -2,6 +2,7 @@
 
 namespace App\License\Controllers\Admin;
 
+use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\License;
@@ -26,10 +27,10 @@ class CallBackController extends Controller
         $paginatedCallbacks = LicenseCallback::query()
             ->with(['product:id,name', 'user:id,email'])
             ->when($searchQuery, function ($query) use ($searchQuery): void {
-                $query->where(function ($query) use ($searchQuery): void {
-                    $query->whereHas('product', function ($productQuery) use ($searchQuery): void {
+                $query->where(function (Builder $query) use ($searchQuery): void {
+                    $query->whereHas('product', function (Builder $productQuery) use ($searchQuery): void {
                         $productQuery->where('name', 'LIKE', '%'.$searchQuery.'%');
-                    })->orWhereHas('user', function ($userQuery) use ($searchQuery): void {
+                    })->orWhereHas('user', function (Builder $userQuery) use ($searchQuery): void {
                         $userQuery->where('email', 'LIKE', '%'.$searchQuery.'%');
                     })->orWhere('license_code', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('callback_ip', 'LIKE', '%'.$searchQuery.'%')
@@ -74,10 +75,10 @@ class CallBackController extends Controller
         $updateCallbacks = VersionCallback::query()
             ->with(['version:id,product_id,version', 'version.product:id,name'])
             ->when($searchQuery, function ($query) use ($searchQuery): void {
-                $query->where(function ($query) use ($searchQuery): void {
-                    $query->whereHas('version.product', function ($productQuery) use ($searchQuery): void {
+                $query->where(function (Builder $query) use ($searchQuery): void {
+                    $query->whereHas('version.product', function (Builder $productQuery) use ($searchQuery): void {
                         $productQuery->where('name', 'LIKE', '%'.$searchQuery.'%');
-                    })->orWhereHas('version', function ($versionQuery) use ($searchQuery): void {
+                    })->orWhereHas('version', function (Builder $versionQuery) use ($searchQuery): void {
                         $versionQuery->where('version', 'LIKE', '%'.$searchQuery.'%');
                     })->orWhere('callback_type', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('callback_ip', 'LIKE', '%'.$searchQuery.'%')

@@ -10,6 +10,7 @@ class FileSystemSettings extends Model
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'settings_filesystem';
 
     protected $fillable = [

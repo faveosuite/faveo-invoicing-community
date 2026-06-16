@@ -2,6 +2,7 @@
 
 namespace App\License\Controllers\Admin\Views;
 
+use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
@@ -67,7 +68,7 @@ class LicenseViewController extends Controller
             ->where('license_code', $license->license_code)
             ->when($license->client_id, fn ($query) => $query->where('user_id', $license->client_id))
             ->when($searchQuery, function ($query) use ($searchQuery): void {
-                $query->where(function ($q) use ($searchQuery): void {
+                $query->where(function (Builder $q) use ($searchQuery): void {
                     $q->where('installation_domain', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('installation_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('installation_date', 'LIKE', '%'.$searchQuery.'%');

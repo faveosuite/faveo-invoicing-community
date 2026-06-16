@@ -36,12 +36,12 @@ class PageRequest extends FormRequest
             ];
         } elseif ($this->method() == 'PATCH') {
             return [
-                'name' => 'required|max:20',
-                'publish' => 'required',
-                'slug' => 'required',
+                'name' => ['required', 'max:20'],
+                'publish' => ['required'],
+                'slug' => ['required'],
                 'url' => 'required|url|regex:'.$regex,
-                'content' => 'required',
-                'created_at' => 'required',
+                'content' => ['required'],
+                'created_at' => ['required'],
             ];
         }
     }

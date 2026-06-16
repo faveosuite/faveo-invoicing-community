@@ -10,6 +10,7 @@ class CloudPopUp extends Model
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'cloud_pop_up';
 
     protected $guarded = [];

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Product;
 
+use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Requests\PlanRequest;
 use App\Model\Payment\Currency;
@@ -229,14 +230,14 @@ class PlanController extends ExtendedPlanController
             'productRelation:id,name',
         ])
             ->when($searchQuery, function ($query, $searchQuery): void {
-                $query->where(function ($q) use ($searchQuery): void {
+                $query->where(function (Builder $q) use ($searchQuery): void {
                     $daysRange = $this->parsePeriodToDaysRange($searchQuery);
 
                     $q->where('name', 'like', "%$searchQuery%")
                         ->when($daysRange, fn ($q2) => $q2->orWhereBetween('days', $daysRange))
-                        ->orWhereHas('productRelation', fn ($q3) => $q3->where('name', 'like', "%$searchQuery%")
+                        ->orWhereHas('productRelation', fn (Builder $q3) => $q3->where('name', 'like', "%$searchQuery%")
                         )
-                        ->orWhereHas('planPrice', fn ($q4) => $q4->where('currency', 'like', "%$searchQuery%")
+                        ->orWhereHas('planPrice', fn (Builder $q4) => $q4->where('currency', 'like', "%$searchQuery%")
                         );
                 });
             })

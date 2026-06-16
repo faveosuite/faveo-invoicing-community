@@ -163,7 +163,7 @@ class DatabaseSeeder extends Seeder
                     'symbol' => $c['symbol'],
                     'dashboard_currency' => $c['code'] === 'USD' ? 1 : 0,
                     'status' => $c['code'] === 'USD' ? 1 : 0,
-                ])->toArray()
+                ])->all()
             );
         });
 
@@ -184,7 +184,7 @@ class DatabaseSeeder extends Seeder
                     'emojiU' => $c['emojiU'],
                     'currency_id' => $c['currency_id'],
                     'status' => $c['country_code_char2'] === 'AQ' ? 0 : 1,
-                ])->toArray()
+                ])->all()
             );
         });
 
@@ -200,7 +200,7 @@ class DatabaseSeeder extends Seeder
                     'latitude' => $s['latitude'],
                     'longitude' => $s['longitude'],
                     'country_id' => $s['country_id'],
-                ])->toArray()
+                ])->all()
             );
         });
 

@@ -11,6 +11,7 @@ class PlanPrice extends Model
 {
     use HasFactory;
     use SystemActivityLogsTrait;
+
     protected $table = 'plan_prices';
 
     protected $fillable = ['plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'product_quantity', 'no_of_agents', 'offer_price'];

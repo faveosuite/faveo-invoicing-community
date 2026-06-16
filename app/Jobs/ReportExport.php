@@ -9,6 +9,7 @@ use Illuminate\Foundation\Queue\Queueable;
 class ReportExport implements ShouldQueue
 {
     use Queueable;
+
     protected $exportHandleController;
 
     public $tries = 5;

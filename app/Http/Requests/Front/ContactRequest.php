@@ -35,11 +35,11 @@ class ContactRequest extends FormRequest
             ];
         } elseif ($this->is('demo-request')) {
             return [
-                'demoname' => 'required',
-                'demoemail' => 'required|email',
-                'country_code' => 'required',
-                'Mobile' => 'required',
-                'demomessage' => 'required',
+                'demoname' => ['required'],
+                'demoemail' => ['required', 'email'],
+                'country_code' => ['required'],
+                'Mobile' => ['required'],
+                'demomessage' => ['required'],
                 'demo' => [new Honeypot()],
             ];
         }
