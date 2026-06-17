@@ -16,7 +16,7 @@ trait UpdateDates
 
         try {
             $service = resolve(SubscriptionRenewalService::class);
-            $sub     = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
+            $sub = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
 
             if ($request->filled('update_end')) {
                 $service->setDate($sub, 'update_ends_at', $this->parseDate($request->input('update_end')));

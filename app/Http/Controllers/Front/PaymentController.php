@@ -130,7 +130,7 @@ class PaymentController extends Controller
         $permissions = resolve(LicensePermissionsController::class);
         $cloudProducts = cloudPopupProducts();
 
-        $orders = Order::whereIn('id', $orderIds)->get()->map(function ($order) use ($model, $permissions, $cloudProducts) {
+        $orders = Order::whereIn('id', $orderIds)->get()->map(function ($order) use ($permissions, $cloudProducts) {
             $product = Product::select('id', 'name', 'type')->find($order->product);
 
             $downloadable = false;
