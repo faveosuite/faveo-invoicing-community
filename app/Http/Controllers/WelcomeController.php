@@ -13,30 +13,6 @@ class WelcomeController extends Controller
         $this->middleware('auth', ['except' => ['getCode']]);
     }
 
-    public function getCode()
-    {
-        $code = '';
-        $country = new Country();
-        $country_iso2 = $this->request->get('country_id');
-        $model = $country->where('country_code_char2', $country_iso2)->select('phonecode')->first();
-        if ($model) {
-            $code = $model->phonecode;
-        }
-
-        return successResponse('code', ['code' => $code]);
-    }
-
-    public function getCurrency()
-    {
-        $currency = 'INR';
-        $country_iso2 = $this->request->get('country_id');
-        if ($country_iso2 != 'IN') {
-            $currency = 'USD';
-        }
-
-        return successResponse('currency', ['Currency' => $currency]);
-    }
-
     /**
      * Get country list with user count.
      */

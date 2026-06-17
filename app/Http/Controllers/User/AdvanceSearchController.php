@@ -55,15 +55,6 @@ class AdvanceSearchController extends AdminOrderInvoiceController
         }
     }
 
-    public function getUsers(Request $request)
-    {
-        $options = $this->user
-                ->select('email AS text', 'id AS value')
-                ->get();
-
-        return response()->json(compact('options'));
-    }
-
     public function getClientDetail($id)
     {
         $client = $this->user->where('id', $id)->first();

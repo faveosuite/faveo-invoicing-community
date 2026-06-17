@@ -294,28 +294,6 @@ class AuthController extends BaseAuthController
         return $check;
     }
 
-    public function getState(Request $request, $state)
-    {
-        try {
-            $id = $state;
-            $states = State::where('country_code_char2', $id)
-            ->orderBy('state_subdivision_name', 'asc')->get();
-
-//            if (count($states) > 0) {
-//                echo '<option value="">'.__('message.choose').'</option>';
-//                foreach ($states as $stateList) {
-//                    echo '<option value='.$stateList->iso2.'>'
-//                .$stateList->state_subdivision_name.'</option>';
-//                }
-//            } else {
-//                echo "<option value=''>".__('message.no_states_available').'</option>';
-//            }
-            return successResponse('States', ['states' => $states]);
-        } catch (Exception) {
-            return errorResponse(__('message.problem_while_loading'));
-        }
-    }
-
     public function salesManagerMail($user, $bcc = [])
     {
         $contact = getContactData();
@@ -463,17 +441,5 @@ class AuthController extends BaseAuthController
         $verificationAttempt->{$field}++;
 
         $verificationAttempt->save();
-    }
-
-    public function verifySession()
-    {
-        return successResponse('active');
-    }
-
-    public function getCountries()
-    {
-        $countries = Country::pluck('nicename', 'country_code_char2')->toArray();
-
-        return successResponse('countries', $countries);
     }
 }

@@ -45,14 +45,6 @@ class ForgotPasswordController extends Controller
         $this->middleware(['recaptcha:forgot'])->only('sendResetLinkEmail');
     }
 
-    public function showLinkRequestForm()
-    {
-        $status = StatusSetting::select('msg91_status', 'emailverification_status', 'terms')->first();
-        $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
-
-        return successResponse('forgot-password', ['status' => $status, 'apiKeys' => $apiKeys]);
-    }
-
     /**
      * Send a reset link to the given user.
      *

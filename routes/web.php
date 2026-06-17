@@ -145,13 +145,9 @@ Route::middleware('installAgora')->group(function (): void {
     // password reset, OTP, social auth). No `auth` middleware here.
     // ==========================================================
 
-    // CSRF token refresh — called by Vue SPA before form submission
-    Route::get('refresh-csrf', fn () => response()->json(['token' => csrf_token()], 200));
-
     // SPA login-form config (honeypot metadata, captcha settings, etc.)
     Route::get('honeypot', fn () => successResponse('honeypot', honeypotData()));
     Route::get('auth/login-config', [LoginController::class,        'loginConfig']);
-    Route::get('auth/forgot-config', [ForgotPasswordController::class, 'showLinkRequestForm']);
     Route::get('auth/reset-validate/{token}', [ResetPasswordController::class, 'showResetForm']);
     Route::get('auth/verify-config', [AuthController::class,          'verifyConfig']);
 
@@ -197,7 +193,6 @@ Route::middleware('installAgora')->group(function (): void {
         Route::get('verify', [AuthController::class, 'verify']);
     });
     Route::middleware(['session.timeout:10,verify'])->group(function (): void {
-        Route::get('verify/session-check', [AuthController::class, 'verifySession'])->name('verify.session.check');
         Route::post('otp/verify', [AuthController::class, 'verifyOtp']);
         Route::post('email/verify', [AuthController::class, 'verifyEmail']);
     });
@@ -205,10 +200,6 @@ Route::middleware('installAgora')->group(function (): void {
     // Social / OAuth logins
     Route::get('/auth/redirect/{provider}', [LoginController::class, 'redirectToGithub']);
     Route::get('/auth/callback/{provider}', [LoginController::class, 'handler']);
-
-    // Auth state helpers
-    Route::get('get-loginstate/{state}', [AuthController::class, 'getState']);
-    Route::get('get-countries', [AuthController::class, 'getCountries']);
 
     // API token login (used by third-party integrations)
     Route::post('api/login', [LoginController::class, 'postLoginAndGetToken']);
@@ -330,14 +321,12 @@ Route::middleware('installAgora')->group(function (): void {
     });
 
     // Legacy cart endpoints (inside installAgora, session-backed)
-    Route::get('cart-access', [BaseClientController::class, 'cartAccess']);
     Route::post('cart/remove', [CartController::class,      'cartRemove']);
     Route::get('pricing', [CartController::class,      'cart'])->name('pricing');
     Route::get('group/{templateid}/{group}/', [PageController::class, 'pageTemplates']);
     Route::post('update-agent-qty', [CartController::class,      'updateAgentQty']);
     Route::post('update-qty', [CartController::class,      'updateProductQty']);
     Route::post('reduce-product-qty', [CartController::class,      'reduceProductQty']);
-    Route::post('reduce-agent-qty', [CartController::class,      'reduceAgentQty']);
     Route::post('cart/clear', [CartController::class,      'clearCart']);
     Route::get('show/cart', [CartController::class,      'showCart']);
     Route::get('checkout', [CheckoutController::class,  'checkoutForm']);
@@ -411,7 +400,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::post('get-cloud-upgrade-cost', [CloudExtraActivities::class, 'getUpgradeCost']);
     Route::post('changeAgents', [CloudExtraActivities::class, 'agentAlteration']);
     Route::post('upgradeDowngradeCloud', [CloudExtraActivities::class, 'upgradeDowngradeCloud']);
-    Route::get('format-currency', [CloudExtraActivities::class, 'formatCurrency']);
     Route::get('processFormat', [CloudExtraActivities::class, 'processFormat']);
     Route::post('get-agent-inc-dec-cost', [CloudExtraActivities::class, 'getThePaymentCalculationDisplay']);
     Route::get('api/domain', [CloudExtraActivities::class, 'domainCloudAutofill']);
@@ -456,8 +444,6 @@ Route::middleware('installAgora')->group(function (): void {
 
     // Legacy client detail endpoints (admin panels still reference these)
     Route::get('getClientDetail/{id}', [User\ClientController::class, 'getClientDetail']);
-    Route::delete('clients-delete', [User\ClientController::class, 'destroy']);
-    Route::get('get-users', [User\ClientController::class, 'getUsers']);
     Route::post('/save-columns', [User\ClientController::class, 'saveColumns'])->name('save-columns');
     Route::get('/get-columns', [User\ClientController::class, 'getColumns'])->name('get-columns');
     Route::get('export-users', [User\ClientController::class, 'exportUsers'])->name('export-users');
@@ -469,11 +455,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('profile/countries', [ProfileController::class, 'getCountries']);
     Route::get('profile/states/{countryCode}', [ProfileController::class, 'getStatesByCountry']);
 
-    Route::get('get-code', [WelcomeController::class, 'getCode']);
-    Route::get('get-currency', [WelcomeController::class, 'getCurrency'])->middleware('admin'); // Not in use
     Route::get('get-country', [WelcomeController::class, 'getCountry'])->middleware('admin');
-
-    Route::delete('comment-delete', [CommentController::class, 'destroy'])->name('comment-delete');
 
     // --------------------------------------------------------
     // Products, Uploads, Plans, Groups, Categories
@@ -502,7 +484,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::post('chunkupload', [ProductController::class, 'uploadFile']);
     Route::patch('upload/{id}', [ProductController::class, 'uploadUpdate']);
     Route::post('upload-image', [ProductController::class, 'uploadImage'])->name('upload-image');
-    Route::get('get-group-url', [GroupController::class,   'generateGroupUrl']);
 
     // RESTful plan endpoints
     Route::get('plans', [PlanController::class, 'getAllPlans']);
@@ -510,8 +491,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('plan/{planId}', [PlanController::class, 'getPlan']);
     Route::patch('plan/{planId}', [PlanController::class, 'updatePlan']);
     Route::delete('plans', [PlanController::class, 'deleteBulkPlans']);
-    Route::delete('plans-delete', [PlanController::class, 'destroy'])->name('plans-delete');
-    Route::get('get-period', [PlanController::class, 'checkSubscription'])->name('get-period');
 
     // RESTful group endpoints
     Route::get('groups', [GroupController::class, 'getProductGroups']);
@@ -519,10 +498,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::patch('group/{group_id}', [GroupController::class, 'updateGroup']);
     Route::put('group', [GroupController::class, 'groupCreate']);
     Route::delete('group', [GroupController::class, 'deleteBulkGroups']);
-    Route::delete('groups-delete', [GroupController::class, 'destroy'])->name('groups-delete');
-
-    // Categories
-    Route::delete('category-delete', [CategoryController::class, 'destroy'])->name('category-delete');
 
     // --------------------------------------------------------
     // Orders
@@ -536,7 +511,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('getOrderInvoices/{orderId}', [OrderController::class, 'getOrderInvoices']);
 
     // Legacy order endpoints
-    Route::get('get-orders', [OrderController::class, 'getOrders'])->name('get-orders');
     Route::post('update-license-details', [BaseOrderController::class, 'updateLicenseDetails']);
     Route::get('get-installation-details/{orderId}', [OrderController::class, 'getInstallationDetails']);
     Route::get('export-orders', [OrderController::class, 'exportOrders'])->name('export-orders');
@@ -555,7 +529,6 @@ Route::middleware('installAgora')->group(function (): void {
 
     // Legacy invoice endpoints
     Route::post('invoice/edit/{id}', [InvoiceController::class, 'postEdit']);
-    Route::get('get-invoices', [InvoiceController::class, 'getInvoices'])->name('get-invoices');
     Route::post('generate/invoice/{user_id?}', [InvoiceController::class, 'invoiceGenerateByForm']);
     Route::post('change-invoiceTotal', [InvoiceController::class, 'invoiceTotalChange'])->name('change-invoiceTotal');
     Route::get('export-invoices', [InvoiceController::class, 'exportInvoices'])->name('export-invoices');
@@ -579,7 +552,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::put('page/{id}', [PageController::class, 'updatePage']);
 
     // Legacy page admin endpoints
-    Route::delete('pages-delete', [PageController::class, 'destroy'])->name('pages-delete');
     Route::post('save/demo', [PageController::class, 'saveDemoPage']);
 
     // Widget management
@@ -602,10 +574,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::patch('updatePromotion/{promotionId}', [PromotionController::class, 'updatePromotionCode']);
     Route::put('promotionCreate', [PromotionController::class, 'promotionCodeCreate']);
     Route::delete('promotions', [PromotionController::class, 'deleteBulkPromotions']);
-
-    // Legacy promotion endpoints
-    Route::get('get-promotions', [PromotionController::class, 'getPromotion'])->name('get-promotions');
-    Route::delete('promotions-delete', [PromotionController::class, 'destroy'])->name('promotions-delete');
 
     // --------------------------------------------------------
     // Tax & Currency
@@ -639,7 +607,6 @@ Route::middleware('installAgora')->group(function (): void {
 
     Route::get('get-license-permission', [LicensePermissionsController::class, 'getPermissions'])->name('get-license-permission');
     Route::delete('add-permission', [LicensePermissionsController::class, 'addPermission'])->name('add-permission');
-    Route::get('tick-permission', [LicensePermissionsController::class, 'tickPermission'])->name('tick-permission');
 
     // --------------------------------------------------------
     // Email Templates
@@ -759,7 +726,6 @@ Route::middleware('installAgora')->group(function (): void {
 
     Route::get('get-activity-api', [SettingsController::class, 'getActivityApi']);
     Route::get('get-activity-filters', [SettingsController::class, 'getActivityFilters']);
-    Route::delete('activity-delete', [SettingsController::class, 'destroy'])->name('activity-delete');
 
     Route::get('get-payment-log-api', [SettingsController::class, 'getPaymentLogApi']);
     Route::delete('paymentlog-delete', [SettingsController::class, 'destroyPayment'])->name('paymentlog-delete');
@@ -784,7 +750,6 @@ Route::middleware('installAgora')->group(function (): void {
 
     Route::get('payment-gateway-list', [PaymentSettingsController::class, 'getPaymentGatewayList']);
     Route::post('updatePaymentStatus', [PaymentSettingsController::class, 'updatePaymentStatus']);
-    Route::post('post-plugin', [PaymentSettingsController::class, 'postPlugins'])->name('post.plugin');
     Route::post('plugin/delete/{slug}', [PaymentSettingsController::class, 'deletePlugin'])->name('delete.plugin');
     Route::post('plugin/status/{slug}', [PaymentSettingsController::class, 'statusPlugin'])->name('status.plugin');
 
@@ -852,9 +817,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('download-exported-file/{id}', [User\ClientController::class, 'downloadExportedFile'])->name('download.exported.file');
 
     // Legacy report endpoints
-    Route::get('reports/view', [ReportController::class, 'viewReports']);
-    Route::delete('report-delete', [ReportController::class, 'destroyReports']);
-    Route::get('records/column', [ReportController::class, 'viewRecordsColumn']);
     Route::post('add_records', [ReportController::class, 'addRecords']);
 
     // --------------------------------------------------------
@@ -863,9 +825,7 @@ Route::middleware('installAgora')->group(function (): void {
     // --------------------------------------------------------
 
     Route::get('getMsgReports', [MSG91Controller::class, 'getMsg91Reports']);
-    Route::get('getMsgStatus', [MSG91Controller::class, 'getMsgStauts']);
     Route::get('getMsgFilters', [MSG91Controller::class, 'getMsgFilters']);
-    Route::get('msgThirdPartyUpdate/{thirdPartyId}', [MSG91Controller::class, 'getThirdPartyMsgDetails']);
 
     // --------------------------------------------------------
     // Queue & Cache

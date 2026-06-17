@@ -357,25 +357,4 @@ class MSG91Controller extends Controller
 
         return $apiKeyExists;
     }
-
-    public function getThirdPartyMsgDetails($thirdPartyId)
-    {
-        $app = ThirdPartyApp::find($thirdPartyId);
-
-        if (! $app) {
-            return errorResponse(__('message.third_party_not_found'));
-        }
-
-        return successResponse('', [
-            'app_key' => $app->app_key,
-            'app_secret' => $app->app_secret,
-        ]);
-    }
-
-    public function getMsgStauts()
-    {
-        $status = Msg91Status::orderBy('status_label')->pluck('status_label');
-
-        return successResponse('', $status);
-    }
 }

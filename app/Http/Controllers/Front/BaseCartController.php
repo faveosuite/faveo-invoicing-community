@@ -19,33 +19,6 @@ class BaseCartController extends Controller
     }
 
     /**
-     * Reduce No. of Agents When Minus button Is Clicked.
-     *
-     * @param  Request  $request  Get productid , Product quantity ,Price,Currency,Symbol as Request
-     * @return success
-     */
-    public function reduceAgentQty(Request $request)
-    {
-        try {
-            $id = $request->input('productid');
-            $planid = $request->input('planid');
-            $hasPermissionToModifyAgent = Product::find($id)->can_modify_agent;
-            if ($hasPermissionToModifyAgent) {
-                $cartValues = $this->getCartValues($planid, true);
-
-                $this->cart->update($planid, [
-                    'price' => $cartValues['price'],
-                    'attributes' => ['agents' => $cartValues['agtqty'], 'currency' => $cartValues['currency'], 'symbol' => $cartValues['symbol']],
-                ]);
-            }
-
-            return successResponse(__('message.cart_updated_successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
-        }
-    }
-
-    /**
      * Update The Quantity And Price in cart when No of Agents Increasd.
      *
      * @param  Request  $request  Get productid , Product quantity ,Price,Currency,Symbol as Request

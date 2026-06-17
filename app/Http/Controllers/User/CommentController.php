@@ -62,45 +62,4 @@ class CommentController extends Controller
             return back()->with('fails', $ex->getMessage());
         }
     }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return Response
-     */
-    public function update(Request $request, $id)
-    {
-        try {
-            $comment = $this->comment->where('id', $id)->update(['user_id' => $request->input('user_id'),
-                'updated_by_user_id' => $request->input('updated_by_user_id'), 'description' => $request->input('description'), ]);
-
-            return back()->with('success', Lang::get('message.updated-successfully'));
-        } catch (Exception $ex) {
-            Logger::exception($ex);
-
-            return back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function destroy(Request $request)
-    {
-        try {
-            $delComment = $this->comment->where('id', $request->input('data-comment-id'))->delete();
-
-            return successResponse(__('message.comment_deleted_successfully'));
-            // return redirect()->back()->with('success', \Lang::get('message.deleted-successfully'));
-        } catch (Exception $ex) {
-            Logger::exception($ex);
-
-            return errorResponse($ex->getMessage());
-        }
-    }
 }

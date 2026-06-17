@@ -592,22 +592,6 @@ class CloudExtraActivities extends Controller
             'upgraded_order_id' => $newActiveOrderId,
         ]);
     }
-
-    public function formatCurrency(Request $request)
-    {
-        $amount = $request->input('amount');
-        $currency = $request->input('currency');
-
-        if ($request->has('invoiceId') && $request->has('alter') && $request->get('alter')) {
-            Invoice::where('id', $request->input('invoiceId'))->update([
-                'billing_pay' => $request->get('billing_pay'),
-                'grand_total' => $amount,
-            ]);
-        }
-
-        return response()->json(['formatted_value' => currencyFormat($amount, $currency, true, true)]);
-    }
-
     public function doTheActivity(int $terminatedOrderId, int $newActiveOrderId, ?float $discount = null): void
     {
         if ($discount === null) {

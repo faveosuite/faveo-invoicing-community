@@ -20,61 +20,6 @@ class ReportController extends Controller
         $this->middleware('admin');
     }
 
-    public function viewReports()
-    {
-        return view('themes.default1.report.index');
-    }
-
-    public function destroyReports(Request $request)
-    {
-        $ids = $request->input('select');
-        if (! empty($ids)) {
-            foreach ($ids as $id) {
-                $report = ExportDetail::where('id', $id)->first();
-                if ($report) {
-                    if (file_exists($report->file_path)) {
-                        $relativeFilePath = str_replace(storage_path('app/'), '', $report->file_path);
-                        Storage::delete($relativeFilePath);
-                    }
-
-                    $report->delete();
-                } else {
-                    echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
-                </div>';
-                    //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                }
-            }
-
-            echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
-                </div>';
-        } else {
-            echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */ Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */ Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
-                </div>';
-        }
-    }
-
-    public function viewRecordsColumn()
-    {
-        $settings = ReportSetting::first();
-
-        return view('themes.default1.report.records-per-col', compact('settings'));
-    }
-
     public function addRecords(Request $request)
     {
         $request->validate([

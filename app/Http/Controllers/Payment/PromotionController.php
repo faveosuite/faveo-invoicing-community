@@ -123,61 +123,6 @@ class PromotionController extends BasePromotionController
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function destroy(Request $request)
-    {
-        try {
-            $ids = $request->input('select');
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $promotion = $this->promotion->where('id', $id)->first();
-                    if ($promotion) {
-                        $promotion->delete();
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
-                </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                    }
-                }
-
-                echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
-                </div>';
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
-                </div>';
-                //echo \Lang::get('message.select-a-row');
-            }
-        } catch (Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
-                </div>';
-        }
-    }
-
     public function checkCode($code)
     {
         try {

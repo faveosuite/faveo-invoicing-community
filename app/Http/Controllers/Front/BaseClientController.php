@@ -243,19 +243,4 @@ class BaseClientController extends Controller
     {
         return view('themes.default1.front.clients.delete-cloud-popup', compact('orderNumber'));
     }
-
-    public function cartAccess(Request $request)
-    {
-        $method = $request->input('method');
-        $deliverable = match ($method) {
-            'clear' => UserCart::clear(),
-            'getContent' => UserCart::getContent(),
-            'getTotal' => UserCart::getTotal(),
-            'isEmpty' => UserCart::isEmpty(),
-            'getTotalQuantity' => UserCart::getTotalQuantity(),
-            'default' => null,
-        };
-
-        return successResponse('success', $deliverable);
-    }
 }
