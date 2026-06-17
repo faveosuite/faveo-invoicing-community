@@ -592,6 +592,7 @@ class CloudExtraActivities extends Controller
             'upgraded_order_id' => $newActiveOrderId,
         ]);
     }
+
     public function doTheActivity(int $terminatedOrderId, int $newActiveOrderId, ?float $discount = null): void
     {
         if ($discount === null) {

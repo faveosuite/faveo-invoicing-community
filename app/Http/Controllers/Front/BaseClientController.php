@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Front;
 
-use app\Cart\UserCart;
 use App\Facades\Attach;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Product;
 
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Requests\PlanRequest;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Period;

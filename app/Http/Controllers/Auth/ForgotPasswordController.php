@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\ApiKey;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Setting;
-use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\User\Password;
 use App\Rules\Honeypot;
