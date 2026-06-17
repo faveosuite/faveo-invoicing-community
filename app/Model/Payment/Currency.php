@@ -10,6 +10,32 @@ use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Override;
 
+/**
+ * @property int $id
+ * @property string|null $code
+ * @property string|null $symbol
+ * @property string|null $name
+ * @property string|null $dashboard_currency
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $status
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Country> $country
+ * @property-read int|null $country_count
+ * @method static Builder<static>|Currency newModelQuery()
+ * @method static Builder<static>|Currency newQuery()
+ * @method static Builder<static>|Currency query()
+ * @method static Builder<static>|Currency whereCode($value)
+ * @method static Builder<static>|Currency whereCreatedAt($value)
+ * @method static Builder<static>|Currency whereDashboardCurrency($value)
+ * @method static Builder<static>|Currency whereId($value)
+ * @method static Builder<static>|Currency whereName($value)
+ * @method static Builder<static>|Currency whereStatus($value)
+ * @method static Builder<static>|Currency whereSymbol($value)
+ * @method static Builder<static>|Currency whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Currency extends BaseModel
 {
     use SystemActivityLogsTrait;
@@ -18,15 +44,15 @@ class Currency extends BaseModel
 
     protected $fillable = ['code', 'symbol', 'name', 'status', 'id', 'dashboard_currency'];
 
-    protected $logName = 'currency';
+    protected string $logName = 'currency';
 
-    protected $logNameColumn = 'name';
+    protected string $logNameColumn = 'name';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'code', 'symbol', 'name', 'status',
     ];
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['currency'],
     ];
 
@@ -50,7 +76,10 @@ class Currency extends BaseModel
         ];
     }
 
-    public function country()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Common\Country, $this>
+     */
+    public function country(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Country::class, 'currency_id');
     }

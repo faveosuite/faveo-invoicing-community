@@ -18,7 +18,7 @@ use Lang;
 
 class BaseHomeController extends Controller
 {
-    public static function decryptByFaveoPrivateKey($encrypted)
+    public static function decryptByFaveoPrivateKey(string $encrypted): ?string
     {
         $encrypted = json_decode((string) $encrypted);
         $sealed_data = $encrypted->seal;
@@ -42,13 +42,13 @@ class BaseHomeController extends Controller
         return array_sum($total);
     }
 
-    public function checkDomain($request_url)
+    public function checkDomain(string $request_url): ?string
     {
         try {
             $order = new Order();
             $this_order = $order->where('domain', $request_url)->first();
             if (! $this_order) {
-                return;
+                return null;
             }
 
             return $this_order->domain;
@@ -57,27 +57,27 @@ class BaseHomeController extends Controller
         }
     }
 
-    public function checkSerialKey($faveo_encrypted_key, $order_number)
+    public function checkSerialKey(string $faveo_encrypted_key, string $order_number): ?string
     {
         try {
             $order = new Order();
             //$faveo_decrypted_key = self::decryptByFaveoPrivateKey($faveo_encrypted_key);
             $this_order = $order->where('number', $order_number)->first();
             if (! $this_order) {
-                return;
+                return null;
             }
 
             if ($this_order->serial_key == $faveo_encrypted_key) {
                 return $this_order->serial_key;
             }
 
-            return;
+            return null;
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function verifyOrder($order_number, $serial_key)
+    public function verifyOrder(string $order_number, string $serial_key): ?\App\Model\Order\Order
     {
         // if (ends_with($domain, '/')) {
         //     $domain = substr_replace($domain, '', -1, 1);
@@ -103,7 +103,7 @@ class BaseHomeController extends Controller
         return view('themes.default1.common.dashboard');
     }
 
-    public function getDomain($url)
+    public function getDomain(string $url): string
     {
         $pieces = parse_url((string) $url);
         $domain = $pieces['host'] ?? '';
@@ -114,7 +114,7 @@ class BaseHomeController extends Controller
         return $domain;
     }
 
-    public function verificationResult($order_number, $serial_key): array
+    public function verificationResult(string $order_number, string $serial_key): array
     {
         try {
             if ($order_number && $serial_key) {
@@ -133,7 +133,7 @@ class BaseHomeController extends Controller
         }
     }
 
-    public function getEncryptedData(Request $request)
+    public function getEncryptedData(Request $request): \Illuminate\Http\JsonResponse
     {
         $enc = $request->input('en');
         $result = self::decryptByFaveoPrivateKey($enc);
@@ -155,9 +155,9 @@ class BaseHomeController extends Controller
             $order_number = $request->input('order_number');
             $licenseCode = $request->input('license_code');
             if ($order_number) {
-                $orderId = Order::where('number', 'LIKE', $order_number)->pluck('id')->first();
+                $orderId = Order::where('number', 'LIKE', $order_number)->value('id');
                 if ($orderId) {
-                    $expiryDate = Subscription::where('order_id', $orderId)->pluck('update_ends_at')->first();
+                    $expiryDate = Subscription::where('order_id', $orderId)->value('update_ends_at');
                     $subscription = Subscription::where('order_id', $orderId)->select('id', 'support_ends_at', 'version', 'update_ends_at', 'product_id', 'plan_id', 'ends_at')->first();
                     $data = $this->getData($subscription);
                     if (Date::now()->toDateTimeString() < $expiryDate) {
@@ -171,7 +171,7 @@ class BaseHomeController extends Controller
                     }
                 });
                 if (count($orderForLicense) > 0) {
-                    $expiryDate = Subscription::where('order_id', $orderForLicense->first()->id)->pluck('update_ends_at')->first();
+                    $expiryDate = Subscription::where('order_id', $orderForLicense->first()->id)->value('update_ends_at');
                     $subscription = Subscription::where('order_id', $orderForLicense->first()->id)->select('id', 'support_ends_at', 'version', 'update_ends_at', 'product_id', 'plan_id', 'ends_at')->first();
                     $data = $this->getData($subscription);
                     if (Date::now()->toDateTimeString() < $expiryDate) {
@@ -186,7 +186,7 @@ class BaseHomeController extends Controller
         }
     }
 
-    public function getData($subscription)
+    public function getData(\App\Model\Product\Subscription $subscription): ?array
     {
         $productName = Product::where('id', $subscription->product_id)->value('name');
         $plan = Plan::where('id', $subscription->plan_id)->value('name');
@@ -261,7 +261,7 @@ class BaseHomeController extends Controller
         }
     }
 
-    public function getUserIP()
+    public function getUserIP(): ?string
     {
         $client = @\Illuminate\Support\Facades\Request::server('HTTP_CLIENT_IP');
         $forward = @\Illuminate\Support\Facades\Request::server('HTTP_X_FORWARDED_FOR');
@@ -278,7 +278,7 @@ class BaseHomeController extends Controller
         return $ip;
     }
 
-    public function updateLicenseCode(Request $request)
+    public function updateLicenseCode(Request $request): ?\Illuminate\Http\JsonResponse
     {
         try {
             $licCode = $request->input('licenseCode'); //The license code already existing for older client
@@ -323,9 +323,11 @@ class BaseHomeController extends Controller
 
             return response()->json($result);
         }
+
+        return null;
     }
 
-    public function getLastFourDigistsOfLicenseCode($productName): string
+    public function getLastFourDigistsOfLicenseCode(string $productName): string
     {
         return match (true) {
             strpos((string) $productName, 'Enterprise') > 0, strpos((string) $productName, 'Company') > 0 => '0000',
@@ -336,7 +338,7 @@ class BaseHomeController extends Controller
         };
     }
 
-    public function getUpdatesExpiryDate($existingLicense)
+    public function getUpdatesExpiryDate(\App\Model\Order\Order $existingLicense): \Illuminate\Support\Carbon|string
     {
         $updatesDate = Date::parse(Subscription::where('order_id', $existingLicense->id)->value('update_ends_at'));
         if (strtotime($updatesDate) < 0) {
@@ -346,7 +348,7 @@ class BaseHomeController extends Controller
         return $updatesDate;
     }
 
-    public function getLicenseExpiryDate($existingLicense)
+    public function getLicenseExpiryDate(\App\Model\Order\Order $existingLicense): \Illuminate\Support\Carbon|string
     {
         $licenseDate = Date::parse(Subscription::where('order_id', $existingLicense->id)->value('ends_at'));
         if (strtotime($licenseDate) < 0) {
@@ -356,7 +358,7 @@ class BaseHomeController extends Controller
         return $licenseDate;
     }
 
-    public function getSupportExpiryDate($existingLicense)
+    public function getSupportExpiryDate(\App\Model\Order\Order $existingLicense): \Illuminate\Support\Carbon|string
     {
         $supportDate = Date::parse(Subscription::where('order_id', $existingLicense->id)->value('support_ends_at'));
         if (strtotime($supportDate) < 0) {

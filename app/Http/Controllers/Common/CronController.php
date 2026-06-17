@@ -26,7 +26,7 @@ use Session;
 
 class CronController extends BaseCronController
 {
-    protected $subscription;
+    protected ?AppModelProductSubscription $subscription = null;
 
     protected \App\Model\Order\Order $order;
 
@@ -38,7 +38,7 @@ class CronController extends BaseCronController
 
     protected \GuzzleHttp\Client $client;
 
-    protected $PostSubscriptionHandle;
+    protected mixed $PostSubscriptionHandle = null;
 
     public function __construct()
     {
@@ -477,7 +477,7 @@ class CronController extends BaseCronController
 
         return Invoice::where('status', 'pending')
             ->whereDate('date', '<=', $date)
-            ->with(['invoiceItem', 'orderRelation'])
+            ->with(['invoiceItem', 'orders'])
             ->get();
     }
 

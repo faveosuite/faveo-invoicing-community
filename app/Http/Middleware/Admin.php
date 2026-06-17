@@ -33,7 +33,7 @@ class Admin
      */
     public function handle($request, Closure $next)
     {
-        $defaulturl = DefaultPage::pluck('page_url')->first();
+        $defaulturl = DefaultPage::value('page_url');
         if (Auth::user()->role == 'admin') {
             return $next($request);
         }

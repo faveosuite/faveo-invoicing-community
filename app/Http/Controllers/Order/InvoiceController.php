@@ -158,7 +158,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         $this->tax_by_state = new $tax_by_state();
     }
 
-    public function getInvoices(Request $request)
+    public function getInvoices(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchQuery = $request->input('search-query', '');
@@ -224,7 +224,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
      *
      * @throws Exception
      */
-    public function invoiceGenerateByForm(InvoiceRequest $request, $user_id = '')
+    public function invoiceGenerateByForm(InvoiceRequest $request, int|string $user_id = ''): \Illuminate\Http\JsonResponse
     {
         try {
             $cloud_domain = '';
@@ -256,7 +256,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $qty = $this->getQuantity($qty, $productid, $plan);
 
             $code = $request->input('code');
-            $total = str_replace(',', '', $request->input('price'));
+            $total = (float) str_replace(',', '', $request->input('price'));
             $description = $request->input('description');
             if ($request->has('domain')) {
                 $domain = $request->input('domain');
@@ -301,8 +301,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         }
     }
 
-    public function createInvoiceItemsByAdmin($invoiceid, string $productid, $price,
-                                              $currency, $qty, $agents, $planid, $userid, $tax_name, $tax_rate, $grandTotalAfterCoupon)
+    public function createInvoiceItemsByAdmin(int $invoiceid, string $productid, mixed $price,
+                                              string $currency, int $qty, mixed $agents, int $planid, int $userid, ?string $tax_name, float|int $tax_rate, mixed $grandTotalAfterCoupon): \App\Model\Order\InvoiceItem|\Illuminate\Http\RedirectResponse
     {
         try {
             $product = $this->product->findOrFail($productid);
@@ -345,7 +345,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         }
     }
 
-    public function setDomain(string $productid, $domain): void
+    public function setDomain(string $productid, string $domain): void
     {
         try {
             if (Session::has('domain'.$productid)) {
@@ -358,10 +358,10 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         }
     }
 
-    public function sendMail($userid, $invoiceid)
+    public function sendMail(int $userid, int $invoiceid): mixed
     {
         try {
-            $invoice = $this->invoice->find($invoiceid);
+            $invoice = $this->invoice->findOrFail($invoiceid);
             $number = $invoice->number;
             $total = $invoice->grand_total;
 
@@ -371,7 +371,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         }
     }
 
-    public function pdf(Request $request)
+    public function pdf(Request $request): \Illuminate\Http\JsonResponse|\Spatie\LaravelPdf\PdfBuilder
     {
         try {
             $id = $request->input('invoiceid');
@@ -422,7 +422,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         }
     }
 
-    public function exportInvoices(Request $request)
+    public function exportInvoices(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             ini_set('memory_limit', '-1');
@@ -446,7 +446,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         }
     }
 
-    public function getInvoice($id)
+    public function getInvoice(int $id): \Illuminate\Http\JsonResponse
     {
         try {
             $query = Invoice::with([
@@ -505,7 +505,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
      * @param  int  $invoiceId
      * @param  bool  $formatCurrency  - whether to format currency strings or return numeric
      */
-    public static function calculateInvoice($invoiceId, $formatCurrency = false): array
+    public static function calculateInvoice(int $invoiceId, bool $formatCurrency = false): array
     {
         $invoice = Invoice::with(['invoiceItem', 'user'])->findOrFail($invoiceId);
 

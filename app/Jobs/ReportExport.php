@@ -14,9 +14,9 @@ class ReportExport implements ShouldQueue
 
     protected \App\Http\Controllers\Report\ConcreteExportHandleController $exportHandleController;
 
-    public $tries = 5;
+    public int $tries = 5;
 
-    public $timeout = 300;
+    public int $timeout = 300;
 
     /**
      * Create a new job instance.

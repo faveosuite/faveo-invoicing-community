@@ -11,6 +11,64 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Date;
 use Override;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $number
+ * @property \Illuminate\Support\Carbon $date
+ * @property string|null $discount
+ * @property string $discount_mode
+ * @property string|null $coupon_code
+ * @property string $grand_total
+ * @property string $currency
+ * @property string $status
+ * @property string|null $description
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $is_renewed
+ * @property string|null $processing_fee
+ * @property string|null $billing_pay
+ * @property string|null $credits
+ * @property string|null $cloud_domain
+ * @property array<array-key, mixed>|null $metadata
+ * @property string|null $fulfillment_intent
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\InvoiceItem> $invoiceItem
+ * @property-read int|null $invoice_item_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\Order> $orders
+ * @property-read int|null $orders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\Payment> $payment
+ * @property-read int|null $payment_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Subscription> $subscriptions
+ * @property-read int|null $subscriptions_count
+ * @property-read User|null $user
+ * @method static \Database\Factories\Model\Order\InvoiceFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereBillingPay($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereCloudDomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereCouponCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereCredits($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereDiscount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereDiscountMode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereFulfillmentIntent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereGrandTotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereIsRenewed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereMetadata($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereProcessingFee($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereUserId($value)
+ * @mixin \Eloquent
+ */
 class Invoice extends BaseModel
 {
     use HasFactory;
@@ -25,16 +83,16 @@ class Invoice extends BaseModel
         'metadata',
     ];
 
-    protected $logName = 'invoice';
+    protected string $logName = 'invoice';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'user_id', 'number', 'date', 'coupon_code', 'discount', 'discount_mode',
         'grand_total', 'currency', 'status', 'description', 'is_renewed', 'processing_fee', 'billing_pay', 'cloud_domain', 'credits',
     ];
 
-    protected $logNameColumn = 'number';
+    protected string $logNameColumn = 'number';
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['invoices', 'show'],
         'params' => [
             'invoiceid' => ':id',
@@ -62,13 +120,19 @@ class Invoice extends BaseModel
         ];
     }
 
-    public function invoiceItem()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\InvoiceItem, $this>
+     */
+    public function invoiceItem(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(InvoiceItem::class, 'invoice_id');
     }
 
     // Many-to-many: one invoice covers multiple orders; one order appears on multiple invoices (renewals)
-    public function orders()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Model\Order\Order, $this, \Illuminate\Database\Eloquent\Relations\Pivot>
+     */
+    public function orders(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(
             Order::class,
@@ -78,7 +142,10 @@ class Invoice extends BaseModel
         );
     }
 
-    public function user()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     */
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -104,7 +171,10 @@ class Invoice extends BaseModel
         return Installation::whereIn('license_code', $licenseCodes);
     }
 
-    public function payment()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\Payment, $this>
+     */
+    public function payment(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Payment::class);
     }

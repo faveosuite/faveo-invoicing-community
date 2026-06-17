@@ -6,6 +6,20 @@ use Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $message
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage whereMessage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class FailedWhatsappMessage extends Model
 {
     protected $table = 'failed_whatsapp_message';

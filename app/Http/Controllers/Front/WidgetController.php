@@ -76,8 +76,8 @@ class WidgetController extends Controller
                 return errorResponse(__('message.no-record'), 404);
             }
 
-            $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
-            $twitterStatus = StatusSetting::pluck('twitter_status')->first();
+            $mailchimpStatus = StatusSetting::value('mailchimp_status');
+            $twitterStatus = StatusSetting::value('twitter_status');
 
             return successResponse(__('message.widget_fetched_successfully'),
                 [
@@ -223,11 +223,6 @@ class WidgetController extends Controller
     /**
      * This function returns the rendered widget.
      *
-     * @param
-     * @param
-     * @return \HTTP
-     *
-     * @throws
      */
     public function footer1()
     {

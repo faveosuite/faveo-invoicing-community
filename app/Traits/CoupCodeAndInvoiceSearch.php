@@ -15,7 +15,7 @@ use Lang;
 
 trait CoupCodeAndInvoiceSearch
 {
-    public function advanceSearch($request)
+    public function advanceSearch(Request $request): \Illuminate\Database\Eloquent\Builder
     {
         return Invoice::with(['user:id,first_name,last_name,email,mobile,mobile_code,country', 'payment', 'invoiceItem'])
             ->when($request->name, function ($query, $name): void {
@@ -36,7 +36,7 @@ trait CoupCodeAndInvoiceSearch
             });
     }
 
-    public function updateInvoicePayment($invoiceid, $payment_method, $payment_status, $payment_date, $amount)
+    public function updateInvoicePayment(int $invoiceid, string $payment_method, string $payment_status, string $payment_date, float $amount): \App\Model\Order\Payment
     {
         try {
             $invoice = Invoice::find($invoiceid);
@@ -81,7 +81,7 @@ trait CoupCodeAndInvoiceSearch
     /**
      * Remove the specified resource from storage.
      */
-    public function deleteBulkInvoices(Request $request)
+    public function deleteBulkInvoices(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $ids = $request->input('invoice_ids', []);
@@ -158,7 +158,7 @@ trait CoupCodeAndInvoiceSearch
      * JSON bulk-delete for payments (SPA). Deletes the given payment rows and
      * recomputes the status of any invoice they were linked to.
      */
-    public function deleteBulkPayments(Request $request)
+    public function deleteBulkPayments(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $ids = $request->input('payment_ids', []);

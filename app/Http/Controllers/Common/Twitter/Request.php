@@ -13,9 +13,9 @@ class Request implements Stringable
 {
     protected array $parameters;
 
-    protected $httpUrl;
+    protected string $httpUrl = '';
 
-    public static $version = '1.0';
+    public static string $version = '1.0';
 
     /**
      * Constructor.
@@ -143,7 +143,7 @@ class Request implements Stringable
      */
     public function getNormalizedHttpUrl(): string
     {
-        $parts = parse_url((string) $this->httpUrl);
+        $parts = parse_url($this->httpUrl);
 
         $scheme = $parts['scheme'];
         $host = strtolower($parts['host']);

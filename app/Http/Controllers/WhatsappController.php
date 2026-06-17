@@ -25,11 +25,11 @@ use Session;
  */
 class WhatsappController extends Controller
 {
-    protected $base_url;
+    protected string $base_url;
 
-    protected $api_version;
+    protected string $api_version;
 
-    protected $endpoint;
+    protected string $endpoint;
 
     public function __construct()
     {

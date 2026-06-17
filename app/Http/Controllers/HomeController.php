@@ -53,7 +53,7 @@ class HomeController extends BaseHomeController
         $this->middleware('admin', ['only' => ['index']]);
     }
 
-    public function getVersion(Request $request, Product $product)
+    public function getVersion(Request $request, Product $product): string
     {
         $this->validate($request, [
             'title' => 'required',
@@ -72,7 +72,7 @@ class HomeController extends BaseHomeController
         return str_replace('v', '', $product->version);
     }
 
-    public function serialV2(Request $request, Order $order)
+    public function serialV2(Request $request, Order $order): string
     {
         try {
             $faveo_encrypted_order_number = self::decryptByFaveoPrivateKey($request->input('order_number'));
@@ -109,6 +109,7 @@ class HomeController extends BaseHomeController
 
     public function serial(Request $request, Order $order): void
     {
+        $url = null;
         try {
             $url = $request->input('url');
             $faveo_encrypted_order_number = self::decryptByFaveoPrivateKey($request->input('order_number'));
@@ -205,7 +206,7 @@ class HomeController extends BaseHomeController
         }
     }
 
-    public function checkOrder($faveo_decrypted_order)
+    public function checkOrder(string $faveo_decrypted_order): ?string
     {
         try {
             $order = new Order();
@@ -222,7 +223,7 @@ class HomeController extends BaseHomeController
         }
     }
 
-    public function faveoVerification(Request $request)
+    public function faveoVerification(Request $request): string
     {
         try {
             $data = $request->input('data');
@@ -278,7 +279,7 @@ class HomeController extends BaseHomeController
         echo"<script language='javascript'>document.redirect.submit();</script>";
     }
 
-    public function checkUpdate($order_number, $serial_key, $domain, $faveo_name, $faveo_version): array
+    public function checkUpdate(?string $order_number, ?string $serial_key, ?string $domain, string $faveo_name, string $faveo_version): array
     {
         try {
             if ($order_number && $domain && $serial_key) {
@@ -297,7 +298,7 @@ class HomeController extends BaseHomeController
         }
     }
 
-    public function checkFaveoDetails($order_number, $faveo_name, $faveo_version): array
+    public function checkFaveoDetails(?string $order_number, string $faveo_name, string $faveo_version): array
     {
         try {
             $order = new Order();
@@ -319,7 +320,7 @@ class HomeController extends BaseHomeController
         }
     }
 
-    public static function encryptByPublicKey($data)
+    public static function encryptByPublicKey(string $data): string
     {
         $path = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public.key';
         //dd($path);
@@ -337,7 +338,7 @@ class HomeController extends BaseHomeController
         return json_encode($result);
     }
 
-    public function downloadForFaveo(Request $request)
+    public function downloadForFaveo(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
     {
         $order = Order::where('number', $request->input('order_number'))
             ->where('serial_key', $request->input('serial_key'))
@@ -364,7 +365,7 @@ class HomeController extends BaseHomeController
         );
     }
 
-    public function latestVersion(Request $request, Product $product)
+    public function latestVersion(Request $request, Product $product): \Illuminate\Http\JsonResponse
     {
         $v = Validator::make($request->all(), [
             'title' => 'required',
@@ -450,7 +451,7 @@ class HomeController extends BaseHomeController
         return response()->json($message);
     }
 
-    public function isNewVersionAvailable(Request $request, Product $product)
+    public function isNewVersionAvailable(Request $request, Product $product): \Illuminate\Http\JsonResponse
     {
         $v = Validator::make($request->all(), [
             'title' => 'required',
@@ -542,7 +543,7 @@ class HomeController extends BaseHomeController
         return preg_replace('#v\.|v#', '', str_replace('_', '.', $version));
     }
 
-    public function renewurl(ProductRenewalRequest $request)
+    public function renewurl(ProductRenewalRequest $request): string|\Illuminate\Http\JsonResponse
     {
         try {
             $licenseCode = Installation::where('installation_path', 'like', '%'.$request->input('domain').'%')->value('license_code');
@@ -575,7 +576,7 @@ class HomeController extends BaseHomeController
         }
     }
 
-    private function changeProductName($title)
+    private function changeProductName(string $title): string
     {
         return match ($title) {
             'Test HelpDesk Company' => 'Test HelpDesk Enterprise',
@@ -595,7 +596,7 @@ class HomeController extends BaseHomeController
         };
     }
 
-    public function getPricingData(Request $request)
+    public function getPricingData(Request $request): \Illuminate\Http\JsonResponse
     {
         $validator = Validator::make($request->query(), [
             'group' => 'required|integer|exists:product_groups,id',
@@ -675,7 +676,7 @@ class HomeController extends BaseHomeController
         }
     }
 
-    private function getCurrencySymbol($currency)
+    private function getCurrencySymbol(string $currency): string
     {
         $locale = getLocalesByCurrency($currency);
 
@@ -686,7 +687,7 @@ class HomeController extends BaseHomeController
             $formatter->getSymbol(NumberFormatter::CURRENCY_SYMBOL);
     }
 
-    public function getGroupDatails()
+    public function getGroupDatails(): \Illuminate\Http\JsonResponse
     {
         $group = ProductGroup::where('hidden', '0')->pluck('id', 'name');
 
@@ -710,7 +711,7 @@ class HomeController extends BaseHomeController
         ]);
     }
 
-    public function getDetailsForAClient(Request $request)
+    public function getDetailsForAClient(Request $request): string
     {
         $client = $request->input('client');
 
@@ -779,7 +780,7 @@ class HomeController extends BaseHomeController
         return ['product' => $product, 'release' => $product_upload];
     }
 
-    private function mapOldBoys($title)
+    private function mapOldBoys(string $title): string
     {
         return match ($title) {
             'Helpdesk Startup (5 Agents)' => 'Helpdesk Startup',

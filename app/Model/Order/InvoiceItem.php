@@ -6,6 +6,56 @@ use App\BaseModel;
 use App\Model\Product\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+/**
+ * @property int $id
+ * @property int $invoice_id
+ * @property string $product_name
+ * @property int|null $product_id
+ * @property string $regular_price
+ * @property string $quantity
+ * @property string $discount
+ * @property string $tax_name
+ * @property string $tax_percentage
+ * @property string $tax_code
+ * @property int|null $tax_rate_id
+ * @property string $discount_mode
+ * @property string $subtotal
+ * @property string $domain
+ * @property int|null $plan_id
+ * @property string|null $agents
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $billing_pay
+ * @property-read \App\Model\Order\Invoice|null $invoice
+ * @property-read \App\Model\Order\Order|null $order
+ * @property-read Product|null $product
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\InvoiceTaxLine> $taxLines
+ * @property-read int|null $tax_lines_count
+ * @method static \Database\Factories\Model\Order\InvoiceItemFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereAgents($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereBillingPay($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereDiscount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereDiscountMode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereDomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem wherePlanId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereProductName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereRegularPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereSubtotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereTaxCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereTaxName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereTaxPercentage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereTaxRateId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class InvoiceItem extends BaseModel
 {
     use HasFactory;
@@ -48,7 +98,10 @@ class InvoiceItem extends BaseModel
         return $this->hasOne(Order::class, 'invoice_item_id');
     }
 
-    public function invoice()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Order\Invoice, $this>
+     */
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class, 'invoice_id');
     }

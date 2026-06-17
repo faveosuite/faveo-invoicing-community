@@ -32,6 +32,7 @@ function zohoMappedFields(
             $value = data_get($source, $updateKey, $mapping->default_value);
         }
 
+        $value = null;
         if ($selected['type'] === 'zoho') {
             $value = json_decode((string) $selected['value'], associative: true)['value'] ?? null;
         }

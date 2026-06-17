@@ -115,23 +115,23 @@ class Kernel extends ConsoleKernel
     public function execute($schedule, $task)
     {
         $env = base_path('.env');
-        if (File::exists($env) && (env('DB_INSTALL') == 1)) {
-            $expiryMailStatus = StatusSetting::pluck('expiry_mail')->first();
-            $logDeleteStatus = StatusSetting::pluck('activity_log_delete')->first();
-            $RenewalexpiryMailStatus = StatusSetting::pluck('subs_expirymail')->first();
-            $postExpirystatus = StatusSetting::pluck('post_expirymail')->first();
-            $invoiceDeletionstatus = StatusSetting::pluck('invoice_deletion_status')->first();
-            $delLogDays = ActivityLogDay::pluck('days')->first();
+        if (File::exists($env) && (config('custom.db_install') == 1)) {
+            $expiryMailStatus = StatusSetting::value('expiry_mail');
+            $logDeleteStatus = StatusSetting::value('activity_log_delete');
+            $RenewalexpiryMailStatus = StatusSetting::value('subs_expirymail');
+            $postExpirystatus = StatusSetting::value('post_expirymail');
+            $invoiceDeletionstatus = StatusSetting::value('invoice_deletion_status');
+            $delLogDays = ActivityLogDay::value('days');
             if (Schema::hasColumn('status_settings', 'msg91_report_delete_status')) {
                 $msgDeletionStatus = StatusSetting::value('msg91_report_delete_status');
             }
 
             if (Schema::hasColumn('status_settings', 'reoon_deletion_status')) {
-                $reoonStatus = StatusSetting::pluck('reoon_deletion_status')->first();
+                $reoonStatus = StatusSetting::value('reoon_deletion_status');
             }
 
             if (Schema::hasColumn('status_settings', 'system_log_status')) {
-                $systemLogsStatus = StatusSetting::pluck('system_log_status')->first();
+                $systemLogsStatus = StatusSetting::value('system_log_status');
             }
 
             if (Schema::hasColumn('status_settings', 'installation_logs_status')) {
@@ -312,7 +312,7 @@ class Kernel extends ConsoleKernel
 
     private function googleChat(string $text): void
     {
-        $url = env('GOOGLE_CHAT');
+        $url = config('custom.google_chat');
         $message = [
             'text' => $text,
         ];

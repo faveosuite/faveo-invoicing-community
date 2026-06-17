@@ -34,22 +34,22 @@ abstract class ExportHandleController
 {
     use CoupCodeAndInvoiceSearch;
 
-    public function __construct(protected $reportType, protected $selectedColumns, protected $searchParams, protected $email)
+    public function __construct(protected string $reportType, protected array $selectedColumns, protected array $searchParams, protected string $email)
     {
     }
 
-    abstract public function userExports($selectedColumns, $searchParams, $email);
+    abstract public function userExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse;
 
-    abstract public function invoiceExports($selectedColumns, $searchParams, $email);
+    abstract public function invoiceExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse;
 
-    abstract public function orderExports($selectedColumns, $searchParams, $email);
+    abstract public function orderExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse;
 
-    abstract public function tenantExports($selectedColumns, $searchParams, $email);
+    abstract public function tenantExports(array $selectedColumns, array $searchParams, string $email): void;
 }
 
 class ConcreteExportHandleController extends ExportHandleController
 {
-    public function userExports($selectedColumns, $searchParams, $email)
+    public function userExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse
     {
         try {
             // Filter out unwanted columns
@@ -188,7 +188,7 @@ class ConcreteExportHandleController extends ExportHandleController
         }
     }
 
-    public function invoiceExports($selectedColumns, $searchParams, $email)
+    public function invoiceExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse
     {
         try {
             // Filter out unwanted columns
@@ -211,6 +211,7 @@ class ConcreteExportHandleController extends ExportHandleController
             // Use LazyCollection for efficient memory usage
             $filteredInvoices = $invoices->lazy()->map(function ($invoice) use ($selectedColumns): array {
                 $invoiceData = [];
+                $user = null;
                 foreach ($selectedColumns as $column) {
                     switch ($column) {
                         case 'user_id':
@@ -309,7 +310,7 @@ class ConcreteExportHandleController extends ExportHandleController
         }
     }
 
-    public function orderExports($selectedColumns, $searchParams, $email)
+    public function orderExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse
     {
         try {
             // Filter out unwanted columns
@@ -323,49 +324,54 @@ class ConcreteExportHandleController extends ExportHandleController
             $orders->orderBy('orders.created_at', 'desc');
 
             // Use LazyCollection for efficient memory usage
-            $filteredOrders = $orders->lazy()->map(function ($order) use ($selectedColumns): array {
+            $filteredOrders = $orders->lazy()->map(function (Order $order) use ($selectedColumns): array {
                 $orderData = [];
+                $orderUser = $order->user;
                 foreach ($selectedColumns as $column) {
                     switch ($column) {
                         case 'client':
-                            $orderData['name'] = $order->client_name;
+                            $orderData['name'] = $orderUser
+                                ? $orderUser->first_name.' '.$orderUser->last_name
+                                : null;
                             break;
                         case 'email':
-                            $orderData['email'] = $order->email;
+                            $orderData['email'] = $orderUser?->email;
                             break;
                         case 'mobile':
-                            $orderData['mobile'] = $order->mobile;
+                            $orderData['mobile'] = $orderUser?->mobile;
                             break;
                         case 'country':
-                            if ($order) {
-                                $country = Country::where('country_code_char2', $order->country)->value('country_name');
-                                $orderData['country'] = $country ?: null;
-                            } else {
-                                $orderData['country'] = null;
-                            }
+                            $country = $orderUser?->country
+                                ? Country::where('country_code_char2', $orderUser->country)->value('country_name')
+                                : null;
+                            $orderData['country'] = $country ?: null;
 
                             break;
                         case 'status':
-                            $orderData['status'] = $order->installation_path ? 'Active' : 'Inactive';
+                            $orderData['status'] = $order->installationDetail->isNotEmpty() ? 'Active' : 'Inactive';
                             break;
                         case 'product_name':
-                            $orderData['product_name'] = $order->product_name;
+                            $orderData['product_name'] = $order->productRelation?->name;
                             break;
                         case 'plan_name':
-                            $plan = Plan::find($order->plan_id);
+                            $plan = $order->subscription?->plan;
                             $orderData['plan_name'] = $plan ? $plan->name : 'Unknown Plan';
                             break;
                         case 'version':
-                            $orderData['version'] = $order->product_version;
+                            $orderData['version'] = $order->subscription?->version;
                             break;
                         case 'agents':
                             $orderData['agents'] = $this->getAgents($order);
                             break;
                         case 'order_date':
-                            $orderData['order_date'] = Date::parse($order->subscription_created_at)->format('Y-m-d');
+                            $orderData['order_date'] = $order->subscription
+                                ? Date::parse($order->subscription->created_at)->format('Y-m-d')
+                                : null;
                             break;
                         case 'update_ends_at':
-                            $orderData['update_ends_at'] = Date::parse($order->subscription_ends_at)->format('Y-m-d');
+                            $orderData['update_ends_at'] = $order->subscription
+                                ? Date::parse($order->subscription->ends_at)->format('Y-m-d')
+                                : null;
                             break;
                         default:
                             $orderData[$column] = $order->$column;
@@ -430,7 +436,7 @@ class ConcreteExportHandleController extends ExportHandleController
         }
     }
 
-    public function tenantExports($selectedColumns, $searchParams, $email): void
+    public function tenantExports(array $selectedColumns, array $searchParams, string $email): void
     {
         $this->cloud = FaveoCloud::first();
         $client = new Client();
@@ -674,7 +680,7 @@ class ConcreteExportHandleController extends ExportHandleController
         $mail->SendEmail($from, $this->email, $emailContent, 'Tenant report available for download', 'tenant-report');
     }
 
-    public function getStatus($status): string
+    public function getStatus(string $status): string
     {
         return match ($status) {
             'Pending' => 'unpaid',
@@ -684,7 +690,7 @@ class ConcreteExportHandleController extends ExportHandleController
         };
     }
 
-    public function allInstallations($allInstallation, $orders)
+    public function allInstallations(?string $allInstallation, \Illuminate\Database\Eloquent\Builder $orders): ?\Illuminate\Database\Eloquent\Builder
     {
         if ($allInstallation) {
             $dayUtc = new Carbon('-30 days');
@@ -699,9 +705,11 @@ class ConcreteExportHandleController extends ExportHandleController
                 default => $orders,
             };
         }
+
+        return null;
     }
 
-    public function getSelectedVersionOrders($baseQuery, $version, $productId, $request)
+    public function getSelectedVersionOrders(\Illuminate\Database\Eloquent\Builder $baseQuery, ?string $version, string|int $productId, \Illuminate\Http\Request $request): \Illuminate\Database\Eloquent\Builder
     {
         if ($version) {
             if ($productId == 'paid' || $productId == 'unpaid') {
@@ -726,7 +734,7 @@ class ConcreteExportHandleController extends ExportHandleController
         return $baseQuery;
     }
 
-    public function getAgents($order): string|int
+    public function getAgents(\App\Model\Order\Order $order): string|int
     {
         $license = substr((string) $order->serial_key, 12, 16);
         if ($license === '0000') {

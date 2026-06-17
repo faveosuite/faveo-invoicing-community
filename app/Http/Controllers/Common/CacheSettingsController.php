@@ -115,13 +115,13 @@ class CacheSettingsController extends Controller
         try {
             match ($driver) {
                 'redis' => $this->testRedis(
-                    $data['REDIS_HOST'] ?? env('REDIS_HOST', '127.0.0.1'),
-                    (int) ($data['REDIS_PORT'] ?? env('REDIS_PORT', 6379)),
-                    $data['REDIS_PASSWORD'] ?? env('REDIS_PASSWORD', '')
+                    $data['REDIS_HOST'] ?? config('database.redis.default.host', '127.0.0.1'),
+                    (int) ($data['REDIS_PORT'] ?? config('database.redis.default.port', 6379)),
+                    $data['REDIS_PASSWORD'] ?? config('database.redis.default.password', '')
                 ),
                 'memcached' => $this->testMemcached(
-                    $data['MEMCACHED_HOST'] ?? env('MEMCACHED_HOST', '127.0.0.1'),
-                    (int) ($data['MEMCACHED_PORT'] ?? env('MEMCACHED_PORT', 11211))
+                    $data['MEMCACHED_HOST'] ?? config('cache.stores.memcached.servers.0.host', '127.0.0.1'),
+                    (int) ($data['MEMCACHED_PORT'] ?? config('cache.stores.memcached.servers.0.port', 11211))
                 ),
                 default => null,
             };
@@ -178,9 +178,9 @@ class CacheSettingsController extends Controller
     private function isConfigured(string $driver): bool
     {
         return match ($driver) {
-            'redis' => ! empty(env('REDIS_HOST')),
-            'memcached' => ! empty(env('MEMCACHED_HOST')),
-            'dynamodb' => ! empty(env('AWS_ACCESS_KEY_ID')) && ! empty(env('AWS_SECRET_ACCESS_KEY')),
+            'redis' => ! empty(config('database.redis.default.host')),
+            'memcached' => ! empty(config('cache.stores.memcached.servers.0.host')),
+            'dynamodb' => ! empty(config('filesystems.disks.s3.key')) && ! empty(config('filesystems.disks.s3.secret')),
             default => true, // file, database need no credentials
         };
     }
@@ -189,23 +189,23 @@ class CacheSettingsController extends Controller
     {
         return match ($driver) {
             'redis' => [
-                $this->field('Host', 'REDIS_HOST', env('REDIS_HOST', '127.0.0.1'), required: true),
-                $this->field('Port', 'REDIS_PORT', env('REDIS_PORT', 6379), required: true),
+                $this->field('Host', 'REDIS_HOST', config('database.redis.default.host', '127.0.0.1'), required: true),
+                $this->field('Port', 'REDIS_PORT', config('database.redis.default.port', 6379), required: true),
                 $this->field('Password', 'REDIS_PASSWORD', '', required: false, type: 'password'),
             ],
             'memcached' => [
-                $this->field('Host', 'MEMCACHED_HOST', env('MEMCACHED_HOST', '127.0.0.1'), required: true),
-                $this->field('Port', 'MEMCACHED_PORT', env('MEMCACHED_PORT', 11211), required: true),
-                $this->field('Persistent ID', 'MEMCACHED_PERSISTENT_ID', env('MEMCACHED_PERSISTENT_ID', ''), required: false),
-                $this->field('SASL Username', 'MEMCACHED_USERNAME', env('MEMCACHED_USERNAME', ''), required: false),
+                $this->field('Host', 'MEMCACHED_HOST', config('cache.stores.memcached.servers.0.host', '127.0.0.1'), required: true),
+                $this->field('Port', 'MEMCACHED_PORT', config('cache.stores.memcached.servers.0.port', 11211), required: true),
+                $this->field('Persistent ID', 'MEMCACHED_PERSISTENT_ID', config('cache.stores.memcached.persistent_id', ''), required: false),
+                $this->field('SASL Username', 'MEMCACHED_USERNAME', config('cache.stores.memcached.sasl.0', ''), required: false),
                 $this->field('SASL Password', 'MEMCACHED_PASSWORD', '', required: false, type: 'password'),
             ],
             'dynamodb' => [
-                $this->field('AWS Key ID', 'AWS_ACCESS_KEY_ID', env('AWS_ACCESS_KEY_ID', ''), required: true),
+                $this->field('AWS Key ID', 'AWS_ACCESS_KEY_ID', config('filesystems.disks.s3.key', ''), required: true),
                 $this->field('AWS Secret', 'AWS_SECRET_ACCESS_KEY', '', required: true, type: 'password'),
-                $this->field('Region', 'AWS_DEFAULT_REGION', env('AWS_DEFAULT_REGION', 'us-east-1'), required: true),
-                $this->field('Cache Table', 'DYNAMODB_CACHE_TABLE', env('DYNAMODB_CACHE_TABLE', 'cache'), required: true),
-                $this->field('Endpoint', 'DYNAMODB_ENDPOINT', env('DYNAMODB_ENDPOINT', ''), required: false),
+                $this->field('Region', 'AWS_DEFAULT_REGION', config('filesystems.disks.s3.region', 'us-east-1'), required: true),
+                $this->field('Cache Table', 'DYNAMODB_CACHE_TABLE', config('cache.stores.dynamodb.table', 'cache'), required: true),
+                $this->field('Endpoint', 'DYNAMODB_ENDPOINT', config('cache.stores.dynamodb.endpoint', ''), required: false),
             ],
             default => [],
         };

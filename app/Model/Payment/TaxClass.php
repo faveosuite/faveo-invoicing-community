@@ -8,6 +8,30 @@ use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 use Deprecated;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $slug
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\TaxRate> $rates
+ * @property-read int|null $rates_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\Tax> $tax
+ * @property-read int|null $tax_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\TaxProductRelation> $tax_product_relation
+ * @property-read int|null $tax_product_relation_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class TaxClass extends BaseModel
 {
     use SystemActivityLogsTrait;
@@ -16,15 +40,15 @@ class TaxClass extends BaseModel
 
     protected $fillable = ['name', 'slug'];
 
-    protected $logName = 'tax';
+    protected string $logName = 'tax';
 
-    protected $logNameColumn = 'name';
+    protected string $logNameColumn = 'name';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'name', 'slug',
     ];
 
-    protected $requireLogUrl = false;
+    protected bool $requireLogUrl = false;
 
     protected function getMappings(): array
     {

@@ -12,6 +12,70 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Override;
 
+/**
+ * @property int $id
+ * @property int $product_id
+ * @property int|null $user_id
+ * @property string $license_code
+ * @property string|null $license_order_number
+ * @property string|null $license_ip
+ * @property string|null $license_domain
+ * @property bool $license_require_domain
+ * @property int $license_limit
+ * @property string|null $license_date
+ * @property string|null $license_cancel_date
+ * @property string|null $license_expire_date
+ * @property string|null $license_expire_email_date
+ * @property string|null $license_updates_date
+ * @property string|null $license_updates_email_date
+ * @property string|null $license_support_date
+ * @property string|null $license_support_email_date
+ * @property string|null $license_comments
+ * @property int $license_status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $addonProducts
+ * @property-read int|null $addon_products_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\License\Models\LicenseCallback> $callbacks
+ * @property-read int|null $callbacks_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\License\Models\Installation> $installations
+ * @property-read int|null $installations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\License\Models\LicenseOption> $licenseOptions
+ * @property-read int|null $license_options_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\License\Models\LicenseOption> $options
+ * @property-read int|null $options_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\License\Models\LicensePlugin> $plugins
+ * @property-read int|null $plugins_count
+ * @property-read Product $product
+ * @property-read User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License active()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License suspended()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseCancelDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseComments($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseDomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseExpireDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseExpireEmailDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseIp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseLimit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseOrderNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseRequireDomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseSupportDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseSupportEmailDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseUpdatesDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseUpdatesEmailDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereUserId($value)
+ * @mixin \Eloquent
+ */
 class License extends Model
 {
     protected $table = 'licenses';

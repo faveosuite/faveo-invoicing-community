@@ -69,7 +69,7 @@ class RenewController extends BaseRenewController
     }
 
     //Renew From admin panel
-    public function renewBySubId($id, int $planid, $payment_method, $cost, $code, $isAgentIncrease = true, $agents = null)
+    public function renewBySubId(int $id, int $planid, string $payment_method, float|int $cost, string $code, bool $isAgentIncrease = true, ?int $agents = null): \App\Model\Product\Subscription|\App\Model\Order\InvoiceItem
     {
         try {
             $plan = $this->plan->find($planid);
@@ -118,7 +118,7 @@ class RenewController extends BaseRenewController
         }
     }
 
-    public function editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry): void
+    public function editDateInAPL(\App\Model\Product\Subscription $sub, ?string $updatesExpiry, ?string $licenseExpiry, ?string $supportExpiry): void
     {
         $domain = $sub->order->domain;
         $orderNo = $sub->order->number;
@@ -147,7 +147,7 @@ class RenewController extends BaseRenewController
 
     //Tuesday, June 13, 2017 08:06 AM
 
-    public function getProductById($id)
+    public function getProductById(int $id): ?\App\Model\Product\Product
     {
         try {
             $product = $this->product->where('id', $id)->first();
@@ -157,9 +157,11 @@ class RenewController extends BaseRenewController
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
+
+        return null;
     }
 
-    public function getUserById($id)
+    public function getUserById(int $id): ?\App\User
     {
         try {
             $user = $this->user->where('id', $id)->first();
@@ -169,9 +171,11 @@ class RenewController extends BaseRenewController
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
+
+        return null;
     }
 
-    public function createOrderInvoiceRelation($orderid, $invoiceid): void
+    public function createOrderInvoiceRelation(int $orderid, int $invoiceid): void
     {
         try {
             $relation = new OrderInvoiceRelation();
@@ -184,7 +188,7 @@ class RenewController extends BaseRenewController
         }
     }
 
-    public function getPriceByProductId($productid, $userid)
+    public function getPriceByProductId(int $productid, int $userid): float|int
     {
         try {
             $product = $this->getProductById($productid);
@@ -209,7 +213,7 @@ class RenewController extends BaseRenewController
         }
     }
 
-    public function tax($product, $cost, $user)
+    public function tax(\App\Model\Product\Product $product, float|int $cost, \App\User $user): float|int|null
     {
         try {
             $controller = new InvoiceController();
@@ -228,7 +232,7 @@ class RenewController extends BaseRenewController
     /*
         Renew From Admin Panel
      */
-    public function renew($id, Request $request)
+    public function renew(int $id, Request $request): \Illuminate\Http\JsonResponse
     {
         $this->validate($request, [
             'plan' => 'required',
@@ -288,7 +292,7 @@ class RenewController extends BaseRenewController
      *
      * @param  int  $id  Subscription id for the order
      */
-    public function renewForm($id, $agents = null)
+    public function renewForm(int $id, ?int $agents = null): \Illuminate\Http\JsonResponse
     {
         try {
             $sub = $this->sub->find($id);
@@ -313,7 +317,7 @@ class RenewController extends BaseRenewController
         }
     }
 
-    public function renewByClient($id, Request $request)
+    public function renewByClient(int $id, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $request->validate(
@@ -353,7 +357,7 @@ class RenewController extends BaseRenewController
         }
     }
 
-    private function checkExistingUnpaidInvoice($subscription, int $planId)
+    private function checkExistingUnpaidInvoice(\App\Model\Product\Subscription $subscription, int $planId): ?\App\Model\Order\InvoiceItem
     {
         $invoice_id = OrderInvoiceRelation::where('order_id', $subscription->order_id)->latest()->value('invoice_id');
 
@@ -367,7 +371,7 @@ class RenewController extends BaseRenewController
             ->first();
     }
 
-    public function setSession($sub_id, $planid): void
+    public function setSession(int $sub_id, int $planid): void
     {
         Session::put('subscription_id', $sub_id);
         Session::put('plan_id', $planid);
@@ -380,13 +384,13 @@ class RenewController extends BaseRenewController
         Session::forget('invoiceid');
     }
 
-    public function checkRenew($flag = 1): bool
+    public function checkRenew(int $flag = 1): bool
     {
         return Session::has('subscription_id') && Session::has('plan_id') && $flag;
     }
 
     //Update License Expiry Date
-    public function getExpiryDate($permissions, $sub, int $days)
+    public function getExpiryDate(mixed $permissions, \App\Model\Product\Subscription $sub, int $days): string|\Carbon\Carbon
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
@@ -398,7 +402,7 @@ class RenewController extends BaseRenewController
     }
 
     //Update Updates Expiry Date
-    public function getUpdatesExpiryDate($permissions, $sub, int $days)
+    public function getUpdatesExpiryDate(mixed $permissions, \App\Model\Product\Subscription $sub, int $days): string|\Carbon\Carbon
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
@@ -410,7 +414,7 @@ class RenewController extends BaseRenewController
     }
 
     //Update Support Expiry Date
-    public function getSupportExpiryDate($permissions, $sub, int $days)
+    public function getSupportExpiryDate(mixed $permissions, \App\Model\Product\Subscription $sub, int $days): string|\Carbon\Carbon
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
@@ -421,7 +425,7 @@ class RenewController extends BaseRenewController
         return $expiry_date;
     }
 
-    private function checktheAgent($numberOfAgents, string $domain): mixed
+    private function checktheAgent(int $numberOfAgents, string $domain): mixed
     {
         $client = new Client([]);
         $data = ['number_of_agents' => $numberOfAgents];

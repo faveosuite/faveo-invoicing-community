@@ -5,6 +5,41 @@ namespace App\BillingLog\Model;
 use App\BaseModel;
 use Crypt;
 
+/**
+ * @property int $id
+ * @property int $log_category_id
+ * @property string $sender_mail
+ * @property string $receiver_mail
+ * @property string|null $carbon_copy
+ * @property string|null $blind_carbon_copy
+ * @property string $subject
+ * @property string $body
+ * @property string $job_payload
+ * @property string|null $status
+ * @property int|null $exception_log_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\BillingLog\Model\LogCategory|null $category
+ * @property-read \App\BillingLog\Model\ExceptionLog|null $exception
+ * @property-read bool $is_retry
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereBlindCarbonCopy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereBody($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereCarbonCopy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereExceptionLogId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereJobPayload($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereLogCategoryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereReceiverMail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereSenderMail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereSubject($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class MailLog extends BaseModel
 {
     protected $table = 'mail_logs';
@@ -64,7 +99,7 @@ class MailLog extends BaseModel
 
     protected $hidden = ['job_payload'];
 
-    protected $htmlAble = ['body'];
+    protected bool $htmlAble = ['body'];
 
     public function exception()
     {

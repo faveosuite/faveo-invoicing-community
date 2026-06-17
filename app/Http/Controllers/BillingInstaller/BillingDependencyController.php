@@ -82,6 +82,7 @@ class BillingDependencyController extends Controller
         try {
             $requiredRequisites = json_decode((string) $this->getDependenciesJson())->requisites;
             $arrayOfRequisites = [];
+            $requisiteDetails = null;
             foreach ($requiredRequisites as $requisite) {
                 $requisiteDetails = $this->requisitesWithTheirStatus($arrayOfRequisites, $requisite, $errorCount);
             }

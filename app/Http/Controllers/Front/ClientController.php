@@ -102,13 +102,11 @@ class ClientController extends BaseClientController
     }
 
     /**
-     * /**
      *  Auto-renew by id and redirect to paynow page.
      *
-     * @param
      * @return RedirectResponse
      */
-    public function autoRenewbyid()
+    public function autoRenewbyid(): \Illuminate\Http\RedirectResponse
     {
         try {
             $id = request()->route('id');
@@ -142,7 +140,7 @@ class ClientController extends BaseClientController
      *
      * @throws Exception
      */
-    public function getInvoices(Request $request)
+    public function getInvoices(Request $request): \Illuminate\Http\JsonResponse
     {
         $query = Invoice::with([
             'orders:id,number',
@@ -189,7 +187,7 @@ class ClientController extends BaseClientController
         return successResponse('', $paginated);
     }
 
-    public function getClientOrder(Request $request)
+    public function getClientOrder(Request $request): \Illuminate\Http\JsonResponse
     {
         $query = $this->getClientPanelOrdersData();
 
@@ -229,7 +227,7 @@ class ClientController extends BaseClientController
                 'available_gateways' => $this->autoRenewalGateways($user->country),
                 'autorenewal_enabled' => $this->autoRenewalGateways($user->country) !== [],
                 'whatsapp_enabled' => (bool) $order->productRelation?->whatsapp_integration,
-                'whatsapp_signup_enabled' => (bool) StatusSetting::pluck('whatsapp_status')->first(),
+                'whatsapp_signup_enabled' => (bool) StatusSetting::value('whatsapp_status'),
                 'whatsapp_app_id' => WhatsappIntegration::first()?->app_id,
                 'whatsapp_config_id' => WhatsappIntegration::first()?->config_id,
                 'user' => [
@@ -306,7 +304,7 @@ class ClientController extends BaseClientController
      * @param  $orderId
      * @return JsonResponse
      */
-    public function getCloudSettings($orderId)
+    public function getCloudSettings(int $orderId): JsonResponse
     {
         try {
             $user = Auth::user();
@@ -362,7 +360,7 @@ class ClientController extends BaseClientController
         }
     }
 
-    public function renewPopupVue(Request $request, int $productid)
+    public function renewPopupVue(Request $request, int $productid): \Illuminate\Http\JsonResponse
     {
         try {
             $user = Auth::user();
@@ -396,7 +394,7 @@ class ClientController extends BaseClientController
     }
 
     #[Override]
-    public function getInvoicesByOrderId($orderid, $userid, $admin = null)
+    public function getInvoicesByOrderId($orderid, $userid, mixed $admin = null): \Illuminate\Http\JsonResponse
     {
         try {
             if (! authorizeOwnership((int) $userid, allowAdmin: true)) {
@@ -426,7 +424,7 @@ class ClientController extends BaseClientController
         }
     }
 
-    public function prepareInvoiceData($invoice, $user = null): array
+    public function prepareInvoiceData(\App\Model\Order\Invoice $invoice, ?\App\User $user = null): array
     {
         $payments = $invoice->payment;
         $user ??= Auth::user();
@@ -523,7 +521,7 @@ class ClientController extends BaseClientController
      * @param  type  $clientid
      * @param  type  $invoiceid
      */
-    public function getVersionList(Request $request, $orderid)
+    public function getVersionList(Request $request, int $orderid): \Illuminate\Http\JsonResponse
     {
         try {
             $order = Order::with([
@@ -568,7 +566,7 @@ class ClientController extends BaseClientController
         return $enabled;
     }
 
-    private function githubVersions(Request $request, $product, $subscription)
+    private function githubVersions(Request $request, \App\Model\Product\Product $product, ?\App\Model\Product\Subscription $subscription): \Illuminate\Http\JsonResponse
     {
         $allReleases = array_slice(
             $this->github_api->releases($product->github_owner, $product->github_repository),
@@ -640,7 +638,7 @@ class ClientController extends BaseClientController
         return successResponse('', $paginator);
     }
 
-    private function uploadVersions(Request $request, $order, $product, $subscription)
+    private function uploadVersions(Request $request, \App\Model\Order\Order $order, \App\Model\Product\Product $product, ?\App\Model\Product\Subscription $subscription): \Illuminate\Http\JsonResponse
     {
         $search = trim((string) $request->input('search-query', ''));
         $order->invoices->first()?->number;
@@ -706,12 +704,9 @@ class ClientController extends BaseClientController
     /**
      *  Gets all the order details for a particular user.
      *
-     * @param
      * @return \Illuminate\Database\Eloquent\Builder
-     *
-     * @throws
      */
-    public function getClientPanelOrdersData()
+    public function getClientPanelOrdersData(): \Illuminate\Database\Eloquent\Builder
     {
         return Order::with([
             'productRelation:id,name,github_owner,github_repository,type,whatsapp_integration',
@@ -726,11 +721,9 @@ class ClientController extends BaseClientController
     /**
      *  Returns to client profile page with needed variables.
      *
-     * @param
-     *
      * @throws Exception
      */
-    public function profile(Request $request)
+    public function profile(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $user = $this->user->where('id', Auth::user()->id)->first();
@@ -752,7 +745,7 @@ class ClientController extends BaseClientController
      * @param  $terminatedOrderNumber
      * @return array
      */
-    private function paymentLogGet($terminatedOrderNumber)
+    private function paymentLogGet(string $terminatedOrderNumber): ?\App\Payment_log
     {
         $payment_log = Payment_log::where('order', $terminatedOrderNumber)
             ->where('payment_type', 'Payment method updated')
@@ -773,7 +766,7 @@ class ClientController extends BaseClientController
      * @param  $product
      * @return array
      */
-    private function planPriceProductRelation($product)
+    private function planPriceProductRelation(\App\Model\Product\Product $product): array
     {
         return Plan::where('product', '!=', $product->id)
             ->whereHas('productRelation', function ($query): void {
@@ -797,7 +790,7 @@ class ClientController extends BaseClientController
      * @param  $plans
      * @return array
      */
-    private function planDetails(array $planIds, $userCountry, array $plans, $product)
+    private function planDetails(array $planIds, string $userCountry, array $plans, \App\Model\Product\Product $product): array
     {
         $currency = getCurrencyForClient($userCountry);
 
@@ -835,7 +828,7 @@ class ClientController extends BaseClientController
      *
      * @throws Exception
      */
-    public function getPaymentByOrderIdClient($orderid, $userid)
+    public function getPaymentByOrderIdClient(int $orderid, int $userid): \Illuminate\Http\JsonResponse
     {
         try {
             if (! authorizeOwnership($userid, allowAdmin: true)) {
@@ -866,7 +859,7 @@ class ClientController extends BaseClientController
         }
     }
 
-    public function getOrderInstallations(Request $request, $orderid)
+    public function getOrderInstallations(Request $request, int $orderid): \Illuminate\Http\JsonResponse
     {
         try {
             $order = Order::where('id', $orderid)->where('client', Auth::id())->firstOrFail();
@@ -902,7 +895,7 @@ class ClientController extends BaseClientController
         }
     }
 
-    public function clientDetails()
+    public function clientDetails(): \Illuminate\Http\JsonResponse
     {
         $user = auth()->user();
 
@@ -919,10 +912,8 @@ class ClientController extends BaseClientController
      *  Checks if Invoice can be deleted or not.
      *
      * @param  $invoice
-     *
-     * @throws
      */
-    private function canDeleteInvoice($invoice): bool
+    private function canDeleteInvoice(\App\Model\Order\Invoice $invoice): bool
     {
         if ($invoice->is_renewed == 0 &&
         ! $invoice->orderRelation()->exists() &&
@@ -939,11 +930,8 @@ class ClientController extends BaseClientController
      *  Deletes the invoice.
      *
      * @param  $invoice
-     * @return
-     *
-     * @throws
      */
-    private function deleteInvoice($invoice): void
+    private function deleteInvoice(\App\Model\Order\Invoice $invoice): void
     {
         $invoice->invoiceItem()->delete();
 
@@ -955,7 +943,7 @@ class ClientController extends BaseClientController
         Session::forget('invoice');
     }
 
-    private function stripePaymentUpdateSub($stripe, $paymentIntent, $orderid): array
+    private function stripePaymentUpdateSub(\Stripe\StripeClient $stripe, \Stripe\PaymentIntent $paymentIntent, int $orderid): array
     {
         $stripe->refunds->create([
             'payment_intent' => $paymentIntent->id,
@@ -973,12 +961,12 @@ class ClientController extends BaseClientController
         Auto_renewal::create($customer_details);
         Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
         $mail = new PhpMailController();
-        $mail->payment_log(Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), amount: $amount, payment_type: 'Payment method updated');
+        $mail->payment_log(Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), amount: $paymentIntent->amount, payment_type: 'Payment method updated');
 
         return ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
     }
 
-    public function payNow($invoiceid)
+    public function payNow(int $invoiceid): \Illuminate\Http\JsonResponse
     {
         try {
             $paid = 0;

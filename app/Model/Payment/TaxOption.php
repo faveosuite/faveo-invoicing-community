@@ -7,6 +7,36 @@ namespace App\Model\Payment;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 
+/**
+ * @property int $id
+ * @property int $tax_enable
+ * @property int $inclusive
+ * @property string $tax_based_on
+ * @property int $round_at_subtotal
+ * @property int $shop_inclusive
+ * @property int $cart_inclusive
+ * @property string $Gst_No
+ * @property int $rounding
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereCartInclusive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereGstNo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereInclusive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereRoundAtSubtotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereRounding($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereShopInclusive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereTaxBasedOn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereTaxEnable($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class TaxOption extends BaseModel
 {
     use SystemActivityLogsTrait;
@@ -15,15 +45,15 @@ class TaxOption extends BaseModel
 
     protected $fillable = ['tax_enable', 'inclusive', 'tax_based_on', 'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', 'cif_no'];
 
-    protected $logName = 'tax';
+    protected string $logName = 'tax';
 
-    protected $logNameColumn = 'Settings';
+    protected string $logNameColumn = 'Settings';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'tax_enable', 'inclusive', 'tax_based_on', 'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', 'cif_no',
     ];
 
-    protected $requireLogUrl = false;
+    protected bool $requireLogUrl = false;
 
     protected function getMappings(): array
     {

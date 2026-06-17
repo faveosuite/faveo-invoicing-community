@@ -11,7 +11,7 @@ use Auth;
 
 trait PostPaymentHandle
 {
-    public static function sendFailedPaymenttoAdmin($invoice, $total, $productName, string $exceptionMessage, $user): void
+    public static function sendFailedPaymenttoAdmin(\App\Model\Order\Invoice $invoice, float $total, string $productName, string $exceptionMessage, \App\User $user): void
     {
         $amount = currencyFormat($total, Auth::user()->currency);
         $payment = Payment::where('invoice_id', $invoice->id)->first();
@@ -27,7 +27,7 @@ trait PostPaymentHandle
         }
     }
 
-    public static function sendPaymentSuccessMailtoAdmin($invoice, $total, $user, string $productName): void
+    public static function sendPaymentSuccessMailtoAdmin(\App\Model\Order\Invoice $invoice, float $total, \App\User $user, string $productName): void
     {
         $amount = currencyFormat($total, Auth::user()->currency);
         $payment = Payment::where('invoice_id', $invoice->id)->first();

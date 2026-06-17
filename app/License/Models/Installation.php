@@ -9,6 +9,44 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
 
+/**
+ * @property int $id
+ * @property int $product_id
+ * @property int|null $user_id
+ * @property string $license_code
+ * @property string|null $installation_ip
+ * @property string|null $installation_domain
+ * @property string|null $installation_path
+ * @property string|null $installation_date
+ * @property int $installation_status
+ * @property string|null $installation_hash
+ * @property string|null $version
+ * @property int $installation_disable_ip_verification
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\License\Models\License|null $license
+ * @property-read Product $product
+ * @property-read User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation active()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereInstallationDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereInstallationDisableIpVerification($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereInstallationDomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereInstallationHash($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereInstallationIp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereInstallationPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereInstallationStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereLicenseCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereVersion($value)
+ * @mixin \Eloquent
+ */
 class Installation extends Model
 {
     protected $table = 'installations';

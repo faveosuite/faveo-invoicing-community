@@ -28,8 +28,8 @@ class SetupTestEnv extends LoggableCommand
      */
     public function handleAndLog(): void
     {
-        $dbUsername = $this->option('username') ?: env('DB_USERNAME');
-        $dbPassword = $this->option('password') ?: env('DB_PASSWORD');
+        $dbUsername = $this->option('username') ?: config('database.connections.mysql.username');
+        $dbPassword = $this->option('password') ?: config('database.connections.mysql.password');
         $dbName = $this->option('database') ?: 'billing_testing_db';
 
         $dbPassword = $dbPassword ? $dbPassword : '';

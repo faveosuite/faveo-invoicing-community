@@ -7,6 +7,38 @@ use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Date;
 
+/**
+ * @property int $id
+ * @property int $parent_page_id
+ * @property string $slug
+ * @property string $name
+ * @property string $content
+ * @property string $url
+ * @property string $type
+ * @property int $publish
+ * @property int $hidden
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read FrontendPage|null $parent
+ * @method static \Database\Factories\Model\Front\FrontendPageFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereContent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereHidden($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereParentPageId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage wherePublish($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereUrl($value)
+ * @mixin \Eloquent
+ */
 class FrontendPage extends BaseModel
 {
     use HasFactory;
@@ -17,15 +49,15 @@ class FrontendPage extends BaseModel
 
     protected $fillable = ['parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at'];
 
-    protected $logName = 'pages';
+    protected string $logName = 'pages';
 
-    protected $logNameColumn = 'name';
+    protected string $logNameColumn = 'name';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at',
     ];
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['pages', ':id', 'edit'],
     ];
 
@@ -53,7 +85,10 @@ class FrontendPage extends BaseModel
         });
     }
 
-    public function parent()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Front\FrontendPage, $this>
+     */
+    public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(FrontendPage::class, 'parent_page_id');
     }

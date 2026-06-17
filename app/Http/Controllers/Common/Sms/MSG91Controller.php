@@ -72,7 +72,7 @@ class MSG91Controller extends Controller
     /**
      * Process and store individual report.
      */
-    protected function processIndividualReport(array $reportData)
+    protected function processIndividualReport(array $reportData): void
     {
         $record = MsgDeliveryReports::where('request_id', $reportData['request_id'])
             ->where('status', 0)
@@ -88,7 +88,7 @@ class MSG91Controller extends Controller
         }
     }
 
-    public function updateOtpRequest($requestId, $status, $country_iso, $mobile, $mobile_code, $userID = null, $source = null, $action = null): void
+    public function updateOtpRequest(?string $requestId, int $status, string $country_iso, string $mobile, string $mobile_code, ?int $userID = null, ?string $source = null, ?string $action = null): void
     {
         $attributes = [
             'user_id' => $userID,
@@ -167,7 +167,7 @@ class MSG91Controller extends Controller
         return view('themes.default1.common.sms.msgReports', compact('status', 'sources', 'actions'));
     }
 
-    public function getMsg91Reports(Request $request)
+    public function getMsg91Reports(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -201,7 +201,7 @@ class MSG91Controller extends Controller
                     ->simplePaginate($limit);
 
             // Format collection
-            $logs->getCollection()->transform(function ($log): array {
+            $logs->getCollection()->transform(function (\App\Model\Common\MsgDeliveryReports $log): array {
                 $fullName = $log->user ? trim($log->user->first_name.' '.$log->user->last_name) : null;
 
                 return [
@@ -226,7 +226,7 @@ class MSG91Controller extends Controller
         }
     }
 
-    public function getMsgFilters()
+    public function getMsgFilters(): \Illuminate\Http\JsonResponse
     {
         try {
             $statuses = Msg91Status::orderBy('status_label')->pluck('status_label')->filter()->values();
@@ -241,12 +241,19 @@ class MSG91Controller extends Controller
         }
     }
 
-    public function msgLogData()
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Common\MsgDeliveryReports>
+     */
+    public function msgLogData(): \Illuminate\Database\Eloquent\Builder
     {
         return MsgDeliveryReports::with(['user:id,user_name,first_name,last_name,email', 'readableStatus']);
     }
 
-    private function searchQuery($query)
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Common\MsgDeliveryReports>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Common\MsgDeliveryReports>
+     */
+    private function searchQuery(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
         $search = $this->request->input('search-query');
 
@@ -267,7 +274,11 @@ class MSG91Controller extends Controller
         return $query;
     }
 
-    private function filterQueryForMsg($query)
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Common\MsgDeliveryReports>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Common\MsgDeliveryReports>
+     */
+    private function filterQueryForMsg(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
         $request = request();
 
@@ -339,7 +350,7 @@ class MSG91Controller extends Controller
             });
     }
 
-    public function validateThirdPartyRequest($app_key, $app_secret)
+    public function validateThirdPartyRequest(string $app_key, string $app_secret): bool
     {
         $app = ThirdPartyApp::where('app_key', $app_key)
             ->where('app_secret', $app_secret)

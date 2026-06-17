@@ -28,7 +28,6 @@ class DropTables extends LoggableCommand
      */
     public function handleAndLog(): void
     {
-        env('DB_DATABASE');
         $droplist = Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
         $droplist = implode(',', array_map(fn (string $table): string => sprintf('`%s`', $table), $droplist));
 

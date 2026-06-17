@@ -8,6 +8,22 @@ use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Demo_page extends Model
 {
     use HasFactory;
@@ -17,15 +33,15 @@ class Demo_page extends Model
 
     protected $fillable = ['id', 'link', 'email', 'status'];
 
-    protected $logName = 'page';
+    protected string $logName = 'page';
 
-    protected $logNameColumn = 'Demo page';
+    protected string $logNameColumn = 'Demo page';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'id', 'link', 'email', 'status',
     ];
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['demo', 'page'],
     ];
 

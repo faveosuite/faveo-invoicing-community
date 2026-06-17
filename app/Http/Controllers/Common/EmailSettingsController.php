@@ -14,9 +14,9 @@ use Throwable;
 
 class EmailSettingsController extends Controller
 {
-    protected $emailConfig;
+    protected mixed $emailConfig = null;
 
-    protected $error;
+    protected mixed $error = null;
 
     public function __construct()
     {

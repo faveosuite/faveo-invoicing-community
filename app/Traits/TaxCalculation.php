@@ -25,7 +25,7 @@ trait TaxCalculation
      *
      * @return array{name:string, type?:string, value:string}
      */
-    public function calculateTax($productid, $user_state = '', $user_country = '', $taxCaluculationFromAdminPanel = false)
+    public function calculateTax(int $productid, string $user_state = '', string $user_country = '', bool $taxCaluculationFromAdminPanel = false): array
     {
         try {
             $user = $this->taxUserFromLocation($user_state, $user_country);
@@ -45,7 +45,7 @@ trait TaxCalculation
      * Honours the global "prices entered with tax" (inclusive) setting and,
      * unlike the old implementation, never truncates the amount to an integer.
      */
-    public function calculateTotal($rate, $total): float
+    public function calculateTotal(string $rate, int|float $total): float
     {
         try {
             $total = (float) $total;
@@ -70,7 +70,7 @@ trait TaxCalculation
      * Tax amount for a single rate against a price. Retained for invoice
      * display helpers.
      */
-    public static function taxValue($rate, $price, $round = true): int|float
+    public static function taxValue(string $rate, int|float $price, bool $round = true): int|float
     {
         try {
             if (! $rate || ! is_numeric($price)) {
@@ -86,7 +86,7 @@ trait TaxCalculation
     }
 
     /** Sum a comma-separated percentage label into a single float. */
-    private function sumPercent($rate): float
+    private function sumPercent(string $rate): float
     {
         $percent = 0.0;
         foreach (explode(',', (string) $rate) as $part) {
@@ -104,7 +104,7 @@ trait TaxCalculation
      * state/country pair, carrying the authenticated user's exemption flag
      * when available.
      */
-    private function taxUserFromLocation($state, $country): object
+    private function taxUserFromLocation(string $state, string $country): object
     {
         return (object) [
             'country' => $country,

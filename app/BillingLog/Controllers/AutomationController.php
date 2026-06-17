@@ -20,7 +20,7 @@ use Logger;
 
 class AutomationController extends Job implements \Illuminate\Contracts\Queue\Job
 {
-    public $rawBody;
+    public ?string $rawBody = null;
 
     public function getAutomationLog(Request $request)
     {

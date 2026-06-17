@@ -4,6 +4,26 @@ namespace App\Model\Mailjob;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $short_name
+ * @property int $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Mailjob\FaveoQueue> $extraFieldRelation
+ * @property-read int|null $extra_field_relation_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereShortName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class QueueService extends Model
 {
     protected $table = 'queue_services';

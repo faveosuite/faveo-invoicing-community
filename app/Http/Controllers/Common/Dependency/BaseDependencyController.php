@@ -98,9 +98,9 @@ class BaseDependencyController extends Controller
     /**
      * check by which method data should be paginated i.e ( simplePaginate() or paginate() ).
      */
-    protected $simplePaginate = true;
+    protected bool $simplePaginate = true;
 
-    protected $limitByStatus = true;
+    protected bool $limitByStatus = true;
 
     /**
      * Populates class variables to handle addition params in the request . For eg. search-query, limit, meta, config, so that

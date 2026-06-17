@@ -7,6 +7,25 @@ namespace App\Model\Payment;
 use App\BaseModel;
 use App\Model\Product\Product;
 
+/**
+ * @property int $id
+ * @property int $product_id
+ * @property int $tax_class_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $product
+ * @property-read int|null $product_count
+ * @property-read \App\Model\Payment\TaxClass $tax
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation whereTaxClassId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class TaxProductRelation extends BaseModel
 {
     protected $table = 'tax_product_relations';

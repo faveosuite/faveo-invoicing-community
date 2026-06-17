@@ -7,6 +7,37 @@ use App\Traits\SystemActivityLogsTrait;
 use Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 
+/**
+ * @property int $id
+ * @property string $waba_id
+ * @property string $phone_number_id
+ * @property string $business_id
+ * @property string $phone_number
+ * @property string $access_token
+ * @property int $user_id
+ * @property string $user_callback_url
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $order_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read \App\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereAccessToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereBusinessId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser wherePhoneNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser wherePhoneNumberId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereUserCallbackUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereWabaId($value)
+ * @mixin \Eloquent
+ */
 class WhatsappIntegrationUser extends BaseModel
 {
     use SystemActivityLogsTrait;
@@ -15,13 +46,16 @@ class WhatsappIntegrationUser extends BaseModel
 
     protected $fillable = ['waba_id', 'phone_number_id', 'phone_number', 'user_id', 'access_token', 'user_callback_url', 'business_id', 'order_id'];
 
-    protected static $logName = 'phoneNumber';
+    protected static string $logName = 'phoneNumber';
 
-    protected $logAttributes = ['waba_id', 'phone_number', 'phone_number_id', 'user_id', 'user_callback_url', 'business_id', 'order_id'];
+    protected array $logAttributes = ['waba_id', 'phone_number', 'phone_number_id', 'user_id', 'user_callback_url', 'business_id', 'order_id'];
 
-    protected $logNameColumn = 'phone_number';
+    protected string $logNameColumn = 'phone_number';
 
-    public function user()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     */
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }

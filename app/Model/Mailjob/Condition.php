@@ -5,6 +5,22 @@ namespace App\Model\Mailjob;
 use App\Model\Common\StatusSetting;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string|null $job
+ * @property string|null $value
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition whereJob($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition whereValue($value)
+ * @mixin \Eloquent
+ */
 class Condition extends Model
 {
     protected $table = 'conditions';

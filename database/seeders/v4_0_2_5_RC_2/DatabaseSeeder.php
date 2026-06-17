@@ -79,7 +79,7 @@ class DatabaseSeeder extends Seeder
     {
 
         $env = base_path('.env');
-        if (File::exists($env) && (env('DB_INSTALL') == 1)) {
+        if (File::exists($env) && (config('custom.db_install') == 1)) {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
             if (is_null($keys)) {//Valdidate if the app key to be sent is valid or not
@@ -152,7 +152,7 @@ class DatabaseSeeder extends Seeder
     public function domainDelete(): void
     {
         $env = base_path('.env');
-        if (File::exists($env) && (env('DB_INSTALL') == 1)) {
+        if (File::exists($env) && (config('custom.db_install') == 1)) {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
             if (is_null($keys)) {//Valdidate if the app key to be sent is valid or not

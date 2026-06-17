@@ -8,6 +8,30 @@ use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $disk
+ * @property string|null $local_file_storage_path
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $node_path
+ * @property string|null $npm_path
+ * @property string|null $chrome_path
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereChromePath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereDisk($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereLocalFileStoragePath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereNodePath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereNpmPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class FileSystemSettings extends Model
 {
     use HasFactory;
@@ -19,15 +43,15 @@ class FileSystemSettings extends Model
         'disk', 'local_file_storage_path', 'node_path', 'npm_path', 'chrome_path',
     ];
 
-    protected $logName = 'file_storage';
+    protected string $logName = 'file_storage';
 
-    protected $logNameColumn = 'File Storage Settings';
+    protected string $logNameColumn = 'File Storage Settings';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'disk', 'local_file_storage_path', 'node_path', 'npm_path', 'chrome_path',
     ];
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['file-storage'],
     ];
 

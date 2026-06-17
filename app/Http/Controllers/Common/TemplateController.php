@@ -40,7 +40,7 @@ class TemplateController extends Controller
         $this->type = $type;
     }
 
-    public function getTemplates(Request $request)
+    public function getTemplates(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $search = $request->input('search-query', '');
@@ -73,7 +73,7 @@ class TemplateController extends Controller
         }
     }
 
-    public function create()
+    public function create(): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
     {
         try {
             $controller = new ProductController();
@@ -88,7 +88,7 @@ class TemplateController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(\Illuminate\Http\Request $request): \Illuminate\Http\RedirectResponse
     {
         $this->validate($request, [
             'name' => 'required',
@@ -106,7 +106,7 @@ class TemplateController extends Controller
         }
     }
 
-    public function showTemplate($id)
+    public function showTemplate(int $id): \Illuminate\Http\JsonResponse
     {
         try {
             $shortcodes = config('transform');
@@ -139,7 +139,7 @@ class TemplateController extends Controller
         }
     }
 
-    public function updateTemplate($id, Request $request)
+    public function updateTemplate(int $id, \Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'name' => ['required'],
@@ -217,7 +217,7 @@ class TemplateController extends Controller
         }
     }
 
-    public function plans($url, $id)
+    public function plans(string $url, int $id): string|\Illuminate\Http\RedirectResponse
     {
         try {
             $product = Product::find($id);
@@ -226,7 +226,7 @@ class TemplateController extends Controller
             }
 
             $plansData = $this->prices($id);
-            if (empty($plansData)) {
+            if ($plansData instanceof \Illuminate\Http\RedirectResponse || empty($plansData)) {
                 return '';
             }
 
@@ -269,7 +269,7 @@ class TemplateController extends Controller
      * @param  int  $id  Product id
      * @return string Product price with html
      */
-    public function leastAmount($id)
+    public function leastAmount(int $id): string|\Illuminate\Http\RedirectResponse
     {
         try {
             $cost = 'Free';
@@ -298,8 +298,9 @@ class TemplateController extends Controller
         }
     }
 
-    public function getPrice($months, array $price, $priceDescription, $value, $cost, $currency, $offer, $product): array
+    public function getPrice(string $months, array $price, string $priceDescription, \App\Model\Payment\Plan $value, float|int $cost, string $currency, float|int|null $offer, \App\Model\Product\Product $product): array
     {
+        // @phpstan-ignore notIdentical.alwaysTrue
         if (isset($offer) && $offer !== '' && $offer !== null) {
             $cost -= ($offer / 100) * $cost;
         }
@@ -314,7 +315,10 @@ class TemplateController extends Controller
         return $price;
     }
 
-    public function prices($id)
+    /**
+     * @return array<mixed>|\Illuminate\Http\RedirectResponse
+     */
+    public function prices(int $id): array|\Illuminate\Http\RedirectResponse
     {
         try {
             $plans = Plan::where('product', $id)
@@ -342,9 +346,10 @@ class TemplateController extends Controller
                     continue;
                 }
 
-                $offer = PlanPrice::where('plan_id', $plan->id)
+                $rawOffer = PlanPrice::where('plan_id', $plan->id)
                     ->where('currency', $currency)
                     ->value('offer_price');
+                $offer = is_numeric($rawOffer) ? (float) $rawOffer : null;
 
                 $cost = rounding($planData->add_price);
                 $priceDescription = $planData->price_description;
@@ -376,14 +381,14 @@ class TemplateController extends Controller
         }
     }
 
-    public function toggle(Request $request)
+    public function toggle(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         return successResponse('',
             Session::put('toggleState', $request->toggleState === 'selected' ? 'yearly' : 'monthly')
         );
     }
 
-    public function getPriceList($id): array
+    public function getPriceList(int $id): array
     {
         try {
             $plans = Plan::where('product', $id)->where('status', 1)->orderBy('id', 'desc')->get();

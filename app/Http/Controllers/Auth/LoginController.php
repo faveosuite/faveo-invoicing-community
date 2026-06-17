@@ -115,8 +115,6 @@ class LoginController extends BaseAuthController
 
     /**
      * Handle a login request to the application.
-     *
-     * @return
      */
     public function login(LoginRequest $request) // 2. Type-hint the LoginRequest
     {
@@ -227,10 +225,7 @@ class LoginController extends BaseAuthController
      * This function redirects to the social login based on the provider(twitter,gitHub).
      *
      * @param  $provider
-     * @param
      * @return RedirectResponse
-     *
-     * @throws
      */
     public function redirectToGithub($provider)
     {
@@ -248,10 +243,7 @@ class LoginController extends BaseAuthController
      * This function performs the whole social login operations(creating new user, if existing user just logging in).
      *
      * @param  $provider
-     * @param
      * @return RedirectResponse
-     *
-     * @throws
      */
     public function handler($provider)
     {
@@ -315,10 +307,6 @@ class LoginController extends BaseAuthController
     /**
      * This function stores basic details for social logins.
      *
-     * @param
-     * @return
-     *
-     * @throws
      */
     public function storeBasicDetails(Request $request)
     {
@@ -349,9 +337,6 @@ class LoginController extends BaseAuthController
      * This function is used to check if the users number and email verified or not.
      *
      * @param  $user
-     * @param
-     *
-     * @throws
      */
     public function getLoginRateLimitKey(string $emailOrUsername): string
     {

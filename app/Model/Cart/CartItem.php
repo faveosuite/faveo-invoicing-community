@@ -7,6 +7,37 @@ use App\Model\Product\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $cart_id
+ * @property int $product_id
+ * @property int|null $plan_id
+ * @property int $quantity
+ * @property int $agents
+ * @property string|null $domain
+ * @property int|null $data_center_id
+ * @property string $billing_cycle
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Model\Cart\Cart $cart
+ * @property-read Plan|null $plan
+ * @property-read Product|null $product
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereAgents($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereBillingCycle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereCartId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereDataCenterId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereDomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem wherePlanId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class CartItem extends Model
 {
     protected $table = 'cart_items';

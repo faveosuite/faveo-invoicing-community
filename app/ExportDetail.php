@@ -8,6 +8,29 @@ use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $file
+ * @property string $file_path
+ * @property string $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read \App\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereFile($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereFilePath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereUserId($value)
+ * @mixin \Eloquent
+ */
 class ExportDetail extends Model
 {
     use HasFactory;
@@ -19,24 +42,27 @@ class ExportDetail extends Model
         'created_at',
     ];
 
-    public function user()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     */
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    protected $logName = 'reports';
+    protected string $logName = 'reports';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'user_id', 'file', 'file_path', 'name',
     ];
 
-    protected $logNameColumn = 'file';
+    protected string $logNameColumn = 'file';
 
-    protected $requireLogUrl = false;
+    protected bool $requireLogUrl = false;
 
-    protected $logUrl = [];
+    protected array $logUrl = [];
 
-    protected $causerID = 'user_id';
+    protected ?int $causerID = 'user_id';
 
     protected function getMappings(): array
     {

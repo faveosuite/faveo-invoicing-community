@@ -16,24 +16,24 @@ use Carbon\Carbon;
 
 class BaseCronController extends Controller
 {
-    public function getUserById($id)
+    public function getUserById(int $id): ?\App\User
     {
         return User::find($id);
     }
 
-    public function getOrderById($id)
+    public function getOrderById(int $id): ?\App\Model\Order\Order
     {
         return Order::find($id);
     }
 
-    public function getInvoiceByOrderId($orderid)
+    public function getInvoiceByOrderId(int $orderid): ?\App\Model\Order\Invoice
     {
         $order = Order::find($orderid);
 
         return $order->invoice()->first();
     }
 
-    public function getInvoiceItemByInvoiceId($invoiceid)
+    public function getInvoiceItemByInvoiceId(int $invoiceid): ?\App\Model\Order\InvoiceItem
     {
         $invoice = Invoice::find($invoiceid);
 
@@ -43,7 +43,7 @@ class BaseCronController extends Controller
     /**
      * @return mixed[]
      */
-    public function getSubscriptions($allDays): array
+    public function getSubscriptions(array $allDays): array
     {
         $sub = [];
         foreach ($allDays as $allDay) {
@@ -73,7 +73,7 @@ class BaseCronController extends Controller
     //     array_push($sub, $this->get15DaysSubscription());
     // }
 
-    public function getAllDaysSubscription($day)
+    public function getAllDaysSubscription(int $day): mixed
     {
         $users = $this->getAllDaysExpiryUsers($day);
         if (count($users) > 0) {
@@ -83,7 +83,7 @@ class BaseCronController extends Controller
         return $users;
     }
 
-    public function get15DaysUsers()
+    public function get15DaysUsers(): mixed
     {
         $users = $this->get15DaysExpiryUsers();
         if (count($users) > 0) {
@@ -93,7 +93,7 @@ class BaseCronController extends Controller
         return $users;
     }
 
-    public function get1DaysUsers()
+    public function get1DaysUsers(): mixed
     {
         $users = $this->getOneDayExpiryUsers();
         if (count($users) > 0) {
@@ -103,7 +103,7 @@ class BaseCronController extends Controller
         return $users;
     }
 
-    public function get0DaysUsers()
+    public function get0DaysUsers(): mixed
     {
         $users = $this->getOnDayExpiryUsers();
         if (count($users) > 0) {
@@ -113,7 +113,7 @@ class BaseCronController extends Controller
         return $users;
     }
 
-    public function getPlus1Users()
+    public function getPlus1Users(): mixed
     {
         $users = $this->getExpiredUsers();
         if (count($users) > 0) {
@@ -123,7 +123,7 @@ class BaseCronController extends Controller
         return $users;
     }
 
-    public function get30DaysUsers()
+    public function get30DaysUsers(): mixed
     {
         $users = $this->get30DaysExpiryUsers();
         //dd($users);
@@ -134,7 +134,7 @@ class BaseCronController extends Controller
         return $users;
     }
 
-    public function getExpiredInfo()
+    public function getExpiredInfo(): \Illuminate\Database\Eloquent\Builder
     {
         $yesterday = new Carbon('today');
         $tomorrow = new Carbon('+2 days');
@@ -144,7 +144,7 @@ class BaseCronController extends Controller
                 ->whereBetween('update_ends_at', [$yesterday, $tomorrow]);
     }
 
-    public function getOnDayExpiryInfo()
+    public function getOnDayExpiryInfo(): \Illuminate\Database\Eloquent\Builder
     {
         $yesterday = new Carbon('yesterday');
         $tomorrow = new Carbon('tomorrow');
@@ -154,7 +154,7 @@ class BaseCronController extends Controller
             ->whereBetween('update_ends_at', [$yesterday, $tomorrow]);
     }
 
-    public function getOneDayExpiryInfo()
+    public function getOneDayExpiryInfo(): \Illuminate\Database\Eloquent\Builder
     {
         $yesterday = new Carbon('-2 days');
         $today = new Carbon('today');
@@ -164,7 +164,7 @@ class BaseCronController extends Controller
                 ->whereBetween('update_ends_at', [$yesterday, $today]);
     }
 
-    public function get15DaysExpiryInfo()
+    public function get15DaysExpiryInfo(): \Illuminate\Database\Eloquent\Builder
     {
         $plus14days = new Carbon('+14 days');
         $plus16days = new Carbon('+16 days');
@@ -174,7 +174,7 @@ class BaseCronController extends Controller
             ->whereBetween('update_ends_at', [$plus14days, $plus16days]);
     }
 
-    public function getAllDaysExpiryInfo($day)
+    public function getAllDaysExpiryInfo(int $day): \Illuminate\Database\Eloquent\Builder
     {
         $minus1day = new Carbon('+'.($day - 1).' days');
         $plus1day = new Carbon('+'.($day + 1).' days');
@@ -184,7 +184,7 @@ class BaseCronController extends Controller
             ->whereBetween('update_ends_at', [$minus1day, $plus1day]);
     }
 
-    public function mail($user, $end, $productId, $order, $sub): void
+    public function mail(\App\User $user, string $end, int $productId, \App\Model\Order\Order $order, \App\Model\Product\Subscription $sub): void
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
@@ -217,7 +217,7 @@ class BaseCronController extends Controller
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    public function Auto_renewalMail($user, $end, $productId, $order, $sub): void
+    public function Auto_renewalMail(\App\User $user, string $end, int $productId, \App\Model\Order\Order $order, int $sub): void
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
@@ -261,7 +261,7 @@ class BaseCronController extends Controller
         $mail->SendEmail($from, $to, $data, $subject, $template->type()->value('name'), $replace, $type);
     }
 
-    public function Expiredsub_Mail($user, $end, $productId, $order, $sub): void
+    public function Expiredsub_Mail(\App\User $user, string $end, int $productId, \App\Model\Order\Order $order, mixed $sub): void
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();

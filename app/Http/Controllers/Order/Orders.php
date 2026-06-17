@@ -61,7 +61,7 @@ class Orders extends Controller
             return $subscription->vesion;
         }
 
-        return $version;
+        return null;
     }
 
     public function isExpired()

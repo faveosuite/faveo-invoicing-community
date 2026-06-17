@@ -14,6 +14,51 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
 use Override;
 
+/**
+ * @property int $id
+ * @property int $number
+ * @property int $invoice_item_id
+ * @property int $client
+ * @property string $order_status
+ * @property string|null $serial_key
+ * @property int|null $product
+ * @property string $domain
+ * @property string $price_override
+ * @property string $qty
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $license_mode
+ * @property int $is_downloadable
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Installation> $installationDetail
+ * @property-read int|null $installation_detail_count
+ * @property-read \App\Model\Order\InvoiceItem|null $invoiceItem
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\Invoice> $invoices
+ * @property-read int|null $invoices_count
+ * @property-read Product|null $productRelation
+ * @property-read Subscription|null $subscription
+ * @property-read User|null $user
+ * @method static \Database\Factories\Model\Order\OrderFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereClient($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereInvoiceItemId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereIsDownloadable($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereLicenseMode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order wherePriceOverride($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereProduct($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereQty($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSerialKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Order extends BaseModel
 {
     use HasFactory;
@@ -21,19 +66,19 @@ class Order extends BaseModel
 
     protected $table = 'orders';
 
-    protected static $logName = 'order';
+    protected static string $logName = 'order';
 
     protected $fillable = ['client', 'order_status', 'invoice_item_id',
         'serial_key', 'product', 'domain', 'price_override', 'qty', 'number', 'license_mode',
         'is_downloadable',
     ];
 
-    protected $logAttributes = ['client', 'order_status', 'invoice_item_id',
+    protected array $logAttributes = ['client', 'order_status', 'invoice_item_id',
         'serial_key', 'product', 'domain', 'price_override', 'qty', 'number', ];
 
-    protected $logNameColumn = 'number';
+    protected string $logNameColumn = 'number';
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['orders', ':id'],
     ];
 
@@ -52,23 +97,35 @@ class Order extends BaseModel
         ];
     }
 
-    public function user()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     */
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'client');
     }
 
-    public function subscription()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Model\Product\Subscription, $this>
+     */
+    public function subscription(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Subscription::class, 'order_id');
     }
 
-    public function productRelation()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Product\Product, $this>
+     */
+    public function productRelation(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class, 'product');
     }
 
     // Many-to-many: one order can appear on multiple invoices (original + renewals)
-    public function invoices()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Model\Order\Invoice, $this, \Illuminate\Database\Eloquent\Relations\Pivot>
+     */
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(
             Invoice::class,

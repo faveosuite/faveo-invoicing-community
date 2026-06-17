@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\Lang;
 
 class ReportsController extends Controller
 {
-    public $error_details = '';
+    public string $error_details = '';
 
-    public $removed_records = 0;
+    public int $removed_records = 0;
 
-    public $action_success = 1;
+    public int $action_success = 1;
 
     public function reports(Request $request): \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
     {
@@ -46,6 +46,7 @@ class ReportsController extends Controller
 
     protected function whichReportDeleted($whichReport, $action_success, $removed_records, $error_details = ''): \Illuminate\Contracts\Translation\Translator|string|array
     {
+        $page_message = '';
         if (! empty($whichReport)) {
             if ($action_success == 1) { // everything OK
                 $page_message = trans('lang.Deleted', ['removed' => $removed_records, 'which' => $whichReport]);
@@ -58,7 +59,7 @@ class ReportsController extends Controller
     }
 
     //delete report
-    private function deleteReport($report_id, $removed_records)
+    private function deleteReport($report_id, int $removed_records): int|float
     {
         if (LicenseHelper::validateIntegerValue($report_id)) {
             $removed_records += LicenseReport::where('license_reports.id', $report_id)->delete();

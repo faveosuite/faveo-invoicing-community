@@ -23,7 +23,7 @@ class ExtendedBaseInvoiceController extends Controller
         $this->middleware('admin', ['except' => ['pdf']]);
     }
 
-    public function newPayment(Request $request)
+    public function newPayment(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $clientid = $request->input('clientid');
@@ -67,7 +67,7 @@ class ExtendedBaseInvoiceController extends Controller
         }
     }
 
-    public function postNewPayment($clientid, Request $request)
+    public function postNewPayment(int $clientid, Request $request): \Illuminate\Http\RedirectResponse
     {
         $this->validate($request, [
             'payment_date' => 'required',
@@ -93,7 +93,7 @@ class ExtendedBaseInvoiceController extends Controller
         }
     }
 
-    public function edit($invoiceid, Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function edit(int $invoiceid, Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $totalSum = '0';
         $invoice = Invoice::where('id', $invoiceid)->first();
@@ -106,7 +106,7 @@ class ExtendedBaseInvoiceController extends Controller
         return view('themes.default1.invoice.editInvoice', compact('date', 'invoiceid', 'invoice', 'totalSum'));
     }
 
-    public function postEdit($invoiceid, Request $request)
+    public function postEdit(int $invoiceid, Request $request): \Illuminate\Http\JsonResponse
     {
         $this->validate($request, [
             'date' => 'required',
@@ -133,7 +133,7 @@ class ExtendedBaseInvoiceController extends Controller
         }
     }
 
-    public function postNewMultiplePayment($clientid, Request $request)
+    public function postNewMultiplePayment(int $clientid, Request $request): \Illuminate\Http\JsonResponse
     {
         $this->validate($request, [
             'payment_date' => 'required',
@@ -165,8 +165,8 @@ class ExtendedBaseInvoiceController extends Controller
         }
     }
 
-    public function multiplePayment($clientid, $invoiceChecked, $payment_method,
-             $payment_date, $totalAmt, array $invoicAmount, $amtToCredit, $payment_status, $currency = null): void
+    public function multiplePayment(int $clientid, array $invoiceChecked, string $payment_method,
+             \Illuminate\Support\Carbon $payment_date, float|int $totalAmt, array $invoicAmount, float $amtToCredit, string $payment_status, ?string $currency = null): void
     {
         try {
             // 1) Record a brand-new payment row against each selected invoice and
@@ -239,7 +239,7 @@ class ExtendedBaseInvoiceController extends Controller
      * that one row intact, so internal grants (e.g. product downgrades) stay
      * compatible with how that balance is later consumed.
      */
-    public function mergeCreditBalance($userId, $amount, $payment_date, $payment_status = 'pending')
+    public function mergeCreditBalance(int $userId, float|int $amount, \Illuminate\Support\Carbon $payment_date, string $payment_status = 'pending'): \App\Model\Order\Payment
     {
         $existing = Payment::where('user_id', $userId)
             ->where('invoice_id', 0)
@@ -267,7 +267,7 @@ class ExtendedBaseInvoiceController extends Controller
     /*
      * Apply a client's accumulated credit balance to their pending invoices.
      */
-    public function updateNewMultiplePayment($clientid, Request $request)
+    public function updateNewMultiplePayment(int $clientid, Request $request): \Illuminate\Http\JsonResponse
     {
         $this->validate($request, [
             'payment_date' => 'required',
@@ -309,8 +309,8 @@ class ExtendedBaseInvoiceController extends Controller
      * (see AdvanceSearchController::getExtraAmt). Once spent, those rows are
      * consolidated into a single remaining-balance row so the sum stays exact.
      */
-    public function updatePaymentByInvoice($clientid, $invoiceChecked, $payment_method,
-             $payment_date, array $invoicAmount, $payment_status): void
+    public function updatePaymentByInvoice(int $clientid, array $invoiceChecked, string $payment_method,
+             \Illuminate\Support\Carbon $payment_date, array $invoicAmount, string $payment_status): void
     {
         try {
             // Snapshot the current credit balance, and the method/currency it is held under.

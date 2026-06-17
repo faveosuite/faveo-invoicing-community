@@ -99,7 +99,7 @@ class PipedriveController extends Controller
     /**
      * Generic method to perform API actions with error handling.
      */
-    private function performApiAction(string $apiClient, string $method, ...$args)
+    private function performApiAction(string $apiClient, string $method, ...$args): mixed
     {
         try {
             $response = $this->apiClients[$apiClient]->$method(...$args);
@@ -147,7 +147,7 @@ class PipedriveController extends Controller
     /**
      * Delete a person from Pipedrive.
      */
-    public function deletePerson($personID)
+    public function deletePerson(int $personID): mixed
     {
         return $this->performApiAction('persons', 'deletePerson', $personID);
     }
@@ -155,7 +155,7 @@ class PipedriveController extends Controller
     /**
      * Delete an organization from Pipedrive.
      */
-    public function deleteOrganization($organizationId)
+    public function deleteOrganization(int $organizationId): mixed
     {
         return $this->performApiAction('organizations', 'deleteOrganization', $organizationId);
     }
@@ -163,7 +163,7 @@ class PipedriveController extends Controller
     /**
      * Delete a deal from Pipedrive.
      */
-    public function deleteDeal($dealID)
+    public function deleteDeal(int $dealID): mixed
     {
         return $this->performApiAction('deals', 'deleteDeal', $dealID);
     }
@@ -171,7 +171,7 @@ class PipedriveController extends Controller
     /**
      * Add a person to Pipedrive.
      */
-    public function addPerson($person)
+    public function addPerson(mixed $person): mixed
     {
         return $this->performApiAction('persons', 'addPerson', $person);
     }
@@ -179,7 +179,7 @@ class PipedriveController extends Controller
     /**
      * Add organization to Pipedrive or get existing one.
      */
-    public function addOrGetOrganization(array $organization)
+    public function addOrGetOrganization(array $organization): mixed
     {
         try {
             if (! isset($organization['name'])) {
@@ -211,7 +211,7 @@ class PipedriveController extends Controller
     /**
      * Add a deal to Pipedrive.
      */
-    public function addDeal($deal)
+    public function addDeal(mixed $deal): mixed
     {
         return $this->performApiAction('deals', 'addDeal', $deal);
     }
@@ -219,7 +219,7 @@ class PipedriveController extends Controller
     /**
      * Sync all Pipedrive fields.
      */
-    public function syncFields()
+    public function syncFields(): \Illuminate\Http\JsonResponse
     {
         $this->syncFieldGroup($this->getPipedriveFields(), $this->groups['personId']);
         $this->syncFieldGroup($this->getOrganizationFields(), $this->groups['organizationId']);
@@ -330,7 +330,7 @@ class PipedriveController extends Controller
     /**
      * Get local fields for a group.
      */
-    public function getLocalFields($group_id)
+    public function getLocalFields(int $group_id): \Illuminate\Http\JsonResponse
     {
         $pipedriveFields = PipedriveField::with('pipedriveOptions')
             ->where('pipedrive_group_id', $group_id)
@@ -345,7 +345,7 @@ class PipedriveController extends Controller
     /**
      * Map fields between Pipedrive and local system.
      */
-    public function mappingFields(Request $request)
+    public function mappingFields(Request $request): \Illuminate\Http\JsonResponse
     {
         $groupID = $request->input('group_id');
         $group_name = PipedriveGroups::where('id', $groupID)->value('group_name');
@@ -407,7 +407,7 @@ class PipedriveController extends Controller
     /**
      * Test Pipedrive mapping with a temporary user.
      */
-    private function testPipedriveMapping(int $groupId)
+    private function testPipedriveMapping(int $groupId): bool|string
     {
         $user = User::factory()->create([
             'user_name' => 'Test User',
@@ -455,7 +455,7 @@ class PipedriveController extends Controller
     /**
      * Get field mapping for a group.
      */
-    public function getMapFields($group_id)
+    public function getMapFields(int $group_id): \Illuminate\Http\JsonResponse
     {
         try {
             $group_name = PipedriveGroups::where('id', $group_id)->value('group_name');
@@ -527,7 +527,7 @@ class PipedriveController extends Controller
     /**
      * Get dropdown options for a field.
      */
-    public function getDropdown(Request $request)
+    public function getDropdown(Request $request): \Illuminate\Http\JsonResponse
     {
         $id = $request->input('pipedrive_field_id');
 

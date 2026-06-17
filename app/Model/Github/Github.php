@@ -6,6 +6,28 @@ use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 use Crypt;
 
+/**
+ * @property int $id
+ * @property string|null $client_id
+ * @property string|null $client_secret
+ * @property string|null $username
+ * @property string|null $password
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereClientSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereUsername($value)
+ * @mixin \Eloquent
+ */
 class Github extends BaseModel
 {
     use SystemActivityLogsTrait;
@@ -14,15 +36,15 @@ class Github extends BaseModel
 
     protected $fillable = ['client_id', 'client_secret', 'username', 'password'];
 
-    protected $logName = 'github';
+    protected string $logName = 'github';
 
-    protected $logNameColumn = 'Settings';
+    protected string $logNameColumn = 'Settings';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'client_id', 'client_secret', 'username', 'password',
     ];
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['third-party-integration'],
     ];
 

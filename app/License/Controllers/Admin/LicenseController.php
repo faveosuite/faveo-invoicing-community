@@ -29,7 +29,7 @@ class LicenseController extends Controller
         $this->ip_address = request()->server('REMOTE_ADDR');
     }
 
-    public function licenseAdd(LicenseRequest $request)
+    public function licenseAdd(LicenseRequest $request): \Illuminate\Http\JsonResponse
     {
         $productId = $request->integer('product_id');
         $licenseCode = $request->get('license_code') ?: null;
@@ -88,7 +88,7 @@ class LicenseController extends Controller
         return successResponse(Lang::get('license::lang.adddd'), $clientFormatted, 201);
     }
 
-    public function licenseUpdate(Request $request)
+    public function licenseUpdate(Request $request): \Illuminate\Http\JsonResponse
     {
         $license = License::with('user:id,email')->find($request->get('id'));
         if (! $license) {
@@ -132,7 +132,7 @@ class LicenseController extends Controller
         return successResponse(Lang::get('license::lang.license_Update'), $clientFormatted, 200);
     }
 
-    public function deleteLicense(Request $request)
+    public function deleteLicense(Request $request): \Illuminate\Http\JsonResponse
     {
         $license = License::find($request->get('id'));
         if (! $license) {
@@ -150,7 +150,7 @@ class LicenseController extends Controller
         return successResponse(Lang::get('license::lang.delete'), 1, 200);
     }
 
-    public function show(Request $request)
+    public function show(Request $request): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -206,7 +206,7 @@ class LicenseController extends Controller
         return successResponse(Lang::get('license::lang.License_show'), $licenses, 200);
     }
 
-    public function edit($license_id)
+    public function edit(int $license_id): \Illuminate\Http\JsonResponse
     {
         $license = License::with(['product:id,name', 'user:id,first_name,last_name,email'])->findOrFail($license_id);
         $productName = collect([(object) ['name' => $license->product?->name, 'id' => $license->id]]);
@@ -215,16 +215,16 @@ class LicenseController extends Controller
         return successResponse('', ['license' => $license, 'product_name' => $productName, 'client_name' => $clientName], 200);
     }
 
-    public function formatClient($license_code, $client_email)
+    public function formatClient(?string $license_code, ?string $client_email): string
     {
         if (! empty($license_code)) {
             return $license_code;
         }
 
-        return filter_var($client_email, FILTER_VALIDATE_EMAIL) ? $client_email : 'Unknown Client';
+        return filter_var($client_email, FILTER_VALIDATE_EMAIL) ? (string) $client_email : 'Unknown Client';
     }
 
-    protected function licenseChecks($client_id, $license_code, $license_ip, $license_domain, $license_limit, $license_expire_date, $license_updates_date, $license_support_date)
+    protected function licenseChecks(mixed $client_id, ?string $license_code, ?string $license_ip, ?string $license_domain, mixed $license_limit, ?string $license_expire_date, ?string $license_updates_date, ?string $license_support_date): ?\Illuminate\Http\JsonResponse
     {
         if (! LicenseHelper::validateIntegerValue($client_id) && empty($license_code)) {
             return errorResponse(Lang::get('license::lang.error_client_or_license_code'), 400);
@@ -265,6 +265,8 @@ class LicenseController extends Controller
         if (! empty($license_support_date) && ! LicenseHelper::verifyDateTime($license_support_date, 'Y-m-d')) {
             return errorResponse(Lang::get('license::lang.invalid_license_support_date'), 400);
         }
+
+        return null;
     }
 
     public function reissueLicenseCloud(Request $request): void
@@ -277,12 +279,12 @@ class LicenseController extends Controller
         License::where('license_code', $request->get('license_code'))->update(['license_status' => 0]);
     }
 
-    public function updateTheLicenseCode(Request $request)
+    public function updateTheLicenseCode(Request $request): int
     {
         return License::where('license_code', $request->old_license_code)->update(['license_code' => $request->license_code]);
     }
 
-    public function syncTheCreationOfLicense(Request $request)
+    public function syncTheCreationOfLicense(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $license = License::where('license_code', $request->input('license_code'))->first();
@@ -323,7 +325,7 @@ class LicenseController extends Controller
         }
     }
 
-    public function licenseInfo(Request $request)
+    public function licenseInfo(Request $request): \Illuminate\Http\JsonResponse
     {
         $license = License::with(['addonProducts.latestVersion'])->where('license_code', $request->input('license_code'))->firstOrFail();
         $product = Product::find($license->product_id);
@@ -358,12 +360,12 @@ class LicenseController extends Controller
         return successResponse('', $licenseOptions);
     }
 
-    public function giveLicenseTakeOrder(Request $request)
+    public function giveLicenseTakeOrder(Request $request): \Illuminate\Http\JsonResponse
     {
         return successResponse('', License::where('license_code', $request->input('license_code'))->value('license_order_number'));
     }
 
-    public function getPluginInfo(Request $request)
+    public function getPluginInfo(Request $request): \Illuminate\Http\JsonResponse
     {
         $licenseCodes = collect(json_decode((string) $request->input('license_code'), associative: true));
         $licenses = License::whereIn('license_code', $licenseCodes)
@@ -389,7 +391,10 @@ class LicenseController extends Controller
         return successResponse('', $result);
     }
 
-    private function generateLicenseData(int $productId, $licenseCode)
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function generateLicenseData(int $productId, string $licenseCode): ?array
     {
         $product = Product::find($productId);
         $version = ProductUpload::where('product_id', $productId)->latest()->first();

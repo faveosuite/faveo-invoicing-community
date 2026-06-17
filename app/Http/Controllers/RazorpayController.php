@@ -90,16 +90,16 @@ class RazorpayController extends Controller
     public function getState($country, $stateCode)
     {
         if (Auth::user()->country != 'IN') {
-            return State::where('country_code', $country)->where('iso2', $stateCode)->pluck('state_subdivision_name')->first();
+            return State::where('country_code', $country)->where('iso2', $stateCode)->value('state_subdivision_name');
         }
 
-        return TaxByState::where('state_code', Auth::user()->state)->pluck('state')->first();
+        return TaxByState::where('state_code', Auth::user()->state)->value('state');
     }
 
     public function afterPayment(Request $request)
     {
         try {
-            $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
+            $stripeSecretKey = ApiKey::value('stripe_secret');
             $stripe = new StripeClient($stripeSecretKey);
             // SPA flow carries the invoice id on the return URL (stateless);
             // legacy flow still falls back to the session-stored invoice.

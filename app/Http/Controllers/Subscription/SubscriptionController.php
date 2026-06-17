@@ -134,7 +134,7 @@ class SubscriptionController extends Controller
 
     private function getRenewalDays(): array
     {
-        $raw = ExpiryMailDay::pluck('autorenewal_days')->first();
+        $raw = ExpiryMailDay::value('autorenewal_days');
         if (empty($raw)) {
             return [];
         }
@@ -183,8 +183,8 @@ class SubscriptionController extends Controller
             }
 
             $invoice = $this->findOrCreateRenewalInvoice($subscription, $order, $product, $user, $plan, $cost, $currency);
-            $cost = $invoice->grand_total;
-            $currency = $invoice->currency;
+            $cost = (float) $invoice->grand_total;
+            $currency = (string) $invoice->currency;
             $unitCost = $this->PostSubscriptionHandle->calculateUnitCost($currency, $cost);
 
             $stripeDetails = Auto_renewal::where('user_id', $user->id)
@@ -232,7 +232,7 @@ class SubscriptionController extends Controller
         return $price;
     }
 
-    private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, $user, Plan $plan, float $cost, string $currency): Invoice
+    private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, \App\User $user, Plan $plan, float $cost, string $currency): Invoice
     {
         $latestInvoiceId = DB::table('order_invoice_relations')
             ->where('order_id', $subscription->order_id)
@@ -286,8 +286,12 @@ class SubscriptionController extends Controller
 
             $order = Order::find($subscription->order_id);
             $user = User::find($subscription->user_id);
-            $productName = Product::where('id', $subscription->product_id)->value('name');
-            $cost = $invoice->grand_total;
+            $productName = (string) Product::where('id', $subscription->product_id)->value('name');
+            $cost = (float) $invoice->grand_total;
+
+            if (! $order || ! $user) {
+                return;
+            }
 
             $sub = Subscription::find($subscription->id);
 
@@ -311,7 +315,7 @@ class SubscriptionController extends Controller
         }
     }
 
-    private function handleAuthenticatedSubscription(Subscription $subscription, Invoice $invoice, $cost, $user, $order, string $productName, string $gateway): void
+    private function handleAuthenticatedSubscription(Subscription $subscription, Invoice $invoice, float|int $cost, \App\User $user, Order $order, string $productName, string $gateway): void
     {
         $statusField = $gateway === 'stripe' ? 'autoRenew_status' : 'rzp_subscription';
         Subscription::where('id', $subscription->id)->update([$statusField => '3']);
@@ -324,7 +328,7 @@ class SubscriptionController extends Controller
 
     // ── New subscription creation (status=1) ──────────────────────────────
 
-    public function createSubscriptionsForEnabledUsers($stripeDetails, Product $product, $unitCost, string $currency, Plan $plan, Subscription $subscription, Invoice $invoice, Order $order, $user, $cost, $end): void
+    public function createSubscriptionsForEnabledUsers(mixed $stripeDetails, Product $product, float|int $unitCost, string $currency, Plan $plan, Subscription $subscription, Invoice $invoice, Order $order, \App\User $user, float|int $cost, mixed $end): void
     {
         if ($subscription->is_subscribed != '1') {
             return;
@@ -337,7 +341,7 @@ class SubscriptionController extends Controller
         }
     }
 
-    private function handleStripeSubscription($stripeDetails, Product $product, $unitCost, string $currency, Plan $plan, Subscription $subscription, Invoice $invoice, Order $order, $user, $cost): void
+    private function handleStripeSubscription(mixed $stripeDetails, Product $product, float|int $unitCost, string $currency, Plan $plan, Subscription $subscription, Invoice $invoice, Order $order, \App\User $user, float|int $cost): void
     {
         $response = new SettingsController()->handleStripeAutoPay($stripeDetails, $product, $unitCost, $currency, $plan);
 
@@ -365,7 +369,7 @@ class SubscriptionController extends Controller
         }
     }
 
-    private function handleRazorpaySubscription($unitCost, Plan $plan, Product $product, Invoice $invoice, string $currency, Subscription $subscription, $user, Order $order, $end): void
+    private function handleRazorpaySubscription(float|int $unitCost, Plan $plan, Product $product, Invoice $invoice, string $currency, Subscription $subscription, \App\User $user, Order $order, mixed $end): void
     {
         $response = new RazorpayController()->handleRzpAutoPay($unitCost, $plan->days, $product->name, $invoice, $currency, $subscription, $user, $order, $end, $product);
 
@@ -384,7 +388,7 @@ class SubscriptionController extends Controller
         return (int) ltrim(substr($order->serial_key, -4), '0') * $pricePerAgent;
     }
 
-    public function calculateReverseUnitCost(string $currency, $cost): float
+    public function calculateReverseUnitCost(string $currency, float|int $cost): float
     {
         $decimalPlaces = [
             'BIF' => 0, 'CLP' => 0, 'DJF' => 0, 'GNF' => 0, 'JPY' => 0,
@@ -401,7 +405,7 @@ class SubscriptionController extends Controller
         };
     }
 
-    private function sendPendingAuthMail(Subscription $subscription, Product $product, $cost, string $currency, ?string $url, $user): void
+    private function sendPendingAuthMail(Subscription $subscription, Product $product, float|int $cost, string $currency, ?string $url, \App\User $user): void
     {
         $setting = Setting::find(1);
         $contact = getContactData();

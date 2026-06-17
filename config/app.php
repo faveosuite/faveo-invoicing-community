@@ -247,6 +247,7 @@ return [
          * Package Service Providers...
          */
         TinkerServiceProvider::class,
+        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
 
         /*
          * Application Service Providers...

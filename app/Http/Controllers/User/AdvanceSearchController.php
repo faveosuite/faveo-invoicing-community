@@ -42,6 +42,7 @@ class AdvanceSearchController extends AdminOrderInvoiceController
              ->orWhere('last_name', 'LIKE', '%'.$term.'%')
              ->select('id', 'email', 'profile_pic', 'first_name', 'last_name')->get();
             $formatted_tags = [];
+            $formatted_users = [];
 
             foreach ($users as $user) {
                 $formatted_users[] = ['id' => $user->id, 'text' => $user->email, 'profile_pic' => $user->profile_pic,

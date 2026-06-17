@@ -13,7 +13,7 @@ use Session;
 
 class BaseInvoiceController extends ExtendedBaseInvoiceController
 {
-    public function getExpiryStatus($start, $end, $now)
+    public function getExpiryStatus(?string $start, ?string $end, string $now): ?string
     {
         $whenDateNotSet = $this->whenDateNotSet($start, $end);
         if ($whenDateNotSet) {
@@ -34,9 +34,11 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         if ($whenBothAreSet) {
             return $whenBothAreSet;
         }
+
+        return null;
     }
 
-    public function whenDateNotSet($start, $end)
+    public function whenDateNotSet(?string $start, ?string $end): ?string
     {
         //both not set, always true
         if (($start == null || $start == '0000-00-00 00:00:00') &&
@@ -47,7 +49,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         return null;
     }
 
-    public function whenStartDateSet($start, $end, $now)
+    public function whenStartDateSet(?string $start, ?string $end, string $now): ?string
     {
         if ($start == null && $start == '0000-00-00 00:00:00') {
             return null;
@@ -64,7 +66,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         return null;
     }
 
-    public function whenEndDateSet($start, $end, $now)
+    public function whenEndDateSet(?string $start, ?string $end, string $now): ?string
     {
         if ($end == null && $end == '0000-00-00 00:00:00') {
             return null;
@@ -81,7 +83,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         return null;
     }
 
-    public function whenBothSet($start, $end, $now)
+    public function whenBothSet(?string $start, ?string $end, string $now): ?string
     {
         if ($end == null && $start == '0000-00-00 00:00:00') {
             return null;
@@ -98,7 +100,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         return null;
     }
 
-    public function postPayment($invoiceid, Request $request)
+    public function postPayment(int $invoiceid, Request $request): \Illuminate\Http\RedirectResponse
     {
         $this->validate($request, [
             'payment_method' => 'required',
@@ -132,7 +134,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         }
     }
 
-    public function domain(string $id)
+    public function domain(string $id): ?string
     {
         try {
             if (Session::has('domain'.$id)) {
@@ -142,6 +144,8 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
             return '';
         } catch (Exception) {
         }
+
+        return null;
     }
 
     /*
@@ -160,7 +164,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         Invoice::where('number', $number)->update(['grand_total' => $total]);
     }
 
-    public function calculateTotal($rate, $total): float
+    public function calculateTotal(string $rate, int|float $total): float
     {
         try {
             $total = intval($total);

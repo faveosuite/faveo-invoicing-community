@@ -21,7 +21,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
     /**
      * Get Grandtotal.
      **/
-    public function getGrandTotal($code, $total, $cost, $productid, $currency, $user_id = ''): array
+    public function getGrandTotal(?string $code, float|int $total, float|int $cost, int $productid, string $currency, string $user_id = ''): array
     {
         if (! $total) {
             return ['total' => $total, 'code' => '', 'value' => '', 'mode' => ''];
@@ -41,7 +41,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
     /**
      * Get Message on Invoice Generation.
      **/
-    public function getMessage($items, $user_id): array
+    public function getMessage(mixed $items, int $user_id): array
     {
         if ($items) {
             // $this->sendmailClientAgent($user_id, $items->invoice_id);
@@ -51,18 +51,18 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         return ['fails' => Lang::get('message.can-not-generate-invoice')];
     }
 
-    public function checkExecution($invoiceid)
+    public function checkExecution(int $invoiceid): bool|\Illuminate\Http\RedirectResponse
     {
         try {
             $response = false;
             $invoice = Invoice::find($invoiceid);
 
             $order = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'));
-            $order_invoice_relation = $invoice->orderRelation()->first();
+            $order_invoice_relation = $invoice?->orderRelation()->first();
 
             if ($order_invoice_relation) {
                 $response = true;
-            } elseif ($order->get()->count() > 0) {
+            } elseif ($order->count() > 0) {
                 $response = true;
             }
 
@@ -72,7 +72,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         }
     }
 
-    public function invoiceContent($invoiceid): string
+    public function invoiceContent(int $invoiceid): string
     {
         $invoice = $this->invoice->find($invoiceid);
         $items = $invoice->invoiceItem()->get();
@@ -97,28 +97,28 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         return $content;
     }
 
-    public function currency($invoiceid)
+    public function currency(int $invoiceid): string
     {
         $invoice = Invoice::find($invoiceid);
-        $currency_code = $invoice->currency;
+        $currency_code = $invoice?->currency ?? '';
 
         $cur = ' ';
-        if ($invoice->grand_total == 0) {
+        if (($invoice->grand_total ?? 0) == 0) {
             return $cur;
         }
 
         $currency = Currency::where('code', $currency_code)->first();
         if ($currency) {
-            $cur = $currency->symbol;
+            $cur = $currency->symbol ?? '';
             if (! $cur) {
-                $cur = $currency->code;
+                $cur = $currency->code ?? '';
             }
         }
 
-        return $cur;
+        return (string) $cur;
     }
 
-    public function sendInvoiceMail($userid, $number, $total, $invoiceid): void
+    public function sendInvoiceMail(int $userid, string $number, float|int $total, int $invoiceid): void
     {
         $contact = getContactData();
         //user
@@ -132,9 +132,9 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         $template = TemplateType::getSelectedTemplate('invoice_mail');
         $type = '';
         $replace = [
-            'name' => $user->first_name.' '.$user->last_name,
+            'name' => ($user?->first_name ?? '').' '.($user?->last_name ?? ''),
             'number' => $number,
-            'address' => $user->address,
+            'address' => $user?->address ?? '',
             'invoiceurl' => $invoiceurl,
             'content' => $this->invoiceContent($invoiceid),
             'currency' => $this->currency($invoiceid),
@@ -144,15 +144,15 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         ];
         $type = $template?->type()->value('name') ?? '';
         $mail = new PhpMailController();
-        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
+        $mail->SendEmail($setting->email, $user?->email ?? '', $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    public function invoiceUrl(string $invoiceid): \Illuminate\Contracts\Routing\UrlGenerator|string
+    public function invoiceUrl(int $invoiceid): \Illuminate\Contracts\Routing\UrlGenerator|string
     {
         return url('my-invoice/'.$invoiceid);
     }
 
-    public function paymentDeleleById($id)
+    public function paymentDeleleById(int $id): \Illuminate\Http\RedirectResponse
     {
         try {
             $invoice_no = '';
@@ -175,7 +175,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         }
     }
 
-    public function paymentEditById($id)
+    public function paymentEditById(int $id): \Illuminate\Http\JsonResponse
     {
         try {
             $payment = Payment::findOrFail($id);

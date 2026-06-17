@@ -210,7 +210,6 @@ class ExtendedBaseProductController extends Controller
      * @param  Request  $input  All the Product Detais Sent from  the form
      * @param  bool  $can_modify_agent  Whether Agents can be modified by customer
      * @param  bool  $can_modify_quantity  Whether Product Quantity can be modified by Customers
-     * @return
      */
     public function saveCartValues($input, bool $can_modify_agent, bool $can_modify_quantity, $highlight, $add_to_contact): void
     {
@@ -229,7 +228,7 @@ class ExtendedBaseProductController extends Controller
      * @date   2019-01-07T20:40:20+0530
      *
      * @param  Request  $input  All the Product Detais Sent from  the form
-     * @param Illuminate\Http\Request; $request
+     * @param  \Illuminate\Http\Request  $request
      * @param  array  $product  instance of the Product
      * @return Save The Details
      */

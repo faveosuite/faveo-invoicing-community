@@ -107,7 +107,7 @@ class BaseProductController extends ExtendedBaseProductController
     /**
      * Get the Subscription and Price Based on the Product Selected while generating Invoice (Admin Panel).
      *
-     * @return [type]
+     * @return mixed
      */
     public function getSubscriptionCheck(int $productid, Request $request)
     {

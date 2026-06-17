@@ -11,6 +11,40 @@ use Override;
 /**
  * A generic tax rate (WooCommerce-style). See the create_tax_rates migration
  * for the semantics of priority / compound / tax_class.
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $country
+ * @property string $state
+ * @property float $rate
+ * @property int $priority
+ * @property bool $compound
+ * @property string $tax_class
+ * @property int $display_order
+ * @property bool $active
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\TaxRateLocation> $locations
+ * @property-read int|null $locations_count
+ * @property-read \App\Model\Payment\TaxClass|null $taxClass
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereCompound($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereCountry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereDisplayOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate wherePriority($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereState($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereTaxClass($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class TaxRate extends BaseModel
 {
@@ -23,15 +57,15 @@ class TaxRate extends BaseModel
         'compound', 'tax_class', 'display_order', 'active',
     ];
 
-    protected $logName = 'tax';
+    protected string $logName = 'tax';
 
-    protected $logNameColumn = 'name';
+    protected string $logNameColumn = 'name';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'name', 'country', 'state', 'rate', 'priority', 'compound', 'tax_class', 'active',
     ];
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['tax', ':id', 'edit'],
     ];
 
@@ -59,7 +93,10 @@ class TaxRate extends BaseModel
         ];
     }
 
-    public function locations()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Payment\TaxRateLocation, $this>
+     */
+    public function locations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(TaxRateLocation::class, 'tax_rate_id');
     }

@@ -11,7 +11,7 @@ use Storage;
 
 class AttachmentHelper
 {
-    public function put($directory, $contents, $disk = null, $uniqueFilename = null, $visibility = 'private')
+    public function put(string $directory, \Illuminate\Http\UploadedFile $contents, ?string $disk = null, mixed $uniqueFilename = null, string $visibility = 'private'): string|false
     {
         $adapter = $this->getStorageAdapter($disk);
 
@@ -30,17 +30,17 @@ class AttachmentHelper
         return $adapter->putFileAs($directory, $contents, $fileUniqueName, ['visibility' => $visibility]);
     }
 
-    public function delete($path, $disk = null): bool
+    public function delete(string $path, ?string $disk = null): bool
     {
         return $this->getStorageAdapter($disk)->delete($path);
     }
 
-    public function deleteDirectory($path, $disk = null): bool
+    public function deleteDirectory(string $path, ?string $disk = null): bool
     {
         return $this->getStorageAdapter($disk)->deleteDirectory($path);
     }
 
-    public function download($path, $disk = null)
+    public function download(string $path, ?string $disk = null): \Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\StreamedResponse
     {
         $adapter = $this->getStorageAdapter($disk);
 
@@ -53,7 +53,7 @@ class AttachmentHelper
         return $adapter->download($path, $filename);
     }
 
-    private function getStorageAdapter($disk = null): FilesystemAdapter
+    private function getStorageAdapter(?string $disk = null): FilesystemAdapter
     {
         $disk = $disk ?: FileSystemSettings::value('disk');
 
@@ -78,7 +78,7 @@ class AttachmentHelper
         return $safeName.'_'.md5(time()).'.'.$extension;
     }
 
-    public function getUrlPath(string $path, $disk = null): string
+    public function getUrlPath(string $path, ?string $disk = null): string
     {
         $adapter = $this->getStorageAdapter($disk);
 
@@ -89,14 +89,14 @@ class AttachmentHelper
         return asset($adapter->url($path));
     }
 
-    public function exists($path, $disk = null)
+    public function exists(string $path, ?string $disk = null): bool
     {
         $adapter = $this->getStorageAdapter($disk);
 
         return $adapter->exists($path);
     }
 
-    public function readStream($path, $disk = null)
+    public function readStream(string $path, ?string $disk = null): mixed
     {
         $adapter = $this->getStorageAdapter($disk);
 
@@ -109,7 +109,7 @@ class AttachmentHelper
      *
      * @throws Exception
      */
-    public function getMetadata($path, $disk = null): array
+    public function getMetadata(string $path, ?string $disk = null): array
     {
         $disk = $this->getStorageAdapter($disk);
 

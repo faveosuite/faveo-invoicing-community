@@ -23,12 +23,14 @@ class AfuVersionsController extends Controller
         $this->ip_address = null !== request()->server('REMOTE_ADDR') ? request()->server('REMOTE_ADDR') : request()->ip();
     }
 
+
+
     /**
      *Add a new version from billing and also update manager.
      *
      * @returns a success response telling you have added the version successfully
      */
-    public function versionAdd(VersionRequest $request)
+    public function versionAdd(VersionRequest $request): string
     {
         $action_success = 0; //will be changed to 1 later only if everything OK
         $error_detected = 0; //will be changed to 1 later if error occurs
@@ -102,6 +104,8 @@ class AfuVersionsController extends Controller
 
                 if ($error_detected !== 1) {
                     $version_date = date('Y-m-d');
+                    $product_title = '';
+                    $product_max_active_versions = 0;
 
                     $product_array = Product::where('product_id', $product_id)->get()->toArray(); //fetch product details to be used in file names and reports
                     foreach ($product_array as $product) {
@@ -264,7 +268,7 @@ class AfuVersionsController extends Controller
      *
      * @returns a success response telling you have updated the version successfully
      */
-    public function versionUpdate(Request $request)
+    public function versionUpdate(Request $request): string
     {
         $removed_records = 0;
         $action_success = 0; //will be changed to 1 later only if everything OK
@@ -297,6 +301,13 @@ class AfuVersionsController extends Controller
             return errorResponse(Lang::get('lang.invalid'), 404);
         }
 
+        $delete_record = '';
+        $delete_version_install_file = '';
+        $delete_version_upgrade_file = '';
+        $delete_version_install_query = '';
+        $delete_version_upgrade_query = '';
+        $reset_install_count = '';
+        $reset_upgrade_count = '';
         $api_action_success = 1;
         if (($api_action_success === 1 & $api_error_detected === 0) !== 0) { //code between {} tags is identical in files with the same name in /aus_admin and /aus_api directories, EXCEPT redirectInvalidRecord($script_name); line
             $optional_api_parameters_array = ['version_install_file', 'version_install_query', 'version_raw_install_query', 'version_upgrade_file', 'version_upgrade_query', 'version_raw_upgrade_query', 'version_install_limit', 'version_upgrade_limit', 'version_changelog', 'version_expire_date', 'version_comments']; //optional API parameters for this page
@@ -306,7 +317,7 @@ class AfuVersionsController extends Controller
                 }
             }
 
-            if (! empty($delete_record) && $delete_record == 1) {
+            if ($delete_record !== '' && $delete_record !== '0' && $delete_record == 1) {
                 $removed_records += $this->deleteVersion($version_id);
                 if ($removed_records > 0) {
                     $action_success = 1;
@@ -403,33 +414,33 @@ class AfuVersionsController extends Controller
                         $version_upgrade_query = $rows_array[0]['version_upgrade_query']; //use old value when no new version_upgrade_query uploaded
                     }
 
-                    if (! empty($delete_version_install_file) && $delete_version_install_file == 1) {
+                    if ($delete_version_install_file !== '' && $delete_version_install_file !== '0' && $delete_version_install_file == 1) {
                         $this->deleteFileDirectory(ARCHIVES_DIRECTORY, [$rows_array[0]['version_install_file']]); //delete old version_install_file (if any)
                         $version_install_file = '';
                     }
 
-                    if (! empty($delete_version_upgrade_file) && $delete_version_upgrade_file == 1) {
+                    if ($delete_version_upgrade_file !== '' && $delete_version_upgrade_file !== '0' && $delete_version_upgrade_file == 1) {
                         $this->deleteFileDirectory(ARCHIVES_DIRECTORY, [$rows_array[0]['version_upgrade_file']]); //delete old version_upgrade_file (if any)
                         $version_upgrade_file = '';
                     }
 
-                    if (! empty($delete_version_install_query) && $delete_version_install_query == 1) {
+                    if ($delete_version_install_query !== '' && $delete_version_install_query !== '0' && $delete_version_install_query == 1) {
                         $this->deleteFileDirectory(QUERIES_DIRECTORY, [$rows_array[0]['version_install_query']]); //delete old version_install_query (if any)
                         $version_install_query = '';
                     }
 
-                    if (! empty($delete_version_upgrade_query) && $delete_version_upgrade_query == 1) {
+                    if ($delete_version_upgrade_query !== '' && $delete_version_upgrade_query !== '0' && $delete_version_upgrade_query == 1) {
                         $this->deleteFileDirectory(QUERIES_DIRECTORY, [$rows_array[0]['version_upgrade_query']]); //delete old version_upgrade_query (if any)
                         $version_upgrade_query = '';
                     }
 
-                    if (! empty($reset_install_count) && $reset_install_count == 1) {
+                    if ($reset_install_count !== '' && $reset_install_count !== '0' && $reset_install_count == 1) {
                         $version_install_count = '';
                     } else {
                         $version_install_count = $rows_array[0]['version_install_count']; //use old value when no reset is needed
                     }
 
-                    if (! empty($reset_upgrade_count) && $reset_upgrade_count == 1) {
+                    if ($reset_upgrade_count !== '' && $reset_upgrade_count !== '0' && $reset_upgrade_count == 1) {
                         $version_upgrade_count = '';
                     } else {
                         $version_upgrade_count = $rows_array[0]['version_upgrade_count']; //use old value when no reset is needed
@@ -607,7 +618,7 @@ class AfuVersionsController extends Controller
      *Deletes the version along with it's callbacks and installation details
      * return success if the deletion happened or rollbacks if even one error occurs.
      */
-    public function deleteVersion(Request $request)
+    public function deleteVersion(Request $request): \Illuminate\Http\JsonResponse
     {
         $removed_records = 0;
         $version_id = $request->get('version_id');
@@ -658,7 +669,7 @@ class AfuVersionsController extends Controller
      * @param  $version_number
      * @param  $version_comments
      */
-    public function disableOldVersion($product_id, $product_max_active_versions, $version_number, $version_comments): void
+    public function disableOldVersion(int $product_id, int $product_max_active_versions, string $version_number, string $version_comments): void
     {
         if (LicenseHelper::validateIntegerValue($product_id) && LicenseHelper::validateIntegerValue($product_max_active_versions) && ! empty($version_number)) {
             $version_expire_date = date('Y-m-d');
@@ -691,7 +702,7 @@ class AfuVersionsController extends Controller
      * @param  $root_directory
      * @param  array  $files_array
      */
-    public function deleteFileDirectory($root_directory = __DIR__, $files_array = []): int
+    public function deleteFileDirectory(string $root_directory = __DIR__, array $files_array = []): int
     {
         $removed_records = 0;
 
@@ -738,7 +749,7 @@ class AfuVersionsController extends Controller
      * @param  $error_details
      *                        returns an array of error details and error detected =1 when an error occurs
      */
-    protected function versionFileCheck($version_install_file, $version_upgrade_file, $version_install_query, $version_upgrade_query, $version_install_limit, $version_upgrade_limit, $version_expire_date, $error_detected = 0, string $error_details = ''): array
+    protected function versionFileCheck(mixed $version_install_file, mixed $version_upgrade_file, mixed $version_install_query, mixed $version_upgrade_query, mixed $version_install_limit, mixed $version_upgrade_limit, string $version_expire_date, int $error_detected = 0, string $error_details = ''): array
     {
         if (! empty($version_install_file) && (! empty($version_install_file->getLinkTarget()) && ! validateFile($version_install_file->getLinkTarget(), $version_install_file->getClientOriginalName(), ['application/zip'], ['zip'], 104857600))) {
             $error_detected = 1;
@@ -789,7 +800,7 @@ class AfuVersionsController extends Controller
      * @param  $version_number
      *                         returns an array of changed file name depending on the action of license manager.
      */
-    protected function formatFile($version_install_file, $version_upgrade_file, $version_install_query, $version_upgrade_query, $product_title, $version_number): array
+    protected function formatFile(mixed $version_install_file, mixed $version_upgrade_file, mixed $version_install_query, mixed $version_upgrade_query, string $product_title, string $version_number): array
     {
         if (! empty($version_install_file)) {
             if (! empty($version_install_file->getLinkTarget())) { //format version_install_file like product-title-version-number-installation-archive-random-string.extension
@@ -839,8 +850,12 @@ class AfuVersionsController extends Controller
      * @param  $add
      * @param  $rows_array
      */
-    protected function moveFile($temp, ?string $version_install_file, ?string $version_upgrade_file, ?string $version_install_query, ?string $version_upgrade_query, $add, $rows_array = null)
+    protected function moveFile(array $temp, ?string $version_install_file, ?string $version_upgrade_file, ?string $version_install_query, ?string $version_upgrade_query, int $add, ?array $rows_array = null): void
     {
+        $versionInstallTempName = null;
+        $versionUpgradeTempName = null;
+        $versionInstallQueryTempName = null;
+        $versionUpgradeQueryTempName = null;
         extract($temp);
         if ($add) {
             if (! in_array($version_install_file, [null, '', '0'], strict: true)) { //move uploaded version_install_file
@@ -859,28 +874,28 @@ class AfuVersionsController extends Controller
                 move_uploaded_file($versionUpgradeQueryTempName, QUERIES_DIRECTORY.('/'.$version_upgrade_query));
             }
         } else {
-            if (! in_array($version_install_file, [null, '', '0'], strict: true) && ! empty($versionInstallTempName)) {
+            if (! in_array($version_install_file, [null, '', '0'], strict: true) && $versionInstallTempName !== null) {
                 //move uploaded version_install_file
                 move_uploaded_file($versionInstallTempName, ARCHIVES_DIRECTORY.('/'.$version_install_file));
                 $this->deleteFileDirectory(ARCHIVES_DIRECTORY, [$rows_array[0]['version_install_file']]);
                 //delete old version_install_file (if any)
             }
 
-            if (! in_array($version_upgrade_file, [null, '', '0'], strict: true) && ! empty($versionUpgradeTempName)) {
+            if (! in_array($version_upgrade_file, [null, '', '0'], strict: true) && $versionUpgradeTempName !== null) {
                 //move uploaded version_upgrade_file
                 move_uploaded_file($versionUpgradeTempName, ARCHIVES_DIRECTORY.('/'.$version_upgrade_file));
                 $this->deleteFileDirectory(ARCHIVES_DIRECTORY, [$rows_array[0]['version_upgrade_file']]);
                 //delete old version_upgrade_file (if any)
             }
 
-            if (! in_array($version_install_query, [null, '', '0'], strict: true) && ! empty($versionInstallQueryTempName)) {
+            if (! in_array($version_install_query, [null, '', '0'], strict: true) && $versionInstallQueryTempName !== null) {
                 //move uploaded version_install_query
                 move_uploaded_file($versionInstallQueryTempName, QUERIES_DIRECTORY.('/'.$version_install_query));
                 $this->deleteFileDirectory(QUERIES_DIRECTORY, [$rows_array[0]['version_install_query']]);
                 //delete old version_install_query (if any)
             }
 
-            if (! in_array($version_upgrade_query, [null, '', '0'], strict: true) && ! empty($versionUpgradeQueryTempName)) {
+            if (! in_array($version_upgrade_query, [null, '', '0'], strict: true) && $versionUpgradeQueryTempName !== null) {
                 //move uploaded version_upgrade_query
                 move_uploaded_file($versionUpgradeQueryTempName, QUERIES_DIRECTORY.('/'.$version_upgrade_query));
                 $this->deleteFileDirectory(QUERIES_DIRECTORY, [$rows_array[0]['version_upgrade_query']]);
@@ -898,7 +913,7 @@ class AfuVersionsController extends Controller
      * @param  $version_upgrade_query
      *                                return array of temp names
      */
-    protected function generateTempName($version_install_file, $version_upgrade_file, $version_install_query, $version_upgrade_query): array
+    protected function generateTempName(mixed $version_install_file, mixed $version_upgrade_file, mixed $version_install_query, mixed $version_upgrade_query): array
     {
         $versionInstallTempName = '';
         $versionUpgradeTempName = '';

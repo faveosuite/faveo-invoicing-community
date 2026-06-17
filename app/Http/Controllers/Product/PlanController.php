@@ -55,7 +55,7 @@ class PlanController extends ExtendedPlanController
      * Store the Plans Details While Plan Creation.
      *
      * @param  Request  $request  Plan Form Details
-     * @return [type] Saves Plan
+     * @return mixed
      *
      * @throws ValidationException
      *

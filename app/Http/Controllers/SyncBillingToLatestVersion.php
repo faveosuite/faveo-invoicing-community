@@ -23,7 +23,7 @@ class SyncBillingToLatestVersion
         // in case where isInstall is false(in case of new install) version number should be zero
         $latestVersion = $this->getPHPCompatibleVersionString(Config::get('app.version'));
         $olderVersion = $this->getOlderVersion();
-        (env('DB_ENGINE') == 'InnoDB') ?: $this->forceInnodbOnUpdate();
+        (config('custom.db_engine') == 'InnoDB') ?: $this->forceInnodbOnUpdate();
 
         try {
             if (version_compare($latestVersion, $olderVersion) === 1) {
@@ -72,7 +72,7 @@ class SyncBillingToLatestVersion
         try {
             $path = app()->environmentFilePath();
 
-            $escaped = preg_quote('='.env($key), '/');
+            $escaped = preg_quote('='.env($key), '/'); // @phpstan-ignore larastan.noEnvCallsOutsideOfConfig
             file_put_contents($path, preg_replace(
                 sprintf('/^%s%s/m', $key, $escaped),
                 sprintf('%s=%s', $key, $value),

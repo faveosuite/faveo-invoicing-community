@@ -38,6 +38,156 @@ use Override;
 //use LinkThrow\Billing\CustomerBillableTrait;
 //use App\Model\Common\Website;
 
+/**
+ * @property int $id
+ * @property string $user_name
+ * @property string $first_name
+ * @property string $last_name
+ * @property string $email
+ * @property string $password
+ * @property string $company
+ * @property string|null $bussiness
+ * @property string $mobile
+ * @property string $mobile_code
+ * @property string|null $mobile_country_iso
+ * @property string $address
+ * @property string $town
+ * @property string|null $state
+ * @property string $zip
+ * @property string|null $profile_pic
+ * @property int $active
+ * @property string $role
+ * @property string $currency
+ * @property numeric|null $debit
+ * @property int $timezone_id
+ * @property string $language
+ * @property string|null $remember_token
+ * @property string|null $company_type
+ * @property string|null $company_size
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $country
+ * @property string|null $ip
+ * @property int $mobile_verified
+ * @property int $email_verified
+ * @property string|null $position
+ * @property string|null $skype
+ * @property User|null $manager
+ * @property string|null $currency_symbol
+ * @property string|null $account_manager
+ * @property string|null $referrer
+ * @property string|null $google2fa_secret
+ * @property string|null $google2fa_activation_date
+ * @property int $is_2fa_enabled
+ * @property string|null $backup_code
+ * @property int|null $code_usage_count
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $gstin
+ * @property int $is_tax_exempt
+ * @property int $first_time_login
+ * @property int $billing_pay_balance
+ * @property-read User|null $accountManager
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Auto_renewal> $auto_renewal
+ * @property-read int|null $auto_renewal_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Passport\Client> $clients
+ * @property-read int|null $clients_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Comment> $comments
+ * @property-read int|null $comments_count
+ * @property-read Country|null $countryRelation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\ExportDetail> $export_details
+ * @property-read int|null $export_details_count
+ * @property-read string $full_name
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Installation> $installations
+ * @property-read int|null $installations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoice
+ * @property-read int|null $invoice_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceItem> $invoiceItem
+ * @property-read int|null $invoice_item_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, LicenseCallback> $licenseCallbacks
+ * @property-read int|null $license_callbacks_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, LicenseReport> $licenseReports
+ * @property-read int|null $license_reports_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, License> $licenses
+ * @property-read int|null $licenses_count
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read int|null $notifications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Passport\Client> $oauthApps
+ * @property-read int|null $oauth_apps_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $order
+ * @property-read int|null $order_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OrderInvoiceRelation> $orderRelation
+ * @property-read int|null $order_relation_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payment
+ * @property-read int|null $payment_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Subscription> $subscription
+ * @property-read int|null $subscription_count
+ * @property-read Timezone|null $timezone
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Passport\Token> $tokens
+ * @property-read int|null $tokens_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\UserLinkReport> $userLinkReports
+ * @property-read int|null $user_link_reports_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\VerificationAttempt> $verificationAttempts
+ * @property-read int|null $verification_attempts_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\WhatsappIntegrationUser> $whatsappUsers
+ * @property-read int|null $whatsapp_users_count
+ * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAccountManager($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBackupCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBillingPayBalance($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBussiness($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCodeUsageCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCompany($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCompanySize($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCompanyType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCountry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCurrencySymbol($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDebit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerified($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereFirstName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereFirstTimeLogin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereGoogle2faActivationDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereGoogle2faSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereGstin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereIp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereIs2faEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereIsTaxExempt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereLanguage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereLastName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereManager($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereMobile($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereMobileCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereMobileCountryIso($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereMobileVerified($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePosition($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereProfilePic($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereReferrer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRole($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereSkype($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereState($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTimezoneId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTown($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUserName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereZip($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
+ * @mixin \Eloquent
+ */
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
     use HasFactory;
@@ -89,17 +239,17 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         'address', 'country', 'currency', 'currency_symbol', 'timezone_id', 'mobile_code', 'bussiness',
         'company_type', 'company_size', 'ip', 'mobile_verified', 'email_verified', 'skype', 'currency_symbol', 'referrer', 'google2fa_secret', 'is_2fa_enabled', 'google2fa_activation_date', 'backup_code', 'code_usage_count', 'gstin', 'language'];
 
-    protected $logName = 'user';
+    protected string $logName = 'user';
 
-    protected $logNameColumn = 'user_name';
+    protected string $logNameColumn = 'user_name';
 
-    protected $logAttributes = ['first_name', 'last_name', 'user_name', 'company', 'zip',
+    protected array $logAttributes = ['first_name', 'last_name', 'user_name', 'company', 'zip',
         'state', 'town', 'mobile', 'mobile_country_iso',
         'email', 'role', 'active', 'profile_pic',
         'address', 'country', 'currency', 'timezone_id', 'mobile_code', 'bussiness',
         'company_type', 'company_size', 'ip', 'mobile_verified', 'email_verified', 'position', 'skype', 'google2fa_activation_date', 'backup_code', 'code_usage_count', 'gstin', 'language'];
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['clients', ':id'],
     ];
 
@@ -110,48 +260,51 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     protected $hidden = ['password', 'remember_token'];
 
-    public function order()
+    public function order(): HasMany
     {
         return $this->hasMany(Order::class, 'client');
     }
 
-    public function comments()
+    public function comments(): HasMany
     {
         return $this->hasMany(Comment::class, 'updated_by_user_id');
     }
 
-    public function subscription()
+    public function subscription(): HasMany
     {
         // Return an Eloquent relationship.
         return $this->hasMany(Subscription::class);
     }
 
-    public function invoiceItem()
+    public function invoiceItem(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(InvoiceItem::class, Invoice::class);
     }
 
-    public function orderRelation()
+    public function orderRelation(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(OrderInvoiceRelation::class, Invoice::class);
     }
 
-    public function invoice()
+    public function invoice(): HasMany
     {
         return $this->hasMany(Invoice::class);
     }
 
-    public function timezone()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Common\Timezone, $this>
+     */
+    public function timezone(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Timezone::class);
     }
 
-    public function auto_renewal()
+    public function auto_renewal(): HasMany
     {
         return $this->hasMany(Auto_renewal::class, 'user_id');
     }
 
-    public function export_details()
+    public function export_details(): HasMany
     {
         return $this->hasMany(ExportDetail::class, 'user_id');
     }
@@ -167,7 +320,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         });
     }
 
-    public function payment()
+    public function payment(): HasMany
     {
         return $this->hasMany(Payment::class);
     }
@@ -217,21 +370,25 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     //     $this->order()->delete();
     //     $this->subscription()->delete();
     //     $this->comments()->delete();
-
     //     return parent::delete();
     // }
-
-    public function manager()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     */
+    public function manager(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'manager');
     }
 
-    public function accountManager()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     */
+    public function accountManager(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'account_manager');
     }
 
-    public function assignManagerByPosition(string $position)
+    public function assignManagerByPosition(string $position): ?int
     {
         return $this->where('role', 'admin')
             ->where('position', $position)
@@ -309,7 +466,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasMany(VerificationAttempt::class);
     }
 
-    public function userLinkReports()
+    public function userLinkReports(): HasMany
     {
         return $this->hasMany(UserLinkReport::class);
     }
@@ -321,32 +478,32 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         });
     }
 
-    public function countryRelation()
+    public function countryRelation(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Country::class, 'country_code_char2', 'country');
     }
 
-    public function whatsappUsers()
+    public function whatsappUsers(): HasMany
     {
         return $this->hasMany(WhatsappIntegrationUser::class, 'user_id', 'id');
     }
 
-    public function licenses()
+    public function licenses(): HasMany
     {
         return $this->hasMany(License::class, 'user_id');
     }
 
-    public function installations()
+    public function installations(): HasMany
     {
         return $this->hasMany(Installation::class, 'user_id');
     }
 
-    public function licenseCallbacks()
+    public function licenseCallbacks(): HasMany
     {
         return $this->hasMany(LicenseCallback::class, 'user_id');
     }
 
-    public function licenseReports()
+    public function licenseReports(): HasMany
     {
         return $this->hasMany(LicenseReport::class, 'user_id');
     }

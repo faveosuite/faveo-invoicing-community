@@ -22,7 +22,7 @@ trait PaymentsAndInvoices
     /*
     *Edit payment Total.
     */
-    public function paymentTotalChange(Request $request)
+    public function paymentTotalChange(Request $request): ?\Illuminate\Http\RedirectResponse
     {
         try {
             $invoice = new Invoice();
@@ -61,15 +61,17 @@ trait PaymentsAndInvoices
 
             return back()->with('fails', $exception->getMessage());
         }
+
+        return null;
     }
 
     public function doPayment(
-        $payment_method,
-        $invoiceid,
-        $amount,
-       $parent_id = '',
-        $userid = '',
-        $payment_status = 'pending'
+        string $payment_method,
+        int $invoiceid,
+        float|int $amount,
+        int|string $parent_id = '',
+        int|string $userid = '',
+        string $payment_status = 'pending'
     ): void {
         try {
             if ($amount > 0) {
@@ -96,7 +98,7 @@ trait PaymentsAndInvoices
         }
     }
 
-    public function getAgents($agents, $productid, $plan)
+    public function getAgents(mixed $agents, int $productid, int $plan): int
     {
         if (! $agents) {//If agents is not received in the request in the case when
             // 'modify agent' is not allowed for the Product,get the no of Agents from the Plan Table.
@@ -112,7 +114,7 @@ trait PaymentsAndInvoices
         return $agents;
     }
 
-    public function getQuantity($qty, $productid, $plan)
+    public function getQuantity(mixed $qty, int $productid, int $plan): int
     {
         if (! $qty) {//If quantity is not received in the request in the case when 'modify quantity' is not allowed for the Product,get the Product qUANTITY from the Plan Table.
             $planForQty = Product::find($productid)->planRelation->find($plan);
@@ -127,7 +129,7 @@ trait PaymentsAndInvoices
         return $qty;
     }
 
-    public function updateInvoice($invoiceid): void
+    public function updateInvoice(int $invoiceid): void
     {
         try {
             $invoice = $this->invoice->findOrFail($invoiceid);
@@ -175,7 +177,7 @@ trait PaymentsAndInvoices
         $invoice->update(['status' => 'success']);
     }
 
-    public function sendmailClientAgent($userid, $invoiceid): void
+    public function sendmailClientAgent(int $userid, int $invoiceid): void
     {
         try {
             $agent = Input::get('agent');
@@ -194,7 +196,7 @@ trait PaymentsAndInvoices
         }
     }
 
-    public function payment(Request $request)
+    public function payment(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
     {
         try {
             if ($request->has('invoiceid')) {
@@ -240,7 +242,7 @@ trait PaymentsAndInvoices
         }
     }
 
-    public function getExtraAmtPaid($userId)
+    public function getExtraAmtPaid(int $userId): int|float|\Illuminate\Http\RedirectResponse
     {
         try {
             $amounts = Payment::where('user_id', $userId)->where('invoice_id', 0)->select('amt_to_credit')->get();
@@ -262,7 +264,7 @@ trait PaymentsAndInvoices
     /**
      * Get total of the Invoices for a User.
      */
-    public function getTotalInvoice($invoices): int|float
+    public function getTotalInvoice(\Illuminate\Support\Collection $invoices): int|float
     {
         $sum = 0;
         foreach ($invoices as $invoice) {
@@ -272,7 +274,7 @@ trait PaymentsAndInvoices
         return $sum;
     }
 
-    public function getAmountPaid($userId)
+    public function getAmountPaid(int $userId): int|\Illuminate\Http\RedirectResponse
     {
         try {
             $amounts = Payment::where('user_id', $userId)->select('amount', 'amt_to_credit')->get();

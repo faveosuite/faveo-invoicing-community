@@ -22,9 +22,6 @@ class BaseClientController extends Controller
     /**
      *  This function is to update profile.
      *
-     * @return
-     *
-     * @throws
      */
     public function postProfile(ProfileRequest $request)
     {
@@ -32,7 +29,7 @@ class BaseClientController extends Controller
             $user = Auth::user();
             if ($request->hasFile('profile_pic')) {
                 $path = Attach::put('common/images/users/', $request->file('profile_pic'), null, true);
-                $user->profile_pic = basename($path);
+                $user->profile_pic = basename((string) $path);
             }
 
             $user->first_name = strip_tags((string) $request->input('first_name'));
@@ -61,9 +58,6 @@ class BaseClientController extends Controller
     /**
      *  This function is to update password.
      *
-     * @return
-     *
-     * @throws
      */
     public function postPassword(ProfileRequest $request)
     {
@@ -130,7 +124,7 @@ class BaseClientController extends Controller
                     'invoice_items.product_name as products'
                 );
 
-            $invoices = $invoice->with(['invoiceItem'])->where('id', $relation)
+            $invoices = $query->whereIn('id', $invoiceIds)->with(['invoiceItem'])
                 ->whereHas('invoiceItem', function ($query) use ($order): void {
                     $query->where('id', $order->invoice_item_id);
                 });
@@ -184,8 +178,6 @@ class BaseClientController extends Controller
      *
      * @param  $invoiceId
      * @param  $admin
-     *
-     * @throws
      */
     public function getInvoiceLinkUrl(string $invoiceId, $admin = null): string
     {

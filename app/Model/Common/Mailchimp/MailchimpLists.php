@@ -6,6 +6,22 @@ namespace App\Model\Common\Mailchimp;
 
 use App\BaseModel;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $list_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpLists newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpLists newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpLists query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpLists whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpLists whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpLists whereListId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpLists whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpLists whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class MailchimpLists extends BaseModel
 {
     protected $table = 'mailchimp_lists';

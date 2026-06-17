@@ -100,7 +100,7 @@ class ClientController extends AdvanceSearchController
      *
      * @return \Response
      */
-    public function store(ClientRequest $request)
+    public function store(ClientRequest $request): \Illuminate\Http\RedirectResponse
     {
         try {
             $user = $this->user;
@@ -109,7 +109,7 @@ class ClientController extends AdvanceSearchController
             $user->password = $password;
             if ($request->input('mobile_code') == '') {
                 $country = new Country();
-                $mobile_code = $country->where('country_code_char2', $request->input('country'))->pluck('phonecode')->first();
+                $mobile_code = $country->where('country_code_char2', $request->input('country'))->value('phonecode');
             } else {
                 $mobile_code = str_replace('+', '', $request->input('mobile_code'));
             }
@@ -169,7 +169,7 @@ class ClientController extends AdvanceSearchController
      * @param  int  $id
      * @return \Response
      */
-    public function update($id, ClientRequest $request)
+    public function update(int $id, ClientRequest $request): \Illuminate\Http\RedirectResponse
     {
         try {
             $user = $this->user->where('id', $id)->first();
@@ -190,7 +190,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function sendWelcomeMail($user): void
+    public function sendWelcomeMail(\App\User $user): void
     {
         // Retrieve necessary data
         $contact = getContactData();
@@ -230,7 +230,7 @@ class ClientController extends AdvanceSearchController
      * @param  $request
      * @return mixed
      */
-    private function getBaseQueryForUserSearch(Request $request)
+    private function getBaseQueryForUserSearch(Request $request): \Illuminate\Database\Eloquent\Builder
     {
         $baseQuery = User::leftJoin('countries', 'users.country', '=', 'countries.country_code_char2')
             ->select(
@@ -275,7 +275,7 @@ class ClientController extends AdvanceSearchController
         return $this->getregFromTill($baseQuery, $request->reg_from, $request->reg_till);
     }
 
-    public function exportUsers(Request $request)
+    public function exportUsers(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             ini_set('memory_limit', '-1');
@@ -304,7 +304,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function downloadExportedFile($id)
+    public function downloadExportedFile(int $id): \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\JsonResponse
     {
         try {
             $exportDetail = ExportDetail::findOrFail($id);
@@ -354,7 +354,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function saveColumns(Request $request)
+    public function saveColumns(Request $request): \Illuminate\Http\JsonResponse
     {
         $userId = auth()->id();
         $entityType = $request->get('entity_type');
@@ -406,7 +406,7 @@ class ClientController extends AdvanceSearchController
         ]);
     }
 
-    public function getColumns(Request $request)
+    public function getColumns(Request $request): \Illuminate\Http\JsonResponse
     {
         $userId = auth()->id();
         $entityType = $request->get('entity_type');
@@ -447,7 +447,7 @@ class ClientController extends AdvanceSearchController
         ]);
     }
 
-    public function getAllUsers(Request $request)
+    public function getAllUsers(Request $request): \Illuminate\Http\JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'desc');
@@ -482,7 +482,7 @@ class ClientController extends AdvanceSearchController
         return $this->paginateResponse($users, $total);
     }
 
-    public function deleteBulkUsers(Request $request)
+    public function deleteBulkUsers(Request $request): \Illuminate\Http\JsonResponse
     {
         $ids = $request->input('user_ids', []);
 
@@ -516,7 +516,7 @@ class ClientController extends AdvanceSearchController
         return successResponse(__('message.user-suspend-successfully'));
     }
 
-    public function userCreate(ClientRequest $request)
+    public function userCreate(ClientRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $password = Hash::make(Str::password(12));
@@ -557,7 +557,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function getEditUser($id)
+    public function getEditUser(int $id): \Illuminate\Http\JsonResponse
     {
         $user = User::with([
             'timezone',
@@ -639,7 +639,7 @@ class ClientController extends AdvanceSearchController
         ]);
     }
 
-    public function userUpdate($id, ClientRequest $request)
+    public function userUpdate(int $id, ClientRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $user = User::find($id);
@@ -658,7 +658,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function getUserSummary($id)
+    public function getUserSummary(int $id): \Illuminate\Http\JsonResponse
     {
         try {
             $user = User::find($id);
@@ -686,7 +686,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function getUserInvoices($id, Request $request)
+    public function getUserInvoices(int $id, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $limit = $request->input('limit', 15);
@@ -725,7 +725,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function getUserPayments($id, Request $request)
+    public function getUserPayments(int $id, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $limit = $request->input('limit', 15);
@@ -763,7 +763,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function getUserComments($id)
+    public function getUserComments(int $id): \Illuminate\Http\JsonResponse
     {
         try {
             $comments = Comment::with('user:id,first_name,last_name')
@@ -785,7 +785,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function storeUserComment($id, Request $request)
+    public function storeUserComment(int $id, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $user = User::find($id);
@@ -811,7 +811,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function updateUserComment($id, $commentId, Request $request)
+    public function updateUserComment(int $id, int $commentId, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $comment = Comment::where('id', $commentId)->where('user_id', $id)->firstOrFail();
@@ -825,7 +825,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function deleteUserComment($id, $commentId)
+    public function deleteUserComment(int $id, int $commentId): \Illuminate\Http\JsonResponse
     {
         try {
             Comment::where('id', $commentId)->where('user_id', $id)->firstOrFail()->delete();
@@ -836,7 +836,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    private function applyUsersFilters($query, Request $request)
+    private function applyUsersFilters(\Illuminate\Database\Eloquent\Builder $query, Request $request): \Illuminate\Database\Eloquent\Builder
     {
         return $query
             ->when($request->filled('company'), fn ($q) => $q->where('company', 'like', '%'.$request->company.'%')
@@ -872,7 +872,7 @@ class ClientController extends AdvanceSearchController
             });
     }
 
-    private function applyUsersSearch($query, $search)
+    private function applyUsersSearch(\Illuminate\Database\Eloquent\Builder $query, string $search): \Illuminate\Database\Eloquent\Builder
     {
         return $query->when($search, function ($q) use ($search): void {
             $q->where(function ($subQuery) use ($search): void {

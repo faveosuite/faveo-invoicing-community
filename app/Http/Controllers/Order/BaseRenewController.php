@@ -21,10 +21,14 @@ class BaseRenewController extends Controller
 {
     use TaxCalculation;
 
-    public function invoiceBySubscriptionId($id, int $planid, $cost, $currency, $agents = null)
+    public function invoiceBySubscriptionId(int $id, int $planid, float|int $cost, string $currency, int|string|null $agents = null): \App\Model\Order\InvoiceItem|\Illuminate\Http\RedirectResponse
     {
         try {
             $sub = Subscription::find($id);
+            if (! $sub) {
+                throw new Exception(__('message.record_not_found'));
+            }
+
             $order_id = $sub->order_id;
 
             return $this->getInvoiceByOrderId($order_id, $planid, $cost, $currency, $agents);
@@ -41,7 +45,7 @@ class BaseRenewController extends Controller
      * @param  int  $cost  The Renew cost for for the Paln
      * @param  string  $currency  Currency of ther plan
      */
-    public function getInvoiceByOrderId(int $orderid, int $planid, $cost, $currency, $agents = null)
+    public function getInvoiceByOrderId(int $orderid, int $planid, float|int $cost, string $currency, int|string|null $agents = null): \App\Model\Order\InvoiceItem|\Illuminate\Http\RedirectResponse
     {
         try {
             $order = Order::find($orderid);
@@ -73,7 +77,7 @@ class BaseRenewController extends Controller
         }
     }
 
-    public function getProductByProductId($id, $order = '')
+    public function getProductByProductId(int|null $id, Order|string|null $order = ''): ?\App\Model\Product\Product
     {
         try {
             $product = Product::find($id);
@@ -81,13 +85,13 @@ class BaseRenewController extends Controller
                 return $product;
             }
 
-            return Product::where('id', $order->product)->first();
+            return $order instanceof Order ? Product::where('id', $order->product)->first() : null;
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function getCost(Request $request)
+    public function getCost(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $planId = $request->input('plan');
@@ -126,7 +130,7 @@ class BaseRenewController extends Controller
         }
     }
 
-    public function generateInvoice($product, $user, $orderid, $planid, $cost, $code, $agents, $currency)
+    public function generateInvoice(\App\Model\Product\Product $product, \App\User $user, int $orderid, int $planid, float|int $cost, string $code, int|string|null $agents, string $currency): \App\Model\Order\InvoiceItem|\Illuminate\Http\RedirectResponse
     {
         try {
             $controller = new InvoiceController();
@@ -140,7 +144,7 @@ class BaseRenewController extends Controller
 //            }
             $renewalPrice = $cost; //Get Renewal Price before calculating tax over it to save as regular price of product
             $controller = new InvoiceController();
-            $tax = $this->calculateTax($product->id, $user->state, $user->country);
+            $tax = $this->calculateTax($product->id, $user->state ?? '', $user->country ?? '');
             $tax_name = $tax['name'];
             $tax_rate = $tax['value'];
             $cost = rounding($controller->calculateTotal($tax_rate, $cost));
@@ -157,10 +161,10 @@ class BaseRenewController extends Controller
             ]);
             $renewController = new RenewController();
             $renewController->createOrderInvoiceRelation($orderid, $invoice->id);
-            $items = $controller->createInvoiceItemsByAdmin($invoice->id, $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, $tax_rate, $renewalPrice);
+            $items = $controller->createInvoiceItemsByAdmin($invoice->id, (string) $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, $tax_rate, $renewalPrice);
             if (in_array($product->id, cloudPopupProducts())) {
                 $license_code = Order::where('id', $orderid)->value('serial_key');
-                $installation_path = Installation::where('license_code', Order::find($orderid)->serial_key)
+                $installation_path = Installation::where('license_code', Order::find($orderid)?->serial_key)
                     ->latest('updated_at')->value('installation_path');
                 $invoice->update([
                     'metadata' => [

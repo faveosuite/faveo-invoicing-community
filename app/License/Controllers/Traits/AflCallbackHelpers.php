@@ -22,7 +22,7 @@ trait AflCallbackHelpers
         ?string $client_email = null,
         ?string $license_code = null,
         ?string $root_url = null
-    ) {
+    ): \Illuminate\Http\JsonResponse {
         $notification = LicenseNotification::first();
         $notificationText = $notification ? ($notification->{$notificationCase} ?? $notificationCase) : $notificationCase;
 

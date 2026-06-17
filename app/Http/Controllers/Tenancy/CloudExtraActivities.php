@@ -41,7 +41,7 @@ class CloudExtraActivities extends Controller
 {
     use TaxCalculation;
 
-    public $cloud;
+    public mixed $cloud = null;
 
     public function __construct(Client $client, FaveoCloud $cloud)
     {
@@ -84,7 +84,7 @@ class CloudExtraActivities extends Controller
         return json_decode((string) Arr::first($response));
     }
 
-    public function domainCloudAutofill()
+    public function domainCloudAutofill(): \Illuminate\Http\JsonResponse
     {
         $company = User::where('id', Auth::user()->id)->value('company');
         $company = substr(strtolower(str_replace(' ', '', $company)), 0, 28);
@@ -92,7 +92,7 @@ class CloudExtraActivities extends Controller
         return response()->json(['data' => $company]);
     }
 
-    public function orderDomainCloudAutofill(Request $request)
+    public function orderDomainCloudAutofill(Request $request): \Illuminate\Http\JsonResponse
     {
         $path = Installation::where('license_code', Order::find($request->orderId)->serial_key)
             ->where('installation_path', '!=', cloudCentralDomain())
@@ -124,7 +124,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function changeDomain(Request $request)
+    public function changeDomain(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $this->validate($request, [
@@ -182,13 +182,13 @@ class CloudExtraActivities extends Controller
 
     private function jobsForCloudDomain(string $newDomain): void
     {
-        new Client([])->request('GET', env('CLOUD_JOB_URL'), [
-            'auth' => [env('CLOUD_USER'), env('CLOUD_AUTH')],
-            'query' => ['token' => env('CLOUD_OAUTH_TOKEN'), 'domain' => $newDomain],
+        new Client([])->request('GET', config('custom.cloud_job_url'), [
+            'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
+            'query' => ['token' => config('custom.cloud_oauth_token'), 'domain' => $newDomain],
         ]);
     }
 
-    public function agentAlteration(Request $request)
+    public function agentAlteration(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $newAgents = $request->newAgents;
@@ -258,7 +258,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function upgradeDowngradeCloud(Request $request)
+    public function upgradeDowngradeCloud(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $planId = $request->id;
@@ -319,7 +319,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    private function getThePaymentCalculation($newAgents, $oldLicense, $orderId, $planId = null, $agentAction = null): array
+    private function getThePaymentCalculation(int $newAgents, string $oldLicense, int $orderId, int|null $planId = null, string|null $agentAction = null): array
     {
         try {
             $sub = Subscription::where('order_id', $orderId)->first();
@@ -333,6 +333,8 @@ class CloudExtraActivities extends Controller
             $oldAgents = substr((string) $oldLicense, 12, 16);
             $planDays = (int) $plan->days;
 
+            $totalAgents = 0;
+            $price = 0.0;
             switch ($agentAction) {
                 case 'increase':
                     $totalAgents = $newAgents + $oldAgents;
@@ -345,7 +347,7 @@ class CloudExtraActivities extends Controller
             }
 
             return [
-                'id' => $product_id,
+                'id' => $product->id,
                 'name' => $product->name,
                 'price' => round($price),
                 'planId' => $planId,
@@ -360,7 +362,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    private function newAgentgreaterthenOld($ends_at, $base_price, $newAgents, $oldAgents, int $planDays): float
+    private function newAgentgreaterthenOld(string $ends_at, float|int $base_price, int $newAgents, int $oldAgents, int $planDays): float
     {
         if ($this->isExpired($ends_at)) {
             return (float) ($base_price * $newAgents);
@@ -373,7 +375,7 @@ class CloudExtraActivities extends Controller
         return (float) ($agentsAdded * $pricePerDay * $daysRemain);
     }
 
-    private function newAgentlessthenOld($ends_at, $base_price, $newAgents, $oldAgents, int $planDays): float
+    private function newAgentlessthenOld(string $ends_at, float|int $base_price, int $newAgents, int $oldAgents, int $planDays): float
     {
         if ($this->isExpired($ends_at)) {
             return (float) ($base_price * $newAgents);
@@ -388,7 +390,7 @@ class CloudExtraActivities extends Controller
         return $priceToBePaid > $priceRemaining ? $priceToBePaid - $priceRemaining : 0;
     }
 
-    private function getThePaymentCalculationUpgradeDowngrade(int $newAgents, $oldLicense, $orderId, $planIdNew): array
+    private function getThePaymentCalculationUpgradeDowngrade(int $newAgents, string $oldLicense, int $orderId, int $planIdNew): array
     {
         try {
             $sub = Subscription::where('order_id', $orderId)->first();
@@ -428,7 +430,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    private function newPriceLessThanOld($ends_at, int|float $base_price_new, $base_priceOld, int $planDaysNew, int $planDaysOld): array
+    private function newPriceLessThanOld(string $ends_at, int|float $base_price_new, int|float $base_priceOld, int $planDaysNew, int $planDaysOld): array
     {
         if ($this->isExpired($ends_at)) {
             return ['price' => $base_price_new, 'priceRemaining' => 0, 'priceToBePaid' => $base_price_new, 'discount' => null];
@@ -487,7 +489,7 @@ class CloudExtraActivities extends Controller
         return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => $discount];
     }
 
-    private function newPriceGreaterThanOld($ends_at, int|float $base_price_new, int $planDaysNew, $base_priceOld, int $planDaysOld): array
+    private function newPriceGreaterThanOld(string $ends_at, int|float $base_price_new, int $planDaysNew, int|float $base_priceOld, int $planDaysOld): array
     {
         if ($this->isExpired($ends_at)) {
             return ['price' => $base_price_new, 'priceRemaining' => 0, 'priceToBePaid' => $base_price_new, 'discount' => null];
@@ -522,7 +524,7 @@ class CloudExtraActivities extends Controller
         return ['price' => $priceToBePaid - $priceRemaining, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => null];
     }
 
-    private function newPriceEqualToOld($ends_at, int|float $base_price_new): array
+    private function newPriceEqualToOld(string $ends_at, int|float $base_price_new): array
     {
         if ($this->isExpired($ends_at)) {
             return ['price' => $base_price_new, 'priceRemaining' => 0, 'priceToBePaid' => $base_price_new, 'discount' => null];
@@ -531,7 +533,7 @@ class CloudExtraActivities extends Controller
         return ['price' => 0, 'priceRemaining' => 0, 'priceToBePaid' => 0, 'discount' => null];
     }
 
-    public function doTheAgentAltering(string $newAgents, string $oldLicense, $orderId, $installation_path, $product_id)
+    public function doTheAgentAltering(string $newAgents, string $oldLicense, int $orderId, string $installation_path, int $product_id): \Illuminate\Http\JsonResponse
     {
         try {
             $len = strlen($newAgents);
@@ -628,7 +630,7 @@ class CloudExtraActivities extends Controller
         DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user',  'created_at' => Date::now(), 'updated_at' => Date::now()]);
     }
 
-    private function getThePaymentCalculationUpgradeDowngradeDisplay($newAgents, $oldAgents, $orderId, $planIdNew, $pricePerAgent): array
+    private function getThePaymentCalculationUpgradeDowngradeDisplay(int $newAgents, string $oldAgents, int $orderId, int $planIdNew, float|int $pricePerAgent): array
     {
         try {
             $discount = 0;
@@ -636,14 +638,14 @@ class CloudExtraActivities extends Controller
             $ends_at = Subscription::where('order_id', $orderId)->value('ends_at');
             $oldAgents = substr($oldAgents, 12, 16);
 
-            $product_id_old = Plan::where('id', $planIdOld)->pluck('product')->first();
-            $planDaysOld = Plan::where('id', $planIdOld)->pluck('days')->first();
+            $product_id_old = Plan::where('id', $planIdOld)->value('product');
+            $planDaysOld = Plan::where('id', $planIdOld)->value('days');
             $productOld = Product::find($product_id_old);
             $currencyOld = userCurrencyAndPrice('', $productOld->planRelation->find($planIdOld));
             $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->value('add_price') * $oldAgents;
 
-            $product_id_new = Plan::where('id', $planIdNew)->pluck('product')->first();
-            $planDaysNew = Plan::where('id', $planIdNew)->pluck('days')->first();
+            $product_id_new = Plan::where('id', $planIdNew)->value('product');
+            $planDaysNew = Plan::where('id', $planIdNew)->value('days');
             $productNew = Product::find($product_id_new);
             $currencyNew = userCurrencyAndPrice('', $productNew->planRelation->find($planIdNew));
             $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->value('add_price') * $newAgents;
@@ -675,7 +677,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    private function displayPriceNewGreaterThanOld($ends_at, int|float $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld): array
+    private function displayPriceNewGreaterThanOld(string $ends_at, int|float $base_price_new, int|float $base_priceOld, int $planDaysNew, int $planDaysOld): array
     {
         if ($this->isExpired($ends_at)) {
             return ['price' => $base_price_new, 'priceRemaining' => 0, 'priceToBePaid' => $base_price_new];
@@ -697,7 +699,7 @@ class CloudExtraActivities extends Controller
         return ['price' => $priceToBePaid - $priceRemaining, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid];
     }
 
-    private function displayPriceNewLessThanOld($ends_at, int|float $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld): array
+    private function displayPriceNewLessThanOld(string $ends_at, int|float $base_price_new, int|float $base_priceOld, int $planDaysNew, int $planDaysOld): array
     {
         $discount = 0;
 
@@ -729,7 +731,7 @@ class CloudExtraActivities extends Controller
         return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => $discount];
     }
 
-    private function displayNewPlanDaysNotEqualOld(int $daysRemain, $planDaysNew, $planDaysOld, float|int $pricePerDayForNewPlan, float|int $pricePerDayForOldPlan): array
+    private function displayNewPlanDaysNotEqualOld(int $daysRemain, int $planDaysNew, int $planDaysOld, float|int $pricePerDayForNewPlan, float|int $pricePerDayForOldPlan): array
     {
         $discount = 0;
 
@@ -752,12 +754,12 @@ class CloudExtraActivities extends Controller
         return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => $discount];
     }
 
-    public function processFormat(Request $request)
+    public function processFormat(Request $request): string
     {
         return currencyFormat($request->get('totalPrice'), getCurrencyForClient(Auth::user()->country), includeSymbol: true);
     }
 
-    public function getThePaymentCalculationDisplay(Request $request)
+    public function getThePaymentCalculationDisplay(Request $request): array|\Illuminate\Http\JsonResponse
     {
         try {
             $newAgents = $request->get('number');
@@ -769,17 +771,19 @@ class CloudExtraActivities extends Controller
 
             $orderId = $request->get('orderId');
             $planId = Subscription::where('order_id', $orderId)->value('plan_id');
-            $product = Product::find(Plan::where('id', $planId)->pluck('product')->first());
+            $product = Product::find(Plan::where('id', $planId)->value('product'));
             $plan = $product->planRelation->find($planId);
             $currency = userCurrencyAndPrice('', $plan);
             $ends_at = Subscription::where('order_id', $orderId)->value('ends_at');
-            $planDays = (int) Plan::where('id', $planId)->pluck('days')->first();
+            $planDays = (int) Plan::where('id', $planId)->value('days');
             $base_price = PlanPrice::where('plan_id', $planId)->where('currency', $currency['currency'])->value('add_price');
 
             if (empty($newAgents)) {
                 return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], includeSymbol: true), 'totalPrice' => 0, 'priceToPay' => 0];
             }
 
+            $totalAgents = 0;
+            $price = 0.0;
             switch ($request->agentAction) {
                 case 'increase':
                     $totalAgents = $newAgents + $oldAgents;
@@ -803,7 +807,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function storeTenantTillPurchase(Request $request)
+    public function storeTenantTillPurchase(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate(['domain' => ['required', 'alpha_num']]);
 
@@ -827,7 +831,7 @@ class CloudExtraActivities extends Controller
         return $this->cloudApiPost('/checkDomain', ['domain' => $domain, 'key' => $keys->app_key]);
     }
 
-    public function fetchData(Request $request)
+    public function fetchData(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $productPlanData = CloudProducts::with(['product', 'plan'])
@@ -851,7 +855,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function updateTrialStatus(Request $request)
+    public function updateTrialStatus(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             CloudProducts::findOrFail($request->input('id'))->update(['trial_status' => $request->input('status')]);
@@ -862,7 +866,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function trialCloudProducts()
+    public function trialCloudProducts(): \Illuminate\Http\JsonResponse
     {
         $cloud = CloudProducts::where('trial_status', '1')->with('product')->get();
         $product = $cloud->pluck('product.name', 'cloud_product_key')->filter()->all();
@@ -870,7 +874,7 @@ class CloudExtraActivities extends Controller
         return successResponse('Products', $product);
     }
 
-    public function DeleteProductConfig(Request $request)
+    public function DeleteProductConfig(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             CloudProducts::findOrFail($request->input('id'))->delete();
@@ -881,7 +885,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function storeCloudDataCenter(Request $request)
+    public function storeCloudDataCenter(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate(['cloud_countries' => ['required'], 'cloud_state' => ['required']]);
 
@@ -908,7 +912,7 @@ class CloudExtraActivities extends Controller
         return errorResponse(__('message.no_lat_or_long'));
     }
 
-    private function getStateCoordinates($stateName)
+    private function getStateCoordinates(string $stateName): ?array
     {
         $stateName = str_replace(' ', '+', $stateName);
         $url = sprintf('https://nominatim.openstreetmap.org/search?q=%s&format=json&limit=1', $stateName);
@@ -922,7 +926,7 @@ class CloudExtraActivities extends Controller
         return ['latitude' => $data[0]['lat'], 'longitude' => $data[0]['lon']];
     }
 
-    public function removeLocation(Request $request)
+    public function removeLocation(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $location = Arr::first(explode(', ', $request->location_id));

@@ -65,7 +65,7 @@ trait SystemActivityLogsTrait
         $activity->properties = $properties;
     }
 
-    protected function setCauser(Activity $activity)
+    protected function setCauser(Activity $activity): void
     {
         $userId = $activity->subject->{$this->causerID} ?? null;
 

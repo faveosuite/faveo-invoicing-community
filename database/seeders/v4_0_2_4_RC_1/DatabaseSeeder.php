@@ -64,7 +64,7 @@ class DatabaseSeeder extends Seeder
     {
         $env = base_path() . DIRECTORY_SEPARATOR . '.env';
 
-        if (is_file($env) && config('app.env') !== 'testing' && env('APP_KEY_UPDATED') !== 'true') {
+        if (is_file($env) && config('app.env') !== 'testing' && env('APP_KEY_UPDATED') !== 'true') { // @phpstan-ignore larastan.noEnvCallsOutsideOfConfig
 
             setEnvValue(['APP_PREVIOUS_KEYS' => 'SomeRandomString']);
 

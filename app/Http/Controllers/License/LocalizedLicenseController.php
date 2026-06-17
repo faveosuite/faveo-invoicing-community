@@ -27,9 +27,10 @@ class LocalizedLicenseController extends Controller
         $this->middleware('admin', ['except' => ['downloadFile', 'downloadPrivate', 'storeFile']]);
     }
 
-    private function postCurl($post_url, $post_info, $token = null): bool|string
+    /** @param non-empty-string $post_url */
+    private function postCurl(string $post_url, mixed $post_info, string $token = ''): bool|string
     {
-        if (! empty($token)) {
+        if ($token !== '') {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $post_url);
             curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
@@ -63,7 +64,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Downloads the license file.
      * */
-    public function downloadFile(Request $request)
+    public function downloadFile(Request $request): \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
     {
         if (Auth::check()) {
             $orderNo = $request->get('orderNo');
@@ -79,7 +80,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Downloads the license file through admin.
      * */
-    public function downloadFileAdmin(string $fileName)
+    public function downloadFileAdmin(string $fileName): \Symfony\Component\HttpFoundation\BinaryFileResponse
     {
         $filePath = storage_path('app/public/'.$fileName);
 
@@ -89,7 +90,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Downloads the private key for the license.
      * */
-    public function downloadPrivate(string $orderNo)
+    public function downloadPrivate(string $orderNo): \Symfony\Component\HttpFoundation\BinaryFileResponse
     {
         $fileName = storage_path('app/public/privateKey-'.$orderNo.'.txt');
 
@@ -99,9 +100,9 @@ class LocalizedLicenseController extends Controller
     /**
      * Downloads the private key for the license through admin panel.
      * */
-    public function downloadPrivateKeyAdmin($fileName)
+    public function downloadPrivateKeyAdmin(string $fileName): \Symfony\Component\HttpFoundation\BinaryFileResponse
     {
-        $value = explode('}', (string) $fileName);
+        $value = explode('}', $fileName);
         $orderNo = substr($value[0], 15);
         $fileName = storage_path('app/public/privateKey-'.$orderNo.'.txt');
 
@@ -111,7 +112,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Chooses which license mode is applicable File/Database.
      * */
-    public function chooseLicenseMode(Request $request)
+    public function chooseLicenseMode(Request $request): \Illuminate\Http\JsonResponse
     {
         $orderNo = $request->input('orderNo');
         $chose = $request->boolean('choose');
@@ -133,7 +134,7 @@ class LocalizedLicenseController extends Controller
         return successResponse(__('message.status_change_successfully'));
     }
 
-    public function filesApi(Request $request)
+    public function filesApi(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchQuery = $request->input('search-query', '');
@@ -180,7 +181,7 @@ class LocalizedLicenseController extends Controller
         }
     }
 
-    public function deleteFileApi(Request $request)
+    public function deleteFileApi(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $fileName = $request->input('file_name');
@@ -199,7 +200,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Stores the license file after the client has entered a domain and downloads the license.
      * */
-    public function storeFile(LocalizedLicenseRequest $request)
+    public function storeFile(LocalizedLicenseRequest $request): \Illuminate\Http\RedirectResponse
     {
         if (Auth::check()) {
             $userID = $request->input('userId');
@@ -260,7 +261,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Generates a temporary link to download the license file with a time constraint.
      * */
-    public function tempOrderLink($orderNo, $userID)
+    public function tempOrderLink(string $orderNo, int $userID): string|\Illuminate\Http\RedirectResponse
     {
         if (! empty($userID) && ! empty(Auth::user()->id)) {
             return URL::temporarySignedRoute('event.rsvp', now()->addSeconds(30), [
@@ -271,7 +272,7 @@ class LocalizedLicenseController extends Controller
         return redirect(url('login'));
     }
 
-    private function localizedLicenseInstallLM($orderNo): void
+    private function localizedLicenseInstallLM(string $orderNo): void
     {
         Order::where('number', $orderNo)->value('product');
         date('Y-m-d');
@@ -324,7 +325,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Deletes the license file.
      * */
-    public function deleteFile($fileName)
+    public function deleteFile(string $fileName): \Illuminate\Http\RedirectResponse
     {
         Storage::disk('public')->delete($fileName);
 
@@ -332,7 +333,7 @@ class LocalizedLicenseController extends Controller
     }
 
     //return an array with license data
-    private function getLicenseData($fileName, string $orderNo): array
+    private function getLicenseData(string $fileName, string $orderNo): array
     {
         return $this->parseLicenseFile($fileName, $orderNo);
     }
@@ -341,7 +342,7 @@ class LocalizedLicenseController extends Controller
     /**
      * @return string[]
      */
-    private function parseLicenseFile($fileName, string $orderNo): array
+    private function parseLicenseFile(string $fileName, string $orderNo): array
     {
         $license_data_array = [];
         $stored = Storage::disk('public')->path($fileName);

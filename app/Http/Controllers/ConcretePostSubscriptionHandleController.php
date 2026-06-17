@@ -11,7 +11,9 @@ use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
+use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\User;
 use App\Services\Payment\ProcessingFee;
 use App\Services\Payment\SubscriptionService;
 use App\Services\SubscriptionRenewalService;
@@ -43,26 +45,26 @@ abstract class PostSubscriptionHandleController
         $this->payment = $payment;
     }
 
-    abstract public function successRenew(Invoice $invoice, $subscription, string $payment_method, string $currency): int;
+    abstract public function successRenew(Invoice $invoice, Subscription $subscription, string $payment_method, string $currency): int;
 
-    abstract public function recordPayment(Invoice $invoice, string $payment_method);
+    abstract public function recordPayment(Invoice $invoice, string $payment_method): Payment;
 
-    abstract public function getProcessingFee($paymentMethod, $currency);
+    abstract public function getProcessingFee(string $paymentMethod, string $currency): ?string;
 
-    abstract public function PaymentSuccessMailtoAdmin($invoice, $total, $user, $productName, $template, $order, $payment);
+    abstract public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, Template|null $template, Order $order, Payment|string $payment): void;
 
-    abstract public function FailedPaymenttoAdmin($invoice, $total, $productName, $exceptionMessage, $user, $template, $order, $payment);
+    abstract public function FailedPaymenttoAdmin(Invoice $invoice, float|int $total, string $productName, string $exceptionMessage, User $user, string $template, Order $order, Payment $payment): void;
 
-    abstract public function calculateUnitCost($currency, $cost);
+    abstract public function calculateUnitCost(string $currency, float|int $cost): float;
 
-    abstract public function sendPaymentSuccessMail($sub, $currency, $total, $user, $product, $number);
+    abstract public function sendPaymentSuccessMail(int $sub, string $currency, float|int $total, User $user, string $product, string $number): void;
 
-    abstract public function sendFailedPayment($total, $exceptionMessage, $user, $number, $end, $currency, $order, $product_details, $invoice, $payment);
+    abstract public function sendFailedPayment(float|int|null $total, string $exceptionMessage, ?User $user, ?string $number, string $end, ?string $currency, ?Order $order, ?Product $product_details, ?Invoice $invoice, Payment|string|null $payment): void;
 }
 
 class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleController
 {
-    public function successRenew(Invoice $invoice, $subscription, string $payment_method, string $currency): int
+    public function successRenew(Invoice $invoice, Subscription $subscription, string $payment_method, string $currency): int
     {
         $sub = $this->sub->find($subscription->id);
         $plan = $this->plan->find($subscription->plan_id);
@@ -76,7 +78,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         return $sub->id;
     }
 
-    public function recordPayment(Invoice $invoice, string $payment_method)
+    public function recordPayment(Invoice $invoice, string $payment_method): Payment
     {
         $invoice->update(['status' => 'success']);
 
@@ -90,7 +92,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         ]);
     }
 
-    public function getProcessingFee($paymentMethod, $currency): ?string
+    public function getProcessingFee(string $paymentMethod, string $currency): ?string
     {
         $percent = ProcessingFee::percent($paymentMethod);
 
@@ -99,7 +101,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         return $percent > 0 ? ProcessingFee::label($percent) : null;
     }
 
-    public function PaymentSuccessMailtoAdmin($invoice, $total, $user, $productName, $template, $order, $payment): void
+    public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, Template|null $template, Order $order, Payment|string $payment): void
     {
         $amount = currencyFormat($total, getCurrencyForClient($user->country));
         $setting = Setting::find(1);
@@ -111,7 +113,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $mail->payment_log($user->email, $payment, 'success', $order->number, amount: $amount, payment_type: 'Product renew');
     }
 
-    public function FailedPaymenttoAdmin($invoice, $total, $productName, $exceptionMessage, $user, $template, $order, $payment): void
+    public function FailedPaymenttoAdmin(Invoice $invoice, float|int $total, string $productName, string $exceptionMessage, User $user, string $template, Order $order, Payment $payment): void
     {
         $amount = currencyFormat($total, getCurrencyForClient($user->country));
         $setting = Setting::find(1);
@@ -122,7 +124,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $mail->payment_log($user->email, $payment, 'failed', $order->number, $exceptionMessage, $amount, 'Product renew');
     }
 
-    public function sendPaymentSuccessMail($sub, $currency, $total, $user, $product, $number): void
+    public function sendPaymentSuccessMail(int $sub, string $currency, float|int $total, User $user, string $product, string $number): void
     {
         $future_expiry = Subscription::find($sub);
         $contact = getContactData();
@@ -151,7 +153,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    public function sendFailedPayment($total, $exceptionMessage, $user, $number, $end, $currency, $order, $product_details, $invoice, $payment): void
+    public function sendFailedPayment(float|int|null $total, string $exceptionMessage, ?User $user, ?string $number, string $end, ?string $currency, ?Order $order, ?Product $product_details, ?Invoice $invoice, Payment|string|null $payment): void
     {
         $contact = getContactData();
         //check in the settings
@@ -182,7 +184,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $this->FailedPaymenttoAdmin($invoice, $total, $product_details->name, $exceptionMessage, $user, $template->name, $order, $payment);
     }
 
-    public function calculateUnitCost($currency, $cost): float
+    public function calculateUnitCost(string $currency, float|int $cost): float
     {
         $decimalPlaces = [
             'BIF' => 0, 'CLP' => 0, 'DJF' => 0, 'GNF' => 0, 'JPY' => 0,
@@ -205,7 +207,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         return $unit_cost;
     }
 
-    public function disableAutorenewalStatusByOrderId($orderId): void
+    public function disableAutorenewalStatusByOrderId(int $orderId): void
     {
         try {
             $subscription = Subscription::where('order_id', $orderId)->first();

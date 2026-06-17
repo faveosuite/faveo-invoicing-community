@@ -7,6 +7,24 @@ namespace App\Model\Common;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $manager_role
+ * @property int $auto_assign
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting whereAutoAssign($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting whereManagerRole($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManagerSetting whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class ManagerSetting extends Model
 {
     use SystemActivityLogsTrait;
@@ -16,16 +34,16 @@ class ManagerSetting extends Model
         'auto_assign',
     ];
 
-    protected $logName = 'system_manager';
+    protected string $logName = 'system_manager';
 
-    protected $logNameColumn = 'Settings';
+    protected string $logNameColumn = 'Settings';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'manager_role',
         'auto_assign',
     ];
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['system-managers'],
     ];
 

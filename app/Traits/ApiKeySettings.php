@@ -244,7 +244,7 @@ trait ApiKeySettings
                 $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
                 $allists = $mailchimp->get('lists?count=20')['lists'];
                 $selectedList[] = $set->list_id;
-                $subscribe_status = MailchimpSetting::pluck('subscribe_status')->first();
+                $subscribe_status = MailchimpSetting::value('subscribe_status');
                 $data = ['mailchimpverifiedStatus' => $mailchimpverifiedStatus,
                     'status' => $status,
                     'allLists' => $allists,
@@ -399,14 +399,14 @@ trait ApiKeySettings
 
             $fileStorage = [
                 'disk' => $fileStorageSettings->disk ?? '',
-                'local_file_storage_path' => env('STORAGE_PATH', storage_path('app/public')),
-                's3_bucket' => env('AWS_BUCKET', ''),
-                's3_region' => env('AWS_DEFAULT_REGION', ''),
-                's3_access_key' => env('AWS_ACCESS_KEY_ID', ''),
-                's3_secret_key' => env('AWS_SECRET_ACCESS_KEY', ''),
-                's3_endpoint_url' => env('AWS_ENDPOINT', ''),
-                's3_url' => env('AWS_URL', ''),
-                's3_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', ''),
+                'local_file_storage_path' => config('custom.storage_path', storage_path('app/public')),
+                's3_bucket' => config('filesystems.disks.s3.bucket', ''),
+                's3_region' => config('filesystems.disks.s3.region', ''),
+                's3_access_key' => config('filesystems.disks.s3.key', ''),
+                's3_secret_key' => config('filesystems.disks.s3.secret', ''),
+                's3_endpoint_url' => config('filesystems.disks.s3.endpoint', ''),
+                's3_url' => config('filesystems.disks.s3.url', ''),
+                's3_path_style_endpoint' => config('filesystems.disks.s3.use_path_style_endpoint', ''),
             ];
 
             return successResponse('', $fileStorage);

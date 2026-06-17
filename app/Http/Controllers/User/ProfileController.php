@@ -28,6 +28,7 @@ class ProfileController extends BaseAuthController
             $timezonesList = Timezone::get();
             $is2faEnabled = $user->is_2fa_enabled;
             $dateSinceEnabled = $user->google2fa_activation_date;
+            $display = [];
             foreach ($timezonesList as $timezone) {
                 $location = $timezone->location;
                 if ($location) {
@@ -58,7 +59,7 @@ class ProfileController extends BaseAuthController
             $user = Auth::user();
             if ($request->hasFile('profile_pic')) {
                 $path = Attach::put('common/images/users/', $request->file('profile_pic'), null, true);
-                $user->profile_pic = basename($path);
+                $user->profile_pic = basename((string) $path);
             }
 
             $user->fill($request->input())->save();

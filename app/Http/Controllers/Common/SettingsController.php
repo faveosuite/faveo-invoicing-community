@@ -67,7 +67,7 @@ class SettingsController extends BaseSettingsController
         $this->statusSetting = $status;
     }
 
-    public function mobileVerification(ApiKey $apikeys)
+    public function mobileVerification(ApiKey $apikeys): \Illuminate\Http\JsonResponse
     {
         [$mobileauthkey,$msg91Sender,$msg91TemplateId,$msg91ThirdPartyId] = array_values($apikeys->select('msg91_auth_key', 'msg91_sender', 'msg91_template_id', 'msg91_third_party_id')->first()->toArray());
 
@@ -81,7 +81,7 @@ class SettingsController extends BaseSettingsController
         return successResponse('', $data);
     }
 
-    public function termsUrl(ApiKey $apikeys)
+    public function termsUrl(ApiKey $apikeys): \Illuminate\Http\JsonResponse
     {
         $termsUrl = $apikeys->value('terms_url');
 
@@ -92,7 +92,7 @@ class SettingsController extends BaseSettingsController
         return successResponse('', $data);
     }
 
-    public function pipedrivekeys(ApiKey $apikeys)
+    public function pipedrivekeys(ApiKey $apikeys): \Illuminate\Http\JsonResponse
     {
         $pipedriveKey = $apikeys->value('pipedrive_api_key');
 
@@ -104,7 +104,7 @@ class SettingsController extends BaseSettingsController
         return successResponse('', $data);
     }
 
-    public function githubkeys(ApiKey $apikeys)
+    public function githubkeys(ApiKey $apikeys): \Illuminate\Http\JsonResponse
     {
         $model = new Github();
         try {
@@ -127,7 +127,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function postKeys(ApiKey $apikeys, Request $request)
+    public function postKeys(ApiKey $apikeys, Request $request): \Illuminate\Http\RedirectResponse
     {
         try {
             $keys = $apikeys->find(1);
@@ -164,7 +164,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getSettingsIndexData()
+    public function getSettingsIndexData(): \Illuminate\Http\JsonResponse
     {
         $statusSetting = $this->statusSetting->first();
 
@@ -181,7 +181,7 @@ class SettingsController extends BaseSettingsController
         ]);
     }
 
-    public function settingsTemplate()
+    public function settingsTemplate(): \Illuminate\Http\JsonResponse
     {
         try {
             $types = TemplateType::all()->map(fn ($t): array => [
@@ -200,7 +200,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function postSettingsTemplate(Request $request)
+    public function postSettingsTemplate(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             foreach ($request->input('mappings', []) as $typeId => $templateId) {
@@ -214,7 +214,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getErrorSettings(Setting $settings)
+    public function getErrorSettings(Setting $settings): \Illuminate\Http\JsonResponse
     {
         try {
             $set = $settings->find(1);
@@ -228,7 +228,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getSystemSettingsData(Setting $settings)
+    public function getSystemSettingsData(Setting $settings): \Illuminate\Http\JsonResponse
     {
         try {
             $set = $settings->with('timezone:id,name,location')->find(1) ?: $settings->create(['company' => '']);
@@ -288,7 +288,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function updateSystemSettingsData(Setting $settings, Request $request)
+    public function updateSystemSettingsData(Setting $settings, Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'company' => ['required', 'max:50'],
@@ -315,17 +315,17 @@ class SettingsController extends BaseSettingsController
 
             if ($request->hasFile('logo')) {
                 $path = Attach::put('images', $request->file('logo'), null, true);
-                $setting->logo = basename($path);
+                $setting->logo = basename((string) $path);
             }
 
             if ($request->hasFile('admin-logo')) {
                 $path = Attach::put('admin/images', $request->file('admin-logo'), null, true);
-                $setting->admin_logo = basename($path);
+                $setting->admin_logo = basename((string) $path);
             }
 
             if ($request->hasFile('fav-icon')) {
                 $path = Attach::put('common/images', $request->file('fav-icon'), null, true);
-                $setting->fav_icon = basename($path);
+                $setting->fav_icon = basename((string) $path);
             }
 
             $setting->default_symbol = Currency::where('code', $request->input('default_currency'))->value('symbol');
@@ -338,7 +338,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function updateDateTimeSettingsData(Setting $settings, Request $request)
+    public function updateDateTimeSettingsData(Setting $settings, Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'timezone_id' => ['required', 'integer', 'exists:timezone,id'],
@@ -359,7 +359,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getModuleSettings(Request $request)
+    public function getModuleSettings(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $status = StatusSetting::first();
@@ -413,7 +413,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getPipedriveSettings()
+    public function getPipedriveSettings(): \Illuminate\Http\JsonResponse
     {
         try {
             $groups = PipedriveGroups::whereIn('group_name', ['Person', 'Organization', 'Deal'])
@@ -434,7 +434,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function updatePipedriveSettings(Request $request)
+    public function updatePipedriveSettings(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             StatusSetting::findOrFail(1)->update(['pipedrive_status' => $request->boolean('status')]);
@@ -449,7 +449,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getCronSettingsData()
+    public function getCronSettingsData(): \Illuminate\Http\JsonResponse
     {
         try {
             $status = StatusSetting::find(1);
@@ -502,7 +502,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function updateCronSettingsData(Request $request)
+    public function updateCronSettingsData(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $status = StatusSetting::findOrFail(1);
@@ -540,7 +540,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function updateCronDaysData(Request $request)
+    public function updateCronDaysData(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             ExpiryMailDay::truncate();
@@ -571,7 +571,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getCloudDetails()
+    public function getCloudDetails(): \Illuminate\Http\JsonResponse
     {
         try {
             $cloud = FaveoCloud::find(1);
@@ -612,7 +612,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getBody($id)
+    public function getBody(int $id): \Illuminate\Http\JsonResponse
     {
         try {
             $email = Email_log::findOrFail($id);
@@ -623,7 +623,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getActivityApi(Request $request)
+    public function getActivityApi(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -691,7 +691,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getActivityFilters()
+    public function getActivityFilters(): \Illuminate\Http\JsonResponse
     {
         try {
             $modules = Activity::distinct()->pluck('log_name')->filter()->values();
@@ -712,7 +712,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getPaymentLogApi(Request $request)
+    public function getPaymentLogApi(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -786,7 +786,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function mailSearch($from = '', $till = '')
+    public function mailSearch(string $from = '', string $till = ''): \Illuminate\Database\Eloquent\Builder
     {
         $join = Email_log::select('id', 'from', 'to', 'date', 'subject', 'status');
 
@@ -806,7 +806,7 @@ class SettingsController extends BaseSettingsController
         return $join;
     }
 
-    public function postSettingsError(Setting $settings, Request $request)
+    public function postSettingsError(Setting $settings, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $setting = $settings->find(1);
@@ -818,7 +818,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function debugSettings()
+    public function debugSettings(): \Illuminate\Http\JsonResponse
     {
         return successResponse('', [
             'debug' => (bool) commonSettings('debugging', 'app_debug'),
@@ -829,7 +829,7 @@ class SettingsController extends BaseSettingsController
         ]);
     }
 
-    public function postdebugSettings(Request $request)
+    public function postdebugSettings(Request $request): \Illuminate\Http\JsonResponse
     {
         $bool = fn (string $key): string => $request->boolean($key) ? '1' : '0';
 
@@ -863,7 +863,7 @@ class SettingsController extends BaseSettingsController
         return successResponse(Lang::get('message.updated-successfully'));
     }
 
-    public function paymentSearch($from = '', $till = '')
+    public function paymentSearch(string $from = '', string $till = ''): \Illuminate\Database\Eloquent\Builder
     {
         $join = Payment_log::query()->leftJoin('users', 'payment_logs.from', '=', 'users.email')
             ->select('payment_logs.id', 'from', 'to', 'date', 'subject', 'status', 'payment_logs.created_at', 'payment_method', 'order', 'exception', 'email', DB::raw("CONCAT(first_name, ' ', last_name) as name"), 'users.id', 'payment_logs.id as count', 'amount', 'payment_type');
@@ -883,7 +883,7 @@ class SettingsController extends BaseSettingsController
         return $join;
     }
 
-    private function DateFormat($date = null): string
+    private function DateFormat(?string $date = null): string
     {
         if ($date === null) {
             return date('Y-m-d H:i:s');
@@ -892,7 +892,7 @@ class SettingsController extends BaseSettingsController
         return date('Y-m-d H:i:s', strtotime($date));
     }
 
-    public function destroyPayment(Request $request)
+    public function destroyPayment(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $ids = $request->input('ids', []);
@@ -909,7 +909,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function contactOption()
+    public function contactOption(): \Illuminate\Http\JsonResponse
     {
         return successResponse('', [
             'sending_status' => Setting::value('sending_status'),
@@ -919,7 +919,7 @@ class SettingsController extends BaseSettingsController
         ]);
     }
 
-    public function postContactOption(Request $request)
+    public function postContactOption(Request $request): \Illuminate\Http\JsonResponse
     {
         $data = $request->only(['email_enabled', 'mobile_enabled', 'preferred_verification']);
 
@@ -934,7 +934,7 @@ class SettingsController extends BaseSettingsController
         return successResponse(__('message.contact_setting_update'));
     }
 
-    public function emailCheckboxData()
+    public function emailCheckboxData(): \Illuminate\Http\JsonResponse
     {
         $current = EmailMobileValidationProviders::where('provider', 'reoon')->value('accepted_output') ?? 1;
         $statusOptions = $this->setStatus($current);
@@ -948,7 +948,7 @@ class SettingsController extends BaseSettingsController
         return successResponse(trans('message.success'), $response);
     }
 
-    public function listEmailValidationLogs(Request $request)
+    public function listEmailValidationLogs(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $query = EmailValidationResults::select(['id', 'email', 'method', 'status', 'registration', 'created_at']);
@@ -978,7 +978,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getEmailValidationResults(Request $request)
+    public function getEmailValidationResults(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $id = $request->input('id');
@@ -1001,7 +1001,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getEmailValidationUserResults(Request $request)
+    public function getEmailValidationUserResults(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $id = $request->input('id');
@@ -1021,7 +1021,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    private function setStatus($current): string
+    private function setStatus(int $current): string
     {
         $map = [
             'safe' => 1,
@@ -1049,7 +1049,7 @@ class SettingsController extends BaseSettingsController
         return $statusOptions;
     }
 
-    public function emailSettingsSave(Request $request)
+    public function emailSettingsSave(Request $request): \Illuminate\Http\JsonResponse
     {
         $emailSave = new EmailMobileValidationProviders();
 
@@ -1076,7 +1076,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function mobileSettingsSave(Request $request)
+    public function mobileSettingsSave(Request $request): ?\Illuminate\Http\JsonResponse
     {
         $emailSave = new EmailMobileValidationProviders();
         $provider = $request->input('provider');
@@ -1117,9 +1117,11 @@ class SettingsController extends BaseSettingsController
 
             return successResponse(Lang::get('message.mobile_validation_success_abstract'));
         }
+
+        return null;
     }
 
-    public function getMsg91Settings()
+    public function getMsg91Settings(): \Illuminate\Http\JsonResponse
     {
         try {
             $apiKey = ApiKey::first();
@@ -1137,7 +1139,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getGithubSettings()
+    public function getGithubSettings(): \Illuminate\Http\JsonResponse
     {
         try {
             $github = Github::first();
@@ -1151,7 +1153,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getTermsSettings()
+    public function getTermsSettings(): \Illuminate\Http\JsonResponse
     {
         try {
             return successResponse('', [
@@ -1162,7 +1164,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getEmailValidationSettings()
+    public function getEmailValidationSettings(): \Illuminate\Http\JsonResponse
     {
         try {
             $provider = EmailMobileValidationProviders::where('type', 'email')
@@ -1191,7 +1193,7 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getMobileValidationSettings()
+    public function getMobileValidationSettings(): \Illuminate\Http\JsonResponse
     {
         try {
             $provider = EmailMobileValidationProviders::where('type', 'mobile')

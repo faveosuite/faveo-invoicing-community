@@ -39,7 +39,7 @@ use Throwable;
 
 class TenantController extends Controller
 {
-    private $cloud;
+    private mixed $cloud = null;
 
     public function __construct(Client $client, FaveoCloud $cloud)
     {
@@ -49,7 +49,7 @@ class TenantController extends Controller
         $this->middleware('auth', ['except' => ['verifyThirdPartyToken']]);
     }
 
-    public function viewTenant()
+    public function viewTenant(): \Illuminate\Http\JsonResponse
     {
         try {
             if ($this->cloud && $this->cloud->cloud_central_domain) {
@@ -82,6 +82,7 @@ class TenantController extends Controller
                 $cloudPopUp = null;
             }
 
+            $de ??= null;
             $cloudButton = StatusSetting::value('cloud_button');
             $cloudDataCenters = CloudDataCenters::all();
 
@@ -106,7 +107,7 @@ class TenantController extends Controller
         }
     }
 
-    public function enableCloud(Request $request)
+    public function enableCloud(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $statusSetting = StatusSetting::findOrFail(1);
@@ -120,7 +121,7 @@ class TenantController extends Controller
         }
     }
 
-    public function getTenants(Request $request)
+    public function getTenants(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchQuery = $request->input('search-query', '');
@@ -206,7 +207,7 @@ class TenantController extends Controller
         }
     }
 
-    private function postCurl($post_url, $post_info): bool|string
+    private function postCurl(string $post_url, mixed $post_info): bool|string
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $post_url);
@@ -225,7 +226,7 @@ class TenantController extends Controller
     /**
      * Logic for creating new tenant is handled here.
      */
-    public function createTenant(Request $request)
+    public function createTenant(Request $request): \Illuminate\Http\JsonResponse
     {
         $order = Order::wherenumber($request->orderNo)->get();
         $product = CloudProducts::where('cloud_product', $order[0]->productRelation()->value('id'))->value('cloud_product_key');
@@ -308,10 +309,10 @@ class TenantController extends Controller
                 return errorResponse($result->message);
                 //return ['status' => 'validationFailure', 'message' => $result->message];
             } else {
-                $client->request('GET', env('CLOUD_JOB_URL_NORMAL'), [
-                    'auth' => [env('CLOUD_USER'), env('CLOUD_AUTH')],
+                $client->request('GET', config('custom.cloud_job_url_normal'), [
+                    'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
                     'query' => [
-                        'token' => env('CLOUD_OAUTH_TOKEN'),
+                        'token' => config('custom.cloud_oauth_token'),
                         'domain' => $faveoCloud,
                     ],
                 ]);
@@ -391,7 +392,7 @@ class TenantController extends Controller
         }
     }
 
-    public function destroyTenant(Request $request)
+    public function destroyTenant(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
@@ -455,34 +456,34 @@ class TenantController extends Controller
         }
     }
 
-    public function statusChange($order_id): void
+    public function statusChange(int $order_id): void
     {
         Order::where('id', $order_id)->first()->subscription()->update(['is_deleted' => 1]);
     }
 
-    private function deleteCronForTenant($tenantId): void
+    private function deleteCronForTenant(string $tenantId): void
     {
         $client = new Client();
         if (strpos((string) $tenantId, (string) cloudSubDomain())) {
-            $client->request('GET', env('CLOUD__DELETE_JOB_URL_NORMAL'), [
-                'auth' => [env('CLOUD_USER'), env('CLOUD_AUTH')],
+            $client->request('GET', config('custom.cloud_delete_job_url_normal'), [
+                'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
                 'query' => [
-                    'token' => env('CLOUD_OAUTH_TOKEN'),
+                    'token' => config('custom.cloud_oauth_token'),
                     'domain' => $tenantId,
                 ],
             ]);
         } else {
-            $client->request('GET', env('CLOUD__DELETE_JOB_URL_CUSTOM'), [
-                'auth' => [env('CLOUD_USER'), env('CLOUD_AUTH')],
+            $client->request('GET', config('custom.cloud_delete_job_url_custom'), [
+                'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
                 'query' => [
-                    'token' => env('CLOUD_OAUTH_TOKEN'),
+                    'token' => config('custom.cloud_oauth_token'),
                     'domain' => $tenantId,
                 ],
             ]);
         }
     }
 
-    public function saveCloudDetails(Request $request)
+    public function saveCloudDetails(Request $request): \Illuminate\Http\JsonResponse
     {
         $this->validate($request, [
             'cloud_central_domain' => 'required',
@@ -502,7 +503,7 @@ class TenantController extends Controller
         }
     }
 
-    public function DeleteCloudInstanceForClient($orderNumber, $isDelete)
+    public function DeleteCloudInstanceForClient(string $orderNumber, bool $isDelete): \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse|null
     {
         if ($isDelete) {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
@@ -564,9 +565,11 @@ class TenantController extends Controller
 
             return errorResponse(__('message.something_wrong_cloud_instance'));
         }
+
+        return null;
     }
 
-    protected function reissueCloudLicense($order_id)
+    protected function reissueCloudLicense(int $order_id): \Illuminate\Http\JsonResponse|array
     {
         $order = Order::findorFail($order_id);
         if (Auth::user()->role != 'admin' && $order->client != Auth::user()->id) {
@@ -612,9 +615,9 @@ class TenantController extends Controller
         }
     }
 
-    private function googleChat($text): void
+    private function googleChat(string $text): void
     {
-        $url = env('GOOGLE_CHAT');
+        $url = config('custom.google_chat');
         $message = [
             'text' => $text,
         ];
@@ -628,7 +631,7 @@ class TenantController extends Controller
         ]);
     }
 
-    private function createTenantWithRandomDomain(string $randomDomain, Request $request)
+    private function createTenantWithRandomDomain(string $randomDomain, Request $request): \Illuminate\Http\JsonResponse
     {
         // Modify the request with the new random domain
         $request->merge(['domain' => $randomDomain]);
@@ -637,7 +640,7 @@ class TenantController extends Controller
         return $this->createTenant($request);
     }
 
-    public function cloudPopUp(Request $request)
+    public function cloudPopUp(Request $request): \Illuminate\Http\JsonResponse
     {
         $this->validate($request, [
             'cloud_top_message' => 'required',
@@ -662,7 +665,7 @@ class TenantController extends Controller
         }
     }
 
-    public function cloudProductStore(Request $request)
+    public function cloudProductStore(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate(
             [
@@ -685,7 +688,7 @@ class TenantController extends Controller
         }
     }
 
-    public function exportTenats(Request $request)
+    public function exportTenats(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             ini_set('memory_limit', '-1');
@@ -709,12 +712,12 @@ class TenantController extends Controller
         }
     }
 
-    private function getOrderId($domain)
+    private function getOrderId(string $domain): ?int
     {
         return InstallationDetail::where('installation_path', $domain)->latest()->value('order_id');
     }
 
-    private function getUserData($order_id)
+    private function getUserData(?int $order_id): ?array
     {
         if (! $order_id) {
             return null;
@@ -739,7 +742,7 @@ class TenantController extends Controller
         ];
     }
 
-    private function getSubscriptionDataForCloud($order_id)
+    private function getSubscriptionDataForCloud(?int $order_id): ?array
     {
         if (! $order_id) {
             return null;

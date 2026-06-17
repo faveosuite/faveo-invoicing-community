@@ -55,7 +55,7 @@ class PageController extends Controller
         $this->page = $page;
     }
 
-    public function store(PageRequest $request)
+    public function store(PageRequest $request): \Illuminate\Http\RedirectResponse
     {
         try {
             $pages_count = count($this->page->all());
@@ -85,7 +85,7 @@ class PageController extends Controller
         }
     }
 
-    public function update($id, PageRequest $request)
+    public function update(int $id, PageRequest $request): \Illuminate\Http\RedirectResponse
     {
         try {
             $page = $this->page->findOrFail($id);
@@ -156,7 +156,7 @@ class PageController extends Controller
      * Returns null data (200) when not found so the client can show a
      * "page not found" state instead of being redirected.
      */
-    public function pageBySlug($slug)
+    public function pageBySlug(string $slug): \Illuminate\Http\JsonResponse
     {
         try {
             $page = FrontendPage::where('slug', $slug)
@@ -170,7 +170,7 @@ class PageController extends Controller
         }
     }
 
-    public function getstrikePriceYear($id)
+    public function getstrikePriceYear(int $id): array
     {
         $cost[0] = 'Free';
         $plans = Plan::where('product', $id)->where('status', 1)->get();
@@ -218,7 +218,7 @@ class PageController extends Controller
         return $cost;
     }
 
-    public function transformTemplate(string $type, $data, $trasform = [])
+    public function transformTemplate(string $type, string $data, array $trasform = []): string
     {
         $config = Config::get('transform.'.$type);
         $result = '';
@@ -289,7 +289,7 @@ class PageController extends Controller
         return $result;
     }
 
-    public function transform(string $type, $data, $trasform = [])
+    public function transform(string $type, string $data, array $trasform = []): string
     {
         $config = Config::get('transform.'.$type);
         $result = '';
@@ -308,7 +308,7 @@ class PageController extends Controller
         return $result;
     }
 
-    public function getPayingprice($id)
+    public function getPayingprice(int $id): string
     {
         $cost = 'Free';
         $plans = Plan::where('product', $id)->where('status', 1)->get();
@@ -352,9 +352,8 @@ class PageController extends Controller
      *
      * @param  int  $groupid  Group id
      * @param  int  $templateid  Id of the Template
-     * @return
      */
-    public function pageTemplates(?int $templateid = null, int $group = 0)
+    public function pageTemplates(?int $templateid = null, int $group = 0): \Illuminate\Http\JsonResponse
     {
         $group = ProductGroup::findOrFail($group);
         try {
@@ -437,13 +436,9 @@ class PageController extends Controller
     /**
      * This function returns to the contact us page.
      *
-     * @param
-     * @param
      * @return Factory|View|Application|RedirectResponse
-     *
-     * @throws
      */
-    public function contactUsInfo()
+    public function contactUsInfo(): \Illuminate\Http\JsonResponse
     {
         try {
             $set = Setting::findOrFail(1);
@@ -478,7 +473,7 @@ class PageController extends Controller
      * @param  $trasform
      * @return string
      */
-    public function getTemplateOne($helpdesk_products, array &$trasform)
+    public function getTemplateOne(\Illuminate\Database\Eloquent\Collection $helpdesk_products, array &$trasform): mixed
     {
         try {
             if ($helpdesk_products->isEmpty()) {
@@ -520,7 +515,7 @@ class PageController extends Controller
         }
     }
 
-    private function generateProductUrl($product, string $orderButton): array
+    private function generateProductUrl(\App\Model\Product\Product $product, string $orderButton): array
     {
         if ($product->add_to_contact != 1) {
             if (in_array($product->id, cloudPopupProducts())) {
@@ -553,7 +548,7 @@ class PageController extends Controller
         }
     }
 
-    public function plansYear($url, $id)
+    public function plansYear(string $url, int $id): string|\Illuminate\Http\RedirectResponse
     {
         try {
             $plan = new Plan();
@@ -579,7 +574,7 @@ class PageController extends Controller
         }
     }
 
-    public function getPrice(string $months, array $price, string $priceDescription, $value, $cost, $currency, $offer, $product): array
+    public function getPrice(string $months, array $price, string $priceDescription, \App\Model\Payment\Plan $value, float|int $cost, string $currency, float|int|null $offer, \App\Model\Product\Product $product): array
     {
         $cost *= 12;
         if (isset($offer) && $offer !== '' && $offer !== null) {
@@ -592,7 +587,7 @@ class PageController extends Controller
         return $price;
     }
 
-    public function prices($id)
+    public function prices(int $id): array|\Illuminate\Http\RedirectResponse
     {
         try {
             $plans = Plan::where('product', $id)->where('status', 1)->orderBy('id', 'desc')->get();
@@ -708,7 +703,7 @@ class PageController extends Controller
         return $cost;
     }
 
-    public function YearlyAmountForOffer($id)
+    public function YearlyAmountForOffer(int $id): array
     {
         $cost[] = 'Free';
         $plans = Plan::where('product', $id)->get();
@@ -741,7 +736,7 @@ class PageController extends Controller
         return $cost;
     }
 
-    public function getmonthPriceDescription(int $productid)
+    public function getmonthPriceDescription(int $productid): string
     {
         try {
             $product = Product::find($productid);
@@ -881,7 +876,7 @@ class PageController extends Controller
         return $result;
     }
 
-    public function postContactUs(ContactRequest $request)
+    public function postContactUs(ContactRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $contact = getContactData();
@@ -922,7 +917,7 @@ class PageController extends Controller
         }
     }
 
-    private function detectSpam($message): bool
+    private function detectSpam(string $message): bool
     {
         if ($this->containsExcessivePunctuation($message)) {
             return true;
@@ -935,12 +930,12 @@ class PageController extends Controller
         return $this->containsSpamKeywords($message);
     }
 
-    private function containsExcessivePunctuation($text): bool
+    private function containsExcessivePunctuation(string $text): bool
     {
         return (bool) preg_match('/!{5,}/', (string) $text);
     }
 
-    private function containsExcessiveCaps($text): bool
+    private function containsExcessiveCaps(string $text): bool
     {
         $uppercaseCount = preg_match_all('/[A-Z]/', (string) $text);
         $lowercaseCount = preg_match_all('/[a-z]/', (string) $text);
@@ -955,14 +950,14 @@ class PageController extends Controller
         return false;
     }
 
-    private function containsSpamKeywords($text): bool
+    private function containsSpamKeywords(string $text): bool
     {
         $spamKeywords = ['viagra', 'casino', 'lottery', 'free money', 'enlargement', 'promotions'];
 
         return array_any($spamKeywords, fn ($keyword): bool => stripos((string) $text, (string) $keyword) !== false);
     }
 
-    public function postDemoReq(ContactRequest $request)
+    public function postDemoReq(ContactRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $contact = getContactData();
@@ -1004,7 +999,7 @@ class PageController extends Controller
         }
     }
 
-    public function getDemoStatus()
+    public function getDemoStatus(): \Illuminate\Http\JsonResponse
     {
         $demo = Demo_page::first();
 
@@ -1013,7 +1008,7 @@ class PageController extends Controller
         ]);
     }
 
-    public function saveDemoPage(Request $request)
+    public function saveDemoPage(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'status' => ['required', 'boolean'],
@@ -1026,7 +1021,7 @@ class PageController extends Controller
         return successResponse(__('message.data_updated_successfully'));
     }
 
-    public function getAllPages(Request $request)
+    public function getAllPages(Request $request): \Illuminate\Http\JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');
@@ -1046,11 +1041,11 @@ class PageController extends Controller
         return successResponse('', $pages);
     }
 
-    public function deleteBulkPages(Request $request)
+    public function deleteBulkPages(Request $request): \Illuminate\Http\JsonResponse
     {
         $ids = $request->input('page_ids', []);
 
-        $defaultPageId = DefaultPage::pluck('page_id')->first();
+        $defaultPageId = DefaultPage::value('page_id');
 
         if (empty($ids)) {
             return errorResponse(__('message.select-a-row'));
@@ -1065,7 +1060,7 @@ class PageController extends Controller
         return successResponse(__('message.deleted-successfully'));
     }
 
-    public function currencyFormatWithSpan($amount, $currency, $id = null): string
+    public function currencyFormatWithSpan(float|int $amount, string $currency, ?int $id = null): string
     {
         // number only
         $formatted = currencyFormat($amount, $currency, includeSymbol: false);
@@ -1089,7 +1084,7 @@ class PageController extends Controller
         return $formatted.$span;
     }
 
-    public function createPage(Request $request)
+    public function createPage(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $pagesCount = FrontendPage::count();
@@ -1118,7 +1113,7 @@ class PageController extends Controller
         }
     }
 
-    public function getPage(Request $request, $pageId)
+    public function getPage(Request $request, int $pageId): \Illuminate\Http\JsonResponse
     {
         try {
             $page = FrontendPage::with('parent:id,name')->findOrFail($pageId);
@@ -1132,7 +1127,7 @@ class PageController extends Controller
         }
     }
 
-    public function updatePage(Request $request, $pageId)
+    public function updatePage(Request $request, int $pageId): \Illuminate\Http\JsonResponse
     {
         try {
             $page = FrontendPage::findOrFail($pageId);

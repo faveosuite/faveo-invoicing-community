@@ -6,6 +6,30 @@ use App\BaseModel;
 use App\Model\Payment\Plan;
 use App\Traits\SystemActivityLogsTrait;
 
+/**
+ * @property int $id
+ * @property int $cloud_product
+ * @property int $cloud_free_plan
+ * @property string $cloud_product_key
+ * @property int $trial_status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read Plan $plan
+ * @property-read \App\Model\Product\Product $product
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts whereCloudFreePlan($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts whereCloudProduct($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts whereCloudProductKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts whereTrialStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class CloudProducts extends BaseModel
 {
     use SystemActivityLogsTrait;
@@ -14,15 +38,15 @@ class CloudProducts extends BaseModel
 
     protected $guarded = [];
 
-    protected $logName = 'cloud';
+    protected string $logName = 'cloud';
 
-    protected $logNameColumn = 'cloud_product';
+    protected string $logNameColumn = 'cloud_product';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'cloud_product', 'cloud_free_plan', 'cloud_product_key', 'trial_status',
     ];
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['view/tenant'],
     ];
 
@@ -48,12 +72,18 @@ class CloudProducts extends BaseModel
             ?? $this->cloud_product;
     }
 
-    public function product()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Product\Product, $this>
+     */
+    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class, 'cloud_product');
     }
 
-    public function plan()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Payment\Plan, $this>
+     */
+    public function plan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Plan::class, 'cloud_free_plan');
     }

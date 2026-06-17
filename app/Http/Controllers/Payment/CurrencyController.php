@@ -42,7 +42,7 @@ class CurrencyController extends Controller
             $limit = $request->input('limit', 10);
 
             // Get default currency
-            $defaultCurrency = Setting::pluck('default_currency')->first();
+            $defaultCurrency = Setting::value('default_currency');
 
             // Query for currencies (include default currency so it can be shown with is_default flag)
             $currencyData = Currency::whereNotNull('name')
@@ -86,13 +86,13 @@ class CurrencyController extends Controller
      */
     public function getButtonColor(string $id): string
     {
-        $defaultCurrency = Setting::pluck('default_currency')->first();
-        $currencyCode = Currency::where('id', $id)->pluck('code')->first(); //If default currency is equal to the currency code then make that button as Disabled as it would always be shown on dashboard and cannot be modified
+        $defaultCurrency = Setting::value('default_currency');
+        $currencyCode = Currency::where('id', $id)->value('code'); //If default currency is equal to the currency code then make that button as Disabled as it would always be shown on dashboard and cannot be modified
         if ($defaultCurrency == $currencyCode) {
             return  '<a class="btn btn-sm btn-warning btn-xs disabled" style="background-color:#f39c12;">&nbsp;&nbsp;'.__('message.default-currency').'</a>';
         }
 
-        $currency = Currency::where('id', $id)->pluck('dashboard_currency')->first();
+        $currency = Currency::where('id', $id)->value('dashboard_currency');
         if ($currency == 1) {
             return'<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.Session::token().'>'.'
                                     <button type="submit" class="btn btn-sm btn-success btn-xs"><i class="fa fa-check" style="color:white;"></i>&nbsp;&nbsp; '.__('message.show_on_dashboard').'</button></form>';

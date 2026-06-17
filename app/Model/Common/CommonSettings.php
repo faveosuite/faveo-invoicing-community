@@ -5,6 +5,26 @@ namespace App\Model\Common;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $option_name
+ * @property string $option_value
+ * @property string $status
+ * @property string $optional_field
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CommonSettings newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CommonSettings newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CommonSettings query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CommonSettings whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CommonSettings whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CommonSettings whereOptionName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CommonSettings whereOptionValue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CommonSettings whereOptionalField($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CommonSettings whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CommonSettings whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class CommonSettings extends Model
 {
     use HasFactory;

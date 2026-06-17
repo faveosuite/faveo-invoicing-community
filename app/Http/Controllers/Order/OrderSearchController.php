@@ -17,7 +17,10 @@ class OrderSearchController extends Controller
         $this->middleware(['auth', 'admin']);
     }
 
-    public function advanceOrderSearch(Request $request)
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>
+     */
+    public function advanceOrderSearch(\Illuminate\Http\Request $request): \Illuminate\Database\Eloquent\Builder
     {
         $query = Order::with([
             'user' => function ($q): void {
@@ -53,14 +56,20 @@ class OrderSearchController extends Controller
         return $query;
     }
 
-    private function filterOrderNum($query, $orderNo): void
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     */
+    private function filterOrderNum(\Illuminate\Database\Eloquent\Builder $query, mixed $orderNo): void
     {
         if ($orderNo) {
             $query->where('number', $orderNo);
         }
     }
 
-    private function filterProduct($query, $productId): void
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     */
+    private function filterProduct(\Illuminate\Database\Eloquent\Builder $query, mixed $productId): void
     {
         if (! $productId) {
             return;
@@ -75,7 +84,10 @@ class OrderSearchController extends Controller
         }
     }
 
-    private function filterDateRange($query, Request $request): void
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     */
+    private function filterDateRange(\Illuminate\Database\Eloquent\Builder $query, \Illuminate\Http\Request $request): void
     {
         $field = $request->renewal ? 'subscription.update_ends_at' : 'created_at';
 
@@ -93,7 +105,10 @@ class OrderSearchController extends Controller
         }
     }
 
-    private function filterDomain($query, $domain): void
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     */
+    private function filterDomain(\Illuminate\Database\Eloquent\Builder $query, mixed $domain): void
     {
         if ($domain) {
             $domain = rtrim((string) $domain, '/');
@@ -103,7 +118,10 @@ class OrderSearchController extends Controller
         }
     }
 
-    private function filterInstallation($query, $filter): void
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     */
+    private function filterInstallation(\Illuminate\Database\Eloquent\Builder $query, mixed $filter): void
     {
         if (! $filter) {
             return;
@@ -125,7 +143,10 @@ class OrderSearchController extends Controller
         });
     }
 
-    private function filterRenewal($query, $renewal): void
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     */
+    private function filterRenewal(\Illuminate\Database\Eloquent\Builder $query, mixed $renewal): void
     {
         if (! $renewal) {
             return;
@@ -149,7 +170,10 @@ class OrderSearchController extends Controller
         }
     }
 
-    private function filterVersion($query, $version, $productId): void
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     */
+    private function filterVersion(\Illuminate\Database\Eloquent\Builder $query, mixed $version, mixed $productId): void
     {
         if (! $version) {
             return;
@@ -172,7 +196,11 @@ class OrderSearchController extends Controller
         });
     }
 
-    public function applyOrdersSearch($query, $search)
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>
+     */
+    public function applyOrdersSearch(\Illuminate\Database\Eloquent\Builder $query, mixed $search): \Illuminate\Database\Eloquent\Builder
     {
         return $query->when($search, function ($q) use ($search): void {
             $q->where(function ($q) use ($search): void {

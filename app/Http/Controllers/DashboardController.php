@@ -39,8 +39,8 @@ class DashboardController extends Controller
     {
         $allowedCurrencies1 = Setting::find(1)->value('default_currency');
         $currency1Symbol = Setting::find(1)->value('default_symbol');
-        $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->pluck('code')->first();
-        $currency2Symbol = Currency::where('dashboard_currency', 1)->pluck('symbol')->first();
+        $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->value('code');
+        $currency2Symbol = Currency::where('dashboard_currency', 1)->value('symbol');
         $totalSalesCurrency1 = $this->getTotalSales($allowedCurrencies1);
         $totalSalesCurrency2 = $this->getTotalSales($allowedCurrencies2);
         $yearlySalesCurrency2 = $this->getYearlySales($allowedCurrencies2);
@@ -360,7 +360,7 @@ class DashboardController extends Controller
     private function formatCurrencyTotals(array $totals): array
     {
         $allowedCurrencies1 = Setting::find(1)->value('default_currency');
-        $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->pluck('code')->first();
+        $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->value('code');
 
         if ($allowedCurrencies1 && ! isset($totals[$allowedCurrencies1])) {
             $totals[$allowedCurrencies1] = 0;

@@ -8,6 +8,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Override;
 
+/**
+ * @property int $id
+ * @property string|null $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read \App\Model\License\LicensePermissionPivot|null $pivot
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\License\LicensePermission> $permissions
+ * @property-read int|null $permissions_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
+ * @property-read int|null $products_count
+ * @method static \Database\Factories\Model\License\LicenseTypeFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseType newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseType newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseType query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseType whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseType whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseType whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseType whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class LicenseType extends Model
 {
     use HasFactory;
@@ -17,15 +39,15 @@ class LicenseType extends Model
 
     protected $fillable = ['id', 'name'];
 
-    protected $logName = 'license_types';
+    protected string $logName = 'license_types';
 
-    protected $logNameColumn = 'name';
+    protected string $logNameColumn = 'name';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'id', 'name',
     ];
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['license-type'],
     ];
 
@@ -36,7 +58,10 @@ class LicenseType extends Model
         ];
     }
 
-    public function permissions()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Model\License\LicensePermission, $this, \Illuminate\Database\Eloquent\Relations\Pivot>
+     */
+    public function permissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(LicensePermission::class, 'license_license_permissions')
             ->using(LicensePermissionPivot::class)

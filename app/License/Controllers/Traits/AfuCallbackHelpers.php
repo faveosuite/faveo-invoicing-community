@@ -11,7 +11,7 @@ trait AfuCallbackHelpers
      * Build notification response with headers (same format as license callbacks).
      * Original only sends notification_data when notification_case is 'notification_operation_ok'.
      */
-    protected function notificationResponse(string $notificationCase, array $data = [])
+    protected function notificationResponse(string $notificationCase, array $data = []): \Illuminate\Http\JsonResponse
     {
         // Only returns notification_data when everything is OK
         $responseData = ($notificationCase === 'notification_operation_ok') ? $data : [];

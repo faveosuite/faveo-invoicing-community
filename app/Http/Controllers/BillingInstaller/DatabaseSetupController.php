@@ -171,9 +171,9 @@ class DatabaseSetupController extends Controller
 
     public function testResult(): array
     {
+        $mysqli_ok = true;
+        $results = [];
         if (DB_HOST && DB_USER && DB_NAME) {
-            $mysqli_ok = true;
-            $results = [];
             // error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE | E_ALL);
             error_reporting(0);
             try {

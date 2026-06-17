@@ -34,7 +34,7 @@ class PhpMailController extends Controller
 {
     protected \App\Http\Controllers\Common\CommonMailer $commonMailer;
 
-    protected $queueManager;
+    protected mixed $queueManager = null;
 
     public function __construct()
     {

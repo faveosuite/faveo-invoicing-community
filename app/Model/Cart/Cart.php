@@ -9,6 +9,32 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string|null $coupon_code
+ * @property float $coupon_discount
+ * @property string $currency
+ * @property int|null $invoice_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Invoice|null $invoice
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Cart\CartItem> $items
+ * @property-read int|null $items_count
+ * @property-read User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Cart newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Cart newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Cart query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Cart whereCouponCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Cart whereCouponDiscount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Cart whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Cart whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Cart whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Cart whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Cart whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Cart whereUserId($value)
+ * @mixin \Eloquent
+ */
 class Cart extends Model
 {
     protected $table = 'carts';

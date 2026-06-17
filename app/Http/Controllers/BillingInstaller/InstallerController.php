@@ -35,7 +35,7 @@ class InstallerController extends Controller
      *
      * @return JsonResponse view
      */
-    public function configurationcheck(Request $request)
+    public function configurationcheck(Request $request): \Illuminate\Http\RedirectResponse
     {
         Cache::forever('config-check', 'config-check');
         $inputs = $request->only([
@@ -47,7 +47,7 @@ class InstallerController extends Controller
         return to_route('database');
     }
 
-    public function checkPreInstall()
+    public function checkPreInstall(): \Illuminate\Http\JsonResponse
     {
         Artisan::call('key:generate', ['--force' => true]);
 
@@ -58,11 +58,11 @@ class InstallerController extends Controller
         return response()->json(compact('result'));
     }
 
-    public function migrate()
+    public function migrate(): \Illuminate\Http\JsonResponse
     {
         $db_install_method = '';
         try {
-            if (Cache::get('databasename') != env('DB_DATABASE')) {
+            if (Cache::get('databasename') != config('database.connections.mysql.database')) {
                 throw new Exception(\Lang::get('installer_messages.db_connection_error'), 500);
             }
 
@@ -94,7 +94,7 @@ class InstallerController extends Controller
         return response()->json(compact('result'));
     }
 
-    public function rollBackMigration()
+    public function rollBackMigration(): ?\Illuminate\Http\JsonResponse
     {
         try {
             Artisan::call('migrate', ['--force' => true]);
@@ -105,9 +105,11 @@ class InstallerController extends Controller
 
             return response()->json(compact('result'), 500);
         }
+
+        return null;
     }
 
-    public function createEnv($api = true)
+    public function createEnv(bool $api = true): ?\Illuminate\Http\JsonResponse
     {
         try {
             $default = request()->get('default', Session::get('default'));
@@ -137,9 +139,11 @@ class InstallerController extends Controller
 
             return response()->json(compact('result'));
         }
+
+        return null;
     }
 
-    public function env($default, $host, $port, $database, $dbusername, $dbpassword, $appUrl = null, $sslKey = null, $sslCert = null, $sslCa = null, $sslVerify = null): void
+    public function env(string $default, string $host, string $port, string $database, string $dbusername, string $dbpassword, ?string $appUrl = null, ?string $sslKey = null, ?string $sslCert = null, ?string $sslCa = null, ?string $sslVerify = null): void
     {
         $ENV = [
             'APP_NAME' => 'Agora:'.md5(uniqid()),
@@ -205,7 +209,7 @@ class InstallerController extends Controller
         rename($exampleEnvPath, $envPath);
     }
 
-    public function updateInstallEnv(string $environment, ?string $driver = null, $redisConfig = [])
+    public function updateInstallEnv(string $environment, ?string $driver = null, array $redisConfig = []): ?\Illuminate\Http\JsonResponse
     {
         $env = base_path().DIRECTORY_SEPARATOR.'.env';
         if (! is_file($env)) {
@@ -239,16 +243,15 @@ APP_ENV='.$environment;
             $queue->extraFieldRelation()->updateOrCreate(['key' => 'driver'], ['key' => 'driver', 'value' => 'redis']);
             $queue->extraFieldRelation()->updateOrCreate(['key' => 'queue'], ['key' => 'queue', 'value' => 'default']);
         }
+
+        return null;
     }
 
     /**
      * Post accountcheck
      * checking prerequisites.
-     *
-     * @param type InstallerRequest $request
-     * @return type view
      */
-    public function accountcheck(Request $request)
+    public function accountcheck(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         // Validation rules and custom messages
         $validator = Validator::make($request->all(), [
@@ -377,7 +380,7 @@ APP_ENV='.$environment;
         return $display;
     }
 
-    public function getLang()
+    public function getLang(): \Illuminate\Http\JsonResponse
     {
         $language = Cache::get('language', config('app.locale'));
         $lang = Lang::get('installer_messages', [], $language);
@@ -389,7 +392,7 @@ APP_ENV='.$environment;
         ]);
     }
 
-    public function languageList()
+    public function languageList(): \Illuminate\Http\JsonResponse
     {
         try {
             $languageList = array_map(basename(...), File::directories(lang_path()));
@@ -413,7 +416,7 @@ APP_ENV='.$environment;
         }
     }
 
-    public function storeLanguage(StoreLanguageRequest $request)
+    public function storeLanguage(StoreLanguageRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $language = $request->input('language');
@@ -434,7 +437,7 @@ APP_ENV='.$environment;
         }
     }
 
-    public function dbsetup(Request $request)
+    public function dbsetup(Request $request): \Illuminate\Http\RedirectResponse
     {
         //server requirements error checking
         if (Session::has('fails')) {
@@ -452,7 +455,7 @@ APP_ENV='.$environment;
         return back();
     }
 
-    public function database(Request $request)
+    public function database(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
     {
         // checking if the installation is running for the first time or not
         if (Cache::get('config-check') == 'config-check') {
@@ -462,7 +465,7 @@ APP_ENV='.$environment;
         return to_route('config-check');
     }
 
-    public function databasePage(Request $request)
+    public function databasePage(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
     {
         Session::flush();
         // Database Setup Page
@@ -473,7 +476,7 @@ APP_ENV='.$environment;
         return redirect()->to('/probe.php');
     }
 
-    public function account(Request $request)
+    public function account(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
     {
         // checking if the installation is running for the first time or not,getting-started page
         if (Cache::get('config-check') == 'config-check') {
@@ -485,7 +488,7 @@ APP_ENV='.$environment;
         return to_route('db-setup');
     }
 
-    public function finalize()
+    public function finalize(): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
     {
         //final page -> login url
         if (Cache::get('getting-started') == 'getting-started') {
@@ -499,7 +502,7 @@ APP_ENV='.$environment;
         return to_route('get-start');
     }
 
-    private function changeLanguage($lang): bool
+    private function changeLanguage(string $lang): bool
     {
         $path = base_path('lang');  // Path to check available language packages
         if (array_key_exists($lang, Config::get('languages')) && in_array($lang, scandir($path))) {
@@ -513,7 +516,7 @@ APP_ENV='.$environment;
         return false;
     }
 
-    public function storeLanguageForUsers(StoreLanguageRequest $request)
+    public function storeLanguageForUsers(StoreLanguageRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $language = $request->input('language');

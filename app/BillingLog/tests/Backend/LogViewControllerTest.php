@@ -22,7 +22,7 @@ use Tests\DBTestCase;
 
 class LogViewControllerTest extends DBTestCase
 {
-    protected $defaultCategoryId;
+    protected int $defaultCategoryId;
 
     protected function setUp(): void
     {

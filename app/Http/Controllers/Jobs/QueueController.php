@@ -22,7 +22,7 @@ class QueueController extends Controller
         $this->queue = new QueueService();
     }
 
-    public function getQueueData(Request $request)
+    public function getQueueData(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -62,7 +62,7 @@ class QueueController extends Controller
         }
     }
 
-    public function edit($id)
+    public function edit(int $id): \Illuminate\Http\JsonResponse
     {
         try {
             $queueIdData = $this->queue->find($id);
@@ -77,7 +77,7 @@ class QueueController extends Controller
         }
     }
 
-    public function update($id, QueueRequest $request)
+    public function update(int $id, QueueRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $values = $request->except('_token');
@@ -110,14 +110,14 @@ class QueueController extends Controller
         }
     }
 
-    public function getForm(Request $request)
+    public function getForm(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         $queueid = $request->input('queueid');
 
         return $this->getFormById($queueid);
     }
 
-    public function activate(Request $request, $queue)
+    public function activate(\Illuminate\Http\Request $request, int $queue): \Illuminate\Http\JsonResponse
     {
         try {
             $queue = QueueService::findOrFail($queue);
@@ -148,7 +148,7 @@ class QueueController extends Controller
         }
     }
 
-    public function getShortNameById($queueid)
+    public function getShortNameById(int $queueid): string
     {
         $short = '';
         $queues = new QueueService();
@@ -160,14 +160,14 @@ class QueueController extends Controller
         return $short;
     }
 
-    public function getIdByShortName($short)
+    public function getIdByShortName(string $short): ?int
     {
         $queue = QueueService::where('short_name', $short)->first();
 
         return $queue ? $queue->id : null;
     }
 
-    public function getFormById($id)
+    public function getFormById(int $id): \Illuminate\Http\JsonResponse
     {
         try {
             $short = $this->getShortNameById($id);
@@ -225,7 +225,7 @@ class QueueController extends Controller
         }
     }
 
-    public function buildField($short, $label, $name, $placeholder = ''): array
+    public function buildField(string $short, string $label, string $name, string $placeholder = ''): array
     {
         $queueId = $this->getIdByShortName($short);
         $queue = QueueService::find($queueId);

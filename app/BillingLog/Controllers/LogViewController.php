@@ -13,13 +13,13 @@ use Spatie\Activitylog\Models\Activity;
 
 class LogViewController
 {
-    private $searchString;
+    private string $searchString = '';
 
-    private $sortOrder;
+    private string $sortOrder = 'desc';
 
-    private $sortField;
+    private string $sortField = 'created_at';
 
-    private $limit;
+    private int $limit = 10;
 
     public function getSystemLogs(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {

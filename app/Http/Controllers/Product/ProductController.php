@@ -132,7 +132,7 @@ class ProductController extends BaseProductController
     }
 
     // Save file Info in Modal popup
-    public function save(Request $request)
+    public function save(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         $this->validate(
             $request,
@@ -180,9 +180,8 @@ class ProductController extends BaseProductController
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Response
      */
-    public function fileDestroy(Request $request)
+    public function fileDestroy(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $ids = $request->input('select');
@@ -214,7 +213,7 @@ class ProductController extends BaseProductController
         url('get-price');
     }
 
-    public function uploadImage(Request $request)
+    public function uploadImage(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $setting = Setting::find(1);
@@ -225,6 +224,7 @@ class ProductController extends BaseProductController
                 $path = $file->storeAs('public/uploads/tinymce', $filename);
             }
 
+            $path = '';
             if ($request->input('url')) {
                 $url = $request->input('url');
                 $client = new Client();
@@ -249,7 +249,7 @@ class ProductController extends BaseProductController
         }
     }
 
-    public function getProductDropdown(Request $request)
+    public function getProductDropdown(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $limit = $request->input('limit', 10);
@@ -266,7 +266,7 @@ class ProductController extends BaseProductController
         return successResponse('', $productsQuery);
     }
 
-    public function getProductPlans(Request $request, $productId)
+    public function getProductPlans(\Illuminate\Http\Request $request, int $productId): \Illuminate\Http\JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $limit = $request->input('limit', 10);
@@ -282,7 +282,7 @@ class ProductController extends BaseProductController
         return successResponse('', $plans);
     }
 
-    public function getAllProducts(Request $request)
+    public function getAllProducts(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = in_array($request->input('sort-order'), ['asc', 'desc']) ? $request->input('sort-order') : 'asc';
@@ -333,7 +333,7 @@ class ProductController extends BaseProductController
         return successResponse('', $products);
     }
 
-    public function deleteBulkProducts(Request $request)
+    public function deleteBulkProducts(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         $ids = $request->input('product_ids', []);
 
@@ -356,7 +356,7 @@ class ProductController extends BaseProductController
         }
     }
 
-    public function getProduct(Request $request, $productId)
+    public function getProduct(\Illuminate\Http\Request $request, int $productId): \Illuminate\Http\JsonResponse
     {
         try {
             $product = Product::with([
@@ -377,7 +377,7 @@ class ProductController extends BaseProductController
         }
     }
 
-    public function productUploadCreate(Request $request, $productId)
+    public function productUploadCreate(\Illuminate\Http\Request $request, int $productId): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'producttitle' => ['required', 'string', 'max:255'],
@@ -426,7 +426,7 @@ class ProductController extends BaseProductController
      * Paginated list of a product's version uploads, for the DataTable on the
      * product edit page's "Versions" tab.
      */
-    public function getProductUploads($productId, Request $request)
+    public function getProductUploads(int $productId, \Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $limit = $request->input('limit', 10);
@@ -471,7 +471,7 @@ class ProductController extends BaseProductController
     /**
      * Single version upload, for the edit form.
      */
-    public function getProductUpload($productUploadId)
+    public function getProductUpload(int $productUploadId): \Illuminate\Http\JsonResponse
     {
         try {
             $u = ProductUpload::findOrFail($productUploadId);
@@ -496,7 +496,7 @@ class ProductController extends BaseProductController
     /**
      * Update a version's metadata (the file itself is not changed on edit).
      */
-    public function updateProductUpload($productUploadId, Request $request)
+    public function updateProductUpload(int $productUploadId, \Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -541,7 +541,7 @@ class ProductController extends BaseProductController
         }
     }
 
-    public function productCreate(Request $request)
+    public function productCreate(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'unique:products,name'],
@@ -562,7 +562,7 @@ class ProductController extends BaseProductController
             DB::transaction(function () use ($request, $validated): void {
                 // Handle Image Upload
                 if ($request->hasFile('image')) {
-                    $validated['image'] = basename(Attach::put('common/images/', $request->file('image'), null, true));
+                    $validated['image'] = basename((string) Attach::put('common/images/', $request->file('image'), null, true));
                 }
 
                 $validated['show_agent'] = $request->boolean('show_agent');
@@ -595,7 +595,7 @@ class ProductController extends BaseProductController
         }
     }
 
-    public function updateProduct($productId, Request $request)
+    public function updateProduct(int $productId, \Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'name' => ['required'],
@@ -625,7 +625,7 @@ class ProductController extends BaseProductController
 
                 // Handle image upload
                 if ($request->hasFile('image')) {
-                    $validated['image'] = basename(Attach::put('common/images/', $request->file('image'), null, true));
+                    $validated['image'] = basename((string) Attach::put('common/images/', $request->file('image'), null, true));
                 }
 
                 // Cart-related flags

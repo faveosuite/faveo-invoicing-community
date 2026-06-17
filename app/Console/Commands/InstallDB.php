@@ -211,13 +211,13 @@ class InstallDB extends LoggableCommand
         $dotenv->load();
 
         config([
-            'database.connections.mysql.password' => env('DB_PASSWORD'),
-            'database.connections.mysql.username' => env('DB_USERNAME'),
-            'database.connections.mysql.host' => env('DB_HOST'),
-            'database.connections.mysql.database' => env('DB_DATABASE'),
-            'database.connections.mysql.port' => env('DB_PORT'),
-            'app.url' => env('APP_URL'),
-            'app.key' => env('APP_KEY'),
+            'database.connections.mysql.password' => $_SERVER['DB_PASSWORD'] ?? null,
+            'database.connections.mysql.username' => $_SERVER['DB_USERNAME'] ?? null,
+            'database.connections.mysql.host' => $_SERVER['DB_HOST'] ?? null,
+            'database.connections.mysql.database' => $_SERVER['DB_DATABASE'] ?? null,
+            'database.connections.mysql.port' => $_SERVER['DB_PORT'] ?? null,
+            'app.url' => $_SERVER['APP_URL'] ?? null,
+            'app.key' => $_SERVER['APP_KEY'] ?? null,
         ]);
 
         DB::purge('mysql');

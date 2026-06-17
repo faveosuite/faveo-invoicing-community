@@ -7,6 +7,38 @@ use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $plan_id
+ * @property string $currency
+ * @property string $add_price
+ * @property string $renew_price
+ * @property string|null $price_description
+ * @property string|null $product_quantity
+ * @property string|null $no_of_agents
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $offer_price
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read \App\Model\Payment\Plan|null $plan
+ * @method static \Database\Factories\Model\Payment\PlanPriceFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereAddPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereNoOfAgents($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereOfferPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice wherePlanId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice wherePriceDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereProductQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereRenewPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class PlanPrice extends Model
 {
     use HasFactory;
@@ -16,15 +48,15 @@ class PlanPrice extends Model
 
     protected $fillable = ['plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'product_quantity', 'no_of_agents', 'offer_price'];
 
-    protected $logName = 'plan';
+    protected string $logName = 'plan';
 
-    protected $logNameColumn = 'price';
+    protected string $logNameColumn = 'price';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'product_quantity', 'no_of_agents', 'country_id', 'offer_price',
     ];
 
-    protected $logUrl = [
+    protected array $logUrl = [
         'segments' => ['plans'],
     ];
 

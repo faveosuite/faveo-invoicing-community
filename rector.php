@@ -29,6 +29,8 @@ return static function (RectorConfig $rectorConfig): void {
     // Skip specific rules
     $rectorConfig->skip([
         CompactToVariablesRector::class,
+        // Installer runs before Laravel boots; $_SERVER has fresh Dotenv values but Request facade may not
+        __DIR__.'/app/Console/Commands/InstallDB.php',
         RemoveUnusedPrivateMethodRector::class,
         RemoveUnusedPrivatePropertyRector::class,
 

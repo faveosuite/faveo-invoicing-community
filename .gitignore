@@ -18,6 +18,7 @@ public/images.zip
 .env.testing
 .env.dusk.testing
 storage/products
+storage/rector
 
 # Packages #
 ############

@@ -111,7 +111,7 @@ class OrderController extends BaseOrderController
         $this->product_upload = $product_upload;
     }
 
-    public function getOrders(Request $request)
+    public function getOrders(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchQuery = $request->input('search-query', '');
@@ -131,7 +131,7 @@ class OrderController extends BaseOrderController
             $paginated = $query->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $paginated->getCollection()->transform(function ($order): array {
+            $paginated->getCollection()->transform(function (Order $order): array {
                 $user = $order->user;
                 if ($user && $user->country) {
                     $name = getCountryByCode($user->country) ?? $user->country;
@@ -171,7 +171,7 @@ class OrderController extends BaseOrderController
         }
     }
 
-    public function getOrder($id)
+    public function getOrder(int $id): \Illuminate\Http\JsonResponse
     {
         $order = $this->order
             ->with([
@@ -214,7 +214,7 @@ class OrderController extends BaseOrderController
         ]);
     }
 
-    public function getInstallationDetails($orderId)
+    public function getInstallationDetails(int $orderId): \Illuminate\Http\JsonResponse
     {
         try {
             $rows = InstallationDetail::where('order_id', $orderId)->get();
@@ -237,9 +237,8 @@ class OrderController extends BaseOrderController
      * Update the specified resource in storage.
      *
      * @param  int  $id
-     * @return \Response
      */
-    public function update($id, OrderRequest $request)
+    public function update(int $id, OrderRequest $request): \Illuminate\Http\RedirectResponse
     {
         try {
             $order = $this->order->where('id', $id)->first();
@@ -251,7 +250,7 @@ class OrderController extends BaseOrderController
         }
     }
 
-    public function deleteBulkOrders(Request $request)
+    public function deleteBulkOrders(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $ids = $request->input('order_ids', []);
@@ -278,13 +277,13 @@ class OrderController extends BaseOrderController
         }
     }
 
-    public function plan($invoice_item_id)
+    public function plan(int $invoice_item_id): int
     {
         try {
             $planid = 0;
             $item = $this->invoice_items->find($invoice_item_id);
             if ($item) {
-                return $item->plan_id;
+                return (int) $item->plan_id;
             }
 
             return $planid;
@@ -293,14 +292,13 @@ class OrderController extends BaseOrderController
         }
     }
 
-    public function checkInvoiceStatusByOrderId($orderid): string
+    public function checkInvoiceStatusByOrderId(int $orderid): string
     {
         try {
             $status = 'pending';
             $order = $this->order->find($orderid);
             if ($order) {
-                $invoiceid = $order->invoice_id;
-                $invoice = $this->invoice->find($invoiceid);
+                $invoice = $order->invoices()->latest()->first();
                 if ($invoice && $invoice->status == 'Success') {
                     $status = 'success';
                 }
@@ -312,20 +310,20 @@ class OrderController extends BaseOrderController
         }
     }
 
-    public function product($itemid)
+    public function product(int $itemid): string
     {
         $invoice_items = new InvoiceItem();
         $invoice_item = $invoice_items->find($itemid);
 
-        return $invoice_item->product_name;
+        return $invoice_item?->product_name ?? '';
     }
 
-    public function subscription($orderid)
+    public function subscription(int $orderid): ?\App\Model\Product\Subscription
     {
         return $this->subscription->where('order_id', $orderid)->first();
     }
 
-    public function expiry($orderid)
+    public function expiry(int $orderid): ?string
     {
         $sub = $this->subscription($orderid);
         if ($sub) {
@@ -335,12 +333,12 @@ class OrderController extends BaseOrderController
         return '';
     }
 
-    public function renew($orderid): \Illuminate\Contracts\Routing\UrlGenerator|string
+    public function renew(int $orderid): \Illuminate\Contracts\Routing\UrlGenerator|string
     {
         return url('my-orders');
     }
 
-    public function exportOrders(Request $request)
+    public function exportOrders(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             ini_set('memory_limit', '-1');
@@ -374,7 +372,7 @@ class OrderController extends BaseOrderController
         }
     }
 
-    public function getPaymentByOrderId(Request $request, $orderId)
+    public function getPaymentByOrderId(Request $request, int $orderId): \Illuminate\Http\JsonResponse
     {
         try {
             $searchQuery = $request->input('search-query', '');
@@ -420,7 +418,7 @@ class OrderController extends BaseOrderController
         }
     }
 
-    public function getOrderInvoices(Request $request, $orderId)
+    public function getOrderInvoices(Request $request, int $orderId): \Illuminate\Http\JsonResponse
     {
         $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');

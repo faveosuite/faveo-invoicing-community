@@ -10,6 +10,57 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Override;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property int $plan_id
+ * @property int $order_id
+ * @property int $product_id
+ * @property int $quantity
+ * @property string|null $update_ends_at
+ * @property \Illuminate\Support\Carbon|null $ends_at
+ * @property string|null $support_ends_at
+ * @property int $deny_after_subscription
+ * @property string|null $version
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $version_updated_at
+ * @property int|null $is_subscribed
+ * @property string|null $subscribe_id
+ * @property string|null $autoRenew_status
+ * @property string $rzp_subscription
+ * @property int $is_deleted
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read int|null $activities_as_subject_count
+ * @property-read Order|null $order
+ * @property-read Plan|null $plan
+ * @property-read \App\Model\Product\Product|null $product
+ * @property-read User|null $user
+ * @method static \Database\Factories\Model\Product\SubscriptionFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereAutoRenewStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereDenyAfterSubscription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereEndsAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereIsSubscribed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription wherePlanId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereRzpSubscription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereSubscribeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereSupportEndsAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereUpdateEndsAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereVersion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereVersionUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Subscription extends Model
 {
     use HasFactory;
@@ -20,9 +71,9 @@ class Subscription extends Model
     protected $fillable = ['name', 'description', 'days', 'ends_at', 'update_ends_at',
         'user_id', 'plan_id', 'order_id', 'deny_after_subscription', 'version', 'product_id', 'support_ends_at', 'version_updated_at', 'is_subscribed', 'is_deleted', 'autoRenew_status'];
 
-    protected $logName = 'subscriptions';
+    protected string $logName = 'subscriptions';
 
-    protected $logAttributes = [
+    protected array $logAttributes = [
         'name', 'description', 'days', 'ends_at', 'update_ends_at',
         'user_id', 'plan_id', 'order_id', 'deny_after_subscription', 'version', 'product_id', 'support_ends_at', 'version_updated_at', 'is_subscribed', 'is_deleted',
     ];
@@ -53,17 +104,26 @@ class Subscription extends Model
         return $this->belongsTo(Plan::class);
     }
 
-    public function product()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Product\Product, $this>
+     */
+    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    public function user()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     */
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function order()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Order\Order, $this>
+     */
+    public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
