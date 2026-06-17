@@ -1098,7 +1098,7 @@ function deleteUserSessions(int $userId, string $password): void
  * @param  string|null  $datetime  The datetime string to format.
  * @return Carbon|null The formatted datetime in UTC or null if input is invalid.
  */
-function toFormatDateAndTime(string|null $datetime): ?Carbon
+function toFormatDateAndTime(?string $datetime): ?Carbon
 {
     if (! $datetime) {
         return null;

@@ -31,6 +31,7 @@ use Str;
  * @property \Illuminate\Support\Carbon|null $paid_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OpenPaymentOrder completed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OpenPaymentOrder failed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OpenPaymentOrder newModelQuery()
@@ -60,6 +61,7 @@ use Str;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OpenPaymentOrder whereTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OpenPaymentOrder whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OpenPaymentOrder whereZip($value)
+ *
  * @mixin \Eloquent
  */
 class OpenPaymentOrder extends Model

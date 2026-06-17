@@ -23,8 +23,6 @@ class AfuVersionsController extends Controller
         $this->ip_address = null !== request()->server('REMOTE_ADDR') ? request()->server('REMOTE_ADDR') : request()->ip();
     }
 
-
-
     /**
      *Add a new version from billing and also update manager.
      *

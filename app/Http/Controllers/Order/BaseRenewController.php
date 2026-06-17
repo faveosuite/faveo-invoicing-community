@@ -77,7 +77,7 @@ class BaseRenewController extends Controller
         }
     }
 
-    public function getProductByProductId(int|null $id, Order|string|null $order = ''): ?\App\Model\Product\Product
+    public function getProductByProductId(?int $id, Order|string|null $order = ''): ?\App\Model\Product\Product
     {
         try {
             $product = Product::find($id);

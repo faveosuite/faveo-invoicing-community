@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $agora_product_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroupAgoraRelation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroupAgoraRelation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroupAgoraRelation query()
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroupAgoraRelation whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroupAgoraRelation whereMailchimpGroupCatId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroupAgoraRelation whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class MailchimpGroupAgoraRelation extends Model

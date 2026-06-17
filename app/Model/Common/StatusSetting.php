@@ -46,6 +46,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $license_versions_cleanup_status
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
+ *
  * @method static \Database\Factories\StatusSettingFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatusSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatusSetting newQuery()
@@ -86,6 +87,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatusSetting whereUpdateSettings($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatusSetting whereWhatsappStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatusSetting whereZohoStatus($value)
+ *
  * @mixin \Eloquent
  */
 class StatusSetting extends Model

@@ -16,6 +16,7 @@ use Override;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Model\Order\Order|null $order
+ *
  * @method static \Database\Factories\Model\Order\InstallationDetailFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationDetail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationDetail newQuery()
@@ -28,6 +29,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationDetail whereOrderId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationDetail whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationDetail whereVersion($value)
+ *
  * @mixin \Eloquent
  */
 class InstallationDetail extends Model

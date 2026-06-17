@@ -21,7 +21,6 @@ class BaseClientController extends Controller
 {
     /**
      *  This function is to update profile.
-     *
      */
     public function postProfile(ProfileRequest $request)
     {
@@ -57,7 +56,6 @@ class BaseClientController extends Controller
 
     /**
      *  This function is to update password.
-     *
      */
     public function postPassword(ProfileRequest $request)
     {
