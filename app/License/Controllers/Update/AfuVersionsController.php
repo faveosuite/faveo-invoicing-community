@@ -177,7 +177,7 @@ class AfuVersionsController extends Controller
             if ($action_success === 1) { //everything OK
                 $page_message = sprintf('%s version %s added.', $product_title, $version_number);
             } else { //display error message
-                $page_message = 'Version could not be added because of this reason: <br><br>' . $error_details;
+                $page_message = 'Version could not be added because of this reason: <br><br>'.$error_details;
             }
 
             LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
@@ -481,7 +481,7 @@ class AfuVersionsController extends Controller
             if ($action_success === 1) { //everything OK
                 $page_message = sprintf('%s version %s updated.', $product_title, $version_number);
             } else { //display error message
-                $page_message = 'Version could not be updated because of this reason: <br><br>' . $error_details;
+                $page_message = 'Version could not be updated because of this reason: <br><br>'.$error_details;
             }
 
             LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
@@ -642,6 +642,7 @@ class AfuVersionsController extends Controller
                 //everything ok, delete obsolete files
                 $this->deleteFileDirectory(ARCHIVES_DIRECTORY, array_filter([$version_install_file ?? null, $version_upgrade_file ?? null]));
                 $this->deleteFileDirectory(QUERIES_DIRECTORY, array_filter([$version_install_query ?? null, $version_upgrade_query ?? null]));
+
                 return successResponse(Lang::get('lang.delete'), $removed_records, 200);
             }
         }
@@ -739,22 +740,22 @@ class AfuVersionsController extends Controller
      */
     protected function versionFileCheck($version_install_file, $version_upgrade_file, $version_install_query, $version_upgrade_query, $version_install_limit, $version_upgrade_limit, $version_expire_date, $error_detected = 0, string $error_details = ''): array
     {
-        if (!empty($version_install_file) && (!empty($version_install_file->getLinkTarget()) && ! validateFile($version_install_file->getLinkTarget(), $version_install_file->getClientOriginalName(), ['application/zip'], ['zip'], 104857600))) {
+        if (! empty($version_install_file) && (! empty($version_install_file->getLinkTarget()) && ! validateFile($version_install_file->getLinkTarget(), $version_install_file->getClientOriginalName(), ['application/zip'], ['zip'], 104857600))) {
             $error_detected = 1;
             $error_details .= 'Invalid installation archive format or size (ZIP archive, 100 MB max).';
         }
 
-        if (!empty($version_upgrade_file) && (!empty($version_upgrade_file->getLinkTarget()) && ! validateFile($version_upgrade_file->getLinkTarget(), $version_upgrade_file->getClientOriginalName(), ['application/zip'], ['zip'], 104857600))) {
+        if (! empty($version_upgrade_file) && (! empty($version_upgrade_file->getLinkTarget()) && ! validateFile($version_upgrade_file->getLinkTarget(), $version_upgrade_file->getClientOriginalName(), ['application/zip'], ['zip'], 104857600))) {
             $error_detected = 1;
             $error_details .= 'Invalid upgrade archive format or size (ZIP archive, 100 MB max).';
         }
 
-        if (!empty($version_install_query) && (!empty($version_install_query->getLinkTarget()) && ! validateFile($version_install_query->getLinkTarget(), $version_install_query->getClientOriginalName(), ['application/zip'], ['zip'], 1048576))) {
+        if (! empty($version_install_query) && (! empty($version_install_query->getLinkTarget()) && ! validateFile($version_install_query->getLinkTarget(), $version_install_query->getClientOriginalName(), ['application/zip'], ['zip'], 1048576))) {
             $error_detected = 1;
             $error_details .= 'Invalid installation query format or size (ZIP archive, 1 MB max).';
         }
 
-        if (!empty($version_upgrade_query) && (!empty($version_upgrade_query->getLinkTarget()) && ! validateFile($version_upgrade_query->getLinkTarget(), $version_install_query->getClientOriginalName(), ['application/zip'], ['zip'], 1048576))) {
+        if (! empty($version_upgrade_query) && (! empty($version_upgrade_query->getLinkTarget()) && ! validateFile($version_upgrade_query->getLinkTarget(), $version_install_query->getClientOriginalName(), ['application/zip'], ['zip'], 1048576))) {
             $error_detected = 1;
             $error_details .= 'Invalid upgrade query format or size (ZIP archive, 1 MB max).';
         }
@@ -842,46 +843,46 @@ class AfuVersionsController extends Controller
     {
         extract($temp);
         if ($add) {
-            if (!in_array($version_install_file, [null, '', '0'], strict: true)) { //move uploaded version_install_file
-                move_uploaded_file($versionInstallTempName, ARCHIVES_DIRECTORY.('/' . $version_install_file));
+            if (! in_array($version_install_file, [null, '', '0'], strict: true)) { //move uploaded version_install_file
+                move_uploaded_file($versionInstallTempName, ARCHIVES_DIRECTORY.('/'.$version_install_file));
             }
 
-            if (!in_array($version_upgrade_file, [null, '', '0'], strict: true)) { //move uploaded version_upgrade_file
-                move_uploaded_file($versionUpgradeTempName, ARCHIVES_DIRECTORY.('/' . $version_upgrade_file));
+            if (! in_array($version_upgrade_file, [null, '', '0'], strict: true)) { //move uploaded version_upgrade_file
+                move_uploaded_file($versionUpgradeTempName, ARCHIVES_DIRECTORY.('/'.$version_upgrade_file));
             }
 
-            if (!in_array($version_install_query, [null, '', '0'], strict: true)) { //move uploaded version_install_query
-                move_uploaded_file($versionInstallQueryTempName, QUERIES_DIRECTORY.('/' . $version_install_query));
+            if (! in_array($version_install_query, [null, '', '0'], strict: true)) { //move uploaded version_install_query
+                move_uploaded_file($versionInstallQueryTempName, QUERIES_DIRECTORY.('/'.$version_install_query));
             }
 
-            if (!in_array($version_upgrade_query, [null, '', '0'], strict: true)) { //move uploaded version_upgrade_query
-                move_uploaded_file($versionUpgradeQueryTempName, QUERIES_DIRECTORY.('/' . $version_upgrade_query));
+            if (! in_array($version_upgrade_query, [null, '', '0'], strict: true)) { //move uploaded version_upgrade_query
+                move_uploaded_file($versionUpgradeQueryTempName, QUERIES_DIRECTORY.('/'.$version_upgrade_query));
             }
         } else {
-            if (!in_array($version_install_file, [null, '', '0'], strict: true) && ! empty($versionInstallTempName)) {
+            if (! in_array($version_install_file, [null, '', '0'], strict: true) && ! empty($versionInstallTempName)) {
                 //move uploaded version_install_file
-                move_uploaded_file($versionInstallTempName, ARCHIVES_DIRECTORY.('/' . $version_install_file));
+                move_uploaded_file($versionInstallTempName, ARCHIVES_DIRECTORY.('/'.$version_install_file));
                 $this->deleteFileDirectory(ARCHIVES_DIRECTORY, [$rows_array[0]['version_install_file']]);
                 //delete old version_install_file (if any)
             }
 
-            if (!in_array($version_upgrade_file, [null, '', '0'], strict: true) && ! empty($versionUpgradeTempName)) {
+            if (! in_array($version_upgrade_file, [null, '', '0'], strict: true) && ! empty($versionUpgradeTempName)) {
                 //move uploaded version_upgrade_file
-                move_uploaded_file($versionUpgradeTempName, ARCHIVES_DIRECTORY.('/' . $version_upgrade_file));
+                move_uploaded_file($versionUpgradeTempName, ARCHIVES_DIRECTORY.('/'.$version_upgrade_file));
                 $this->deleteFileDirectory(ARCHIVES_DIRECTORY, [$rows_array[0]['version_upgrade_file']]);
                 //delete old version_upgrade_file (if any)
             }
 
-            if (!in_array($version_install_query, [null, '', '0'], strict: true) && ! empty($versionInstallQueryTempName)) {
+            if (! in_array($version_install_query, [null, '', '0'], strict: true) && ! empty($versionInstallQueryTempName)) {
                 //move uploaded version_install_query
-                move_uploaded_file($versionInstallQueryTempName, QUERIES_DIRECTORY.('/' . $version_install_query));
+                move_uploaded_file($versionInstallQueryTempName, QUERIES_DIRECTORY.('/'.$version_install_query));
                 $this->deleteFileDirectory(QUERIES_DIRECTORY, [$rows_array[0]['version_install_query']]);
                 //delete old version_install_query (if any)
             }
 
-            if (!in_array($version_upgrade_query, [null, '', '0'], strict: true) && ! empty($versionUpgradeQueryTempName)) {
+            if (! in_array($version_upgrade_query, [null, '', '0'], strict: true) && ! empty($versionUpgradeQueryTempName)) {
                 //move uploaded version_upgrade_query
-                move_uploaded_file($versionUpgradeQueryTempName, QUERIES_DIRECTORY.('/' . $version_upgrade_query));
+                move_uploaded_file($versionUpgradeQueryTempName, QUERIES_DIRECTORY.('/'.$version_upgrade_query));
                 $this->deleteFileDirectory(QUERIES_DIRECTORY, [$rows_array[0]['version_upgrade_query']]);
                 //delete old version_upgrade_query (if any)
             }

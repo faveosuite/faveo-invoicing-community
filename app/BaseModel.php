@@ -39,7 +39,7 @@ class BaseModel extends Model
 
         $config = HTMLPurifier_Config::createDefault();
         $purifier = new HTMLPurifier($config);
-        if (! is_array($value) && !in_array($property, $this->purifyExcept) && $value != strip_tags((string) $value)) {
+        if (! is_array($value) && ! in_array($property, $this->purifyExcept) && $value != strip_tags((string) $value)) {
             $value = $purifier->purify($value);
         }
 

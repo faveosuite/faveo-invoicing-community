@@ -151,7 +151,7 @@ class CallBackController extends Controller
         if ($action_success === 1) { //everything OK
             $page_message = sprintf('Deleted %s callback(s).', $removed_records);
         } else { //display error message
-            $page_message = 'Callback could not be deleted because of this reason: ' . $error_details;
+            $page_message = 'Callback could not be deleted because of this reason: '.$error_details;
         }
 
         LicenseHelper::logAdminReport(strip_tags($page_message), 1, 1, $action_success);

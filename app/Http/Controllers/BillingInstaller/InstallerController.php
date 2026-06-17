@@ -213,7 +213,7 @@ class InstallerController extends Controller
         }
 
         $txt1 = '
-APP_ENV=' . $environment;
+APP_ENV='.$environment;
         file_put_contents($env, str_replace('DB_INSTALL='. 0, 'DB_INSTALL='. 1, file_get_contents($env)));
         file_put_contents($env, $txt1.PHP_EOL, FILE_APPEND | LOCK_EX);
 
@@ -399,7 +399,7 @@ APP_ENV=' . $environment;
                 $language = [];
                 $language['id'] = $key;
                 $language['locale'] = $langLocale;
-                $languageArray = \Config::get('languages.' . $langLocale, ['', '']);
+                $languageArray = \Config::get('languages.'.$langLocale, ['', '']);
                 $language['name'] = $languageArray[0];
                 $language['translation'] = $languageArray[1];
                 $languages[] = $language;

@@ -49,7 +49,7 @@ class QueueService extends Model
             'id' => $id,
             'name' => [
                 'text' => $name,
-                'link' => ($name == 'Sync' || $name == 'Database') ? null : url('queue/' . $id),
+                'link' => ($name == 'Sync' || $name == 'Database') ? null : url('queue/'.$id),
             ],
             'status' => [
                 'code' => (int) $status,

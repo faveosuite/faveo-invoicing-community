@@ -370,7 +370,7 @@ trait ApiKeySettings
     public function getCommand($command, string $daily_at)
     {
         if ($command == 'dailyAt') {
-            return 'dailyAt,' . $daily_at;
+            return 'dailyAt,'.$daily_at;
         }
 
         return $command;

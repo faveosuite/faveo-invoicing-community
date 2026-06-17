@@ -171,7 +171,7 @@ class TenantController extends Controller
                     'dates' => $subData,
 
                     'links' => [
-                        'tenant_domain' => $model['domain'] ? 'http://' . $model['domain'] : null,
+                        'tenant_domain' => $model['domain'] ? 'http://'.$model['domain'] : null,
                     ],
 
                     'action' => [
@@ -259,7 +259,7 @@ class TenantController extends Controller
             $faveoCloud = strtolower($company).'.'.cloudSubDomain();
 
             $dns_record = dns_get_record($faveoCloud, DNS_CNAME);
-            if (!strpos($faveoCloud, (string) cloudSubDomain()) && ($dns_record === [] || $dns_record === false || ! in_array(cloudSubDomain(), array_column($dns_record, 'target')))) {
+            if (! strpos($faveoCloud, (string) cloudSubDomain()) && ($dns_record === [] || $dns_record === false || ! in_array(cloudSubDomain(), array_column($dns_record, 'target')))) {
                 return errorResponse(trans('message.cname'));
                 //return ['status' => 'false', 'message' => trans('message.cname')];
             }
@@ -343,7 +343,7 @@ class TenantController extends Controller
                 ];
 
                 logActivity(
-                    sprintf("Cloud instance <b><a href='http://%s' target='_blank'>%s</a></b> created successfully for user <b><a href='", $faveoCloud, $faveoCloud).url('clients/' . $userId).sprintf("'><strong>%s %s</strong></a></b>", $userFirstName, $userLastName),
+                    sprintf("Cloud instance <b><a href='http://%s' target='_blank'>%s</a></b> created successfully for user <b><a href='", $faveoCloud, $faveoCloud).url('clients/'.$userId).sprintf("'><strong>%s %s</strong></a></b>", $userFirstName, $userLastName),
                     'created',
                     'Cloud'
                 );
@@ -380,6 +380,7 @@ class TenantController extends Controller
             $faveoToken = DB::table('third_party_tokens')->where('user_id', $userId)->value('token');
             if ($faveoToken && $token == $faveoToken) {
                 DB::table('third_party_tokens')->where('user_id', $userId)->delete();
+
                 //delete third party token here
                 return ['status' => 'success', 'message' => 'Valid token'];
             }
@@ -443,6 +444,7 @@ class TenantController extends Controller
             }
 
             $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
+
             return errorResponse(__('message.cloud_deleted_failed'));
         } catch (Exception $exception) {
             Logger::exception($exception);
@@ -520,7 +522,7 @@ class TenantController extends Controller
             $domainArray = $response->message;
             $counter = count($domainArray);
             for ($i = 0; $i < $counter; $i++) {
-                if (!is_null($domainArray[$i]) && $domainArray[$i]->domain == $installation_path) {
+                if (! is_null($domainArray[$i]) && $domainArray[$i]->domain == $installation_path) {
                     $data = ['id' => $domainArray[$i]->id, 'app_key' => $keys->app_key, 'deleteTenant' => true, 'token' => $token, 'timestamp' => time()];
                     $encodedData = http_build_query($data);
                     $hashedSignature = hash_hmac('sha256', $encodedData, (string) $keys->app_secret);
@@ -555,6 +557,7 @@ class TenantController extends Controller
 
                     Logger::exception(new Exception($response->message));
                     $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
+
                     return back()->with('fails', __('message.cloud_deleted_failed   '));
                 }
             }
@@ -732,7 +735,7 @@ class TenantController extends Controller
                 ? '+'.$user->mobile_code.' '.$user->mobile
                 : null,
             'country' => Country::where('country_code_char2', $user->country)->value('country_name'),
-            'profile' => url('clients/' . $user->id),
+            'profile' => url('clients/'.$user->id),
         ];
     }
 

@@ -97,7 +97,7 @@ class SocialLoginsControllerTest extends DBTestCase
             'status' => 1,
         ]);
 
-        $response = $this->getJson('/edit/SocialLogins/' . $row->id);
+        $response = $this->getJson('/edit/SocialLogins/'.$row->id);
 
         $response->assertStatus(200)
                  ->assertJsonFragment(['id' => $row->id, 'type' => 'Google']);
@@ -111,7 +111,7 @@ class SocialLoginsControllerTest extends DBTestCase
             'status' => 1,
         ]);
 
-        $response = $this->getJson('/edit/SocialLogins/' . $row->id);
+        $response = $this->getJson('/edit/SocialLogins/'.$row->id);
 
         $response->assertStatus(200)
                  ->assertJsonFragment(['id' => $row->id, 'type' => 'Github']);
@@ -125,7 +125,7 @@ class SocialLoginsControllerTest extends DBTestCase
             'status' => 1,
         ]);
 
-        $response = $this->getJson('/edit/SocialLogins/' . $row->id);
+        $response = $this->getJson('/edit/SocialLogins/'.$row->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['id' => $row->id, 'type' => 'Linkedin']);

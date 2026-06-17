@@ -70,7 +70,7 @@ class SocialMediaControllerTest extends DBTestCase
             'link' => 'https://linkedin.com',
         ]);
 
-        $response = $this->getJson('/social-media/show/' . $social->id);
+        $response = $this->getJson('/social-media/show/'.$social->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -102,7 +102,7 @@ class SocialMediaControllerTest extends DBTestCase
             'link' => 'https://instagram.com/new',
         ];
 
-        $response = $this->patchJson('/social-media/update/' . $social->id, $payload);
+        $response = $this->patchJson('/social-media/update/'.$social->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment([

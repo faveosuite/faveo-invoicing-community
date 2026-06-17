@@ -410,7 +410,7 @@ class MSG91ControllerTest extends DBTestCase
             'log_till' => now()->toDateString(),
         ]);
 
-        $response = $this->getJson('/sms/reports?' . $qs);
+        $response = $this->getJson('/sms/reports?'.$qs);
 
         $response->assertStatus(200)
                  ->assertJsonCount(2, 'data.logs.data');

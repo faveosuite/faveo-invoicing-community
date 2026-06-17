@@ -27,7 +27,7 @@ class InstallerControllerTest extends DBTestCase
         $controller = new InstallerController();
         $response = $controller->configurationcheck($request);
         $response = TestResponse::fromBaseResponse($response);
-         // Wrap the base response
+        // Wrap the base response
         $location = $response->headers->get('location');
         $this->assertEquals('http://localhost/post-check', $location);
     }

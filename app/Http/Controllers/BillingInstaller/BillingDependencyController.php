@@ -119,7 +119,7 @@ class BillingDependencyController extends Controller
                         $errorCount += 1;
                         $error[] = ['extensionName' => $extension, 'key' => 'required'];
                     } else {
-                        $extString = $extension . " is not enabled<p>To enable this, please install the extension on your server and  update '".php_ini_loaded_file().sprintf("' to enable %s </p>", $extension)
+                        $extString = $extension." is not enabled<p>To enable this, please install the extension on your server and  update '".php_ini_loaded_file().sprintf("' to enable %s </p>", $extension)
                             .'<a href="https://support.faveohelpdesk.com/show/how-to-enable-required-php-extension-on-different-servers-for-faveo-installation" target="_blank">How to install PHP extensions on my server?</a>';
                         throw new Exception($extString);
                     }

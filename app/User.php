@@ -176,6 +176,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(set: function ($value): array {
             $value = strtoupper((string) $value);
+
             return ['country' => $value];
         });
     }

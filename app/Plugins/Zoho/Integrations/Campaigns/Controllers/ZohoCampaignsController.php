@@ -20,7 +20,7 @@ class ZohoCampaignsController extends ZohoBaseController
      */
     protected function campaigns(): Campaigns
     {
-        if (!$this->campaigns instanceof \App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns) {
+        if (! $this->campaigns instanceof \App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns) {
             $this->campaigns = new Campaigns();
         }
 

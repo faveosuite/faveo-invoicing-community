@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use App\DefaultPage;
 use Auth;
-
 use Closure;
 //use Illuminate\Routing\Middleware;
 use Illuminate\Contracts\Auth\Guard;
@@ -17,7 +16,6 @@ class Admin
      * The Guard implementation.
      */
     protected \Illuminate\Contracts\Auth\Guard $auth;
-
 
     /**
      * Create a new filter instance.

@@ -36,7 +36,7 @@ class ZohoSync
         return match ($platform) {
             'crm' => (string) $field['id'],
             'campaigns' => (string) $field['FIELD_ID'],
-            default => throw new Exception('Unsupported platform ' . $platform)
+            default => throw new Exception('Unsupported platform '.$platform)
         };
     }
 

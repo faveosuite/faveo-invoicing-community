@@ -108,7 +108,7 @@ class GroupControllerTest extends DBTestCase
         Plan::factory()->create(['product' => $productB->id, 'days' => 31]);
         Plan::factory()->create(['product' => $productB->id, 'days' => 366]);
 
-        $response = $this->patchJson('/group/' . $group->id, [
+        $response = $this->patchJson('/group/'.$group->id, [
             'pricing_templates_id' => $template->id,
             'name' => 'Updated Group',
             'status' => 1,
@@ -132,7 +132,7 @@ class GroupControllerTest extends DBTestCase
         // Only monthly plan exists
         Plan::factory()->create(['product' => $product->id, 'days' => 30]);
 
-        $response = $this->patchJson('/group/' . $group->id, [
+        $response = $this->patchJson('/group/'.$group->id, [
             'pricing_templates_id' => $template->id,
             'name' => 'Bad Update',
             'status' => 1,
@@ -152,7 +152,7 @@ class GroupControllerTest extends DBTestCase
 
         // No plans at all
 
-        $response = $this->patchJson('/group/' . $group->id, [
+        $response = $this->patchJson('/group/'.$group->id, [
             'pricing_templates_id' => $template->id,
             'name' => 'Disabled Group',
             'status' => 0,

@@ -79,7 +79,7 @@ function resolveOptions($zohoField, Collection $localFields): array
  */
 function resolveSelected(?ZohoFieldMappings $mapping): ?array
 {
-    if (!$mapping instanceof \App\Plugins\Zoho\Models\ZohoFieldMappings) {
+    if (! $mapping instanceof \App\Plugins\Zoho\Models\ZohoFieldMappings) {
         return null;
     }
 

@@ -149,7 +149,7 @@ class PaymentController extends Controller
                 'qty' => $order->qty,
                 'price' => (float) $order->price_override,
                 'downloadable' => $downloadable,
-                'download_url' => $downloadable ? url('product/download/' . $order->product) : null,
+                'download_url' => $downloadable ? url('product/download/'.$order->product) : null,
             ];
         });
 

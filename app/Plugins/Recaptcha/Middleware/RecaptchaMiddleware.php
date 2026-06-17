@@ -124,6 +124,6 @@ class RecaptchaMiddleware
 
     private function getSessionKey(string $action): string
     {
-        return 'recaptcha_v2_fallback_' . $action;
+        return 'recaptcha_v2_fallback_'.$action;
     }
 }

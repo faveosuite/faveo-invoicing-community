@@ -46,6 +46,7 @@ class Github extends BaseModel
             return $value;
         }, set: function ($value): array {
             $value = Crypt::encrypt($value);
+
             return ['password' => $value];
         });
     }

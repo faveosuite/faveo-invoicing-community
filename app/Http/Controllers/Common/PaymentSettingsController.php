@@ -114,7 +114,7 @@ class PaymentSettingsController extends Controller
         if (! $plug) {
             $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
             $str = '
-\'App\Plugins\\' . $slug."\\ServiceProvider',";
+\'App\Plugins\\'.$slug."\\ServiceProvider',";
             $line_i_am_looking_for = 102;
             $lines = file($app, FILE_IGNORE_NEW_LINES);
             $lines[$line_i_am_looking_for] = $str;
@@ -131,7 +131,7 @@ class PaymentSettingsController extends Controller
 
             $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
             $str = '
-\'App\Plugins\\' . $slug."\\ServiceProvider',";
+\'App\Plugins\\'.$slug."\\ServiceProvider',";
             $line_i_am_looking_for = 102;
             $lines = file($app, FILE_IGNORE_NEW_LINES);
             $lines[$line_i_am_looking_for] = $str;
@@ -142,7 +142,7 @@ class PaymentSettingsController extends Controller
              * remove service provider from app.php
              */
             $str = '
-\'App\Plugins\\' . $slug."\\ServiceProvider',";
+\'App\Plugins\\'.$slug."\\ServiceProvider',";
             $path_to_file = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
 
             $file_contents = file_get_contents($path_to_file);
@@ -163,7 +163,7 @@ class PaymentSettingsController extends Controller
         $plug = $plugs->where('name', $name)->first();
         $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
         $str = '
-\'App\Plugins\\' . $name."\\ServiceProvider',";
+\'App\Plugins\\'.$name."\\ServiceProvider',";
         $line_i_am_looking_for = 102;
         $lines = file($app, FILE_IGNORE_NEW_LINES);
         $lines[$line_i_am_looking_for] = $str;

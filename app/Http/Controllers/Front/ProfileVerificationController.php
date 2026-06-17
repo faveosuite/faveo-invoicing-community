@@ -52,7 +52,7 @@ class ProfileVerificationController extends BaseAuthController
             // Send OTP to current email (old email verification or mobile confirmation)
             if ($email === $user->email) {
                 $mode = $request->is_mobile ? 'mobile' : 'old_email';
-                RateLimiter::hit('email-otp-old:' . $user->id, 600);
+                RateLimiter::hit('email-otp-old:'.$user->id, 600);
                 $this->sendActivationOtp($email, $method, $mode);
 
                 return successResponse(__('message.otp_code_sent_exist'));
@@ -283,7 +283,7 @@ class ProfileVerificationController extends BaseAuthController
             return $this->updateUserEmail($newEmail);
         }
 
-        RateLimiter::hit('email-otp-old:' . $user->id, 600);
+        RateLimiter::hit('email-otp-old:'.$user->id, 600);
         $this->sendActivationOtp($user->email, 'POST', 'old_email');
 
         return successResponse(__('message.otp_code_sent_exist'), [
@@ -303,7 +303,7 @@ class ProfileVerificationController extends BaseAuthController
             $existing?->delete();
         }
 
-        RateLimiter::hit('email-otp-new:' . $user->id, 600);
+        RateLimiter::hit('email-otp-new:'.$user->id, 600);
         $this->sendActivationOtp($email, $method, 'new_email');
 
         return successResponse(
@@ -363,7 +363,7 @@ class ProfileVerificationController extends BaseAuthController
             default => 'email-verify-new',
         };
 
-        RateLimiter::hit($key . ':'.auth()->id(), 600);
+        RateLimiter::hit($key.':'.auth()->id(), 600);
     }
 
     private function updateUserEmail(string $email)

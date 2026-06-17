@@ -115,7 +115,7 @@ class GithubApiController
         $github = Github::firstOrFail();
 
         return $this->http
-            ->put('/authorizations/clients/' . $github->client_id, [
+            ->put('/authorizations/clients/'.$github->client_id, [
                 'client_secret' => $github->client_secret,
             ])
             ->json('hashed_token');

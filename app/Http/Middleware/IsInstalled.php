@@ -22,6 +22,7 @@ class IsInstalled
         if ($request->isJson()) {
             $url = url('/');
             $result = ['fails' => 'already installed', 'api' => $url];
+
             return response()->json(compact('result'));
         }
 

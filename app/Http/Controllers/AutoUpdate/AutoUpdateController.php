@@ -37,7 +37,7 @@ class AutoUpdateController extends Controller
         }
 
         $version = $this->versionService->getVersionByNumber($product->id, $version_number);
-        if (!$version instanceof \App\Model\Product\ProductUpload) {
+        if (! $version instanceof \App\Model\Product\ProductUpload) {
             throw new Exception(__('message.version_not_found'));
         }
 

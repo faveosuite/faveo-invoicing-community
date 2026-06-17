@@ -302,6 +302,7 @@ class TwitterOAuth extends Config
      * Format and sign an OAuth / API request.
      *
      * @return string
+     *
      * @throws TwitterOAuthException
      */
     private function oAuthRequest(string $url, string $method, array $parameters)
@@ -326,6 +327,7 @@ class TwitterOAuth extends Config
      * Make an HTTP request.
      *
      * @return string
+     *
      * @throws TwitterOAuthException
      */
     private function request(string $url, string $method, string $authorization, array $postfields)

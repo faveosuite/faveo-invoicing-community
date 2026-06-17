@@ -514,7 +514,7 @@ class PhoneNumberControllerTest extends DBTestCase
         foreach ($countries as $country) {
             $result = $this->controller->getExampleNumber($country, mobile: true);
 
-            $this->assertNotNull($result, 'Example number should be returned for country: ' . $country);
+            $this->assertNotNull($result, 'Example number should be returned for country: '.$country);
             $this->assertIsString($result);
             $this->assertMatchesRegularExpression('/^\+\d+/', $result, sprintf('Example for %s should start with + and digits', $country));
         }
@@ -866,7 +866,7 @@ class PhoneNumberControllerTest extends DBTestCase
             // UK 0845 numbers are premium rate or shared cost
             $this->assertTrue(
                 in_array($result['type'], ['SHARED_COST', 'PREMIUM_RATE', 'UNKNOWN']),
-                'Expected type to be SHARED_COST, PREMIUM_RATE or UNKNOWN, got: ' . $result['type']
+                'Expected type to be SHARED_COST, PREMIUM_RATE or UNKNOWN, got: '.$result['type']
             );
             $this->assertEquals(44, $result['country_code']);
         } else {

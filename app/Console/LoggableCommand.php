@@ -37,7 +37,7 @@ abstract class LoggableCommand extends Command
             );
         }
 
-        $this->info('Starting: ' . $this->signature);
+        $this->info('Starting: '.$this->signature);
 
         try {
             $this->log = Logger::cron($this->signature, $this->description);
@@ -48,7 +48,7 @@ abstract class LoggableCommand extends Command
                 Logger::cronCompleted($this->log->id);
             }
 
-            $this->info('Finished successfully: ' . $this->signature);
+            $this->info('Finished successfully: '.$this->signature);
         } catch (Exception $exception) {
             if ($this->log) {
                 Logger::cronFailed($this->log->id, $exception);

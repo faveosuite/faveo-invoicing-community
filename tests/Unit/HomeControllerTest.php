@@ -59,7 +59,7 @@ class HomeControllerTest extends DBTestCase
 
         $renewController = new RenewController();
         $response = $renewController->generateInvoice($product, $user, $orderid, $plan->id, $planPrice->renew_price, $code = '', '4', 'INR');
-        $url = url('autopaynow/' . $response->invoice_id);
+        $url = url('autopaynow/'.$response->invoice_id);
 
         $expectedUrl = request()->getSchemeAndHttpHost().'/autopaynow/'.$response->invoice_id;
 

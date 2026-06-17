@@ -53,7 +53,7 @@ class WidgetController extends Controller
                 'type' => $widget->type,
                 'created_at' => getDateHtml($widget->created_at),
                 'content' => $widget->content,
-                'action' => hyperLinkGenerator('widgets/show/' . $widget->id, __('message.edit')),
+                'action' => hyperLinkGenerator('widgets/show/'.$widget->id, __('message.edit')),
             ]);
 
             return successResponse(__('message.widget_fetched'), [

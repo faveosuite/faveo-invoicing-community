@@ -90,7 +90,7 @@ class DBTestCase extends TestCase
     protected function assertAlpha(string $value)
     {
         $isAlpha = (bool) preg_match('/[a-zA-Z]/', $value);
-        $message = $value . ' is not an alphabet';
+        $message = $value.' is not an alphabet';
         self::assertThat($isAlpha, self::isTrue(), $message);
     }
 
@@ -103,7 +103,7 @@ class DBTestCase extends TestCase
     protected function assertNumber(string $value)
     {
         $isNumber = (bool) preg_match('/\d/', $value);
-        $message = $value . ' is not a number';
+        $message = $value.' is not a number';
         self::assertThat($isNumber, self::isTrue(), $message);
     }
 
@@ -128,7 +128,7 @@ class DBTestCase extends TestCase
         //if not found key is empty, it means all the keys are found. else not
         $hasKeys = ! $notFoundKeys;
         $notFoundKeysJson = json_encode($notFoundKeys);
-        $message = $notFoundKeysJson . ' not found in target array';
+        $message = $notFoundKeysJson.' not found in target array';
         self::assertThat($hasKeys, self::isTrue(), $message);
     }
 

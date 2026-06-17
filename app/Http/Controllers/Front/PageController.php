@@ -8,7 +8,6 @@ use App\Demo_page;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Product\ProductController;
 use App\Http\Requests\Front\ContactRequest;
 use App\Http\Requests\Front\PageRequest;
 use App\Model\Common\Country;
@@ -221,7 +220,7 @@ class PageController extends Controller
 
     public function transformTemplate(string $type, $data, $trasform = [])
     {
-        $config = Config::get('transform.' . $type);
+        $config = Config::get('transform.'.$type);
         $result = '';
 
         // Iterate using the original transform array to preserve product IDs as keys
@@ -292,7 +291,7 @@ class PageController extends Controller
 
     public function transform(string $type, $data, $trasform = [])
     {
-        $config = Config::get('transform.' . $type);
+        $config = Config::get('transform.'.$type);
         $result = '';
         $array = [];
         foreach ($trasform as $trans) {

@@ -567,7 +567,7 @@ class HomeController extends BaseHomeController
             $invoiceItems = $renewController->generateInvoice($product_details, $user, $order->id, $plan->id, $cost, $code = '', $item->agents, $oldcurrency);
             $invoiceid = $invoiceItems->invoice_id;
 
-            return url('autopaynow/' . $invoiceid);
+            return url('autopaynow/'.$invoiceid);
         } catch(Exception $exception) {
             $message = ['error' => $exception->getMessage()];
 

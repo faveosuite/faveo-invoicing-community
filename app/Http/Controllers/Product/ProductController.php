@@ -26,11 +26,7 @@ use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use Lang;
 use Logger;
-use Validator;
 
 // use Input;
 
@@ -317,7 +313,7 @@ class ProductController extends BaseProductController
         $products->getCollection()->transform(function ($product): array {
             $permissions = LicensePermissionsController::getPermissionsForProduct($product->id);
             $download_url = (is_array($permissions) && ! empty($permissions['downloadPermission']))
-                ? url('product/download/' . $product->id)
+                ? url('product/download/'.$product->id)
                 : null;
 
             return [

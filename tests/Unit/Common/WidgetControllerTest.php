@@ -80,7 +80,7 @@ class WidgetControllerTest extends DBTestCase
             'content' => 'Footer content',
         ]);
 
-        $response = $this->getJson('/widgets/show/' . $widget->id);
+        $response = $this->getJson('/widgets/show/'.$widget->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -146,7 +146,7 @@ class WidgetControllerTest extends DBTestCase
             'publish' => 1,
         ]);
 
-        $response = $this->putJson('/widgets/update/' . $widget->id, [
+        $response = $this->putJson('/widgets/update/'.$widget->id, [
             'name' => 'Updated Footer',
             'type' => 'footer',
             'publish' => 1,

@@ -3,7 +3,6 @@
 namespace App\Traits;
 
 use App\Model\Order\Invoice;
-
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;

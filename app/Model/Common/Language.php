@@ -41,7 +41,7 @@ class Language extends Model
             'name' => ['Name', fn ($value) => $value],
             'translation' => ['Translation', fn ($value) => $value],
             'locale' => ['Locale', fn ($value) => $value],
-            'status' => [$this->name . ' Language', fn ($value): array|string|null => $value === 1 ? __('message.enable') : __('message.disable')],
+            'status' => [$this->name.' Language', fn ($value): array|string|null => $value === 1 ? __('message.enable') : __('message.disable')],
         ];
     }
 }

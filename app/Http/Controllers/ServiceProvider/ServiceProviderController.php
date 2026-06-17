@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\ServiceProvider;
 
 use App\Http\Controllers\Controller;
-
 use App\Model\licence\Licence;
 use App\Model\Licence\LicencedOrganization;
 use App\Model\licence\Sla;
@@ -33,7 +32,6 @@ class ServiceProviderController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('service.provider');
-
 
         $sla = new Sla();
         $this->sla = $sla;

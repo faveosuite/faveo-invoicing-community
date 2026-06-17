@@ -100,7 +100,7 @@ class ChatScriptControllerTest extends DBTestCase
             'script' => 'code',
         ]);
 
-        $response = $this->getJson('/chat/show/' . $script->id);
+        $response = $this->getJson('/chat/show/'.$script->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -131,7 +131,7 @@ class ChatScriptControllerTest extends DBTestCase
             'on_registration' => 1,
         ];
 
-        $response = $this->putJson('/chat/update/' . $script->id, $payload);
+        $response = $this->putJson('/chat/update/'.$script->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment([

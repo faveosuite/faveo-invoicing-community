@@ -20,7 +20,7 @@ class ZohoCrmController extends ZohoBaseController
      */
     protected function crm(): Crm
     {
-        if (!$this->crm instanceof \App\Plugins\Zoho\Integrations\Crm\Controllers\Crm) {
+        if (! $this->crm instanceof \App\Plugins\Zoho\Integrations\Crm\Controllers\Crm) {
             $this->crm = new Crm();
         }
 

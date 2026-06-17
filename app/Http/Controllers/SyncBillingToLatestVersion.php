@@ -133,7 +133,7 @@ class SyncBillingToLatestVersion
             foreach ($seederVersions as $version) {
                 if (version_compare($this->getPHPCompatibleVersionString($version), $formattedOlderVersion) === 1) {
                     // scan for $version directory and get file names
-                    $this->log = $this->log."\n".('Running Seeder for version ' . $version);
+                    $this->log = $this->log."\n".('Running Seeder for version '.$version);
 
                     Artisan::call('db:seed', ['--class' => sprintf('Database\Seeders\%s\DatabaseSeeder', $version), '--force' => true]);
                     $this->handleArtisanLogs();
