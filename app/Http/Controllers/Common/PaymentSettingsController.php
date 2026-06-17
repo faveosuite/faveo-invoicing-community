@@ -7,7 +7,6 @@ use App\Model\Plugin;
 use Exception;
 use Illuminate\Http\Request;
 use Lang;
-use Zipper;
 
 class PaymentSettingsController extends Controller
 {

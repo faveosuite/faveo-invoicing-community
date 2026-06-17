@@ -10,7 +10,6 @@ use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Lang;
 
 class ReportController extends Controller
 {
