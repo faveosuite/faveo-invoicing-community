@@ -80,7 +80,7 @@ class ServiceProviderController extends Controller
     {
         try {
             // @phpstan-ignore class.notFound
-        $licence = new Licence();
+            $licence = new Licence();
             $licences = $licence->get(); // @phpstan-ignore class.notFound
 
             return view('themes.default1.serviceprovider.pricing', compact('licences'));

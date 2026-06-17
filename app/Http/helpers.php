@@ -467,7 +467,7 @@ function getCurrencyPrecision(string $currency): int
     return $formatter->getAttribute(NumberFormatter::FRACTION_DIGITS);
 }
 
-function rounding(mixed $price): float|null
+function rounding(mixed $price): ?float
 {
     try {
         $tax_rule = new TaxOption();

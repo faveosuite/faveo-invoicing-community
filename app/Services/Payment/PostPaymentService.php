@@ -321,7 +321,7 @@ class PostPaymentService
         }
     }
 
-    private function getPriceForCloud($order, $price, $product): float|null
+    private function getPriceForCloud($order, $price, $product): ?float
     {
         $numberofAgents = (int) ltrim(substr((string) $order->serial_key, -4), '0');
         $finalPrice = $numberofAgents * $price;
