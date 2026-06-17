@@ -48,6 +48,7 @@ use Override;
  * @property-read int|null $plugins_count
  * @property-read Product $product
  * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License active()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License newQuery()
@@ -74,6 +75,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class License extends Model

@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia query()
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia whereLink($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialMedia whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class SocialMedia extends BaseModel

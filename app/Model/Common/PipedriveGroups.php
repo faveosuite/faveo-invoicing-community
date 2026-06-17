@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $group_name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveGroups newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveGroups newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveGroups query()
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveGroups whereGroupName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveGroups whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveGroups whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class PipedriveGroups extends Model

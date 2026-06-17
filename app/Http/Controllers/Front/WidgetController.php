@@ -222,7 +222,6 @@ class WidgetController extends Controller
 
     /**
      * This function returns the rendered widget.
-     *
      */
     public function footer1()
     {

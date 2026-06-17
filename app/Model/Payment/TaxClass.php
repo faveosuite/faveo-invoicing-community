@@ -22,6 +22,7 @@ use Deprecated;
  * @property-read int|null $tax_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\TaxProductRelation> $tax_product_relation
  * @property-read int|null $tax_product_relation_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass query()
@@ -30,6 +31,7 @@ use Deprecated;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class TaxClass extends BaseModel

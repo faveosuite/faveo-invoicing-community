@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\License\Models\License $license
  * @property-read Product $product
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePlugin newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePlugin newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePlugin query()
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePlugin whereLicenseId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePlugin whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePlugin whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class LicensePlugin extends Model

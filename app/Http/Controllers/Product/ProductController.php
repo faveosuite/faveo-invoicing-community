@@ -24,7 +24,6 @@ use App\Traits\Upload\ChunkUpload;
 use DB;
 use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Logger;
 

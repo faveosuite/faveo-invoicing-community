@@ -39,6 +39,7 @@ use Override;
  * @property-read Product|null $productRelation
  * @property-read Subscription|null $subscription
  * @property-read User|null $user
+ *
  * @method static \Database\Factories\Model\Order\OrderFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
@@ -57,6 +58,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereQty($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSerialKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Order extends BaseModel

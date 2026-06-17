@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Model\Cart\Cart $cart
  * @property-read Plan|null $plan
  * @property-read Product|null $product
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem query()
@@ -36,6 +37,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereQuantity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class CartItem extends Model

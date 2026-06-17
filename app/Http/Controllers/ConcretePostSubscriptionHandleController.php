@@ -13,10 +13,10 @@ use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
-use App\User;
 use App\Services\Payment\ProcessingFee;
 use App\Services\Payment\SubscriptionService;
 use App\Services\SubscriptionRenewalService;
+use App\User;
 use Exception;
 use Illuminate\Support\Facades\Date;
 use Log;
@@ -51,7 +51,7 @@ abstract class PostSubscriptionHandleController
 
     abstract public function getProcessingFee(string $paymentMethod, string $currency): ?string;
 
-    abstract public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, Template|null $template, Order $order, Payment|string $payment): void;
+    abstract public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, ?Template $template, Order $order, Payment|string $payment): void;
 
     abstract public function FailedPaymenttoAdmin(Invoice $invoice, float|int $total, string $productName, string $exceptionMessage, User $user, string $template, Order $order, Payment $payment): void;
 
@@ -101,7 +101,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         return $percent > 0 ? ProcessingFee::label($percent) : null;
     }
 
-    public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, Template|null $template, Order $order, Payment|string $payment): void
+    public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, ?Template $template, Order $order, Payment|string $payment): void
     {
         $amount = currencyFormat($total, getCurrencyForClient($user->country));
         $setting = Setting::find(1);

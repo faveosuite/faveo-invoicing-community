@@ -14,7 +14,6 @@ use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
-use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;

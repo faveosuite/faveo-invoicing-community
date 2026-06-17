@@ -306,7 +306,6 @@ class LoginController extends BaseAuthController
 
     /**
      * This function stores basic details for social logins.
-     *
      */
     public function storeBasicDetails(Request $request)
     {

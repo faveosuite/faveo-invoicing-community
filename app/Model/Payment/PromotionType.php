@@ -11,6 +11,7 @@ use App\BaseModel;
  * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PromotionType newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PromotionType newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PromotionType query()
@@ -18,6 +19,7 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PromotionType whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PromotionType whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PromotionType whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class PromotionType extends BaseModel

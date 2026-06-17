@@ -319,7 +319,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    private function getThePaymentCalculation(int $newAgents, string $oldLicense, int $orderId, int|null $planId = null, string|null $agentAction = null): array
+    private function getThePaymentCalculation(int $newAgents, string $oldLicense, int $orderId, ?int $planId = null, ?string $agentAction = null): array
     {
         try {
             $sub = Subscription::where('order_id', $orderId)->first();

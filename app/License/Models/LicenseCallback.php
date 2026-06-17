@@ -22,6 +22,7 @@ use Override;
  * @property-read \App\License\Models\License|null $license
  * @property-read Product|null $product
  * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseCallback newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseCallback newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseCallback query()
@@ -35,6 +36,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseCallback whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseCallback whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseCallback whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class LicenseCallback extends Model
