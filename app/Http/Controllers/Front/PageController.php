@@ -123,9 +123,6 @@ class PageController extends Controller
 
     public function getPageUrl($slug)
     {
-        $productController = new ProductController();
-        //  $url = url('/');
-        //  $segment = $this->addSegment(['public/pages']);
         $url = url('/');
 
         $slug = Str::slug($slug, '-');
@@ -146,21 +143,6 @@ class PageController extends Controller
         }
 
         return $segment;
-    }
-
-    public function generate(Request $request)
-    {
-        if ($request->has('slug')) {
-            $slug = $request->input('slug');
-
-            return $this->getSlug($slug);
-        }
-
-        if ($request->has('url')) {
-            $slug = $request->input('url');
-
-            return $this->getPageUrl($slug);
-        }
     }
 
     /**
@@ -913,7 +895,7 @@ class PageController extends Controller
             $isSpam = $this->detectSpam($request->input('email'), $request->input('message'));
 
             if ($isSpam) {
-                return response()->json(['error' => 'Spam detected.'], 403);
+                return errorResponse(__('message.spam_detected'));
             }
 
             $set = new Setting();
@@ -940,9 +922,9 @@ class PageController extends Controller
                 $mail->SendEmail($set->email, $set->company_email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
             }
 
-            return response()->json(['message' => __('message.message_sent_successfully_400')], 200);
+            return successResponse(__('message.message_sent_successfully_400'));
         } catch (Exception $ex) {
-            return response()->json(['error' => $ex->getMessage()], 500);
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -989,7 +971,7 @@ class PageController extends Controller
             $isSpam = $this->detectSpam($request->input('demoemail'), $request->input('demomessage'));
 
             if ($isSpam) {
-                return response()->json(['error' => 'Spam detected.'], 403);
+                return errorResponse(__('message.spam_detected'));
             }
 
             $set = new Setting();

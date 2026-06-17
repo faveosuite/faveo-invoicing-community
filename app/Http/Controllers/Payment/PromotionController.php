@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Payment;
 
-use App\Facades\Cart;
 use App\Http\Controllers\Order\InvoiceController;
 use App\Http\Requests\Payment\PromotionRequest;
 use App\Model\Order\Invoice;
@@ -31,8 +30,6 @@ class PromotionController extends BasePromotionController
 
     public $invoice;
 
-    public $cart;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -53,7 +50,6 @@ class PromotionController extends BasePromotionController
         $invoice = new Invoice();
         $this->invoice = $invoice;
 
-        $this->cart = new Cart();
     }
 
     /**
@@ -120,82 +116,6 @@ class PromotionController extends BasePromotionController
             return back()->with('success', Lang::get('message.updated-successfully'));
         } catch (Exception $ex) {
             return back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function checkCode($code)
-    {
-        try {
-            $promo = $this->getPromotionDetails($code);
-            $codevalue = Promotion::where('code', $code)->first();
-
-            if (! $codevalue) {
-                throw new Exception(__('message.invalid_coupon_code'));
-            }
-
-            $promotion = $this->promotion->where('code', $code)->first();
-            $uses = $promotion->uses;
-            if (Session::get('usage') == 1) {
-                if (Session::get('code') == $code) {
-                    throw new Exception(__('message.coupon_code_applied'));
-                } elseif (Session::get('usage') >= $uses) {
-                    throw new Exception(Lang::get('message.usage-of-code-completed'));
-                } else {
-                    $productid = '';
-                    $originalPrice = Session::get('oldPrice');
-                    foreach ($this->cart->getContent() as $item) {
-                        $productid = $item['id'];
-                    }
-
-                    if ($productid && $originalPrice) {
-                        $this->cart->update($productid, [
-                            'price' => $originalPrice,
-                        ]);
-                        Session::forget('code');
-                        Session::forget('oldprice');
-                        Session::forget('usage');
-                    }
-                }
-            }
-
-            $validProductForPromo = $promo->relation->first()->product_id;
-            $productid = '';
-            foreach (\Cart::getContent() as $item) {
-                if ($item->associatedModel->id == $validProductForPromo) {
-                    $productid = $item->id;
-                    $original = $item->price;
-                    Session::put('plan', $item->id);
-                }
-            }
-
-            $value = $this->findCostAfterDiscount($promo->id, $validProductForPromo, Auth::user()->id);
-
-            if ($productid) {
-                Session::put('usage', 1);
-                Session::put('code', $promo->code);
-                Session::put('codevalue', $promo->value);
-                $coupon101 = [
-                    'name' => $original,
-                    'type' => 'coupon',
-                    'value' => '-'.$promo->value,
-                ];
-                $this->cart->update($productid, [
-                    'id' => $productid,
-                    'price' => $value,
-
-                    'conditions' => $coupon101,
-
-                    // new item price, price can also be a string format like so: '98.67'
-                ]);
-                Session::put('togglePrice', $coupon101->getName());
-                Session::put('productid', $productid);
-
-                return back()->with('success', __('message.coupon_code_applied_successfully'));
-            } else {
-                throw new Exception(__('message.invalid_coupon_code'));
-            }
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
         }
     }
 

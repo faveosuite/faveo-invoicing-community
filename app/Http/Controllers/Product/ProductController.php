@@ -138,237 +138,12 @@ class ProductController extends BaseProductController
             $this->product_upload->save();
 
             $this->product->where('id', $product_id->id)->update(['version' => $request->input('version')]);
-            $updateClassObj = new AutoUpdateController();
-            $addProductToAutoUpdate = $updateClassObj->addNewVersion($product_id->id, $request->input('version'), $request->input('filename'), '1');
-            $response = ['success' => 'true', 'message' => __('message.product_uploaded_successfully')];
 
-            return $response;
-        } catch (Exception $e) {
-            Logger::exception($e);
-            $message = [$e->getMessage()];
-            $response = ['success' => 'false', 'message' => $message];
-
-            return response()->json(compact('response'), 500);
-        }
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @return \Response
-     */
-    public function store(Request $request)
-    {
-        $input = $request->all();
-
-        $v = Validator::make($input, [
-            'name' => [
-                'required',
-                Rule::unique('products', 'name')->where('group', $request->group),
-            ],
-            'type' => 'required',
-            'description' => 'required',
-            'product_description' => 'required',
-            'short_description' => 'required',
-            'image' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'product_sku' => 'required|unique:products,product_sku',
-            'group' => 'required',
-            'show_agent' => 'required',
-            // 'version' => 'required',
-        ], [
-            'product_sku.unique' => __('validation.product_sku_unique'),
-            'name.unique' => __('validation.product_controller.name_unique_in_group'),
-            'show_agent.required' => __('validation.product_show_agent_required'),
-        ]);
-
-        if ($v->fails()) {
-            //     $currency = $input['currency'];
-
-            return back()
-                        ->withErrors($v)
-                        ->withInput($request->input());
-        }
-
-        try {
-            if ($request->hasFile('image')) {
-                $image = Attach::put('common/images/', $request->file('image'), null, true);
-                $this->product->image = basename($image);
-            }
-
-            $can_modify_agent = $request->input('can_modify_agent');
-            $can_modify_quantity = $request->input('can_modify_quantity');
-            $highlight = $request->input('highlight');
-            $add_to_contact = $request->input('add_to_contact');
-            $this->saveCartValues($input, $can_modify_agent, $can_modify_quantity, $highlight, $add_to_contact);
-            $data = $request->except(['image', 'file']);
-            if (! empty($product_id)) {
-                $data['id'] = $product_id;
-            }
-
-            $this->product->fill($data)->save();
-
-            $taxes = $request->input('tax');
-            if ($taxes) {
-                foreach ($taxes as $value) {
-                    $newtax = new TaxProductRelation();
-                    $newtax->product_id = $this->product->id;
-                    $newtax->tax_class_id = $value;
-                    $newtax->save();
-                }
-            }
-
-            return back()->with('success', Lang::get('message.saved-successfully'));
+            return successResponse(__('message.product_uploaded_successfully'));
         } catch (Exception $e) {
             Logger::exception($e);
 
-            return back()->with('fails', $e->getMessage());
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function update($id, Request $request)
-    {
-        $input = $request->all();
-
-        $request->validate([
-            'name' => [
-                'required',
-                Rule::unique('products', 'name')->where('group', $request->group)->ignore($id),
-            ],
-            'type' => ['required'],
-            'description' => ['required'],
-            'product_description' => ['required'],
-            'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
-            'product_sku' => ['required'],
-            'group' => ['required'],
-        ],
-            [
-                'name.required' => __('validation.product_controller.name_required'),
-                'name.unique' => __('validation.product_controller.name_unique_in_group'),
-                'type.required' => __('validation.product_controller.type_required'),
-                'description.required' => __('validation.product_controller.description_required'),
-                'short_description.required' => __('validation.product_controller.short_description_required'),
-                'product_description.required' => __('validation.product_controller.product_description_required'),
-                'image.mimes' => __('validation.product_controller.image_mimes'),
-                'image.max' => __('validation.product_controller.image_max'),
-                'product_sku.required' => __('validation.product_controller.product_sku_required'),
-                'group.required' => __('validation.product_controller.group_required'),
-                'show_agent.required' => __('validation.product_controller.show_agent_required'),
-            ]);
-
-//       To Delete the uploaded files when it is removed from the tinymce
-        $product = $this->product->where('id', $id)->first();
-        $this->removeUploads($product->product_description, $request->input('product_description'));
-        try {
-            if ($request->hasFile('image')) {
-                $image = Attach::put('common/images/', $request->file('image'), null, true);
-                $product->image = basename($image);
-            }
-
-            if ($request->hasFile('file')) {
-                $file = $request->file('file')->getClientOriginalName();
-                $filedestinationPath = storage_path().'/products';
-                $request->file('file')->move($filedestinationPath, $file);
-                $product->file = $file;
-            }
-
-            $product->fill($request->except('image', 'file'))->save();
-            $highlight = $request->input('highlight');
-            $add_to_contact = $request->input('add_to_contact');
-            $this->saveCartDetailsWhileUpdating($input, $request, $product, $highlight, $add_to_contact);
-
-            if ($request->input('github_owner') && $request->input('github_repository')) {
-                $this->updateVersionFromGithub($product->id, $request->input('github_owner'), $request->input('github_repository'));
-            }
-
-            //add tax class to tax_product_relation table
-            $newTax = $this->saveTax($request->input('tax'), $product->id);
-
-            return back()->with('success', Lang::get('message.updated-successfully'));
-        } catch (Exception $e) {
-            return back()->with('fails', $e->getMessage());
-        }
-    }
-
-    public function removeUploads($oldContent, $newContent)
-    {
-        preg_match_all('/<img[^>]+src="([^"]+)"/', (string) $oldContent, $oldMatches);
-        preg_match_all('/<img[^>]+src="([^"]+)"/', (string) $newContent, $newMatches);
-
-        $oldImages = $oldMatches[1] ?? [];
-        $newImages = $newMatches[1] ?? [];
-
-        // 2. Find removed images
-        $removedImages = array_diff($oldImages, $newImages);
-        // 3. Delete removed images from storage
-        foreach ($removedImages as $imgUrl) {
-            // Convert URL to storage path if needed
-            if (Str::contains($imgUrl, '/storage/uploads/tinymce/')) {
-                $path = str_replace('/storage/', 'public/', parse_url($imgUrl, PHP_URL_PATH));
-                if (Storage::exists($path)) {
-                    Storage::delete($path);
-                }
-            }
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function destroy(Request $request)
-    {
-        try {
-            $ids = array_unique($request->input('select', []));
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $product = $this->product->where('id', $id)->first();
-                    if ($product) {
-                        $product->delete();
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
-                </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                    }
-                }
-
-                echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */
-                        Lang::get('message.alert').'!</b> './* @scrutinizer ignore-type */ Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
-                </div>';
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
-                </div>';
-                //echo \Lang::get('message.select-a-row');
-            }
-        } catch (Exception) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').',
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.__('message.not-found').'
-                </div>';
+            return errorResponse($e->getMessage());
         }
     }
 
@@ -634,14 +409,6 @@ class ProductController extends BaseProductController
 
                 // Update the product version
                 $product->update(['version' => $validated['version']]);
-
-                resolve(AutoUpdateController::class)
-                    ->addNewVersion(
-                        $product->id,
-                        $validated['version'],
-                        $validated['filename'],
-                        '1'
-                    );
             });
 
             return successResponse(__('message.product_uploaded_successfully'));
@@ -714,7 +481,7 @@ class ProductController extends BaseProductController
                 'release_type' => $u->release_type,
                 'is_private' => (bool) $u->is_private,
                 'is_restricted' => (bool) $u->is_restricted,
-                'dependencies' => json_decode((string) $u->dependencies, true) ?: [],
+                'dependencies' => json_decode((string) $u->getRawOriginal('dependencies'), true) ?: [],
             ]);
         } catch (Exception $e) {
             return errorResponse($e->getMessage());

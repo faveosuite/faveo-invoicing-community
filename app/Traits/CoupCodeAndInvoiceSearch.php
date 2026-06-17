@@ -3,7 +3,7 @@
 namespace App\Traits;
 
 use App\Model\Order\Invoice;
-use Cart;
+
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
@@ -42,9 +42,6 @@ trait CoupCodeAndInvoiceSearch
         try {
             $invoice = Invoice::find($invoiceid);
             $processingFee = '';
-            foreach (Cart::getConditionsByType('fee') as $processFee) {
-                $processingFee = $processFee->getValue();
-            }
 
             $invoice_status = 'pending';
 

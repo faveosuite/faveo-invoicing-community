@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Facades\Cart;
-use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\Payment\PromotionController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Requests\InvoiceRequest;
@@ -75,10 +73,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
     public $order;
 
-    public $cartController;
-
-    public $cart;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -126,10 +120,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         $tax_by_state = new TaxByState();
         $this->tax_by_state = new $tax_by_state();
 
-        $cartController = new CartController();
-        $this->cartController = $cartController;
-
-        $this->cart = new Cart();
     }
 
     public function getInvoices(Request $request)
@@ -194,137 +184,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     }
 
     /**
-     * Generate invoice from client panel.
-     *
-     * @throws Exception
-     */
-    public function generateInvoice()
-    {
-        try {
-            $amt_to_credit = null;
-            $tax_rule = new TaxOption();
-            $rule = $tax_rule->findOrFail(1);
-            $rounding = $rule->rounding;
-            $user_id = Auth::user()->id;
-            $grand_total = $this->cart->getTotal();
-            $number = random_int(11111111, 99999999);
-            $date = Date::now();
-            if ($rounding) {
-                $grand_total = round($grand_total);
-            }
-
-            if (User::where('id', $user_id)->value('billing_pay_balance')) {
-                $amt_to_credit = DB::table('payments')
-                    ->where('user_id', Auth::user()->id)
-                    ->where('payment_method', 'Credit Balance')
-                    ->where('payment_status', 'success')
-                    ->where('amt_to_credit', '!=', 0)
-                    ->value('amt_to_credit');
-
-                if ($grand_total <= (int) $amt_to_credit) {
-                    $amt_to_credit = $grand_total;
-                }
-            }
-
-            Session::forget('cloud_domain');
-            $currency = Session::has('cart_currency') ? Session::get('cart_currency') : getCurrencyForClient(Auth::user()->country);
-            $cloud_domain = Session::has('cloud_domain') ? Session::get('cloud_domain') : '';
-            $cont = new PromotionController();
-            $invoice = $this->invoice->create([
-                'user_id' => $user_id,
-                'number' => $number,
-                'date' => $date,
-                'grand_total' => $grand_total,
-                'status' => 'pending',
-                'currency' => $currency,
-                'coupon_code' => Session::get('code'),
-                'discount' => Session::get('discountPrice'),
-                'discount_mode' => 'coupon',
-                'billing_pay' => $amt_to_credit,
-                'cloud_domain' => str_replace('.'.cloudSubDomain(), '', $cloud_domain),
-                'credits' => Session::get('priceRemaining'),
-                'metadata' => Session::has('upgradeDowngradeProduct') ? [
-                    'type' => 'upgrade_downgrade',
-                    'old_order_id' => (int) Session::get('upgradeorderId'),
-                    'old_license' => Session::get('upgradeOldLicense'),
-                    'installation_path' => Session::get('upgradeInstallationPath'),
-                    'discount' => Session::has('discount') ? (float) Session::get('discount') : null,
-                ] : null,
-            ]);
-
-            foreach ($this->cart->getContent() as $cart) {
-                $this->createInvoiceItems($invoice->id, $cart, $amt_to_credit);
-            }
-
-            if (emailSendingStatus()) {
-                $this->sendMail($user_id, $invoice->id);
-            }
-
-            return $invoice;
-        } catch (Exception $ex) {
-            Logger::exception($ex);
-
-            return errorResponse($ex->getMessage());
-        }
-    }
-
-    public function createInvoiceItems($invoiceid, $cart, $amt_credit = null)
-    {
-        try {
-            $planid = 0;
-            $product = Product::find($cart->associatedModel->id);
-            $product_id = $product->id;
-            $regular_price = (Session::has('priceToBePaid')) ? Session::get('priceToBePaid') : $cart->price;
-            $quantity = $cart->quantity;
-            $agents = $cart->attributes->agents;
-            $domain = $this->domain($cart->id);
-            if (checkPlanSession()) {
-                $planid = Session::get('plan');
-            }
-
-            if ($planid == 0) {
-                //When Product is added from Faveo Website
-                $planid = Plan::where('id', $cart['id'])->pluck('id')->first();
-            }
-
-            $subtotal = $this->cart->getPriceSum($cart['id']);
-            $tax_name = $cart['conditions']['name'] ?? '';
-            $tax_percentage = $cart['conditions']['value'] ?? '';
-            $invoiceItem = $this->invoiceItem->create([
-                'invoice_id' => $invoiceid,
-                'product_name' => $product->name,
-                'product_id' => $product_id,
-                'regular_price' => $regular_price,
-                'quantity' => $quantity,
-                'tax_name' => $tax_name,
-                'tax_percentage' => $tax_percentage,
-                'subtotal' => $subtotal,
-                'domain' => $domain,
-                'plan_id' => $planid,
-                'agents' => $agents,
-                'billing_pay' => $amt_credit,
-            ]);
-
-            $percent = $this->sumPercent($tax_percentage);
-            if ($tax_name && strtolower((string) $tax_name) !== 'null' && $percent > 0) {
-                InvoiceTaxLine::create([
-                    'invoice_id' => $invoiceid,
-                    'invoice_item_id' => $invoiceItem->id,
-                    'tax_rate_id' => null,
-                    'label' => $tax_name,
-                    'rate' => $percent,
-                    'compound' => 0,
-                    'amount' => round((float) $invoiceItem->subtotal * $percent / 100, 4),
-                ]);
-            }
-
-            return $invoiceItem;
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
-        }
-    }
-
-    /**
      * Generate invoice from admin panel.
      *
      * @throws Exception
@@ -375,7 +234,9 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $date = Date::parse($request->input('date'));
             $product = Product::find($productid);
 
-            $cost = $this->cartController->cost($productid, $plan, $user_id);
+            $baseCost = $userCurrency['plan']->add_price;
+            $offer = $userCurrency['plan']['offer_price'] ?? 0;
+            $cost = $offer > 0 ? $baseCost * (1 - $offer / 100) : $baseCost;
             Session::put('plan', $plan);
             $couponTotal = $this->getGrandTotal($code, $total, $cost, $productid, $currency, $user_id);
             $grandTotalAfterCoupon = $qty * $couponTotal['total'];
@@ -507,17 +368,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                     : $invoiceUser->state;
             }
 
-//            return view('themes.default1.invoice.newpdf', [
-//                'invoice'      => $invoice,
-//                'invoiceItems' => $invoice->invoiceItem()->get(),
-//                'user'         => $invoiceUser,
-//                'set'          => $set,
-//                'order'        => Order::getOrderLink(OrderInvoiceRelation::where('invoice_id', $id)->value('order_id'), 'my-order'),
-//                'date'         => getDateHtml($invoice->date),
-//                'symbol'       => $invoice->currency,
-//                'totals'       => $totals,
-//            ]);
-
             return Pdf::view('themes.default1.invoice.newpdf', [
                 'invoice' => $invoice,
                 'invoiceItems' => $invoice->invoiceItem()->get(),
@@ -544,18 +394,19 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $searchParams = $request->input('search_params', []);
             $email = Auth::user()->email;
             $driver = QueueService::where('status', '1')->first();
-            if ($driver->name != 'Sync') {
-                resolve('queue')->setDefaultDriver($driver->short_name);
-                dispatch(new ReportExport('invoices', $selectedColumns, $searchParams, $email))->onQueue('reports');
 
-                return response()->json(['message' => __('message.report_generation_in_progress')], 200);
-            } else {
-                return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
+            if($driver->name == 'Sync') {
+                return errorResponse(__('message.cannot_sync_queue_driver'));
             }
+
+            resolve('queue')->setDefaultDriver($driver->short_name);
+            dispatch(new ReportExport('invoices', $selectedColumns, $searchParams, $email))->onQueue('reports');
+            return successResponse(__('message.report_generation_in_progress'));
+
         } catch (Exception $e) {
             Logger::exception($e);
 
-            return response()->json(['message' => $e->getMessage()], 500);
+            return errorResponse($e->getMessage());
         }
     }
 

@@ -24,7 +24,7 @@ class CommonMailer
 
             return true;
         } catch (Exception $e) {
-            loging($e->getMessage());
+            \Logger::exception($e);
 
             return $e->getMessage();
         }

@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
-use App\Facades\Cart;
-use App\Http\Controllers\Front\CartController;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Model\Common\ChatScript;
 use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
-use App\Model\Payment\Currency;
-use App\Model\Payment\Plan;
+
 use App\SocialLogin;
 use App\User;
 use Cache;
@@ -46,8 +43,6 @@ class LoginController extends BaseAuthController
      */
     protected $redirectTo = '/';
 
-    protected $cart;
-
     /**
      * Create a new controller instance.
      *
@@ -57,7 +52,6 @@ class LoginController extends BaseAuthController
     {
         $this->middleware('guest')->except(['logout', 'store-basic-details', 'loginConfig']);
         $this->middleware(['blockFailedVerifications:login', 'recaptcha:login'])->only('login');
-        $this->cart = new Cart();
     }
 
     /**
@@ -157,8 +151,6 @@ class LoginController extends BaseAuthController
             // 5. Regenerate session for security
             Session::regenerate();
 
-            $this->convertCart();
-
             $this->logActivityLogin($user);
 
             return successResponse('', ['redirect' => $this->redirectPath()]);
@@ -230,12 +222,6 @@ class LoginController extends BaseAuthController
         if ($auth) {
             $this->clearRateLimit('login', $auth);
             $this->clearRateLimit('2fa', $auth);
-        }
-
-        // Land users on the client Vue panel (now at the app root) and staff on
-        // the admin panel. A pending cart takes precedence so checkout can resume.
-        if ($this->cart->isEmpty() === false) {
-            return url('/cart');
         }
 
         return url(($auth && $auth->role === 'user') ? '/' : '/admin');
@@ -330,8 +316,6 @@ class LoginController extends BaseAuthController
         }
 
         if (Auth::check()) {
-            $this->convertCart();
-
             return redirect($this->redirectPath());
         }
     }
@@ -367,56 +351,7 @@ class LoginController extends BaseAuthController
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $e) {
             return errorResponse($e->getMessage());
-//            Session::flash('error', __('message.please_enter_details'));
         }
-    }
-
-    /**
-     * This function performs operation on cart after logging in(scenario:when we add products to the cart before logging in, to convert it for the logged-in user).
-     *
-     * @param
-     * @param
-     *
-     * @throws
-     */
-    public function convertCart()
-    {
-        $cart = new Cart();
-        $contents = $cart->getContent();
-        $user = \Auth::user();
-        $currencyCode = getCurrencyForClient($user->country);
-        $currencySymbol = Currency::where('code', $currencyCode)->value('symbol');
-        $cartController = new CartController();
-        foreach ($contents as $content) {
-            try {
-                $plan = Plan::find($content->id);
-
-                // If plan or product is missing, throw to remove it
-                throw_if(! $plan || ! $plan->product, Exception::class, 'Invalid plan or product.');
-
-                $price = $cartController->planCost($plan->product, $user->id, $content['id']);
-
-                if (! empty($content['attributes']['domain'])) {
-                    $price *= $content['attributes']['agents'];
-                }
-
-                $cart->update($content['id'], [
-                    'price' => $price,
-                    'attributes' => [
-                        'currency' => $currencyCode,
-                        'symbol' => $currencySymbol,
-                        'agents' => $content['attributes']['agents'],
-                        'domain' => $content['attributes']['domain'],
-                    ],
-                ]);
-            } catch (Exception) {
-                // Remove item if any exception occurs (missing plan/product or pricing failure)
-                $cart->remove($content['id']);
-                continue;
-            }
-        }
-
-        Session::forget('toggleState');
     }
 
     /**

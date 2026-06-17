@@ -110,26 +110,7 @@ class BaseOrderController extends ExtendedOrderController
             $this->sendOrderMail($userId, $order->id, $item->id);
         }
 
-        if (StatusSetting::pluck('mailchimp_status')->first()) {
-            $this->addtoMailchimp($product, $userId, $item);
-        }
-
         return $order;
-    }
-
-    public function addToMailchimp($product, $user_id, $item)
-    {
-        try {
-            $mailchimp = new MailChimpController();
-            $email = User::where('id', $user_id)->pluck('email')->first();
-            if ($item->subtotal > 0) {
-                $r = $mailchimp->updateSubscriberForPaidProduct($email, $product);
-            } else {
-                $r = $mailchimp->updateSubscriberForFreeProduct($email, $product);
-            }
-        } catch (Exception) {
-            return;
-        }
     }
 
     /**

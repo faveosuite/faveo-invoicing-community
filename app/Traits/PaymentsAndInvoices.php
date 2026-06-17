@@ -7,7 +7,7 @@ use App\Model\Order\Invoice;
 use App\Model\Order\Payment;
 use App\Model\Product\Product;
 use Auth;
-use Cart;
+
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
@@ -132,9 +132,6 @@ trait PaymentsAndInvoices
     {
         try {
             $invoice = $this->invoice->findOrFail($invoiceid);
-            foreach (Cart::getConditionsByType('fee') as $value) {
-                $invoice->processing_fee = $value->getValue();
-            }
 
             $payment = $this->payment->where('invoice_id', $invoiceid)
             ->where('payment_status', 'success')->pluck('amount')->toArray();

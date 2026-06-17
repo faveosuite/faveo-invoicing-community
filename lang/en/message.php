@@ -1991,7 +1991,7 @@ return [
 
     //Product panel
     'all_product_details' => 'Add Product Details',
-    'enter_json_format' => 'Enter JSON format.',
+    'enter_json_format' => 'Enter valid JSON format.',
     'upload' => 'Upload',
     'or_drop_here' => 'or drop here',
     'release_private' => 'If the release is kept private, product users won\'t receive notification for this release.',

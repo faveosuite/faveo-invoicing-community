@@ -178,7 +178,6 @@ class CurrencyController extends Controller
      * Update the specified resource in storage.
      *
      * @param  int  $id
-     * @return \Response
      */
     public function update(Request $request)
     {
@@ -194,9 +193,9 @@ class CurrencyController extends Controller
             $currency->nicename = $nicename;
             $currency->save();
 
-            return response()->json(['success' => Lang::get('message.updated-successfully')]);
+            return successResponse(__('message.updated-successfully'));
         } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 

@@ -22,37 +22,6 @@ use Logger;
 
 class ExtendedOrderController extends Controller
 {
-    /**
-     * Create orders.
-     *
-     * @param  Request  $request
-     * @return type
-     */
-    public function orderExecute(Request $request)
-    {
-        try {
-            $invoiceid = $request->input('invoiceid');
-            $execute = $this->executeOrder($invoiceid);
-
-            //only for cloud
-            $invoice = Invoice::find($invoiceid);
-            $cloud_domain = $invoice->cloud_domain;
-            if (! empty($cloud_domain)) {
-                $user_id = $invoice->user_id;
-                $cloudProductIds = CloudProducts::pluck('cloud_product');
-                $orderNumber = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))
-                    ->whereIn('product', $cloudProductIds)
-                    ->value('number');
-                if ($orderNumber) {
-                    new TenantController(new Client, new FaveoCloud())->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $cloud_domain, 'userInfo' => $user_id]));
-                }
-            }
-
-            return back()->with('success', Lang::get('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
-        }
-    }
 
     /**
      * generate serial key and add no of agents in the last 4 digits og the 16 string/digit serial key .
@@ -92,45 +61,6 @@ class ExtendedOrderController extends Controller
         } catch (Exception $ex) {
             throw new Exception($ex->getMessage());
         }
-    }
-
-    public function changeDomain(Request $request)
-    {
-        $domain = '';
-        $arrayOfDomains = [];
-        $allDomains = $request->input('domain');
-        $seperateDomains = explode(',', $allDomains); //Bifurcate the domains here
-        $allowedDomains = $this->getAllowedDomains($seperateDomains);
-        $id = $request->input('id');
-        $order = Order::findorFail($id);
-        $licenseCode = $order->serial_key;
-        $order->domain = implode(',', $allowedDomains);
-        $order->save();
-        $licenseExpiry = $order->subscription->ends_at;
-        $updatesExpiry = $order->subscription->update_ends_at;
-        $supportExpiry = $order->subscription->support_ends_at;
-        $ipAndDomain = LicenseService::parseIpAndDomain($order->domain);
-        $l_expiry = strtotime((string) $licenseExpiry) > 1 ? date('Y-m-d', strtotime((string) $licenseExpiry)) : '';
-        $u_expiry = strtotime((string) $updatesExpiry) > 1 ? date('Y-m-d', strtotime((string) $updatesExpiry)) : '';
-        $s_expiry = strtotime((string) $supportExpiry) > 1 ? date('Y-m-d', strtotime((string) $supportExpiry)) : '';
-        $licenseService = resolve(LicenseService::class);
-        $existingLicense = $licenseService->findByCode($licenseCode);
-        if ($existingLicense) {
-            $licenseService->update($existingLicense->id, [
-                'license_order_number' => $order->number,
-                'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_expire_date' => $l_expiry ?: $existingLicense->license_expire_date,
-                'license_updates_date' => $u_expiry ?: $existingLicense->license_updates_date,
-                'license_support_date' => $s_expiry ?: $existingLicense->license_support_date,
-                'license_domain' => $ipAndDomain['domain'],
-                'license_ip' => $ipAndDomain['ip'],
-            ]);
-        }
-
-        //Remove old installations so the install slots are freed for the new allowed domains
-        resolve(InstallationService::class)->deleteByLicenseCode($licenseCode);
-
-        return ['message' => 'success', 'update' => __('message.license_domain_updated')];
     }
 
     public function reissueLicense(Request $request)
@@ -190,15 +120,5 @@ class ExtendedOrderController extends Controller
     private function toLicenseDate($date): string
     {
         return $date && strtotime((string) $date) > 1 ? date('Y-m-d', strtotime((string) $date)) : '';
-    }
-
-    public function getAllowedDomains($seperateDomains)
-    {
-        $needle = 'www';
-        foreach ($seperateDomains as $domain) {
-            $allowedDomains[] = $domain;
-        }
-
-        return  $allowedDomains;
     }
 }

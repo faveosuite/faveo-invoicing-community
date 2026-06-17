@@ -2,9 +2,10 @@
 
 namespace App\Plugins\Zoho\Controllers;
 
-use App\Http\Controllers\Common\ExternalServiceController;
+use App\Events\OrderPlacedEvent;
 use App\Http\Controllers\Controller;
 use App\Jobs\AddUserToExternalService;
+use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\ZohoCampaignsController;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\ZohoCrmController;
@@ -68,7 +69,9 @@ class ZohoController extends Controller
                     'email' => $user->email,
                 ])),
 
-            'purchase' => resolve(ExternalServiceController::class)->subscribeForProductsUpdates($productId, $user->id, $item),
+            'purchase' => event(new OrderPlacedEvent(
+                Invoice::whereHas('invoiceItem', fn ($q) => $q->where('product_id', $productId))->latest()->firstOrFail()
+            )),
 
             default => abort(400, 'Invalid event type'),
         };

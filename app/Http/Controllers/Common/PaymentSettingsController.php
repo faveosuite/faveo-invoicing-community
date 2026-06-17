@@ -75,7 +75,6 @@ class PaymentSettingsController extends Controller
             }
         }
 
-        //dd($files);
         $config = [];
         $plugins = [];
         if (count($files) > 0) {
@@ -149,72 +148,6 @@ class PaymentSettingsController extends Controller
         $plug->save();
 
         return back()->with('success', __('message.status_change'));
-    }
-
-    /**
-     * Delete the directory.
-     *
-     * @param  type  $dir
-     * @return bool
-     */
-    public function deleteDirectory($dir)
-    {
-        if (! file_exists($dir)) {
-            return true;
-        }
-
-        if (! is_dir($dir)) {
-            return unlink($dir); // nosemgrep: php.lang.security.unlink-use.unlink-use
-        }
-
-        foreach (scandir($dir) as $item) {
-            if ($item == '.' || $item == '..') {
-                continue;
-            }
-
-            chmod($dir.DIRECTORY_SEPARATOR.$item, 0777);
-            if (! $this->deleteDirectory($dir.DIRECTORY_SEPARATOR.$item)) {
-                return false;
-            }
-        }
-
-        chmod($dir, 0777);
-
-        return rmdir($dir);
-    }
-
-    /**
-     * Reading the Filedirectory.
-     *
-     * @return type
-     */
-    public function readPlugins()
-    {
-        $dir = app_path().DIRECTORY_SEPARATOR.'Plugins';
-        $plugins = array_diff(scandir($dir), ['.', '..']);
-
-        return $plugins;
-    }
-
-    public function deletePlugin($slug)
-    {
-        $dir = app_path().DIRECTORY_SEPARATOR.'Plugins'.DIRECTORY_SEPARATOR.$slug;
-        $this->deleteDirectory($dir);
-        /*
-         * remove service provider from app.php
-         */
-        $str = "'App\\Plugins\\$slug"."\\ServiceProvider',";
-        $path_to_file = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
-        $file_contents = file_get_contents($path_to_file);
-        $file_contents = str_replace($str, '//', $file_contents);
-        file_put_contents($path_to_file, $file_contents);
-        $plugin = new Plugin();
-        $plugin = $plugin->where('path', $slug)->first();
-        if ($plugin) {
-            $plugin->delete();
-        }
-
-        return back()->with('success', __('message.deleted-successfully'));
     }
 
     public function updatePaymentStatus(Request $request)

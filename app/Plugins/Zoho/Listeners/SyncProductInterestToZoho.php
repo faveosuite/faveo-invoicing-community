@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Plugins\Mailchimp\Listeners;
+namespace App\Plugins\Zoho\Listeners;
 
 use App\Events\OrderPlacedEvent;
 use App\Model\Common\StatusSetting;
-use App\Plugins\Mailchimp\Exceptions\MailchimpApiException;
-use App\Plugins\Mailchimp\Services\MailchimpService;
+use App\Model\Product\Product;
+use App\Plugins\Zoho\Integrations\Campaigns\Controllers\ZohoCampaignsController;
 use App\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Logger;
 use Throwable;
 
-class UpdateSubscriberOnPurchase implements ShouldQueue
+class SyncProductInterestToZoho implements ShouldQueue
 {
     use InteractsWithQueue;
 
@@ -22,30 +22,24 @@ class UpdateSubscriberOnPurchase implements ShouldQueue
 
     public int $backoff = 60;
 
-    public function __construct(private readonly MailchimpService $service)
-    {
-    }
-
     public function handle(OrderPlacedEvent $event): void
     {
-        if (! (bool) StatusSetting::value('mailchimp_status')) {
+        if (! (bool) StatusSetting::value('zoho_status')) {
             return;
         }
 
         $invoice = $event->invoice;
-        $user = User::find($invoice->user_id);
+        $email = User::whereKey($invoice->user_id)->value('email');
 
-        if (! $user) {
+        if (! $email) {
             return;
         }
 
         foreach ($invoice->invoiceItem()->get() as $item) {
             try {
-                $this->service->updatePurchaseInterests($user, $item->product_id, $item->subtotal > 0);
-            } catch (MailchimpApiException $e) {
-                if ($e->getHttpStatus() !== 404) {
-                    Logger::exception($e);
-                }
+                $type = $item->subtotal > 0 ? 'paid_products' : 'free_products';
+                $productName = Product::whereKey($item->product_id)->value('name');
+                resolve(ZohoCampaignsController::class)->subscribeWithTag($email, $type, $productName ?? $type);
             } catch (Throwable $e) {
                 Logger::exception($e);
             }

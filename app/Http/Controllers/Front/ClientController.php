@@ -507,11 +507,6 @@ class ClientController extends BaseClientController
      * @param  type  $clientid
      * @param  type  $invoiceid
      *
-     * Get list of all the versions from Filesystem.
-     * @param  type  $productid
-     * @param  type  $clientid
-     * @param  type  $invoiceid
-     * @return type
      */
     public function getVersionList(Request $request, $orderid)
     {
@@ -816,63 +811,10 @@ class ClientController extends BaseClientController
     }
 
     /**
-     * It returns the user details.
-     *
-     * @param  $user
-     * @param  $rzp_key
-     * @param  $invoice
-     * @param  $userCountry
-     * @param  $exchangeRate
-     * @param  $merchant_orderid
-     * @param  $razorpayOrderId
-     * @param  $displayCurrency
-     * @return string
-     */
-    private function dataToOrder($user, $rzp_key, $invoice, $userCountry, $exchangeRate, $merchant_orderid, $razorpayOrderId, $displayCurrency)
-    {
-        $data = [
-            'key' => $rzp_key,
-            'name' => 'Faveo Helpdesk',
-            'currency' => 'INR',
-            'prefill' => [
-                'contact' => $user->mobile_code.$user->mobile,
-                'email' => $user->email,
-            ],
-            'description' => 'Order for Invoice No'.-$invoice->number,
-            'notes' => [
-                'First Name' => $user->first_name,
-                'Last Name' => $user->last_name,
-                'Company Name' => $user->company,
-                'Address' => $user->address,
-                'Email' => $user->email,
-                'Country' => $userCountry,
-                'State' => $user->state,
-                'City' => $user->town,
-                'Zip' => $user->zip,
-                'Currency' => $user->currency,
-                'Amount Paid' => '1',
-                'Exchange Rate' => $exchangeRate,
-                'merchant_order_id' => $merchant_orderid,
-            ],
-            'theme' => [
-                'color' => '#F37254',
-            ],
-            'order_id' => $razorpayOrderId,
-        ];
-        if ($displayCurrency !== 'INR') {
-            $data['display_currency'] = 'USD';
-            $data['display_amount'] = '1';
-        }
-
-        return json_encode($data);
-    }
-
-    /**
      *  Returns to client individual orders with payment details as datatable.
      *
      * @param  $orderid
      * @param  $userid
-     * @return \Yajra\DataTables\DataTableAbstract|RedirectResponse
      *
      * @throws Exception
      */
@@ -957,33 +899,6 @@ class ClientController extends BaseClientController
     }
 
     /**
-     * Delete an invoice and its related records based on specific conditions.
-     *
-     * @param  int  $id  The ID of the invoice to be deleted.
-     * @return JsonResponse
-     */
-    public function invoiceDelete($id)
-    {
-        $invoice = Invoice::find($id);
-
-        if (! $invoice) {
-            return response()->json(['error' => 'Invoice not found'], 404);
-        }
-
-        if (! authorizeOwnership($invoice->user_id)) {
-            return errorResponse(__('message.unauthorized_action'), 403);
-        }
-
-        if ($this->canDeleteInvoice($invoice)) {
-            $this->deleteInvoice($invoice);
-
-            return response()->json(['message' => __('message.invoice_deleted_successfully')]);
-        }
-
-        return response()->json(['error' => __('message.cannot_delete_invoice')], 400);
-    }
-
-    /**
      *  Checks if Invoice can be deleted or not.
      *
      * @param  $invoice
@@ -1024,34 +939,6 @@ class ClientController extends BaseClientController
         Session::forget('invoice');
     }
 
-    public function stripeUpdatePayment(Request $request)
-    {
-        try {
-            $currency = getCurrencyForClient(Auth::user()->country);
-            $amount = currencyFormat(1, $currency);
-            $orderid = $request->input('orderId');
-            $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-            $stripe = new StripeClient($stripeSecretKey);
-            $paymentIntent = $stripe->paymentIntents->retrieve($request->input('payment_intent'));
-            if ($paymentIntent->status === 'succeeded') {
-                $response = $this->stripePaymentUpdateSub($stripe, $paymentIntent, $orderid);
-
-                return response()->json($response);
-            } else {
-                $response = ['type' => 'fails', 'message' => __('message.something_wrong')];
-
-                return response()->json(compact('response'), 500);
-            }
-        } catch(Exception $ex) {
-            $result = $ex->getMessage();
-            $mail = new PhpMailController();
-            $mail->payment_log(Auth::user()->email, 'stripe', 'failed', Order::where('id', $orderid)->value('number'), $result, $amount, 'Payment method updated');
-            $errorMessage = __('message.something_wrong');
-
-            return response()->json(['error' => $errorMessage], 500);
-        }
-    }
-
     private function stripePaymentUpdateSub($stripe, $paymentIntent, $orderid)
     {
         $refund = $stripe->refunds->create([
@@ -1073,5 +960,37 @@ class ClientController extends BaseClientController
         $mail->payment_log(Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
 
         return ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
+    }
+
+    public function payNow($invoiceid)
+    {
+        try {
+            $paid = 0;
+            $invoice = Invoice::find($invoiceid);
+            if ($invoice->user_id != Auth::user()->id) {
+                return errorResponse(__('message.invalid_payment_modification'));
+            }
+
+            if (count($invoice->payment()->get())) {
+                $paid = array_sum($invoice->payment()->pluck('amount')->toArray());
+                $invoice->grand_total -= $paid;
+            }
+
+            $items = collect();
+            $product = null;
+            if ($invoice) {
+                $items = $invoice->invoiceItem()->get();
+                if (count($items) > 0) {
+                    $invoiceItem = InvoiceItem::where('invoice_id', $invoiceid)->first();
+                    $product = Product::find($invoiceItem->product_id);
+                }
+            }
+
+            return successResponse('', ['invoice' => $invoice, 'items' => $items, 'paid' => $paid, 'product' => $product]);
+        } catch (Exception $ex) {
+            Logger::exception($ex);
+
+            return errorResponse($ex->getMessage());
+        }
     }
 }

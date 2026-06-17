@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Zoho\Providers;
 
+use App\Events\OrderPlacedEvent;
 use App\Events\UserRegisteredEvent;
 use App\Plugins\Zoho\Controllers\Api\{
     ZohoAccessToken,
@@ -12,6 +13,7 @@ use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns;
 use App\Plugins\Zoho\Integrations\Campaigns\Providers\ZohoCampaignsNewsletterProvider;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\Api\ZohoCrmApi;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\Crm;
+use App\Plugins\Zoho\Listeners\SyncProductInterestToZoho;
 use App\Plugins\Zoho\Listeners\SyncUserToZohoCampaigns;
 use App\Plugins\Zoho\Listeners\SyncUserToZohoCrm;
 use App\Plugins\Zoho\Models\ZohoIntegration;
@@ -125,6 +127,7 @@ class ZohoServiceProvider extends ServiceProvider
 
         Event::listen(UserRegisteredEvent::class, SyncUserToZohoCrm::class);
         Event::listen(UserRegisteredEvent::class, SyncUserToZohoCampaigns::class);
+        Event::listen(OrderPlacedEvent::class, SyncProductInterestToZoho::class);
 
         resolve(NewsletterManager::class)->register(new ZohoCampaignsNewsletterProvider());
     }

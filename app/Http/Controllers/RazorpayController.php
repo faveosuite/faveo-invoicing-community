@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\ApiKey;
-use App\Facades\Cart;
 use App\Http\Controllers\Order\RenewController;
 use App\Model\Common\State;
 use App\Model\Order\Invoice;
@@ -30,8 +29,6 @@ class RazorpayController extends Controller
 
     public $invoiceItem;
 
-    public $cart;
-
     public function __construct()
     {
         $invoice = new Invoice();
@@ -39,9 +36,6 @@ class RazorpayController extends Controller
 
         $invoiceItem = new InvoiceItem();
         $this->invoiceItem = $invoiceItem;
-        $this->cart = new Cart();
-        // $mailchimp = new MailChimpController();
-        // $this->mailchimp = $mailchimp;
     }
 
     /*
@@ -116,7 +110,6 @@ class RazorpayController extends Controller
                 $controller = new SettingsController();
                 $result = $controller->processPaymentSuccess($invoice, $currency);
                 Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
-                \Cart::removeCartCondition('Processing fee');
 
                 return redirect('checkout')->with($result['status'], $result['message']);
             } else {

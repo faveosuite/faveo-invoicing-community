@@ -54,7 +54,6 @@ class ChatScriptController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  Request  $request
-     * @return Response
      */
     public function createScript(Request $request)
     {
@@ -84,7 +83,6 @@ class ChatScriptController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return Response
      */
     public function getScript($id)
     {
@@ -106,7 +104,6 @@ class ChatScriptController extends Controller
      *
      * @param  Request  $request
      * @param  int  $id
-     * @return Response
      */
     public function updateScript(Request $request, $id)
     {
@@ -144,16 +141,11 @@ class ChatScriptController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return Response
      */
     public function deleteScript(Request $request)
     {
         try {
             $ids = $request->input('select', []);
-
-//                if (!is_array($ids)) {
-//                    $ids = explode(',', $ids);
-//                }
 
             $ids = array_filter(array_unique(array_map(intval(...), array_map(trim(...), $ids))));
 

@@ -1,7 +1,7 @@
 <?php
 
 use App\BillingLog\LaravelLogViewerServiceProvider;
-use App\Cart\UserCart;
+
 use App\Facades\Log;
 use App\License\LicenseServiceProvider;
 use App\Plugins\Mailchimp\MailchimpServiceProvider;
@@ -19,8 +19,7 @@ use App\Providers\LogServiceProvider;
 use App\Providers\RouteServiceProvider;
 use Creativeorange\Gravatar\Facades\Gravatar;
 use Creativeorange\Gravatar\GravatarServiceProvider;
-use Darryldecode\Cart\CartServiceProvider;
-use Darryldecode\Cart\Facades\CartFacade;
+
 use Illuminate\Auth\AuthServiceProvider;
 use Illuminate\Auth\Passwords\PasswordResetServiceProvider;
 use Illuminate\Broadcasting\BroadcastServiceProvider;
@@ -267,7 +266,6 @@ return [
         ActivitylogServiceProvider::class,
         RefererServiceProvider::class,
         PragmaRX\Google2FALaravel\ServiceProvider::class,
-        CartServiceProvider::class,
         // Voerro\Laravel\VisitorTracker\VisitorTrackerServiceProvider::class,
         GravatarServiceProvider::class,
         // Symfony\Component\Mailer\MailerInterface::class,
@@ -279,7 +277,6 @@ return [
         LaravelLogViewerServiceProvider::class,
         LogServiceProvider::class,
         RecaptchaServiceProvider::class,
-        App\Providers\CartServiceProvider::class,
         ZohoServiceProvider::class,
         MailchimpServiceProvider::class,
         ConfigServiceProvider::class,
@@ -297,9 +294,9 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'UserCart' => UserCart::class,
+
         'Activity' => ActivitylogFacade::class,
-        'Cart' => CartFacade::class,
+
         'Currency' => Currency::class,
         'DataTables' => DataTables::class,
         'GeoIP' => GeoIP::class,

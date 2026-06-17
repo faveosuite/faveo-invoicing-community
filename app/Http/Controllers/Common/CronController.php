@@ -70,23 +70,9 @@ class CronController extends BaseCronController
         $this->client = new Client();
     }
 
-    public function getExpiredInfoByOrderId($orderid)
-    {
-        $yesterday = new Carbon('today');
-        $sub = $this->sub
-            ->where('order_id', $orderid)
-            ->where('update_ends_at', '!=', '0000-00-00 00:00:00')
-            ->whereNotNull('update_ends_at')
-            ->where('update_ends_at', '<', $yesterday)
-            ->first();
-
-        return $sub;
-    }
-
     public function getAllDaysExpiryUsers($day)
     {
         $sub = $this->getAllDaysExpiryInfo($day);
-        //dd($sub->get());
         $users = [];
         if ($sub->get()->count() > 0) {
             foreach ($sub->get() as $key => $value) {
@@ -154,72 +140,6 @@ class CronController extends BaseCronController
                 $users[$key]['orders'] = $this->sub->find($value->id)->order()->get();
                 $users[$key]['subscription'] = $value;
             }
-        }
-
-        return $users;
-    }
-
-    public function get30DaysOrders()
-    {
-        $users = [];
-        $users = $this->get30DaysExpiryUsers();
-        if (count($users) > 0) {
-            return $users[0]['orders'];
-        }
-
-        return $users;
-    }
-
-    public function get15DaysOrders()
-    {
-        $users = [];
-        $users = $this->get15DaysExpiryUsers();
-        if (count($users) > 0) {
-            return $users[0]['orders'];
-        }
-
-        return $users;
-    }
-
-    public function get1DaysOrders()
-    {
-        $users = [];
-        $users = $this->getOneDayExpiryUsers();
-        if (count($users) > 0) {
-            return $users[0]['orders'];
-        }
-
-        return $users;
-    }
-
-    public function get0DaysOrders()
-    {
-        $users = [];
-        $users = $this->getOnDayExpiryUsers();
-        if (count($users) > 0) {
-            return $users[0]['orders'];
-        }
-
-        return $users;
-    }
-
-    public function getPlus1Orders()
-    {
-        $users = [];
-        $users = $this->getExpiredUsers();
-        if (count($users) > 0) {
-            return $users[0]['orders'];
-        }
-
-        return $users;
-    }
-
-    public function get15DaysSubscription()
-    {
-        $users = [];
-        $users = $this->get15DaysExpiryUsers();
-        if (count($users) > 0) {
-            return $users[0]['subscription'];
         }
 
         return $users;
@@ -456,7 +376,6 @@ class CronController extends BaseCronController
         $status = StatusSetting::value('post_expirymail');
         if ($status == 1) {
             $periods = ExpiryMailDay::pluck('postexpiry_days')->toArray();
-            $cron = new AutorenewalCronController();
             $postSub = $this->getPostSubscriptions($periods);
             foreach ($postSub as $value) {
                 $value = (object) $value;
@@ -523,29 +442,6 @@ class CronController extends BaseCronController
             if ($rawBody != '') {
                 dispatch(new SendWhatsappMessage($rawBody))->onQueue('whatsapp');
                 $message->delete();
-//                $data = json_decode($rawBody, true);
-//                try {
-//                    if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
-//                        $wabaId = $data['entry'][0]['id'];
-//                        $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
-//                        if($url && !in_array($url, $urls)) {
-//                            $response = $this->client->post($url, [
-//                                'body' => $rawBody,
-//                                'headers' => [
-//                                    'Content-Type' => 'application/json',
-//                                    'Accept' => 'application/json',
-//                                ],
-//                            ]);
-//
-//                            if ($response->getStatusCode() == 200) {
-//                                $message->delete();
-//                            }
-//                        }
-//                    }
-//                } catch (\Exception $exception) {
-//                    $urls[]=$url;
-//                    \Log::error($exception->getMessage());
-//                }
             }
         }
     }

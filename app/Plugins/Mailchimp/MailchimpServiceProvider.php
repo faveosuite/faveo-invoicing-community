@@ -2,6 +2,7 @@
 
 namespace App\Plugins\Mailchimp;
 
+use App\Events\OrderPlacedEvent;
 use App\Events\UserRegisteredEvent;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Plugins\Mailchimp\Http\Client\MailchimpClient;
@@ -50,6 +51,7 @@ class MailchimpServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/routes/routes.php');
 
         Event::listen(UserRegisteredEvent::class, SubscribeUserOnRegister::class);
+        Event::listen(OrderPlacedEvent::class, UpdateSubscriberOnPurchase::class);
 
         resolve(NewsletterManager::class)->register(
             new MailchimpNewsletterProvider(resolve(MailchimpService::class))

@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use App\DefaultPage;
 use Auth;
-use Cart;
+
 use Closure;
 //use Illuminate\Routing\Middleware;
 use Illuminate\Contracts\Auth\Guard;
@@ -20,7 +20,6 @@ class Admin
      */
     protected $auth;
 
-    protected $cart;
 
     /**
      * Create a new filter instance.
@@ -31,7 +30,6 @@ class Admin
     public function __construct(Guard $auth)
     {
         $this->auth = $auth;
-        $this->cart = new Cart();
     }
 
     /**
@@ -49,21 +47,6 @@ class Admin
         } elseif (Auth::user()->role == 'user') {
             $url = Session::get('session-url');
             if ($url) {
-                $content = Cart::getContent();
-                $currency = Session::get('currency');
-                if (Auth::user()->currency != $currency) {//If user currency is not equal to the cart currency then redirect to default url and clear his cart items and let the customer add the Product again so that the tax could be calculated properly
-                    foreach ($content as $item) {
-                        $id = $item->id;
-                        $this->cart->remove($id);
-                    }
-
-                    Session::forget('content');
-
-                    return redirect($defaulturl);
-                }
-
-                $domain = Session::get('domain');
-
                 return redirect($url);
             }
 

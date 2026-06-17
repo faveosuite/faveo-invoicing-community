@@ -7,6 +7,7 @@ use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Order\RenewController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Controllers\Tenancy\TenantController;
+use App\Events\OrderPlacedEvent;
 use App\Model\Cart\Cart;
 use App\Model\Common\Country;
 use App\Model\Common\FaveoCloud;
@@ -73,6 +74,8 @@ class PostPaymentService
     {
         $this->executeOrders($invoice);
         $this->doTheDeed($invoice);
+
+        event(new OrderPlacedEvent($invoice));
 
         if (! empty($invoice->cloud_domain)) {
             $orderNumber = Order::whereIn(

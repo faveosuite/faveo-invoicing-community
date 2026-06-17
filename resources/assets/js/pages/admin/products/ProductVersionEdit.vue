@@ -100,11 +100,11 @@ const releaseTypes = [
 const selectedReleaseType = computed(() => releaseTypes.find(r => r.value === form.value.release_type) ?? releaseTypes[0])
 
 function parseDependencies() {
+    const raw = (form.value.dependencies || '').trim() || '{}'
     try {
-        const parsed = JSON.parse(form.value.dependencies || '[]')
-        return Array.isArray(parsed) ? parsed : null
+        return { data: JSON.parse(raw) }
     } catch {
-        return null
+        return { error: 'invalid_json' }
     }
 }
 
@@ -113,7 +113,7 @@ async function submit() {
     if (!form.value.title)   errs.title   = __('message.title')
     if (!form.value.version) errs.version = __('message.version')
     const deps = parseDependencies()
-    if (deps === null) errs.dependencies = __('message.enter_json_format') || 'Enter valid JSON array.'
+    if (deps.error) errs.dependencies = __('message.enter_json_format') || 'Enter valid JSON format.'
     setErrors(errs)
     if (Object.keys(errs).length) return
 
@@ -138,7 +138,7 @@ async function submit() {
             release_type: form.value.release_type,
             is_private: form.value.is_private,
             is_restricted: form.value.is_restricted,
-            dependencies: deps,
+            dependencies: deps.data,
             ...(filename ? { filename } : {}),
         })
         alertStore.setAlert({ message: __('message.product_updated_successfully'), type: 'success', component_name: 'products-edit' })

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\ServiceProvider;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Front\CheckoutController;
+
 use App\Model\licence\Licence;
 use App\Model\Licence\LicencedOrganization;
 use App\Model\licence\Sla;
@@ -25,9 +25,6 @@ class ServiceProviderController extends Controller
         $this->middleware('auth');
         $this->middleware('service.provider');
 
-        $cart = new CheckoutController();
-        $auth = ''; //$cart->GetXdeskAuthOrganization();
-        $this->org = $auth;
 
         $sla = new Sla();
         $this->sla = $sla;

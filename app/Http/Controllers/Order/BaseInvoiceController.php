@@ -126,24 +126,6 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         }
     }
 
-    public function checkExpiry($code = '')
-    {
-        try {
-            if ($code != '') {
-                $promotion = Promotion::where('code', $code)->first();
-
-                $start = $promotion->start;
-                $end = $promotion->expiry;
-                $now = Date::now();
-                $getExpiryStatus = $this->getExpiryStatus($start, $end, $now);
-
-                return $getExpiryStatus;
-            }
-        } catch (Exception) {
-            throw new Exception(Lang::get('message.check-expiry'));
-        }
-    }
-
     /*
     *Edit Invoice Total.
     */

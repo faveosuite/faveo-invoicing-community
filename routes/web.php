@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Common\BaseSettingsController;
+use App\Http\Controllers\Common\ChatScriptController;
 use App\Http\Controllers\Common\CacheSettingsController;
 use App\Http\Controllers\Common\Dependency\DependencyController;
 use App\Http\Controllers\Common\EmailSettingsController;
@@ -27,8 +28,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Front\AutoRenewalController;
 use App\Http\Controllers\Front\Cart\CartApiController;
-use App\Http\Controllers\Front\CartController;
-use App\Http\Controllers\Front\CheckoutController;
+
+
 use App\Http\Controllers\Front\ClientController;
 use App\Http\Controllers\Front\NewsletterController;
 use App\Http\Controllers\Front\PageController;
@@ -187,7 +188,6 @@ Route::middleware('installAgora')->group(function (): void {
         Route::post('otp/send', [AuthController::class, 'requestOtp']);
         Route::post('resend_otp', [AuthController::class, 'retryOTP']);
         Route::post('send-email', [AuthController::class, 'sendEmail']);
-        Route::get('verify', [AuthController::class, 'verify']);
     });
     Route::middleware(['session.timeout:10,verify'])->group(function (): void {
         Route::post('otp/verify', [AuthController::class, 'verifyOtp']);
@@ -317,27 +317,12 @@ Route::middleware('installAgora')->group(function (): void {
         });
     });
 
-    // Legacy cart endpoints (inside installAgora, session-backed)
-    Route::post('cart/remove', [CartController::class,      'cartRemove']);
-    Route::get('pricing', [CartController::class,      'cart'])->name('pricing');
     Route::get('group/{templateid}/{group}/', [PageController::class, 'pageTemplates']);
-    Route::post('update-agent-qty', [CartController::class,      'updateAgentQty']);
-    Route::post('update-qty', [CartController::class,      'updateProductQty']);
-    Route::post('reduce-product-qty', [CartController::class,      'reduceProductQty']);
-    Route::post('cart/clear', [CartController::class,      'clearCart']);
-    Route::get('show/cart', [CartController::class,      'showCart']);
-    Route::get('checkout', [CheckoutController::class,  'checkoutForm']);
-    Route::match(['post', 'patch'], 'checkout-and-pay', [CheckoutController::class, 'postCheckout']);
-    Route::get('checkout-and-pay', fn () => redirect('show/cart'));
-    Route::post('pricing/update', [CartController::class,      'addCouponUpdate']);
-    Route::post('remove-coupon', [CartController::class,      'removeCoupon']);
-    Route::post('remove-product', fn () => abort(404));
 
     // --- Invoices (client) ---
     Route::get('my-invoices', fn () => view('client'))->name('my-invoices');
     Route::get('get-my-invoices', [ClientController::class, 'getInvoices'])->name('get-my-invoices');
-    Route::delete('invoices/delete/{id}', [ClientController::class, 'invoiceDelete']);
-    Route::get('paynow/{id}', [CheckoutController::class, 'payNow'])->middleware(['auth']);
+    Route::get('paynow/{id}', [ClientController::class, 'payNow'])->middleware(['auth']);
     Route::post('store-basic-details', [LoginController::class, 'storeBasicDetails'])->name('store-basic-details');
 
     // --- Orders (client) ---
@@ -359,7 +344,6 @@ Route::middleware('installAgora')->group(function (): void {
     // --- Payments (client) ---
     Route::post('payment/{invoice}', [RazorpayController::class,    'payment'])->name('payment');
     Route::get('confirm/payment', [RazorpayController::class,    'afterPayment']);
-    Route::post('stripeUpdatePayment/confirm', [ClientController::class, 'stripeUpdatePayment']);
     Route::middleware('auth')->group(function (): void {
         Route::get('invoice/{invoice}/pay-init', [PaymentController::class, 'payInit'])->name('invoice.pay.init');
         Route::get('invoice/{invoice}/pay-success', [PaymentController::class, 'paySuccess'])->name('invoice.pay.success');
@@ -470,11 +454,9 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('product/upload/{productUploadId}', [ProductController::class, 'getProductUpload']);
     Route::patch('product/upload/{productUploadId}', [ProductController::class, 'updateProductUpload']);
     Route::put('product/upload/{productId}/', [ProductController::class, 'productUploadCreate']);
-    Route::delete('product/upload', [ProductController::class, 'deleteBulkProductUpload']);
 
     // Legacy product action endpoints
     Route::get('get-subscription/{id}', [ProductController::class, 'getSubscriptionCheck']);
-    Route::delete('products-delete', [ProductController::class, 'destroy'])->name('products-delete');
     Route::delete('uploads-delete', [ProductController::class, 'fileDestroy'])->name('uploads-delete');
     Route::post('get-price', [ProductController::class, 'getPrice']);
     Route::post('upload/save', [ProductController::class, 'save'])->name('upload/save');
@@ -560,6 +542,14 @@ Route::middleware('installAgora')->group(function (): void {
         Route::post('create', [WidgetController::class, 'createWidget']);
     });
 
+    Route::prefix('chat')->group(function (): void {
+        Route::get('list', [ChatScriptController::class, 'getScriptList']);
+        Route::get('show/{id}', [ChatScriptController::class, 'getScript']);
+        Route::post('create', [ChatScriptController::class, 'createScript']);
+        Route::put('update/{id}', [ChatScriptController::class, 'updateScript']);
+        Route::delete('delete', [ChatScriptController::class, 'deleteScript']);
+    });
+
     // --------------------------------------------------------
     // Promotions & Coupons
     // --------------------------------------------------------
@@ -635,7 +625,6 @@ Route::middleware('installAgora')->group(function (): void {
     // Email settings
     Route::get('settings/email', [EmailSettingsController::class, 'settingsEmail'])->middleware('auth');
     Route::patch('settings/email', [EmailSettingsController::class, 'postSettingsEmail']);
-    Route::post('emailData', [SettingsController::class, 'emailData']);
     Route::post('emailCheckboxData', [SettingsController::class, 'emailCheckboxData']);
     Route::post('email-settings-save', [SettingsController::class, 'emailSettingsSave']);
     Route::get('settings/email-validation', [SettingsController::class, 'getEmailValidationSettings']);
@@ -668,7 +657,6 @@ Route::middleware('installAgora')->group(function (): void {
 
     // MSG91 / mobile settings
     Route::get('settings/msg91', [SettingsController::class, 'getMsg91Settings']);
-    Route::post('mobileData', [SettingsController::class, 'mobileData']);
     Route::post('mobile-settings-save', [SettingsController::class, 'mobileSettingsSave']);
     Route::post('mobileVerification', [SettingsController::class, 'mobileVerification']);
     Route::get('settings/mobile-validation', [SettingsController::class, 'getMobileValidationSettings']);
@@ -747,7 +735,6 @@ Route::middleware('installAgora')->group(function (): void {
 
     Route::get('payment-gateway-list', [PaymentSettingsController::class, 'getPaymentGatewayList']);
     Route::post('updatePaymentStatus', [PaymentSettingsController::class, 'updatePaymentStatus']);
-    Route::post('plugin/delete/{slug}', [PaymentSettingsController::class, 'deletePlugin'])->name('delete.plugin');
     Route::post('plugin/status/{slug}', [PaymentSettingsController::class, 'statusPlugin'])->name('status.plugin');
 
     // --------------------------------------------------------
@@ -887,7 +874,6 @@ Route::middleware('installAgora')->group(function (): void {
     // ==========================================================
 
     Route::prefix('api')->group(function (): void {
-        Route::get('check-url', [ApiController::class, 'checkDomain']);
         Route::post('/csp-report', [ApiController::class, 'logCSP']);
     });
 

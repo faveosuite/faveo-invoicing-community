@@ -80,73 +80,12 @@ class SettingsController extends BaseSettingsController
         return successResponse('', $data);
     }
 
-    public function mailchimpKeys(ApiKey $apikeys)
-    {
-        $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
-
-        [$mailchimpKey, $subscribe_status] = array_values(MailchimpSetting::select('api_key', 'subscribe_status')->first()->toArray());
-
-        $mailchimp_set = new MailchimpSetting();
-        $set = $mailchimp_set->firstOrFail();
-        $mail_api_key = $set->api_key;
-        try {
-            $mailchimp_set = new MailchimpSetting();
-            $set = $mailchimp_set->firstOrFail();
-            $mail_api_key = $set->api_key;
-            $mailchimp = new Mailchimp($mail_api_key);
-            $allists = $mailchimp->get('lists?count=20')['lists'];
-            $selectedList[] = $set->list_id;
-        } catch (Exception $e) {
-            Logger::exception($e);
-
-            // Return null when it fails
-            $mailchimp = '';
-            $allists = [];
-            $selectedList = [];
-        }
-
-        $data = [
-            'mailchimpSetting' => $mailchimpSetting,
-            'mailchimpKey' => $mailchimpKey,
-            'allLists' => $allists,
-            'selectedList' => $selectedList,
-            'subscribe_status' => $subscribe_status,
-        ];
-
-        return successResponse('', $data);
-    }
-
     public function termsUrl(ApiKey $apikeys)
     {
         $termsUrl = $apikeys->value('terms_url');
 
         $data = [
             'termsUrl' => $termsUrl,
-        ];
-
-        return successResponse('', $data);
-    }
-
-    public function twitterkeys(ApiKey $apikeys)
-    {
-        $twitterKeys = $apikeys->select('twitter_consumer_key', 'twitter_consumer_secret',
-            'twitter_access_token', 'access_tooken_secret')->first();
-
-        $data = [
-            'twitterkeys' => $twitterKeys,
-
-        ];
-
-        return successResponse('', $data);
-    }
-
-    public function zohokeys(ApiKey $apikeys)
-    {
-        $zohoKey = $apikeys->value('zoho_api_key');
-
-        $data = [
-            'zohoKey' => $zohoKey,
-
         ];
 
         return successResponse('', $data);
@@ -187,24 +126,6 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    private function getStatus($value)
-    {
-        if ($value == 1) {
-            return 'Active';
-        } else {
-            return 'Inactive';
-        }
-    }
-
-    private function getStatus2($value, $value2)
-    {
-        if (! $value && ! $value2) {
-            return 'Inactive';
-        } else {
-            return 'Active';
-        }
-    }
-
     public function postKeys(ApiKey $apikeys, Request $request)
     {
         try {
@@ -239,79 +160,6 @@ class SettingsController extends BaseSettingsController
             return $allAcivePluginName;
         } catch (Exception $ex) {
             return back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function postSettingsSystem(Setting $settings, SettingsRequest $request)
-    {
-        try {
-            $setting = $settings->find(1);
-            $input = $request->input();
-            $input['autorenewal_status'] = isset($input['autorenewal_status']) ? 1 : 0;
-            if ($request->hasFile('logo')) {
-                $path = Attach::put('images', $request->file('logo'), null, true);
-                $setting->logo = basename($path);
-            }
-
-            if ($request->hasFile('admin-logo')) {
-                $path = Attach::put('admin/images', $request->file('admin-logo'), null, true);
-                $setting->admin_logo = basename($path);
-            }
-
-            if ($request->hasFile('fav-icon')) {
-                $path = Attach::put('common/images', $request->file('fav-icon'), null, true);
-                $setting->fav_icon = basename($path);
-            }
-
-            $setting->default_symbol = Currency::where('code', $request->input('default_currency'))
-                            ->pluck('symbol')->first();
-            $setting->content = $request->input('language');
-
-            $setting->fill(Arr::except($input, ['password', 'logo', 'admin-logo', 'fav-icon']))->save();
-
-            return back()->with('success', Lang::get('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Get the id and value of the column.
-     *
-     * Remove the logo from the DB and local storage.
-     */
-    public function delete(Request $request)
-    {
-        try {
-            if (isset($request->id)) {
-                $todo = Setting::findOrFail($request->id);
-                if ($request->column == 'logo') {
-                    $logoPath = $todo->logo;
-                    Attach::delete('images/'.$logoPath);
-                    $todo->logo = null;
-                }
-
-                if ($request->column == 'admin') {
-                    $adminLogoPath = $todo->admin_logo;
-                    Attach::delete('admin/images/'.$adminLogoPath);
-                    $todo->admin_logo = null;
-                }
-
-                if ($request->column == 'fav') {
-                    $favIconPath = $todo->fav_icon;
-                    Attach::delete('common/images'.$favIconPath);
-                    $todo->fav_icon = null;
-                }
-
-                $todo->save();
-                $response = ['type' => 'success', 'message' => __('message.logo_deleted_successfully')];
-
-                return response()->json($response);
-            }
-        } catch (Exception $ex) {
-            $result = [$ex->getMessage()];
-
-            return response()->json(compact('result'), 500);
         }
     }
 
@@ -1085,51 +933,6 @@ class SettingsController extends BaseSettingsController
         return successResponse(__('message.contact_setting_update'));
     }
 
-    public function emailData(Request $request)
-    {
-        ['api_key' => $apikey, 'mode' => $mode,'accepted_output' => $current] = EmailMobileValidationProviders::where('provider', $request->input('value'))
-            ->select('api_key', 'mode', 'accepted_output')
-            ->first()
-            ->toArray();
-
-        $label2 = html()->label(__('message.emailApikey'), 'emailApikey')->class('required')->toHtml();
-        $input = html()->text('emailApikey', $apikey)->class('form-control emailapikey')->id('emailApikey')->toHtml();
-        $label1 = html()->label(__('message.emailMode'), 'emailMode')->class('required')->toHtml();
-        $input1 = html()->text('emailMode', $mode)->class('form-control emailMode')->id('emailMode')->toHtml();
-        $input3 = '<select class="form-control emailMode" id="emailMode" name="emailMode">'
-            .'<option value="quick"'.($mode == 'quick' ? ' selected' : '').'>Quick</option>'
-            .'<option value="power"'.($mode == 'power' ? ' selected' : '').'>Power</option>'
-            .'</select>';
-
-        if ($request->input('value') === 'reoon') {
-            $response = '<div>
-        <div class="form-group">'.$label2.$input.'</div>
-        <div class="form-group">'.$label1.$input3.'</div>
-         <div class="form-group" id="checkboxToRender">
-                </div>
-        
-            </div>';
-            if ($mode == 'power') {
-                $statusOptions = $this->setStatus($current);
-                $response = '<div>
-        <div class="form-group">'.$label2.$input.'</div>
-        <div class="form-group">'.$label1.$input3.'</div>
-         <div class="form-group" id="checkboxToRender">
-         <div class="form-group">
-            <label for="allowed_statuses" class="required">'.__('message.allowed_estatus').'</label>'
-                    .$statusOptions.
-                    '</div>
-                </div>
-                <span class="error invalid-feedback d-block" id="checkboxErrorMessage"></span>
-            </div>';
-            }
-        } else {
-            $response = '';
-        }
-
-        return successResponse(trans('message.success'), $response);
-    }
-
     public function emailCheckboxData()
     {
         $current = EmailMobileValidationProviders::where('provider', 'reoon')->value('accepted_output') ?? 1;
@@ -1245,40 +1048,6 @@ class SettingsController extends BaseSettingsController
         return $statusOptions;
     }
 
-    public function mobileData(Request $request)
-    {
-        $provider = $request->input('value');
-
-        ['api_key' => $apikey, 'mode' => $mode,'api_secret' => $apisecret] = EmailMobileValidationProviders::where('provider', $provider)
-            ->select('api_key', 'mode', 'api_secret')
-            ->first()
-            ->toArray();
-        $label2 = html()->label(__('message.mobileApikey'), 'emailApikey')->class('required')->toHtml();
-        $input = html()->text('apikey', $apikey)->class('form-control emailapikey')->id('mobileApikey')->toHtml();
-        $label1 = html()->label(__('message.mobileApisecret'), 'apisecret')->class('required')->toHtml();
-        $input1 = html()->text('apisecret', $apisecret)->class('form-control emailMode')->id('mobileApisecret')->toHtml();
-        $label3 = html()->label(__('message.mobileMode'), 'mobileMode')->class('required')->toHtml();
-        $input3 = html()->text('mobileMode', $mode)->class('form-control mobileMode')->id('mobileMode')->toHtml();
-        $input4 = '<select class="form-control emailMode" id="mobileMode" name="mobileMode">'
-            .'<option value="basic"'.($mode == 'basic' ? ' selected' : '').'>Basic</option>'
-            .'<option value="standard"'.($mode == 'standard' ? ' selected' : '').'>Standard</option>'
-            .'<option value="advanced/async"'.($mode == 'advanced/async' ? ' selected' : '').'>Advanced</option>'
-            .'</select>';
-        if ($provider == 'vonage') {
-            $response = '<div>
-        <div class="form-group">'.$label2.$input.'</div>
-        <div class="form-group">'.$label1.$input1.'</div>
-        <div class="form-group">'.$label3.$input4.'</div>
-    </div>';
-        } else {
-            $response = '<div>
-        <div class="form-group">'.$label2.$input.'</div>
-    </div>';
-        }
-
-        return successResponse(trans('message.success'), $response);
-    }
-
     public function emailSettingsSave(Request $request)
     {
         $emailSave = new EmailMobileValidationProviders();
@@ -1375,36 +1144,6 @@ class SettingsController extends BaseSettingsController
             return successResponse('', [
                 'username' => $github->username ?? '',
                 'password' => $github->password ?? '',
-            ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
-        }
-    }
-
-    public function getMailchimpSettings()
-    {
-        try {
-            $setting = MailchimpSetting::first();
-            $apiKey = $setting->api_key ?? '';
-            $allLists = [];
-            $selectedList = $setting->list_id ?? null;
-
-            if ($apiKey) {
-                try {
-                    $mailchimp = new Mailchimp($apiKey);
-                    $result = $mailchimp->get('lists?count=100');
-                    $raw = is_array($result) ? ($result['lists'] ?? []) : ($result->lists ?? []);
-                    $allLists = json_decode(json_encode($raw), true);
-                } catch (Exception) {
-                    // API key invalid or network error — return empty list
-                }
-            }
-
-            return successResponse('', [
-                'api_key' => $apiKey,
-                'list_id' => $selectedList,
-                'subscribe_status' => $setting->subscribe_status ?? 0,
-                'lists' => array_map(fn ($l) => ['id' => $l['id'], 'name' => $l['name']], $allLists),
             ]);
         } catch (Exception $ex) {
             return errorResponse($ex->getMessage());

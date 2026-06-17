@@ -4,7 +4,9 @@
 $set = \App\Model\Common\Setting::findOrFail(1);
 $cloudBtn = \App\Model\Common\StatusSetting::where('id', 1)->value('cloud_button');
 $demoPage = App\Demo_page::first();
-$cartFacade = new App\Facades\Cart();
+
+$cartCount = app(\App\Http\Controllers\Front\Cart\CartService::class)->resolveCart(request())->itemCount();
+
 $social = App\Model\Common\SocialMedia::get(['name', 'link']);
 
 $widgets = \App\Model\Front\Widgets::where('publish', 1)->get(['id', 'name', 'type', 'content', 'allow_mailchimp', 'allow_social_media', 'allow_tweets']);
@@ -102,7 +104,7 @@ $productGroups = \App\Model\Product\ProductGroup::select('id', 'name', 'pricing_
      data-company-email="{{ $set->company_email ?? '' }}"
      data-cloud="{{ ($cloudBtn == 1) ? 'true' : 'false' }}"
      data-demo="{{ ($demoPage && $demoPage->status) ? 'true' : 'false' }}"
-     data-cart-count="{{ $cartFacade->getTotalQuantity() }}"
+     data-cart-count="{{ $cartCount }}"
      data-social="{{ $social->toJson() }}"
      data-widgets="{{ $widgets->toJson() }}"
      data-scripts="{{ $chatScripts->toJson() }}"

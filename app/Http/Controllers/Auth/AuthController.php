@@ -36,17 +36,6 @@ class AuthController extends BaseAuthController
       |
      */
 
-    // use AuthenticatesAndRegistersUsers;
-
-    /* to redirect after login */
-
-    //protected $redirectTo = 'home';
-
-    /* Direct After Logout */
-    protected $redirectAfterLogout = 'home';
-
-    protected $loginPath = 'login';
-
     //protected $loginPath = 'login';
 
     protected $pipedrive;
@@ -281,17 +270,6 @@ class AuthController extends BaseAuthController
         }
     }
 
-    public function checkVerify($user)
-    {
-        $check = false;
-        if ($user->active == '1' && $user->mobile_verified == '1') {
-            Auth::login($user);
-            $check = true;
-        }
-
-        return $check;
-    }
-
     public function salesManagerMail($user, $bcc = [])
     {
         $contact = getContactData();
@@ -364,31 +342,6 @@ class AuthController extends BaseAuthController
         ];
         $mail = new PhpMailController();
         $mail->SendEmail($from, $to, $template_data, $template_name, 'account-manager-mail', $replace, TemplateType::where('id', $template->type)->value('name'), $bcc);
-    }
-
-    public function verify()
-    {
-        $sessionUser = Session::get('user');
-        if (! $sessionUser) {
-            return redirect('login');
-        }
-
-        $user = User::find($sessionUser->id);
-        $eid = Crypt::encrypt($user->email);
-
-        $setting = StatusSetting::select(
-            'emailverification_status',
-            'msg91_status',
-        )->first();
-
-        $isMobileVerified = ! ($setting->msg91_status == 1 && $user->mobile_verified != 1);
-        $isEmailVerified = ! ($setting->emailverification_status == 1 && $user->email_verified != 1);
-
-        $verification_preference = ApiKey::value('verification_preference') ?? ($isEmailVerified ? 'email' : 'mobile');
-
-        return view('themes.default1.user.verify', compact(
-            'user', 'eid', 'setting', 'isMobileVerified', 'isEmailVerified', 'verification_preference'
-        ));
     }
 
     /**
