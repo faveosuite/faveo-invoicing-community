@@ -100,7 +100,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
     public function currency(int $invoiceid): string
     {
         $invoice = Invoice::find($invoiceid);
-        $currency_code = $invoice?->currency ?? '';
+        $currency_code = $invoice->currency ?? '';
 
         $cur = ' ';
         if (($invoice->grand_total ?? 0) == 0) {
@@ -132,9 +132,9 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         $template = TemplateType::getSelectedTemplate('invoice_mail');
         $type = '';
         $replace = [
-            'name' => ($user?->first_name ?? '').' '.($user?->last_name ?? ''),
+            'name' => ($user->first_name ?? '').' '.($user->last_name ?? ''),
             'number' => $number,
-            'address' => $user?->address ?? '',
+            'address' => $user->address ?? '',
             'invoiceurl' => $invoiceurl,
             'content' => $this->invoiceContent($invoiceid),
             'currency' => $this->currency($invoiceid),
@@ -144,7 +144,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         ];
         $type = $template?->type()->value('name') ?? '';
         $mail = new PhpMailController();
-        $mail->SendEmail($setting->email, $user?->email ?? '', $template->data, $template->name, $template->type()->value('name'), $replace, $type);
+        $mail->SendEmail($setting->email, $user->email ?? '', $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
     public function invoiceUrl(int $invoiceid): \Illuminate\Contracts\Routing\UrlGenerator|string

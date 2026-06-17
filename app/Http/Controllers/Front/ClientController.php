@@ -136,7 +136,7 @@ class ClientController extends BaseClientController
      *  Get all the invoices in data table.
      *
      * @param  request  $request
-     * @return \Yajra\DataTables\DataTableAbstract
+     * @return \Illuminate\Http\JsonResponse
      *
      * @throws Exception
      */
@@ -846,8 +846,8 @@ class ClientController extends BaseClientController
 
             $paginated->getCollection()->transform(fn ($payment): array => [
                 'id' => $payment->id,
-                'invoice_number' => $payment->invoice?->number ?? '—',
-                'amount' => currencyFormat($payment->amount, $payment->invoice?->currency ?? ''),
+                'invoice_number' => $payment->invoice->number ?? '—',
+                'amount' => currencyFormat($payment->amount, $payment->invoice->currency ?? ''),
                 'payment_method' => $payment->payment_method,
                 'payment_status' => $payment->payment_status,
                 'created_at' => $payment->created_at,

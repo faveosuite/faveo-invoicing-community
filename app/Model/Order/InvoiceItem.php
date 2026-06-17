@@ -95,7 +95,10 @@ class InvoiceItem extends BaseModel
         return strtolower($domain);
     }
 
-    public function order()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Model\Order\Order, $this>
+     */
+    public function order(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Order::class, 'invoice_item_id');
     }

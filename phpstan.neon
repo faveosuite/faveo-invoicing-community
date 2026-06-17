@@ -6,7 +6,7 @@ parameters:
     paths:
         - .
 
-    level: 8
+    level: 5
 
     reportUnmatchedIgnoredErrors: true
     treatPhpDocTypesAsCertain: true

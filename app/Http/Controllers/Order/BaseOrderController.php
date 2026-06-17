@@ -127,7 +127,7 @@ class BaseOrderController extends ExtendedOrderController
         $plan = Plan::findOrFail($planid);
         $order = Order::findOrFail($orderid);
 
-        $meta = $invoiceId ? (Invoice::find($invoiceId)?->metadata ?? []) : [];
+        $meta = $invoiceId ? (Invoice::find($invoiceId)->metadata ?? []) : [];
 
         if (isset($meta['increase-decrease-days'])) {
             $days = $meta['increase-decrease-days'];
@@ -323,8 +323,8 @@ class BaseOrderController extends ExtendedOrderController
     /**
      * get the price of a product by id.
      *
-     * @param  type  $product_id
-     * @return type collection
+     * @param  int  $product_id
+     * @return \App\Model\Product\Price|null
      *
      * @throws Exception
      */

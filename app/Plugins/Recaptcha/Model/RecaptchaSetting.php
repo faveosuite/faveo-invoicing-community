@@ -60,9 +60,9 @@ class RecaptchaSetting extends Model
         $recaptchaSetting = self::first();
 
         return auth()->guest()
-            && ($statusSetting?->recaptcha_status ?? false)
+            && ($statusSetting->recaptcha_status ?? false)
             && (
-                ! empty($recaptchaSetting?->v2_site_key) || ! empty($recaptchaSetting?->v3_site_key)
+                ! empty($recaptchaSetting->v2_site_key) || ! empty($recaptchaSetting->v3_site_key)
             );
     }
 
@@ -77,7 +77,7 @@ class RecaptchaSetting extends Model
         $status = StatusSetting::first();
         $settings = self::firstOrCreate([]);
 
-        $statusEnabled = (bool) ($status?->recaptcha_status ?? false);
+        $statusEnabled = (bool) ($status->recaptcha_status ?? false);
         $hasKey = ! empty($settings->v2_site_key) || ! empty($settings->v3_site_key);
 
         return [

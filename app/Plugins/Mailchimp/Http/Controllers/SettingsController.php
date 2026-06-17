@@ -26,7 +26,7 @@ class SettingsController extends Controller
     {
         try {
             $setting = MailchimpSetting::first();
-            $apiKey = $setting?->api_key ?? '';
+            $apiKey = $setting->api_key ?? '';
             $listsData = ['lists' => [], 'total' => 0, 'has_more' => false];
 
             if ($apiKey) {
@@ -40,7 +40,7 @@ class SettingsController extends Controller
             return successResponse('', [
                 'api_key' => $apiKey,
                 'list_id' => $setting?->list_id,
-                'subscribe_status' => $setting?->subscribe_status ?? 'subscribed',
+                'subscribe_status' => $setting->subscribe_status ?? 'subscribed',
                 'lists' => $listsData['lists'],
                 'lists_total' => $listsData['total'],
                 'lists_has_more' => $listsData['has_more'],

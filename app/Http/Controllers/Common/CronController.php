@@ -26,7 +26,7 @@ use Session;
 
 class CronController extends BaseCronController
 {
-    protected ?AppModelProductSubscription $subscription = null;
+    protected ?\App\Model\Product\Subscription $subscription = null;
 
     protected \App\Model\Order\Order $order;
 
@@ -76,7 +76,7 @@ class CronController extends BaseCronController
     {
         $sub = $this->getAllDaysExpiryInfo($day);
         $users = [];
-        if ($sub->get()->count() > 0) {
+        if ($sub->count() > 0) {
             foreach ($sub->get() as $key => $value) {
                 $users[$key]['users'] = $this->sub->find($value->id)->user()->get();
                 $users[$key]['orders'] = $this->sub->find($value->id)->order()->get();
@@ -94,7 +94,7 @@ class CronController extends BaseCronController
     {
         $sub = $this->get15DaysExpiryInfo();
         $users = [];
-        if ($sub->get()->count() > 0) {
+        if ($sub->count() > 0) {
             foreach ($sub->get() as $key => $value) {
                 $users[$key]['users'] = $this->sub->find($value->id)->user()->get();
                 $users[$key]['orders'] = $this->sub->find($value->id)->order()->get();
@@ -112,7 +112,7 @@ class CronController extends BaseCronController
     {
         $sub = $this->getOneDayExpiryInfo();
         $users = [];
-        if ($sub->get()->count() > 0) {
+        if ($sub->count() > 0) {
             foreach ($sub->get() as $key => $value) {
                 $users[$key]['users'] = $this->sub->find($value->id)->user()->get();
                 $users[$key]['orders'] = $this->sub->find($value->id)->order()->get();
@@ -130,7 +130,7 @@ class CronController extends BaseCronController
     {
         $sub = $this->getOnDayExpiryInfo();
         $users = [];
-        if ($sub->get()->count() > 0) {
+        if ($sub->count() > 0) {
             foreach ($sub->get() as $key => $value) {
                 $users[$key]['users'] = $this->sub->find($value->id)->user()->get();
                 $users[$key]['orders'] = $this->sub->find($value->id)->order()->get();
@@ -148,7 +148,7 @@ class CronController extends BaseCronController
     {
         $sub = $this->getExpiredInfo();
         $users = [];
-        if ($sub->get()->count() > 0) {
+        if ($sub->count() > 0) {
             foreach ($sub->get() as $key => $value) {
                 $users[$key]['users'] = $this->sub->find($value->id)->user()->get();
                 $users[$key]['orders'] = $this->sub->find($value->id)->order()->get();
@@ -370,7 +370,6 @@ class CronController extends BaseCronController
         $status = StatusSetting::value('subs_expirymail');
         if ($status == 1) {
             $Days = ExpiryMailDay::pluck('autorenewal_days')->toArray();
-            $cron = new AutorenewalCronController();
             $Autosub = $this->getautoSubscriptions($Days);
             foreach ($Autosub as $value) {
                 $value = (object) $value;

@@ -408,8 +408,8 @@ class ProfileVerificationController extends BaseAuthController
         $status = StatusSetting::query()->first();
 
         return [
-            'email' => (bool) ($status?->emailverification_status ?? false),
-            'mobile' => (bool) ($status?->msg91_status ?? false),
+            'email' => (bool) ($status->emailverification_status ?? false),
+            'mobile' => (bool) ($status->msg91_status ?? false),
         ];
     }
 }

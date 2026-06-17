@@ -354,7 +354,7 @@ class LocalizedLicenseController extends Controller
             $file_content = file_get_contents($stored);
             preg_match_all("/<([a-z_]+)>(.*?)<\/([a-z_]+)>/", $file_content, $matches, PREG_SET_ORDER);
             foreach ($matches as $value) {
-                if (isset($value[1]) && ($value[1] !== '' && $value[1] !== '0') && $value[1] == $value[3]) {
+                if (isset($value[1]) && $value[1] !== '0' && $value[1] == $value[3]) {
                     $license_data_array[$value[1]] = $value[2];
                 }
             }

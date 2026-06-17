@@ -77,7 +77,7 @@ class GroupController extends Controller
      * Update the specified resource in storage.
      *
      * @param  int  $id
-     * @return Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update($id, GroupRequest $request)
     {

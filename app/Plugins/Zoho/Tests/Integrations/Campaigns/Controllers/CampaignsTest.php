@@ -283,8 +283,7 @@ class CampaignsTest extends DBTestCase
         $this->campaigns->syncTopics();
 
         Http::assertSent(fn ($request): bool => $request->method() === 'GET' &&
-            str_contains((string) $request->url(), 'topics') &&
-            $request->method() !== 'POST');
+            str_contains((string) $request->url(), 'topics'));
     }
 
     public function test_it_resolves_list_key_from_list_name(): void

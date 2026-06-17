@@ -20,7 +20,7 @@ class ExtendedPlanController extends Controller
      * @date   2019-01-08T02:27:37+0530
      *
      * @param  Request  $request  Get Name And Days as Parameter
-     * @return json Suucess or Failure
+     * @return \Illuminate\Http\JsonResponse
      */
     public function postInsertPeriod(Request $request)
     {
@@ -47,5 +47,7 @@ class ExtendedPlanController extends Controller
 
             return response()->json(compact('result'), 500);
         }
+
+        return response()->json([], 400);
     }
 }

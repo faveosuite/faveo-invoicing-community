@@ -80,7 +80,7 @@ class FreeTrialService
     private function createInvoice(User $user, Plan $plan, string $currency): Invoice
     {
         $price = (float) (PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('add_price') ?? 0);
-        $rounding = (bool) (TaxOption::find(1)?->rounding ?? false);
+        $rounding = (bool) (TaxOption::find(1)->rounding ?? false);
         $grandTotal = $rounding ? round($price) : $price;
 
         return Invoice::create([

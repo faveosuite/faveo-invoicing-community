@@ -47,15 +47,13 @@ use Laravel\Socialite\SocialiteServiceProvider;
 use Laravel\Tinker\TinkerServiceProvider;
 use Maatwebsite\Excel\ExcelServiceProvider;
 use Maatwebsite\Excel\Facades\Excel;
-use Spatie\Activitylog\ActivitylogFacade;
+use Spatie\Activitylog\Facades\Activity;
 use Spatie\Activitylog\ActivitylogServiceProvider;
 use Spatie\Html\Facades\Html;
 use Spatie\Html\HtmlServiceProvider;
 use Spatie\Referer\RefererServiceProvider;
-use Torann\Currency\Facades\Currency;
 use Torann\GeoIP\Facades\GeoIP;
 use Torann\GeoIP\GeoIPServiceProvider;
-use Yajra\DataTables\Facades\DataTables;
 
 return [
 
@@ -293,10 +291,8 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
 
-        'Activity' => ActivitylogFacade::class,
+        'Activity' => Activity::class,
 
-        'Currency' => Currency::class,
-        'DataTables' => DataTables::class,
         'GeoIP' => GeoIP::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
         'Html' => Html::class,

@@ -29,7 +29,7 @@ trait SystemActivityLogsTrait
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly($this->logAttributes ?? [])
+            ->logOnly($this->logAttributes)
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName(__('message.'.$this->getLogName(), [], 'en'));
@@ -108,7 +108,7 @@ trait SystemActivityLogsTrait
 
         $displayName = in_array($eventName, ['deleted', 'suspended'])
             ? sprintf('<strong>%s</strong>', $name)
-            : ($this->requireLogUrl ?? true
+            : ($this->requireLogUrl
                 ? sprintf("<a href='%s'><strong>%s</strong></a>", $logUrl, $name)
                 : sprintf('<strong>%s</strong>', $name));
 
@@ -146,12 +146,12 @@ trait SystemActivityLogsTrait
      */
     private function getLogName(): string
     {
-        return $this->logName ?? $this->getTable();
+        return $this->logName;
     }
 
     private function getLogNameColumn(): string
     {
-        return $this->logNameColumn ?? 'id';
+        return $this->logNameColumn;
     }
 
     /**

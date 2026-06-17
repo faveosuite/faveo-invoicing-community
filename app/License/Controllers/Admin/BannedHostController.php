@@ -94,7 +94,7 @@ class BannedHostController extends Controller
      *To Delete Banned hosts of License manager.
      *
      * @param  $id
-     * @return success response of how many records deleted if deleted successfully
+     * @return \Illuminate\Http\JsonResponse
      */
     public function deleteBannedHost(Request $request)
     {

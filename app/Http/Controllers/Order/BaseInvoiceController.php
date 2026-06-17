@@ -51,7 +51,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
 
     public function whenStartDateSet(?string $start, ?string $end, string $now): ?string
     {
-        if ($start == null && $start == '0000-00-00 00:00:00') {
+        if ($start == null) {
             return null;
         }
 
@@ -68,7 +68,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
 
     public function whenEndDateSet(?string $start, ?string $end, string $now): ?string
     {
-        if ($end == null && $end == '0000-00-00 00:00:00') {
+        if ($end == null) {
             return null;
         }
 
@@ -89,7 +89,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
             return null;
         }
 
-        if ($start == null && $start == '0000-00-00 00:00:00') {
+        if ($start == null) {
             return null;
         }
 

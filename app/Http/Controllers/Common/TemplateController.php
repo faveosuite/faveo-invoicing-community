@@ -300,8 +300,7 @@ class TemplateController extends Controller
 
     public function getPrice(string $months, array $price, string $priceDescription, \App\Model\Payment\Plan $value, float|int $cost, string $currency, float|int|null $offer, \App\Model\Product\Product $product): array
     {
-        // @phpstan-ignore notIdentical.alwaysTrue
-        if (isset($offer) && $offer !== '' && $offer !== null) {
+        if (isset($offer)) {
             $cost -= ($offer / 100) * $cost;
         }
 

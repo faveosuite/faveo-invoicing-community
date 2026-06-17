@@ -62,9 +62,9 @@ class ChatScript extends Model
         return [
             'name' => ['Name', fn ($value) => $value],
             'script' => ['Script', fn ($value) => $value],
-            'on_registration' => ['On Registration', fn ($value): array|string|null => (int) $value === 1 ? __('message.active') : __('message.inactive')],
-            'on_every_page' => ['On Every Page', fn ($value): array|string|null => (int) $value === 1 ? __('message.active') : __('message.inactive')],
-            'google_analytics' => ['Google Analytics', fn ($value): array|string|null => (int) $value === 1 ? __('message.active') : __('message.inactive')],
+            'on_registration' => ['On Registration', fn ($value): array|string => (int) $value === 1 ? __('message.active') : __('message.inactive')],
+            'on_every_page' => ['On Every Page', fn ($value): array|string => (int) $value === 1 ? __('message.active') : __('message.inactive')],
+            'google_analytics' => ['Google Analytics', fn ($value): array|string => (int) $value === 1 ? __('message.active') : __('message.inactive')],
             'google_analytics_tag' => ['Google Analytics Tag', fn ($value) => $value],
         ];
     }

@@ -169,7 +169,7 @@ class PostPaymentService
                     'rzp_subscription' => $oldSub->rzp_subscription,
                 ]);
                 $this->updateSubscriptionPriceIfNeeded($newActiveOrderId, $invoice);
-            } elseif ($terminatedOrder->order_status === 'Terminated' && $oldSub?->is_subscribed === '1') {
+            } elseif ($oldSub?->is_subscribed === '1') {
                 Subscription::where('order_id', $newActiveOrderId)->update([
                     'is_subscribed' => $oldSub->is_subscribed,
                     'autoRenew_status' => $oldSub->autoRenew_status,
@@ -321,7 +321,7 @@ class PostPaymentService
         }
     }
 
-    private function getPriceForCloud($order, $price, $product): float|int
+    private function getPriceForCloud($order, $price, $product): float|null
     {
         $numberofAgents = (int) ltrim(substr((string) $order->serial_key, -4), '0');
         $finalPrice = $numberofAgents * $price;

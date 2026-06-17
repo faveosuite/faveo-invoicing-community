@@ -99,7 +99,7 @@ class ReportsController extends Controller
             'report_text' => $report->report_text,
             'report_date_time' => $report->report_date_time,
             'report_status' => $report->report_status,
-            'user_formatted' => $report->user?->email ?? 'System',
+            'user_formatted' => $report->user->email ?? 'System',
         ]);
 
         return successResponse(Lang::get('lang.SystemReport_Show'), $reportsQuery, 200);

@@ -241,8 +241,8 @@ trait ApiKeySettings
                 $mailchimp_set = new MailchimpSetting();
                 $set = $mailchimp_set->firstOrFail();
                 $mail_api_key = $set->api_key;
-                $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
-                $allists = $mailchimp->get('lists?count=20')['lists'];
+                $mailchimp = new \Mailchimp\Mailchimp($mail_api_key); // @phpstan-ignore class.notFound
+                $allists = $mailchimp->get('lists?count=20')['lists']; // @phpstan-ignore class.notFound
                 $selectedList[] = $set->list_id;
                 $subscribe_status = MailchimpSetting::value('subscribe_status');
                 $data = ['mailchimpverifiedStatus' => $mailchimpverifiedStatus,
@@ -492,9 +492,7 @@ trait ApiKeySettings
                 's3_path_style_endpoint' => 'AWS_USE_PATH_STYLE_ENDPOINT',
             };
 
-            if ($envKey !== '0') {
-                setEnvValue([$envKey => $value]);
-            }
+            setEnvValue([$envKey => $value]);
         }
     }
 

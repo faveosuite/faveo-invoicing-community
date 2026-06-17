@@ -143,9 +143,20 @@ class Order extends BaseModel
         return $this->belongsTo(InvoiceItem::class, 'invoice_item_id');
     }
 
-    public function installationDetail()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\License\Models\Installation, $this>
+     */
+    public function installationDetail(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Installation::class, 'license_code', 'serial_key');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\License\Models\Installation, $this>
+     */
+    public function installation(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Installation::class, 'order_id');
     }
 
     #[Override]

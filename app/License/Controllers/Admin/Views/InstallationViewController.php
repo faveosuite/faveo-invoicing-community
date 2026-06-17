@@ -26,9 +26,9 @@ class InstallationViewController extends Controller
                 'installation_domain' => $installation->installation_domain,
                 'installation_date' => $installation->installation_date,
                 'installation_status' => $installation->installation_status,
-                'product_title' => $installation->product?->name,
-                'client_email' => $installation->user?->email,
-                'license_id' => $installation->license?->id,
+                'product_title' => $installation->product->name,
+                'client_email' => $installation->user->email,
+                'license_id' => $installation->license->id,
             ];
         }
 

@@ -54,8 +54,8 @@ class CloudProducts extends BaseModel
 
     protected function getMappings(): array
     {
-        $product = Product::find($this->cloud_product)?->name ?? 'Unknown Product';
-        $plan = Plan::find($this->cloud_free_plan)?->name ?? 'Unknown Plan';
+        $product = Product::find($this->cloud_product)->name ?? 'Unknown Product';
+        $plan = Plan::find($this->cloud_free_plan)->name ?? 'Unknown Plan';
 
         return [
             'cloud_product' => ['Product Name', fn ($value) => Product::find($value)?->name],
@@ -63,14 +63,14 @@ class CloudProducts extends BaseModel
             'cloud_product_key' => ['Product Key', fn ($value) => $value],
             'trial_status' => [
                 sprintf('Trial Status for %s (Plan : %s)', $product, $plan),
-                fn ($value): array|string|null => $value ? __('message.active') : __('message.inactive'),
+                fn ($value): array|string => $value ? __('message.active') : __('message.inactive'),
             ],
         ];
     }
 
     public function getLogNameColumn()
     {
-        return Product::find($this->cloud_product)?->name
+        return Product::find($this->cloud_product)->name
             ?? $this->cloud_product;
     }
 

@@ -230,7 +230,7 @@ class ExtendedBaseProductController extends Controller
      * @param  Request  $input  All the Product Detais Sent from  the form
      * @param  \Illuminate\Http\Request  $request
      * @param  array  $product  instance of the Product
-     * @return Save The Details
+     * @return void
      */
     public function saveCartDetailsWhileUpdating($input, $request, $product, $highlight, $add_to_contact): void
     {

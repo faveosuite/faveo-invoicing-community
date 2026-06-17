@@ -148,8 +148,8 @@ class OpenPaymentService
     private function sendSuccessEmails(OpenPaymentOrder $order): void
     {
         $setting = Setting::find(1);
-        $fromEmail = $setting?->email ?? config('mail.from.address');
-        $adminEmail = $setting?->company_email ?? $fromEmail;
+        $fromEmail = $setting->email ?? config('mail.from.address');
+        $adminEmail = $setting->company_email ?? $fromEmail;
         $date = $order->paid_at?->format('d M Y H:i') ?? now()->format('d M Y H:i');
         $contact = getContactData();
 
@@ -205,8 +205,8 @@ class OpenPaymentService
     private function sendFailureEmail(OpenPaymentOrder $order): void
     {
         $setting = Setting::find(1);
-        $fromEmail = $setting?->email ?? config('mail.from.address');
-        $adminEmail = $setting?->company_email ?? $fromEmail;
+        $fromEmail = $setting->email ?? config('mail.from.address');
+        $adminEmail = $setting->company_email ?? $fromEmail;
         $date = now()->format('d M Y H:i');
         $contact = getContactData();
 

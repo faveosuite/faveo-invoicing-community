@@ -199,7 +199,7 @@ class PageController extends Controller
                     $prices[$plan->id][] = $plan->id;
                 }
 
-                if (isset($prices[$plan->id]) && (isset($prices[$plan->id]) && $prices[$plan->id] !== [])) {
+                if (isset($prices[$plan->id])) {
                     if (isset($offerprice) && $offerprice != '' && $offerprice != null) {
                         $prices[$plan->id][0] -= ($offerprice / 100) * $prices[$plan->id][0];
                     }
@@ -274,12 +274,10 @@ class PageController extends Controller
                     $data = str_replace('{{price-year}}', $offerpriceYear[$offerpriceyearKeys[0]], $data);
                 }
 
-                if ($year_offer_price !== '' && $year_offer_price !== null) {
-                    if (count($strikePriceKeys) > 1) {
-                        $data = str_replace('{{strike-priceyear}}', implode(' ', $strikePrice), $data);
-                    } else {
-                        $data = str_replace('{{strike-priceyear}}', $strikePrice[$strikePriceKeys[0]], $data);
-                    }
+                if (count($strikePriceKeys) > 1) {
+                    $data = str_replace('{{strike-priceyear}}', implode(' ', $strikePrice), $data);
+                } else {
+                    $data = str_replace('{{strike-priceyear}}', $strikePrice[$strikePriceKeys[0]], $data);
                 }
             }
 
@@ -561,12 +559,14 @@ class PageController extends Controller
 
             $plans = $this->prices($id);
             if ($plans) {
+                /** @phpstan-ignore class.notFound */
                 $plan_form = Form::select('subscription', ['Plans' => $plans], null);
             }
 
+            /** @phpstan-ignore class.notFound, class.notFound */
             $form = Form::open(['method' => 'get', 'url' => $url]).
             $plan_form.
-            Form::hidden('id', $id);
+            Form::hidden('id', $id); // @phpstan-ignore class.notFound
 
             return $product['add_to_contact'] == 1 ? '' : $form;
         } catch (Exception $exception) {
@@ -577,7 +577,7 @@ class PageController extends Controller
     public function getPrice(string $months, array $price, string $priceDescription, \App\Model\Payment\Plan $value, float|int $cost, string $currency, float|int|null $offer, \App\Model\Product\Product $product): array
     {
         $cost *= 12;
-        if (isset($offer) && $offer !== '' && $offer !== null) {
+        if (isset($offer)) {
             $cost -= $offer / 100 * $cost;
         }
 
@@ -722,7 +722,7 @@ class PageController extends Controller
                 $prices[$plan->id][] = $planDetails['currency'];
             }
 
-            if (isset($prices[$plan->id]) && $prices !== []) {
+            if (isset($prices[$plan->id])) {
                 $format = currencyFormat(min([$prices[$plan->id][0]]), $code = $prices[$plan->id][2]);
                 $finalPrice = str_replace($prices[$plan->id][1], '', $format);
                 $cost[$plan->id] = '<span class="price-unit strike-amount hide_custom" id="'.$plan->id.'">'.$prices[$plan->id][1].$finalPrice.'</span>';

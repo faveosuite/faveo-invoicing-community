@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenancy;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Front\CartController;
+use App\Http\Controllers\Front\Cart\CartService;
 use App\Http\Controllers\Order\InvoiceController as InvoiceCtrl;
 use App\Http\Controllers\Order\RenewController;
 use App\License\Models\Installation;
@@ -815,7 +815,11 @@ class CloudExtraActivities extends Controller
             return response(['status' => false, 'message' => trans('message.domain_taken')]);
         }
 
-        new CartController()->cart($request);
+        app(CartService::class)->addItem($request, [
+            'product_id' => $request->input('id'),
+            'plan_id' => $request->input('subscription'),
+            'domain' => $request->input('domain') ? $request->input('domain').'.'.cloudSubDomain() : null,
+        ]);
 
         return response()->json(['redirectTo' => url('/show/cart')]);
     }

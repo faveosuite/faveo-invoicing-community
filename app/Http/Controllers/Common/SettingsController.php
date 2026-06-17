@@ -599,9 +599,9 @@ class SettingsController extends BaseSettingsController
                 'cloud_central_domain' => $cloud?->cloud_central_domain,
                 'cloud_cname' => $cloud?->cloud_cname,
                 'cloud_button' => (bool) StatusSetting::value('cloud_button'),
-                'cloud_top_message' => $cloudPopUp?->cloud_top_message ?? '',
-                'cloud_label_field' => $cloudPopUp?->cloud_label_field ?? '',
-                'cloud_label_radio' => $cloudPopUp?->cloud_label_radio ?? '',
+                'cloud_top_message' => $cloudPopUp->cloud_top_message ?? '',
+                'cloud_label_field' => $cloudPopUp->cloud_label_field ?? '',
+                'cloud_label_radio' => $cloudPopUp->cloud_label_radio ?? '',
                 'products' => $products,
                 'plans' => $plans,
                 'countries' => $countries,
@@ -615,6 +615,7 @@ class SettingsController extends BaseSettingsController
     public function getBody(int $id): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @phpstan-ignore class.notFound */
             $email = Email_log::findOrFail($id);
 
             return successResponse('', ['body' => $email->body, 'subject' => $email->subject]);
@@ -788,6 +789,7 @@ class SettingsController extends BaseSettingsController
 
     public function mailSearch(string $from = '', string $till = ''): \Illuminate\Database\Eloquent\Builder
     {
+        /** @phpstan-ignore class.notFound */
         $join = Email_log::select('id', 'from', 'to', 'date', 'subject', 'status');
 
         if ($from) {
@@ -798,6 +800,7 @@ class SettingsController extends BaseSettingsController
 
         if ($till) {
             $till = $this->DateFormat($till);
+            /** @phpstan-ignore class.notFound */
             $fromDate = Email_log::first()->date;
             $fromDate = $this->DateFormat($from ?: $fromDate); // Use $from if provided, otherwise, use the first email log date
             $join = $join->whereBetween('date', [$fromDate, $till]);

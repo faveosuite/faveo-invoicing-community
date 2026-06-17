@@ -108,7 +108,7 @@ class ZohoConnectHelper
 
                 'selected' => [
                     'local_field_id' => $mapping?->faveo_local_field_id,
-                    'option_ids' => $mapping?->selected_option ?? [],
+                    'option_ids' => $mapping->selected_option ?? [],
                 ],
             ];
         })->values();

@@ -3,7 +3,7 @@
 namespace App\Helper\PdfManager;
 
 use App\FileSystemSettings;
-use Spatie\Browsershot\Browsershot;
+use Spatie\Browsershot\Browsershot; // @phpstan-ignore class.notFound
 
 class FaveoBrowserShot
 {
@@ -27,11 +27,11 @@ class FaveoBrowserShot
         ]);
     }
 
-    public static function browsershot(): Browsershot
+    public static function browsershot(): Browsershot // @phpstan-ignore class.notFound
     {
         self::init();
 
-        return new Browsershot()
+        return new Browsershot() // @phpstan-ignore class.notFound, class.notFound
             ->setNodeBinary(self::$bins['node'])
             ->setNpmBinary(self::$bins['npm'])
             ->setChromePath(self::$bins['chrome'])

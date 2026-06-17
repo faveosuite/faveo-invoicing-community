@@ -491,7 +491,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::post('update-license-details', [BaseOrderController::class, 'updateLicenseDetails']);
     Route::get('get-installation-details/{orderId}', [OrderController::class, 'getInstallationDetails']);
     Route::get('export-orders', [OrderController::class, 'exportOrders'])->name('export-orders');
-    Route::get('orders/license/{order_number}', fn ($orderNumber): \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse => redirect('/orders/'.Order::where('number', $orderNumber)->value('id')));
+    Route::get('orders/license/{order_number}', fn ($orderNumber): \Illuminate\Http\RedirectResponse => redirect('/orders/'.Order::where('number', $orderNumber)->value('id')));
 
     Route::post('switch-license-mode', [LocalizedLicenseController::class, 'chooseLicenseMode']);
 

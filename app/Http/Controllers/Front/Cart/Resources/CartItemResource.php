@@ -17,7 +17,7 @@ class CartItemResource extends JsonResource
     #[Override]
     public function toArray(Request $request): array
     {
-        $currency = $this->cart?->currency ?? 'USD';
+        $currency = $this->cart->currency ?? 'USD';
         $currencySymbol = Currency::where('code', $currency)->value('symbol') ?? $currency;
 
         return [

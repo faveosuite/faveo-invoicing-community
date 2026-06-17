@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Front\CartController;
+use App\Model\Payment\Plan;
+use App\Model\Product\Product;
 use App\Model\Payment\Promotion;
 use Exception;
 use Illuminate\Support\Str;
@@ -85,12 +86,20 @@ class BasePromotionController extends Controller
         try {
             $planid = '';
             $promotion = Promotion::findOrFail($promoid);
-            $cart_control = new CartController();
             if (checkPlanSession()) {
                 $planid = Session::get('plan');
             }
 
-            $price = $cart_control->planCost($productid, $userid, $planid);
+            $product = Product::findOrFail($productid);
+            $planId = $planid ?: Plan::where('product', $product->id)->where('status', 1)->value('id');
+            $userPlan = userCurrencyAndPrice($userid, $product->planRelation()->findOrFail($planId));
+            if (empty($userPlan['plan'])) {
+                throw new Exception(__('message.no_available_plans_currency'));
+            }
+            $planPrice = $userPlan['plan'];
+            $cost = (float) $planPrice->add_price;
+            $offer = $planPrice->offer_price ?? 0;
+            $price = $offer > 0 ? $cost * (1 - $offer / 100) : $cost;
             Session::put('oldPrice', $price);
 
             return $this->findCost($promotion->type, $promotion->value, $price, $productid);

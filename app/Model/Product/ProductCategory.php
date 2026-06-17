@@ -3,8 +3,8 @@
 namespace App\Model\Product;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property int $id
@@ -61,6 +61,6 @@ class ProductCategory extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults();
+        return \Spatie\Activitylog\Support\LogOptions::defaults();
     }
 }

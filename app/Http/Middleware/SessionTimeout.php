@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Carbon\Carbon;
 use Closure;
-use HTTP;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,7 +18,7 @@ class SessionTimeout
      * @param  Closure(Request): (Response|RedirectResponse)  $next
      * @param  int  $timeoutMinutes  The session timeout threshold in minutes (default: 10).
      * @param  string  $sessionKey  The session key used to track verification activity.
-     * @return HTTP|RedirectResponse
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next, int $timeoutMinutes = 10, string $sessionKey = 'lastVerificationActivity')
     {

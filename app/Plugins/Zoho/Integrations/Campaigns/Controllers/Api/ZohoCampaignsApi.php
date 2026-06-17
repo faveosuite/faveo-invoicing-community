@@ -11,6 +11,11 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Collection;
 use Override;
 
+/**
+ * @phpstan-type ZohoCustomer array<string, mixed>
+ * @phpstan-type ZohoTag array<string, mixed>
+ * @phpstan-type ZohoContactField array<string, mixed>
+ */
 class ZohoCampaignsApi extends ZohoBaseApi
 {
     /**

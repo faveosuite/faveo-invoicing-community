@@ -38,7 +38,7 @@ use Logger;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Str;
-use Swift_TransportException;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use ZipArchive;
 
 class ClientController extends AdvanceSearchController
@@ -155,7 +155,7 @@ class ClientController extends AdvanceSearchController
             dispatch(new AddUserToExternalService($userInput));
 
             return back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (Swift_TransportException $e) {
+        } catch (TransportExceptionInterface $e) {
             return back()->with('warning',
                 __('message.user_created_but_email_problem').$e->getMessage());
         } catch (Exception $e) {

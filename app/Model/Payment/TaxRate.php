@@ -91,7 +91,7 @@ class TaxRate extends BaseModel
             'priority' => ['Priority', fn ($value) => $value],
             'compound' => ['Is Compound Tax', fn ($value): string => $value ? 'Yes' : 'No'],
             'tax_class' => ['Tax Class', fn ($value) => $value ?: 'Standard'],
-            'active' => ['Tax Status', fn ($value): array|string|null => $value ? __('message.active') : __('message.inactive')],
+            'active' => ['Tax Status', fn ($value): array|string => $value ? __('message.active') : __('message.inactive')],
         ];
     }
 

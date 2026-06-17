@@ -321,7 +321,7 @@ class TenantController extends Controller
                 $template = TemplateType::getSelectedTemplate('cloud_created');
                 $contact = getContactData();
 
-                $productName = Product::find($order[0]->product)?->name ?? '';
+                $productName = Product::find($order[0]->product)->name ?? '';
                 $type = $template?->type()->value('name') ?? '';
                 $subject = 'Your '.$productName.' is now ready for use. Get started!';
                 $message = (isset($result->reason) && $result->reason != '') ? __('message.'.$result->message, ['installationUrl' => $result->installationUrl, 'reason' => $result->reason]) : // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
@@ -407,7 +407,7 @@ class TenantController extends Controller
             );
             $responseBody = (string) $response->getBody();
             $response = json_decode($responseBody);
-            $user = Auth::user()?->email ?? 'Auto deletion';
+            $user = Auth::user()->email ?? 'Auto deletion';
 
             if ($response->status == 'success') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                 $this->deleteCronForTenant($request->input('id'));
@@ -534,7 +534,7 @@ class TenantController extends Controller
                     );
                     $responseBody = (string) $response->getBody();
                     $response = json_decode($responseBody);
-                    $user = Auth::user()?->email ?? 'Auto deletion';
+                    $user = Auth::user()->email ?? 'Auto deletion';
                     if ($response->status == 'success') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                         $this->deleteCronForTenant($domainArray[$i]->id);
                         $this->reissueCloudLicense($order_id);

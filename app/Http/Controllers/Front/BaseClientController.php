@@ -91,7 +91,7 @@ class BaseClientController extends Controller
      * @param  $orderid
      * @param  $userid
      * @param  $admin
-     * @return \Yajra\DataTables\DataTableAbstract|RedirectResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      *
      * @throws Exception
      */

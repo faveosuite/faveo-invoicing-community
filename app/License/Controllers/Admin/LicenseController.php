@@ -195,8 +195,8 @@ class LicenseController extends Controller
             'license_date' => $license->license_date,
             'license_updates_date' => $license->license_updates_date,
             'license_status' => $license->license_status,
-            'product_title' => $license->product?->name,
-            'client_email' => $license->user?->email,
+            'product_title' => $license->product->name,
+            'client_email' => $license->user->email,
             'license_order_url' => $license->license_order_number ?? '',
             'installation_counts' => $license->installation_counts,
             'latest_call_backs' => $license->latest_call_backs,
@@ -209,8 +209,8 @@ class LicenseController extends Controller
     public function edit(int $license_id): \Illuminate\Http\JsonResponse
     {
         $license = License::with(['product:id,name', 'user:id,first_name,last_name,email'])->findOrFail($license_id);
-        $productName = collect([(object) ['name' => $license->product?->name, 'id' => $license->id]]);
-        $clientName = collect([(object) ['full_name' => trim($license->user?->first_name.' '.$license->user?->last_name).' <'.$license->user?->email.'>', 'id' => $license->user_id]]);
+        $productName = collect([(object) ['name' => $license->product->name, 'id' => $license->id]]);
+        $clientName = collect([(object) ['full_name' => trim($license->user->first_name.' '.$license->user->last_name).' <'.$license->user->email.'>', 'id' => $license->user_id]]);
 
         return successResponse('', ['license' => $license, 'product_name' => $productName, 'client_name' => $clientName], 200);
     }

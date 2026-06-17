@@ -59,7 +59,10 @@ class ConfigOption extends Model
     }
 
     // Define the relationship with ConfigOptionValue
-    public function configOptionValues()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Configure\ConfigOptionValue, $this>
+     */
+    public function configOptionValues(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ConfigOptionValue::class, 'option_id');
     }

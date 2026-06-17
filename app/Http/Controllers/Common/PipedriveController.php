@@ -578,7 +578,7 @@ class PipedriveController extends Controller
                 $result[$fieldKey] = $this->userTransform($user, $localFieldKey);
             }
             // Otherwise use option if available
-            elseif ($option = $field->pipedriveOptions?->first()) {
+            elseif ($option = $field->pipedriveOptions->first()) {
                 $result[$fieldKey] = $option->key;
             }
 

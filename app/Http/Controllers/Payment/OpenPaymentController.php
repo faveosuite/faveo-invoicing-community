@@ -267,7 +267,7 @@ class OpenPaymentController extends Controller
             ->orderBy('code')
             ->get(['code', 'symbol', 'name']);
 
-        $appTitle = Setting::find(1)?->title ?? config('app.name');
+        $appTitle = Setting::find(1)->title ?? config('app.name');
 
         return successResponse('', ['gateways' => $gateways, 'currencies' => $currencies, 'app_title' => $appTitle]);
     }

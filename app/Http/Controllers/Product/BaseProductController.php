@@ -112,8 +112,6 @@ class BaseProductController extends ExtendedBaseProductController
     public function getSubscriptionCheck(int $productid, Request $request)
     {
         try {
-            $controller = new \App\Http\Controllers\Front\CartController();
-            $plan = new Plan();
             $useID = $request->input('user_id') ?: Auth::user()->id;
             $userCountry = User::find($useID)->country;
             $currency = getCurrencyForClient($userCountry);
@@ -204,7 +202,7 @@ class BaseProductController extends ExtendedBaseProductController
      *
      * get productid,userid,plan id as request
      *
-     * @return json The final Price of the Prduct
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getPrice(Request $request)
     {
@@ -223,7 +221,14 @@ class BaseProductController extends ExtendedBaseProductController
 
             $currency = userCurrencyAndPrice($userId, $plan)['currency'];
 
-            $price = new CartController()->cost($productId, $planId, $userId, true);
+            $userPlan = userCurrencyAndPrice($userId, $plan);
+            if (empty($userPlan['plan'])) {
+                return errorResponse(__('message.no_available_plans_currency'));
+            }
+            $planPrice = $userPlan['plan'];
+            $cost = (float) $planPrice->add_price;
+            $offer = $planPrice->offer_price ?? 0;
+            $price = $offer > 0 ? $cost * (1 - $offer / 100) : $cost;
 
             $product = Product::findOrFail($productId);
 

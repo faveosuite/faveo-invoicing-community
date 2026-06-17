@@ -26,7 +26,5 @@ class QueryListenerProvider extends ServiceProvider
         DB::listen(function ($query): void {
             Clockwork::info($query->sql, [$query->time]);
         });
-
-        $this->app['router']->aliasMiddleware('clockwork', ClockworkMiddleware::class);
     }
 }

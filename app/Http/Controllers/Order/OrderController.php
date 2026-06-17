@@ -315,7 +315,7 @@ class OrderController extends BaseOrderController
         $invoice_items = new InvoiceItem();
         $invoice_item = $invoice_items->find($itemid);
 
-        return $invoice_item?->product_name ?? '';
+        return $invoice_item->product_name ?? '';
     }
 
     public function subscription(int $orderid): ?\App\Model\Product\Subscription

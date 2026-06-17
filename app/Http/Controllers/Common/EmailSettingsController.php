@@ -86,7 +86,7 @@ class EmailSettingsController extends Controller
      * checks send connection based on the mail driver.
      *
      *
-     * @param  Emails  $emailConfig  emailConfig object
+     * @param  \App\Model\Common\Setting  $emailConfig  emailConfig object
      * @return bool
      */
     protected function checkSendConnection(Setting $emailConfig)

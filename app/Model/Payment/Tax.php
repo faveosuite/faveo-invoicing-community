@@ -85,7 +85,7 @@ class Tax extends BaseModel
                     : 'All States',
             ],
             'rate' => ['Tax Rate (%)', fn ($value) => $value],
-            'active' => [$this->name.' tax status', fn ($value): array|string|null => $value === 1 ? __('message.active') : __('message.inactive')],
+            'active' => [$this->name.' tax status', fn ($value): array|string => $value === 1 ? __('message.active') : __('message.inactive')],
             'tax_classes_id' => ['Tax Class', fn ($value) => $value ? TaxClass::find($value)?->name : 'No Class'],
             'compound' => ['Is Compound Tax', fn ($value): string => $value === 1 ? 'Yes' : 'No'],
         ];

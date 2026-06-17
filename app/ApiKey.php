@@ -127,7 +127,7 @@ class ApiKey extends Model
             'stripe_key' => ['Stripe Key', fn ($value) => $value],
             'stripe_secret' => ['Stripe Secret', fn ($value) => $value],
             'msg91_third_party_id' => ['Msg91 Third Party Id', fn ($value) => $value],
-            'require_pipedrive_user_verification' => ['Require Pipedrive User Verification', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'require_pipedrive_user_verification' => ['Require Pipedrive User Verification', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'verification_preference' => ['Verification Preference', fn ($value) => $value],
         ];
     }

@@ -302,6 +302,8 @@ class LoginController extends BaseAuthController
         if (Auth::check()) {
             return redirect($this->redirectPath());
         }
+
+        return back();
     }
 
     /**

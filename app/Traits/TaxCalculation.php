@@ -109,9 +109,9 @@ trait TaxCalculation
         return (object) [
             'country' => $country,
             'state' => $state,
-            'zip' => Auth::user()?->zip ?? '',
-            'city' => Auth::user()?->city ?? '',
-            'is_tax_exempt' => (bool) (Auth::user()?->is_tax_exempt ?? false),
+            'zip' => Auth::user()->zip ?? '',
+            'city' => Auth::user()->city ?? '',
+            'is_tax_exempt' => (bool) (Auth::user()->is_tax_exempt ?? false),
         ];
     }
 }

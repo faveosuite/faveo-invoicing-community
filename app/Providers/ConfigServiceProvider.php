@@ -31,7 +31,7 @@ class ConfigServiceProvider extends ServiceProvider
                 ->get()
                 ->keyBy(fn ($r): string => sprintf('%s:%s', $r->option_name, $r->optional_field));
 
-            $bool = fn (string $key): bool => (bool) ($rows->get($key)?->option_value ?? false);
+            $bool = fn (string $key): bool => (bool) ($rows->get($key)->option_value ?? false);
             $debugOn = $bool('debugging:app_debug');
 
             config([

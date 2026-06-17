@@ -144,7 +144,7 @@ class Google2FAController extends Controller
     /**
      * Disables 2FA for a user/agent, wipes out all the details related to 2FA from the Database.
      *
-     * @return json \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function disableTwoFactor(Request $request)
     {

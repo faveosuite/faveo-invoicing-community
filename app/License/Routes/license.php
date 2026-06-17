@@ -22,7 +22,6 @@ use App\License\Controllers\AfuCallbacks\DownloadFileController;
 use App\License\Controllers\AfuCallbacks\GetAllVersionsController;
 use App\License\Controllers\AfuCallbacks\GetVersionsController;
 use App\License\Controllers\LicenseApiController;
-use App\License\Controllers\Update\AfuVersionsController;
 use App\License\Controllers\WhitelistIpsController;
 use Illuminate\Support\Facades\Route;
 
@@ -103,9 +102,6 @@ Route::prefix('api/admin')->middleware(['web', 'auth', 'admin'])->group(function
     Route::get('/viewVersions', [VersionsController::class, 'show']);
     Route::get('/versionView/{version_id}', [VersionsViewController::class, 'getVersionInfo']);
     Route::get('/versionCallbacks/{version_id}', [VersionsViewController::class, 'getVersionCallbacks']);
-    Route::post('/versions/add', [AfuVersionsController::class, 'versionAdd']);
-    Route::post('/versions/edit', [AfuVersionsController::class, 'versionUpdate']);
-    Route::post('/versions/delete', [AfuVersionsController::class, 'deleteVersion']);
 
     // ========================================================================
     // LICENSES

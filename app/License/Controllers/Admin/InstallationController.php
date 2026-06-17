@@ -55,7 +55,7 @@ class InstallationController extends Controller
             'installation_status' => $request->get('installation_status'),
         ]);
 
-        $name = $installation->product?->name;
+        $name = $installation->product->name;
         $pageMessage = sprintf('%s installation on %s (%s) updated.', $name, $installation->installation_domain, $installation->installation_ip);
         LicenseHelper::logAdminReport(strip_tags($pageMessage), 0, 1, 1);
 
@@ -117,9 +117,9 @@ class InstallationController extends Controller
             'installation_domain' => $installation->installation_domain,
             'installation_date' => $installation->installation_date,
             'installation_status' => $installation->installation_status,
-            'product_title' => $installation->product?->name,
-            'client_email' => $installation->user?->email,
-            'license_id' => $installation->license?->id,
+            'product_title' => $installation->product->name,
+            'client_email' => $installation->user->email,
+            'license_id' => $installation->license->id,
         ]);
 
         return successResponse(Lang::get('license::lang.Install_show'), $installations);

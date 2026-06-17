@@ -71,7 +71,7 @@ class FrontendPage extends BaseModel
             'name' => ['Name', fn ($value) => $value],
             'content' => ['Content', fn ($value) => $value],
             'url' => ['URL', fn ($value) => $value],
-            'publish' => ['Publish status', fn ($value): array|string|null => $value ? __('message.active') : __('message.inactive')],
+            'publish' => ['Publish status', fn ($value): array|string => $value ? __('message.active') : __('message.inactive')],
             'type' => ['Type', fn ($value) => $value],
             'created_at' => [
                 'Publishing Date',

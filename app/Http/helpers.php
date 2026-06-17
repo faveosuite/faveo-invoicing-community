@@ -92,7 +92,7 @@ function errorResponse(string|array $message, int $statusCode = 400): JsonRespon
  * @param  string  $message  Success message
  * @param  array|string  $data  Data of the response
  * @param  int  $statusCode
- * @return HTTP json response
+ * @return \Illuminate\Http\JsonResponse
  */
 function successResponse(string $message = '', mixed $data = '', int $statusCode = 200): JsonResponse
 {
@@ -238,7 +238,7 @@ function tooltip(string $tootipText = ''): string
              </label>';
 }
 
-function getStatusLabel(mixed $status): string|array|null
+function getStatusLabel(mixed $status): string|array
 {
     return match ($status) {
         'Success' => __('message.paid'),
@@ -376,7 +376,7 @@ function getCountry(mixed $userid): mixed
  * that price will be displayed in the respective currency of that country else the default price for that plan will be displayed along with the default currency.
  *
  * @param  string  $countryCode  Code of the country
- * @param  obj  $plan  Plan for which price is to be fetched
+ * @param  mixed  $plan  Plan for which price is to be fetched
  * @return array Currency, symbol and plan details
  */
 function getCurrencySymbolAndPriceForPlans(string $countryCode, mixed $plan): array
@@ -467,7 +467,7 @@ function getCurrencyPrecision(string $currency): int
     return $formatter->getAttribute(NumberFormatter::FRACTION_DIGITS);
 }
 
-function rounding(mixed $price): int|float|null
+function rounding(mixed $price): float|null
 {
     try {
         $tax_rule = new TaxOption();
@@ -690,7 +690,7 @@ function cloudSubDomain(): ?string
     return $cloudSubDomain?->cloud_cname;
 }
 
-function cloudCentralDomain(): string|array
+function cloudCentralDomain(): string
 {
     $cloudSubDomain = FaveoCloud::find(1);
 
