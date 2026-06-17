@@ -177,8 +177,8 @@ class OrderController extends BaseOrderController
         return successResponse('', [
             'order' => $order,
             'license_details' => [
-                'licence_code'      => $order->serial_key,
-                'expiry_dates'      => $expiryDates,
+                'licence_code' => $order->serial_key,
+                'expiry_dates' => $expiryDates,
                 'installation_limit' => $license?->license_limit,
             ],
             'autorenewal' => $order->subscription->autoRenew_status,

@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Front;
 use app\Cart\UserCart;
 use App\Facades\Attach;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Github\GithubApiController;
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Requests\User\ProfileRequest;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
@@ -22,7 +20,6 @@ use Logger;
 
 class BaseClientController extends Controller
 {
-
     /**
      *  This function is to update profile.
      *

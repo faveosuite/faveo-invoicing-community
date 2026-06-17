@@ -666,7 +666,7 @@ class ClientController extends BaseClientController
 
         $paginator = $base->paginate((int) $request->input('limit', 10));
 
-        $paginator->getCollection()->transform(function ($version) use ($allowTillExpiry, $countExpiry, $countVersions, $subscription, $order, $product, $invoiceNumber) {
+        $paginator->getCollection()->transform(function ($version) use ($allowTillExpiry, $countExpiry, $countVersions, $subscription, $order) {
             $canDownload = false;
 
             if (! $subscription) {

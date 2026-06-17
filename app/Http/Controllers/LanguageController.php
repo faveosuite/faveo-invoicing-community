@@ -4,11 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
-use Config;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Lang;
 
 class LanguageController extends Controller
@@ -158,5 +156,4 @@ class LanguageController extends Controller
             return errorResponse($e->getMessage());
         }
     }
-
 }
