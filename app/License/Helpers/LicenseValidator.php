@@ -26,7 +26,7 @@ class LicenseValidator
         return filter_var($ip, FILTER_VALIDATE_IP) !== false
             && filter_var($refer, FILTER_VALIDATE_URL) !== false
             && $this->validateIntegerValue($product_id)
-            && !in_array($connection_hash, [null, '', '0'], strict: true)
+            && ! in_array($connection_hash, [null, '', '0'], strict: true)
             && $connection_hash === hash('sha256', 'connection_test');
     }
 
@@ -41,7 +41,7 @@ class LicenseValidator
         return filter_var($ip, FILTER_VALIDATE_IP) !== false
             && $this->validateIntegerValue($product_id)
             && filter_var($root_url, FILTER_VALIDATE_URL) !== false
-            && (!in_array($license_code, [null, '', '0'], strict: true) || filter_var($client_email, FILTER_VALIDATE_EMAIL) !== false);
+            && (! in_array($license_code, [null, '', '0'], strict: true) || filter_var($client_email, FILTER_VALIDATE_EMAIL) !== false);
     }
 
     /**
@@ -96,11 +96,11 @@ class LicenseValidator
         string $ip,
         string $root_url
     ): array {
-        if (!$license instanceof \App\License\Models\License) {
+        if (! $license instanceof \App\License\Models\License) {
             $license = $this->findLicenseByEmail($client_email, $product_id);
         }
 
-        if (!$license instanceof \App\License\Models\License) {
+        if (! $license instanceof \App\License\Models\License) {
             return ['valid' => false, 'error' => 'license_not_found'];
         }
 
@@ -255,7 +255,7 @@ class LicenseValidator
      */
     public function findLicense(?string $license_code, ?string $client_email, int $product_id): ?License
     {
-        if (!in_array($license_code, [null, '', '0'], strict: true)) {
+        if (! in_array($license_code, [null, '', '0'], strict: true)) {
             $license = $this->findLicenseWithPlugins($license_code, $product_id);
             if ($license instanceof \App\License\Models\License) {
                 return $license;
@@ -353,8 +353,8 @@ class LicenseValidator
     {
         return filter_var($ip, FILTER_VALIDATE_IP) !== false
             && $this->validateIntegerValue($product_id)
-            && !in_array($product_key, [null, '', '0'], strict: true)
-            && !in_array($user_local_path, [null, '', '0'], strict: true)
-            && !in_array($script_signature, [null, '', '0'], strict: true);
+            && ! in_array($product_key, [null, '', '0'], strict: true)
+            && ! in_array($user_local_path, [null, '', '0'], strict: true)
+            && ! in_array($script_signature, [null, '', '0'], strict: true);
     }
 }

@@ -322,7 +322,7 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns error response (may be 200 with success:false or 404)
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 404]), 'Expected 200 or 404, got ' . $statusCode);
+        $this->assertTrue(in_array($statusCode, [200, 404]), 'Expected 200 or 404, got '.$statusCode);
 
         if ($statusCode === 200) {
             $response->assertJsonPath('success', expect: false);
@@ -361,7 +361,7 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller uses findOrFail which throws ModelNotFoundException
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 404]), 'Expected 200 or 404, got ' . $statusCode);
+        $this->assertTrue(in_array($statusCode, [200, 404]), 'Expected 200 or 404, got '.$statusCode);
     }
 
     public function test_prepare_payment_fails_for_already_paid_order(): void
@@ -375,7 +375,7 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns error for already paid order (may be 200 or 400)
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 400]), 'Expected 200 or 400, got ' . $statusCode);
+        $this->assertTrue(in_array($statusCode, [200, 400]), 'Expected 200 or 400, got '.$statusCode);
         $response->assertJsonPath('success', expect: false)
             ->assertJsonFragment(['message' => 'This order has already been paid']);
     }
@@ -393,7 +393,7 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns error for invalid gateway (may be 200 or 400)
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 400]), 'Expected 200 or 400, got ' . $statusCode);
+        $this->assertTrue(in_array($statusCode, [200, 400]), 'Expected 200 or 400, got '.$statusCode);
         $response->assertJsonPath('success', expect: false)
             ->assertJsonFragment(['message' => 'Invalid payment gateway']);
     }
@@ -540,7 +540,7 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns error for invalid payload (may be 200 or 400)
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 400]), 'Expected 200 or 400, got ' . $statusCode);
+        $this->assertTrue(in_array($statusCode, [200, 400]), 'Expected 200 or 400, got '.$statusCode);
         $response->assertJsonPath('success', expect: false);
     }
 
@@ -656,7 +656,7 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns error for invalid payload (may be 200 or 400)
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 400]), 'Expected 200 or 400, got ' . $statusCode);
+        $this->assertTrue(in_array($statusCode, [200, 400]), 'Expected 200 or 400, got '.$statusCode);
         $response->assertJsonPath('success', expect: false);
     }
 
@@ -821,7 +821,7 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller uses findOrFail which throws ModelNotFoundException
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 404]), 'Expected 200 or 404, got ' . $statusCode);
+        $this->assertTrue(in_array($statusCode, [200, 404]), 'Expected 200 or 404, got '.$statusCode);
     }
 
     /* ==================== handleStripeCallback() Tests ==================== */

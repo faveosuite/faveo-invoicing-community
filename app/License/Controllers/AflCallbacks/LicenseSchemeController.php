@@ -51,14 +51,14 @@ class LicenseSchemeController extends Controller
 
         // Verify product exists
         $product = $this->validator->validateProduct($product_id);
-        if (!$product instanceof \App\Model\Product\Product) {
+        if (! $product instanceof \App\Model\Product\Product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
         // Find license (with LicensePlugin support)
         $license = $this->validator->findLicense($license_code, $client_email, $product_id);
 
-        if (!$license instanceof \App\License\Models\License) {
+        if (! $license instanceof \App\License\Models\License) {
             return $this->notificationResponse('notification_license_not_found', []);
         }
 

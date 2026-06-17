@@ -46,7 +46,7 @@ class Currency extends BaseModel
             'code' => ['Currency Code', fn ($value) => $value],
             'symbol' => ['Currency Symbol', fn ($value) => $value],
             'name' => ['Currency Name', fn ($value) => $value],
-            'status' => [$this->name . ' currency status', fn ($value): array|string|null => $value === 1 ? __('message.active') : __('message.inactive')],
+            'status' => [$this->name.' currency status', fn ($value): array|string|null => $value === 1 ? __('message.active') : __('message.inactive')],
         ];
     }
 

@@ -59,8 +59,8 @@ class FaveoBrowserShot
         self::mkdir($home);
         self::mkdir($profile);
 
-        putenv('HOME=' . $home);
-        putenv('TMPDIR=' . $home);
+        putenv('HOME='.$home);
+        putenv('TMPDIR='.$home);
     }
 
     private static function mkdir(string $path): void
@@ -90,7 +90,7 @@ class FaveoBrowserShot
         $profile = storage_path(self::PROFILE_DIR);
 
         return [
-            'user-data-dir=' . $profile,
+            'user-data-dir='.$profile,
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',

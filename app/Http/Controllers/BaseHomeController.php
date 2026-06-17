@@ -211,7 +211,7 @@ class BaseHomeController extends Controller
             $url = $request->url;
             $ip = $this->getUserIP();
             if ($url) {
-                $url = getRootUrl($url . '/', 1, 1, 0, 1);
+                $url = getRootUrl($url.'/', 1, 1, 0, 1);
             }
 
             $licenseCode = $request->input('licenseCode');

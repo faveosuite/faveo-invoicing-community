@@ -299,7 +299,7 @@ class DashboardControllerTest extends DBTestCase
     #[Group('Dashboard')]
     private function createOrder(string $version = 'v3.0.0', int $price = 1000, $subscriptionUpdatedAt = null)
     {
-        $product = Product::create(['name' => 'Helpdesk ' . $version]);
+        $product = Product::create(['name' => 'Helpdesk '.$version]);
         $order = Order::create(['client' => $this->user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'price_override' => $price, ]);
         $subscriptionId = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'version' => $version])->id;

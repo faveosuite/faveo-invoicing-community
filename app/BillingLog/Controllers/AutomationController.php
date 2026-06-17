@@ -77,7 +77,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
                 'id' => $categoryId,
                 'name' => ($key = $categoryNames[$categoryId] ?? '')
                     ? (Template::where('type', TemplateType::where('name', $key)->value('id'))->value('name')
-                        ?: (Lang::has('log::lang.' . $key) ? __('log::lang.' . $key) : $key))
+                        ?: (Lang::has('log::lang.'.$key) ? __('log::lang.'.$key) : $key))
                     : '',
             ], $logs->pluck('status_count', 'status')->toArray()))->values();
     }
@@ -93,7 +93,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->map(fn ($log): array => [
                 'id' => $log->log_category_id,
                 'name' => ($key = $categoryNames[$log->log_category_id] ?? '')
-                    ? (Lang::has('log::lang.' . $key) ? __('log::lang.' . $key) : $key)
+                    ? (Lang::has('log::lang.'.$key) ? __('log::lang.'.$key) : $key)
                     : '',
                 'count' => $log->count,
             ]);

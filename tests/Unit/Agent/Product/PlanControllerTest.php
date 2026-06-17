@@ -139,7 +139,7 @@ class PlanControllerTest extends DBTestCase
             'no_of_agents' => 5,
         ]);
 
-        $response = $this->getJson('/plan/' . $plan->id);
+        $response = $this->getJson('/plan/'.$plan->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['id' => $plan->id])
@@ -174,7 +174,7 @@ class PlanControllerTest extends DBTestCase
             'no_of_agents' => 10,
         ];
 
-        $response = $this->patchJson('/plan/' . $original->id, $payload);
+        $response = $this->patchJson('/plan/'.$original->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['message' => __('message.saved-successfully')]);

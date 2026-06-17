@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Http\Controllers\Common\MailChimpController;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Services\LicenseService;
 use App\Model\Common\Setting;
-use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Invoice;
@@ -118,6 +116,7 @@ class BaseOrderController extends ExtendedOrderController
      * @param  string  $serial_key
      *
      * @throws Exception
+     *
      * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
      */
     public function addSubscription($orderid, $planid, $version, int $product, $serial_key, $invoiceId = null): void

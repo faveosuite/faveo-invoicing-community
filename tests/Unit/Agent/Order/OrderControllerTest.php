@@ -45,7 +45,7 @@ class OrderControllerTest extends DBTestCase
 
         $searchValue = $order->user->first_name;
 
-        $response = $this->getJson('/orders?search-query=' . $searchValue);
+        $response = $this->getJson('/orders?search-query='.$searchValue);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -96,7 +96,7 @@ class OrderControllerTest extends DBTestCase
 
         StatusSetting::factory()->create(['license_status' => 0]);
 
-        $response = $this->getJson('/order/' . $order->id);
+        $response = $this->getJson('/order/'.$order->id);
 
         $response->assertStatus(200)
             ->assertJsonStructure(['data' => ['order']]);
@@ -108,7 +108,7 @@ class OrderControllerTest extends DBTestCase
 
         $order->user->delete();
 
-        $response = $this->getJson('/order/' . $order->id);
+        $response = $this->getJson('/order/'.$order->id);
 
         $response->assertStatus(403)
             ->assertJsonFragment(['message' => __('message.user_suspended_restore_to_view')]);
@@ -142,7 +142,7 @@ class OrderControllerTest extends DBTestCase
                 ->andReturn($mockResponse);
         });
 
-        $response = $this->getJson('/get-installation-details/' . $order->id);
+        $response = $this->getJson('/get-installation-details/'.$order->id);
 
         $response->assertStatus(200)
             ->assertJson([
@@ -213,7 +213,7 @@ class OrderControllerTest extends DBTestCase
             'payment_method' => 'Stripe',
         ]);
 
-        $response = $this->getJson('/getOrderPayments/' . $order->id);
+        $response = $this->getJson('/getOrderPayments/'.$order->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -226,7 +226,7 @@ class OrderControllerTest extends DBTestCase
     {
         $order = Order::factory()->withRelations()->create();
 
-        $response = $this->getJson('/getOrderInvoices/' . $order->id);
+        $response = $this->getJson('/getOrderInvoices/'.$order->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['products' => [$order->productModel->name]]);

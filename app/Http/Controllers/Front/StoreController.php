@@ -81,7 +81,7 @@ class StoreController extends Controller
         }
 
         $ip = request()->ip();
-        $iso = cache()->remember('user_location_' . $ip, 60, fn () => getLocation($ip)['iso_code'] ?? null);
+        $iso = cache()->remember('user_location_'.$ip, 60, fn () => getLocation($ip)['iso_code'] ?? null);
 
         return getCurrencyForClient($iso ? findCountryByGeoip($iso) : null);
     }

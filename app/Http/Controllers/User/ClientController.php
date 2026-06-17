@@ -503,7 +503,7 @@ class ClientController extends AdvanceSearchController
                 'account_manager' => $accountManagers,
                 'sales_manager' => $salesManagers,
             ])
-                ->flatMap(fn ($collection, $role) => $collection->map(fn ($u): string => $u->first_name.' '.$u->last_name.' ('.__('message.' . $role).')'))
+                ->flatMap(fn ($collection, $role) => $collection->map(fn ($u): string => $u->first_name.' '.$u->last_name.' ('.__('message.'.$role).')'))
                 ->implode(', ');
 
             return errorResponse(__('message.deletion_blocked', [

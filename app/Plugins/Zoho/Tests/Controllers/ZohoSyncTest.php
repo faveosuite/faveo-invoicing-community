@@ -133,9 +133,9 @@ class ZohoSyncTest extends DBTestCase
         foreach ($fieldTypes as $dataType => $expectedType) {
             $fields = [
                 [
-                    'id' => 'id_' . $dataType,
-                    'api_name' => 'field_' . $dataType,
-                    'field_label' => 'Field ' . $dataType,
+                    'id' => 'id_'.$dataType,
+                    'api_name' => 'field_'.$dataType,
+                    'field_label' => 'Field '.$dataType,
                     'data_type' => $dataType,
                     'system_mandatory' => false,
                 ],
@@ -144,7 +144,7 @@ class ZohoSyncTest extends DBTestCase
             $this->sync->sync('crm', 'Leads', $fields);
 
             $this->assertDatabaseHas('zoho_fields', [
-                'zoho_field_uid' => 'id_' . $dataType,
+                'zoho_field_uid' => 'id_'.$dataType,
                 'field_type' => $expectedType,
             ]);
         }

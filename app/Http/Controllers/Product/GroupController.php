@@ -104,12 +104,14 @@ class GroupController extends Controller
                 if ($request->status == 1) {
                     $group->fill($request->input())->save();
                     Product::where('group', $id)->update(['status' => 1]);
+
                     return back()->with('success', Lang::get('message.updated-successfully'));
                 }
 
                 if ($request->status == 0) {
                     $group->fill($request->input())->save();
                     Product::where('group', $id)->update(['status' => 0]);
+
                     return back()->with('success', Lang::get('message.updated-successfully'));
                 }
             } elseif ($request->status == 0) {

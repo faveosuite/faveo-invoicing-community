@@ -117,7 +117,7 @@ class RazorpayController extends Controller
             }
 
             $control = new RenewController();
-            if (!$control->checkRenew($invoice->is_renewed)) {
+            if (! $control->checkRenew($invoice->is_renewed)) {
                 return redirect('checkout')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
             }
 

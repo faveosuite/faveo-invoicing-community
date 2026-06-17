@@ -435,6 +435,7 @@ class PipedriveController extends Controller
                     $this->groups['dealId'] => $this->deleteDeal($response),
                     default => null,
                 };
+
                 return true;
             }
 

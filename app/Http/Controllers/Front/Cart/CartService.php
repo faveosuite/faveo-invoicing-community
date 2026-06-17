@@ -55,7 +55,7 @@ class CartService
     private function resolveGuestCurrency(Request $request): string
     {
         $ip = $request->ip();
-        $iso = cache()->remember('user_location_' . $ip, 60, fn () => getLocation($ip)['iso_code'] ?? null);
+        $iso = cache()->remember('user_location_'.$ip, 60, fn () => getLocation($ip)['iso_code'] ?? null);
 
         return getCurrencyForClient($iso ? findCountryByGeoip($iso) : null);
     }
@@ -491,7 +491,7 @@ class CartService
             return false;
         }
 
-        return !($this->hasDateBound($promo->expiry) && $now->gt(Date::parse($promo->expiry)));
+        return ! ($this->hasDateBound($promo->expiry) && $now->gt(Date::parse($promo->expiry)));
     }
 
     /**

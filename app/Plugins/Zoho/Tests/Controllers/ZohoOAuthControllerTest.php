@@ -242,7 +242,7 @@ class ZohoOAuthControllerTest extends DBTestCase
 
         foreach ($regions as $region => $expectedDomain) {
             $url = $this->controller->accountsBaseUrl($region);
-            $this->assertEquals('https://' . $expectedDomain, $url);
+            $this->assertEquals('https://'.$expectedDomain, $url);
         }
     }
 

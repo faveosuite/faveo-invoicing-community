@@ -69,7 +69,7 @@ class LogViewControllerTest extends DBTestCase
     public function test_exceptionLogs_withLimit(): void
     {
         foreach (range(1, 5) as $i) {
-            Logger::exception(new Exception('test_exception_' . $i));
+            Logger::exception(new Exception('test_exception_'.$i));
         }
 
         $payload = $this->defaultExceptionPayload(['limit' => 3]);
@@ -515,7 +515,7 @@ class LogViewControllerTest extends DBTestCase
             'search-query' => 'Invoice',
         ]);
 
-        $response = $this->getJson('/get-activity?' . $queryString);
+        $response = $this->getJson('/get-activity?'.$queryString);
 
         $response->assertStatus(200)
                  ->assertJsonFragment([

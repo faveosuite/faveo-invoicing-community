@@ -240,7 +240,7 @@ class ClientControllerTest extends DBTestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->getJson('/user/' . $user->id);
+        $response = $this->getJson('/user/'.$user->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['email' => $user->email]);
@@ -268,7 +268,7 @@ class ClientControllerTest extends DBTestCase
             'last_name' => 'Updated',
         ];
 
-        $response = $this->patchJson('/user/' . $user->id, $payload);
+        $response = $this->patchJson('/user/'.$user->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -323,7 +323,7 @@ class ClientControllerTest extends DBTestCase
 
         $payload = ['email' => 'existing@example.com'];
 
-        $response = $this->patchJson('/user/' . $user1->id, $payload);
+        $response = $this->patchJson('/user/'.$user1->id, $payload);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['email']);
@@ -381,7 +381,7 @@ class ClientControllerTest extends DBTestCase
     {
         $user = User::factory()->create(['role' => 'user']);
         $payload = ['role' => 'admin'];
-        $this->patchJson('/user/' . $user->id, $payload);
+        $this->patchJson('/user/'.$user->id, $payload);
         $this->assertDatabaseHas('users', ['id' => $user->id, 'role' => 'user']);
     }
 

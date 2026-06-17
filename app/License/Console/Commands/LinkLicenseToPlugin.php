@@ -35,7 +35,7 @@ class LinkLicenseToPlugin extends Command
             $licenses = License::where('product_id', $product)->get();
 
             if ($licenses->isEmpty()) {
-                $this->warn('No licenses found for product ID: ' . $product);
+                $this->warn('No licenses found for product ID: '.$product);
                 continue;
             }
 

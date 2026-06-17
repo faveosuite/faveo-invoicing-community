@@ -67,7 +67,7 @@ class SoftDeleteControllerTest extends DBTestCase
     {
         $user = User::factory()->create(['deleted_at' => now()]);
 
-        $response = $this->getJson('/user/restore/' . $user->id);
+        $response = $this->getJson('/user/restore/'.$user->id);
 
         $response->assertStatus(200);
         $this->assertNull($user->fresh()->deleted_at);

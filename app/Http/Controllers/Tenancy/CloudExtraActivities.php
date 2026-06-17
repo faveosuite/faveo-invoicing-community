@@ -159,7 +159,7 @@ class CloudExtraActivities extends Controller
 
             $dns_record = dns_get_record($newDomain, DNS_CNAME);
 
-            if (!strpos((string) $newDomain, (string) cloudSubDomain()) && ($dns_record === [] || $dns_record === false || ! in_array(cloudSubDomain(), array_column($dns_record, 'target')))) {
+            if (! strpos((string) $newDomain, (string) cloudSubDomain()) && ($dns_record === [] || $dns_record === false || ! in_array(cloudSubDomain(), array_column($dns_record, 'target')))) {
                 return errorResponse(trans('message.cname'));
             }
 

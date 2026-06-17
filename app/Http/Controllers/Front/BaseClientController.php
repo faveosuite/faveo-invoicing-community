@@ -23,6 +23,7 @@ class BaseClientController extends Controller
      *  This function is to update profile.
      *
      * @return
+     *
      * @throws
      */
     public function postProfile(ProfileRequest $request)
@@ -61,6 +62,7 @@ class BaseClientController extends Controller
      *  This function is to update password.
      *
      * @return
+     *
      * @throws
      */
     public function postPassword(ProfileRequest $request)
@@ -207,6 +209,7 @@ class BaseClientController extends Controller
      *  This returns to the client panel orders page.
      *
      * @return View|RedirectResponse
+     *
      * @throws Exception
      */
     public function orders(Request $request)

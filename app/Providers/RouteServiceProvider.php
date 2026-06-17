@@ -138,19 +138,19 @@ class RouteServiceProvider extends ServiceProvider
 
             if ($ip = $request->ip()) {
                 $limits[] = Limit::perMinute($maxAttempts)
-                    ->by('web:ip:' . $ip)
+                    ->by('web:ip:'.$ip)
                     ->response($customResponse);
             }
 
             if ($userId = $request->user()?->id) {
                 $limits[] = Limit::perMinute($maxAttempts)
-                    ->by('web:user:' . $userId)
+                    ->by('web:user:'.$userId)
                     ->response($customResponse);
             }
 
             if ($sessionId = $request->session()->getId()) {
                 $limits[] = Limit::perMinute($maxAttempts)
-                    ->by('web:session:' . $sessionId)
+                    ->by('web:session:'.$sessionId)
                     ->response($customResponse);
             }
 

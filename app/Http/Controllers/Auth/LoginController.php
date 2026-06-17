@@ -7,7 +7,6 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Model\Common\ChatScript;
 use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
-
 use App\SocialLogin;
 use App\User;
 use Cache;
@@ -128,7 +127,7 @@ class LoginController extends BaseAuthController
             // 2. Attempt to authenticate the user
             if (! Auth::attempt($credentials, $request->boolean('remember'))) {
                 $rateLimitKey = $this->getLoginRateLimitKey($request->input('email_username'));
-                RateLimiter::hit('login-attempt:' . $rateLimitKey, 600);
+                RateLimiter::hit('login-attempt:'.$rateLimitKey, 600);
 
                 return errorResponse(__('message.enter_valid_credentials'));
             }
@@ -318,6 +317,7 @@ class LoginController extends BaseAuthController
      *
      * @param
      * @return
+     *
      * @throws
      */
     public function storeBasicDetails(Request $request)
@@ -363,14 +363,14 @@ class LoginController extends BaseAuthController
         switch ($context) {
             case 'login':
                 $identifier = $this->getLoginRateLimitKey($user->email ?? $user->username);
-                $keys = ['login-attempt:' . $identifier];
+                $keys = ['login-attempt:'.$identifier];
                 break;
 
             case '2fa':
                 $identifier = $user->id;
                 $keys = [
-                    '2fa-code:' . $user->id,
-                    'recovery-code:' . $user->id,
+                    '2fa-code:'.$user->id,
+                    'recovery-code:'.$user->id,
                 ];
                 break;
 
@@ -392,7 +392,7 @@ class LoginController extends BaseAuthController
             return;
         }
 
-        $userUrl = url('clients/' . $user->id);
+        $userUrl = url('clients/'.$user->id);
 
         $name = e($user->first_name.' '.$user->last_name);
         $message = sprintf("User <a href='%s'><strong>%s</strong></a> logged in successfully.", $userUrl, $name);

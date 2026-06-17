@@ -37,6 +37,7 @@ class VerifyThirdPartyApps
         }
 
         $result = ['status' => 'fails', 'message' => 'Invalid signature'];
+
         return response()->json(compact('result'));
     }
 }

@@ -37,6 +37,7 @@ trait ChunkUpload
                 }
 
                 unlink($filePath);
+
                 // nosemgrep: php.lang.security.unlink-use.unlink-use
                 return response()->json(__('message.file_invalid'), 500);
 

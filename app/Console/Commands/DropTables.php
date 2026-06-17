@@ -36,7 +36,7 @@ class DropTables extends LoggableCommand
             DB::statement('SET FOREIGN_KEY_CHECKS = 0');
 
             // Drop all tables
-            DB::statement('DROP TABLE ' . $droplist);
+            DB::statement('DROP TABLE '.$droplist);
 
             DB::statement('SET FOREIGN_KEY_CHECKS = 1');
 

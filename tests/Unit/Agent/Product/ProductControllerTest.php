@@ -60,7 +60,7 @@ class ProductControllerTest extends DBTestCase
     {
         $product = Product::factory()->create();
 
-        $response = $this->getJson('/product/' . $product->id);
+        $response = $this->getJson('/product/'.$product->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['id' => $product->id]);
@@ -140,7 +140,7 @@ class ProductControllerTest extends DBTestCase
             'show_agent' => true,
         ];
 
-        $response = $this->patchJson('/product/' . $product->id, $payload);
+        $response = $this->patchJson('/product/'.$product->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['message' => __('message.updated-successfully')]);
@@ -161,7 +161,7 @@ class ProductControllerTest extends DBTestCase
             'image' => UploadedFile::fake()->create('file.zip'),
         ];
 
-        $response = $this->patchJson('/product/' . $product->id, $payload);
+        $response = $this->patchJson('/product/'.$product->id, $payload);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['image']);
@@ -209,7 +209,7 @@ class ProductControllerTest extends DBTestCase
             'id' => 1,
         ], ['license_status' => 0]);
 
-        $response = $this->putJson('/product/upload/' . $product->id, $payload);
+        $response = $this->putJson('/product/upload/'.$product->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['message' => __('message.product_uploaded_successfully')]);
@@ -224,7 +224,7 @@ class ProductControllerTest extends DBTestCase
     {
         $product = Product::factory()->create();
 
-        $response = $this->putJson('/product/upload/' . $product->id, []);
+        $response = $this->putJson('/product/upload/'.$product->id, []);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['producttitle', 'version', 'filename']);
@@ -290,7 +290,7 @@ class ProductControllerTest extends DBTestCase
             'dependencies' => ['php8'],
         ];
 
-        $this->putJson('/product/upload/' . $product->id, $payload);
+        $this->putJson('/product/upload/'.$product->id, $payload);
 
         $this->assertDatabaseHas('product_uploads', [
             'product_id' => $product->id,
@@ -303,7 +303,7 @@ class ProductControllerTest extends DBTestCase
         $product = Product::factory()->create();
         ProductUpload::factory()->count(3)->create(['product_id' => $product->id]);
 
-        $response = $this->getJson('/product/uploads/' . $product->id);
+        $response = $this->getJson('/product/uploads/'.$product->id);
 
         $response->assertStatus(200)
             ->assertJsonCount(3, 'data.data');
@@ -313,7 +313,7 @@ class ProductControllerTest extends DBTestCase
     {
         $upload = ProductUpload::factory()->create();
 
-        $response = $this->getJson('/product/upload/' . $upload->id);
+        $response = $this->getJson('/product/upload/'.$upload->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['id' => $upload->id]);

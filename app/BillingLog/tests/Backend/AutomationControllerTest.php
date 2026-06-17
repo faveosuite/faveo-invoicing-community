@@ -145,7 +145,7 @@ class AutomationControllerTest extends TestCase
         );
 
         $mailLog = MailLog::latest()->first();
-        $response = $this->getJson('retry/mail-log/' . $mailLog->id);
+        $response = $this->getJson('retry/mail-log/'.$mailLog->id);
 
         // Assert response structure
         $response->assertStatus(200);

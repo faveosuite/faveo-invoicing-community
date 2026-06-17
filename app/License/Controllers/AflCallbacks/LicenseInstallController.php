@@ -59,7 +59,7 @@ class LicenseInstallController extends Controller
 
         // Verify product exists
         $product = $this->validator->validateProduct($product_id);
-        if (!$product instanceof \App\Model\Product\Product) {
+        if (! $product instanceof \App\Model\Product\Product) {
             $this->createReport(productId: null, userId: null, licenseCode: $license_code, text: 'Product not found (ID: '.$product_id.')', system: 1);
 
             return $this->notificationResponse('notification_product_not_found', []);
@@ -68,7 +68,7 @@ class LicenseInstallController extends Controller
         // Find license (with LicensePlugin multi-product support)
         $license = $this->validator->findLicense($license_code, $client_email, $product_id);
 
-        if (!$license instanceof \App\License\Models\License) {
+        if (! $license instanceof \App\License\Models\License) {
             $this->createReport($product_id, userId: null, licenseCode: $license_code, text: 'License not found', system: 1);
 
             return $this->notificationResponse('notification_license_not_found', []);
@@ -93,6 +93,7 @@ class LicenseInstallController extends Controller
 
         if ($existingInstallation && ($license->license_code != $existingInstallation->license_code || $this->validator->validateIntegerValue($client_id) && $client_id != $existingInstallation->user_id)) {
             $this->createReport($product_id, $license->user_id, $license->license_code, sprintf('Installation on %s (%s) belongs to another user', $installation_domain, $ip), 1);
+
             return $this->notificationResponse('notification_domain_in_use', []);
         }
 

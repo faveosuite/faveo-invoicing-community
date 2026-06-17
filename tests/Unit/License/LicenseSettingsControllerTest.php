@@ -61,7 +61,7 @@ class LicenseSettingsControllerTest extends DBTestCase
 
         $payload = ['name' => 'Updated Basic'];
 
-        $response = $this->putJson('/update-license-type/' . $type->id, $payload);
+        $response = $this->putJson('/update-license-type/'.$type->id, $payload);
 
         $response->assertStatus(200)
                  ->assertJsonFragment(['message' => __('message.updated-successfully')]);

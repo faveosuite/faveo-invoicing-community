@@ -76,7 +76,7 @@ class ForgotPasswordController extends Controller
             $activate = $password->create(['email' => $email, 'token' => $token, 'created_at' => Date::now()]);
             $token = $activate->token;
 
-            $url = url('password/reset/' . $token);
+            $url = url('password/reset/'.$token);
 
             $user = new User();
             $user = $user->where('email', $email)->firstOrFail();

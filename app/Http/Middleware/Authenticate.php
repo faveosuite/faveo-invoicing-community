@@ -43,6 +43,7 @@ class Authenticate
         }
 
         Auth::logout();
+
         return redirect('home')->with('fails', 'Activate Your Account');
     }
 }

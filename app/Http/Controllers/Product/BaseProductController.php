@@ -61,7 +61,7 @@ class BaseProductController extends ExtendedBaseProductController
     {
         $product = new Product();
         $product = $product->find($productid);
-        if (!$product) {
+        if (! $product) {
             return false;
         }
 
@@ -97,7 +97,7 @@ class BaseProductController extends ExtendedBaseProductController
     {
         $product = new Product();
         $product = $product->find($productid);
-        if (!$product) {
+        if (! $product) {
             return false;
         }
 

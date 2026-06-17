@@ -176,6 +176,7 @@ class Product extends BaseModel
             return explode(',', (string) $value);
         }, set: function ($value): array {
             $value = implode(',', $value);
+
             return ['parent' => $value];
         });
     }

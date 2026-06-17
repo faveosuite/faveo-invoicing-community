@@ -105,6 +105,7 @@ class Setting extends Model
             return $value;
         }, set: function ($value): array {
             $value = Crypt::encrypt($value);
+
             return ['password' => $value];
         });
     }

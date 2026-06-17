@@ -101,7 +101,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
             'app_secret' => 'new-secret',
         ];
 
-        $response = $this->putJson('/third-party-app-update/' . $app->id, $payload);
+        $response = $this->putJson('/third-party-app-update/'.$app->id, $payload);
         $response->assertStatus(200)
                  ->assertJsonFragment(['message' => __('message.updated-successfully')]);
 

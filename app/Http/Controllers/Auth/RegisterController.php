@@ -102,6 +102,7 @@ class RegisterController extends Controller
             'api_key' => $apikey,
             'phone' => $phone,
         ]);
+
         return $response->successful() && $response->json('valid');
     }
 
@@ -231,7 +232,7 @@ class RegisterController extends Controller
             return;
         }
 
-        $userUrl = url('clients/' . $user->id);
+        $userUrl = url('clients/'.$user->id);
 
         $name = e($user->first_name.' '.$user->last_name);
         $message = sprintf("User <a href='%s'><strong>%s</strong></a> was created.", $userUrl, $name);

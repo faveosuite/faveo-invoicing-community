@@ -18,6 +18,7 @@ class Timezone extends BaseModel
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (): string {
             $extractGMT = explode(' ', $this->location);
+
             return reset($extractGMT).' '.$this->name;
         });
     }

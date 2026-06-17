@@ -164,7 +164,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $mail->setMailConfig($setting);
         //template
         $template = TemplateType::getSelectedTemplate('payment_failed');
-        $url = url('autopaynow/' . $invoice->invoice_id);
+        $url = url('autopaynow/'.$invoice->invoice_id);
         $type = '';
         $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'product' => $product_details->name,

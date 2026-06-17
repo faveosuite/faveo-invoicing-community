@@ -322,7 +322,7 @@ class OpenPaymentController extends Controller
                 ->select('open_payment_orders.*')
                 ->leftJoin('currencies', 'open_payment_orders.currency', '=', 'currencies.code')
                 ->addSelect('currencies.symbol as currency_symbol')
-                ->orderBy('open_payment_orders.' . $sortField, $sortOrder === 'asc' ? 'asc' : 'desc')
+                ->orderBy('open_payment_orders.'.$sortField, $sortOrder === 'asc' ? 'asc' : 'desc')
                 ->paginate($perPage);
 
             return successResponse('', $orders);

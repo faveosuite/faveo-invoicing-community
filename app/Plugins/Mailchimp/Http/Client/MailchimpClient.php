@@ -69,7 +69,7 @@ class MailchimpClient
             'POST' => $pending->post($url, $data),
             'PATCH' => $pending->patch($url, $data),
             'PUT' => $pending->put($url, $data),
-            default => throw new InvalidArgumentException('Unsupported HTTP method: ' . $method),
+            default => throw new InvalidArgumentException('Unsupported HTTP method: '.$method),
         };
 
         if ($response->status() === 429) {

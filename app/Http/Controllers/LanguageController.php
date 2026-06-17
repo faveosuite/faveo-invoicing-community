@@ -57,7 +57,7 @@ class LanguageController extends Controller
 
     private function appendLicenseLanguage(string $locale, array &$languageArray): void
     {
-        $path = app_path('License/Lang/' . $locale);
+        $path = app_path('License/Lang/'.$locale);
         foreach ($this->getLanguageFileArray($path) as $file) {
             $content = require $file;
             $languageArray['lang'] = array_merge($languageArray['lang'] ?? [], $content);

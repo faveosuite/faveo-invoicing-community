@@ -41,7 +41,7 @@ class ZohoCrmApi extends ZohoBaseApi
     public function records(string $module, array $params = []): array
     {
         $response = $this->newRequest()
-            ->get('/crm/v8/' . $module, $params)
+            ->get('/crm/v8/'.$module, $params)
             ->json();
 
         if (isset($response['status']) && $response['status'] === 'error') {
@@ -59,7 +59,7 @@ class ZohoCrmApi extends ZohoBaseApi
     public function create(string $module, array $data): void
     {
         $response = $this->newRequest()
-            ->post('/crm/v8/' . $module, [
+            ->post('/crm/v8/'.$module, [
                 'data' => [
                     $data,
                 ],

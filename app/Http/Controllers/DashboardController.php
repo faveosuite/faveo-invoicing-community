@@ -359,7 +359,6 @@ class DashboardController extends Controller
 
     private function formatCurrencyTotals(array $totals): array
     {
-
         $allowedCurrencies1 = Setting::find(1)->value('default_currency');
         $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->pluck('code')->first();
 

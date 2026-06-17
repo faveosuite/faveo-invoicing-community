@@ -689,7 +689,7 @@ class LicenseDataMigration extends Command
     private function importSqlFile(string $filePath): void
     {
         if (! file_exists($filePath) || ! is_readable($filePath)) {
-            throw new RuntimeException('SQL file not found or not readable: ' . $filePath);
+            throw new RuntimeException('SQL file not found or not readable: '.$filePath);
         }
 
         $host = $this->option('host') ?: config('database.connections.mysql.host', 'localhost');
@@ -699,21 +699,21 @@ class LicenseDataMigration extends Command
         $socket = $this->option('socket') ?: config('database.connections.mysql.unix_socket', '');
 
         $this->tempDatabase = 'license_migration_tmp_'.time();
-        $this->info('Creating temporary database: ' . $this->tempDatabase);
+        $this->info('Creating temporary database: '.$this->tempDatabase);
 
         DB::statement(sprintf('CREATE DATABASE `%s` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci', $this->tempDatabase));
 
         $cmd = ['mysql'];
         if ($socket) {
-            $cmd[] = '--socket=' . $socket;
+            $cmd[] = '--socket='.$socket;
         } else {
-            $cmd[] = '--host=' . $host;
+            $cmd[] = '--host='.$host;
             if ($port) {
-                $cmd[] = '--port=' . $port;
+                $cmd[] = '--port='.$port;
             }
         }
 
-        $cmd[] = '--user=' . $username;
+        $cmd[] = '--user='.$username;
         $cmd[] = $this->tempDatabase;
 
         $env = array_merge(getenv(), ['MYSQL_PWD' => $password]);
@@ -754,7 +754,7 @@ class LicenseDataMigration extends Command
             return;
         }
 
-        $this->warn('Dropping temporary database: ' . $this->tempDatabase);
+        $this->warn('Dropping temporary database: '.$this->tempDatabase);
         try {
             DB::purge('license');
             DB::statement(sprintf('DROP DATABASE IF EXISTS `%s`', $this->tempDatabase));

@@ -8,13 +8,11 @@ use App\Email_log;
 use App\EmailValidationResults;
 use App\Facades\Attach;
 use App\Http\Controllers\BillingInstaller\InstallerController;
-use App\Http\Requests\Common\SettingsRequest;
 use App\Model\CloudDataCenters;
 use App\Model\Common\CommonSettings;
 use App\Model\Common\Country;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\FaveoCloud;
-use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\PipedriveGroups;
 use App\Model\Common\Setting;
 use App\Model\Common\State;
@@ -39,12 +37,9 @@ use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use Lang;
-use Logger;
-use Mailchimp\Mailchimp;
 use Sentry\State\HubInterface;
 use Spatie\Activitylog\Models\Activity;
 
@@ -529,7 +524,7 @@ class SettingsController extends BaseSettingsController
                 'licenseversions_cron' => 'license_versions_cleanup_status',
             ];
             foreach ($map as $input => $column) {
-                $status->{$column} = $request->boolean('statuses.' . $input);
+                $status->{$column} = $request->boolean('statuses.'.$input);
             }
 
             $status->save();

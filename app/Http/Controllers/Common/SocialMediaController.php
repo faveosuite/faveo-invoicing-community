@@ -50,7 +50,7 @@ class SocialMediaController extends Controller
                 'id' => $social->id,
                 'name' => ucfirst((string) $social->name),
                 'link' => $social->link,
-                'action' => hyperLinkGenerator('social-media/show/' . $social->id, __('message.edit')),
+                'action' => hyperLinkGenerator('social-media/show/'.$social->id, __('message.edit')),
             ]);
 
             return successResponse(__('message.social_media_fetched'), $socials);

@@ -434,7 +434,7 @@ function currencyFormat($amount = null, $currency = null, $includeSymbol = true,
 
 function getLocalesByCurrency(string $currencyCode)
 {
-    return cache()->rememberForever('currency_locale_' . $currencyCode, function () use ($currencyCode) {
+    return cache()->rememberForever('currency_locale_'.$currencyCode, function () use ($currencyCode) {
         $firstMatch = null;
         foreach (ResourceBundle::getLocales('') as $locale) {
             try {
@@ -489,6 +489,7 @@ function userCountryId()
     }
 
     $location = getLocation();
+
     return Country::where('country_code_char2', $location['iso_code'])->first()->country_id;
 }
 
@@ -571,7 +572,7 @@ function setServiceConfig(array $emailConfig): void
 {
     $sendingProtocol = $emailConfig->driver;
     if ($sendingProtocol && $sendingProtocol != 'smtp' && $sendingProtocol != 'mail') {
-        $services = Config::get('services.' . $sendingProtocol);
+        $services = Config::get('services.'.$sendingProtocol);
         $dynamicServiceConfig = [];
 
         //loop over it and assign according to the keys given by user
@@ -580,7 +581,7 @@ function setServiceConfig(array $emailConfig): void
         }
 
         //setting that service configuration
-        Config::set('services.' . $sendingProtocol, $dynamicServiceConfig);
+        Config::set('services.'.$sendingProtocol, $dynamicServiceConfig);
     } else {
         Config::set('mail.sendmail', '/usr/sbin/sendmail -t -i -f'.$emailConfig['email']);
 
@@ -1118,7 +1119,7 @@ function formatDays(int $days)
 {
     return match (true) {
         $days <= 0 => null,
-        $days < 30 => $days . ' Days',
+        $days < 30 => $days.' Days',
         $days < 365 => intval($days / 30).(intval($days / 30) > 1 ? ' Months' : ' Month'),
         default => intval($days / 365).(intval($days / 365) > 1 ? ' Years' : ' Year'),
     };
@@ -1203,7 +1204,7 @@ function isV3Api(): bool
  */
 function themeAsset(string $key): string
 {
-    $path = config('theme.assets.' . $key, '');
+    $path = config('theme.assets.'.$key, '');
 
     if (config('theme.use_cdn')) {
         return rtrim((string) config('theme.cdn_base', ''), '/').'/'.ltrim((string) $path, '/');

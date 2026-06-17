@@ -69,7 +69,7 @@ class AuthController extends BaseAuthController
                 return errorResponse(__('message.mobile_already_verified'));
             }
 
-            RateLimiter::hit('mobile-otp:' . $user->id, 600);
+            RateLimiter::hit('mobile-otp:'.$user->id, 600);
 
             $response = resolve(SmsOtpController::class)->sendOtp($user->mobile_code.$user->mobile, $user->id, 'registration-verify');
 
@@ -113,7 +113,7 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            RateLimiter::hit('mobile-otp:' . $user->id, 600);
+            RateLimiter::hit('mobile-otp:'.$user->id, 600);
 
             $response = resolve(SmsOtpController::class)->sendForReOtp($user->mobile_code.$user->mobile, $type, $user->id, 'registration-verify');
 
@@ -151,7 +151,7 @@ class AuthController extends BaseAuthController
                 return successResponse(Lang::get('message.email_verification.already_sent'));
             }
 
-            RateLimiter::hit('email-otp:' . $user->id, 600);
+            RateLimiter::hit('email-otp:'.$user->id, 600);
 
             $this->sendActivation($email, $method);
 
@@ -189,14 +189,14 @@ class AuthController extends BaseAuthController
 
             // Validate OTP
             if (! is_numeric($request->otp)) {
-                RateLimiter::hit('mobile-verify:' . $user->id, 600);
+                RateLimiter::hit('mobile-verify:'.$user->id, 600);
 
                 return errorResponse(__('message.otp_invalid_format'));
             }
 
             $response = resolve(SmsOtpController::class)->sendVerifyOTP($otp, $user->mobile_code.$user->mobile, $user->id, 'registration-verify');
             if ($response['type'] === 'error') {
-                RateLimiter::hit('mobile-verify:' . $user->id, 600);
+                RateLimiter::hit('mobile-verify:'.$user->id, 600);
 
                 return errorResponse($response['message']);
             }
@@ -241,13 +241,13 @@ class AuthController extends BaseAuthController
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
             if (! hash_equals((string) $account->token, (string) $otp)) {
-                RateLimiter::hit('email-verify:' . $user->id, 600);
+                RateLimiter::hit('email-verify:'.$user->id, 600);
 
                 return errorResponse(__('message.email_verification.invalid_token'));
             }
 
             if ($account->updated_at->addMinutes(10) < Date::now()) {
-                RateLimiter::hit('email-verify:' . $user->id, 600);
+                RateLimiter::hit('email-verify:'.$user->id, 600);
 
                 return errorResponse(__('message.email_verification.token_expired'));
             }

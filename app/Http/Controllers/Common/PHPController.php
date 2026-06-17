@@ -11,8 +11,6 @@ class PHPController extends Controller
 {
     /**
      * Check if exec() function is available.
-     *
-     *
      */
     public function execEnabled(): bool
     {
