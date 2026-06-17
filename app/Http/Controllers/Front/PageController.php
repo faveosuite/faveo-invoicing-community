@@ -8,7 +8,6 @@ use App\Demo_page;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Product\ProductController;
 use App\Http\Requests\Front\ContactRequest;
 use App\Http\Requests\Front\PageRequest;
 use App\Model\Common\Country;

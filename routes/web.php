@@ -11,8 +11,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Common\BaseSettingsController;
-use App\Http\Controllers\Common\ChatScriptController;
 use App\Http\Controllers\Common\CacheSettingsController;
+use App\Http\Controllers\Common\ChatScriptController;
 use App\Http\Controllers\Common\Dependency\DependencyController;
 use App\Http\Controllers\Common\EmailSettingsController;
 use App\Http\Controllers\Common\FileManagerController;
@@ -28,8 +28,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Front\AutoRenewalController;
 use App\Http\Controllers\Front\Cart\CartApiController;
-
-
 use App\Http\Controllers\Front\ClientController;
 use App\Http\Controllers\Front\NewsletterController;
 use App\Http\Controllers\Front\PageController;

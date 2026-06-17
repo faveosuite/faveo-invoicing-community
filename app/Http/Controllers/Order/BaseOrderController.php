@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Http\Controllers\Common\MailChimpController;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Services\LicenseService;
 use App\Model\Common\Setting;
-use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Invoice;

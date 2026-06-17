@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Model\Common\ChatScript;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Log;
 use Logger;
 

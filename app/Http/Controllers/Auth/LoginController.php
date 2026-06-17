@@ -7,7 +7,6 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Model\Common\ChatScript;
 use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
-
 use App\SocialLogin;
 use App\User;
 use Cache;

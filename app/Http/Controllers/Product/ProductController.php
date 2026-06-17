@@ -26,11 +26,7 @@ use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use Lang;
 use Logger;
-use Validator;
 
 // use Input;
 

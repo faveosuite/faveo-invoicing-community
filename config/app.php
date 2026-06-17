@@ -1,7 +1,6 @@
 <?php
 
 use App\BillingLog\LaravelLogViewerServiceProvider;
-
 use App\Facades\Log;
 use App\License\LicenseServiceProvider;
 use App\Plugins\Mailchimp\MailchimpServiceProvider;
@@ -19,7 +18,6 @@ use App\Providers\LogServiceProvider;
 use App\Providers\RouteServiceProvider;
 use Creativeorange\Gravatar\Facades\Gravatar;
 use Creativeorange\Gravatar\GravatarServiceProvider;
-
 use Illuminate\Auth\AuthServiceProvider;
 use Illuminate\Auth\Passwords\PasswordResetServiceProvider;
 use Illuminate\Broadcasting\BroadcastServiceProvider;

@@ -9,14 +9,12 @@ use App\Model\Payment\PromoProductRelation;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Product\Product;
-use Auth;
 use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Lang;
-use Session;
 
 class PromotionController extends BasePromotionController
 {
@@ -49,7 +47,6 @@ class PromotionController extends BasePromotionController
 
         $invoice = new Invoice();
         $this->invoice = $invoice;
-
     }
 
     /**

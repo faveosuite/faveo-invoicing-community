@@ -2,18 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\ApiKey;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
-use App\Model\Common\Country;
 use App\Model\Common\Setting;
-use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
 use App\User;
-use App\VerificationAttempt;
-use Devio\Pipedrive\Pipedrive;
 use Exception;
 
 class BaseAuthController extends Controller
@@ -71,6 +66,7 @@ class BaseAuthController extends Controller
             throw new Exception($ex->getMessage());
         }
     }
+
     protected function userNeedVerified(User $user): bool
     {
         $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);

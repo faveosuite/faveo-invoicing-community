@@ -8,5 +8,6 @@ class OrderPlacedEvent
 {
     public function __construct(
         public readonly Invoice $invoice,
-    ) {}
+    ) {
+    }
 }

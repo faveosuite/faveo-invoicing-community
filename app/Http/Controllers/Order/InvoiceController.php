@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Http\Controllers\Payment\PromotionController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Requests\InvoiceRequest;
 use App\Jobs\ReportExport;
@@ -30,7 +29,6 @@ use App\Traits\PaymentsAndInvoices;
 use App\Traits\TaxCalculation;
 use App\User;
 use Auth;
-use DB;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -119,7 +117,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
         $tax_by_state = new TaxByState();
         $this->tax_by_state = new $tax_by_state();
-
     }
 
     public function getInvoices(Request $request)
@@ -395,14 +392,14 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $email = Auth::user()->email;
             $driver = QueueService::where('status', '1')->first();
 
-            if($driver->name == 'Sync') {
+            if ($driver->name == 'Sync') {
                 return errorResponse(__('message.cannot_sync_queue_driver'));
             }
 
             resolve('queue')->setDefaultDriver($driver->short_name);
             dispatch(new ReportExport('invoices', $selectedColumns, $searchParams, $email))->onQueue('reports');
-            return successResponse(__('message.report_generation_in_progress'));
 
+            return successResponse(__('message.report_generation_in_progress'));
         } catch (Exception $e) {
             Logger::exception($e);
 

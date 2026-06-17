@@ -7,7 +7,6 @@ use App\Model\Order\Invoice;
 use App\Model\Order\Payment;
 use App\Model\Product\Product;
 use Auth;
-
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;

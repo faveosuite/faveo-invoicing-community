@@ -8,7 +8,6 @@ use App\Model\Product\ProductUpload;
 use App\Traits\Upload\ChunkUpload;
 use Exception;
 use Illuminate\Http\Request;
-use Logger;
 
 class ThirdPartyApiController extends Controller
 {

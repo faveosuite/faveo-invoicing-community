@@ -3,26 +3,18 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Tenancy\TenantController;
 use App\License\Services\InstallationService;
 use App\License\Services\LicenseService;
-use App\Model\Common\FaveoCloud;
-use App\Model\Order\Invoice;
 use App\Model\Order\Order;
-use App\Model\Order\OrderInvoiceRelation;
-use App\Model\Product\CloudProducts;
 use Auth;
 use DB;
 use Exception;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Lang;
 use Logger;
 
 class ExtendedOrderController extends Controller
 {
-
     /**
      * generate serial key and add no of agents in the last 4 digits og the 16 string/digit serial key .
      *

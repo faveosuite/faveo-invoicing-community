@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Front;
 
-use App\ApiKey;
 use App\Auto_renewal;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Common\SettingsController;
@@ -40,7 +39,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Logger;
 use Override;
 use Session;
-use Stripe\StripeClient;
 
 class ClientController extends BaseClientController
 {
@@ -506,7 +504,6 @@ class ClientController extends BaseClientController
      * @param  type  $productid
      * @param  type  $clientid
      * @param  type  $invoiceid
-     *
      */
     public function getVersionList(Request $request, $orderid)
     {
