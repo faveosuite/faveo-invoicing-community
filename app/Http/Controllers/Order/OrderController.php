@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Order;
 use App\Events\UserOrderDelete;
 use App\Http\Requests\Order\OrderRequest;
 use App\Jobs\ReportExport;
+use App\License\Services\LicenseService;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
@@ -148,6 +149,7 @@ class OrderController extends BaseOrderController
         $order = $this->order
             ->with([
                 'user:id,first_name,last_name,email,mobile,mobile_code,address,country',
+                'user.countryRelation:country_code_char2,country_name',
                 'subscription.plan:id,name',
                 'productRelation:id,name',
             ])
@@ -170,11 +172,14 @@ class OrderController extends BaseOrderController
             ->orderBy('id', 'desc')
             ->first(['payment_method', 'date']);
 
+        $license = resolve(LicenseService::class)->findByCode($order->serial_key);
+
         return successResponse('', [
             'order' => $order,
             'license_details' => [
-                'licence_code' => $order->serial_key,
-                'expiry_dates' => $expiryDates,
+                'licence_code'      => $order->serial_key,
+                'expiry_dates'      => $expiryDates,
+                'installation_limit' => $license?->license_limit,
             ],
             'autorenewal' => $order->subscription->autoRenew_status,
             'is_subscribed' => $order->subscription->is_subscribed,

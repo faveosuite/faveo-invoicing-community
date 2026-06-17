@@ -398,15 +398,9 @@ function flagCodeFor(loc) {
 
 const currentLocale = computed(() => (el?.dataset?.locale ?? 'en').toLowerCase())
 
-// Languages for the dropdown — public endpoint, so it works on guest pages too.
-const languages = ref([])
-
-async function loadLanguages() {
-  try {
-    const {data} = await http.get('language/control')
-    languages.value = (data?.data ?? []).filter(l => Number(l.status) === 1)
-  } catch { /* best-effort */ }
-}
+const languages = ref(
+  (JSON.parse(el?.dataset?.languages ?? '[]')).filter(l => Number(l.status) === 1)
+)
 
 async function selectLang(lang) {
   try {
@@ -417,10 +411,12 @@ async function selectLang(lang) {
   }
 }
 
-const productGroups = ref([])
+const productGroups = ref(
+  Object.entries(JSON.parse(el?.dataset?.productGroups ?? '{}')).map(([id, g]) => ({ id: parseInt(id), ...g }))
+)
 
 // Published CMS pages shown in the navbar (public).
-const publishedPages = ref([])
+const publishedPages = ref(JSON.parse(el?.dataset?.publishedPages ?? '[]'))
 const ucfirst = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s)
 const topLevelPages = computed(() =>
     publishedPages.value.filter(p => !p.parent_page_id || p.parent_page_id === 0)
@@ -428,18 +424,9 @@ const topLevelPages = computed(() =>
 const childPages = (parentId) =>
     publishedPages.value.filter(p => p.parent_page_id === parentId)
 
-onMounted(async () => {
+onMounted(() => {
   document.addEventListener('click', onClickOutside)
-  loadLanguages()
   cartStore.fetchCart()
-  try {
-    const {data} = await http.post('available-groups')
-    productGroups.value = Object.entries(data.data ?? {}).map(([id, g]) => ({id: parseInt(id), ...g}))
-  } catch { /* ignore */ }
-  try {
-    const {data} = await http.get('published-pages')
-    publishedPages.value = data.data ?? []
-  } catch { /* ignore */ }
 })
 
 onUnmounted(() => {

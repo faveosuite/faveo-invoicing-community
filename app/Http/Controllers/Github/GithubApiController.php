@@ -2,119 +2,122 @@
 
 namespace App\Http\Controllers\Github;
 
-use App\Http\Controllers\Controller;
 use App\Model\Github\Github;
 use Exception;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\Http;
 
-class GithubApiController extends Controller
+class GithubApiController
 {
-    private $username;
+    private const API_BASE = 'https://api.github.com';
 
-    private $password;
-
-    private $github;
+    private PendingRequest $http;
 
     public function __construct()
     {
-        $model = new Github();
-        $this->github = $model->firstOrFail();
+        $github = Github::firstOrFail();
 
-        $this->username = $this->github->username;
-        $this->password = $this->github->password;
+        $this->http = Http::baseUrl(self::API_BASE)
+            ->withBasicAuth($github->username, $github->password)
+            ->withHeaders([
+                'Accept' => 'application/vnd.github+json',
+                'User-Agent' => $github->username ?: 'FaveoBilling',
+                'X-GitHub-Api-Version' => '2022-11-28',
+            ])
+            ->timeout(90);
     }
 
-    public function postCurl($url, $data = '', $method = 'POST')
+    /**
+     * All releases for a repository, newest first.
+     */
+    public function releases(string $owner, string $repo): array
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ["User-Agent:$this->username"]);
-        curl_setopt($ch, CURLOPT_USERPWD, "$this->username:$this->password");
-        $content = curl_exec($ch);
-        curl_close($ch);
-
-        return json_decode($content, true);
+        return $this->http->get("/repos/{$owner}/{$repo}/releases")->json() ?? [];
     }
 
-    public function getCurl($url)
+    /**
+     * The latest stable release metadata for a repository.
+     */
+    public function latestRelease(string $owner, string $repo): array
     {
-        try {
-            if (str_contains((string) $url, ' ')) {
-                $url = str_replace(' ', '', $url);
+        return $this->http->get("/repos/{$owner}/{$repo}/releases/latest")->json() ?? [];
+    }
+
+    /**
+     * The tag name of the latest stable release.
+     */
+    public function latestTag(string $owner, string $repo): ?string
+    {
+        return $this->latestRelease($owner, $repo)['tag_name'] ?? null;
+    }
+
+    /**
+     * Build a zipball URL for a given ref (tag or branch).
+     */
+    public function zipballUrl(string $owner, string $repo, string $ref = 'master'): string
+    {
+        return self::API_BASE."/repos/{$owner}/{$repo}/zipball/{$ref}";
+    }
+
+    /**
+     * Resolve a GitHub zipball URL to the actual S3 presigned download URL.
+     *
+     * GitHub responds to zipball requests with a 302 redirect to a short-lived S3 URL.
+     * On rate-limit or auth errors it returns 403 with the URL embedded in the message body.
+     */
+    public function resolveDownloadUrl(string $zipballUrl): string
+    {
+        $response = $this->http
+            ->withoutRedirecting()
+            ->withOptions(['http_errors' => false])
+            ->get($zipballUrl);
+
+        // Normal case: GitHub redirects to a presigned S3 URL.
+        if ($response->redirect()) {
+            return $response->header('Location');
+        }
+
+        // 403 only: GitHub embeds the actual download URL inside the rate-limit/auth message.
+        // Any other status (404 tag not found, 500, etc.) goes straight to the exception.
+        if ($response->status() === 403) {
+            $message = $response->json('message') ?? '';
+            if (preg_match('#https://[^\s,"]+#', $message, $matches)) {
+                return $matches[0];
             }
-
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ["User-Agent:$this->username"]);
-            curl_setopt($ch, CURLOPT_USERPWD, "$this->username:$this->password");
-            if (curl_exec($ch) === false) {
-                echo 'Curl error: '.curl_error($ch);
-            }
-
-            $content = curl_exec($ch);
-            curl_close($ch);
-
-            return json_decode($content, true);
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
         }
+
+        throw new Exception(trans('message.file_not_exist'));
     }
 
-    public function getCurl1($url)
+    /**
+     * Validate a username + personal access token against the GitHub API.
+     * Used when saving GitHub settings — does NOT use the stored credentials.
+     */
+    public static function validateCredentials(string $username, string $token): bool
     {
-        if (str_contains((string) $url, ' ')) {
-            $url = str_replace(' ', '', $url);
-        }
+        $response = Http::withBasicAuth($username, $token)
+            ->withHeaders([
+                'Accept' => 'application/vnd.github+json',
+                'User-Agent' => $username ?: 'FaveoBilling',
+                'X-GitHub-Api-Version' => '2022-11-28',
+            ])
+            ->timeout(30)
+            ->get(self::API_BASE.'/user');
 
-        // $url = "https://api.github.com/repos/ladybirdweb/faveo-helpdesk/zipball/master";
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ["User-Agent:$this->username"]);
-        curl_setopt($ch, CURLOPT_USERPWD, "$this->username:$this->password");
-        if (curl_exec($ch) === false) {
-            echo 'Curl error: '.curl_error($ch);
-        }
-
-        $content = curl_exec($ch);
-        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        $header = substr($content, 0, $header_size);
-        $header = $this->convertHeaderToArray($header, $content);
-
-        $body = substr($content, $header_size);
-        curl_close($ch);
-
-        return ['body' => json_decode($body, true), 'header' => $header];
+        return $response->successful() && $response->json('login') === $username;
     }
 
-    public function convertHeaderToArray($header_text, $response)
+    /**
+     * Authorize this app against the configured GitHub OAuth application.
+     */
+    public function authorizeApp(): ?string
     {
-        try {
-            $headers = [];
+        $github = Github::firstOrFail();
 
-            $header_text = substr((string) $response, 0, strpos((string) $response, "\r\n\r\n"));
-            foreach (explode("\r\n", $header_text) as $i => $line) {
-                if ($i === 0) {
-                    $headers['http_code'] = $line;
-                } else {
-                    [$key, $value] = explode(': ', $line);
-
-                    $headers[$key] = $value;
-                }
-            }
-
-            return $headers;
-        } catch (Exception $e) {
-            dd($e);
-        }
+        return $this->http
+            ->put("/authorizations/clients/{$github->client_id}", [
+                'client_secret' => $github->client_secret,
+            ])
+            ->json('hashed_token');
     }
 }

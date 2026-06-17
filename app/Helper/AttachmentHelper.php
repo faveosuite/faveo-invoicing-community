@@ -47,7 +47,7 @@ class AttachmentHelper
         $filename = Str::ascii(basename((string) $path)) ?: basename((string) $path);
 
         if (isS3Enabled()) {
-            return $adapter->temporaryUrl($path, now()->addHour());
+            return redirect($adapter->temporaryUrl($path, now()->addHour()));
         }
 
         return $adapter->download($path, $filename);

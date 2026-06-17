@@ -43,6 +43,7 @@
                 <h5>{{ __('message.product_version') }}</h5>
             </template>
             <template #fields>
+                <Alert componentName="order-download" />
                 <DataTable v-if="downloadVersionsUrl"
                            :key="downloadVersionsUrl"
                            :url="downloadVersionsUrl"
@@ -52,11 +53,11 @@
                     <template #name="{ row }"><span v-html="row.name" /></template> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
                     <template #description="{ row }"><span v-html="row.description" /></template> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
                     <template #action="{ row }">
-                        <a v-if="row.can_download && row.download_url"
-                           :href="row.download_url"
-                           class="btn btn-sm btn-primary">
+                        <button v-if="row.can_download && row.download_url"
+                                class="btn btn-sm btn-primary"
+                                @click="downloadFile(row.download_url)">
                             <i class="fas fa-download me-1"></i>{{ __('message.download') }}
-                        </a>
+                        </button>
                         <button v-else class="btn btn-sm btn-danger disabled">
                             {{ __('message.please_renew') }}
                         </button>
@@ -92,9 +93,12 @@ import { ref, reactive, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { __ } from '@/plugins/i18n'
 import RenewModal from './components/RenewModal.vue'
+import Alert from '@/components/Reusable/Alert.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
+import { useDownload } from '@/core/composables/useDownload'
 
-const { formatDate } = useDateTime()
+const { formatDate }  = useDateTime()
+const { downloadFile } = useDownload('order-download')
 
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''

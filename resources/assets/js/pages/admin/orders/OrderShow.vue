@@ -4,349 +4,326 @@
 
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">{{ __('message.order_details') }}</h4>
+                <h4 class="card-title">{{ __('message.order') }}</h4>
             </div>
 
             <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
-                <div class="card-body">
+                <div class="card-body px-0 pt-0">
 
-                    <!-- ── Overview ──────────────────────────────────────── -->
-                    <div class="card card-light mb-3">
-                        <div class="card-body py-3">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="text-muted small mb-1">{{ __('message.date') }}</div>
-                                    <div class="fw-bold">{{ order?.created_at || '—' }}</div>
+                    <!-- ── Stats bar ──────────────────────────────────────── -->
+                    <div class="alert bg-light m-3">
+                        <div class="d-flex flex-column flex-md-row justify-content-around text-center">
+                            <div>
+                                <strong>{{ __('message.order_no') }}</strong><br>
+                                #{{ order?.number }}
+                            </div>
+                            <div class="mt-3 mt-md-0">
+                                <strong>{{ __('message.date') }}</strong><br>
+                                {{ order?.created_at ? formatDate(order.created_at) : '—' }}
+                            </div>
+                            <div class="mt-3 mt-md-0">
+                                <strong>{{ __('message.product') }}</strong><br>
+                                <router-link
+                                    v-if="order?.product_relation"
+                                    :to="`/products/${order.product_relation.id}/edit`"
+                                >{{ order.product_relation.name }}</router-link>
+                                <span v-else>—</span>
+                            </div>
+                            <div class="mt-3 mt-md-0">
+                                <strong>{{ __('message.status') }}</strong><br>
+                                <span class="badge" :class="statusBadgeClass">{{ order?.order_status || '—' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Two-column layout ──────────────────────────────── -->
+                    <div class="p-3">
+                        <div class="row g-4">
+
+                            <!-- Left column -->
+                            <div class="col-lg-8">
+
+                                <!-- License Details -->
+                                <div class="card card-light mb-4">
+                                    <div class="card-header">
+                                        <h4 class="card-title">
+                                            <i class="fas fa-key text-muted me-2"></i>{{ __('message.license_details') }}
+                                        </h4>
+                                        <div class="card-tools">
+                                            <button class="btn btn-tool" v-tooltip="__('message.edit')" @click="openLicenseEditModal">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <ul class="list-group list-group-flush">
+
+                                            <li class="list-group-item py-3 px-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4 fw-semibold">{{ __('message.license_code') }}</div>
+                                                    <div class="col-8 d-flex align-items-center gap-2">
+                                                        <span class="font-monospace">{{ licenseDetails?.licence_code || '—' }}</span>
+                                                        <button class="btn btn-light table_btn" v-tooltip="__('message.copy')" @click="copyLicenseCode">
+                                                            <i :class="copied ? 'fas fa-check' : 'fas fa-clipboard'"></i>
+                                                        </button>
+                                                        <button class="btn btn-light table_btn" v-tooltip="__('message.reissue_license')" :disabled="saving.reissue" @click="reissueLicense">
+                                                            <i class="fas fa-credit-card"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </li>
+
+                                            <li class="list-group-item py-3 px-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4 fw-semibold">{{ __('message.installation_limit') }}</div>
+                                                    <div class="col-8">{{ licenseDetails?.installation_limit ?? '—' }}</div>
+                                                </div>
+                                            </li>
+
+                                            <li class="list-group-item py-3 px-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4 fw-semibold">{{ __('message.updates_expiry') }}</div>
+                                                    <div class="col-8">
+                                                        <span :class="expiryStatus('update_end') ? 'text-danger' : ''">{{ expiryDate('update_end') || '—' }}</span>
+                                                        <span v-if="expiryStatus('update_end')" class="badge bg-danger ms-1">{{ expiryStatus('update_end') }}</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+
+                                            <li class="list-group-item py-3 px-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4 fw-semibold">{{ __('message.license_expiry') }}</div>
+                                                    <div class="col-8">
+                                                        <span :class="expiryStatus('subscription_end') ? 'text-danger' : 'text-muted'">{{ expiryDate('subscription_end') || 'Not set' }}</span>
+                                                        <span v-if="expiryStatus('subscription_end')" class="badge bg-danger ms-1">{{ expiryStatus('subscription_end') }}</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+
+                                            <li class="list-group-item py-3 px-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4 fw-semibold">{{ __('message.support_expiry') }}</div>
+                                                    <div class="col-8">
+                                                        <span :class="expiryStatus('support_end') ? 'text-danger' : ''">{{ expiryDate('support_end') || '—' }}</span>
+                                                        <span v-if="expiryStatus('support_end')" class="badge bg-danger ms-1">{{ expiryStatus('support_end') }}</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+
+                                            <li class="list-group-item py-3 px-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4 fw-semibold d-flex align-items-center gap-1">
+                                                        {{ __('message.localized_license') }}
+                                                        <Tooltip :message="__('message.localized_license_tooltip')" />
+                                                    </div>
+                                                    <div class="col-8 d-flex align-items-center gap-2">
+                                                        <Switch
+                                                            name="license_mode"
+                                                            :value="order?.license_mode === 'File'"
+                                                            :disabled="saving.licenseMode"
+                                                            :onChange="toggleLicenseMode"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </li>
+
+                                        </ul>
+                                    </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="text-muted small mb-1">{{ __('message.order_no') }}</div>
-                                    <div class="fw-bold">#{{ order?.number }}</div>
+
+                                <!-- Invoice / Payments / Installations tabs -->
+                                <div class="card card-light">
+                                    <div class="card-header p-0 border-bottom-0">
+                                        <ul class="nav nav-tabs px-3 pt-2" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link" :class="{ active: tab === 'installations' }" href="#" @click.prevent="tab = 'installations'">
+                                                    <i class="fas fa-server me-1"></i>{{ __('message.installation_details') }}
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" :class="{ active: tab === 'invoices' }" href="#" @click.prevent="tab = 'invoices'">
+                                                    <i class="fas fa-file-invoice me-1"></i>{{ __('message.invoice_list') }}
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" :class="{ active: tab === 'payments' }" href="#" @click.prevent="tab = 'payments'">
+                                                    <i class="fas fa-receipt me-1"></i>{{ __('message.payment_receipts') }}
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="card-body table-responsive">
+                                        <div v-show="tab === 'installations'">
+                                            <DataTable
+                                                :url="`${baseUrl}/get-installation-details/${orderId}`"
+                                                :dataColumns="installColumns"
+                                                :option="installTableOptions"
+                                            />
+                                        </div>
+                                        <div v-show="tab === 'invoices'">
+                                            <DataTable
+                                                :url="`${baseUrl}/getOrderInvoices/${orderId}`"
+                                                :dataColumns="invoiceColumns"
+                                                :option="invoiceTableOptions"
+                                            />
+                                        </div>
+                                        <div v-show="tab === 'payments'">
+                                            <DataTable
+                                                :url="`${baseUrl}/getOrderPayments/${orderId}`"
+                                                :dataColumns="paymentColumns"
+                                                :option="paymentTableOptions"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="text-muted small mb-1">{{ __('message.status') }}</div>
-                                    <div class="fw-bold">{{ order?.order_status || '—' }}</div>
+
+                            </div><!-- /left col -->
+
+                            <!-- Right sidebar -->
+                            <div class="col-lg-4">
+
+                                <!-- Customer card -->
+                                <div class="card card-light mb-4">
+                                    <div class="card-header">
+                                        <h4 class="card-title">
+                                            <i class="fas fa-user text-muted me-2"></i>{{ __('message.customer') }}
+                                        </h4>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item py-3 px-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4 fw-semibold">{{ __('message.name') }}</div>
+                                                    <div class="col-8">
+                                                        <router-link v-if="order?.user?.id" :to="`/users/${order.user.id}/edit`">{{ userName }}</router-link>
+                                                        <span v-else>{{ userName }}</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="list-group-item py-3 px-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4 fw-semibold">{{ __('message.email') }}</div>
+                                                    <div class="col-8">{{ order?.user?.email || '—' }}</div>
+                                                </div>
+                                            </li>
+                                            <li class="list-group-item py-3 px-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4 fw-semibold">{{ __('message.mobile') }}</div>
+                                                    <div class="col-8">
+                                                        <span v-if="order?.user?.mobile_code">(+{{ order.user.mobile_code }}) </span>
+                                                        {{ order?.user?.mobile || '—' }}
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="list-group-item py-3 px-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4 fw-semibold">{{ __('message.country') }}</div>
+                                                    <div class="col-8">
+                                                        <span v-if="order?.user?.country">
+                                                            <span :class="`fi fi-${order.user.country.toLowerCase()} me-1`"></span>
+                                                            {{ order.user.country_relation?.country_name || order.user.country }}
+                                                            ({{ order.user.country }})
+                                                        </span>
+                                                        <span v-else>—</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- ── User Details ──────────────────────────────────── -->
-                    <div class="row mt-3">
-                        <div class="col-md-12">
-                            <div class="card card-light">
-                                <div class="card-header">
-                                    <h5 class="card-title">{{ __('message.user_details') }}</h5>
-                                </div>
-                                <div class="card-body table-responsive">
-                                    <table class="table table-hover">
-                                        <tbody>
-                                            <tr>
-                                                <td><b>{{ __('message.name') }}:</b></td>
-                                                <td>{{ userName }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><b>{{ __('message.email') }}:</b></td>
-                                                <td>{{ order?.user?.email || '—' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><b>{{ __('message.mobile') }}:</b></td>
-                                                <td>
-                                                    <span v-if="order?.user?.mobile_code">
-                                                        (<b>+</b>{{ order.user.mobile_code }})&nbsp;
-                                                    </span>
-                                                    {{ order?.user?.mobile || '—' }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><b>{{ __('message.country') }}:</b></td>
-                                                <td>{{ order?.user?.country || '—' }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                <!-- ── License Details ─────────────────────────────────── -->
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <div class="card card-light">
-                            <div class="card-header">
-                                <h4 class="card-title">{{ __('message.license_details') }}</h4>
-                            </div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-hover">
-                                    <tbody>
-                                        <!-- License Code -->
-                                        <tr>
-                                            <td><b>{{ __('message.license_code') }}:</b></td>
-                                            <td>{{ licenseDetails?.licence_code || '—' }}</td>
-                                            <td>
-                                                <action-button
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    class="btn-xs"
-                                                    :icon="copied ? 'fas fa-check' : 'fas fa-clipboard'"
-                                                    :icon-only="true"
-                                                    v-tooltip="__('message.copy')"
-                                                    @click="copyLicenseCode"
-                                                />
-                                                <action-button
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    class="btn-xs ms-1"
-                                                    icon="fas fa-credit-card"
-                                                    :icon-only="true"
-                                                    :loading="saving.reissue"
-                                                    v-tooltip="__('message.reissue_license')"
-                                                    @click="reissueLicense"
-                                                />
-                                            </td>
-                                        </tr>
-
-                                        <!-- Updates Expiry -->
-                                        <tr>
-                                            <td><b>{{ __('message.updates_expiry') }}:</b></td>
-                                            <td>
-                                                <span :class="expiryStatus('update_end') ? 'text-danger' : ''">
-                                                    {{ expiryDate('update_end') || '—' }}
-                                                </span>
-                                                <span v-if="expiryStatus('update_end')" class="badge bg-danger ms-1">
-                                                    {{ expiryStatus('update_end') }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <action-button
-                                                    v-if="expiryDate('update_end')"
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    class="btn-xs"
-                                                    icon="fas fa-pen"
-                                                    :icon-only="true"
-                                                    v-tooltip="__('message.edit')"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#updateExpiryModal"
-                                                    @click="modal.date = expiryRaw('update_end')"
-                                                />
-                                            </td>
-                                        </tr>
-
-                                        <!-- License Expiry -->
-                                        <tr>
-                                            <td><b>{{ __('message.license_expiry') }}:</b></td>
-                                            <td>
-                                                <span :class="expiryStatus('subscription_end') ? 'text-danger' : ''">
-                                                    {{ expiryDate('subscription_end') || '—' }}
-                                                </span>
-                                                <span v-if="expiryStatus('subscription_end')" class="badge bg-danger ms-1">
-                                                    {{ expiryStatus('subscription_end') }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <action-button
-                                                    v-if="expiryDate('subscription_end')"
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    class="btn-xs"
-                                                    icon="fas fa-pen"
-                                                    :icon-only="true"
-                                                    v-tooltip="__('message.edit')"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#licenseExpiryModal"
-                                                    @click="modal.date = expiryRaw('subscription_end')"
-                                                />
-                                            </td>
-                                        </tr>
-
-                                        <!-- Support Expiry -->
-                                        <tr>
-                                            <td><b>{{ __('message.support_expiry') }}:</b></td>
-                                            <td>
-                                                <span :class="expiryStatus('support_end') ? 'text-danger' : ''">
-                                                    {{ expiryDate('support_end') || '—' }}
-                                                </span>
-                                                <span v-if="expiryStatus('support_end')" class="badge bg-danger ms-1">
-                                                    {{ expiryStatus('support_end') }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <action-button
-                                                    v-if="expiryDate('support_end')"
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    class="btn-xs"
-                                                    icon="fas fa-pen"
-                                                    :icon-only="true"
-                                                    v-tooltip="__('message.edit')"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#supportExpiryModal"
-                                                    @click="modal.date = expiryRaw('support_end')"
-                                                />
-                                            </td>
-                                        </tr>
-
-                                        <!-- Localized License -->
-                                        <tr>
-                                            <td><b>{{ __('message.switch_localized_license') }}</b></td>
-                                            <td>
-                                                <Switch
-                                                    name="license_mode"
-                                                    :value="order?.license_mode === 'File'"
-                                                    :disabled="saving.licenseMode"
-                                                    :onChange="toggleLicenseMode"
-                                                />
-                                            </td>
-                                            <td></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ── Installation Details ────────────────────────────── -->
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <div class="card card-light">
-                            <div class="card-header">
-                                <h4 class="card-title">
-                                    {{ __('message.installation_details') }}
-                                </h4>
-                            </div>
-                            <div class="card-body table-responsive">
-                                <DataTable
-                                    :url="`${baseUrl}/get-installation-details/${orderId}`"
-                                    :dataColumns="installColumns"
-                                    :option="installTableOptions"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ── Invoice List ────────────────────────────────────── -->
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <div class="card card-light">
-                            <div class="card-header">
-                                <h4 class="card-title">
-                                    {{ __('message.invoice_list') }}
-                                </h4>
-                            </div>
-                            <div class="card-body table-responsive">
-                                <DataTable
-                                    :url="`${baseUrl}/getOrderInvoices/${orderId}`"
-                                    :dataColumns="invoiceColumns"
-                                    :option="invoiceTableOptions"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ── Payment Receipts ────────────────────────────────── -->
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <div class="card card-light">
-                            <div class="card-header">
-                                <h4 class="card-title">
-                                    {{ __('message.payment_receipts') }}
-                                </h4>
-                            </div>
-                            <div class="card-body table-responsive">
-                                <DataTable
-                                    :url="`${baseUrl}/getOrderPayments/${orderId}`"
-                                    :dataColumns="paymentColumns"
-                                    :option="paymentTableOptions"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ── Auto Renewal ────────────────────────────────────── -->
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <div class="card card-light">
-                            <div class="card-header">
-                                <h4 class="card-title">
-                                    {{ __('message.auto_renewal') }}
-                                </h4>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-hover">
-                                    <tbody>
-                                        <tr>
-                                            <td><b>{{ __('message.auto_renewal_subscription') }}</b></td>
-                                            <td>
-                                                <Switch
-                                                    name="auto_renewal"
-                                                    :value="autorenewal == 1"
-                                                    :disabled="autorenewal != 1 || saving.renewal"
-                                                    :onChange="disableRenewal"
-                                                />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><b>{{ __('message.status') }}:</b></td>
-                                            <td>
-                                                <span v-if="isSubscribed" class="text-success fw-bold">{{ __('message.active') }}</span>
-                                                <span v-else class="text-danger fw-bold">{{ __('message.inactive') }}</span>
-                                            </td>
-                                        </tr>
+                                <!-- Auto Renewal card -->
+                                <div class="card card-light">
+                                    <div class="card-header">
+                                        <h4 class="card-title">
+                                            <i class="fas fa-sync-alt text-muted me-2"></i>{{ __('message.auto_renewal') }}
+                                        </h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <div>
+                                                <div class="small fw-semibold">{{ __('message.auto_renewal_subscription') }}</div>
+                                                <div class="text-muted" style="font-size:11px;">Automatically renew when subscription ends</div>
+                                            </div>
+                                            <Switch
+                                                name="auto_renewal"
+                                                :value="autorenewal == 1"
+                                                :disabled="autorenewal != 1 || saving.renewal"
+                                                :onChange="disableRenewal"
+                                            />
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="small text-muted">{{ __('message.status') }}</span>
+                                            <span v-if="isSubscribed" class="badge bg-success">{{ __('message.active') }}</span>
+                                            <span v-else class="badge bg-secondary">{{ __('message.inactive') }}</span>
+                                        </div>
                                         <template v-if="isSubscribed && paymentLog">
-                                            <tr>
-                                                <td><b>{{ __('message.payment-method') }}:</b></td>
-                                                <td>{{ paymentLog?.payment_method ? capitalize(paymentLog.payment_method) : '—' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><b>{{ __('message.subscription_start_date') }}:</b></td>
-                                                <td>{{ paymentLog?.date ? formatDate(paymentLog.date) : '—' }}</td>
-                                            </tr>
+                                            <hr class="my-3">
+                                            <div class="d-flex justify-content-between small mb-2">
+                                                <span class="text-muted">{{ __('message.payment-method') }}</span>
+                                                <span class="fw-semibold">{{ paymentLog?.payment_method ? capitalize(paymentLog.payment_method) : '—' }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between small">
+                                                <span class="text-muted">{{ __('message.subscription_start_date') }}</span>
+                                                <span class="fw-semibold">{{ paymentLog?.date ? formatDate(paymentLog.date) : '—' }}</span>
+                                            </div>
                                         </template>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                    </div>
+                                </div>
+
+                            </div><!-- /right sidebar -->
+
+                        </div><!-- /row -->
                     </div>
-                </div>
 
                 </div><!-- /card-body -->
+
             </template>
         </div><!-- /card -->
 
-        <!-- ── Modals ──────────────────────────────────────────────────── -->
-        <ExpiryModal
-            id="updateExpiryModal"
-            :title="__('message.edit_updates_expiry')"
-            :orderId="orderId"
-            :initialDate="modal.date"
-            endpoint="edit-update-expiry"
-            :baseUrl="baseUrl"
-            @saved="reload"
-        />
-        <ExpiryModal
-            id="licenseExpiryModal"
-            :title="__('message.edit_license_expiry')"
-            :orderId="orderId"
-            :initialDate="modal.date"
-            endpoint="edit-license-expiry"
-            :baseUrl="baseUrl"
-            @saved="reload"
-        />
-        <ExpiryModal
-            id="supportExpiryModal"
-            :title="__('message.edit_support_expiry')"
-            :orderId="orderId"
-            :initialDate="modal.date"
-            endpoint="edit-support-expiry"
-            :baseUrl="baseUrl"
-            @saved="reload"
-        />
+        <!-- ── License Details Edit Modal ─────────────────────────────── -->
+        <AppModal :showModal="licenseEditModal.show" :onClose="() => licenseEditModal.show = false" :showCloseBtn="false">
+            <template #title><h4>{{ __('message.license_details') }}</h4></template>
+            <template #fields>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">{{ __('message.installation_limit') }}</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.limit }"
+                        v-model="licenseEditModal.limit"
+                        min="1"
+                    />
+                    <div v-if="errors.limit" class="invalid-feedback">{{ errors.limit }}</div>
+                </div>
+                <DatePicker
+                    name="update_end"
+                    :label="__('message.updates_expiry')"
+                    :value="licenseEditModal.update_end"
+                    format="MM/DD/YYYY"
+                    :onChange="(val) => licenseEditModal.update_end = val"
+                />
+                <DatePicker
+                    name="subscription_end"
+                    :label="__('message.license_expiry')"
+                    :value="licenseEditModal.subscription_end"
+                    format="MM/DD/YYYY"
+                    :onChange="(val) => licenseEditModal.subscription_end = val"
+                />
+                <DatePicker
+                    name="support_end"
+                    :label="__('message.support_expiry')"
+                    :value="licenseEditModal.support_end"
+                    format="MM/DD/YYYY"
+                    :onChange="(val) => licenseEditModal.support_end = val"
+                />
+            </template>
+            <template #controls>
+                <action-button action="save" :loading="saving.licenseEdit" @click="saveLicenseEdit" />
+            </template>
+        </AppModal>
     </div>
 </template>
 
@@ -354,12 +331,17 @@
 import { ref, reactive, computed, onMounted, h } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
-import { errorHandler } from '@/helpers/responseHandler.js'
-import ExpiryModal from './components/ExpiryModal.vue'
+import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
+import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
+import { licenseDetailsSchema } from '@/validations/admin/orderValidations.js'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import Tooltip from '@/components/Reusable/Tooltip.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
 
-const { formatDate } = useDateTime()
+const { formatDate, formatDateTime } = useDateTime()
+
+const { errors, setErrors, resetForm } = useForm()
 
 const COMPONENT = 'orders-show'
 
@@ -376,26 +358,49 @@ const licenseDetails = ref(null)
 const autorenewal    = ref(0)
 const isSubscribed   = ref(0)
 const paymentLog     = ref(null)
+const tab            = ref('installations')
 
 const saving = reactive({
     reissue:     false,
     renewal:     false,
     licenseMode: false,
+    licenseEdit: false,
 })
 
-const modal = reactive({ date: null })
+const licenseEditModal = reactive({
+    show:             false,
+    limit:            null,
+    update_end:       null,
+    subscription_end: null,
+    support_end:      null,
+})
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+
+// ── Computed ───────────────────────────────────────────────────────────────
 const userName = computed(() => {
     const u = order.value?.user
     if (!u) return '—'
     return `${u.first_name ?? ''} ${u.last_name ?? ''}`.trim() || '—'
 })
 
+const userInitial = computed(() => {
+    const u = order.value?.user
+    if (!u) return '?'
+    return (u.first_name?.[0] ?? u.last_name?.[0] ?? '?').toUpperCase()
+})
+
+const statusBadgeClass = computed(() => {
+    const s = (order.value?.order_status ?? '').toLowerCase()
+    if (s === 'executed') return 'bg-success'
+    if (s === 'pending')  return 'bg-warning text-dark'
+    if (s === 'failed')   return 'bg-danger'
+    return 'bg-secondary'
+})
+
+// ── Helpers ────────────────────────────────────────────────────────────────
 function capitalize(str) {
     return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''
 }
-
 
 function expiryEntry(key) {
     return licenseDetails.value?.expiry_dates?.[key] ?? null
@@ -409,7 +414,7 @@ function expiryDate(key) {
 function expiryRaw(key) {
     const d = expiryEntry(key)?.date
     if (!d) return null
-    const dt = new Date(d)
+    const dt   = new Date(d)
     const mm   = String(dt.getMonth() + 1).padStart(2, '0')
     const dd   = String(dt.getDate()).padStart(2, '0')
     const yyyy = dt.getFullYear()
@@ -433,7 +438,8 @@ async function copyLicenseCode(e) {
 async function reissueLicense() {
     saving.reissue = true
     try {
-        await http.patch(`${baseUrl}/reissue-license`, { id: orderId })
+        const res = await http.patch(`${baseUrl}/reissue-license`, { id: orderId })
+        successHandler(res, COMPONENT)
         await reload()
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -445,7 +451,8 @@ async function reissueLicense() {
 async function disableRenewal() {
     saving.renewal = true
     try {
-        await http.post(`${baseUrl}/renewal-disable`, { order_id: orderId })
+        const res = await http.post(`${baseUrl}/renewal-disable`, { order_id: orderId })
+        successHandler(res, COMPONENT)
         await reload()
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -458,12 +465,44 @@ async function toggleLicenseMode(checked) {
     saving.licenseMode = true
     try {
         const choose = checked ? 1 : 0
-        await http.post(`${baseUrl}/switch-license-mode`, { choose, orderNo: order.value?.number })
+        const res = await http.post(`${baseUrl}/switch-license-mode`, { choose, orderNo: order.value?.number })
+        successHandler(res, COMPONENT)
         await reload()
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {
         saving.licenseMode = false
+    }
+}
+
+// ── License details edit modal ─────────────────────────────────────────────
+function openLicenseEditModal() {
+    licenseEditModal.limit            = licenseDetails.value?.installation_limit ?? null
+    licenseEditModal.update_end       = expiryRaw('update_end')
+    licenseEditModal.subscription_end = expiryRaw('subscription_end')
+    licenseEditModal.support_end      = expiryRaw('support_end')
+    licenseEditModal.show             = true
+    resetForm()
+}
+
+async function saveLicenseEdit() {
+    if (!await validateForm(licenseDetailsSchema, licenseEditModal, setErrors)) return
+    saving.licenseEdit = true
+    try {
+        const res = await http.post(`${baseUrl}/update-license-details`, {
+            orderid:          orderId,
+            limit:            licenseEditModal.limit,
+            update_end:       licenseEditModal.update_end,
+            subscription_end: licenseEditModal.subscription_end,
+            support_end:      licenseEditModal.support_end,
+        })
+        licenseEditModal.show = false
+        successHandler(res, COMPONENT)
+        await reload()
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        saving.licenseEdit = false
     }
 }
 
@@ -499,10 +538,10 @@ const installTableOptions = reactive({
         last_active_date: __('message.last_active'),
     },
     columnsClasses: {
-        path: 'dt-text',
-        ip: 'dt-code',
-        version: 'dt-code',
-        status: 'dt-status',
+        path:             'dt-text',
+        ip:               'dt-code',
+        version:          'dt-code',
+        status:           'dt-status',
         last_active_date: 'dt-date',
     },
     templates: {
@@ -534,17 +573,18 @@ const invoiceTableOptions = reactive({
         status:   __('message.status'),
     },
     columnsClasses: {
-        number: 'dt-number',
+        number:   'dt-number',
         products: 'dt-name',
-        date: 'dt-date',
-        amount: 'dt-amount',
-        status: 'dt-status',
+        date:     'dt-date',
+        amount:   'dt-amount',
+        status:   'dt-status',
     },
     templates: {
         number:   (f, row) => row.number && row.id ? h(RouterLink, { to: '/invoices/' + row.id }, () => row.number) : (row.number || '—'),
         products: (f, row) => (row.products ?? []).join(', ') || '—',
-        status: (f, row) => h('span', {
-            class: row.status === 'Success' ? 'badge bg-success' : 'badge bg-secondary',
+        date:     (f, row) => row.date ? formatDateTime(row.date) : '—',
+        status:   (f, row) => h('span', {
+            class: row.status?.toLowerCase() === 'success' ? 'badge bg-success' : 'badge bg-secondary',
         }, row.status),
     },
     sortable:   ['date', 'number', 'amount', 'status'],
@@ -574,14 +614,14 @@ const paymentTableOptions = reactive({
     },
     columnsClasses: {
         invoice_number: 'dt-number',
-        amount: 'dt-amount',
+        amount:         'dt-amount',
         payment_method: 'dt-name',
         payment_status: 'dt-status',
-        created_at: 'dt-date',
+        created_at:     'dt-date',
     },
     templates: {
         payment_status: (f, row) => h('span', {
-            class: row.payment_status === 'Success' ? 'badge bg-success' : 'badge bg-secondary',
+            class: row.payment_status?.toLowerCase() === 'success' ? 'badge bg-success' : 'badge bg-secondary',
         }, row.payment_status),
         created_at: (f, row) => row.created_at ? formatDate(row.created_at) : '—',
     },
@@ -599,3 +639,19 @@ const paymentTableOptions = reactive({
     orderBy: { column: 'created_at', ascending: false },
 })
 </script>
+
+<style scoped>
+.order-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: #17a2b8;
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+</style>

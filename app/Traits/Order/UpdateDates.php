@@ -10,56 +10,31 @@ use Illuminate\Support\Facades\Date;
 
 trait UpdateDates
 {
-    public function editUpdateExpiry(Request $request)
+    public function updateLicenseDetails(Request $request)
     {
-        $this->validate($request, ['date' => 'required']);
+        $this->validate($request, ['orderid' => 'required']);
 
         try {
-            $sub = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
-            resolve(SubscriptionRenewalService::class)->setDate($sub, 'update_ends_at', $this->parseDate($request->input('date')));
+            $service = resolve(SubscriptionRenewalService::class);
+            $sub     = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
 
-            return ['message' => 'success', 'update' => 'Updates Expiry Date Updated Successfully'];
+            if ($request->filled('update_end')) {
+                $service->setDate($sub, 'update_ends_at', $this->parseDate($request->input('update_end')));
+            }
+            if ($request->filled('subscription_end')) {
+                $service->setDate($sub, 'ends_at', $this->parseDate($request->input('subscription_end')));
+            }
+            if ($request->filled('support_end')) {
+                $service->setDate($sub, 'support_ends_at', $this->parseDate($request->input('support_end')));
+            }
+            if ($request->filled('limit')) {
+                $service->updateInstallationLimit($sub, (int) $request->input('limit'));
+            }
+
+            return successResponse(__('message.updated-successfully'));
         } catch (Exception $ex) {
-            return response()->json(['result' => [$ex->getMessage()]], 500);
+            return errorResponse($ex->getMessage());
         }
-    }
-
-    public function editLicenseExpiry(Request $request)
-    {
-        $this->validate($request, ['date' => 'required']);
-
-        try {
-            $sub = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
-            resolve(SubscriptionRenewalService::class)->setDate($sub, 'ends_at', $this->parseDate($request->input('date')));
-
-            return ['message' => 'success', 'update' => 'License Expiry Date Updated Successfully'];
-        } catch (Exception $ex) {
-            return response()->json(['result' => [$ex->getMessage()]], 500);
-        }
-    }
-
-    public function editSupportExpiry(Request $request)
-    {
-        $this->validate($request, ['date' => 'required']);
-
-        try {
-            $sub = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
-            resolve(SubscriptionRenewalService::class)->setDate($sub, 'support_ends_at', $this->parseDate($request->input('date')));
-
-            return ['message' => 'success', 'update' => 'Support Expiry Date Updated Successfully'];
-        } catch (Exception $ex) {
-            return response()->json(['result' => [$ex->getMessage()]], 500);
-        }
-    }
-
-    public function editInstallationLimit(Request $request)
-    {
-        $this->validate($request, ['limit' => 'required|numeric']);
-
-        $sub = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
-        resolve(SubscriptionRenewalService::class)->updateInstallationLimit($sub, (int) $request->input('limit'));
-
-        return ['message' => 'success', 'update' => 'Installation Limit Updated'];
     }
 
     private function parseDate(string $date): string

@@ -26,6 +26,7 @@ use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Lang;
 use Log;
 use Logger;
 use NumberFormatter;
@@ -345,30 +346,31 @@ class HomeController extends BaseHomeController
         return json_encode($result);
     }
 
-    public function downloadForFaveo(Request $request, Order $order)
+    public function downloadForFaveo(Request $request)
     {
-        try {
-            $faveo_encrypted_order_number = $request->input('order_number');
-            $faveo_serial_key = $request->input('serial_key');
-            $beta = $request->input('beta', 1);
+        $order = Order::where('number', $request->input('order_number'))
+            ->where('serial_key', $request->input('serial_key'))
+            ->with('subscription')
+            ->first();
 
-            $orderSerialKey = $order->where('number', $faveo_encrypted_order_number)
-                ->value('serial_key');
-
-            $this_order = $order
-                ->where('number', $faveo_encrypted_order_number)
-                ->first();
-            if ($this_order && $orderSerialKey == $faveo_serial_key) {
-                $product_id = $this_order->product;
-                $product_controller = new ProductController();
-
-                return $product_controller->adminDownload($product_id, '', true, $beta);
-            } else {
-                return response()->json(['Invalid Credentials']);
-            }
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage(), 'line' => $e->getFile()], 500);
+        if (! $order) {
+            return errorResponse('Invalid Credentials');
         }
+
+        $subscription = $order->subscription;
+
+        if (! $subscription) {
+            return errorResponse(Lang::get('message.no_order_exists_invoice'));
+        }
+
+        if ($subscription->update_ends_at && now()->gt($subscription->update_ends_at)) {
+            return errorResponse(Lang::get('message.renew_subscription_download'));
+        }
+
+        return app(ProductController::class)->adminDownload(
+            $order->product,
+            $request->input('release', 'official')
+        );
     }
 
     public function latestVersion(Request $request, Product $product)

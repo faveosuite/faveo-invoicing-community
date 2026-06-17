@@ -18,7 +18,7 @@ class LanguageController extends Controller
         // getLanguageFile serves the public translation strings (window.translator)
         // consumed by every SPA page, including the guest login/register/verify
         // pages — so it must not require auth/admin.
-        $this->middleware(['auth', 'admin'], ['except' => ['fetchLangDropdownUsers', 'getLanguageFile']]);
+        $this->middleware(['auth', 'admin'], ['except' => ['getLanguageFile']]);
     }
 
     public function getLanguageFile()
@@ -159,31 +159,4 @@ class LanguageController extends Controller
         }
     }
 
-    public function fetchLangDropdownUsers()
-    {
-        try {
-            $languageList = array_map(basename(...), File::directories(lang_path()));
-            $dbLanguages = Language::all()->keyBy('locale');
-
-            $languages = [];
-
-            foreach ($languageList as $key => $langLocale) {
-                $languageConfig = Config::get("languages.$langLocale", ['', '']);
-
-                $languages[] = [
-                    'id' => $key,
-                    'locale' => $langLocale,
-                    'name' => $languageConfig[0] ?? $langLocale,
-                    'translation' => $languageConfig[1] ?? '',
-                    'status' => $dbLanguages[$langLocale]->status ?? 0,
-                ];
-            }
-
-            $languages = collect($languages)->sortBy('name')->values()->all();
-
-            return successResponse(__('message.language_fetched'), $languages);
-        } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
-    }
 }

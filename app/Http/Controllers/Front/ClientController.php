@@ -560,8 +560,10 @@ class ClientController extends BaseClientController
 
     private function githubVersions(Request $request, $product, $subscription)
     {
-        $url = "https://api.github.com/repos/{$product->github_owner}/{$product->github_repository}/releases";
-        $allReleases = array_slice($this->github_api->getCurl1($url)['body'] ?? [], 0, 3, true);
+        $allReleases = array_slice(
+            $this->github_api->releases($product->github_owner, $product->github_repository),
+            0, 3, true
+        );
 
         $downloadPermission = LicensePermissionsController::getPermissionsForProduct((int) $product->id);
         $allowTillExpiry = $downloadPermission['allowDownloadTillExpiry'] == 1;
@@ -598,12 +600,10 @@ class ClientController extends BaseClientController
             }
 
             if ($canDownload) {
-                $response = $this->github_api->getCurl1($release['zipball_url']);
-                if (($response['body'] ?? null) === null) {
-                    $downloadUrl = $response['header']['Location'] ?? $response['header']['location'] ?? null;
-                } else {
-                    preg_match_all('/https:\/\/[^\s,"]+/', $response['body']['message'] ?? '', $matches);
-                    $downloadUrl = $matches[0][0] ?? null;
+                try {
+                    $downloadUrl = $this->github_api->resolveDownloadUrl($release['zipball_url']);
+                } catch (Exception) {
+                    $downloadUrl = null;
                 }
             }
 
@@ -685,7 +685,7 @@ class ClientController extends BaseClientController
                 'created_at' => $version->created_at,
                 'can_download' => $canDownload,
                 'download_url' => $canDownload
-                    ? url("download/{$product->id}/{$order->client}/{$invoiceNumber}/{$version->id}")
+                    ? url("download/{$order->id}/{$version->id}")
                     : null,
             ];
         });

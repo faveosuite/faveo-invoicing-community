@@ -22,165 +22,6 @@ use Logger;
 
 class BaseClientController extends Controller
 {
-    /**
-     * Get the version list popup for the Product.
-     *
-     * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
-     *
-     * @date   2019-01-06
-     *
-     * @param  Order  $orders  Order For the Client
-     * @param  int  $productid  Product id for the Order
-     * @return array Show Modal Popup if Condition Satisfies
-     */
-    public function getPopup($query, int $productid)
-    {
-        $listUrl = '';
-        $permissions = LicensePermissionsController::getPermissionsForProduct($productid);
-        if ($permissions['downloadPermission'] == 1) { //If the Product has doownlaod permission
-            if ($query->github_owner && $query->github_repository) {
-                $listUrl = $this->downloadGithubPopup($query->client, $query->invoice_id, $productid);
-            } else {
-                $listUrl = $this->downloadPopup($query->client, $query->invoice_number, $productid);
-            }
-        }
-
-        return $listUrl;
-    }
-
-    public function deployPopup($orderNumber)
-    {
-        return view('themes.default1.front.clients.deploy-popup', compact('orderNumber'));
-    }
-
-    /**
-     *  This returns the popup with different version download link.
-     *
-     * @param  $clientid
-     * @param  $invoiceid
-     * @param  $productid
-     * @return
-     *
-     * @throws
-     */
-    public function downloadPopup($clientid, $invoiceid, $productid)
-    {
-        return view('themes.default1.front.clients.download-list',
-            compact('clientid', 'invoiceid', 'productid'));
-//        return '<a onclick="getTable(' . $productid . ', ' . $clientid . ', ' . $invoiceid . ')"
-//           class="btn btn-light-scale-2 btn-sm text-dark"
-//           data-toggle="modal"
-//           data-target="#list">
-//            <i class="fa fa-download" data-toggle="tooltip" title="' . __('message.click_to_download') . '"></i>&nbsp;
-//        </a>';
-    }
-
-    /**
-     *  This returns the popup with different version of github download link.
-     *
-     * @param  $clientid
-     * @param  $invoiceid
-     * @param  $productid
-     * @return
-     *
-     * @throws
-     */
-    public function downloadGithubPopup($clientid, $invoiceid, $productid)
-    {
-        return view('themes.default1.front.clients.download-github-list',
-            compact('clientid', 'invoiceid', 'productid'));
-//        return "<a onclick=\"getTables($productid, $clientid, $invoiceid)\"
-//          class=\"btn btn-light-scale-2 btn-sm text-dark\"
-//          data-toggle=\"modal\"
-//          data-target=\"#lists\">
-//          <i class='fa fa-download' data-toggle='tooltip' title='".__('message.click_to_download')."'></i>&nbsp;
-//        </a>";
-    }
-
-    /**
-     *  This returns the renewal popup in client panel orders.
-     *
-     * @param  $id
-     * @param  $productid
-     * @param  $agents
-     * @param  $planName
-     * @return
-     *
-     * @throws
-     */
-    public function renewPopup($id, $productid, $agents, $planName, $planPrice)
-    {
-        $renewDetails = ['id' => $id,
-            'productid' => $productid,
-            'agents' => $agents,
-            'planName' => $planName,
-            'planPrice' => $planPrice];
-
-        return $renewDetails;
-//        return view('themes.default1.renew.popup', compact('id', 'productid', 'agents', 'planName', 'planPrice'));
-    }
-
-    /**
-     *  This returns the action button for download links.
-     *
-     * @param  $countExpiry
-     * @param  $productid
-     * @param  $countVersions
-     * @param  $link
-     * @param  $orderEndDate
-     * @return string
-     *
-     * @throws
-     */
-    public function getActionButton($countExpiry, $countVersions, $link, $orderEndDate, $productid)
-    {
-        $downloadPermission = LicensePermissionsController::getPermissionsForProduct($productid);
-        if ($downloadPermission['allowDownloadTillExpiry'] == 1) {
-            if (strtotime((string) $link['created_at']) < strtotime((string) $orderEndDate->update_ends_at)) {
-                $githubApi = new GithubApiController();
-                $link1 = $githubApi->getCurl1($link['zipball_url']);
-                if ($link1['body'] == null) {
-                    return '<p><a href='.$link1['header']['location']." 
-            class='btn btn-sm btn-primary'><i class='fa fa-download'>
-            </i>&nbsp;&nbsp;Download</a>".'&nbsp;
-
-      </p>';
-                } else {
-                    $string = $link1['body']['message'];
-                    preg_match_all('/https:\/\/[^\s,"]+/', (string) $string, $matches);
-                    $url = $matches[0][0];
-
-                    return '<p><a href="'.$url.'" class="btn btn-sm btn-primary">
-                    <i class="fa fa-download"></i>&nbsp;&nbsp;Download</a>&nbsp;</p>';
-                }
-            } else {
-                return '<button class="btn btn-primary btn-sm disabled tooltip">
-             <span class="tooltiptex">Please Renew!!</span></button>';
-            }
-        } elseif ($downloadPermission['allowDownloadTillExpiry'] == 0) {
-            if ($countExpiry == $countVersions) {
-                $githubApi = new GithubApiController();
-                $link1 = $githubApi->getCurl1($link['zipball_url']);
-                if ($link1['body'] == null) {
-                    return '<p><a href='.$link['zipball_url']." 
-            class='btn btn-sm btn-primary'><i class='fa fa-download'>
-            </i>&nbsp;&nbsp;Download</a>".'&nbsp;
-
-      </p>';
-                } else {
-                    $string = $link1['body']['message'];
-                    preg_match_all('/https:\/\/[^\s,"]+/', (string) $string, $matches);
-                    $url = $matches[0][0];
-
-                    return '<p><a href="'.$url.'" class="btn btn-sm btn-primary">
-                    <i class="fa fa-download"></i>&nbsp;&nbsp;Download</a>&nbsp;</p>';
-                }
-            } else {
-                return '<button class="btn btn-primary btn-sm disabled tooltip">
-            <span class="tooltiptex">Please Renew!!</span></button>';
-            }
-        }
-    }
 
     /**
      *  This function is to update profile.
@@ -377,63 +218,6 @@ class BaseClientController extends Controller
     }
 
     /**
-     *  This function returns download link when update end date is greater than created date, when download permission(allowDownloadTillExpiry) is 1.
-     *
-     * @param  $updateEndDate
-     * @param  $productid
-     * @param  $versions
-     * @param  $clientid
-     * @param  $invoiceid
-     * @return string
-     *
-     * @throws
-     */
-    public function whenDownloadTillExpiry($updateEndDate, $productid, $versions, $clientid, $invoiceid)
-    {
-        if ($versions->created_at->toDateTimeString()
-        < $updateEndDate->update_ends_at) {
-            return '<p><a href='.url('download/'.$productid.'/'
-            .$clientid.'/'.$invoiceid.'/'.$versions->id).
-            " class='btn btn-light-scale-2 btn-sm text-dark download-btn'><i class='fa fa-download'>
-            </i>&nbsp;&nbsp;Download</a>".'&nbsp;
-
-       </p>';
-        } else {
-            return '<button class="btn btn-danger 
-        btn-sm disabled">Please Renew </button>';
-        }
-    }
-
-    /**
-     *  This function returns download link when download permission(allowDownloadTillExpiry) is 0.
-     *
-     * @param  $updatesEndDate
-     * @param  $productid
-     * @param  $versions
-     * @param  $clientid
-     * @param  $invoiceid
-     * @param  $countExpiry
-     * @param  $countVersions
-     * @return string
-     *
-     * @throws
-     */
-    public function whenDownloadExpiresAfterExpiry($countExpiry, $countVersions, $updatesEndDate, $productid, $versions, $clientid, $invoiceid)
-    {
-        if ($countExpiry == $countVersions) {
-            return '<p><a href='.url('download/'.$productid.'/'
-            .$clientid.'/'.$invoiceid.'/'.$versions->id).
-            " class='btn btn-light-scale-2 btn-sm text-dark download-btn'><i class='fa fa-download'>
-            </i>&nbsp;&nbsp;Download</a>".'&nbsp;
-
-       </p>';
-        } else {
-            return '<button class="btn btn-danger 
-        btn-sm disabled">Please Renew </button>';
-        }
-    }
-
-    /**
      *  This returns to the client panel orders page.
      *
      * @param  Request  $request
@@ -451,21 +235,6 @@ class BaseClientController extends Controller
     }
 
     /**
-     * Get the Delete instance popup for cloud.
-     *
-     * @param  Order  $orders  Order For the Client
-     * @param  int  $productid  Product id for the Order
-     * @return array Show Modal Popup if Condition Satisfies
-     */
-    public function getCloudDeletePopup($query, int $productid)
-    {
-        $permissions = LicensePermissionsController::getPermissionsForProduct($productid);
-        if ($permissions['downloadPermission'] != 1) { //If the Product has doownlaod permission
-            return $this->deleteCloudPopup($query->number);
-        }
-    }
-
-    /**
      *  This returns to the cloud popup deletion.
      *
      * @param  $orderNumber
@@ -476,21 +245,6 @@ class BaseClientController extends Controller
     public function deleteCloudPopup($orderNumber)
     {
         return view('themes.default1.front.clients.delete-cloud-popup', compact('orderNumber'));
-    }
-
-    public function changeDomain($query, int $productid)
-    {
-        $permissions = LicensePermissionsController::getPermissionsForProduct($productid);
-        if ($permissions['downloadPermission'] != 1) { //If the Product has download permission
-            //change/domain is the api
-            return ['OrderNo' => $query->number];
-            // return $this->changecloudDomain($query->number);
-        }
-    }
-
-    public function changecloudDomain($orderNumber)
-    {
-        return view('themes.default1.front.clients.changeDomain-popup', compact('orderNumber'));
     }
 
     public function cartAccess(Request $request)

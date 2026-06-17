@@ -121,8 +121,6 @@ Route::get('api/billingInfo', [HomeController::class, 'getDetailedBillingInfo'])
 Route::get('api/pluginInfo', [HomeController::class, 'getDetailsForAClient']);
 Route::get('api/billingRelease', [HomeController::class, 'getProductRelease']);
 
-// --- Agent / product download (external, signed URLs) ---
-Route::get('/api/download/agents', [BaseProductController::class, 'agentProductDownload']);
 Route::get('/product/detail', [BaseProductController::class, 'getProductUsingLicenseCode']);
 
 // ============================================================
@@ -227,7 +225,6 @@ Route::middleware('installAgora')->group(function (): void {
     // ==========================================================
 
     // Language / locale
-    Route::get('language/control', [LanguageController::class, 'fetchLangDropdownUsers']);
     Route::get('js/lang', [LanguageController::class, 'getLanguageFile'])->name('assets.lang');
 
     // Dependency lookups (countries, states, timezones, products, plans, etc.)
@@ -278,8 +275,6 @@ Route::middleware('installAgora')->group(function (): void {
         ->name('store.group.products');
     Route::get('store/cloud-products', [FreeTrailController::class, 'getCloudProducts'])->name('store.cloud.products');
     Route::post('free-trial/start', [FreeTrailController::class, 'startTrial'])->name('free-trial.start');
-    Route::post('available-groups', [GroupController::class, 'getAvailableGroups'])
-        ->withoutMiddleware(['auth', 'admin']);
     Route::post('newsletter/subscribe', [NewsletterController::class, 'subscribe'])
         ->middleware('recaptcha:newsletter');
     Route::post('demo-request', [PageController::class, 'postDemoReq'])
@@ -287,7 +282,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('404', fn () => view('errors.404'))->name('error404');
 
     // Published pages / contact info / demo status (public, no auth)
-    Route::get('published-pages', [PageController::class, 'publishedPages']);
     Route::get('page-content/{slug}', [PageController::class, 'pageBySlug']);
     Route::get('contact-us-info', [PageController::class, 'contactUsInfo']);
     Route::get('demo', [PageController::class, 'getDemoStatus']);
@@ -543,9 +537,7 @@ Route::middleware('installAgora')->group(function (): void {
 
     // Legacy order endpoints
     Route::get('get-orders', [OrderController::class, 'getOrders'])->name('get-orders');
-    Route::post('edit-update-expiry', [BaseOrderController::class, 'editUpdateExpiry']);
-    Route::post('edit-license-expiry', [BaseOrderController::class, 'editLicenseExpiry']);
-    Route::post('edit-support-expiry', [BaseOrderController::class, 'editSupportExpiry']);
+    Route::post('update-license-details', [BaseOrderController::class, 'updateLicenseDetails']);
     Route::get('get-installation-details/{orderId}', [OrderController::class, 'getInstallationDetails']);
     Route::get('export-orders', [OrderController::class, 'exportOrders'])->name('export-orders');
     Route::get('orders/license/{order_number}', fn ($orderNumber) => redirect('/orders/'.Order::where('number', $orderNumber)->value('id')));
@@ -847,8 +839,6 @@ Route::middleware('installAgora')->group(function (): void {
     // --------------------------------------------------------
 
     Route::get('github-auth-app', [GithubController::class, 'authForSpecificApp']);
-    Route::get('github-releases', [GithubController::class, 'listRepositories']);
-    Route::get('github-downloads', [GithubController::class, 'getDownloadCount']);
 
     // --------------------------------------------------------
     // Reports
@@ -926,9 +916,9 @@ Route::middleware('installAgora')->group(function (): void {
     // Product Downloads
     // --------------------------------------------------------
 
-    Route::get('download/{uploadid}/{userid}/{invoice_number}/{versionid}',
+    Route::get('download/{order_id}/{version_id?}',
         [ProductController::class, 'userDownload']);
-    Route::get('product/download/{id}/{invoice?}',
+    Route::get('product/download/{id}/{release?}',
         [ProductController::class, 'adminDownload']);
 
     // Preview image
@@ -946,9 +936,6 @@ Route::middleware('installAgora')->group(function (): void {
 
     // API-middleware group (bypasses web session/CSRF — machine-to-machine)
     Route::prefix('api')->withoutMiddleware(['web'])->middleware(['api'])->group(function (): void {
-        Route::post('productDownload', [BaseProductController::class, 'productDownload']);
-        Route::post('productExist', [BaseProductController::class, 'productFileExist']);
-        Route::post('updateInstallationStatus', [BaseProductController::class, 'updateStatus']);
         // Receives reports from MSG91
         Route::post('msg91/reports/{app_key}/{app_secret}',
             [MSG91Controller::class, 'handleReports'])

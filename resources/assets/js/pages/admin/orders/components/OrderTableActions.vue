@@ -2,7 +2,7 @@
     <div class="user-table-actions">
         <router-link
             :to="`/orders/${orderId}`"
-            class="btn btn-default table_btn"
+            class="btn btn-light table_btn"
             v-tooltip="__('message.view')"
         >
             <i class="fas fa-eye"></i>

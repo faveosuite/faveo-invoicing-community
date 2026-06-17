@@ -46,7 +46,7 @@ class PageController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'], ['except' => ['pageTemplates', 'postDemoReq', 'postContactUs', 'publishedPages', 'pageBySlug', 'contactUsInfo']]);
+        $this->middleware(['auth', 'admin'], ['except' => ['pageTemplates', 'postDemoReq', 'postContactUs', 'pageBySlug', 'contactUsInfo']]);
         $this->middleware('recaptcha:contact')->only('postContactUs');
         $this->middleware('recaptcha:demo')->only('postDemoReq');
         $page = new FrontendPage();
@@ -167,20 +167,6 @@ class PageController extends Controller
      * Public: list published pages for the front-end navbar.
      * Returns the hierarchy fields so the SPA can build parent/child menus.
      */
-    public function publishedPages()
-    {
-        try {
-            $pages = FrontendPage::where('publish', 1)
-                ->select('id', 'name', 'slug', 'url', 'type', 'parent_page_id')
-                ->orderBy('created_at', 'asc')
-                ->get();
-
-            return successResponse('', $pages);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
-        }
-    }
-
     /**
      * Public: fetch a single published page by slug for the SPA page view.
      * Returns null data (200) when not found so the client can show a

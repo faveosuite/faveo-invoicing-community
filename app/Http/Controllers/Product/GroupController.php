@@ -200,21 +200,6 @@ class GroupController extends Controller
     }
 
 //    This is for the client panel, change it to the client panel controllers, which does not have middleware admin.
-    public function getAvailableGroups()
-    {
-        try {
-            $groups = ProductGroup::select('id', 'name', 'pricing_templates_id')->where('hidden', '!=', 1)->get()->toArray();
-            foreach ($groups as $group) {
-                $grouped[$group['id']]['url'] = url('group/'.$group['pricing_templates_id'].'/'.$group['id']);
-                $grouped[$group['id']]['name'] = $group['name'];
-            }
-
-            return successResponse(trans('message.success'), $grouped);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
-        }
-    }
-
     public function getProductGroups(Request $request)
     {
         $searchQuery = $request->input('search-query', '');

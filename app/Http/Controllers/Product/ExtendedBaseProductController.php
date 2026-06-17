@@ -6,7 +6,7 @@ use App\Facades\Attach;
 use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Github\GithubApiController;
-use App\Model\Order\Invoice;
+use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Payment\TaxProductRelation;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
@@ -17,8 +17,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Lang;
 use Logger;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class ExtendedBaseProductController extends Controller
 {
@@ -132,96 +131,55 @@ class ExtendedBaseProductController extends Controller
         }
     }
 
-    public function adminDownload($id, $invoice = '', $api = false, $beta = 1)
+    public function adminDownload($id, $release = 'official')
     {
-        $product = Product::where('id', $id)->get();
-        $product = $product->toArray();
         try {
-            if ($this->downloadValidation(true, $id, $invoice, $api)) {
-                if ($product[0]['github_owner'] && $product[0]['github_repository']) {
-                    $repo = $product[0]['github_repository'];
-                    $owner = $product[0]['github_owner'];
-                    $githubApi = new GithubApiController();
-                    $url = "https://api.github.com/repos/$owner/$repo/releases";
-                    $countExpiry = 0;
-                    $link = $githubApi->getCurl1($url);
-                    $link = $link['body'];
-                    $countVersions = 3; //because we are taking only the first 10 versions
-                    $link = array_slice($link, 0, 1, true);
-                    $link1 = $githubApi->getCurl1($link[0]['zipball_url']);
-                    if ($link1['body'] == null) {
-                        $fileName = 'faveo.zip';
-                        $url = $link1['header']['location'];
-
-                        return response()->streamDownload(function () use ($url): void {
-                            echo file_get_contents($url);
-                        }, $fileName);
-                    } else {
-                        $string = $link1['body']['message'];
-                        preg_match_all('/https:\/\/[^\s,"]+/', (string) $string, $matches);
-                        $url = $matches[0][0];
-                        $fileName = 'faveo.zip';
-
-                        return response()->streamDownload(function () use ($url): void {
-                            echo file_get_contents($url);
-                        }, $fileName);
-                    }
-                }
-
-                $release = $this->downloadProductAdmin($id, $beta);
-                $name = Product::where('id', $id)->value('name');
-                if (isS3Enabled()) {
-                    if (! Attach::exists('products/'.explode('?', urldecode(basename($release)))[0])) {
-                        return redirect('my-orders')->with('fails', __('message.file_not_exist'));
-                    }
-
-                    return downloadExternalFile($release, $name);
-                } else {
-                    if (! $release instanceof StreamedResponse) {
-                        return redirect('my-orders')->with('fails', Lang::get('message.file_not_exist'));
-                    }
-
-                    $customFileName = "{$name}.zip";
-
-                    $release->headers->set(
-                        'Content-Disposition',
-                        $release->headers->makeDisposition(
-                            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                            $customFileName
-                        )
-                    );
-
-                    return $release;
-                }
-            } else {
+            $permissions = LicensePermissionsController::getPermissionsForProduct($id);
+            if (($permissions['downloadPermission'] ?? 0) != 1) {
                 throw new Exception(Lang::get('message.no_permission_for_action'));
             }
+
+            $product = Product::findOrFail($id);
+
+            $tag = $product->github_owner
+                ? app(GithubApiController::class)->latestTag($product->github_owner, $product->github_repository)
+                : null;
+
+            $version = $tag ? null : ProductUpload::where('product_id', $id)
+                ->where('release_type', $release)
+                ->where('is_private', 0)
+                ->latest()
+                ->first();
+
+            return $this->download($product, $version, $tag);
         } catch (Exception $e) {
-            return redirect('my-orders')->with('fails', $e->getMessage());
+            return errorResponse($e->getMessage());
         }
     }
 
-    /**
-     * Checks whether order exists or not for a product and invoice.
-     *
-     * @date   2020-04-13T14:53:04+0530
-     *
-     * @param  int  $id  Product id
-     * @param  int  $invoice  Invoice Number
-     * @param  bool  $allowDownload
-     * @return bool
-     */
-    private function downloadValidation(bool $allowDownload, $id, $invoice, $api)
+    public function download(Product $product, ?ProductUpload $version = null, ?string $tag = null): Response
     {
-        if ($api == false) {
-            if (Auth::user()->role == 'user') {
-                $invoice = Invoice::where('number', $invoice)->first(); //If invoice number sent as parameter exists
-                $this->checkSubscriptionExpiry($invoice);
-                $allowDownload = $invoice ? $invoice->order()->value('product') == $id : false; //If the order for the product sent in the parameter exists
+        if ($product->github_owner && $product->github_repository) {
+            if (! $tag) {
+                throw new Exception(trans('message.file_not_exist'));
             }
+
+            return redirect(app(GithubApiController::class)->resolveDownloadUrl(
+                app(GithubApiController::class)->zipballUrl($product->github_owner, $product->github_repository, $tag)
+            ));
         }
 
-        return $allowDownload;
+        if (! $version?->file) {
+            throw new Exception(trans('message.file_not_exist'));
+        }
+
+        $path = 'products/'.$version->file;
+
+        if (! Attach::exists($path)) {
+            throw new Exception(trans('message.file_not_exist'));
+        }
+
+        return Attach::download($path);
     }
 
     public function checkSubscriptionExpiry($invoice)

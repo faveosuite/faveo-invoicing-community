@@ -9,6 +9,32 @@ $social = App\Model\Common\SocialMedia::get(['name', 'link']);
 
 $widgets = \App\Model\Front\Widgets::where('publish', 1)->get(['id', 'name', 'type', 'content', 'allow_mailchimp', 'allow_social_media', 'allow_tweets']);
 $chatScripts = \App\Model\Common\ChatScript::get(['id', 'script', 'google_analytics', 'google_analytics_tag', 'on_registration', 'on_every_page']);
+
+$languageList = array_map('basename', \Illuminate\Support\Facades\File::directories(lang_path()));
+$dbLanguages = \App\Model\Common\Language::all()->keyBy('locale');
+$languages = collect($languageList)->map(function ($locale, $key) use ($dbLanguages) {
+    $config = config("languages.$locale", ['', '']);
+    return [
+        'id'          => $key,
+        'locale'      => $locale,
+        'name'        => $config[0] ?? $locale,
+        'translation' => $config[1] ?? '',
+        'status'      => $dbLanguages[$locale]->status ?? 0,
+    ];
+})->sortBy('name')->values();
+
+$publishedPages = \App\Model\Front\FrontendPage::where('publish', 1)
+    ->select('id', 'name', 'slug', 'url', 'type', 'parent_page_id')
+    ->orderBy('created_at', 'asc')
+    ->get();
+
+$productGroups = \App\Model\Product\ProductGroup::select('id', 'name', 'pricing_templates_id')
+    ->where('hidden', '!=', 1)
+    ->get()
+    ->mapWithKeys(fn($g) => [$g->id => [
+        'name' => $g->name,
+        'url'  => url('group/' . $g->pricing_templates_id . '/' . $g->id),
+    ]]);
 ?>
 <head>
     <meta charset="utf-8">
@@ -79,7 +105,10 @@ $chatScripts = \App\Model\Common\ChatScript::get(['id', 'script', 'google_analyt
      data-cart-count="{{ $cartFacade->getTotalQuantity() }}"
      data-social="{{ $social->toJson() }}"
      data-widgets="{{ $widgets->toJson() }}"
-     data-scripts="{{ $chatScripts->toJson() }}">
+     data-scripts="{{ $chatScripts->toJson() }}"
+     data-languages="{{ $languages->toJson() }}"
+     data-published-pages="{{ $publishedPages->toJson() }}"
+     data-product-groups="{{ $productGroups->toJson() }}">
 </div>
 
 {{-- Bootstrap 5 bundle JS (includes Popper) — used for dropdowns, collapse, tooltips. --}}

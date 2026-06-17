@@ -2,24 +2,18 @@
 
 namespace App\Http\Controllers\Product;
 
-use App\Facades\Attach;
-use App\Http\Controllers\Github\GithubController;
-use App\Http\Controllers\License\LicensePermissionsController;
-use App\License\Models\Installation;
+use App\Http\Controllers\Github\GithubApiController;
 use App\License\Services\LicenseService;
-use App\Model\Order\Invoice;
+use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
-use App\ThirdPartyApp;
 use App\User;
 use Auth;
 use Exception;
 use Illuminate\Http\Request;
 use Lang;
 use Logger;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class BaseProductController extends ExtendedBaseProductController
 {
@@ -165,132 +159,50 @@ class BaseProductController extends ExtendedBaseProductController
         }
     }
 
-    public function userDownload($uploadid, $userid, $invoice_number, $version_id = '')
+    public function userDownload($order_id, $version_id = '')
     {
         try {
-            if (Auth::user()->role != 'admin') {
-                if (Auth::user()->id != $userid) {
-                    throw new Exception(__('message.no_permission_for_action'));
-                }
+            $order = Order::with('subscription')->findOrFail($order_id);
+
+            if (Auth::user()->role !== 'admin' && Auth::user()->id !== $order->client) {
+                throw new Exception(__('message.no_permission_for_action'));
             }
 
-            $user = new User();
-            $user = $user->findOrFail($userid);
+            $subscription = $order->subscription;
 
-            $invoice = new Invoice();
-            $invoice = $invoice->where('number', $invoice_number)->first();
-            $this->checkSubscriptionExpiry($invoice);
-            if ($user && $invoice) {
-                if ($user->active == 1) {
-                    $product_id = $invoice->order()->value('product');
-                    $name = Product::where('id', $product_id)->value('name');
-                    $invoice_id = $invoice->id;
-
-                    $release = $this->downloadProduct($uploadid, $userid, $invoice_id, $version_id);
-
-                    if (is_array($release) && array_key_exists('type', $release)) {
-                        $release = $release['release'];
-
-                        return view('themes.default1.front.download', compact('release'));
-                    } else {
-                        if (isS3Enabled()) {
-                            if (! Attach::exists('products/'.explode('?', urldecode(basename($release)))[0])) {
-                                return back()->with('fails', Lang::get('message.file_not_exist'));
-                            }
-
-                            return downloadExternalFile($release, $name);
-                        } else {
-                            if (! $release instanceof StreamedResponse) {
-                                return back()->with('fails', Lang::get('message.file_not_exist'));
-                            }
-
-                            $customFileName = "{$name}.zip";
-
-                            $release->headers->set(
-                                'Content-Disposition',
-                                $release->headers->makeDisposition(
-                                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                                    $customFileName
-                                )
-                            );
-
-                            return $release;
-                        }
-                    }
-                } else {
-                    return back()->with('fails', Lang::get('activate-your-account'));
-                }
-            } else {
-                throw new Exception(Lang::get('message.no_permission_for_action'));
+            if (! $subscription) {
+                throw new Exception(__('message.no_order_exists_invoice'));
             }
+
+            if ($subscription->update_ends_at && now()->gt($subscription->update_ends_at)) {
+                throw new Exception(__('message.renew_subscription_download'));
+            }
+
+            $product = Product::findOrFail($order->product);
+
+            if ($product->github_owner) {
+                $tag = $version_id
+                    ?: app(GithubApiController::class)->latestTag($product->github_owner, $product->github_repository);
+
+                return $this->download($product, null, $tag);
+            }
+
+            $version = ProductUpload::where('product_id', $order->product)
+                ->when($version_id, fn ($q) => $q->where('id', $version_id))
+                ->when($subscription->update_ends_at, fn ($q) => $q->where('created_at', '<', $subscription->update_ends_at))
+                ->where('is_private', 0)
+                ->latest()
+                ->first();
+
+            if (! $version) {
+                throw new Exception(trans('message.renew_subscription_download'));
+            }
+
+            return $this->download($product, $version);
         } catch (Exception $ex) {
             Logger::exception($ex);
 
-            return back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function getRelease($owner, $repository, $order_id, $file)
-    {
-        if ($owner && $repository) {//If the Product is downloaded from Github
-            $github_controller = new GithubController();
-            $relese = $github_controller->listRepositories($owner, $repository, $order_id);
-
-            return ['release' => $relese, 'type' => 'github'];
-        } elseif ($file) {
-            //If the Product is Downloaded from FileSystem
-            $fileName = $file->file;
-            $relese = Attach::download('products/'.$fileName);
-
-            return $relese;
-        }
-    }
-
-    public function getReleaseAdmin($owner, $repository, $file)
-    {
-        if ($owner && $repository) {
-            $github_controller = new GithubController();
-            $relese = $github_controller->listRepositoriesAdmin($owner, $repository);
-
-            return ['release' => $relese, 'type' => 'github'];
-        } elseif ($file->file) {
-            // $relese = storage_path().'\products'.'\\'.$file->file;
-            //    $relese = '/home/faveo/products/'.$file->file;
-            $fileName = $file->file;
-
-            $relese = Attach::download('products/'.$fileName);
-
-            return $relese;
-        }
-    }
-
-    public function downloadProductAdmin($id, $beta = 1)
-    {
-        try {
-            $product = Product::findOrFail($id);
-            $type = $product->type;
-            $owner = $product->github_owner;
-            $repository = $product->github_repository;
-            if ($beta) {
-                $file = ProductUpload::where('product_id', '=', $id)->select('file')
-                    ->orderBy('created_at', 'desc')
-                    ->first();
-            } else {
-                $file = ProductUpload::where('product_id', '=', $id)->
-                    where('is_pre_release', 0)
-                    ->select('file')
-                    ->orderBy('created_at', 'desc')
-                    ->first();
-            }
-
-            $permissions = LicensePermissionsController::getPermissionsForProduct($id);
-            if ($permissions['downloadPermission'] == 1) {
-                $relese = $this->getReleaseAdmin($owner, $repository, $file);
-
-                return $relese;
-            }
-        } catch (Exception $e) {
-            return back()->with('fails', $e->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -340,17 +252,11 @@ class BaseProductController extends ExtendedBaseProductController
         }
     }
 
-    public function updateVersionFromGithub($productid, $github_owner, $github_repository)
+    public function updateVersionFromGithub($productid, $github_owner, $github_repository): void
     {
-        try {
-            $product = Product::find($productid)->select('version')->first();
-            $github_controller = new GithubController();
-            $version = $github_controller->findVersion($github_owner, $github_repository);
-            $product->version = $version;
-            $product->save();
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
-        }
+        $product = Product::findOrFail($productid);
+        $product->version = app(GithubApiController::class)->latestTag($github_owner, $github_repository);
+        $product->save();
     }
 
     /**
@@ -385,113 +291,6 @@ class BaseProductController extends ExtendedBaseProductController
         $quantityModifyPermission = $product->can_modify_quantity;
 
         return ['agent' => $agentModifyPermission, 'quantity' => $quantityModifyPermission];
-    }
-
-    public function productDownload(Request $request)
-    {
-        if (! $this->validateLicenseManagerAppKey($request->input('app_key'), $request->input('app_secret'))) {
-            return errorResponse(Lang::get('message.invalid_app_key'));
-        }
-
-        $fileName = $request->input('file_name');
-        $filePath = 'products/'.$fileName;
-
-        if (! $this->fileExists($filePath)) {
-            return errorResponse(Lang::get('message.file_not_exist'));
-        }
-
-        return $this->streamProduct($filePath);
-    }
-
-    public function productFileExist(Request $request)
-    {
-        if (! $this->validateLicenseManagerAppKey($request->input('app_key'), $request->input('app_secret'))) {
-            return errorResponse(Lang::get('message.invalid_app_key'));
-        }
-
-        $fileName = $request->input('file_name');
-        $filePath = 'products/'.$fileName;
-
-        if (! $this->fileExists($filePath)) {
-            return errorResponse(Lang::get('message.file_not_exist'));
-        }
-
-        return successResponse(Lang::get('message.file_exist'));
-    }
-
-    public function updateStatus(Request $request)
-    {
-        if (! $this->validateLicenseManagerAppKey($request->input('app_key'), $request->input('app_secret'))) {
-            return errorResponse(Lang::get('message.invalid_app_key'));
-        }
-
-        $domain = $request->input('domain');
-        Installation::where('installation_path', $domain)->update(['installation_status' => 0]);
-
-        return successResponse(Lang::get('message.updated_successfully'));
-    }
-
-    private function fileExists($filePath): bool
-    {
-        return Attach::exists($filePath);
-    }
-
-    private function streamProduct($filePath)
-    {
-        try {
-            $response = new StreamedResponse(function () use ($filePath): void {
-                $stream = Attach::readStream($filePath);
-                while (! feof($stream)) {
-                    echo fread($stream, 1024 * 8);  // Read in 8 KB chunks
-                }
-
-                fclose($stream);
-            });
-
-            $response->headers->set('Content-Type', 'application/octet-stream');
-            $response->headers->set('Content-Disposition', 'attachment; filename="'.basename((string) $filePath).'"');
-
-            return $response;
-        } catch (Exception) {
-            return errorResponse(Lang::get('message.error_occured_while_downloading'));
-        }
-    }
-
-    private function validateLicenseManagerAppKey($appKey, $appSecret): bool
-    {
-        return ThirdPartyApp::where('app_key', $appKey)
-            ->where('app_secret', $appSecret)
-            ->exists();
-    }
-
-    public function agentProductDownload(Request $request)
-    {
-        $product_key = $request->input('product_key');
-
-        $productResult = Product::where('product_key', $product_key)->first();
-        $product_id = $productResult ? $productResult->id : null;
-
-        $version_number = $request->input('version_number');
-        $version = ! empty($version_number) ? $version_number : ProductUpload::where('product_id', $product_id)
-            ->latest()
-            ->value('version');
-
-        if (! $version) {
-            return errorResponse(Lang::get('message.file_not_exist'));
-        }
-
-        $product = ProductUpload::where('product_id', $product_id)
-            ->where('version', $version)
-            ->latest()
-            ->first();
-
-        $filePath = 'products/'.$product->file;
-
-        if (! $product || ! $this->fileExists($filePath)) {
-            return errorResponse(Lang::get('message.file_not_exist'));
-        }
-
-        return $this->streamProduct($filePath);
     }
 
     public function getProductUsingLicenseCode(Request $request)

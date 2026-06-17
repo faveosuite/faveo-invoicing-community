@@ -9,8 +9,6 @@ use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\License\LicenseType;
-use App\Model\Order\Order;
-use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
@@ -404,29 +402,6 @@ class ProductController extends BaseProductController
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $e) {
             return errorResponse(__('message.errors_occurs_delete_product').$e->getMessage());
-        }
-    }
-
-    /*
-    *  Download Files from Filesystem/Github
-    */
-    public function downloadProduct($uploadid, $id, $invoice_id, $version_id = '')
-    {
-        try {
-            $product = $this->product->findOrFail($uploadid);
-            $type = $product->type;
-            $owner = $product->github_owner;
-            $repository = $product->github_repository;
-            $file = $this->product_upload
-                ->where('product_id', '=', $uploadid)
-                ->where('id', $version_id)->select('file')->first();
-            $order = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoice_id)->pluck('order_id'))->first();
-            $order_id = $order->id;
-            $relese = $this->getRelease($owner, $repository, $order_id, $file);
-
-            return $relese;
-        } catch (Exception $e) {
-            return back()->with('fails', $e->getMessage());
         }
     }
 
