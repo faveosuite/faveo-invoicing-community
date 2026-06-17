@@ -38,13 +38,13 @@ class Subscription extends Model
             'user_id' => ['User', fn ($value) => User::find($value)?->name],
             'plan_id' => ['Plan', fn ($value) => Plan::find($value)?->name],
             'order_id' => ['Order', fn ($value) => $value ? Order::find($value)?->number : 'No Order'],
-            'deny_after_subscription' => ['Deny After Subscription', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+            'deny_after_subscription' => ['Deny After Subscription', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
             'version' => ['Version', fn ($value) => $value],
             'product_id' => ['Product', fn ($value) => Product::find($value)?->name],
             'support_ends_at' => ['Support End Date', fn ($value) => $value],
             'version_updated_at' => ['Version Updated At', fn ($value) => $value],
-            'is_subscribed' => ['Is Subscribed', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'is_deleted' => ['Is Deleted', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+            'is_subscribed' => ['Is Subscribed', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'is_deleted' => ['Is Deleted', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
         ];
     }
 

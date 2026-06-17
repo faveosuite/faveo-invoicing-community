@@ -12,6 +12,9 @@ use App\Model\Product\Subscription;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Order\Order>
+ */
 class OrderFactory extends Factory
 {
     /**
@@ -25,20 +28,20 @@ class OrderFactory extends Factory
     {
         return [
             'client' => User::factory(),
-            'order_status' => $this->faker->randomElement(['executed', 'Terminated']),
+            'order_status' => fake()->randomElement(['executed', 'Terminated']),
             'invoice_item_id' => InvoiceItem::factory(),
-            'serial_key' => strtoupper($this->faker->bothify('????????????????????????')),
+            'serial_key' => strtoupper(fake()->bothify('????????????????????????')),
             'product' => Product::factory(),
-            'qty' => $this->faker->numberBetween(1, 10),
+            'qty' => fake()->numberBetween(1, 10),
             'invoice_id' => Invoice::factory(),
-            'number' => $this->faker->unique()->numerify('########'),
-            'license_mode' => $this->faker->randomElement(['Database']),
+            'number' => fake()->unique()->numerify('########'),
+            'license_mode' => fake()->randomElement(['Database']),
         ];
     }
 
     public function withRelations(array $overrides = [])
     {
-        return $this->state(fn () => $overrides)
+        return $this->state(fn (): array => $overrides)
             ->afterCreating(function (Order $order): void {
                 $user = User::find($order->client) ?? User::factory()->create();
                 $product = Product::find($order->product) ?? Product::factory()->create();

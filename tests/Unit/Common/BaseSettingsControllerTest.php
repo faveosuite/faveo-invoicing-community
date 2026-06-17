@@ -11,7 +11,7 @@ class BaseSettingsControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -20,7 +20,7 @@ class BaseSettingsControllerTest extends DBTestCase
         $this->withoutMiddleware();
     }
 
-    public function test_get_cron_settings_check_api_structure()
+    public function test_get_cron_settings_check_api_structure(): void
     {
         $response = $this->getJson('job-scheduler');
         $response->assertStatus(200)
@@ -52,7 +52,7 @@ class BaseSettingsControllerTest extends DBTestCase
                  ]);
     }
 
-    public function test_post_scheduler_status_flags()
+    public function test_post_scheduler_status_flags(): void
     {
         $payload = [
             'expiry_cron' => 1,
@@ -79,7 +79,7 @@ class BaseSettingsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_post_scheduler_with_timing()
+    public function test_post_scheduler_with_timing(): void
     {
         // REAL payload (based on your POST data)
         $payload = [
@@ -157,7 +157,7 @@ class BaseSettingsControllerTest extends DBTestCase
         }
     }
 
-    public function test_save_cron_days_updates_all_tables_correctly()
+    public function test_save_cron_days_updates_all_tables_correctly(): void
     {
         $payload = [
             'logdelday' => 180,
@@ -183,7 +183,7 @@ class BaseSettingsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_returns_success_when_exec_is_enabled_and_php_path_is_valid()
+    public function test_it_returns_success_when_exec_is_enabled_and_php_path_is_valid(): void
     {
         $mock = Mockery::mock(
             SettingsController::class
@@ -208,7 +208,7 @@ class BaseSettingsControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_returns_error_when_exec_is_disabledq()
+    public function test_it_returns_error_when_exec_is_disabledq(): void
     {
         $mock = Mockery::mock(
             SettingsController::class
@@ -240,7 +240,7 @@ class BaseSettingsControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_returns_cron_condition_when_condition_exists()
+    public function test_it_returns_cron_condition_when_condition_exists(): void
     {
         //expiryMail
         $response = $this->getJson('/cron/condition/expiryMail');

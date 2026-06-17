@@ -16,7 +16,6 @@ class SessionTimeout
     /**
      * Handle an incoming request and manage session timeout for verification/2FA.
      *
-     * @param  Request  $request
      * @param  Closure(Request): (Response|RedirectResponse)  $next
      * @param  int  $timeoutMinutes  The session timeout threshold in minutes (default: 10).
      * @param  string  $sessionKey  The session key used to track verification activity.
@@ -42,7 +41,7 @@ class SessionTimeout
 
         // Check for timeout
         $lastActivity = Date::createFromTimestampUTC(Session::get($sessionKey));
-        $elapsedMinutes = (int) $lastActivity->diffInMinutes($now, true);
+        $elapsedMinutes = (int) $lastActivity->diffInMinutes($now, absolute: true);
         if ($elapsedMinutes >= $timeoutMinutes) {
             $this->expireSession($sessionKey);
 
@@ -56,8 +55,6 @@ class SessionTimeout
 
     /**
      * Determine if the timer should be reset due to fresh verification or 2FA start.
-     *
-     * @return bool
      */
     private function shouldResetTimer(): bool
     {
@@ -66,10 +63,6 @@ class SessionTimeout
 
     /**
      * Reset or start a new verification session timer.
-     *
-     * @param  string  $sessionKey
-     * @param  Carbon|null  $time
-     * @return void
      */
     private function resetVerificationTimer(string $sessionKey, ?Carbon $time = null): void
     {
@@ -78,9 +71,6 @@ class SessionTimeout
 
     /**
      * Expire the current verification session and notify the user.
-     *
-     * @param  string  $sessionKey
-     * @return void
      */
     private function expireSession(string $sessionKey): void
     {

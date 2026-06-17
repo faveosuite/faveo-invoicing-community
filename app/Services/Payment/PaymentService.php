@@ -36,12 +36,12 @@ class PaymentService
         $keys = ApiKey::find(1);
 
         return (new PaymentGatewayManager)
-            ->register('Stripe', fn () => new StripeGateway(
+            ->register('Stripe', fn (): \App\Plugins\Payment\Gateways\StripeGateway => new StripeGateway(
                 (string) ($keys->stripe_secret ?? ''),
                 (string) ($keys->stripe_key ?? ''),
                 (string) ($keys->stripe_webhook_secret ?? ''),
             ))
-            ->register('Razorpay', fn () => new RazorpayGateway(
+            ->register('Razorpay', fn (): \App\Plugins\Payment\Gateways\RazorpayGateway => new RazorpayGateway(
                 (string) ($keys->rzp_key ?? ''),
                 (string) ($keys->rzp_secret ?? ''),
                 'Faveo Helpdesk',
@@ -77,7 +77,7 @@ class PaymentService
         $driver = $this->manager()->gateway($gateway);
 
         if (! $driver instanceof CardPaymentGateway) {
-            throw new PaymentException("Payment gateway [{$gateway}] does not support a custom card UI.");
+            throw new PaymentException(sprintf('Payment gateway [%s] does not support a custom card UI.', $gateway));
         }
 
         return $driver->createCardPayment($request);

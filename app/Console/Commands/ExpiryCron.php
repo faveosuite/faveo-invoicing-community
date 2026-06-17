@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Console\LoggableCommand;
@@ -22,21 +24,9 @@ class ExpiryCron extends LoggableCommand
     protected $description = 'Renewal notification for disabled the auto subscription orders';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
         $controller = new CronController();
         $controller->eachSubscription();

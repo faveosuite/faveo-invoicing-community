@@ -108,7 +108,7 @@ class BaseDependencyController extends Controller
      *
      * @param  object  $request
      */
-    public function initializeParameterValues($request)
+    public function initializeParameterValues($request): void
     {
         $this->request = $request;
 
@@ -128,7 +128,7 @@ class BaseDependencyController extends Controller
 
         //only admin can set config as true
         // or can be set through code when $ids are non empty
-        $this->config = ($this->userRole == 'admin' || count($this->ids)) ? (bool) $request->input('config') : false;
+        $this->config = ($this->userRole == 'admin' || count($this->ids)) && (bool) $request->input('config');
 
         //Config will be true if it is accessed from admin panel, in that case all the data & columns in the table will be returned
         //So meta don't have to be true
@@ -173,7 +173,7 @@ class BaseDependencyController extends Controller
                 ['dependency_type' => $this->dependencyKey, 'attribute_name' => 'name'],
             ];
 
-            $arrayIndex = array_search($this->dependencyKey, array_column($keysWithAndWithoutNameAttributeArray, 'dependency_type'));
+            $arrayIndex = array_search($this->dependencyKey, array_column($keysWithAndWithoutNameAttributeArray, 'dependency_type'), strict: true);
 
             $baseQuery = $baseQuery->where($model->getTable().'.'.$keysWithAndWithoutNameAttributeArray[$arrayIndex]['attribute_name'], $this->searchQuery);
         }
@@ -200,7 +200,7 @@ class BaseDependencyController extends Controller
             $paginationMethod = $this->simplePaginate ? 'simplePaginate' : 'paginate';
             $result = $baseQuery->$paginationMethod($this->limit);
 
-            if ($callback) {
+            if ($callback instanceof \Closure) {
                 $result->getCollection()->transform($callback);
             }
 
@@ -208,7 +208,7 @@ class BaseDependencyController extends Controller
         }
 
         $result = $baseQuery->take($this->limit)->get();
-        if ($callback) {
+        if ($callback instanceof \Closure) {
             $result = $result->transform($callback);
         }
 

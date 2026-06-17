@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Common\Twitter;
 
 /**
@@ -27,7 +29,7 @@ class Response
     /**
      * @param  string  $apiPath
      */
-    public function setApiPath($apiPath)
+    public function setApiPath($apiPath): void
     {
         $this->apiPath = $apiPath;
     }
@@ -43,7 +45,7 @@ class Response
     /**
      * @param  array|object  $body
      */
-    public function setBody($body)
+    public function setBody($body): void
     {
         $this->body = $body;
     }
@@ -59,7 +61,7 @@ class Response
     /**
      * @param  int  $httpCode
      */
-    public function setHttpCode($httpCode)
+    public function setHttpCode($httpCode): void
     {
         $this->httpCode = $httpCode;
     }
@@ -75,7 +77,7 @@ class Response
     /**
      * @param  array  $headers
      */
-    public function setHeaders($headers)
+    public function setHeaders($headers): void
     {
         foreach ($headers as $key => $value) {
             if (str_starts_with((string) $key, 'x')) {
@@ -97,7 +99,7 @@ class Response
     /**
      * @param  array  $xHeaders
      */
-    public function setXHeaders($xHeaders)
+    public function setXHeaders($xHeaders): void
     {
         $this->xHeaders = $xHeaders;
     }

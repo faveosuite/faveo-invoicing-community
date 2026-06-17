@@ -24,15 +24,17 @@ class EmailSettingsController extends Controller
         $this->middleware('admin');
     }
 
-    protected function checkSConnection(Setting $emailConfig)
+    protected function checkSConnection(Setting $emailConfig): ?bool
     {
         try {
             $this->emailConfig = $emailConfig;
-        } catch (Exception $e) {
-            $this->error = $e;
+        } catch (Exception $exception) {
+            $this->error = $exception;
 
             return false;
         }
+
+        return null;
     }
 
     public function settingsEmail(Setting $settings)
@@ -41,8 +43,8 @@ class EmailSettingsController extends Controller
             $set = $settings->find(1);
 
             return successResponse('', $set);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -61,8 +63,8 @@ class EmailSettingsController extends Controller
             $this->emailConfig->save();
 
             return successResponse(__('message.email_settings_saved'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -77,9 +79,7 @@ class EmailSettingsController extends Controller
      */
     private function errorhandler()
     {
-        $message = method_exists($this->error, 'getMessage') ? $this->error->getMessage() : $this->error;
-
-        return $message;
+        return method_exists($this->error, 'getMessage') ? $this->error->getMessage() : $this->error;
     }
 
     /**
@@ -107,8 +107,8 @@ class EmailSettingsController extends Controller
             }
 
             return $this->checkServices();
-        } catch (Exception $e) {
-            $this->error = $e;
+        } catch (Exception $exception) {
+            $this->error = $exception;
 
             return false;
         }
@@ -119,7 +119,7 @@ class EmailSettingsController extends Controller
      *
      * @return bool true if enabled else false
      */
-    private function checkMailConnection()
+    private function checkMailConnection(): bool
     {
         if (function_exists('mail')) {
             return true;
@@ -141,11 +141,11 @@ class EmailSettingsController extends Controller
             $protocolName = $this->emailConfig->sending_protocol;
 
             //sending a text message and checking if respond comes. If yes, connection is considered to be successful
-            return Mail::raw("This is a test mail for successful $protocolName connection", function ($message): void {
+            return Mail::raw(sprintf('This is a test mail for successful %s connection', $protocolName), function ($message): void {
                 $message->to($this->emailConfig->email_address);
             });
-        } catch (Exception $e) {
-            $this->error = $e;
+        } catch (Exception $exception) {
+            $this->error = $exception;
 
             return false;
         }
@@ -158,7 +158,7 @@ class EmailSettingsController extends Controller
      *
      * @return bool true if success else false
      */
-    private function checkSMTPConnection()
+    private function checkSMTPConnection(): bool
     {
         try {
             $transport = new  EsmtpTransport(Config::get('mail.host'), Config::get('mail.port'));
@@ -168,8 +168,8 @@ class EmailSettingsController extends Controller
             $transport->start();
 
             return true;
-        } catch (Throwable $e) {
-            $this->error = $e;
+        } catch (Throwable $throwable) {
+            $this->error = $throwable;
 
             return false;
         }

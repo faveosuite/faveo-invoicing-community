@@ -21,7 +21,7 @@ class CallBackController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
         $allowedSortFields = ['id', 'product_id', 'user_id', 'license_code', 'callback_domain', 'callback_ip', 'callback_date_time', 'callback_status'];
-        $sortField = in_array($sortField, $allowedSortFields, true) ? $sortField : 'id';
+        $sortField = in_array($sortField, $allowedSortFields, strict: true) ? $sortField : 'id';
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
 
         $paginatedCallbacks = LicenseCallback::query()
@@ -44,7 +44,7 @@ class CallBackController extends Controller
         $licenseIdsByCode = License::whereIn('license_code', $paginatedCallbacks->pluck('license_code')->filter()->unique())
             ->pluck('id', 'license_code');
 
-        $paginatedCallbacks->getCollection()->transform(fn (LicenseCallback $callback) => [
+        $paginatedCallbacks->getCollection()->transform(fn (LicenseCallback $callback): array => [
             'id' => $callback->id,
             'product_id' => $callback->product_id,
             'user_id' => $callback->user_id,
@@ -69,7 +69,7 @@ class CallBackController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
         $allowedSortFields = ['id', 'version_id', 'callback_ip', 'callback_type', 'callback_date_time', 'callback_status'];
-        $sortField = in_array($sortField, $allowedSortFields, true) ? $sortField : 'id';
+        $sortField = in_array($sortField, $allowedSortFields, strict: true) ? $sortField : 'id';
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
 
         $updateCallbacks = VersionCallback::query()
@@ -89,7 +89,7 @@ class CallBackController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $updateCallbacks->getCollection()->transform(function (VersionCallback $callback) {
+        $updateCallbacks->getCollection()->transform(function (VersionCallback $callback): array {
             $version = $callback->version;
             $product = $version?->product;
 
@@ -110,7 +110,7 @@ class CallBackController extends Controller
     }
 
     //format and return callback type text
-    private function returnFormattedCallbackTypeArray($callback_type)
+    private function returnFormattedCallbackTypeArray($callback_type): string
     {
         $callback_type_formatted = '';
 
@@ -148,10 +148,10 @@ class CallBackController extends Controller
             $error_details .= 'No record selected.';
         }
 
-        if ($action_success == 1) { //everything OK
-            $page_message = "Deleted $removed_records callback(s).";
+        if ($action_success === 1) { //everything OK
+            $page_message = sprintf('Deleted %s callback(s).', $removed_records);
         } else { //display error message
-            $page_message = "Callback could not be deleted because of this reason: $error_details";
+            $page_message = 'Callback could not be deleted because of this reason: ' . $error_details;
         }
 
         LicenseHelper::logAdminReport(strip_tags($page_message), 1, 1, $action_success);
@@ -160,7 +160,7 @@ class CallBackController extends Controller
     }
 
     //delete callback
-    private function deleteCallback($callback_id, $isLicense)
+    private function deleteCallback($callback_id, $isLicense): int|float
     {
         $removed_records = 0;
         if ($isLicense) {

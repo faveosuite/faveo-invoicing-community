@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('product_groups', function (Blueprint $table): void {
             if (! Schema::hasColumn('product_groups', 'pricing_templates_id')) {
@@ -23,10 +21,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('product_groups', function (Blueprint $table): void {
             $table->dropColumn('pricing_templates_id');

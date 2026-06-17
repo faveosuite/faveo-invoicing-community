@@ -20,7 +20,7 @@ class ZohoCrmController extends ZohoBaseController
      */
     protected function crm(): Crm
     {
-        if ($this->crm === null) {
+        if (!$this->crm instanceof \App\Plugins\Zoho\Integrations\Crm\Controllers\Crm) {
             $this->crm = new Crm();
         }
 
@@ -43,8 +43,8 @@ class ZohoCrmController extends ZohoBaseController
             );
 
             return successResponse('CRM fields synced successfully');
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -76,8 +76,8 @@ class ZohoCrmController extends ZohoBaseController
             $this->addUserDataToCrm($data['email']);
 
             return successResponse('CRM contact created successfully');
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -104,7 +104,7 @@ class ZohoCrmController extends ZohoBaseController
             $user
         );
 
-        if (! $recordData) {
+        if ($recordData === []) {
             return;
         }
 

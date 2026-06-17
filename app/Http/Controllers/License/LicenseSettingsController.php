@@ -9,7 +9,7 @@ use Illuminate\Http\Response;
 
 class LicenseSettingsController extends LicensePermissionsController
 {
-    private $licenseType;
+    private \App\Model\License\LicenseType $licenseType;
 
     public function __construct()
     {
@@ -34,7 +34,7 @@ class LicenseSettingsController extends LicensePermissionsController
             $query = $this->licenseType
                           ->select('id', 'name')
                           ->when($searchString, function ($q) use ($searchString): void {
-                              $q->where('name', 'LIKE', "%$searchString%");
+                              $q->where('name', 'LIKE', sprintf('%%%s%%', $searchString));
                           });
 
             $licenseTypes = $query->orderBy($sortField, $sortOrder)
@@ -49,7 +49,6 @@ class LicenseSettingsController extends LicensePermissionsController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  Request  $request
      * @return Response
      */
     public function createLicense(Request $request)
@@ -58,8 +57,8 @@ class LicenseSettingsController extends LicensePermissionsController
             $productType = $this->licenseType->fill($request->input())->save();
 
             return successResponse(__('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -75,8 +74,8 @@ class LicenseSettingsController extends LicensePermissionsController
             }
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -103,8 +102,8 @@ class LicenseSettingsController extends LicensePermissionsController
             }
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -114,8 +113,8 @@ class LicenseSettingsController extends LicensePermissionsController
             $type = $this->licenseType->select('id', 'name')->findOrFail($id);
 
             return successResponse('', $type);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

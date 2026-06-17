@@ -31,8 +31,8 @@ trait TaxCalculation
             $user = $this->taxUserFromLocation($user_state, $user_country);
 
             return resolve(TaxService::class)->legacyCondition((int) $productid, $user, (bool) $taxCaluculationFromAdminPanel);
-        } catch (Throwable $ex) {
-            resolve('log')->warning('calculateTax failed: '.$ex->getMessage());
+        } catch (Throwable $throwable) {
+            resolve('log')->warning('calculateTax failed: '.$throwable->getMessage());
 
             return $taxCaluculationFromAdminPanel
                 ? ['name' => 'null', 'value' => '0%']
@@ -45,7 +45,7 @@ trait TaxCalculation
      * Honours the global "prices entered with tax" (inclusive) setting and,
      * unlike the old implementation, never truncates the amount to an integer.
      */
-    public function calculateTotal($rate, $total)
+    public function calculateTotal($rate, $total): float
     {
         try {
             $total = (float) $total;
@@ -59,10 +59,10 @@ trait TaxCalculation
             $percent = $this->sumPercent($rate);
 
             return $total + ($total * $percent / 100);
-        } catch (Throwable $ex) {
-            resolve('log')->warning($ex->getMessage());
+        } catch (Throwable $throwable) {
+            resolve('log')->warning($throwable->getMessage());
 
-            throw new Exception($ex->getMessage());
+            throw new Exception($throwable->getMessage(), $throwable->getCode(), $throwable);
         }
     }
 
@@ -70,7 +70,7 @@ trait TaxCalculation
      * Tax amount for a single rate against a price. Retained for invoice
      * display helpers.
      */
-    public static function taxValue($rate, $price, $round = true)
+    public static function taxValue($rate, $price, $round = true): int|float
     {
         try {
             if (! $rate || ! is_numeric($price)) {

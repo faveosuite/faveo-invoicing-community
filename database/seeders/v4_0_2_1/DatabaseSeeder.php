@@ -11,10 +11,8 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         ReportColumn::truncate();
@@ -38,7 +36,7 @@ class DatabaseSeeder extends Seeder
 
 class ReportColumnSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
 
         ReportColumn::create([
@@ -386,7 +384,7 @@ class ReportColumnSeeder extends Seeder
 
 class ReportSettingSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         ReportSetting::create([
             'id' => '1',
@@ -401,7 +399,7 @@ class ReportSettingSeeder extends Seeder
 
 class TemplateTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
 
     Template::where('id',23)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">

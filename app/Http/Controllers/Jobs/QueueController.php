@@ -12,7 +12,7 @@ use Throwable;
 
 class QueueController extends Controller
 {
-    private $queue;
+    private \App\Model\Mailjob\QueueService $queue;
 
     public function __construct()
     {
@@ -38,13 +38,13 @@ class QueueController extends Controller
 
             $queueData = $this->queue
                 ->select('id', 'name', 'status')
-                ->when($searchString, function ($query, $searchString): void {
-                    $query->where('name', 'like', "%{$searchString}%");
+                ->when($searchString, function ($query, string $searchString): void {
+                    $query->where('name', 'like', sprintf('%%%s%%', $searchString));
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $queueData->getCollection()->transform(fn ($queue) => [
+            $queueData->getCollection()->transform(fn ($queue): array => [
                 'id' => $queue->id,
                 'QueueDetails' => $queue->getQueueDetails(),
             ]);
@@ -72,8 +72,8 @@ class QueueController extends Controller
             }
 
             return successResponse('', $queueIdData);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -113,9 +113,8 @@ class QueueController extends Controller
     public function getForm(Request $request)
     {
         $queueid = $request->input('queueid');
-        $form = $this->getFormById($queueid);
 
-        return $form;
+        return $this->getFormById($queueid);
     }
 
     public function activate(Request $request, $queue)
@@ -155,7 +154,7 @@ class QueueController extends Controller
         $queues = new QueueService();
         $queue = $queues->find($queueid);
         if ($queue) {
-            $short = $queue->short_name;
+            return $queue->short_name;
         }
 
         return $short;
@@ -226,7 +225,7 @@ class QueueController extends Controller
         }
     }
 
-    public function buildField($short, $label, $name, $placeholder = '')
+    public function buildField($short, $label, $name, $placeholder = ''): array
     {
         $queueId = $this->getIdByShortName($short);
         $queue = QueueService::find($queueId);

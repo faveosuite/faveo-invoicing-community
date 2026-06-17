@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Http\Controllers\Common\CronController;
@@ -24,7 +26,7 @@ class ReoonLogsDeletion extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $controller = new CronController();
         $controller->reoonLogsDeletion();

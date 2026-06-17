@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 class ThirdPartyAppController extends Controller
 {
-    private $thirdParty;
+    private \App\ThirdPartyApp $thirdParty;
 
     public function __construct()
     {
@@ -36,8 +36,8 @@ class ThirdPartyAppController extends Controller
                 ->select('id', 'app_name', 'app_key', 'app_secret')
                 ->when($searchString, function ($q) use ($searchString): void {
                     $q->where(function ($sub) use ($searchString): void {
-                        $sub->where('app_name', 'like', "%{$searchString}%")
-                            ->orWhere('app_key', 'like', "%{$searchString}%");
+                        $sub->where('app_name', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhere('app_key', 'like', sprintf('%%%s%%', $searchString));
                     });
                 });
 
@@ -58,7 +58,6 @@ class ThirdPartyAppController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  Request  $request
      * @return Response
      */
     public function createThirdPartyApp(Request $request)
@@ -84,15 +83,14 @@ class ThirdPartyAppController extends Controller
         try {
             $code = Str::random(32);
             echo $code;
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  Request  $request
      * @param  ThirdPartyApp  $thirdPartyApp
      * @return Response
      */
@@ -137,7 +135,7 @@ class ThirdPartyAppController extends Controller
 
             $ids = array_filter(array_map(trim(...), $ids));
 
-            if (! is_array($ids) || empty($ids)) {
+            if ($ids === []) {
                 return errorResponse(__('message.select-a-row'));
             }
 
@@ -155,13 +153,13 @@ class ThirdPartyAppController extends Controller
                 }
             }
 
-            if (! empty($notFound)) {
+            if ($notFound !== []) {
                 return errorResponse(__('message.no-record'));
             }
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Torann\GeoIP\Services\IPApi;
 use Torann\GeoIP\Services\IPData;
 use Torann\GeoIP\Services\IPGeoLocation;

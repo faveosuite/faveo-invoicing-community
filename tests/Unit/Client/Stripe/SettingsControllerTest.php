@@ -35,7 +35,7 @@ class SettingsControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -76,7 +76,8 @@ class SettingsControllerTest extends DBTestCase
     protected function stripeTokenGenerate($cardNumber = '4242424242424242')
     {
         $stripe = Stripe::make('sk_test_FIPEe0BihQ4Rn2exN1BhOotg');
-        $stripeToken = $stripe->tokens()->create([
+
+        return $stripe->tokens()->create([
             'card' => [
                 'number' => $cardNumber,
                 'exp_month' => 12,
@@ -84,14 +85,12 @@ class SettingsControllerTest extends DBTestCase
                 'cvc' => '123',
             ],
         ]);
-
-        return $stripeToken;
     }
 
     // Helper method to set up the Auth user
     protected function SetAuthUser()
     {
-        $user = Auth::shouldReceive('user')->andReturn((object) [
+        return Auth::shouldReceive('user')->andReturn((object) [
             'first_name' => 'sowmi',
             'last_name' => 's',
             'email' => 'sowmi@gmail.com',
@@ -104,12 +103,10 @@ class SettingsControllerTest extends DBTestCase
             'zip' => '590017',
             'town' => 'koramangala',
         ]);
-
-        return $user;
     }
 
     // Test case for handling 3DS authentication
-    public function test_handlePayment_3DS_authentication()
+    public function test_handlePayment_3DS_authentication(): void
     {
         $stripeToken = $this->stripeTokenGenerate('4000003560000008');
         $requestData = ['stripeToken' => $stripeToken['id']];
@@ -119,13 +116,13 @@ class SettingsControllerTest extends DBTestCase
         $requestMock = $this->setupRequestMock($requestData);
         $this->SetAuthUser();
         $controller = new SettingsController($stripeClientConstructorMock);
-        $response = $controller->handlePayment($requestMock, 50, 'INR', 'https://example.com/return-url', null);
+        $response = $controller->handlePayment($requestMock, 50, 'INR', 'https://example.com/return-url');
         $this->assertEquals('requires_action', $response['status']);
         $this->assertEquals('https://example.com/return-url', $response['next_action']['redirect_to_url']['return_url']);
     }
 
     // Test case for handling Non 3DS card
-    public function test_handlePayment_return_non_3ds_values()
+    public function test_handlePayment_return_non_3ds_values(): void
     {
         $stripeToken = $this->stripeTokenGenerate();
         $requestData = ['stripeToken' => $stripeToken['id']];
@@ -135,12 +132,12 @@ class SettingsControllerTest extends DBTestCase
         $requestMock = $this->setupRequestMock($requestData);
         $this->SetAuthUser();
         $controller = new SettingsController($stripeClientConstructorMock);
-        $response = $controller->handlePayment($requestMock, 50, 'INR', 'https://example.com/return-url', null);
+        $response = $controller->handlePayment($requestMock, 50, 'INR', 'https://example.com/return-url');
         $this->assertEquals('succeeded', $response['status']);
     }
 
     // Test case for handling incorrect stripe token
-    public function test_handlePayment_return_exception_incorrect_values()
+    public function test_handlePayment_return_exception_incorrect_values(): void
     {
         try {
             $requestData = ['stripeToken' => '12345678904567890'];
@@ -150,14 +147,14 @@ class SettingsControllerTest extends DBTestCase
             $requestMock = $this->setupRequestMock($requestData);
             $this->SetAuthUser();
             $controller = new SettingsController($stripeClientConstructorMock);
-            $response = $controller->handlePayment($requestMock, 50, 'INR', 'https://example.com/return-url', null);
+            $response = $controller->handlePayment($requestMock, 50, 'INR', 'https://example.com/return-url');
         } catch (Exception $exception) {
             $this->assertEquals('Invalid token id: 12345678904567890', $exception->getMessage());
         }
     }
 
     // Test case for handling autopay for 3ds with incomplete status
-    public function test_handle_autoPayment_non_3ds_card()
+    public function test_handle_autoPayment_non_3ds_card(): void
     {
         $stripePaymentDetails = (object) ['payment_intent_id' => 'pm_1OyUW0I0SyY30M2QqJqeC5hx'];
 
@@ -176,7 +173,7 @@ class SettingsControllerTest extends DBTestCase
     }
 
 //     Test case for handling autopay for non 3ds with active status
-    public function test_handle_autoPayment_3ds_card()
+    public function test_handle_autoPayment_3ds_card(): void
     {
         $stripePaymentDetails = (object) ['payment_intent_id' => 'pm_1OyTcJI0SyY30M2QznXTOvZH'];
 
@@ -195,17 +192,17 @@ class SettingsControllerTest extends DBTestCase
     }
 
     //Testcase for handle razorpay api for subscription
-    public function test_handleRzpAutoPay_correctly()
+    public function test_handleRzpAutoPay_correctly(): void
     {
         $user = User::factory()->create(['id' => mt_rand(1, 999), 'role' => 'user', 'country' => 'IN']);
         $product = Product::create(['name' => 'Helpdesk']);
 
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
+        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $subscription = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
-        $plan = Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
+        Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
         DB::table('api_keys')->where('id', 1)->update(['rzp_key' => 'rzp_test_0UWbi4WpjuMCoC', 'rzp_secret' => 'jZbOckxf4RhwaUAgxzegwQqV']);
         // Prepare mock data
         $days = 30;
@@ -228,14 +225,14 @@ class SettingsControllerTest extends DBTestCase
     }
 
     // Testcases for fetching system settings in admin panel
-    public function test_it_fetches_system_settings_successfully()
+    public function test_it_fetches_system_settings_successfully(): void
     {
         $response = $this->getJson('/systemSettings/list');
 
         $response->assertStatus(200);
     }
 
-    public function test_it_returns_error_when_settings_not_found()
+    public function test_it_returns_error_when_settings_not_found(): void
     {
         Setting::where('id', 1)->delete();
 
@@ -245,14 +242,14 @@ class SettingsControllerTest extends DBTestCase
     }
 
     // Testcases for updating system settings
-    public function test_it_updates_settings_with_new_payload_data()
+    public function test_it_updates_settings_with_new_payload_data(): void
     {
         $logo = UploadedFile::fake()->image('brand-logo.png');
         $adminLogo = UploadedFile::fake()->image('panel-logo.png');
         $favIcon = UploadedFile::fake()->image('favicon.png');
 
         Attach::shouldReceive('put')
-            ->andReturnUsing(fn ($path, $file) => $path.'/'.$file->hashName());
+            ->andReturnUsing(fn ($path, $file): string => $path.'/'.$file->hashName());
 
         $payload = [
             'company' => 'ABC Solutions',
@@ -306,7 +303,7 @@ class SettingsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_returns_error_when_settings_row_missing()
+    public function test_it_returns_error_when_settings_row_missing(): void
     {
         Setting::where('id', 1)->delete();
 
@@ -320,7 +317,7 @@ class SettingsControllerTest extends DBTestCase
         $response->assertStatus(422);
     }
 
-    public function test_it_updates_settings_with_only_required_fields()
+    public function test_it_updates_settings_with_only_required_fields(): void
     {
         Currency::create([
             'code' => 'USD',
@@ -350,7 +347,7 @@ class SettingsControllerTest extends DBTestCase
     /*
      * File Storage Test
      */
-    public function test_show_file_storage_returns_settings_for_local_storage()
+    public function test_show_file_storage_returns_settings_for_local_storage(): void
     {
         //Show file storage
         $response = $this->getJson('/file-storage');
@@ -365,7 +362,7 @@ class SettingsControllerTest extends DBTestCase
                  ]);
     }
 
-    public function test_update_storage_path_for_system_disk()
+    public function test_update_storage_path_for_system_disk(): void
     {
         // Update local file storage
         $payload = [
@@ -386,7 +383,7 @@ class SettingsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_update_storage_path_for_s3_disk()
+    public function test_update_storage_path_for_s3_disk(): void
     {
         //Update S3 disk storage
         $fs = FileSystemSettings::updateOrCreate([], [
@@ -424,10 +421,10 @@ class SettingsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_update_storage_path_for_s3_disk_with_invalid_credentials()
+    public function test_update_storage_path_for_s3_disk_with_invalid_credentials(): void
     {
         //Update S3 disk storage with invalid credentials
-        $fs = FileSystemSettings::updateOrCreate([], [
+        FileSystemSettings::updateOrCreate([], [
             'disk' => 'system',
             'local_file_storage_path' => '/old/path',
         ]);
@@ -452,7 +449,7 @@ class SettingsControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_show_file_storage_returns_settings_for_s3_disk()
+    public function test_show_file_storage_returns_settings_for_s3_disk(): void
     {
         //Show file storage for s3 disk
         $response = $this->getJson('/file-storage');
@@ -477,7 +474,7 @@ class SettingsControllerTest extends DBTestCase
     /*
      * Debug Option Test Case
     */
-    public function test_returns_current_debug_status()
+    public function test_returns_current_debug_status(): void
     {
         // Get Debug enable option
         Config::set('app.debug', true);
@@ -490,7 +487,7 @@ class SettingsControllerTest extends DBTestCase
                  ]);
     }
 
-    public function test_returns_debug_false_when_disabled()
+    public function test_returns_debug_false_when_disabled(): void
     {
         // Get Debug disable option
 
@@ -504,7 +501,7 @@ class SettingsControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_updates_debug_status_to_true()
+    public function test_updates_debug_status_to_true(): void
     {
         //Update debug to enable
         Config::set('app.debug', false);
@@ -526,7 +523,7 @@ class SettingsControllerTest extends DBTestCase
         $this->assertStringContainsString('CLOCKWORK_ENABLE=true', $env);
     }
 
-    public function test_updates_debug_status_to_false()
+    public function test_updates_debug_status_to_false(): void
     {
         //Update debug to disable
         Config::set('app.debug', true);
@@ -551,7 +548,7 @@ class SettingsControllerTest extends DBTestCase
     /*
      * Contact Option Test Cases
     */
-    public function test_api_structure_contact_option()
+    public function test_api_structure_contact_option(): void
     {
         $response = $this->getJson('/contact-option');
         $response->assertStatus(200);
@@ -573,7 +570,7 @@ class SettingsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_returns_contact_option_settings()
+    public function test_returns_contact_option_settings(): void
     {
         //To test without updating the contact options
         Setting::factory()->create(['sending_status' => 1]);
@@ -589,7 +586,7 @@ class SettingsControllerTest extends DBTestCase
              ]);
     }
 
-    public function test_updates_contact_option_for_mobile_only()
+    public function test_updates_contact_option_for_mobile_only(): void
     {
         //To test updating contact options for mobile only
         $payload = [
@@ -615,7 +612,7 @@ class SettingsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_updates_contact_option_for_email_only()
+    public function test_updates_contact_option_for_email_only(): void
     {
         // To test updating contact options for email only
         $payload = [
@@ -641,7 +638,7 @@ class SettingsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_updates_contact_option_both_first_preference_email()
+    public function test_updates_contact_option_both_first_preference_email(): void
     {
         // To test updating contact options for both with email as first preference
         $payload = [
@@ -667,7 +664,7 @@ class SettingsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_updates_contact_option_both_first_preference_mobile()
+    public function test_updates_contact_option_both_first_preference_mobile(): void
     {
         // To test updating contact options for both with mobile as first preference
         $payload = [
@@ -693,7 +690,7 @@ class SettingsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_allows_null_preferred_verification()
+    public function test_allows_null_preferred_verification(): void
     {
         // To test updating contact options with null preferred verification
         StatusSetting::create([

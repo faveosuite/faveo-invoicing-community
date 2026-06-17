@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Policies\Csp\CspPolicy;
 use Spatie\Csp\Nonce\RandomString;
 
@@ -46,12 +48,12 @@ return [
     /*
      * Headers will only be added if this setting is set to true.
      */
-    'enabled' => env('CSP_ENABLED', true),
+    'enabled' => env('CSP_ENABLED', default: true),
 
     /**
      * Headers will be added when Vite is hot reloading.
      */
-    'enabled_while_hot_reloading' => env('CSP_ENABLED_WHILE_HOT_RELOADING', false),
+    'enabled_while_hot_reloading' => env('CSP_ENABLED_WHILE_HOT_RELOADING', default: false),
 
     /*
      * The class responsible for generating the nonces used in inline tags and headers.
@@ -64,5 +66,5 @@ return [
      * and cannot add inline nonces.
      * Note that this will make your CSP policy less secure.
      */
-    'nonce_enabled' => env('CSP_NONCE_ENABLED', true),
+    'nonce_enabled' => env('CSP_NONCE_ENABLED', default: true),
 ];

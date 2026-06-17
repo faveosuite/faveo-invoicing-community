@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('api_keys', function (Blueprint $table): void {
-            $table->boolean('require_pipedrive_user_verification')->default(false)->after('pipedrive_api_key');
+            $table->boolean('require_pipedrive_user_verification')->default(value: false)->after('pipedrive_api_key');
         });
     }
 

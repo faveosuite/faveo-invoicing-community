@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders\v4_0_2_7_RC_1;
 
 use App\License\Database\Seeders\LicenseModuleSeeder;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Front;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -9,10 +11,8 @@ class PageRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -25,7 +25,6 @@ class PageRequest extends FormRequest
     public function rules()
     {
         $regex = '/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/';
-
         if ($this->method() == 'POST') {
             return [
                 'name' => ['required', 'unique:frontend_pages,name', 'max:20', 'regex:/^[a-zA-Z\s]*$/'],
@@ -34,7 +33,9 @@ class PageRequest extends FormRequest
                 'url' => 'required|url|regex:'.$regex,
                 'content' => ['required'],
             ];
-        } elseif ($this->method() == 'PATCH') {
+        }
+
+        if ($this->method() == 'PATCH') {
             return [
                 'name' => ['required', 'max:20'],
                 'publish' => ['required'],
@@ -44,6 +45,8 @@ class PageRequest extends FormRequest
                 'created_at' => ['required'],
             ];
         }
+
+        return null;
     }
 
     #[Override]

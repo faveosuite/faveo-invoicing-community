@@ -10,7 +10,7 @@ class ReportControllerTest extends DBTestCase
     /**
      * A basic unit test example.
      */
-    public function test_addRecords_db_return_success()
+    public function test_addRecords_db_return_success(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);

@@ -26,7 +26,7 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_can_get_only_soft_deleted_users()
+    public function test_can_get_only_soft_deleted_users(): void
     {
         User::factory()->count(3)->create(['deleted_at' => now()]);
         User::factory()->count(2)->create(); // NOT deleted
@@ -38,9 +38,9 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_soft_deleted_users_search_works()
+    public function test_soft_deleted_users_search_works(): void
     {
-        $target = User::factory()->create([
+        User::factory()->create([
             'deleted_at' => now(),
             'email' => 'search_user@test.com',
         ]);
@@ -52,7 +52,7 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_soft_deleted_sorting_works()
+    public function test_soft_deleted_sorting_works(): void
     {
         User::factory()->create(['deleted_at' => now(), 'first_name' => 'AAA']);
         User::factory()->create(['deleted_at' => now(), 'first_name' => 'ZZZ']);
@@ -63,18 +63,18 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_can_restore_soft_deleted_user()
+    public function test_can_restore_soft_deleted_user(): void
     {
         $user = User::factory()->create(['deleted_at' => now()]);
 
-        $response = $this->getJson("/user/restore/{$user->id}");
+        $response = $this->getJson('/user/restore/' . $user->id);
 
         $response->assertStatus(200);
         $this->assertNull($user->fresh()->deleted_at);
     }
 
     #[Group('User')]
-    public function test_restore_user_returns_404_if_not_found()
+    public function test_restore_user_returns_404_if_not_found(): void
     {
         $response = $this->getJson('/user/restore/999999');
 
@@ -83,7 +83,7 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_permanent_delete_requires_user_ids()
+    public function test_permanent_delete_requires_user_ids(): void
     {
         $response = $this->deleteJson('/permanent-delete-client', []);
 
@@ -92,7 +92,7 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_can_permanently_delete_a_soft_deleted_user()
+    public function test_can_permanently_delete_a_soft_deleted_user(): void
     {
         $user = User::factory()->create(['deleted_at' => now()]);
 
@@ -105,7 +105,7 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_permanent_delete_ignores_live_users()
+    public function test_permanent_delete_ignores_live_users(): void
     {
         $activeUser = User::factory()->create();
 
@@ -118,7 +118,7 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_permanent_delete_skips_non_existent_ids()
+    public function test_permanent_delete_skips_non_existent_ids(): void
     {
         $user = User::factory()->create(['deleted_at' => now()]);
 
@@ -131,7 +131,7 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_permanent_delete_removes_related_records()
+    public function test_permanent_delete_removes_related_records(): void
     {
         $user = User::factory()->create(['deleted_at' => now()]);
 
@@ -160,7 +160,7 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_event_fired_when_installation_path_exists()
+    public function test_event_fired_when_installation_path_exists(): void
     {
         Event::fake();
 
@@ -180,7 +180,7 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_event_not_fired_for_cloud_central_domain()
+    public function test_event_not_fired_for_cloud_central_domain(): void
     {
         Event::fake();
 

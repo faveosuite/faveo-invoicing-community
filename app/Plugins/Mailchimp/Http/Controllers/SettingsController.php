@@ -45,8 +45,8 @@ class SettingsController extends Controller
                 'lists_total' => $listsData['total'],
                 'lists_has_more' => $listsData['has_more'],
             ]);
-        } catch (Throwable $e) {
-            return errorResponse($e->getMessage());
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
         }
     }
 
@@ -61,8 +61,8 @@ class SettingsController extends Controller
             $result = resolve(MailchimpService::class)->getLists($count, $offset);
 
             return successResponse('', $result);
-        } catch (MailchimpApiException $e) {
-            return errorResponse($e->getMessage());
+        } catch (MailchimpApiException $mailchimpApiException) {
+            return errorResponse($mailchimpApiException->getMessage());
         }
     }
 
@@ -91,8 +91,8 @@ class SettingsController extends Controller
                 'lists_total' => $listsData['total'],
                 'lists_has_more' => $listsData['has_more'],
             ]);
-        } catch (Throwable $e) {
-            return errorResponse($e->getMessage());
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
         }
     }
 
@@ -109,8 +109,8 @@ class SettingsController extends Controller
             ])->save();
 
             return successResponse(__('message.mailchimp_setting_successfully_saved'));
-        } catch (Throwable $e) {
-            return errorResponse($e->getMessage());
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
         }
     }
 
@@ -124,8 +124,8 @@ class SettingsController extends Controller
                 ->pluck('name', 'tag');
 
             return successResponse(__('message.updated-successfully'), ['fields' => $fields]);
-        } catch (MailchimpApiException $e) {
-            return errorResponse($e->getMessage());
+        } catch (MailchimpApiException $mailchimpApiException) {
+            return errorResponse($mailchimpApiException->getMessage());
         }
     }
 
@@ -147,8 +147,8 @@ class SettingsController extends Controller
                 'groups' => $groups,
                 'categories' => $categories,
             ]);
-        } catch (MailchimpApiException $e) {
-            return errorResponse($e->getMessage());
+        } catch (MailchimpApiException $mailchimpApiException) {
+            return errorResponse($mailchimpApiException->getMessage());
         }
     }
 
@@ -181,8 +181,8 @@ class SettingsController extends Controller
                 'status' => $status,
                 'categories' => $categories,
             ]);
-        } catch (Throwable $e) {
-            return errorResponse($e->getMessage());
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
         }
     }
 
@@ -194,8 +194,8 @@ class SettingsController extends Controller
             MailchimpFieldAgoraRelation::firstOrNew(['id' => 1])->fill($request->all())->save();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Throwable $e) {
-            return errorResponse($e->getMessage());
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
         }
     }
 
@@ -221,8 +221,8 @@ class SettingsController extends Controller
             }
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Throwable $e) {
-            return errorResponse($e->getMessage());
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
         }
     }
 
@@ -237,10 +237,10 @@ class SettingsController extends Controller
 
             // Validate that the category has Yes/No options
             $options = resolve(MailchimpService::class)->getInterestGroupOptions($categoryId);
-            $names = array_map(fn ($o) => strtolower((string) $o['name']), $options);
+            $names = array_map(fn (array $o) => strtolower((string) $o['name']), $options);
 
-            $hasYes = count(array_intersect($names, ['yes', 'true'])) > 0;
-            $hasNo = count(array_intersect($names, ['no', 'false'])) > 0;
+            $hasYes = array_intersect($names, ['yes', 'true']) !== [];
+            $hasNo = array_intersect($names, ['no', 'false']) !== [];
 
             if (! $hasYes || ! $hasNo) {
                 return errorResponse(__('message.group_dropdown_values_required'));
@@ -249,8 +249,8 @@ class SettingsController extends Controller
             resolve(MailchimpService::class)->mapIsPaidInterests($categoryId);
 
             return successResponse(__('message.settings_updated_successfully'));
-        } catch (MailchimpApiException $e) {
-            return errorResponse($e->getMessage());
+        } catch (MailchimpApiException $mailchimpApiException) {
+            return errorResponse($mailchimpApiException->getMessage());
         }
     }
 
@@ -280,12 +280,12 @@ class SettingsController extends Controller
             resolve(MailchimpService::class)->subscribeEmail($request->input('newsletterEmail'));
 
             return successResponse(__('message.email_added_to_mailchimp'));
-        } catch (MailchimpApiException $e) {
-            if ($e->isMemberExists()) {
+        } catch (MailchimpApiException $mailchimpApiException) {
+            if ($mailchimpApiException->isMemberExists()) {
                 return errorResponse(__('message.member_exist'));
             }
 
-            return errorResponse($e->getMessage());
+            return errorResponse($mailchimpApiException->getMessage());
         }
     }
 }

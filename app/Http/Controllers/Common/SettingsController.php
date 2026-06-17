@@ -50,8 +50,14 @@ use Spatie\Activitylog\Models\Activity;
 
 class SettingsController extends BaseSettingsController
 {
+    /**
+     * @var \App\ApiKey
+     */
     public $apikey;
 
+    /**
+     * @var \App\Model\Common\StatusSetting
+     */
     public $statusSetting;
 
     public function __construct()
@@ -133,8 +139,8 @@ class SettingsController extends BaseSettingsController
             $keys->fill($request->input())->save();
 
             return back()->with('success', Lang::get('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -158,8 +164,8 @@ class SettingsController extends BaseSettingsController
             }
 
             return $allAcivePluginName;
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -183,7 +189,7 @@ class SettingsController extends BaseSettingsController
     public function settingsTemplate()
     {
         try {
-            $types = TemplateType::all()->map(fn ($t) => [
+            $types = TemplateType::all()->map(fn ($t): array => [
                 'id' => $t->id,
                 'name' => $t->name,
                 'selected_template_id' => $t->selected_template_id,
@@ -194,8 +200,8 @@ class SettingsController extends BaseSettingsController
                 ->get();
 
             return successResponse('', compact('types', 'templates'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -208,8 +214,8 @@ class SettingsController extends BaseSettingsController
             }
 
             return successResponse(Lang::get('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -222,8 +228,8 @@ class SettingsController extends BaseSettingsController
                 'error_log' => (bool) $set->error_log,
                 'error_email' => $set->error_email ?? '',
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -282,8 +288,8 @@ class SettingsController extends BaseSettingsController
                     ['value' => 'h:i A', 'label' => '12 Hours'],
                 ],
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -332,8 +338,8 @@ class SettingsController extends BaseSettingsController
             $setting->fill($input)->save();
 
             return successResponse(Lang::get('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -353,8 +359,8 @@ class SettingsController extends BaseSettingsController
             Cache::forget('system_timezone');
 
             return successResponse(Lang::get('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -384,7 +390,7 @@ class SettingsController extends BaseSettingsController
 
             $search = trim((string) $request->input('search-query', ''));
             if ($search !== '') {
-                $all = array_values(array_filter($all, fn ($m) => stripos((string) $m['name'], $search) !== false ||
+                $all = array_values(array_filter($all, fn (array $m): bool => stripos((string) $m['name'], $search) !== false ||
                     stripos((string) $m['description'], $search) !== false
                 ));
             }
@@ -407,8 +413,8 @@ class SettingsController extends BaseSettingsController
                 'next_page_url' => $page < $lastPage ? $base.'?page='.($page + 1).'&limit='.$perPage : null,
                 'prev_page_url' => $page > 1 ? $base.'?page='.($page - 1).'&limit='.$perPage : null,
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -428,8 +434,8 @@ class SettingsController extends BaseSettingsController
                     'dealId' => $groups['Deal'] ?? null,
                 ],
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -443,8 +449,8 @@ class SettingsController extends BaseSettingsController
             ]);
 
             return successResponse(Lang::get('message.pipedrive_setting'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -479,9 +485,9 @@ class SettingsController extends BaseSettingsController
                 ],
                 'conditions' => $conditions,
                 'days' => [
-                    'expiryday' => json_decode((string) $days?->days ?: '[]', true),
-                    'subexpiryday' => json_decode((string) $days?->autorenewal_days ?: '[]', true),
-                    'postsubexpiry_days' => json_decode((string) $days?->postexpiry_days ?: '[]', true),
+                    'expiryday' => json_decode((string) $days?->days ?: '[]', associative: true),
+                    'subexpiryday' => json_decode((string) $days?->autorenewal_days ?: '[]', associative: true),
+                    'postsubexpiry_days' => json_decode((string) $days?->postexpiry_days ?: '[]', associative: true),
                     'cloud_days' => $days?->cloud_days,
                     'invoice_days' => $days?->invoice_days,
                     'msg91_days' => $days?->msg91_days,
@@ -496,8 +502,8 @@ class SettingsController extends BaseSettingsController
                     'logdelday' => $activityDay?->days,
                 ],
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -523,7 +529,7 @@ class SettingsController extends BaseSettingsController
                 'licenseversions_cron' => 'license_versions_cleanup_status',
             ];
             foreach ($map as $input => $column) {
-                $status->{$column} = $request->boolean("statuses.$input");
+                $status->{$column} = $request->boolean('statuses.' . $input);
             }
 
             $status->save();
@@ -534,8 +540,8 @@ class SettingsController extends BaseSettingsController
             }
 
             return successResponse(Lang::get('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -565,8 +571,8 @@ class SettingsController extends BaseSettingsController
             ActivityLogDay::updateOrCreate(['id' => 1], ['days' => $request->input('logdelday')]);
 
             return successResponse(Lang::get('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -577,18 +583,18 @@ class SettingsController extends BaseSettingsController
             $cloudPopUp = CloudPopUp::find(1);
 
             $products = Product::orderBy('name')->get(['id', 'name'])
-                ->map(fn ($p) => ['id' => $p->id, 'name' => $p->name]);
+                ->map(fn ($p): array => ['id' => $p->id, 'name' => $p->name]);
 
             $plans = Plan::orderBy('name')->get(['id', 'name'])
-                ->map(fn ($p) => ['id' => $p->id, 'name' => $p->name]);
+                ->map(fn ($p): array => ['id' => $p->id, 'name' => $p->name]);
 
             $countries = Country::where('country_name', '!=', '')
                 ->orderBy('country_name')
                 ->get(['country_code_char2', 'country_name'])
-                ->map(fn ($c) => ['code' => strtolower((string) $c->country_code_char2), 'name' => $c->country_name]);
+                ->map(fn ($c): array => ['code' => strtolower((string) $c->country_code_char2), 'name' => $c->country_name]);
 
             $regions = CloudDataCenters::all()
-                ->map(fn ($r) => [
+                ->map(fn ($r): array => [
                     'name' => implode(', ', array_filter([$r->cloud_city, $r->cloud_state, $r->cloud_countries])),
                     'latitude' => (float) $r->latitude,
                     'longitude' => (float) $r->longitude,
@@ -606,8 +612,8 @@ class SettingsController extends BaseSettingsController
                 'countries' => $countries,
                 'regions' => $regions,
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -617,8 +623,8 @@ class SettingsController extends BaseSettingsController
             $email = Email_log::findOrFail($id);
 
             return successResponse('', ['body' => $email->body, 'subject' => $email->subject]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -650,16 +656,16 @@ class SettingsController extends BaseSettingsController
 
             if ($searchString) {
                 $query->where(function ($q) use ($searchString): void {
-                    $q->where('activity_log.log_name', 'like', "%{$searchString}%")
-                        ->orWhere('activity_log.event', 'like', "%{$searchString}%")
-                        ->orWhere('activity_log.description', 'like', "%{$searchString}%")
-                        ->orWhere('users.email', 'like', "%{$searchString}%")
-                        ->orWhereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ["%{$searchString}%"]);
+                    $q->where('activity_log.log_name', 'like', sprintf('%%%s%%', $searchString))
+                        ->orWhere('activity_log.event', 'like', sprintf('%%%s%%', $searchString))
+                        ->orWhere('activity_log.description', 'like', sprintf('%%%s%%', $searchString))
+                        ->orWhere('users.email', 'like', sprintf('%%%s%%', $searchString))
+                        ->orWhereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", [sprintf('%%%s%%', $searchString)]);
                 });
             }
 
             $allowedActivitySorts = ['created_at', 'module', 'event', 'performed_by', 'role'];
-            if (! in_array($sortField, $allowedActivitySorts, true)) {
+            if (! in_array($sortField, $allowedActivitySorts, strict: true)) {
                 $sortField = 'created_at';
             }
 
@@ -671,7 +677,7 @@ class SettingsController extends BaseSettingsController
             $activitySortColumn = $activitySortMap[$sortField] ?? 'activity_log.'.$sortField;
             $logs = $query->orderBy($activitySortColumn, $sortOrder)->simplePaginate($limit);
 
-            $logs->getCollection()->transform(fn ($row) => [
+            $logs->getCollection()->transform(fn ($row): array => [
                 'id' => $row->id,
                 'module' => $row->log_name ?? '—',
                 'event' => ucfirst($row->event ?? '—'),
@@ -685,8 +691,8 @@ class SettingsController extends BaseSettingsController
             ]);
 
             return successResponse('', $logs);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -700,14 +706,14 @@ class SettingsController extends BaseSettingsController
                 ->whereIn('id', $userIds)
                 ->orderBy('first_name')
                 ->get()
-                ->map(fn ($u) => [
+                ->map(fn ($u): array => [
                     'id' => $u->id,
                     'name' => trim($u->first_name.' '.$u->last_name).' <'.$u->email.'>',
                 ]);
 
             return successResponse('', ['modules' => $modules, 'users' => $users]);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -750,15 +756,15 @@ class SettingsController extends BaseSettingsController
 
             if ($searchString) {
                 $query->where(function (Builder $q) use ($searchString): void {
-                    $q->where('payment_logs.order', 'like', "%{$searchString}%")
-                        ->orWhere('payment_logs.status', 'like', "%{$searchString}%")
-                        ->orWhere('payment_logs.payment_method', 'like', "%{$searchString}%")
-                        ->orWhere('payment_logs.from', 'like', "%{$searchString}%");
+                    $q->where('payment_logs.order', 'like', sprintf('%%%s%%', $searchString))
+                        ->orWhere('payment_logs.status', 'like', sprintf('%%%s%%', $searchString))
+                        ->orWhere('payment_logs.payment_method', 'like', sprintf('%%%s%%', $searchString))
+                        ->orWhere('payment_logs.from', 'like', sprintf('%%%s%%', $searchString));
                 });
             }
 
             $allowedPaymentSorts = ['date', 'amount', 'status', 'order', 'payment_method', 'payment_type', 'user'];
-            if (! in_array($sortField, $allowedPaymentSorts, true)) {
+            if (! in_array($sortField, $allowedPaymentSorts, strict: true)) {
                 $sortField = 'date';
             }
 
@@ -766,7 +772,7 @@ class SettingsController extends BaseSettingsController
             $paymentSortColumn = $paymentSortMap[$sortField] ?? 'payment_logs.'.$sortField;
             $logs = $query->orderBy($paymentSortColumn, $sortOrder)->simplePaginate($limit);
 
-            $logs->getCollection()->transform(fn ($row) => [
+            $logs->getCollection()->transform(fn ($row): array => [
                 'id' => $row->id,
                 'date' => $row->date ? Date::parse($row->date)->format('Y-m-d H:i') : '—',
                 'user' => $row->user_name ? trim((string) $row->user_name) : ($row->from ?? '—'),
@@ -780,8 +786,8 @@ class SettingsController extends BaseSettingsController
             ]);
 
             return successResponse('', $logs);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -830,7 +836,7 @@ class SettingsController extends BaseSettingsController
 
     public function postdebugSettings(Request $request)
     {
-        $bool = fn (string $key) => $request->boolean($key) ? '1' : '0';
+        $bool = fn (string $key): string => $request->boolean($key) ? '1' : '0';
 
         CommonSettings::upsert([
             ['option_name' => 'debugging', 'optional_field' => 'app_debug',              'option_value' => $bool('debug')],
@@ -882,7 +888,7 @@ class SettingsController extends BaseSettingsController
         return $join;
     }
 
-    private function DateFormat($date = null)
+    private function DateFormat($date = null): string
     {
         if ($date === null) {
             return date('Y-m-d H:i:s');
@@ -903,8 +909,8 @@ class SettingsController extends BaseSettingsController
             Payment_log::whereIn('id', $ids)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -954,9 +960,9 @@ class SettingsController extends BaseSettingsController
 
             if ($search = $request->input('search-query')) {
                 $query->where(function ($q) use ($search): void {
-                    $q->where('email', 'like', "%{$search}%")
-                      ->orWhere('method', 'like', "%{$search}%")
-                      ->orWhere('status', 'like', "%{$search}%");
+                    $q->where('email', 'like', sprintf('%%%s%%', $search))
+                      ->orWhere('method', 'like', sprintf('%%%s%%', $search))
+                      ->orWhere('status', 'like', sprintf('%%%s%%', $search));
                 });
             }
 
@@ -968,12 +974,12 @@ class SettingsController extends BaseSettingsController
             $query->orderBy($sortField, $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc');
 
             return successResponse('', $query->paginate($request->input('limit', 10))
-                ->through(fn ($r) => array_merge($r->only(['id', 'email', 'registration', 'created_at']), [
+                ->through(fn ($r): array => array_merge($r->only(['id', 'email', 'registration', 'created_at']), [
                     'method' => ucfirst((string) $r->method),
                     'status' => ucfirst((string) $r->status),
                 ])));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -983,7 +989,7 @@ class SettingsController extends BaseSettingsController
             $id = $request->input('id');
             $result = EmailValidationResults::where('id', $id)->first();
 
-            $cont1 = json_decode((string) $result->result, true);
+            $cont1 = json_decode((string) $result->result, associative: true);
             $cont2 = ['name' => $result->first_name.' '.$result->last_name,
                 'mobile Number' => '+'.$result->mobile_code.$result->mobile,
                 'email' => $result->email,
@@ -995,8 +1001,8 @@ class SettingsController extends BaseSettingsController
             $final = ($result->first_name && $result->last_name) ? array_merge($cont2, $cont1) : $cont1;
 
             return successResponse(trans('message.success'), $final);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -1015,12 +1021,12 @@ class SettingsController extends BaseSettingsController
                 'city' => $result->town, ];
 
             return successResponse(trans('message.success'), $content);
-        } catch (Exception $e) {
-            dd($e->getMessage());
+        } catch (Exception $exception) {
+            dd($exception->getMessage());
         }
     }
 
-    private function setStatus($current)
+    private function setStatus($current): string
     {
         $map = [
             'safe' => 1,
@@ -1036,7 +1042,7 @@ class SettingsController extends BaseSettingsController
 
         $statusOptions = '';
         foreach ($map as $status => $bit) {
-            $checked = ($current & $bit) ? 'checked' : '';
+            $checked = (($current & $bit) !== 0) ? 'checked' : '';
             $label = ucfirst(str_replace('_', ' ', $status));
             $statusOptions .= '<div class="form-check">
         <input class="form-check-input emailStatusCheckbox" type="checkbox" 
@@ -1131,8 +1137,8 @@ class SettingsController extends BaseSettingsController
                 'third_party_id' => $apiKey->msg91_third_party_id ?? null,
                 'third_party_apps' => $thirdPartyApps,
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -1145,8 +1151,8 @@ class SettingsController extends BaseSettingsController
                 'username' => $github->username ?? '',
                 'password' => $github->password ?? '',
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -1156,8 +1162,8 @@ class SettingsController extends BaseSettingsController
             return successResponse('', [
                 'terms_url' => ApiKey::value('terms_url') ?? '',
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -1175,7 +1181,7 @@ class SettingsController extends BaseSettingsController
             $statusBits = [1, 2, 4, 8, 16, 32, 64, 128, 256];
             $statusNames = ['safe', 'catch_all', 'unknown', 'invalid', 'disabled', 'disposable', 'inbox_full', 'role_account', 'spamtrap'];
             $current = (int) ($provider->accepted_output ?? 1);
-            $selected = array_values(array_filter($statusBits, fn ($b) => ($current & $b) === $b));
+            $selected = array_values(array_filter($statusBits, fn (int $b): bool => ($current & $b) === $b));
 
             return successResponse('', [
                 'provider' => $provider->provider ?? 'reoon',
@@ -1183,10 +1189,10 @@ class SettingsController extends BaseSettingsController
                 'mode' => $provider->mode ?? 'quick',
                 'accepted_output' => $current,
                 'selected_bits' => $selected,
-                'status_options' => array_map(fn ($b, $n) => ['bit' => $b, 'name' => $n], $statusBits, $statusNames),
+                'status_options' => array_map(fn ($b, $n): array => ['bit' => $b, 'name' => $n], $statusBits, $statusNames),
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -1207,8 +1213,8 @@ class SettingsController extends BaseSettingsController
                 'api_secret' => $provider->api_secret ?? '',
                 'mode' => $provider->mode ?? 'basic',
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

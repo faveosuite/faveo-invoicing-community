@@ -11,20 +11,16 @@ class EmailSettingRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         if (in_array($this->driver, ['smtp', 'mailgun', 'mandrill', 'ses', 'sparkpost'])) {
             return [
@@ -38,23 +34,23 @@ class EmailSettingRequest extends FormRequest
                 'region' => ['required_if:driver,ses'],
                 'email' => ['required_if:driver,smtp,mailgun,mandrill,ses'],
             ];
-        } else {
-            return [
-                'driver' => ['required'],
-                'email' => [
-                    'required',
-                    'email',
-                    function ($attribute, $value, $fail) {
-                        $emailDomain = explode('@', $value)[1];
-                        $url = Request::url();
-                        $domain = parse_url($url);
-                        if (strcasecmp($domain['host'], $emailDomain) !== 0) {
-                            return $fail(Lang::get('message.email_not_matching'));
-                        }
-                    },
-                ],
-            ];
         }
+
+        return [
+            'driver' => ['required'],
+            'email' => [
+                'required',
+                'email',
+                function ($attribute, $value, $fail) {
+                    $emailDomain = explode('@', $value)[1];
+                    $url = Request::url();
+                    $domain = parse_url($url);
+                    if (strcasecmp($domain['host'], $emailDomain) !== 0) {
+                        return $fail(Lang::get('message.email_not_matching'));
+                    }
+                },
+            ],
+        ];
     }
 
     #[Override]

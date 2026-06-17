@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
  */
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         $invoicesWithLines = DB::table('invoice_tax_lines')->distinct()->pluck('invoice_id')->flip();
 
@@ -36,7 +36,15 @@ return new class extends Migration
 
                     $label = $this->cleanLabel($item->tax_name);
                     $percent = $this->parsePercent($item->tax_percentage);
-                    if ($label === '' || strtolower($label) === 'null' || $percent <= 0) {
+                    if ($label === '') {
+                        continue;
+                    }
+
+                    if (strtolower($label) === 'null') {
+                        continue;
+                    }
+
+                    if ($percent <= 0) {
                         continue;
                     }
 
@@ -53,13 +61,13 @@ return new class extends Migration
                     ];
                 }
 
-                if ($rows) {
+                if ($rows !== []) {
                     DB::table('invoice_tax_lines')->insert($rows);
                 }
             });
     }
 
-    public function down()
+    public function down(): void
     {
         // Only the backfilled rows (no rate reference) — leave cart-created
         // lines (which carry a tax_rate_id) intact.

@@ -17,7 +17,7 @@ class Period extends Model
     }
 
     #[Override]
-    public function delete()
+    public function delete(): void
     {
         $this->plans()->detach();
     }

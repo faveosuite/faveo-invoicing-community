@@ -71,16 +71,16 @@ class ExtendedBaseProductController extends Controller
             $addProductToAutoUpdate = $updateClassObj->editVersion($request->input('version'), $productSku);
 
             return back()->with('success', __('message.product_updated_successfully'));
-        } catch (Exception $e) {
-            Logger::exception($e);
-            $message = [$e->getMessage()];
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+            $message = [$exception->getMessage()];
             $response = ['success' => 'false', 'message' => $message];
 
-            return back()->with('fails', $e->getMessage());
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
-    public function saveTax($taxes, $product_id)
+    public function saveTax($taxes, $product_id): void
     {
         TaxProductRelation::where('product_id', $product_id)->delete();
         if ($taxes) {
@@ -95,10 +95,8 @@ class ExtendedBaseProductController extends Controller
 
     /**
      * Whether the Product Requires the domain to be entered.
-     *
-     * @param  int  $productid
      */
-    public function getProductField(int $productid)
+    public function getProductField(int $productid): string
     {
         try {
             $field = '';
@@ -126,8 +124,8 @@ class ExtendedBaseProductController extends Controller
             }
 
             return $field;
-        } catch (Exception $ex) {
-            return $ex->getMessage();
+        } catch (Exception $exception) {
+            return $exception->getMessage();
         }
     }
 
@@ -142,7 +140,7 @@ class ExtendedBaseProductController extends Controller
             $product = Product::findOrFail($id);
 
             $tag = $product->github_owner
-                ? app(GithubApiController::class)->latestTag($product->github_owner, $product->github_repository)
+                ? resolve(GithubApiController::class)->latestTag($product->github_owner, $product->github_repository)
                 : null;
 
             $version = $tag ? null : ProductUpload::where('product_id', $id)
@@ -152,8 +150,8 @@ class ExtendedBaseProductController extends Controller
                 ->first();
 
             return $this->download($product, $version, $tag);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -164,8 +162,8 @@ class ExtendedBaseProductController extends Controller
                 throw new Exception(trans('message.file_not_exist'));
             }
 
-            return redirect(app(GithubApiController::class)->resolveDownloadUrl(
-                app(GithubApiController::class)->zipballUrl($product->github_owner, $product->github_repository, $tag)
+            return redirect(resolve(GithubApiController::class)->resolveDownloadUrl(
+                resolve(GithubApiController::class)->zipballUrl($product->github_owner, $product->github_repository, $tag)
             ));
         }
 
@@ -182,7 +180,7 @@ class ExtendedBaseProductController extends Controller
         return Attach::download($path);
     }
 
-    public function checkSubscriptionExpiry($invoice)
+    public function checkSubscriptionExpiry($invoice): void
     {
         $checkSubscription = false;
         if ($invoice) {
@@ -194,10 +192,8 @@ class ExtendedBaseProductController extends Controller
         }
 
         if ($checkSubscription) {
-            if (strtotime((string) $checkSubscription->update_ends_at) > 1) {
-                if ($checkSubscription->update_ends_at < new Carbon()->toDateTimeString()) {
-                    throw new Exception(__('message.renew_subscription_download'));
-                }
+            if (strtotime((string) $checkSubscription->update_ends_at) > 1 && $checkSubscription->update_ends_at < new Carbon()->toDateTimeString()) {
+                throw new Exception(__('message.renew_subscription_download'));
             }
         } else {
             throw new Exception(__('message.no_order_exists_invoice'));
@@ -216,7 +212,7 @@ class ExtendedBaseProductController extends Controller
      * @param  bool  $can_modify_quantity  Whether Product Quantity can be modified by Customers
      * @return
      */
-    public function saveCartValues($input, bool $can_modify_agent, bool $can_modify_quantity, $highlight, $add_to_contact)
+    public function saveCartValues($input, bool $can_modify_agent, bool $can_modify_quantity, $highlight, $add_to_contact): void
     {
         $this->product->show_agent = $input['show_agent'] == 1; //if Show Agents Selected
         $this->product->highlight = ($highlight == 1) ? 1 : 0;
@@ -237,10 +233,10 @@ class ExtendedBaseProductController extends Controller
      * @param  array  $product  instance of the Product
      * @return Save The Details
      */
-    public function saveCartDetailsWhileUpdating($input, $request, $product, $highlight, $add_to_contact)
+    public function saveCartDetailsWhileUpdating($input, $request, $product, $highlight, $add_to_contact): void
     {
         $product->show_agent = $input['show_agent'] == 1 ? 1 : 0; //if Show Agents Selected
-        if ($product->show_agent == 1) {
+        if ($product->show_agent === 1) {
             $product->can_modify_quantity = 0;
             if ($request->has('can_modify_agent')) {
                 $product->can_modify_agent = 1;

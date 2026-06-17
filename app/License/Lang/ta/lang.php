@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     '2fa_setup' => '2 படி சரிபார்ப்பை அமைக்கவும்',

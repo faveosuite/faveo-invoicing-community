@@ -131,7 +131,7 @@ class DatabaseSeeder extends Seeder
 
     }
 
-    public function createRecaptcha()
+    public function createRecaptcha(): void
     {
         RecaptchaSetting::firstOrCreate([]);
     }
@@ -156,7 +156,7 @@ class DatabaseSeeder extends Seeder
         // Chunked bulk inserts for currencies
         $currencies->chunk(500)->each(function($chunk): void{
             DB::table('currencies')->insert(
-                $chunk->map(fn($c) => [
+                $chunk->map(fn($c): array => [
                     'id' => $c['id'],
                     'code' => $c['code'],
                     'name' => $c['name'],
@@ -170,7 +170,7 @@ class DatabaseSeeder extends Seeder
         // Chunked bulk inserts for countries
         $countries->chunk(500)->each(function($chunk): void{
             DB::table('countries')->insert(
-                $chunk->map(fn($c) => [
+                $chunk->map(fn($c): array => [
                     'country_id' => $c['country_id'],
                     'country_code_char2' => $c['country_code_char2'],
                     'country_code_char3' => $c['country_code_char3'],
@@ -191,7 +191,7 @@ class DatabaseSeeder extends Seeder
         // Chunked bulk inserts for states
         $states->chunk(500)->each(function($chunk): void{
             DB::table('states_subdivisions')->insert(
-                $chunk->map(fn($s) => [
+                $chunk->map(fn($s): array => [
                     'state_subdivision_id' => $s['state_subdivision_id'],
                     'state_subdivision_name' => $s['state_subdivision_name'],
                     'country_code' => $s['country_code'],
@@ -218,7 +218,7 @@ class DatabaseSeeder extends Seeder
             ]);
     }
 
-    public function addMailTemplateForEmailAndMobileChange()
+    public function addMailTemplateForEmailAndMobileChange(): void
     {
         TemplateType::updateOrCreate(
             ['id' => '25'],

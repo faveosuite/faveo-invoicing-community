@@ -12,18 +12,18 @@ class ImageUploadHelper
      * Stores the files in default disk.
      *
      * @param  UploadedFile  $contents
-     * @param  null  $disk
      *
      * @throws Exception
      */
-    public static function saveImageToStorage(UploadedFile $image, $directory, $disk = 'public')
+    public static function saveImageToStorage(UploadedFile $image, $directory, $disk = 'public'): string
     {
         $originalName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
         $originalName = str_replace(' ', '_', $originalName);
+
         $extension = $image->getClientOriginalExtension();
         $fileName = $originalName.'_'.now()->format('Ymd').'.'.$extension;
 
-        $path = Storage::disk($disk)->putFileAs($directory, $image, $fileName);
+        Storage::disk($disk)->putFileAs($directory, $image, $fileName);
 
         return $fileName;
     }

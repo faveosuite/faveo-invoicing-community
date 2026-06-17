@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table): void {
-            $table->boolean('invoice_hidden')->default(false)->after('hidden');
+            $table->boolean('invoice_hidden')->default(value: false)->after('hidden');
         });
     }
 

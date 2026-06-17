@@ -33,7 +33,7 @@ class ExtendedBaseInvoiceController extends Controller
                 ->where('status', '!=', 'Success')
                 ->orderBy('created_at', 'desc')
                 ->get()
-                ->map(function ($inv) {
+                ->map(function ($inv): array {
                     $paid = Payment::where('invoice_id', $inv->id)
                         ->where('payment_status', 'success')
                         ->sum('amount');
@@ -52,7 +52,7 @@ class ExtendedBaseInvoiceController extends Controller
 
             // Supported currencies = only the enabled ones (currency's own status = 1).
             // Note: the model's global scope filters by active country, not currency status.
-            $currencies = Currency::where('status', 1)->orderBy('name')->get(['code', 'symbol', 'name'])->map(fn ($c) => [
+            $currencies = Currency::where('status', 1)->orderBy('name')->get(['code', 'symbol', 'name'])->map(fn ($c): array => [
                 'code' => $c->code,
                 'symbol' => $c->symbol,
                 'name' => $c->name,
@@ -62,8 +62,8 @@ class ExtendedBaseInvoiceController extends Controller
                 'invoices' => $invoices,
                 'currencies' => $currencies,
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -88,12 +88,12 @@ class ExtendedBaseInvoiceController extends Controller
             $paymentReceived = $payment->fill($request->all())->save();
 
             return back()->with('success', Lang::get('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
-    public function edit($invoiceid, Request $request)
+    public function edit($invoiceid, Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $totalSum = '0';
         $invoice = Invoice::where('id', $invoiceid)->first();
@@ -128,8 +128,8 @@ class ExtendedBaseInvoiceController extends Controller
             $order = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))->update(['price_override' => $total]);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -160,13 +160,13 @@ class ExtendedBaseInvoiceController extends Controller
             );
 
             return successResponse(__('message.payment_updated_succcessfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage(), 500);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 
     public function multiplePayment($clientid, $invoiceChecked, $payment_method,
-             $payment_date, $totalAmt, $invoicAmount, $amtToCredit, $payment_status, $currency = null)
+             $payment_date, $totalAmt, array $invoicAmount, $amtToCredit, $payment_status, $currency = null): void
     {
         try {
             // 1) Record a brand-new payment row against each selected invoice and
@@ -222,11 +222,11 @@ class ExtendedBaseInvoiceController extends Controller
                     'currency' => $currency,
                 ]);
             }
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
             // Re-throw so the calling action returns a proper JSON error response.
-            throw $ex;
+            throw $exception;
         }
     }
 
@@ -292,10 +292,10 @@ class ExtendedBaseInvoiceController extends Controller
             );
 
             return successResponse(__('message.payment_updated_succcessfully'));
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return errorResponse($ex->getMessage(), 500);
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 
@@ -310,7 +310,7 @@ class ExtendedBaseInvoiceController extends Controller
      * consolidated into a single remaining-balance row so the sum stays exact.
      */
     public function updatePaymentByInvoice($clientid, $invoiceChecked, $payment_method,
-             $payment_date, $invoicAmount, $payment_status)
+             $payment_date, array $invoicAmount, $payment_status): void
     {
         try {
             // Snapshot the current credit balance, and the method/currency it is held under.
@@ -385,11 +385,11 @@ class ExtendedBaseInvoiceController extends Controller
                     'currency' => $creditCurrency,
                 ]);
             }
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
             // Re-throw so the calling action returns a proper JSON error response.
-            throw $ex;
+            throw $exception;
         }
     }
 }

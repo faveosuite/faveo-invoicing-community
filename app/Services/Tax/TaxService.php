@@ -63,7 +63,7 @@ class TaxService
         }
 
         $rates = $this->resolver->ratesForCustomer($taxClass, $user);
-        if (empty($rates)) {
+        if ($rates === []) {
             return $empty;
         }
 

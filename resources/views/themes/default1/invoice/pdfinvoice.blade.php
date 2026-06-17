@@ -159,11 +159,11 @@
                                                     $tax_name = [];
                                                     $tax_percentage = [];
                                                     if ($invoiceItems->count() > 0) {
-                                                        foreach ($invoiceItems as $key => $item) {
-                                                            if (str_finish(",", $item->tax_name)) {
+                                                        foreach ($invoiceItems as $item) {
+                                                            if (\Illuminate\Support\Str::finish(",", $item->tax_name)) {
                                                                 $name = substr_replace($item->tax_name, "", -1);
                                                             }
-                                                            if (str_finish(",", $item->tax_percentage)) {
+                                                            if (\Illuminate\Support\Str::finish(",", $item->tax_percentage)) {
                                                                 $rate = substr_replace($item->tax_percentage, "", -1);
                                                             }
                                                             $tax_name = explode(",", $name);

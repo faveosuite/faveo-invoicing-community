@@ -25,21 +25,9 @@ class DeleteLogs extends LoggableCommand
     protected $description = 'Deletes system logs older than';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
         if (StatusSetting::value('system_log_status') != 1) {
             return;

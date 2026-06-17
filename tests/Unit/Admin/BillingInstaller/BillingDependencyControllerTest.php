@@ -9,9 +9,9 @@ use Tests\TestCase;
 
 class BillingDependencyControllerTest extends TestCase
 {
-    private $validator;
+    private \App\Http\Controllers\BillingInstaller\BillingDependencyController $validator;
 
-    private $basePath;
+    private string $basePath;
 
     #[Override]
     protected function setUp(): void
@@ -22,7 +22,7 @@ class BillingDependencyControllerTest extends TestCase
 
         // Create test base directory if it doesn't exist
         if (! file_exists($this->basePath)) {
-            mkdir($this->basePath, 0777, true);
+            mkdir($this->basePath, 0777, recursive: true);
         }
     }
 
@@ -47,13 +47,13 @@ class BillingDependencyControllerTest extends TestCase
         clearstatcache();
     }
 
-    public function testValidateDirectorySuccess()
+    public function testValidateDirectorySuccess(): void
     {
         $errorCount = 0;
 
         // Create and set permissions for test directories
-        mkdir($this->basePath.DIRECTORY_SEPARATOR.'storage', 0777, true);
-        mkdir($this->basePath.DIRECTORY_SEPARATOR.'bootstrap', 0777, true);
+        mkdir($this->basePath.DIRECTORY_SEPARATOR.'storage', 0777, recursive: true);
+        mkdir($this->basePath.DIRECTORY_SEPARATOR.'bootstrap', 0777, recursive: true);
 
         $result = $this->validator->validateDirectory($this->basePath, $errorCount);
 
@@ -66,19 +66,19 @@ class BillingDependencyControllerTest extends TestCase
         $this->assertEquals(0, $result[1]['errorCount']);
     }
 
-    public function testValidateDirectoryFailure()
+    public function testValidateDirectoryFailure(): void
     {
         $errorCount = 0;
 
         // Create and set permissions for test directories
-        mkdir($this->basePath.DIRECTORY_SEPARATOR.'storage', 0500, true);
-        mkdir($this->basePath.DIRECTORY_SEPARATOR.'bootstrap', 0500, true);
+        mkdir($this->basePath.DIRECTORY_SEPARATOR.'storage', 0500, recursive: true);
+        mkdir($this->basePath.DIRECTORY_SEPARATOR.'bootstrap', 0500, recursive: true);
 
         try {
             $this->validator->validateDirectory($this->basePath, $errorCount);
             $this->fail('Expected exception was not thrown');
-        } catch (Exception $e) {
-            $this->assertStringContainsString('Expected exception was not thrown', $e->getMessage());
+        } catch (Exception $exception) {
+            $this->assertStringContainsString('Expected exception was not thrown', $exception->getMessage());
         }
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use App\Rules\Honeypot;
@@ -7,7 +9,7 @@ use Override;
 
 class ValidateSecretRequest extends Request
 {
-    public function rules()
+    public function rules(): array
     {
         return [
             '2fa_code' => [new Honeypot()],

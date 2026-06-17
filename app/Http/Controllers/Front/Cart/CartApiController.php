@@ -57,8 +57,8 @@ class CartApiController extends Controller
 
         try {
             $this->cartService->applyCoupon($request, $request->input('code'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage(), 422);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage(), 422);
         }
 
         return $this->cartResponse($request);

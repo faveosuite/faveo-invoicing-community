@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
  */
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         // Slugify any pre-existing legacy classes FIRST so none keep the
         // default empty slug — otherwise ensureClass('Standard', '') would
@@ -42,7 +42,7 @@ return new class extends Migration
         $this->migrateOtherTaxes();
     }
 
-    public function down()
+    public function down(): void
     {
         // Forward-only data migration. Clear the generated rates; the seeded
         // default classes are removed so a re-run starts clean. Legacy tables
@@ -79,11 +79,11 @@ return new class extends Migration
             return;
         }
 
-        $isNull = fn ($v) => $v === null || strtoupper((string) $v) === 'NULL' || $v === '';
+        $isNull = fn ($v): bool => $v === null || strtoupper((string) $v) === 'NULL' || $v === '';
 
         $rows = DB::table('tax_by_states')->where('country', 'IN')->get();
-        $distinct = $rows->reject(fn ($r) => $isNull($r->i_gst))
-            ->pluck('i_gst')->map(fn ($v) => (float) $v)->unique()->values();
+        $distinct = $rows->reject(fn ($r): bool => $isNull($r->i_gst))
+            ->pluck('i_gst')->map(fn ($v): float => (float) $v)->unique()->values();
 
         if ($distinct->count() === 1) {
             $this->insertRate('GST', 'IN', '', $distinct->first());

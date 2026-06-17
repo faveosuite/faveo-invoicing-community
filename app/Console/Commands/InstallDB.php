@@ -32,12 +32,10 @@ class InstallDB extends LoggableCommand
      */
     protected $description = 'installing database';
 
-    protected $install;
+    protected \App\Http\Controllers\BillingInstaller\InstallerController $install;
 
     /**
      * Create a new command instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -47,10 +45,8 @@ class InstallDB extends LoggableCommand
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
         try {
             $migrateOption = $this->option('migrate');
@@ -88,9 +84,9 @@ class InstallDB extends LoggableCommand
 
             $this->warn('Please update your email and change the password immediately'.PHP_EOL);
             $url = Config::get('app.url');
-            $this->info("Agora has been installed successfully. Please visit $url to login".PHP_EOL);
-        } catch (Exception $ex) {
-            $this->error($ex->getMessage());
+            $this->info(sprintf('Agora has been installed successfully. Please visit %s to login', $url).PHP_EOL);
+        } catch (Exception $exception) {
+            $this->error($exception->getMessage());
         }
     }
 
@@ -110,9 +106,9 @@ class InstallDB extends LoggableCommand
             }
 
             $this->checkMariaDBVersion($version);
-        } catch (Exception $e) {
-            if ($e->getCode() != 1049) {
-                throw $e;
+        } catch (Exception $exception) {
+            if ($exception->getCode() != 1049) {
+                throw $exception;
             }
 
             $database = config('database.connections.mysql.database');
@@ -150,10 +146,10 @@ class InstallDB extends LoggableCommand
      *
      * @throws Exception
      */
-    private function compareVersion($version, $min, $db = 'MySQL'): void
+    private function compareVersion(string $version, string $min, string $db = 'MySQL'): void
     {
         if (version_compare($version, $min) < 0) {
-            throw new Exception("Please update your $db database version to $min or greater");
+            throw new Exception(sprintf('Please update your %s database version to %s or greater', $db, $min));
         }
     }
 
@@ -166,7 +162,7 @@ class InstallDB extends LoggableCommand
      */
     private function printAndFormatVersion(string $version, string $db = 'MySQL'): string
     {
-        $this->info("You are running $db database on version $version");
+        $this->info(sprintf('You are running %s database on version %s', $db, $version));
         preg_match("/^[0-9\.]+/", $version, $match);
 
         return $match[0];

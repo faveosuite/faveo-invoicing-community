@@ -20,14 +20,29 @@ use Session;
 
 class PromotionController extends BasePromotionController
 {
+    /**
+     * @var \App\Model\Payment\Promotion
+     */
     public $promotion;
 
+    /**
+     * @var \App\Model\Product\Product
+     */
     public $product;
 
+    /**
+     * @var \App\Model\Payment\PromoProductRelation
+     */
     public $promoRelation;
 
+    /**
+     * @var \App\Model\Payment\PromotionType
+     */
     public $type;
 
+    /**
+     * @var \App\Model\Order\Invoice
+     */
     public $invoice;
 
     public function __construct()
@@ -76,8 +91,8 @@ class PromotionController extends BasePromotionController
             $this->promoRelation->create(['product_id' => $product, 'promotion_id' => $this->promotion->id]);
 
             return back()->with('success', Lang::get('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -114,12 +129,12 @@ class PromotionController extends BasePromotionController
             $this->promoRelation->create(['product_id' => $product, 'promotion_id' => $id]);
 
             return back()->with('success', Lang::get('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
-    public function checkNumberOfUses($code)
+    public function checkNumberOfUses($code): string
     {
         try {
             $promotion = $this->promotion->where('code', $code)->first();
@@ -131,9 +146,9 @@ class PromotionController extends BasePromotionController
             $used_number = $this->invoice->where('coupon_code', $code)->count();
             if ($uses > $used_number) {
                 return 'success';
-            } else {
-                return 'fails';
             }
+
+            return 'fails';
         } catch (Exception) {
             throw new Exception(Lang::get('message.find-cost-error'));
         }
@@ -147,9 +162,8 @@ class PromotionController extends BasePromotionController
             $end = $promotion->expiry;
             $now = Date::now()->format('Y-m-d H:m:i');
             $inv_cont = new InvoiceController();
-            $getExpiryStatus = $inv_cont->getExpiryStatus($start, $end, $now);
 
-            return $getExpiryStatus;
+            return $inv_cont->getExpiryStatus($start, $end, $now);
         } catch (Exception) {
             throw new Exception(Lang::get('message.check-expiry'));
         }
@@ -170,12 +184,12 @@ class PromotionController extends BasePromotionController
         ])
             ->when($searchQuery, function ($q) use ($searchQuery): void {
                 $q->where(function (Builder $query) use ($searchQuery): void {
-                    $query->where('code', 'like', "%{$searchQuery}%")
+                    $query->where('code', 'like', sprintf('%%%s%%', $searchQuery))
                         ->orWhereHas('products', function (Builder $q) use ($searchQuery): void {
-                            $q->where('name', 'like', "%{$searchQuery}%");
+                            $q->where('name', 'like', sprintf('%%%s%%', $searchQuery));
                         })
                         ->orWhereHas('promotionType', function (Builder $q) use ($searchQuery): void {
-                            $q->where('name', 'like', "%{$searchQuery}%");
+                            $q->where('name', 'like', sprintf('%%%s%%', $searchQuery));
                         });
                 });
             })
@@ -195,8 +209,8 @@ class PromotionController extends BasePromotionController
                 },
             ])
             ->findOrFail($promotionId);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -230,8 +244,8 @@ class PromotionController extends BasePromotionController
             ]);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -261,8 +275,8 @@ class PromotionController extends BasePromotionController
             ]);
 
             return successResponse(__('message.created-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -284,8 +298,8 @@ class PromotionController extends BasePromotionController
             });
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

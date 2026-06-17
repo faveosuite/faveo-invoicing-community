@@ -47,8 +47,8 @@ class ProfileController extends BaseAuthController
 
             return successResponse('', ['bussinesses' => $bussinesses, 'user' => $user, 'timezones' => $timezones, 'state' => $state, 'states' => $states, 'is2faEnabled' => $is2faEnabled, 'dateSinceEnabled' => $dateSinceEnabled]);
 //            return view('themes.default1.user.profile', compact('bussinesses', 'user', 'timezones', 'state', 'states', 'is2faEnabled', 'dateSinceEnabled'));
-        } catch (Exception $e) {
-            return back()->with('fails', $e->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -68,12 +68,12 @@ class ProfileController extends BaseAuthController
             }
 
             return back()->with('success', Lang::get('message.updated-successfully'));
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             if ($request->expectsJson()) {
-                return errorResponse($e->getMessage());
+                return errorResponse($exception->getMessage());
             }
 
-            return back()->with('fails', $e->getMessage());
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -97,26 +97,26 @@ class ProfileController extends BaseAuthController
                 }
 
                 return back()->with('success1', Lang::get('message.updated-successfully'));
-            } else {
-                if ($request->expectsJson()) {
-                    return errorResponse(__('message.incorrect_old_password'));
-                }
-
-                return back()->with('fails1', __('message.incorrect_old_password'));
             }
-        } catch (Exception $e) {
+
             if ($request->expectsJson()) {
-                return errorResponse($e->getMessage());
+                return errorResponse(__('message.incorrect_old_password'));
             }
 
-            return back()->with('fails', $e->getMessage());
+            return back()->with('fails1', __('message.incorrect_old_password'));
+        } catch (Exception $exception) {
+            if ($request->expectsJson()) {
+                return errorResponse($exception->getMessage());
+            }
+
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
     public function getCountries()
     {
         $countries = getSupportedCountriesForIntlInput();
-        $list = collect($countries)->map(fn ($name, $iso) => ['id' => $iso, 'name' => $name])->values();
+        $list = collect($countries)->map(fn ($name, $iso): array => ['id' => $iso, 'name' => $name])->values();
 
         return successResponse('', ['countries' => $list]);
     }
@@ -124,7 +124,7 @@ class ProfileController extends BaseAuthController
     public function getStatesByCountry($countryCode)
     {
         $states = findStateByRegionId($countryCode);
-        $list = collect($states)->map(fn ($name, $iso) => ['id' => $iso, 'name' => $name])->values();
+        $list = collect($states)->map(fn ($name, $iso): array => ['id' => $iso, 'name' => $name])->values();
 
         return successResponse('', ['states' => $list]);
     }

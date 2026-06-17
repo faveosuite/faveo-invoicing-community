@@ -44,14 +44,29 @@ use Stripe\StripeClient;
 
 class ClientController extends BaseClientController
 {
+    /**
+     * @var \App\User
+     */
     public $user;
 
+    /**
+     * @var \App\Model\Order\Invoice
+     */
     public $invoice;
 
+    /**
+     * @var \App\Model\Order\Order
+     */
     public $order;
 
+    /**
+     * @var \App\Model\Product\Subscription
+     */
     public $subscription;
 
+    /**
+     * @var \App\Model\Order\Payment
+     */
     public $payment;
 
     public function __construct()
@@ -116,8 +131,8 @@ class ClientController extends BaseClientController
             // $this->setSession($id, $planid);
 
             return redirect('paynow/'.$id);
-        } catch(Exception $ex) {
-            return redirect('my-orders')->with('fails', $ex->getMessage());
+        } catch(Exception $exception) {
+            return redirect('my-orders')->with('fails', $exception->getMessage());
         }
     }
 
@@ -137,11 +152,12 @@ class ClientController extends BaseClientController
         ])
             ->select('id', 'number', 'date', 'grand_total', 'billing_pay', 'status', 'currency', 'is_renewed')
             ->where('user_id', Auth::id());
+        $search = trim((string) $request->input('search-query', ''));
 
-        if ($search = trim((string) $request->input('search-query', ''))) {
+        if ($search !== '' && $search !== '0') {
             $query->where(function (Builder $q) use ($search): void {
-                $q->where('number', 'like', "%{$search}%")
-                  ->orWhere('status', 'like', "%{$search}%");
+                $q->where('number', 'like', sprintf('%%%s%%', $search))
+                  ->orWhere('status', 'like', sprintf('%%%s%%', $search));
             });
         }
 
@@ -152,7 +168,7 @@ class ClientController extends BaseClientController
 
         $paginated = $query->paginate((int) $request->input('limit', 10));
 
-        $paginated->getCollection()->transform(function ($invoice) {
+        $paginated->getCollection()->transform(function ($invoice): array {
             $paymentTotal = $invoice->payment->sum('amount');
             $paid = floatval($invoice->billing_pay ?? 0) + floatval($paymentTotal);
             $balance = max(0, floatval($invoice->grand_total) - $paid);
@@ -163,7 +179,7 @@ class ClientController extends BaseClientController
                 'number' => $invoice->number,
                 'date' => $invoice->date,
                 'is_renewed' => (bool) $invoice->is_renewed,
-                'orders' => $invoice->orders->map(fn ($o) => ['id' => $o->id, 'number' => $o->number])->values(),
+                'orders' => $invoice->orders->map(fn ($o): array => ['id' => $o->id, 'number' => $o->number])->values(),
                 'grand_total' => currencyFormat($invoice->grand_total, $invoice->currency),
                 'paid' => currencyFormat($paid, $invoice->currency),
                 'balance' => currencyFormat($balance, $invoice->currency),
@@ -213,7 +229,7 @@ class ClientController extends BaseClientController
                     ->orderByDesc('id')
                     ->first(['payment_method', 'date']),
                 'available_gateways' => $this->autoRenewalGateways($user->country),
-                'autorenewal_enabled' => count($this->autoRenewalGateways($user->country)) > 0,
+                'autorenewal_enabled' => $this->autoRenewalGateways($user->country) !== [],
                 'whatsapp_enabled' => (bool) $order->productRelation?->whatsapp_integration,
                 'whatsapp_signup_enabled' => (bool) StatusSetting::pluck('whatsapp_status')->first(),
                 'whatsapp_app_id' => WhatsappIntegration::first()?->app_id,
@@ -227,10 +243,12 @@ class ClientController extends BaseClientController
             ]);
         }
 
-        if ($search = trim((string) $request->input('search-query', ''))) {
+        $search = trim((string) $request->input('search-query', ''));
+
+        if ($search !== '' && $search !== '0') {
             $query->where(function (Builder $q) use ($search): void {
-                $q->where('number', 'like', "%{$search}%")
-                  ->orWhereHas('productRelation', fn (Builder $pq) => $pq->where('name', 'like', "%{$search}%"));
+                $q->where('number', 'like', sprintf('%%%s%%', $search))
+                  ->orWhereHas('productRelation', fn (Builder $pq) => $pq->where('name', 'like', sprintf('%%%s%%', $search)));
             });
         }
 
@@ -255,7 +273,7 @@ class ClientController extends BaseClientController
             $downloadPerms[$pid] = $perms['downloadPermission'] == 1;
         }
 
-        $paginated->getCollection()->transform(function ($order) use ($downloadPerms) {
+        $paginated->getCollection()->transform(function ($order) use ($downloadPerms): array {
             $hasDownload = $downloadPerms[$order->productRelation?->id] ?? false;
             $latestInvoice = $order->invoices->first();
 
@@ -319,7 +337,7 @@ class ClientController extends BaseClientController
             $plans = $this->planPriceProductRelation($product);
             $planIds = array_keys($plans);
             $countryids = Country::where('country_code_char2', $user->country)->first();
-            $plans = $this->planDetails($planIds, $countryids, $user->country, $plans, $product);
+            $plans = $this->planDetails($planIds, $user->country, $plans, $product);
             $planOptions = [];
             foreach ($plans as $pid => $pname) {
                 $planOptions[] = ['id' => $pid, 'name' => $pname];
@@ -334,13 +352,13 @@ class ClientController extends BaseClientController
                 'current_agents' => $currentAgents,
                 'current_plan_id' => $planIdOld,
                 'current_plan_name' => $planName,
-                'is_free_plan' => $planName ? stripos((string) $planName, 'free') !== false : false,
+                'is_free_plan' => $planName && stripos((string) $planName, 'free') !== false,
                 'plan_expiry' => $subscription?->ends_at,
-                'price_per_agent' => currencyFormat($pricePerAgent, $currency, true),
+                'price_per_agent' => currencyFormat($pricePerAgent, $currency, includeSymbol: true),
                 'plans' => $planOptions,
             ]);
-        } catch (Exception $e) {
-            Logger::exception($e);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
             return errorResponse(__('message.something_bad'));
         }
@@ -361,12 +379,12 @@ class ClientController extends BaseClientController
                 ->get()
                 ->filter(fn ($plan) => $plan->planPrice->isNotEmpty());
 
-            $planOptions = $plans->map(function ($plan) use ($currency) {
+            $planOptions = $plans->map(function ($plan) use ($currency): array {
                 $renewPrice = $plan->planPrice->first()->renew_price;
 
                 return [
                     'id' => $plan->id,
-                    'name' => $plan->name.' (Renewal price: '.currencyFormat($renewPrice, $currency, true).')',
+                    'name' => $plan->name.' (Renewal price: '.currencyFormat($renewPrice, $currency, includeSymbol: true).')',
                 ];
             })->values();
 
@@ -374,8 +392,8 @@ class ClientController extends BaseClientController
                 'plans' => $planOptions,
                 'user_id' => $user->id,
             ]);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -383,7 +401,7 @@ class ClientController extends BaseClientController
     public function getInvoicesByOrderId($orderid, $userid, $admin = null)
     {
         try {
-            if (! authorizeOwnership((int) $userid, true)) {
+            if (! authorizeOwnership((int) $userid, allowAdmin: true)) {
                 return errorResponse(__('message.unauthorized_action'), 403);
             }
 
@@ -396,7 +414,7 @@ class ClientController extends BaseClientController
                 ->orderBy('date', 'desc')
                 ->paginate(10);
 
-            $paginated->getCollection()->transform(fn ($model) => [
+            $paginated->getCollection()->transform(fn ($model): array => [
                 'id' => $model->id,
                 'number' => $model->number,
                 'date' => $model->date,
@@ -405,12 +423,12 @@ class ClientController extends BaseClientController
             ]);
 
             return successResponse('', $paginated);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function prepareInvoiceData($invoice, $user = null)
+    public function prepareInvoiceData($invoice, $user = null): array
     {
         $payments = $invoice->payment;
         $user ??= Auth::user();
@@ -529,8 +547,8 @@ class ClientController extends BaseClientController
             }
 
             return $this->uploadVersions($request, $order, $product, $subscription);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage(), 500);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 
@@ -557,7 +575,7 @@ class ClientController extends BaseClientController
     {
         $allReleases = array_slice(
             $this->github_api->releases($product->github_owner, $product->github_repository),
-            0, 3, true
+            0, 3, preserve_keys: true
         );
 
         $downloadPermission = LicensePermissionsController::getPermissionsForProduct((int) $product->id);
@@ -591,7 +609,7 @@ class ClientController extends BaseClientController
                 $canDownload = strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at)
                     || $subscription->update_ends_at == '0000-00-00 00:00:00';
             } else {
-                $canDownload = $countExpiry == $countVersions;
+                $canDownload = $countExpiry === $countVersions;
             }
 
             if ($canDownload) {
@@ -628,17 +646,17 @@ class ClientController extends BaseClientController
     private function uploadVersions(Request $request, $order, $product, $subscription)
     {
         $search = trim((string) $request->input('search-query', ''));
-        $invoiceNumber = $order->invoices->first()?->number;
+        $order->invoices->first()?->number;
 
         $base = ProductUpload::where('product_id', $product->id)
             ->where('is_private', 0)
             ->select('id', 'product_id', 'version', 'title', 'description', 'created_at', 'release_type');
 
-        if ($search) {
+        if ($search !== '' && $search !== '0') {
             $base->where(function ($q) use ($search): void {
-                $q->where('version', 'LIKE', "%{$search}%")
-                  ->orWhere('title', 'LIKE', "%{$search}%")
-                  ->orWhere('description', 'LIKE', "%{$search}%");
+                $q->where('version', 'LIKE', sprintf('%%%s%%', $search))
+                  ->orWhere('title', 'LIKE', sprintf('%%%s%%', $search))
+                  ->orWhere('description', 'LIKE', sprintf('%%%s%%', $search));
             });
         }
 
@@ -661,7 +679,7 @@ class ClientController extends BaseClientController
 
         $paginator = $base->paginate((int) $request->input('limit', 10));
 
-        $paginator->getCollection()->transform(function ($version) use ($allowTillExpiry, $countExpiry, $countVersions, $subscription, $order) {
+        $paginator->getCollection()->transform(function ($version) use ($allowTillExpiry, $countExpiry, $countVersions, $subscription, $order): array {
             $canDownload = false;
 
             if (! $subscription) {
@@ -680,7 +698,7 @@ class ClientController extends BaseClientController
                 'created_at' => $version->created_at,
                 'can_download' => $canDownload,
                 'download_url' => $canDownload
-                    ? url("download/{$order->id}/{$version->id}")
+                    ? url(sprintf('download/%s/%s', $order->id, $version->id))
                     : null,
             ];
         });
@@ -721,12 +739,12 @@ class ClientController extends BaseClientController
             $user = $this->user->where('id', Auth::user()->id)->first();
 
             return successResponse('', ['user' => $user]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function generateMerchantRandomString($length = 10)
+    public function generateMerchantRandomString($length = 10): string
     {
         return substr(bin2hex(random_bytes($length)), 0, $length);
     }
@@ -744,7 +762,7 @@ class ClientController extends BaseClientController
             ->orderBy('id', 'desc')
             ->first();
         if (! $payment_log) {
-            $payment_log = Payment_log::where('order', $terminatedOrderNumber)
+            return Payment_log::where('order', $terminatedOrderNumber)
                 ->orderBy('id', 'desc')
                 ->first();
         }
@@ -760,7 +778,7 @@ class ClientController extends BaseClientController
      */
     private function planPriceProductRelation($product)
     {
-        $plans = Plan::where('product', '!=', $product->id)
+        return Plan::where('product', '!=', $product->id)
             ->whereHas('productRelation', function ($query): void {
                 $query->where('type', 4)
                       ->where('can_modify_agent', 1);
@@ -770,8 +788,6 @@ class ClientController extends BaseClientController
             })
             ->pluck('name', 'id')
             ->toArray();
-
-        return $plans;
     }
 
     /**
@@ -784,7 +800,7 @@ class ClientController extends BaseClientController
      * @param  $plans
      * @return array
      */
-    private function planDetails($planIds, $countryids, $userCountry, $plans, $product)
+    private function planDetails(array $planIds, $userCountry, array $plans, $product)
     {
         $currency = getCurrencyForClient($userCountry);
 
@@ -794,17 +810,21 @@ class ClientController extends BaseClientController
             ->pluck('renew_price', 'plan_id')
             ->toArray();
 
-        foreach ($plans as $planId => $planName) {
-            if (isset($renewalPrices[$planId])) {
-                if (in_array($product->id, cloudPopupProducts())) {
-                    $plans[$planId] .= ' (Plan price-per agent: '.currencyFormat($renewalPrices[$planId], $currency, true).')';
-                }
+        foreach (array_keys($plans) as $planId) {
+            if (!isset($renewalPrices[$planId])) {
+                continue;
             }
+
+            if (!in_array($product->id, cloudPopupProducts())) {
+                continue;
+            }
+
+            $plans[$planId] .= ' (Plan price-per agent: '.currencyFormat($renewalPrices[$planId], $currency, includeSymbol: true).')';
         }
 
         // Add more cloud IDs until we have a generic way to differentiate
         if (in_array($product->id, cloudPopupProducts())) {
-            $plans = array_filter($plans, fn ($value) => stripos((string) $value, 'free') === false);
+            return array_filter($plans, fn ($value): bool => stripos((string) $value, 'free') === false);
         }
 
         return $plans;
@@ -821,7 +841,7 @@ class ClientController extends BaseClientController
     public function getPaymentByOrderIdClient($orderid, $userid)
     {
         try {
-            if (! authorizeOwnership($userid, true)) {
+            if (! authorizeOwnership($userid, allowAdmin: true)) {
                 return errorResponse(__('message.unauthorized_action'), 403);
             }
 
@@ -831,11 +851,10 @@ class ClientController extends BaseClientController
 
             $paginated = $this->payment::query()
                 ->with(['invoice:id,number,currency'])
-                ->whereIn('invoice_id', $invoiceIds)
-                ->orderBy('created_at', 'desc')
+                ->whereIn('invoice_id', $invoiceIds)->latest()
                 ->paginate(10);
 
-            $paginated->getCollection()->transform(fn ($payment) => [
+            $paginated->getCollection()->transform(fn ($payment): array => [
                 'id' => $payment->id,
                 'invoice_number' => $payment->invoice?->number ?? '—',
                 'amount' => currencyFormat($payment->amount, $payment->invoice?->currency ?? ''),
@@ -845,8 +864,8 @@ class ClientController extends BaseClientController
             ]);
 
             return successResponse('', $paginated);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -857,11 +876,12 @@ class ClientController extends BaseClientController
 
             $query = Installation::where('license_code', $order->serial_key)
                 ->where('product_id', $order->product);
+            $search = trim((string) $request->input('search-query', ''));
 
-            if ($search = trim((string) $request->input('search-query', ''))) {
+            if ($search !== '' && $search !== '0') {
                 $query->where(function ($q) use ($search): void {
-                    $q->where('installation_domain', 'like', "%{$search}%")
-                      ->orWhere('installation_ip', 'like', "%{$search}%");
+                    $q->where('installation_domain', 'like', sprintf('%%%s%%', $search))
+                      ->orWhere('installation_ip', 'like', sprintf('%%%s%%', $search));
                 });
             }
 
@@ -872,7 +892,7 @@ class ClientController extends BaseClientController
 
             $paginated = $query->paginate((int) $request->input('limit', 10));
 
-            $paginated->getCollection()->transform(fn ($inst) => [
+            $paginated->getCollection()->transform(fn ($inst): array => [
                 'installation_path' => $inst->installation_domain,
                 'installation_ip' => $inst->installation_ip,
                 'version' => $inst->version,
@@ -880,8 +900,8 @@ class ClientController extends BaseClientController
             ]);
 
             return successResponse('', $paginated);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -902,21 +922,20 @@ class ClientController extends BaseClientController
      *  Checks if Invoice can be deleted or not.
      *
      * @param  $invoice
-     * @return bool
      *
      * @throws
      */
-    private function canDeleteInvoice($invoice)
+    private function canDeleteInvoice($invoice): bool
     {
-        return (
-            $invoice->is_renewed == 0 &&
-            ! $invoice->orderRelation()->exists() &&
-            $invoice->invoiceItem()->exists()
-        ) || (
-            $invoice->is_renewed != 0 &&
-            $invoice->orderRelation()->exists() &&
-            $invoice->invoiceItem()->exists()
-        );
+        if ($invoice->is_renewed == 0 &&
+        ! $invoice->orderRelation()->exists() &&
+        $invoice->invoiceItem()->exists()) {
+            return true;
+        }
+
+        return $invoice->is_renewed != 0 &&
+        $invoice->orderRelation()->exists() &&
+        $invoice->invoiceItem()->exists();
     }
 
     /**
@@ -927,7 +946,7 @@ class ClientController extends BaseClientController
      *
      * @throws
      */
-    private function deleteInvoice($invoice)
+    private function deleteInvoice($invoice): void
     {
         $invoice->invoiceItem()->delete();
 
@@ -939,14 +958,14 @@ class ClientController extends BaseClientController
         Session::forget('invoice');
     }
 
-    private function stripePaymentUpdateSub($stripe, $paymentIntent, $orderid)
+    private function stripePaymentUpdateSub($stripe, $paymentIntent, $orderid): array
     {
-        $refund = $stripe->refunds->create([
+        $stripe->refunds->create([
             'payment_intent' => $paymentIntent->id,
             'amount' => $paymentIntent->amount,
         ]);
         $invoice_id = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-        $number = Invoice::where('id', $invoice_id)->value('number');
+        Invoice::where('id', $invoice_id)->value('number');
         $customer_details = [
             'user_id' => Auth::user()->id,
             'customer_id' => $paymentIntent->customer,
@@ -957,7 +976,7 @@ class ClientController extends BaseClientController
         Auto_renewal::create($customer_details);
         Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
         $mail = new PhpMailController();
-        $mail->payment_log(Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
+        $mail->payment_log(Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), amount: $amount, payment_type: 'Payment method updated');
 
         return ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
     }
@@ -971,7 +990,7 @@ class ClientController extends BaseClientController
                 return errorResponse(__('message.invalid_payment_modification'));
             }
 
-            if (count($invoice->payment()->get())) {
+            if (count($invoice->payment()->get()) > 0) {
                 $paid = array_sum($invoice->payment()->pluck('amount')->toArray());
                 $invoice->grand_total -= $paid;
             }
@@ -987,10 +1006,10 @@ class ClientController extends BaseClientController
             }
 
             return successResponse('', ['invoice' => $invoice, 'items' => $items, 'paid' => $paid, 'product' => $product]);
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return errorResponse($ex->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 }

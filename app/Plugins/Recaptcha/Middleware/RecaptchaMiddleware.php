@@ -32,7 +32,7 @@ class RecaptchaMiddleware
 
         return match ($settings->captcha_version) {
             'v3_invisible' => $this->handleV3Invisible($request, $recaptchaResponse, $action, $settings, $next),
-            'v2_checkbox', 'v2_invisible' => $this->handleV2($request, $recaptchaResponse, $settings, $next),
+            'v2_checkbox', 'v2_invisible' => $this->handleV2($recaptchaResponse, $settings, $next),
             default => $next($request),
         };
     }
@@ -67,7 +67,7 @@ class RecaptchaMiddleware
         // If token is valid but score is too low, trigger fallback
         if ($isTokenValid && ($verification['score'] ?? 0) < $settings->score_threshold) {
             if ($settings->failover_action === 'v2_checkbox') {
-                Session::put($sessionKey, true);
+                Session::put($sessionKey, value: true);
 
                 return successResponse(
                     __('recaptcha::recaptcha.captcha_message'),
@@ -89,7 +89,6 @@ class RecaptchaMiddleware
     }
 
     private function handleV2(
-        Request $request,
         string $recaptchaResponse,
         RecaptchaSetting $settings,
         Closure $next
@@ -125,6 +124,6 @@ class RecaptchaMiddleware
 
     private function getSessionKey(string $action): string
     {
-        return "recaptcha_v2_fallback_{$action}";
+        return 'recaptcha_v2_fallback_' . $action;
     }
 }

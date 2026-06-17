@@ -61,7 +61,7 @@ class LicenseApiController extends Controller
         $licenseCodes = $request->input('license_code', $request->input('license_codes', []));
 
         if (is_string($licenseCodes)) {
-            $licenseCodes = json_decode($licenseCodes, true) ?? [$licenseCodes];
+            $licenseCodes = json_decode($licenseCodes, associative: true) ?? [$licenseCodes];
         }
 
         $result = $this->licenseService->getPluginLicenses($licenseCodes);

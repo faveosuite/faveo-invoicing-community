@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\License\Controllers\Admin\BannedHostController;
 use App\License\Controllers\Admin\CallBackController;
 use App\License\Controllers\Admin\ClientController;

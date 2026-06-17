@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  */
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         if (Schema::hasTable('tax_classes') && ! Schema::hasColumn('tax_classes', 'slug')) {
             Schema::table('tax_classes', function (Blueprint $table): void {
@@ -20,7 +20,7 @@ return new class extends Migration
         }
     }
 
-    public function down()
+    public function down(): void
     {
         if (Schema::hasColumn('tax_classes', 'slug')) {
             Schema::table('tax_classes', function (Blueprint $table): void {

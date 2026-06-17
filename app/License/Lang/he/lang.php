@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     '2fa_setup' => 'הגדרת אימות דו-שלבי',

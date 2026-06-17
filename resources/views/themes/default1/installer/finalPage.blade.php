@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Artisan;
 
 @section('content')
     <?php
-    if (isset($_GET['flush']) && $_GET['flush'] == 'true') {
+    if (\Illuminate\Support\Facades\Request::query('flush') !== null && \Illuminate\Support\Facades\Request::query('flush') == 'true') {
         Cache::flush();
         Session::flush();
         \Artisan::call('optimize:clear');

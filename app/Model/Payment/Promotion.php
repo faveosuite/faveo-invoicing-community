@@ -33,7 +33,7 @@ class Promotion extends BaseModel
     {
         return [
             'code' => ['Promotion Code', fn ($value) => $value],
-            'type' => ['Promotion Type', fn ($value) => $value === 1 ? 'Percentage' : 'Fixed Amount'],
+            'type' => ['Promotion Type', fn ($value): string => $value === 1 ? 'Percentage' : 'Fixed Amount'],
             'uses' => ['Number of Uses', fn ($value) => $value],
             'value' => ['Promotion Value', fn ($value) => $value],
             'start' => ['Start Date', fn ($value) => $value],

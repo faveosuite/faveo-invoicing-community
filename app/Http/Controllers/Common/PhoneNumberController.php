@@ -51,7 +51,7 @@ class PhoneNumberController
                 ],
                 'error' => null,
             ];
-        } catch (NumberParseException $e) {
+        } catch (NumberParseException $numberParseException) {
             return [
                 'valid' => false,
                 'possible' => false,
@@ -61,18 +61,13 @@ class PhoneNumberController
                 'national_number' => null,
                 'region' => null,
                 'formatted' => null,
-                'error' => $this->getErrorMessage($e->getErrorType()),
+                'error' => $this->getErrorMessage($numberParseException->getErrorType()),
             ];
         }
     }
 
     /**
      * Check if a phone number is valid.
-     *
-     * @param  string  $phoneNumber
-     * @param  string|null  $countryCode
-     * @param  bool  $strict
-     * @return bool
      */
     public function isValid(string $phoneNumber, ?string $countryCode = null, bool $strict = false): bool
     {
@@ -91,10 +86,6 @@ class PhoneNumberController
 
     /**
      * Check if a phone number is a mobile number.
-     *
-     * @param  string  $phoneNumber
-     * @param  string|null  $countryCode
-     * @return bool
      */
     public function isMobile(string $phoneNumber, ?string $countryCode = null): bool
     {
@@ -109,10 +100,6 @@ class PhoneNumberController
 
     /**
      * Format phone number to E.164 format (+14155551234).
-     *
-     * @param  string  $phoneNumber
-     * @param  string|null  $countryCode
-     * @return string|null
      */
     public function formatE164(string $phoneNumber, ?string $countryCode = null): ?string
     {
@@ -123,10 +110,6 @@ class PhoneNumberController
 
     /**
      * Format phone number to international format (+1 415-555-1234).
-     *
-     * @param  string  $phoneNumber
-     * @param  string|null  $countryCode
-     * @return string|null
      */
     public function formatInternational(string $phoneNumber, ?string $countryCode = null): ?string
     {
@@ -137,10 +120,6 @@ class PhoneNumberController
 
     /**
      * Format phone number to national format ((415) 555-1234).
-     *
-     * @param  string  $phoneNumber
-     * @param  string|null  $countryCode
-     * @return string|null
      */
     public function formatNational(string $phoneNumber, ?string $countryCode = null): ?string
     {
@@ -151,10 +130,6 @@ class PhoneNumberController
 
     /**
      * Get parsed phone number details (country code, national number, region).
-     *
-     * @param  string  $phoneNumber
-     * @param  string|null  $countryCode
-     * @return array|null
      */
     public function parse(string $phoneNumber, ?string $countryCode = null): ?array
     {
@@ -178,7 +153,6 @@ class PhoneNumberController
      * @param  string  $mobileCode  Country calling code (e.g., '91', '1')
      * @param  string  $mobile  The national number without country code
      * @param  string|null  $countryIso  Two-letter country code (e.g., 'IN', 'US')
-     * @return array
      */
     public function validateWithMobileCode(string $mobileCode, string $mobile, ?string $countryIso = null): array
     {
@@ -195,9 +169,6 @@ class PhoneNumberController
      * Format and normalize phone number for storage
      * Returns an array with properly formatted mobile_code and mobile fields.
      *
-     * @param  string  $mobileCode
-     * @param  string  $mobile
-     * @param  string|null  $countryIso
      * @return array|null Returns null if invalid
      */
     public function normalizeForStorage(string $mobileCode, string $mobile, ?string $countryIso = null): ?array
@@ -219,9 +190,6 @@ class PhoneNumberController
 
     /**
      * Get the phone number type name.
-     *
-     * @param  int|PhoneNumberType  $type
-     * @return string
      */
     private function getNumberTypeName(int|PhoneNumberType $type): string
     {
@@ -248,9 +216,6 @@ class PhoneNumberController
 
     /**
      * Get human-readable error message.
-     *
-     * @param  int  $errorType
-     * @return string
      */
     private function getErrorMessage(int $errorType): string
     {
@@ -269,7 +234,6 @@ class PhoneNumberController
      *
      * @param  string  $countryCode  Two-letter country code
      * @param  bool  $mobile  Get mobile example (true) or fixed line example (false)
-     * @return string|null
      */
     public function getExampleNumber(string $countryCode, bool $mobile = true): ?string
     {
@@ -287,7 +251,6 @@ class PhoneNumberController
      * Get country calling code for a country.
      *
      * @param  string  $countryCode  Two-letter country code
-     * @return int|null
      */
     public function getCountryCallingCode(string $countryCode): ?int
     {

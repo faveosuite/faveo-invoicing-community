@@ -81,9 +81,9 @@ class InstallerController extends Controller
                     DB::unprepared(file_get_contents($path));
                 }
             }
-        } catch (Exception $ex) {
+        } catch (Exception $exception) {
             // $this->rollBackMigration();
-            $result = ['error' => $ex->getMessage()];
+            $result = ['error' => $exception->getMessage()];
 
             return response()->json(compact('result'), 500);
         }
@@ -100,8 +100,8 @@ class InstallerController extends Controller
             Artisan::call('migrate', ['--force' => true]);
 //            shell_exec('php ../artisan passport:install');
             // Artisan::call('passport:install', ['--force' => true]);
-        } catch (Exception $ex) {
-            $result = ['error' => $ex->getMessage()];
+        } catch (Exception $exception) {
+            $result = ['error' => $exception->getMessage()];
 
             return response()->json(compact('result'), 500);
         }
@@ -121,9 +121,9 @@ class InstallerController extends Controller
             $sslCa = request()->get('db_ssl_ca', Session::get('db_ssl_ca'));
             $sslVerify = request()->get('db_ssl_verify', Session::get('db_ssl_verify'));
 
-            $this->env($default, $host, $port, $database, $dbusername, $dbpassword, null, $sslKey, $sslCert, $sslCa, $sslVerify);
-        } catch (Exception $ex) {
-            return response()->json(['result' => $ex->getMessage()], 500);
+            $this->env($default, $host, $port, $database, $dbusername, $dbpassword, sslKey: $sslKey, sslCert: $sslCert, sslCa: $sslCa, sslVerify: $sslVerify);
+        } catch (Exception $exception) {
+            return response()->json(['result' => $exception->getMessage()], 500);
         }
 
         if ($api) {
@@ -139,7 +139,7 @@ class InstallerController extends Controller
         }
     }
 
-    public function env($default, $host, $port, $database, $dbusername, $dbpassword, $appUrl = null, $sslKey = null, $sslCert = null, $sslCa = null, $sslVerify = null)
+    public function env($default, $host, $port, $database, $dbusername, $dbpassword, $appUrl = null, $sslKey = null, $sslCert = null, $sslCa = null, $sslVerify = null): void
     {
         $ENV = [
             'APP_NAME' => 'Agora:'.md5(uniqid()),
@@ -182,7 +182,7 @@ class InstallerController extends Controller
         ];
 
         $config = collect($ENV)
-            ->map(fn ($val, $key) => "$key=$val")
+            ->map(fn ($val, string $key): string => sprintf('%s=%s', $key, $val))
             ->implode("\n");
 
         $envPath = base_path('.env');
@@ -212,7 +212,8 @@ class InstallerController extends Controller
             return errorResponse('.env not found', 400);
         }
 
-        $txt1 = "\nAPP_ENV=$environment";
+        $txt1 = '
+APP_ENV=' . $environment;
         file_put_contents($env, str_replace('DB_INSTALL='. 0, 'DB_INSTALL='. 1, file_get_contents($env)));
         file_put_contents($env, $txt1.PHP_EOL, FILE_APPEND | LOCK_EX);
 
@@ -224,7 +225,7 @@ class InstallerController extends Controller
         // If Redis is used as cache driver, update .env and relevant database records
         if ($driver === 'redis') {
             // Update .env file to set CACHE_DRIVER to 'redis'
-            file_put_contents($env, str_replace('CACHE_DRIVER='.getenv('CACHE_DRIVER'), 'CACHE_DRIVER='.'redis', file_get_contents($env)));
+            file_put_contents($env, str_replace('CACHE_DRIVER='.getenv('CACHE_DRIVER'), 'CACHE_DRIVER=redis', file_get_contents($env)));
 
             // Disable all active QueueServices
             QueueService::where('status', 1)->update(['status' => 0]);
@@ -308,7 +309,7 @@ class InstallerController extends Controller
 
             $timezone = $request->input('timezone');
             $language = $request->input('language');
-            $changed = self::changeLanguage($language);
+            $changed = $this->changeLanguage($language);
             $timeZoneId = Timezone::where('name', $timezone)->value('id');
 
             if (! $changed) {
@@ -349,13 +350,16 @@ class InstallerController extends Controller
 
             // Return success response
             return successResponse(\Lang::get('installer_messages.setup_completed'), 201);
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             // Return error response in case of exception
-            return errorResponse($e->getMessage(), 400);
+            return errorResponse($exception->getMessage(), 400);
         }
     }
 
-    public function getTimeZoneDropDown()
+    /**
+     * @return array{id: mixed, name: non-falsy-string}[]
+     */
+    public function getTimeZoneDropDown(): array
     {
         $timezonesList = Timezone::get();
         $display = [];
@@ -395,7 +399,7 @@ class InstallerController extends Controller
                 $language = [];
                 $language['id'] = $key;
                 $language['locale'] = $langLocale;
-                $languageArray = \Config::get("languages.$langLocale", ['', '']);
+                $languageArray = \Config::get('languages.' . $langLocale, ['', '']);
                 $language['name'] = $languageArray[0];
                 $language['translation'] = $languageArray[1];
                 $languages[] = $language;
@@ -453,9 +457,9 @@ class InstallerController extends Controller
         // checking if the installation is running for the first time or not
         if (Cache::get('config-check') == 'config-check') {
             return view('themes.default1.installer.databaseMigration');
-        } else {
-            return to_route('config-check');
         }
+
+        return to_route('config-check');
     }
 
     public function databasePage(Request $request)
@@ -464,9 +468,9 @@ class InstallerController extends Controller
         // Database Setup Page
         if (Cache::get('pre-db') == 'pre-db') {
             return view('themes.default1.installer.dbSetup');
-        } else {
-            return redirect()->to('/probe.php');
         }
+
+        return redirect()->to('/probe.php');
     }
 
     public function account(Request $request)
@@ -476,9 +480,9 @@ class InstallerController extends Controller
             Cache::put('timezone', $request['timezone']);
 
             return view('themes.default1.installer.view5');
-        } else {
-            return to_route('db-setup');
         }
+
+        return to_route('db-setup');
     }
 
     public function finalize()
@@ -490,12 +494,12 @@ class InstallerController extends Controller
             Session::flush();
 
             return view('themes.default1.installer.finalPage');
-        } else {
-            return to_route('get-start');
         }
+
+        return to_route('get-start');
     }
 
-    private static function changeLanguage($lang)
+    private function changeLanguage($lang): bool
     {
         $path = base_path('lang');  // Path to check available language packages
         if (array_key_exists($lang, Config::get('languages')) && in_array($lang, scandir($path))) {

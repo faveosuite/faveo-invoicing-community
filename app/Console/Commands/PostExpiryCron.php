@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Console\LoggableCommand;
@@ -23,10 +25,8 @@ class PostExpiryCron extends LoggableCommand
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
         $controller = new CronController();
         $controller->postRenewalNotify();

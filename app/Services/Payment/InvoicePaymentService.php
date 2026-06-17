@@ -63,7 +63,7 @@ class InvoicePaymentService
                 return [];
             }
 
-            return array_map(fn ($name) => [
+            return array_map(fn ($name): array => [
                 'name' => $name,
                 'processing_fee' => ProcessingFee::percent($name) ?: null,
             ], $names);

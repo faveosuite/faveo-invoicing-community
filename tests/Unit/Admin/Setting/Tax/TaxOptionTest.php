@@ -11,10 +11,10 @@ class TaxOptionTest extends TestCase
     use DatabaseTransactions;
 
     #[Group('taxController')]
-    public function test_options_whenGstIsEnable()
+    public function test_options_whenGstIsEnable(): void
     {
         $this->withoutMiddleware();
-        $rule = TaxOption::where('id', 1)->update(['tax_enable' => '1']);
+        TaxOption::where('id', 1)->update(['tax_enable' => '1']);
         $response = $this->call('POST', 'taxes/option', [
             'Gst_no' => '2323244',
         ]);
@@ -22,7 +22,7 @@ class TaxOptionTest extends TestCase
     }
 
     #[Group('taxController')]
-    public function test_options_whenTaxClassIsCreated_whenTaxTypeIsOthers()
+    public function test_options_whenTaxClassIsCreated_whenTaxTypeIsOthers(): void
     {
         $this->withoutMiddleware();
         $response = $this->call('POST', 'taxes/option', [
@@ -37,7 +37,7 @@ class TaxOptionTest extends TestCase
     }
 
     #[Group('taxController')]
-    public function test_options_whenTaxClassIsCreated_whenTaxTypeIsGst()
+    public function test_options_whenTaxClassIsCreated_whenTaxTypeIsGst(): void
     {
         $this->withoutMiddleware();
         $response = $this->call('POST', 'taxes/option', [

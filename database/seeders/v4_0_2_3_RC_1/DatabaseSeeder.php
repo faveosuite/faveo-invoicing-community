@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->templateSeeder();
     }
 
-    public function fileSystemSeeder()
+    public function fileSystemSeeder(): void
     {
         FileSystemSettings::create([
             'disk' => 'system',
@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 
-    public function templateSeeder()
+    public function templateSeeder(): void
     {
         Template::where('id',2)->update(['data' =>'<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>

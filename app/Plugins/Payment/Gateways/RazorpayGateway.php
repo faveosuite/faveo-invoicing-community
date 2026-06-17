@@ -74,8 +74,8 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
                 'payment_capture' => 1,
                 'notes' => $this->stringMetadata($request->metadata),
             ]);
-        } catch (Error $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (Error $error) {
+            throw new PaymentException($error->getMessage(), (int) $error->getCode(), $error);
         }
 
         $config = [
@@ -109,7 +109,7 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
     {
         foreach (['razorpay_order_id', 'razorpay_payment_id', 'razorpay_signature'] as $key) {
             if (empty($payload[$key])) {
-                throw new PaymentException("Missing Razorpay field: {$key}.");
+                throw new PaymentException(sprintf('Missing Razorpay field: %s.', $key));
             }
         }
 
@@ -142,8 +142,8 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
                 ? ['amount' => Money::toMinor($amount, (string) $payment['currency'])]
                 : [];
             $refund = $payment->refund($params);
-        } catch (Error $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (Error $error) {
+            throw new PaymentException($error->getMessage(), (int) $error->getCode(), $error);
         }
 
         return new PaymentResult(
@@ -159,8 +159,8 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
     {
         try {
             return (string) $this->api()->payment->fetch($reference)['status'];
-        } catch (Error $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (Error $error) {
+            throw new PaymentException($error->getMessage(), (int) $error->getCode(), $error);
         }
     }
 
@@ -207,7 +207,7 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
                     'amount' => $request->amountMinor,
                     'currency' => $request->currency,
                 ]]],
-            ], static fn ($v) => $v !== null));
+            ], static fn ($v): bool => $v !== null));
 
             return new SubscriptionResult(
                 gateway: $this->name(),
@@ -215,8 +215,8 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
                 status: (string) $subscription['status'],
                 raw: $subscription->toArray(),
             );
-        } catch (Error $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (Error $error) {
+            throw new PaymentException($error->getMessage(), (int) $error->getCode(), $error);
         }
     }
 
@@ -224,8 +224,8 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
     {
         try {
             return (string) $this->api()->subscription->fetch($subscriptionId)['status'];
-        } catch (Error $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (Error $error) {
+            throw new PaymentException($error->getMessage(), (int) $error->getCode(), $error);
         }
     }
 
@@ -240,8 +240,8 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
                 status: (string) ($subscription['status'] ?? 'cancelled'),
                 raw: $subscription->toArray(),
             );
-        } catch (Error $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (Error $error) {
+            throw new PaymentException($error->getMessage(), (int) $error->getCode(), $error);
         }
     }
 
@@ -284,8 +284,8 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
             ]);
 
             return new SubscriptionResult($this->name(), $updated['id'], (string) $updated['status'], $updated->toArray());
-        } catch (Error $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (Error $error) {
+            throw new PaymentException($error->getMessage(), (int) $error->getCode(), $error);
         }
     }
 
@@ -304,6 +304,6 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
      */
     private function stringMetadata(array $metadata): array
     {
-        return array_map(static fn ($v) => (string) $v, $metadata);
+        return array_map(static fn (bool|float|int|string $v): string => (string) $v, $metadata);
     }
 }

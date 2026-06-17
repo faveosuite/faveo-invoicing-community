@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     '2fa_setup' => '2-stapsverificatie instellen',
@@ -19,7 +21,7 @@ return [
     'dashboard' => 'Dashboard',
     'dashboard_show' => 'Dashboard',
     'callbacks_count' => 'Aantal callbacks',
-    'callbacks_description' => 'Bestaande licentie-verificatiecallbacks bekijken. Als een callback verwijderd moet worden, controleer dan de klant of licentiecode en klik op de knop \'Verzenden\'.',
+    'callbacks_description' => "Bestaande licentie-verificatiecallbacks bekijken. Als een callback verwijderd moet worden, controleer dan de klant of licentiecode en klik op de knop 'Verzenden'.",
     'adddd' => 'Licentie succesvol toegevoegd',
     'admin_privileges' => 'Beheerdersrechten',
     'already_exist_ip' => ' bestaat al in de whitelist',
@@ -292,7 +294,7 @@ return [
     'view_license_reports' => 'Licentierapporten bekijken',
     'view_system_reports' => 'Systeemrapporten bekijken',
     'view_update_reports' => 'Updaterapporten bekijken',
-    'view_whitelist_ip' => 'Lijst van whitelist-API\'s',
+    'view_whitelist_ip' => "Lijst van whitelist-API's",
     'whitelist_add' => 'Whitelist-IP succesvol toegevoegd',
     'whitelist_update' => 'Whitelist-IP succesvol bijgewerkt',
     'you_are_all_set_from_now_on_you_will_use_authenticator_to_sign_in_to_your_account' => 'Alles is klaar. Vanaf nu gebruikt u de Authenticator om in te loggen op uw Licentiebeheerder-account.',

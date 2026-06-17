@@ -25,8 +25,8 @@ Artisan::command('preinstall:check', function (): void {
         if ($check_for_pre_installation) {
             throw new Exception('The data in database already exist. Please provide fresh database', 100);
         }
-    } catch (Exception $ex) {
-        if ($ex->getCode() == 100) {
+    } catch (Exception $exception) {
+        if ($exception->getCode() == 100) {
             $this->call('droptables');
         }
 

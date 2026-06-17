@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('manager_settings', function (Blueprint $table): void {
             $table->id();
             $table->string('manager_role')->unique();
-            $table->boolean('auto_assign')->default(false);
+            $table->boolean('auto_assign')->default(value: false);
             $table->timestamps();
         });
     }

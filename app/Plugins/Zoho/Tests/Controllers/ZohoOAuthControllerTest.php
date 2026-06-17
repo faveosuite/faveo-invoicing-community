@@ -26,10 +26,10 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->controller = new ZohoOAuthController();
     }
 
-    public function test_it_gets_oauth_client_keys_for_integration()
+    public function test_it_gets_oauth_client_keys_for_integration(): void
     {
         $integration = ZohoIntegration::first();
-        $client = ZohoOAuthClient::create([
+        ZohoOAuthClient::create([
             'integration_id' => $integration->id,
             'client_id' => 'test_client_id',
         ]);
@@ -40,7 +40,7 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->assertEquals('test_client_id', $response->getData()->data->client_id);
     }
 
-    public function test_it_saves_oauth_client_keys_and_returns_redirect_url()
+    public function test_it_saves_oauth_client_keys_and_returns_redirect_url(): void
     {
         $integration = ZohoIntegration::wherePlatform('crm')->first();
 
@@ -66,7 +66,7 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->assertArrayHasKey('redirect_url', (array) $response->getData()->data);
     }
 
-    public function test_it_validates_required_fields_when_saving_oauth_keys()
+    public function test_it_validates_required_fields_when_saving_oauth_keys(): void
     {
         $this->expectException(ValidationException::class);
 
@@ -77,7 +77,7 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->controller->saveOAuthClientKeys($request);
     }
 
-    public function test_it_validates_region_must_be_valid()
+    public function test_it_validates_region_must_be_valid(): void
     {
         $this->expectException(ValidationException::class);
 
@@ -94,10 +94,10 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->controller->saveOAuthClientKeys($request);
     }
 
-    public function test_it_generates_authorization_url_for_platform()
+    public function test_it_generates_authorization_url_for_platform(): void
     {
         $integration = ZohoIntegration::wherePlatform('crm')->first();
-        $client = ZohoOAuthClient::create([
+        ZohoOAuthClient::create([
             'integration_id' => $integration->id,
             'client_id' => 'test_client',
             'redirect_uri' => 'https://example.com/callback',
@@ -113,7 +113,7 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->assertStringContainsString('test_client', $url);
     }
 
-    public function test_it_throws_exception_when_oauth_client_not_configured()
+    public function test_it_throws_exception_when_oauth_client_not_configured(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('OAuth client not configured');
@@ -123,7 +123,7 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->controller->getAuthorizationUrlByPlatform('crm');
     }
 
-    public function test_it_throws_exception_when_scopes_not_configured()
+    public function test_it_throws_exception_when_scopes_not_configured(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Scopes not configured for [crm]');
@@ -138,15 +138,15 @@ class ZohoOAuthControllerTest extends DBTestCase
             'region' => 'us',
         ]);
 
-        Config::set('zoho.platforms.crm.scope', null);
+        Config::set('zoho.platforms.crm.scope');
 
         $this->controller->getAuthorizationUrlByPlatform('crm');
     }
 
-    public function test_it_handles_zoho_callback_with_authorization_code()
+    public function test_it_handles_zoho_callback_with_authorization_code(): void
     {
         $integration = ZohoIntegration::wherePlatform('crm')->first();
-        $client = ZohoOAuthClient::create([
+        ZohoOAuthClient::create([
             'integration_id' => $integration->id,
             'region' => 'us',
         ]);
@@ -183,7 +183,7 @@ class ZohoOAuthControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_handles_callback_error_when_code_not_present()
+    public function test_it_handles_callback_error_when_code_not_present(): void
     {
         $integration = ZohoIntegration::wherePlatform('crm')->first();
         ZohoOAuthClient::create(['integration_id' => $integration->id]);
@@ -201,10 +201,10 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->assertStringContainsString('zoho_status=error', $response->getTargetUrl());
     }
 
-    public function test_it_handles_callback_error_when_token_exchange_fails()
+    public function test_it_handles_callback_error_when_token_exchange_fails(): void
     {
         $integration = ZohoIntegration::wherePlatform('crm')->first();
-        $client = ZohoOAuthClient::create([
+        ZohoOAuthClient::create([
             'integration_id' => $integration->id,
             'region' => 'us',
         ]);
@@ -229,7 +229,7 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->assertStringContainsString('zoho_status=error', $response->getTargetUrl());
     }
 
-    public function test_it_generates_correct_accounts_base_url_for_each_region()
+    public function test_it_generates_correct_accounts_base_url_for_each_region(): void
     {
         $regions = [
             'us' => 'accounts.zoho.com',
@@ -242,11 +242,11 @@ class ZohoOAuthControllerTest extends DBTestCase
 
         foreach ($regions as $region => $expectedDomain) {
             $url = $this->controller->accountsBaseUrl($region);
-            $this->assertEquals("https://{$expectedDomain}", $url);
+            $this->assertEquals('https://' . $expectedDomain, $url);
         }
     }
 
-    public function test_it_generates_authorization_url_with_query_params()
+    public function test_it_generates_authorization_url_with_query_params(): void
     {
         $queryParams = [
             'client_id' => 'test_client',
@@ -261,7 +261,7 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->assertStringContainsString('response_type=code', $url);
     }
 
-    public function test_it_generates_token_url_for_region()
+    public function test_it_generates_token_url_for_region(): void
     {
         $url = $this->controller->tokenUrl('eu');
 

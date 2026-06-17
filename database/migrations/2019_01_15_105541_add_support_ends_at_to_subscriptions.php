@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasColumn('subscriptions', 'support_ends_at')) {
             Schema::table('subscriptions', function (Blueprint $table): void {
@@ -22,10 +20,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('subscriptions', function (Blueprint $table): void {
             $table->dropColumn('support_ends_at');

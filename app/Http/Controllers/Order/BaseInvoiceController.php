@@ -45,37 +45,59 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
          ($end == null || $end == '0000-00-00 00:00:00')) {
             return 'success';
         }
+
+        return null;
     }
 
     public function whenStartDateSet($start, $end, $now)
     {
-        //only starting date set, check the date is less or equel to today
-        if (($start != null || $start != '0000-00-00 00:00:00')
-         && ($end == null || $end == '0000-00-00 00:00:00')) {
-            if ($start <= $now) {
-                return 'success';
-            }
+        if ($start == null && $start == '0000-00-00 00:00:00') {
+            return null;
         }
+
+        if ($end != null && $end != '0000-00-00 00:00:00') {
+            return null;
+        }
+
+        if ($start <= $now) {
+            return 'success';
+        }
+
+        return null;
     }
 
     public function whenEndDateSet($start, $end, $now)
     {
-        //only ending date set, check the date is greater or equel to today
-        if (($end != null || $end != '0000-00-00 00:00:00') && ($start == null || $start == '0000-00-00 00:00:00')) {
-            if ($end >= $now) {
-                return 'success';
-            }
+        if ($end == null && $end == '0000-00-00 00:00:00') {
+            return null;
         }
+
+        if ($start != null && $start != '0000-00-00 00:00:00') {
+            return null;
+        }
+
+        if ($end >= $now) {
+            return 'success';
+        }
+
+        return null;
     }
 
     public function whenBothSet($start, $end, $now)
     {
-        //both set
-        if (($end != null || $start != '0000-00-00 00:00:00') && ($start != null || $start != '0000-00-00 00:00:00')) {
-            if ($end >= $now && $start <= $now) {
-                return 'success';
-            }
+        if ($end == null && $start == '0000-00-00 00:00:00') {
+            return null;
         }
+
+        if ($start == null && $start == '0000-00-00 00:00:00') {
+            return null;
+        }
+
+        if ($end >= $now && $start <= $now) {
+            return 'success';
+        }
+
+        return null;
     }
 
     public function postPayment($invoiceid, Request $request)
@@ -107,21 +129,19 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
             );
 
             return back()->with('success', __('message.payment_accepted_succcessfully'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
-    public function domain($id)
+    public function domain(string $id)
     {
         try {
             if (Session::has('domain'.$id)) {
-                $domain = Session::get('domain'.$id);
-            } else {
-                $domain = '';
+                return Session::get('domain'.$id);
             }
 
-            return $domain;
+            return '';
         } catch (Exception) {
         }
     }
@@ -129,7 +149,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
     /*
     *Edit Invoice Total.
     */
-    public function invoiceTotalChange(Request $request)
+    public function invoiceTotalChange(Request $request): void
     {
         $total = $request->input('total');
         if ($total == '') {
@@ -138,11 +158,11 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
 
         $number = $request->input('number');
         $invoiceId = Invoice::where('number', $number)->value('id');
-        $invoiceItem = InvoiceItem::where('invoice_id', $invoiceId)->update(['subtotal' => $total]);
-        $invoices = Invoice::where('number', $number)->update(['grand_total' => $total]);
+        InvoiceItem::where('invoice_id', $invoiceId)->update(['subtotal' => $total]);
+        Invoice::where('number', $number)->update(['grand_total' => $total]);
     }
 
-    public function calculateTotal($rate, $total)
+    public function calculateTotal($rate, $total): float
     {
         try {
             $total = intval($total);
@@ -151,7 +171,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
             $rule = $rule->findOrFail(1);
             if ($rule->inclusive == 0) {
                 foreach ($rates as $rate1) {
-                    if ($rate1 != '') {
+                    if ($rate1 !== '') {
                         $rateTotal = str_replace('%', '', $rate1);
                         $total += $total * ($rateTotal / 100);
                     }
@@ -159,10 +179,10 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
             }
 
             return intval(round($total));
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            throw new Exception($ex->getMessage());
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -172,10 +192,8 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
      * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
      *
      * @date   2019-02-22T13:10:50+0530
-     *
-     * @return array
      */
-    protected function getCodeFromSession()
+    protected function getCodeFromSession(): array
     {
         $code = '';
         $codevalue = '';

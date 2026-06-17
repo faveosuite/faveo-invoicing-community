@@ -47,10 +47,8 @@ trait RequestJsonValidation
 
     /**
      * Changes validation message.
-     *
-     * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             '*.required' => 'This field is required',

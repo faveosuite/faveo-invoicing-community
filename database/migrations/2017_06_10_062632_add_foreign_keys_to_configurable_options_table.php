@@ -9,10 +9,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         // Get all indexes for the configurable_options table
         $indexes = DB::select('SHOW INDEX FROM configurable_options');
@@ -40,10 +38,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('configurable_options', function (Blueprint $table): void {
             $table->dropForeign('configurable_options_group_id_foreign');

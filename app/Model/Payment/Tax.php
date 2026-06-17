@@ -30,7 +30,7 @@ class Tax extends BaseModel
     protected function getMappings(): array
     {
         return [
-            'level' => ['Tax Level', fn ($value) => $value === 1 ? 'Country' : ($value === 2 ? 'State' : 'City')],
+            'level' => ['Tax Level', fn ($value): string => $value === 1 ? 'Country' : ($value === 2 ? 'State' : 'City')],
             'name' => ['Tax Name', fn ($value) => $value],
             'country' => ['Country', fn ($value) => Country::where('country_code_char2', $value)->value('country_name')],
             'state' => [
@@ -40,9 +40,9 @@ class Tax extends BaseModel
                     : 'All States',
             ],
             'rate' => ['Tax Rate (%)', fn ($value) => $value],
-            'active' => ["{$this->name} tax status", fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
+            'active' => [$this->name . ' tax status', fn ($value): array|string|null => $value === 1 ? __('message.active') : __('message.inactive')],
             'tax_classes_id' => ['Tax Class', fn ($value) => $value ? TaxClass::find($value)?->name : 'No Class'],
-            'compound' => ['Is Compound Tax', fn ($value) => $value === 1 ? 'Yes' : 'No'],
+            'compound' => ['Is Compound Tax', fn ($value): string => $value === 1 ? 'Yes' : 'No'],
         ];
     }
 

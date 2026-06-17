@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Rules;
 
 use App\Rules\PhoneNumber;
@@ -10,14 +12,14 @@ class PhoneNumberRuleTest extends DBTestCase
 {
     /* ==================== Constructor Tests ==================== */
 
-    public function test_rule_can_be_instantiated_with_country_iso()
+    public function test_rule_can_be_instantiated_with_country_iso(): void
     {
         $rule = new PhoneNumber('US');
 
         $this->assertInstanceOf(PhoneNumber::class, $rule);
     }
 
-    public function test_rule_stores_mobile_country_iso()
+    public function test_rule_stores_mobile_country_iso(): void
     {
         $rule = new PhoneNumber('IN');
 
@@ -28,7 +30,7 @@ class PhoneNumberRuleTest extends DBTestCase
 
     /* ==================== Valid Phone Number Tests ==================== */
 
-    public function test_passes_for_valid_us_phone_number()
+    public function test_passes_for_valid_us_phone_number(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -40,7 +42,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_passes_for_valid_indian_phone_number()
+    public function test_passes_for_valid_indian_phone_number(): void
     {
         $rule = new PhoneNumber('IN');
 
@@ -52,7 +54,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_passes_for_valid_uk_phone_number()
+    public function test_passes_for_valid_uk_phone_number(): void
     {
         $rule = new PhoneNumber('GB');
 
@@ -64,7 +66,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_passes_for_valid_german_phone_number()
+    public function test_passes_for_valid_german_phone_number(): void
     {
         $rule = new PhoneNumber('DE');
 
@@ -76,7 +78,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_passes_for_valid_australian_phone_number()
+    public function test_passes_for_valid_australian_phone_number(): void
     {
         $rule = new PhoneNumber('AU');
 
@@ -88,7 +90,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_passes_for_valid_national_format_with_country_iso()
+    public function test_passes_for_valid_national_format_with_country_iso(): void
     {
         $rule = new PhoneNumber('IN');
 
@@ -100,7 +102,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_passes_for_phone_with_spaces()
+    public function test_passes_for_phone_with_spaces(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -112,7 +114,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_passes_for_phone_with_dashes()
+    public function test_passes_for_phone_with_dashes(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -124,7 +126,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_passes_for_phone_with_parentheses()
+    public function test_passes_for_phone_with_parentheses(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -138,7 +140,7 @@ class PhoneNumberRuleTest extends DBTestCase
 
     /* ==================== Blank/Empty Value Tests ==================== */
 
-    public function test_passes_for_null_value()
+    public function test_passes_for_null_value(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -151,7 +153,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_passes_for_empty_string()
+    public function test_passes_for_empty_string(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -166,7 +168,7 @@ class PhoneNumberRuleTest extends DBTestCase
 
     /* ==================== Invalid Phone Number Tests ==================== */
 
-    public function test_fails_for_too_short_phone_number()
+    public function test_fails_for_too_short_phone_number(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -178,7 +180,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->fails());
     }
 
-    public function test_fails_for_too_long_phone_number()
+    public function test_fails_for_too_long_phone_number(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -190,7 +192,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->fails());
     }
 
-    public function test_fails_for_non_numeric_phone_number()
+    public function test_fails_for_non_numeric_phone_number(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -202,7 +204,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->fails());
     }
 
-    public function test_fails_for_invalid_country_code_mismatch()
+    public function test_fails_for_invalid_country_code_mismatch(): void
     {
         // Phone number is valid for IN but we're validating against US
         $rule = new PhoneNumber('US');
@@ -215,7 +217,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->fails());
     }
 
-    public function test_fails_for_random_special_characters()
+    public function test_fails_for_random_special_characters(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -227,7 +229,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->fails());
     }
 
-    public function test_fails_for_letters_mixed_with_numbers()
+    public function test_fails_for_letters_mixed_with_numbers(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -241,7 +243,7 @@ class PhoneNumberRuleTest extends DBTestCase
 
     /* ==================== Error Message Tests ==================== */
 
-    public function test_returns_correct_error_message_for_invalid_phone()
+    public function test_returns_correct_error_message_for_invalid_phone(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -255,7 +257,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($errors->has('phone'));
     }
 
-    public function test_error_message_contains_attribute_name()
+    public function test_error_message_contains_attribute_name(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -271,7 +273,7 @@ class PhoneNumberRuleTest extends DBTestCase
 
     /* ==================== Different Country ISO Tests ==================== */
 
-    public function test_validates_correctly_for_canadian_number()
+    public function test_validates_correctly_for_canadian_number(): void
     {
         $rule = new PhoneNumber('CA');
 
@@ -283,7 +285,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_validates_correctly_for_french_number()
+    public function test_validates_correctly_for_french_number(): void
     {
         $rule = new PhoneNumber('FR');
 
@@ -295,7 +297,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_validates_correctly_for_japanese_number()
+    public function test_validates_correctly_for_japanese_number(): void
     {
         $rule = new PhoneNumber('JP');
 
@@ -307,7 +309,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_validates_correctly_for_brazilian_number()
+    public function test_validates_correctly_for_brazilian_number(): void
     {
         $rule = new PhoneNumber('BR');
 
@@ -319,7 +321,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_validates_correctly_for_chinese_number()
+    public function test_validates_correctly_for_chinese_number(): void
     {
         $rule = new PhoneNumber('CN');
 
@@ -333,7 +335,7 @@ class PhoneNumberRuleTest extends DBTestCase
 
     /* ==================== Edge Cases ==================== */
 
-    public function test_handles_whitespace_only_input()
+    public function test_handles_whitespace_only_input(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -346,7 +348,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_validates_toll_free_number()
+    public function test_validates_toll_free_number(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -358,7 +360,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_fails_for_incomplete_phone_number()
+    public function test_fails_for_incomplete_phone_number(): void
     {
         $rule = new PhoneNumber('IN');
 
@@ -370,7 +372,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->fails());
     }
 
-    public function test_validates_number_with_country_calling_code()
+    public function test_validates_number_with_country_calling_code(): void
     {
         $rule = new PhoneNumber('IN');
 
@@ -384,7 +386,7 @@ class PhoneNumberRuleTest extends DBTestCase
 
     /* ==================== Validator Integration Tests ==================== */
 
-    public function test_works_with_other_validation_rules()
+    public function test_works_with_other_validation_rules(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -396,7 +398,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_required_rule_fails_with_empty_phone()
+    public function test_required_rule_fails_with_empty_phone(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -410,7 +412,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->errors()->has('phone'));
     }
 
-    public function test_validates_multiple_phone_fields()
+    public function test_validates_multiple_phone_fields(): void
     {
         $usRule = new PhoneNumber('US');
         $inRule = new PhoneNumber('IN');
@@ -429,7 +431,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_validates_multiple_phone_fields_with_one_invalid()
+    public function test_validates_multiple_phone_fields_with_one_invalid(): void
     {
         $usRule = new PhoneNumber('US');
         $inRule = new PhoneNumber('IN');
@@ -452,7 +454,7 @@ class PhoneNumberRuleTest extends DBTestCase
 
     /* ==================== Strict Mode Tests ==================== */
 
-    public function test_uses_strict_validation_mode()
+    public function test_uses_strict_validation_mode(): void
     {
         // The rule uses strict mode (third parameter = true in isValid)
         // This means the number must be both possible AND valid for the region
@@ -470,7 +472,7 @@ class PhoneNumberRuleTest extends DBTestCase
 
     /* ==================== Real-World Scenario Tests ==================== */
 
-    public function test_form_registration_phone_validation()
+    public function test_form_registration_phone_validation(): void
     {
         // Simulating a form registration with phone validation
         $rule = new PhoneNumber('IN');
@@ -493,7 +495,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_form_registration_fails_with_invalid_phone()
+    public function test_form_registration_fails_with_invalid_phone(): void
     {
         $rule = new PhoneNumber('IN');
 
@@ -518,7 +520,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->errors()->has('phone'));
     }
 
-    public function test_optional_phone_field()
+    public function test_optional_phone_field(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -531,7 +533,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_optional_phone_field_with_valid_value()
+    public function test_optional_phone_field_with_valid_value(): void
     {
         $rule = new PhoneNumber('US');
 
@@ -543,7 +545,7 @@ class PhoneNumberRuleTest extends DBTestCase
         $this->assertTrue($validator->passes());
     }
 
-    public function test_optional_phone_field_with_invalid_value()
+    public function test_optional_phone_field_with_invalid_value(): void
     {
         $rule = new PhoneNumber('US');
 

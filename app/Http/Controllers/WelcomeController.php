@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class WelcomeController extends Controller
 {
-    public function __construct(private readonly Request $request)
+    public function __construct()
     {
         $this->middleware('auth', ['except' => ['getCode']]);
     }
@@ -26,13 +26,13 @@ class WelcomeController extends Controller
 
             $countryList = Country::withCount('users')
                 ->where('country_name', '!=', '')
-                ->when($searchQuery, function ($query, $searchQuery): void {
-                    $query->where('country_name', 'like', "%{$searchQuery}%");
+                ->when($searchQuery, function ($query, string $searchQuery): void {
+                    $query->where('country_name', 'like', sprintf('%%%s%%', $searchQuery));
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $countryList->getCollection()->transform(fn ($country) => [
+            $countryList->getCollection()->transform(fn ($country): array => [
                 'id' => $country->country_id,
                 'country' => ucfirst($country->country_name ?? ''),
                 'code' => $country->country_code_char2 ?? '',

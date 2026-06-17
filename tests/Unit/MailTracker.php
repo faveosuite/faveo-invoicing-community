@@ -16,7 +16,7 @@ trait MailTracker
     protected $emails = [];
 
     /** @before */
-    public function setUpForMailTracker()
+    public function setUpForMailTracker(): void
     {
         parent::setUp();
         Mail::getSymfonyTransport()
@@ -36,11 +36,11 @@ trait MailTracker
         $this->assertCount(
             $count,
             $this->emails,
-            "Expected $count $emailOrEmails to have been send, but only $actualCount $grammerWordForActualCount sent"
+            sprintf('Expected %s %s to have been send, but only %d %s sent', $count, $emailOrEmails, $actualCount, $grammerWordForActualCount)
         );
     }
 
-    public function addEmail(Email $email)
+    public function addEmail(Email $email): void
     {
         $this->emails[] = $email;
     }
@@ -52,7 +52,7 @@ class TestingMailEventListener implements Swift_Events_EventListener
     {
     }
 
-    public function beforeSendPerformed($event)
+    public function beforeSendPerformed($event): void
     {
         $message = $event->getMessage();
 

@@ -19,7 +19,7 @@ class HmacSha1 extends SignatureMethod
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'HMAC-SHA1';
     }
@@ -27,15 +27,16 @@ class HmacSha1 extends SignatureMethod
     /**
      * {@inheritdoc}
      */
-    public function buildSignature(Request $request, Consumer $consumer, ?Token $token = null)
+    public function buildSignature(Request $request, Consumer $consumer, ?Token $token = null): string
     {
         $signatureBase = $request->getSignatureBaseString();
 
-        $parts = [$consumer->secret, null !== $token ? $token->secret : ''];
+        $parts = [$consumer->secret, $token instanceof \App\Http\Controllers\Common\Twitter\Token ? $token->secret : ''];
 
         $parts = Util::urlencodeRfc3986($parts);
+
         $key = implode('&', $parts);
 
-        return base64_encode(hash_hmac('sha1', $signatureBase, $key, true));
+        return base64_encode(hash_hmac('sha1', $signatureBase, $key, binary: true));
     }
 }

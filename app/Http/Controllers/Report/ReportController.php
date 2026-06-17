@@ -43,16 +43,16 @@ class ReportController extends Controller
             ->when($searchQuery, function ($query) use ($searchQuery): void {
                 $query->where(function (Builder $q) use ($searchQuery): void {
                     $q->whereHas('user', function (Builder $q2) use ($searchQuery): void {
-                        $q2->where('first_name', 'like', "%{$searchQuery}%")
-                            ->orWhere('last_name', 'like', "%{$searchQuery}%");
+                        $q2->where('first_name', 'like', sprintf('%%%s%%', $searchQuery))
+                            ->orWhere('last_name', 'like', sprintf('%%%s%%', $searchQuery));
                     })
-                        ->orWhere('file', 'like', "%{$searchQuery}%");
+                        ->orWhere('file', 'like', sprintf('%%%s%%', $searchQuery));
                 });
             })
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
 
-        $reports->getCollection()->transform(function ($report) {
+        $reports->getCollection()->transform(function ($report): array {
             $fileType = strtoupper(pathinfo((string) $report->file, PATHINFO_EXTENSION)) ?: 'XLSX';
             $type = $report->name ? ucfirst((string) $report->name).' Report' : 'Report';
 
@@ -93,8 +93,8 @@ class ReportController extends Controller
             });
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 

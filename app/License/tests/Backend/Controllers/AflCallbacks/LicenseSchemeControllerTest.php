@@ -51,7 +51,7 @@ class LicenseSchemeControllerTest extends LicenseTestCase
         ], 'POST'));
 
         $this->assertSame('notification_license_ok', $response->headers->get('notification_case'));
-        $data = json_decode((string) $response->headers->get('notification_data'), true);
+        $data = json_decode((string) $response->headers->get('notification_data'), associative: true);
         $this->assertSame('select 1', $data['scheme_query']);
     }
 }

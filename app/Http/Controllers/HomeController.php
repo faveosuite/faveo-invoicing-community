@@ -35,20 +35,17 @@ use Validator;
 class HomeController extends BaseHomeController
 {
     /*
-      |--------------------------------------------------------------------------
-      | Home Controller
-      |--------------------------------------------------------------------------
-      |
-      | This controller renders your application's "dashboard" for users that
-      | are authenticated. Of course, you are free to change or remove the
-      | controller as you wish. It is just here to get your app started!
-      |
-     */
-
+     |--------------------------------------------------------------------------
+     | Home Controller
+     |--------------------------------------------------------------------------
+     |
+     | This controller renders your application's "dashboard" for users that
+     | are authenticated. Of course, you are free to change or remove the
+     | controller as you wish. It is just here to get your app started!
+     |
+    */
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -102,18 +99,15 @@ class HomeController extends BaseHomeController
                 $result = $this->checkUpdate($order_number, $serial_key, $domain, $faveo_name, $faveo_version);
             }
 
-            $result = self::encryptByPublicKey(json_encode($result));
+            return self::encryptByPublicKey(json_encode($result));
+        } catch (Exception $exception) {
+            $result = ['status' => 'error', 'message' => $exception->getMessage()];
 
-            return $result;
-        } catch (Exception $ex) {
-            $result = ['status' => 'error', 'message' => $ex->getMessage()];
-            $result = self::encryptByPublicKey(json_encode($result));
-
-            return $result;
+            return self::encryptByPublicKey(json_encode($result));
         }
     }
 
-    public function serial(Request $request, Order $order)
+    public function serial(Request $request, Order $order): void
     {
         try {
             $url = $request->input('url');
@@ -142,14 +136,14 @@ class HomeController extends BaseHomeController
 
             $result = self::encryptByPublicKey(json_encode($result));
             $this->submit($result, $url);
-        } catch (Exception $ex) {
-            $result = ['status' => 'error', 'message' => $ex->getMessage()];
+        } catch (Exception $exception) {
+            $result = ['status' => 'error', 'message' => $exception->getMessage()];
             $result = self::encryptByPublicKey(json_encode($result));
             $this->submit($result, $url);
         }
     }
 
-    public static function decryptByFaveoPrivateKeyold($encrypted)
+    public static function decryptByFaveoPrivateKeyold($encrypted): void
     {
         try {
             // Get the private Key
@@ -182,12 +176,12 @@ class HomeController extends BaseHomeController
             $output = gzuncompress($output);
             dd($output);
             echo '<br /><br /> Unencrypted Data: '.$output;
-        } catch (Exception $ex) {
-            dd($ex);
+        } catch (Exception $exception) {
+            dd($exception);
         }
     }
 
-    public function createEncryptionKeys()
+    public function createEncryptionKeys(): void
     {
         try {
             $privateKey = openssl_pkey_new([
@@ -206,8 +200,8 @@ class HomeController extends BaseHomeController
 
             // Free the private Key.
             openssl_free_key($privateKey);
-        } catch (Exception $ex) {
-            dd($ex);
+        } catch (Exception $exception) {
+            dd($exception);
         }
     }
 
@@ -220,11 +214,11 @@ class HomeController extends BaseHomeController
             $this_order = $order->where('number', 'LIKE', $faveo_decrypted_order)->first();
             if (! $this_order) {
                 return;
-            } else {
-                return $this_order->number;
             }
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+
+            return $this_order->number;
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -266,28 +260,25 @@ class HomeController extends BaseHomeController
                 $result = $this->checkUpdate($order_number, $serial_key, $domain, $faveo_name, $faveo_version);
             }
 
-            $result = self::encryptByPublicKey(json_encode($result));
+            return self::encryptByPublicKey(json_encode($result));
+        } catch (Exception $exception) {
+            $result = ['status' => 'error', 'message' => $exception->getMessage().'  
+            file=> '.$exception->getFile().' Line=>'.$exception->getLine()];
 
-            return $result;
-        } catch (Exception $ex) {
-            $result = ['status' => 'error', 'message' => $ex->getMessage().'  
-            file=> '.$ex->getFile().' Line=>'.$ex->getLine()];
-            $result = self::encryptByPublicKey(json_encode($result));
-
-            return $result;
+            return self::encryptByPublicKey(json_encode($result));
         }
     }
 
-    public function submit($result, $url)
+    public function submit(string $result, string $url): void
     {
-        echo "<form action=$url method=post name=redirect>";
+        echo sprintf('<form action=%s method=post name=redirect>', $url);
         echo '<input type=hidden name=_token value=csrf_token()/>';
         echo '<input type=hidden name=result value='.$result.'/>';
         echo '</form>';
         echo"<script language='javascript'>document.redirect.submit();</script>";
     }
 
-    public function checkUpdate($order_number, $serial_key, $domain, $faveo_name, $faveo_version)
+    public function checkUpdate($order_number, $serial_key, $domain, $faveo_name, $faveo_version): array
     {
         try {
             if ($order_number && $domain && $serial_key) {
@@ -295,18 +286,18 @@ class HomeController extends BaseHomeController
                 //var_dump($order);
                 if ($order) {
                     return $this->checkFaveoDetails($order_number, $faveo_name, $faveo_version);
-                } else {
-                    return ['status' => 'fails', 'message' => 'this-is-an-invalid-request'];
                 }
-            } else {
+
                 return ['status' => 'fails', 'message' => 'this-is-an-invalid-request'];
             }
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+
+            return ['status' => 'fails', 'message' => 'this-is-an-invalid-request'];
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function checkFaveoDetails($order_number, $faveo_name, $faveo_version)
+    public function checkFaveoDetails($order_number, $faveo_name, $faveo_version): array
     {
         try {
             $order = new Order();
@@ -323,8 +314,8 @@ class HomeController extends BaseHomeController
             }
 
             return ['status' => 'fails', 'message' => 'this-is-an-invalid-request'];
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -334,8 +325,8 @@ class HomeController extends BaseHomeController
         //dd($path);
         $key_content = file_get_contents($path);
         $public_key = openssl_get_publickey($key_content);
-
-        $encrypted = $e = null;
+        $encrypted = null;
+        $e = null;
         openssl_seal($data, $encrypted, $e, [$public_key]);
 
         $sealed_data = base64_encode((string) $encrypted);
@@ -367,7 +358,7 @@ class HomeController extends BaseHomeController
             return errorResponse(Lang::get('message.renew_subscription_download'));
         }
 
-        return app(ProductController::class)->adminDownload(
+        return resolve(ProductController::class)->adminDownload(
             $order->product,
             $request->input('release', 'official')
         );
@@ -388,7 +379,7 @@ class HomeController extends BaseHomeController
         }
 
         try {
-            $title = ! $request->has('id') ? $this->changeProductName($request->input('title')) : $request->input('title');
+            $title = $request->has('id') ? $request->input('title') : $this->changeProductName($request->input('title'));
 
             $id = $request->input('id');
 
@@ -436,26 +427,24 @@ class HomeController extends BaseHomeController
 
                     $inBetweenVersions = ProductUpload::where([['product_id', $product->id]])->select('version', 'description', 'created_at', 'is_restricted', 'is_private', 'dependencies')
                         ->whereIn('release_type', $releases)
-                    ->get()->filter(fn ($newVersion) => version_compare($this->getPHPCompatibleVersionString($newVersion->version), $currenctVersion) == 1)->sortBy('version', SORT_NATURAL)->toArray();
+                    ->get()->filter(fn ($newVersion): bool => version_compare($this->getPHPCompatibleVersionString($newVersion->version), $currenctVersion) === 1)->sortBy('version', SORT_NATURAL)->toArray();
 
                     $message = ['version' => array_values($inBetweenVersions)];
                 } else {
                     $message = ['error' => 'product_not_found'];
                 }
-            } else {//For older clients in which version is not sent as parameter
+            } elseif ($product) {
+                //For older clients in which version is not sent as parameter
                 // $product = $product->where('name', $title)->first();
-                if ($product) {
-                    $productId = $product->id;
-                    $product = ProductUpload::where('product_id', $productId)->where('is_restricted', 1)->orderBy('id', 'asc')->first();
-
-                    $message = ['version' => str_replace('v', '', $product->version)];
-                } else {
-                    $message = ['error' => 'product_not_found'];
-                }
+                $productId = $product->id;
+                $product = ProductUpload::where('product_id', $productId)->where('is_restricted', 1)->orderBy('id', 'asc')->first();
+                $message = ['version' => str_replace('v', '', $product->version)];
+            } else {
+                $message = ['error' => 'product_not_found'];
             }
-        } catch (Exception $e) {
-            Logger::exception($e);
-            $message = ['error' => $e->getMessage()];
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+            $message = ['error' => $exception->getMessage()];
         }
 
         return response()->json($message);
@@ -475,7 +464,7 @@ class HomeController extends BaseHomeController
         }
 
         try {
-            $title = ! $request->has('id') ? $this->changeProductName($request->input('title')) : $request->input('title');
+            $title = $request->has('id') ? $request->input('title') : $this->changeProductName($request->input('title'));
 
             $id = $request->input('id');
 
@@ -524,13 +513,13 @@ class HomeController extends BaseHomeController
             $currenctVersion = $this->getPHPCompatibleVersionString($request->version);
             $message = ['status' => '', 'message' => 'no-new-version-available'];
             foreach ($allVersions as $version) {
-                if (version_compare($this->getPHPCompatibleVersionString($version), $currenctVersion) == 1) {
+                if (version_compare($this->getPHPCompatibleVersionString($version), $currenctVersion) === 1) {
                     $message = ['status' => 'true', 'message' => 'new-version-available'];
                     break;
                 }
             }
-        } catch (Exception $ex) {
-            $message = ['error' => $ex->getMessage()];
+        } catch (Exception $exception) {
+            $message = ['error' => $exception->getMessage()];
         }
 
         return response()->json($message);
@@ -577,11 +566,10 @@ class HomeController extends BaseHomeController
             $renewController = new RenewController();
             $invoiceItems = $renewController->generateInvoice($product_details, $user, $order->id, $plan->id, $cost, $code = '', $item->agents, $oldcurrency);
             $invoiceid = $invoiceItems->invoice_id;
-            $url = url("autopaynow/$invoiceid");
 
-            return $url;
-        } catch(Exception $ex) {
-            $message = ['error' => $ex->getMessage()];
+            return url('autopaynow/' . $invoiceid);
+        } catch(Exception $exception) {
+            $message = ['error' => $exception->getMessage()];
 
             return response()->json($message);
         }
@@ -669,10 +657,10 @@ class HomeController extends BaseHomeController
 
             $productsRelatedToGroup->transform(function ($product) use ($pageController) {
                 if ((int) $product->status === 1) {
-                    if (in_array((int) $product->days, [30, 31], true)) {
+                    if (in_array((int) $product->days, [30, 31], strict: true)) {
                         $product->price_description =
                             $pageController->getMonthPriceDescription($product->id);
-                    } elseif (in_array((int) $product->days, [365, 366], true)) {
+                    } elseif (in_array((int) $product->days, [365, 366], strict: true)) {
                         $product->price_description =
                             $pageController->getPriceDescription($product->id);
                     }
@@ -682,8 +670,8 @@ class HomeController extends BaseHomeController
             });
 
             return response()->json(['products' => $productsRelatedToGroup, 'currency' => $currencyAndSymbol, 'currency_symbol' => $this->getCurrencySymbol($currencyAndSymbol)]);
-        } catch (Exception $ex) {
-            return response()->json(['error' => $ex->getMessage()], 500);
+        } catch (Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 500);
         }
     }
 
@@ -773,7 +761,7 @@ class HomeController extends BaseHomeController
         return json_encode($updatedProducts);
     }
 
-    public function getProductRelease(Request $request)
+    public function getProductRelease(Request $request): array
     {
         $product_id = $request->input('product_id');
 

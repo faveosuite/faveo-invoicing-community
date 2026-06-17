@@ -11,21 +11,17 @@ class QueryListenerProvider extends ServiceProvider
 {
     /**
      * Register services.
-     *
-     * @return void
      */
     #[Override]
-    public function register()
+    public function register(): void
     {
         //
     }
 
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         DB::listen(function ($query): void {
             Clockwork::info($query->sql, [$query->time]);

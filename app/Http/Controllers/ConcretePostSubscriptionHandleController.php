@@ -21,17 +21,17 @@ use Log;
 
 abstract class PostSubscriptionHandleController
 {
-    protected $invoiceModel;
+    protected \App\Model\Order\Invoice $invoiceModel;
 
-    protected $orderModel;
+    protected \App\Model\Order\Order $orderModel;
 
-    protected $statusSettingModel;
+    protected \App\Model\Common\StatusSetting $statusSettingModel;
 
-    protected $plan;
+    protected \App\Model\Payment\Plan $plan;
 
-    protected $sub;
+    protected \App\Model\Product\Subscription $sub;
 
-    protected $payment;
+    protected \App\Model\Order\Payment $payment;
 
     public function __construct(Invoice $invoiceModel, Order $orderModel, StatusSetting $statusSettingModel, Plan $plan, Subscription $sub, Payment $payment)
     {
@@ -62,11 +62,6 @@ abstract class PostSubscriptionHandleController
 
 class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleController
 {
-    public function __construct(Invoice $invoiceModel, Order $orderModel, StatusSetting $statusSettingModel, Plan $plan, Subscription $sub, Payment $payment)
-    {
-        parent::__construct($invoiceModel, $orderModel, $statusSettingModel, $plan, $sub, $payment);
-    }
-
     public function successRenew(Invoice $invoice, $subscription, string $payment_method, string $currency): int
     {
         $sub = $this->sub->find($subscription->id);
@@ -95,7 +90,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         ]);
     }
 
-    public function getProcessingFee($paymentMethod, $currency)
+    public function getProcessingFee($paymentMethod, $currency): ?string
     {
         $percent = ProcessingFee::percent($paymentMethod);
 
@@ -104,7 +99,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         return $percent > 0 ? ProcessingFee::label($percent) : null;
     }
 
-    public function PaymentSuccessMailtoAdmin($invoice, $total, $user, $productName, $template, $order, $payment)
+    public function PaymentSuccessMailtoAdmin($invoice, $total, $user, $productName, $template, $order, $payment): void
     {
         $amount = currencyFormat($total, getCurrencyForClient($user->country));
         $setting = Setting::find(1);
@@ -113,21 +108,21 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
 
         $mail = new PhpMailController();
         $mail->SendEmail($setting->email, $setting->company_email, $paymentSuccessdata, 'payment-success', $template->type()->value('name'));
-        $mail->payment_log($user->email, $payment, 'success', $order->number, null, $amount, 'Product renew');
+        $mail->payment_log($user->email, $payment, 'success', $order->number, amount: $amount, payment_type: 'Product renew');
     }
 
-    public function FailedPaymenttoAdmin($invoice, $total, $productName, $exceptionMessage, $user, $template, $order, $payment)
+    public function FailedPaymenttoAdmin($invoice, $total, $productName, $exceptionMessage, $user, $template, $order, $payment): void
     {
         $amount = currencyFormat($total, getCurrencyForClient($user->country));
         $setting = Setting::find(1);
         $currency = getCurrencyForClient($user->country);
-        $paymentFailData = 'Payment for'.' '.'of'.' '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
+        $paymentFailData = 'Payment for of '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
         $mail = new PhpMailController();
         $mail->SendEmail($setting->email, $setting->company_email, $paymentFailData, 'payment-failed', Template::where('name', $template)->type()->value('name'));
         $mail->payment_log($user->email, $payment, 'failed', $order->number, $exceptionMessage, $amount, 'Product renew');
     }
 
-    public function sendPaymentSuccessMail($sub, $currency, $total, $user, $product, $number)
+    public function sendPaymentSuccessMail($sub, $currency, $total, $user, $product, $number): void
     {
         $future_expiry = Subscription::find($sub);
         $contact = getContactData();
@@ -156,7 +151,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    public function sendFailedPayment($total, $exceptionMessage, $user, $number, $end, $currency, $order, $product_details, $invoice, $payment)
+    public function sendFailedPayment($total, $exceptionMessage, $user, $number, $end, $currency, $order, $product_details, $invoice, $payment): void
     {
         $contact = getContactData();
         //check in the settings
@@ -166,10 +161,10 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $this->disableAutorenewalStatusByOrderId($order->id);
 
         $mail = new PhpMailController();
-        $mailer = $mail->setMailConfig($setting);
+        $mail->setMailConfig($setting);
         //template
         $template = TemplateType::getSelectedTemplate('payment_failed');
-        $url = url("autopaynow/$invoice->invoice_id");
+        $url = url('autopaynow/' . $invoice->invoice_id);
         $type = '';
         $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'product' => $product_details->name,
@@ -187,7 +182,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $this->FailedPaymenttoAdmin($invoice, $total, $product_details->name, $exceptionMessage, $user, $template->name, $order, $payment);
     }
 
-    public function calculateUnitCost($currency, $cost)
+    public function calculateUnitCost($currency, $cost): float
     {
         $decimalPlaces = [
             'BIF' => 0, 'CLP' => 0, 'DJF' => 0, 'GNF' => 0, 'JPY' => 0,
@@ -210,14 +205,14 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         return $unit_cost;
     }
 
-    public function disableAutorenewalStatusByOrderId($orderId)
+    public function disableAutorenewalStatusByOrderId($orderId): void
     {
         try {
             $subscription = Subscription::where('order_id', $orderId)->first();
 
             $cancellationHandlers = collect([
-                'rzp_subscription' => fn ($subscribeId) => resolve(SubscriptionService::class)->cancelSubscription('Razorpay', $subscribeId),
-                'autoRenew_status' => fn ($subscribeId) => resolve(SubscriptionService::class)->cancelSubscription('Stripe', $subscribeId),
+                'rzp_subscription' => fn (string $subscribeId) => resolve(SubscriptionService::class)->cancelSubscription('Razorpay', $subscribeId),
+                'autoRenew_status' => fn (string $subscribeId) => resolve(SubscriptionService::class)->cancelSubscription('Stripe', $subscribeId),
             ]);
 
             if ($subscription->is_subscribed && $subscription->subscribe_id) {
@@ -231,8 +226,8 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
                 'autoRenew_status' => 0,
                 'rzp_subscription' => 0,
             ]);
-        } catch (Exception $ex) {
-            Log::error('Subscription cancellation failed: '.$ex->getMessage());
+        } catch (Exception $exception) {
+            Log::error('Subscription cancellation failed: '.$exception->getMessage());
 
             return;
         }

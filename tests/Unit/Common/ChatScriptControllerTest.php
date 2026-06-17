@@ -10,7 +10,7 @@ class ChatScriptControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -19,7 +19,7 @@ class ChatScriptControllerTest extends DBTestCase
         $this->withoutMiddleware();
     }
 
-    public function test_it_returns_chat_script_list()
+    public function test_it_returns_chat_script_list(): void
     {
         ChatScript::create([
             'name' => 'Live Chat',
@@ -43,7 +43,7 @@ class ChatScriptControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_filters_chat_scripts_by_search_query()
+    public function test_it_filters_chat_scripts_by_search_query(): void
     {
         ChatScript::create([
             'name' => 'Facebook Chat',
@@ -66,7 +66,7 @@ class ChatScriptControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_creates_chat_script()
+    public function test_it_creates_chat_script(): void
     {
         $payload = [
             'name' => 'Test Script',
@@ -87,20 +87,20 @@ class ChatScriptControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_fails_validation_when_required_fields_missing()
+    public function test_it_fails_validation_when_required_fields_missing(): void
     {
         $response = $this->postJson('/chat/create', []);
         $response->assertStatus(422);
     }
 
-    public function test_it_returns_single_chat_script()
+    public function test_it_returns_single_chat_script(): void
     {
         $script = ChatScript::create([
             'name' => 'My Script',
             'script' => 'code',
         ]);
 
-        $response = $this->getJson("/chat/show/{$script->id}");
+        $response = $this->getJson('/chat/show/' . $script->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -108,7 +108,7 @@ class ChatScriptControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_returns_error_when_chat_script_not_found()
+    public function test_it_returns_error_when_chat_script_not_found(): void
     {
         $response = $this->getJson('/chat/show/999');
 
@@ -118,7 +118,7 @@ class ChatScriptControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_updates_chat_script()
+    public function test_it_updates_chat_script(): void
     {
         $script = ChatScript::create([
             'name' => 'Old Script',
@@ -131,7 +131,7 @@ class ChatScriptControllerTest extends DBTestCase
             'on_registration' => 1,
         ];
 
-        $response = $this->putJson("/chat/update/{$script->id}", $payload);
+        $response = $this->putJson('/chat/update/' . $script->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -144,7 +144,7 @@ class ChatScriptControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_returns_error_when_updating_non_existing_script()
+    public function test_it_returns_error_when_updating_non_existing_script(): void
     {
         $response = $this->putJson('/chat/update/999', [
             'name' => 'test',
@@ -157,7 +157,7 @@ class ChatScriptControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_deletes_selected_chat_scripts()
+    public function test_it_deletes_selected_chat_scripts(): void
     {
         $script1 = ChatScript::create(['name' => 'A', 'script' => 'a']);
         $script2 = ChatScript::create(['name' => 'B', 'script' => 'b']);
@@ -175,7 +175,7 @@ class ChatScriptControllerTest extends DBTestCase
         $this->assertDatabaseMissing('chat_scripts', ['id' => $script2->id]);
     }
 
-    public function test_it_returns_error_when_no_script_selected_for_delete()
+    public function test_it_returns_error_when_no_script_selected_for_delete(): void
     {
         $response = $this->deleteJson('/chat/delete', [
             'select' => [],

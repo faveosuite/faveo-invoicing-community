@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     '2fa_setup' => 'Konfigurer 2-trinns verifisering',

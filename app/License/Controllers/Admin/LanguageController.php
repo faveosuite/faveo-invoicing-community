@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 
 class LanguageController extends Controller
 {
-    public function getLanguageFile()
+    public function getLanguageFile(): \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
     {
         $locale = app()->getLocale() ?: 'en';
         $fallback = 'en';

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Spatie\Referer\Sources\RequestHeader;
 use Spatie\Referer\Sources\UtmSource;
 

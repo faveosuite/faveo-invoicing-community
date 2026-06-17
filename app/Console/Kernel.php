@@ -64,7 +64,6 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  Schedule  $schedule
      * @return void
      */
     #[Override]
@@ -229,7 +228,7 @@ class Kernel extends ConsoleKernel
         }
     }
 
-    public function getCondition($schedule, $command)
+    public function getCondition($schedule, array $command)
     {
         $condition = $command['condition'];
         $at = $command['at'];
@@ -251,9 +250,8 @@ class Kernel extends ConsoleKernel
 
     public function getConditionWithOption($schedule, $command, $at)
     {
-        switch ($command) {
-            case 'dailyAt':
-                return $schedule->dailyAt($at);
+        if ($command === 'dailyAt') {
+            return $schedule->dailyAt($at);
         }
     }
 
@@ -269,7 +267,7 @@ class Kernel extends ConsoleKernel
     }
 
     //This is to send an email to the client when the custom domain has been created properly
-    public function cloudEmail()
+    public function cloudEmail(): void
     {
         try {
             $contact = getContactData();
@@ -284,19 +282,19 @@ class Kernel extends ConsoleKernel
                     cloudemailsend::where('domain', $cloud->domain)->delete();
                 }
             }
-        } catch(Exception $e) {
-            $this->googleChat($e->getMessage());
+        } catch(Exception $exception) {
+            $this->googleChat($exception->getMessage());
         }
     }
 
-    private function checkTheAvailabilityOfCustomDomain($domain, $counter, $user)
+    private function checkTheAvailabilityOfCustomDomain(string $domain, $counter, string $user): bool
     {
         $client = new Client();
         try {
             $response = $client->get('https://'.$domain);
             $statusCode = $response->getStatusCode();
             if ($statusCode >= 200 && $statusCode < 300) {
-                $this->prepareMessages($domain, $counter, $user, true);
+                $this->prepareMessages($domain, $counter, $user, success: true);
 
                 return true;
             }
@@ -312,7 +310,7 @@ class Kernel extends ConsoleKernel
         return false;
     }
 
-    private function googleChat($text)
+    private function googleChat(string $text): void
     {
         $url = env('GOOGLE_CHAT');
         $message = [
@@ -328,7 +326,7 @@ class Kernel extends ConsoleKernel
         ]);
     }
 
-    private function prepareMessages($domain, $counter, $user, $success = false)
+    private function prepareMessages(string $domain, $counter, string $user, bool $success = false): void
     {
         $lockFilePath = storage_path('cloudMessage.lock');
 

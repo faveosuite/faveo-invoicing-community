@@ -29,10 +29,8 @@ class SettingsControllerTest extends DBTestCase
 
     /**
      * A basic unit test example.
-     *
-     * @return void
      */
-    public function test_validation_when_company_not_given()
+    public function test_validation_when_company_not_given(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
@@ -46,11 +44,11 @@ class SettingsControllerTest extends DBTestCase
             'default_currency' => 'USD',
             'country' => 'IN',
         ]);
-        $errors = session('errors');
+        session('errors');
         $response->assertStatus(302);
     }
 
-    public function test_returns_mobile_verification_details()
+    public function test_returns_mobile_verification_details(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
@@ -63,7 +61,7 @@ class SettingsControllerTest extends DBTestCase
         $this->assertNotEmpty($methodResponse->content());
     }
 
-    public function test_returns_terms_url_from_apikeys()
+    public function test_returns_terms_url_from_apikeys(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
@@ -74,7 +72,7 @@ class SettingsControllerTest extends DBTestCase
         $this->assertNotEmpty($methodResponse->content());
     }
 
-    public function test_returns_pipedrive_api_key()
+    public function test_returns_pipedrive_api_key(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
@@ -85,7 +83,7 @@ class SettingsControllerTest extends DBTestCase
         $this->assertNotEmpty($methodResponse->content());
     }
 
-    public function test_get_email_data()
+    public function test_get_email_data(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
@@ -93,11 +91,12 @@ class SettingsControllerTest extends DBTestCase
         EmailMobileValidationProviders::where('provider', 'reoon')->update(['to_use' => 1, 'api_key' => 'dummy_api_key', 'mode' => 'quick']);
         $response = $this->call('post', 'emailData', ['value' => 'reoon']);
         $response->assertStatus(200);
+
         $content = $response->original;
-        $this->assertEquals(true, $content['success']);
+        $this->assertEquals(expected: true, actual: $content['success']);
     }
 
-    public function test_get_mobile_data()
+    public function test_get_mobile_data(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
@@ -106,22 +105,23 @@ class SettingsControllerTest extends DBTestCase
             'mode' => 'standard', 'api_secret' => 'dummy_api_secret']);
         $response = $this->call('post', 'mobileData', ['value' => 'vonage']);
         $response->assertStatus(200);
+
         $content = $response->original;
-        $this->assertEquals(true, $content['success']);
+        $this->assertEquals(expected: true, actual: $content['success']);
     }
 
-    public function test_when_api_key_is_wrong()
+    public function test_when_api_key_is_wrong(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
         $response = $this->call('post', 'email-settings-save', ['apikey' => 'dummy_api_key']);
         $content = $response->original;
-        $this->assertEquals(false, $content['success']);
+        $this->assertEquals(expected: false, actual: $content['success']);
         $this->assertEquals('Please enter a valid Reoon Api key.', $content['message']);
     }
 
-    public function test_post_contact_option_successfully_updates_settings()
+    public function test_post_contact_option_successfully_updates_settings(): void
     {
         $this->getLoggedInUser('admin');
         $this->withoutMiddleware();
@@ -156,7 +156,7 @@ class SettingsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_free_trial_status_updating()
+    public function test_free_trial_status_updating(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
@@ -167,12 +167,12 @@ class SettingsControllerTest extends DBTestCase
         $cloud = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => 12345]);
         $response = $this->post('update-trial-status', ['id' => $cloud->id, 'status' => $status]);
         $content = $response->json();
-        $this->assertEquals(true, $content['success']);
+        $this->assertEquals(expected: true, actual: $content['success']);
         $cloud1 = CloudProducts::where('id', $cloud->id)->first();
         $this->assertEquals(1, $cloud1->trial_status);
     }
 
-    public function test_free_product_receiving()
+    public function test_free_product_receiving(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
@@ -180,7 +180,7 @@ class SettingsControllerTest extends DBTestCase
         $status = 1;
         $product = Product::factory()->create(['name' => 'good']);
         $plan = Plan::factory()->create();
-        $cloud = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => 12345, 'trial_status' => $status]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => 12345, 'trial_status' => $status]);
         $response = $this->post('trial-cloud-products');
         $content = $response->getContent();
         $this->assertEquals('{"success":true,"message":"Products","data":{"12345":"good"}}', $content);

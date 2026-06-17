@@ -26,20 +26,16 @@ class CommentController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
      */
-    public function index()
+    public function index(): void
     {
         //
     }
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return Response
      */
-    public function create()
+    public function create(): void
     {
         //
     }
@@ -47,7 +43,6 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  Request  $request
      * @return Response
      */
     public function store(Request $request)
@@ -56,10 +51,10 @@ class CommentController extends Controller
             $comments = $this->comment->fill($request->input())->save();
 
             return back()->with('success', Lang::get('message.saved-successfully'));
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $exception->getMessage());
         }
     }
 }

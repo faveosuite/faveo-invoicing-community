@@ -91,7 +91,7 @@ class ZohoCampaignsControllerTest extends DBTestCase
         $this->controller = new ZohoCampaignsController();
     }
 
-    public function test_it_syncs_campaigns_fields_and_topics_successfully()
+    public function test_it_syncs_campaigns_fields_and_topics_successfully(): void
     {
         Config::set('zoho_campaigns.topics', [
             'newsletter' => [
@@ -109,7 +109,7 @@ class ZohoCampaignsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_handles_sync_fields_error()
+    public function test_it_handles_sync_fields_error(): void
     {
         $this->fakeZohoHttpCalls([
             '*/contact/allfields*' => Http::response([], 500),
@@ -120,7 +120,7 @@ class ZohoCampaignsControllerTest extends DBTestCase
         $this->assertFalse($response->getData()->success);
     }
 
-    public function test_it_gets_campaigns_mapped_fields()
+    public function test_it_gets_campaigns_mapped_fields(): void
     {
         $zohoField = ZohoFields::create([
             'platform' => 'campaigns',
@@ -144,7 +144,7 @@ class ZohoCampaignsControllerTest extends DBTestCase
         $this->assertEquals($zohoField->id, $response->getData()->data[0]->zoho_field_id);
     }
 
-    public function test_it_gets_campaigns_contact_fields()
+    public function test_it_gets_campaigns_contact_fields(): void
     {
         ZohoFields::create([
             'platform' => 'campaigns',
@@ -158,7 +158,7 @@ class ZohoCampaignsControllerTest extends DBTestCase
         $this->assertEquals('First Name', $response->getData()->data[0]->field_name);
     }
 
-    public function test_it_validates_email_when_subscribing()
+    public function test_it_validates_email_when_subscribing(): void
     {
         $request = new Request(['email' => 'invalid-email']);
 
@@ -168,9 +168,9 @@ class ZohoCampaignsControllerTest extends DBTestCase
         $this->assertEquals('Please enter a valid email address.', $response->getData()->message);
     }
 
-    public function test_it_subscribes_to_campaign_successfully()
+    public function test_it_subscribes_to_campaign_successfully(): void
     {
-        $user = User::create(['email' => 'test@example.com']);
+        User::create(['email' => 'test@example.com']);
 
         Config::set('zoho_campaigns.topics.newsletter.name', 'Newsletter');
 
@@ -181,20 +181,20 @@ class ZohoCampaignsControllerTest extends DBTestCase
         $this->assertTrue($response->getData()->success);
     }
 
-    public function test_it_subscribes_with_topic_name_from_config()
+    public function test_it_subscribes_with_topic_name_from_config(): void
     {
-        $user = User::create(['email' => 'test@example.com']);
+        User::create(['email' => 'test@example.com']);
 
         Config::set('zoho_campaigns.topics.newsletter.name', 'Newsletter');
 
         $this->controller->subscribe('test@example.com', 'newsletter');
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'listsubscribe'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'listsubscribe'));
     }
 
-    public function test_it_returns_early_when_topic_not_configured()
+    public function test_it_returns_early_when_topic_not_configured(): void
     {
-        Config::set('zoho_campaigns.topics.newsletter.name', null);
+        Config::set('zoho_campaigns.topics.newsletter.name');
 
         Http::fake();
 
@@ -203,9 +203,9 @@ class ZohoCampaignsControllerTest extends DBTestCase
         Http::assertNothingSent();
     }
 
-    public function test_it_subscribes_with_mapped_contact_info()
+    public function test_it_subscribes_with_mapped_contact_info(): void
     {
-        $user = User::create([
+        User::create([
             'email' => 'test@example.com',
             'first_name' => 'John',
         ]);
@@ -230,18 +230,18 @@ class ZohoCampaignsControllerTest extends DBTestCase
 
         $this->controller->subscribe('test@example.com', 'newsletter');
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'listsubscribe'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'listsubscribe'));
     }
 
-    public function test_it_subscribes_with_tag()
+    public function test_it_subscribes_with_tag(): void
     {
-        $user = User::create(['email' => 'test@example.com']);
+        User::create(['email' => 'test@example.com']);
 
         Config::set('zoho_campaigns.topics.newsletter.name', 'Newsletter');
 
         $this->controller->subscribeWithTag('test@example.com', 'newsletter', 'VIP');
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'listsubscribe') ||
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'listsubscribe') ||
                str_contains((string) $request->url(), 'associate'));
     }
 }

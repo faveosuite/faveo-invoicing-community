@@ -18,7 +18,7 @@ class MailchimpClient
             ? substr($apiKey, $pos + 1)
             : 'us1';
 
-        $this->baseUrl = "https://{$dc}.api.mailchimp.com/3.0";
+        $this->baseUrl = sprintf('https://%s.api.mailchimp.com/3.0', $dc);
     }
 
     /**
@@ -69,7 +69,7 @@ class MailchimpClient
             'POST' => $pending->post($url, $data),
             'PATCH' => $pending->patch($url, $data),
             'PUT' => $pending->put($url, $data),
-            default => throw new InvalidArgumentException("Unsupported HTTP method: {$method}"),
+            default => throw new InvalidArgumentException('Unsupported HTTP method: ' . $method),
         };
 
         if ($response->status() === 429) {
@@ -78,7 +78,7 @@ class MailchimpClient
 
         if ($response->failed()) {
             $body = $response->json() ?? [];
-            $message = $body['detail'] ?? $body['title'] ?? "Mailchimp API error ({$response->status()})";
+            $message = $body['detail'] ?? $body['title'] ?? sprintf('Mailchimp API error (%s)', $response->status());
             throw new MailchimpApiException($message, $response->status());
         }
 

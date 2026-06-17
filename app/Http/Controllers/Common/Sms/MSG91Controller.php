@@ -32,8 +32,6 @@ class MSG91Controller extends Controller
 
     /**
      * Handle MSG91 webhook delivery reports.
-     *
-     * @param  Request  $request
      */
     public function handleReports(Request $request, $app_key, $app_secret): void
     {
@@ -51,10 +49,10 @@ class MSG91Controller extends Controller
             }
 
             // Ensure data is an array
-            $reports = is_string($jsonData) ? collect(json_decode($jsonData, true)) : collect($jsonData);
+            $reports = is_string($jsonData) ? collect(json_decode($jsonData, associative: true)) : collect($jsonData);
 
-            $reports->each(function ($reportGroup): void {
-                collect($reportGroup['report'])->each(function ($singleReport) use ($reportGroup): void {
+            $reports->each(function (array $reportGroup): void {
+                collect($reportGroup['report'])->each(function (array $singleReport) use ($reportGroup): void {
                     $this->processIndividualReport([
                         'request_id' => $reportGroup['requestId'],
                         'number' => $singleReport['number'],
@@ -64,8 +62,8 @@ class MSG91Controller extends Controller
                     ]);
                 });
             });
-        } catch (Exception $e) {
-            Logger::exception($e);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
             return;
         }
@@ -73,8 +71,6 @@ class MSG91Controller extends Controller
 
     /**
      * Process and store individual report.
-     *
-     * @param  array  $reportData
      */
     protected function processIndividualReport(array $reportData)
     {
@@ -92,7 +88,7 @@ class MSG91Controller extends Controller
         }
     }
 
-    public function updateOtpRequest($requestId, $status, $country_iso, $mobile, $mobile_code, $userID = null, $source = null, $action = null)
+    public function updateOtpRequest($requestId, $status, $country_iso, $mobile, $mobile_code, $userID = null, $source = null, $action = null): void
     {
         $attributes = [
             'user_id' => $userID,
@@ -150,7 +146,7 @@ class MSG91Controller extends Controller
         ]);
     }
 
-    public function msg91Reports()
+    public function msg91Reports(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $status = Msg91Status::orderBy('status_label')->get();
         $sources = MsgDeliveryReports::query()
@@ -184,14 +180,14 @@ class MSG91Controller extends Controller
             // Search filter
             if (! empty($searchString)) {
                 $baseQuery->where(function ($q) use ($searchString): void {
-                    $q->where('request_id', 'like', "%$searchString%")
-                        ->orWhere('mobile_number', 'like', "%$searchString%")
-                        ->orWhereHas('readableStatus', fn ($q) => $q->where('status_label', 'like', "%$searchString%"))
+                    $q->where('request_id', 'like', sprintf('%%%s%%', $searchString))
+                        ->orWhere('mobile_number', 'like', sprintf('%%%s%%', $searchString))
+                        ->orWhereHas('readableStatus', fn ($q) => $q->where('status_label', 'like', sprintf('%%%s%%', $searchString)))
                         ->orWhereHas('user', function ($sub) use ($searchString): void {
-                            $sub->where('email', 'like', "%$searchString%")
-                                ->orWhere('user_name', 'like', "%$searchString%")
-                                ->orWhere('first_name', 'like', "%$searchString%")
-                                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$searchString%"]);
+                            $sub->where('email', 'like', sprintf('%%%s%%', $searchString))
+                                ->orWhere('user_name', 'like', sprintf('%%%s%%', $searchString))
+                                ->orWhere('first_name', 'like', sprintf('%%%s%%', $searchString))
+                                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", [sprintf('%%%s%%', $searchString)]);
                         });
                 });
             }
@@ -205,7 +201,7 @@ class MSG91Controller extends Controller
                     ->simplePaginate($limit);
 
             // Format collection
-            $logs->getCollection()->transform(function ($log) {
+            $logs->getCollection()->transform(function ($log): array {
                 $fullName = $log->user ? trim($log->user->first_name.' '.$log->user->last_name) : null;
 
                 return [
@@ -240,8 +236,8 @@ class MSG91Controller extends Controller
                 ->distinct()->orderBy('action')->pluck('action');
 
             return successResponse('', compact('statuses', 'sources', 'actions'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -256,14 +252,14 @@ class MSG91Controller extends Controller
 
         if (! empty($search)) {
             $query->where(function ($q) use ($search): void {
-                $q->where('request_id', 'like', "%$search%")
+                $q->where('request_id', 'like', sprintf('%%%s%%', $search))
                     ->orWhereHas('readableStatus', function ($q) use ($search): void {
-                        $q->where('status_label', 'like', "%$search%");
+                        $q->where('status_label', 'like', sprintf('%%%s%%', $search));
                     })
                     ->orWhereHas('user', function ($sub) use ($search): void {
-                        $sub->where('email', 'like', "%$search%")
-                            ->orWhere('user_name', 'like', "%$search%")
-                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"]);
+                        $sub->where('email', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('user_name', 'like', sprintf('%%%s%%', $search))
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", [sprintf('%%%s%%', $search)]);
                     });
             });
         }
@@ -353,8 +349,6 @@ class MSG91Controller extends Controller
             return false;
         }
 
-        $apiKeyExists = ApiKey::where('msg91_third_party_id', $app->id)->exists();
-
-        return $apiKeyExists;
+        return ApiKey::where('msg91_third_party_id', $app->id)->exists();
     }
 }

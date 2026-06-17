@@ -22,7 +22,7 @@ class LicenseViewController extends Controller
             ->find($license_id);
 
         if (! $license) {
-            return successResponse(Lang::get('lang.license_details'), null);
+            return successResponse(Lang::get('lang.license_details'), data: null);
         }
 
         $formatted = (object) [
@@ -105,7 +105,7 @@ class LicenseViewController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $licenseCallBacks->getCollection()->transform(fn (LicenseCallback $cb) => [
+        $licenseCallBacks->getCollection()->transform(fn (LicenseCallback $cb): array => [
             'id' => $cb->id,
             'callback_domain' => $cb->callback_domain,
             'callback_ip' => $cb->callback_ip,

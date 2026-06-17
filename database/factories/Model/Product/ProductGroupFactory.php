@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories\Model\Product;
 
 use App\Model\Common\PricingTemplate;
 use App\Model\Product\ProductGroup;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Product\ProductGroup>
+ */
 class ProductGroupFactory extends Factory
 {
     protected $model = ProductGroup::class;
@@ -15,12 +20,12 @@ class ProductGroupFactory extends Factory
         $template = PricingTemplate::query()->first();
 
         return [
-            'name' => $this->faker->unique()->words(2, true),
-            'headline' => $this->faker->sentence,
-            'tagline' => $this->faker->sentence(3),
+            'name' => fake()->unique()->words(2, asText: true),
+            'headline' => fake()->sentence,
+            'tagline' => fake()->sentence(3),
             'available_payment' => 'stripe,razorpay',
             'hidden' => 0,
-            'cart_link' => $this->faker->url,
+            'cart_link' => fake()->url,
             'pricing_templates_id' => $template->id,
             'status' => 1,
         ];

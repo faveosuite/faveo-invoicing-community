@@ -37,7 +37,7 @@ class FrontendPage extends BaseModel
             'name' => ['Name', fn ($value) => $value],
             'content' => ['Content', fn ($value) => $value],
             'url' => ['URL', fn ($value) => $value],
-            'publish' => ['Publish status', fn ($value) => $value ? __('message.active') : __('message.inactive')],
+            'publish' => ['Publish status', fn ($value): array|string|null => $value ? __('message.active') : __('message.inactive')],
             'type' => ['Type', fn ($value) => $value],
             'created_at' => [
                 'Publishing Date',
@@ -46,9 +46,11 @@ class FrontendPage extends BaseModel
         ];
     }
 
-    protected function setSlugAttribute($value)
+    protected function slug(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        $this->attributes['slug'] = str_replace(' ', '', $value);
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(set: function ($value): array {
+            return ['slug' => str_replace(' ', '', $value)];
+        });
     }
 
     public function parent()

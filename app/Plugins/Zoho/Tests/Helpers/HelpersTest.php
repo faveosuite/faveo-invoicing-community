@@ -14,7 +14,7 @@ class HelpersTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function test_zoho_mapped_fields_returns_correct_crm_field_mapping()
+    public function test_zoho_mapped_fields_returns_correct_crm_field_mapping(): void
     {
         $zohoField = ZohoFields::create([
             'id' => 1,
@@ -40,7 +40,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals(['First_Name' => 'John'], $result);
     }
 
-    public function test_zoho_mapped_fields_returns_correct_campaigns_field_mapping()
+    public function test_zoho_mapped_fields_returns_correct_campaigns_field_mapping(): void
     {
         $zohoField = ZohoFields::create([
             'id' => 1,
@@ -65,7 +65,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals(['contact_email' => 'test@example.com'], $result);
     }
 
-    public function test_zoho_mapped_fields_uses_zoho_static_value_when_selected()
+    public function test_zoho_mapped_fields_uses_zoho_static_value_when_selected(): void
     {
         $zohoField = ZohoFields::create([
             'id' => 1,
@@ -89,7 +89,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals(['Status' => 'Active'], $result);
     }
 
-    public function test_zoho_mapped_fields_uses_default_value_when_source_is_null()
+    public function test_zoho_mapped_fields_uses_default_value_when_source_is_null(): void
     {
         $zohoField = ZohoFields::create([
             'id' => 1,
@@ -114,7 +114,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals(['Country' => json_encode(['value' => 'USA'])], $result);
     }
 
-    public function test_zoho_mapped_fields_skips_null_or_empty_values()
+    public function test_zoho_mapped_fields_skips_null_or_empty_values(): void
     {
         $zohoField = ZohoFields::create([
             'id' => 1,
@@ -141,7 +141,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals([], $result);
     }
 
-    public function test_zoho_mapped_fields_skips_missing_zoho_field()
+    public function test_zoho_mapped_fields_skips_missing_zoho_field(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
@@ -163,7 +163,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals([], $result);
     }
 
-    public function test_resolve_options_returns_picklist_options_for_zoho_field()
+    public function test_resolve_options_returns_picklist_options_for_zoho_field(): void
     {
         $zohoField = ZohoFields::create([
             'field_type' => 'picklist',
@@ -186,7 +186,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals('Option 1', $result[0]['label']);
     }
 
-    public function test_resolve_options_excludes_none_value()
+    public function test_resolve_options_excludes_none_value(): void
     {
         $zohoField = ZohoFields::create([
             'field_type' => 'picklist',
@@ -204,7 +204,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals('Valid', $result[0]['value']);
     }
 
-    public function test_resolve_options_returns_local_fields_for_non_picklist()
+    public function test_resolve_options_returns_local_fields_for_non_picklist(): void
     {
         $zohoField = ZohoFields::create([
             'field_type' => 'text',
@@ -222,7 +222,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals('First Name', $result[0]['label']);
     }
 
-    public function test_resolve_selected_returns_zoho_type_for_picklist()
+    public function test_resolve_selected_returns_zoho_type_for_picklist(): void
     {
         $zohoField = ZohoFields::create([
             'field_type' => 'picklist',
@@ -239,7 +239,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals(json_encode(['value' => 'Selected']), $result['value']);
     }
 
-    public function test_resolve_selected_returns_local_type_for_non_picklist()
+    public function test_resolve_selected_returns_local_type_for_non_picklist(): void
     {
         $zohoField = ZohoFields::create([
             'field_type' => 'text',
@@ -256,23 +256,23 @@ class HelpersTest extends DBTestCase
         $this->assertEquals(5, $result['value']);
     }
 
-    public function test_resolve_selected_returns_null_when_no_mapping()
+    public function test_resolve_selected_returns_null_when_no_mapping(): void
     {
-        $zohoField = ZohoFields::create();
+        ZohoFields::create();
 
-        $result = resolveSelected(null);
+        $result = resolveSelected(mapping: null);
 
         $this->assertNull($result);
     }
 
-    public function test_get_zoho_region_returns_correct_region_from_string()
+    public function test_get_zoho_region_returns_correct_region_from_string(): void
     {
         $this->assertEquals(ZohoRegion::India, getZohoRegion('in'));
         $this->assertEquals(ZohoRegion::UnitedStates, getZohoRegion('us'));
         $this->assertEquals(ZohoRegion::Europe, getZohoRegion('eu'));
     }
 
-    public function test_get_zoho_region_falls_back_to_default_region()
+    public function test_get_zoho_region_falls_back_to_default_region(): void
     {
         config(['zoho.default_region' => 'us']);
 
@@ -281,7 +281,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals(ZohoRegion::UnitedStates, $result);
     }
 
-    public function test_get_zoho_region_falls_back_to_india_when_no_default()
+    public function test_get_zoho_region_falls_back_to_india_when_no_default(): void
     {
         config(['zoho.default_region' => null]);
 
@@ -290,7 +290,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals(ZohoRegion::India, $result);
     }
 
-    public function test_zoho_mapped_fields_handles_object_as_source()
+    public function test_zoho_mapped_fields_handles_object_as_source(): void
     {
         $zohoField = ZohoFields::create([
             'id' => 1,

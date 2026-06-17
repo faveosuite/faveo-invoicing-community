@@ -11,7 +11,7 @@ class Condition extends Model
 
     protected $fillable = ['job', 'value'];
 
-    public function checkActiveJob()
+    public function checkActiveJob(): array
     {
         $result = ['expiryMail' => '', 'deleteLogs' => '', 'subsExpirymail' => '', 'postExpirymail' => '', 'cloud' => '', 'invoice' => '', 'msg91Reports' => '', 'reoonLogs' => '', 'systemLogs' => '', 'installationLogs' => '', 'licenseReportsCleanup' => '', 'licenseCallbacksCleanup' => '', 'licenseCrackReportsCleanup' => '', 'licenseSystemReportsCleanup' => '', 'licenseVersionsCleanup' => ''];
         $allStatus = new StatusSetting();
@@ -81,7 +81,7 @@ class Condition extends Model
         return $result;
     }
 
-    public function getConditionValue($job)
+    public function getConditionValue($job): array
     {
         $value = ['condition' => '', 'at' => ''];
         $condition = $this->where('job', $job)->first();
@@ -98,13 +98,10 @@ class Condition extends Model
 
     public function checkArray($key, $array)
     {
-        $value = '';
-        if (is_array($array)) {
-            if (array_key_exists($key, $array)) {
-                $value = $array[$key];
-            }
+        if (is_array($array) && array_key_exists($key, $array)) {
+            return $array[$key];
         }
 
-        return $value;
+        return '';
     }
 }

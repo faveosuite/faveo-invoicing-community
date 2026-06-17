@@ -19,7 +19,7 @@ class ProfileControllerTest extends DBTestCase
 
     protected $profileController;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->withoutMiddleware();
@@ -33,9 +33,9 @@ class ProfileControllerTest extends DBTestCase
         return User::factory()->create($attributes);
     }
 
-    public function testUpdateProfileWithoutAnyErrors()
+    public function testUpdateProfileWithoutAnyErrors(): void
     {
-        $response = $this->call('PATCH', 'profile', [
+        $this->call('PATCH', 'profile', [
             'first_name' => 'update first',
             'last_name' => 'update last',
             'company' => 'update company',
@@ -58,7 +58,7 @@ class ProfileControllerTest extends DBTestCase
         $this->assertEquals('updated@example.com', $this->user->email);
     }
 
-    public function testUpdateProfileWithErrors()
+    public function testUpdateProfileWithErrors(): void
     {
         $this->getLoggedInUser('admin');
 
@@ -75,12 +75,12 @@ class ProfileControllerTest extends DBTestCase
         $response->assertSessionHasErrors(['last_name']);
     }
 
-    public function testUpdatePasswordSuccess()
+    public function testUpdatePasswordSuccess(): void
     {
         // Manually update the password first
         Auth::user()->update(['password' => Hash::make('Test@1234')]);
 
-        $response = $this->call('PATCH', 'password', [
+        $this->call('PATCH', 'password', [
             'old_password' => 'Test@1234',
             'new_password' => 'NewTest@1234',
             'confirm_password' => 'NewTest@1234',
@@ -95,13 +95,13 @@ class ProfileControllerTest extends DBTestCase
         $this->assertEquals(session('success1'), 'Updated Successfully');
     }
 
-    public function testPasswordResetLinkExpiredAfterUpdatingThePasswordFromUI()
+    public function testPasswordResetLinkExpiredAfterUpdatingThePasswordFromUI(): void
     {
         $password = new Password();
 
         $user = Auth::user();
         $token = Str::random(40);
-        $activate = $password->create(['email' => $user->email, 'token' => $token, 'created_at' => Date::now()]);
+        $password->create(['email' => $user->email, 'token' => $token, 'created_at' => Date::now()]);
 
         $this->assertEquals(1, Password::where('email', $user->email)->get()->count());
 
@@ -109,7 +109,7 @@ class ProfileControllerTest extends DBTestCase
 
         Password::where('email', $user->email)->get();
 
-        $response = $this->call('PATCH', 'password', [
+        $this->call('PATCH', 'password', [
             'old_password' => 'Test@1234',
             'new_password' => 'NewTest@1234',
             'confirm_password' => 'NewTest@1234',

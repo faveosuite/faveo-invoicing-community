@@ -21,7 +21,7 @@ trait CoupCodeAndInvoiceSearch
         return Invoice::with(['user:id,first_name,last_name,email,mobile,mobile_code,country', 'payment', 'invoiceItem'])
             ->when($request->name, function ($query, $name): void {
                 $query->whereHas('user', function (Builder $q) use ($name): void {
-                    $q->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', ["%{$name}%"]);
+                    $q->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', [sprintf('%%%s%%', $name)]);
                 });
             })
             ->when($request->invoice_no, fn ($query, $invoice_no) => $query->where('number', $invoice_no)
@@ -74,8 +74,8 @@ trait CoupCodeAndInvoiceSearch
             }
 
             return $payment;
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -94,12 +94,12 @@ trait CoupCodeAndInvoiceSearch
             $this->invoice->whereIn('id', $ids)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function deletePayment(Request $request)
+    public function deletePayment(Request $request): void
     {
         try {
             $ids = $request->input('select');
@@ -144,13 +144,13 @@ trait CoupCodeAndInvoiceSearch
                 </div>';
                 //echo \Lang::get('message.select-a-row');
             }
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
                     <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
                     /* @scrutinizer ignore-type */ Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
+                        '.$exception->getMessage().'
                 </div>';
         }
     }
@@ -195,8 +195,8 @@ trait CoupCodeAndInvoiceSearch
             }
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

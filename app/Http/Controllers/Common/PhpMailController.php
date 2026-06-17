@@ -32,7 +32,7 @@ use Mail;
 
 class PhpMailController extends Controller
 {
-    protected $commonMailer;
+    protected \App\Http\Controllers\Common\CommonMailer $commonMailer;
 
     protected $queueManager;
 
@@ -101,7 +101,7 @@ class PhpMailController extends Controller
         });
     }
 
-    public function NotifyMail($from, $to, $template_data, $template_name)
+    public function NotifyMail($from, $to, $template_data, $template_name): void
     {
         $this->setQueue();
         $job = new NotifyMail();
@@ -111,7 +111,7 @@ class PhpMailController extends Controller
     /**
      * set the queue service.
      */
-    public function setQueue()
+    public function setQueue(): void
     {
         $this->queueManager->setDefaultDriver($this->getActiveQueue()->driver);
     }
@@ -139,19 +139,19 @@ class PhpMailController extends Controller
         });
     }
 
-    public function NotifyMailing()
+    public function NotifyMailing(): void
     {
         try {
             $status = StatusSetting::value('cloud_mail_status');
             if ($status == 1) {
                 $this->deleteCloudDetails();
             }
-        } catch(Exception $ex) {
-            Logger::exception($ex);
+        } catch(Exception $exception) {
+            Logger::exception($exception);
         }
     }
 
-    public function deleteCloudDetails()
+    public function deleteCloudDetails(): void
     {
         try {
             $contact = getContactData();
@@ -162,7 +162,7 @@ class PhpMailController extends Controller
                 ->where('is_deleted', 0)
                 ->whereIn('product_id', cloudPopupProducts())
                 ->whereDate(
-                    DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
+                    DB::raw(sprintf('DATE_ADD(ends_at, INTERVAL %s DAY)', $day)),
                     '<=',
                     $today
                 )
@@ -179,42 +179,44 @@ class PhpMailController extends Controller
                 }
 
                 $id = DB::table('installation_details')->where('order_id', $order->id)->value('installation_path');
-
-                if (is_null($id) || $id == cloudCentralDomain()) {
-//                    $order->delete();
+                if (is_null($id)) {
+                    //                    $order->delete();
                     continue;
-                } else {
-                    //Destroy the tenat
-                    $destroy = new TenantController(new Client, new FaveoCloud())->destroyTenant(new Request(['id' => $id, 'orderId' => $data->order_id]));
+                }
 
-                    //Mail Sending
+                if ($id == cloudCentralDomain()) {
+                    //                    $order->delete();
+                    continue;
+                }
 
-                    if ($destroy->status() == 200) {
-                        $data->is_deleted = 1;
-                        $data->save();
-                        //check in the settings
-                        $settings = new Setting();
-                        $setting = $settings::find(1);
+                //Destroy the tenat
+                $destroy = new TenantController(new Client, new FaveoCloud())->destroyTenant(new Request(['id' => $id, 'orderId' => $data->order_id]));
+                //Mail Sending
+                if ($destroy->status() == 200) {
+                    $data->is_deleted = 1;
+                    $data->save();
+                    //check in the settings
+                    $settings = new Setting();
+                    $setting = $settings::find(1);
 
-                        //template
-                        $template = TemplateType::getSelectedTemplate('cloud_deleted');
+                    //template
+                    $template = TemplateType::getSelectedTemplate('cloud_deleted');
 
-                        $mail = new PhpMailController();
-                        $type = $template?->type()->value('name') ?? '';
-                        $replace = ['name' => $user->first_name.' '.$user->last_name,
-                            'product' => $product->name,
-                            'number' => $order->number,
-                            'expiry' => date('j M Y', strtotime((string) $data->update_ends_at)),
-                            'contact' => $contact['contact'],
-                            'logo' => $contact['logo'],
-                            'reply_email' => $setting->company_email,
-                        ];
-                        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
-                    }
+                    $mail = new PhpMailController();
+                    $type = $template?->type()->value('name') ?? '';
+                    $replace = ['name' => $user->first_name.' '.$user->last_name,
+                        'product' => $product->name,
+                        'number' => $order->number,
+                        'expiry' => date('j M Y', strtotime((string) $data->update_ends_at)),
+                        'contact' => $contact['contact'],
+                        'logo' => $contact['logo'],
+                        'reply_email' => $setting->company_email,
+                    ];
+                    $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
                 }
             }
-        } catch(Exception $ex) {
-            Logger::exception($ex);
+        } catch(Exception $exception) {
+            Logger::exception($exception);
         }
     }
 
@@ -249,13 +251,13 @@ class PhpMailController extends Controller
             Logger::outgoingMailSent($logIdentifier);
 
             return 'success';
-        } catch (Exception $ex) {
-            Logger::outgoingMailFailed($logIdentifier, $ex);
-            throw $ex;
+        } catch (Exception $exception) {
+            Logger::outgoingMailFailed($logIdentifier, $exception);
+            throw $exception;
         }
     }
 
-    public function setMailConfig($settings)
+    public function setMailConfig(array $settings): bool|string|null
     {
         switch ($settings->driver) {
             case 'smtp':
@@ -276,7 +278,6 @@ class PhpMailController extends Controller
                 }
 
                 return $mailer;
-                break;
 
             case 'send_mail':
                 $config = [
@@ -293,9 +294,11 @@ class PhpMailController extends Controller
                 setServiceConfig($settings);
                 break;
         }
+
+        return null;
     }
 
-    public function payment_log($from, $method, $status, $order, $exception = null, $amount = null, $payment_type = null)
+    public function payment_log($from, $method, $status, $order, $exception = null, $amount = null, $payment_type = null): void
     {
         $data = [
             'date' => date('Y-m-d H:i:s'),
@@ -320,13 +323,13 @@ class PhpMailController extends Controller
     protected function prepareEmailConfig(array $replace, string $type, string $subject, string $fromname, bool $autoReply): array
     {
         $config = [
-            'fromname' => ! empty($fromname) ? $fromname : Setting::first()->from_name,
+            'fromname' => $fromname === '' || $fromname === '0' ? Setting::first()->from_name : $fromname,
             'reply_to' => null,
             'auto_reply' => $autoReply,
         ];
 
         // Handle special subjects
-        if (in_array($subject, ['Contact us', 'Requesting a demo for ']) && isset($replace['name'])) {
+        if (in_array($subject, ['Contact us', 'Requesting a demo for '], strict: true) && isset($replace['name'])) {
             $config['fromname'] = $replace['name'];
         }
 

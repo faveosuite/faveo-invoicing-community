@@ -58,9 +58,8 @@ class SubscriptionWebhookService
         }
 
         $amountPaid = $invoice['amount_paid'] ?? 0;
-        $currency = strtoupper($invoice['currency'] ?? '');
 
-        $this->fulfillRenewal('stripe', $gatewaySubscriptionId, $amountPaid, $currency);
+        $this->fulfillRenewal('stripe', $gatewaySubscriptionId, $amountPaid);
     }
 
     private function onStripeInvoiceFailed(array $invoice): void
@@ -82,9 +81,9 @@ class SubscriptionWebhookService
         $product = Product::find($subscription->product_id);
 
         $this->handler->sendFailedPayment(
-            null, 'Stripe subscription payment failed', $user,
-            $order?->number, $subscription->update_ends_at,
-            $invoice['currency'] ?? '', $order, $product, null, 'stripe'
+            total: null, exceptionMessage: 'Stripe subscription payment failed', user: $user,
+            number: $order?->number, end: $subscription->update_ends_at,
+            currency: $invoice['currency'] ?? '', order: $order, product_details: $product, invoice: null, payment: 'stripe'
         );
     }
 
@@ -113,13 +112,12 @@ class SubscriptionWebhookService
     {
         $gatewaySubscriptionId = $payload['subscription']['entity']['id'] ?? null;
         $amountPaid = $payload['payment']['entity']['amount'] ?? 0;
-        $currency = strtoupper($payload['payment']['entity']['currency'] ?? '');
 
         if (! $gatewaySubscriptionId) {
             return;
         }
 
-        $this->fulfillRenewal('razorpay', $gatewaySubscriptionId, $amountPaid, $currency);
+        $this->fulfillRenewal('razorpay', $gatewaySubscriptionId, $amountPaid);
     }
 
     private function onRazorpayHalted(array $payload): void
@@ -141,19 +139,19 @@ class SubscriptionWebhookService
         $product = Product::find($subscription->product_id);
 
         $this->handler->sendFailedPayment(
-            null, 'Razorpay subscription payment halted', $user,
-            $order?->number, $subscription->update_ends_at,
-            '', $order, $product, null, 'razorpay'
+            total: null, exceptionMessage: 'Razorpay subscription payment halted', user: $user,
+            number: $order?->number, end: $subscription->update_ends_at,
+            currency: '', order: $order, product_details: $product, invoice: null, payment: 'razorpay'
         );
     }
 
     // ── Fulfillment ───────────────────────────────────────────────────────
 
-    private function fulfillRenewal(string $gateway, string $gatewaySubscriptionId, int $gatewayAmount, string $gatewayCurrency): void
+    private function fulfillRenewal(string $gateway, string $gatewaySubscriptionId, int $gatewayAmount): void
     {
         $subscription = Subscription::where('subscribe_id', $gatewaySubscriptionId)->first();
         if (! $subscription) {
-            Logger::warning("SubscriptionWebhook: no subscription found for {$gateway} ID {$gatewaySubscriptionId}");
+            Logger::warning(sprintf('SubscriptionWebhook: no subscription found for %s ID %s', $gateway, $gatewaySubscriptionId));
 
             return;
         }
@@ -176,7 +174,7 @@ class SubscriptionWebhookService
 
         if (emailSendingStatus()) {
             $this->handler->sendPaymentSuccessMail($sub, $currency, $cost, $user, $product->name, $order->number);
-            $this->handler->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product->name, null, $order, $gateway);
+            $this->handler->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product->name, template: null, order: $order, payment: $gateway);
         }
     }
 
@@ -224,11 +222,11 @@ class SubscriptionWebhookService
         $zeroDecimal = ['BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF'];
         $threeDecimal = ['BHD', 'JOD', 'KWD', 'OMR', 'TND'];
 
-        if (in_array($currency, $zeroDecimal, true)) {
+        if (in_array($currency, $zeroDecimal, strict: true)) {
             return (float) $amount;
         }
 
-        if (in_array($currency, $threeDecimal, true)) {
+        if (in_array($currency, $threeDecimal, strict: true)) {
             return round($amount / 1000, 3);
         }
 

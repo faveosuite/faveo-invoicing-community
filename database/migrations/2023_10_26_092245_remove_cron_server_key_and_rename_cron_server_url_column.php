@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('faveo_cloud', function (Blueprint $table): void {
             $table->dropColumn('cron_server_key');
@@ -21,10 +19,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('faveo_cloud', function (Blueprint $table): void {
             $table->string('cron_server_key')->nullable(); // Define the column as needed

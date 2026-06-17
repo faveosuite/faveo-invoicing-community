@@ -38,8 +38,8 @@ class ProductUpload extends Model
             'title' => ['Title', fn ($value) => $value],
             'version' => ['Version', fn ($value) => $value],
             'file' => ['File', fn ($value) => $value],
-            'is_private' => ['Is Private', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'is_restricted' => ['Is Restricted', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+            'is_private' => ['Is Private', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'is_restricted' => ['Is Restricted', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
             'release_type' => ['Release Type', ucfirst(...)],
         ];
     }
@@ -72,8 +72,10 @@ class ProductUpload extends Model
         });
     }
 
-    protected function getDependenciesAttribute($value)
+    protected function dependencies(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return json_decode((string) $value);
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+            return json_decode((string) $value);
+        });
     }
 }

@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('plan_prices', function (Blueprint $table): void {
             if (! Schema::hasColumn('plan_prices', 'price_description')) {
@@ -30,10 +28,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('plan_prices', function (Blueprint $table): void {
             $table->dropColumn([

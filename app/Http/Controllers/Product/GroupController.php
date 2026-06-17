@@ -17,10 +17,19 @@ use Lang;
 
 class GroupController extends Controller
 {
+    /**
+     * @var \App\Model\Product\ProductGroup
+     */
     public $group;
 
+    /**
+     * @var \App\Model\Product\GroupFeatures
+     */
     public $feature;
 
+    /**
+     * @var \App\Model\Product\ConfigurableOption
+     */
     public $config;
 
     public function __construct()
@@ -59,8 +68,8 @@ class GroupController extends Controller
             $this->group->refresh();
 
             return back()->with('success', Lang::get('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -95,12 +104,12 @@ class GroupController extends Controller
                 if ($request->status == 1) {
                     $group->fill($request->input())->save();
                     Product::where('group', $id)->update(['status' => 1]);
-
                     return back()->with('success', Lang::get('message.updated-successfully'));
-                } elseif ($request->status == 0) {
+                }
+
+                if ($request->status == 0) {
                     $group->fill($request->input())->save();
                     Product::where('group', $id)->update(['status' => 0]);
-
                     return back()->with('success', Lang::get('message.updated-successfully'));
                 }
             } elseif ($request->status == 0) {
@@ -111,8 +120,8 @@ class GroupController extends Controller
             }
 
             return back()->with('fails', __('message.all_products_monthly_yearly_plan'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -131,7 +140,7 @@ class GroupController extends Controller
         $limit = $request->input('limit', 10);
 
         $groups = ProductGroup::when($searchQuery, function ($query) use ($searchQuery): void {
-            $query->where('name', 'like', "%{$searchQuery}%");
+            $query->where('name', 'like', sprintf('%%%s%%', $searchQuery));
         })
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
@@ -146,8 +155,8 @@ class GroupController extends Controller
                 'pricingTemplate:id,image,name',
                 'product:id,name,group',
             ])->findOrFail($groupId);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -163,16 +172,12 @@ class GroupController extends Controller
                 ->get();
 
             // Check if all products have both monthly and yearly plans
-            $allProductsHavePlans = $products->every(function ($product) {
-                $monthlyExists = Plan::where('product', $product->id)
+            $allProductsHavePlans = $products->every(function ($product): bool {
+                return Plan::where('product', $product->id)
                     ->whereIn('days', [30, 31])
-                    ->exists();
-
-                $yearlyExists = Plan::where('product', $product->id)
+                    ->exists() && Plan::where('product', $product->id)
                     ->whereIn('days', [365, 366])
                     ->exists();
-
-                return $monthlyExists && $yearlyExists;
             });
 
             // If enabling the group, ensure all products have plans
@@ -188,8 +193,8 @@ class GroupController extends Controller
             $group->product()->update(['status' => $productStatus]);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -199,8 +204,8 @@ class GroupController extends Controller
             ProductGroup::create($request->validated());
 
             return successResponse(__('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -222,8 +227,8 @@ class GroupController extends Controller
             });
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

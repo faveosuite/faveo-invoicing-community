@@ -18,7 +18,7 @@ class StoreController extends Controller
             ->select('id', 'name', 'headline', 'tagline', 'status')
             ->orderBy('id')
             ->get()
-            ->map(fn ($g) => array_merge(
+            ->map(fn ($g): array => array_merge(
                 $g->only(['id', 'name', 'headline', 'tagline']),
                 ['status' => (bool) $g->status]
             ));
@@ -52,7 +52,7 @@ class StoreController extends Controller
             ->sortBy(fn ($p) => $p->planRelation
                 ->flatMap(fn ($pl) => $pl->planPrice)
                 ->pluck('add_price')
-                ->filter(fn ($v) => $v !== null)
+                ->filter(fn ($v): bool => $v !== null)
                 ->min() ?? PHP_INT_MAX
             )
             ->values();
@@ -66,11 +66,11 @@ class StoreController extends Controller
             'currency_symbol' => $symbol,
             'cloud_subdomain' => cloudSubDomain() ?? '',
             'data_centers' => CloudDataCenters::select('id', 'cloud_countries', 'cloud_state')->get()
-                ->map(fn ($dc) => [
+                ->map(fn ($dc): array => [
                     'id' => $dc->id,
                     'name' => trim($dc->cloud_countries.($dc->cloud_state ? ', '.$dc->cloud_state : '')),
                 ])->values(),
-            'products' => $products->map(fn ($p) => $this->transformProduct($p, $currency))->values(),
+            'products' => $products->map(fn (\App\Model\Product\Product $p): array => $this->transformProduct($p, $currency))->values(),
         ]);
     }
 
@@ -81,7 +81,7 @@ class StoreController extends Controller
         }
 
         $ip = request()->ip();
-        $iso = cache()->remember("user_location_{$ip}", 60, fn () => getLocation($ip)['iso_code'] ?? null);
+        $iso = cache()->remember('user_location_' . $ip, 60, fn () => getLocation($ip)['iso_code'] ?? null);
 
         return getCurrencyForClient($iso ? findCountryByGeoip($iso) : null);
     }
@@ -97,7 +97,7 @@ class StoreController extends Controller
         $btnClass = $highlighted ? 'btn-primary' : 'btn-dark';
 
         $plans = $this->getProductPlans($product, $currency);
-        $default = collect($plans)->firstWhere('is_default', true);
+        $default = collect($plans)->firstWhere('is_default', operator: true);
         $isFree = ($default['price_raw'] ?? 0) == 0;
 
         return [
@@ -106,7 +106,7 @@ class StoreController extends Controller
             'short_description' => $product->short_description,
             'description' => $product->description,
             'highlighted' => $highlighted,
-            'is_cloud' => in_array($product->id, cloudPopupProducts(), true),
+            'is_cloud' => in_array($product->id, cloudPopupProducts(), strict: true),
             'display_price' => $default
                 ? ($isFree ? __('message.free') : currencyFormat($default['price_raw'], $currency))
                 : __('message.free'),
@@ -148,11 +148,11 @@ class StoreController extends Controller
                 'id' => $plan->id,
                 'option_label' => $optionLabel,
                 'price_raw' => $finalCost,
-                'price_display' => $finalCost == 0 ? null : currencyFormat($finalCost, $currency, false),
-                'price_per_month' => $finalCost == 0 ? null : currencyFormat($perMonthCost, $currency, false),
+                'price_display' => $finalCost == 0 ? null : currencyFormat($finalCost, $currency, includeSymbol: false),
+                'price_per_month' => $finalCost == 0 ? null : currencyFormat($perMonthCost, $currency, includeSymbol: false),
                 'original_price_raw' => $offerPct > 0 ? $rawCost : null,
-                'original_display' => $offerPct > 0 ? currencyFormat($rawCost, $currency, false) : null,
-                'original_price_per_month' => $offerPct > 0 ? currencyFormat($rawCost / $months, $currency, false) : null,
+                'original_display' => $offerPct > 0 ? currencyFormat($rawCost, $currency, includeSymbol: false) : null,
+                'original_price_per_month' => $offerPct > 0 ? currencyFormat($rawCost / $months, $currency, includeSymbol: false) : null,
                 'description' => $description,
                 'period' => $periodName,
                 'is_default' => false,

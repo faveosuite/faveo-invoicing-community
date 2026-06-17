@@ -20,7 +20,7 @@ class ZohoSyncTest extends DBTestCase
         $this->sync = new ZohoSync();
     }
 
-    public function test_it_syncs_crm_fields_correctly()
+    public function test_it_syncs_crm_fields_correctly(): void
     {
         $fields = [
             [
@@ -45,7 +45,7 @@ class ZohoSyncTest extends DBTestCase
         ]);
     }
 
-    public function test_it_syncs_campaigns_fields_correctly()
+    public function test_it_syncs_campaigns_fields_correctly(): void
     {
         $fields = [
             [
@@ -70,7 +70,7 @@ class ZohoSyncTest extends DBTestCase
         ]);
     }
 
-    public function test_it_updates_existing_fields_when_syncing()
+    public function test_it_updates_existing_fields_when_syncing(): void
     {
         $existingField = ZohoFields::create([
             'platform' => 'crm',
@@ -99,7 +99,7 @@ class ZohoSyncTest extends DBTestCase
         ]);
     }
 
-    public function test_it_throws_exception_for_unsupported_platform()
+    public function test_it_throws_exception_for_unsupported_platform(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Unsupported platform unsupported');
@@ -111,7 +111,7 @@ class ZohoSyncTest extends DBTestCase
         $this->sync->sync('unsupported', 'module', $fields);
     }
 
-    public function test_it_normalizes_crm_field_types_correctly()
+    public function test_it_normalizes_crm_field_types_correctly(): void
     {
         $fieldTypes = [
             'text' => 'text',
@@ -133,9 +133,9 @@ class ZohoSyncTest extends DBTestCase
         foreach ($fieldTypes as $dataType => $expectedType) {
             $fields = [
                 [
-                    'id' => "id_{$dataType}",
-                    'api_name' => "field_{$dataType}",
-                    'field_label' => "Field {$dataType}",
+                    'id' => 'id_' . $dataType,
+                    'api_name' => 'field_' . $dataType,
+                    'field_label' => 'Field ' . $dataType,
                     'data_type' => $dataType,
                     'system_mandatory' => false,
                 ],
@@ -144,13 +144,13 @@ class ZohoSyncTest extends DBTestCase
             $this->sync->sync('crm', 'Leads', $fields);
 
             $this->assertDatabaseHas('zoho_fields', [
-                'zoho_field_uid' => "id_{$dataType}",
+                'zoho_field_uid' => 'id_' . $dataType,
                 'field_type' => $expectedType,
             ]);
         }
     }
 
-    public function test_it_handles_campaigns_field_types()
+    public function test_it_handles_campaigns_field_types(): void
     {
         $fields = [
             [
@@ -170,7 +170,7 @@ class ZohoSyncTest extends DBTestCase
         ]);
     }
 
-    public function test_it_stores_raw_metadata_for_fields()
+    public function test_it_stores_raw_metadata_for_fields(): void
     {
         $fields = [
             [
@@ -192,7 +192,7 @@ class ZohoSyncTest extends DBTestCase
         $this->assertEquals('custom_value', $field->raw_metadata['custom_property']);
     }
 
-    public function test_it_handles_mandatory_fields_for_crm()
+    public function test_it_handles_mandatory_fields_for_crm(): void
     {
         $fields = [
             [
@@ -224,7 +224,7 @@ class ZohoSyncTest extends DBTestCase
         ]);
     }
 
-    public function test_it_handles_mandatory_fields_for_campaigns()
+    public function test_it_handles_mandatory_fields_for_campaigns(): void
     {
         $fields = [
             [
@@ -244,7 +244,7 @@ class ZohoSyncTest extends DBTestCase
         ]);
     }
 
-    public function test_it_syncs_multiple_fields_in_single_call()
+    public function test_it_syncs_multiple_fields_in_single_call(): void
     {
         $fields = [
             [

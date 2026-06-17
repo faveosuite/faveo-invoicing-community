@@ -36,7 +36,7 @@ abstract class LicenseTestCase extends DBTestCase
 
     protected function jsonContent($response): array
     {
-        return json_decode((string) $response->getContent(), true) ?: [];
+        return json_decode((string) $response->getContent(), associative: true) ?: [];
     }
 
     protected function assertSuccessfulJson($response, int $status = 200): array
@@ -98,7 +98,7 @@ abstract class LicenseTestCase extends DBTestCase
         return License::create(array_merge([
             'product_id' => $productId,
             'user_id' => $userId,
-            'license_code' => 'LIC'.strtoupper(str_replace('.', '', uniqid('', true))),
+            'license_code' => 'LIC'.strtoupper(str_replace('.', '', uniqid('', more_entropy: true))),
             'license_order_number' => random_int(100000, 999999),
             'license_ip' => '127.0.0.1',
             'license_domain' => 'example.test',

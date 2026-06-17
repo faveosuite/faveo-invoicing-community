@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Front;
 
 use App\Http\Requests\Request;
@@ -9,10 +11,8 @@ class CheckoutRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -36,7 +36,10 @@ class CheckoutRequest extends Request
                 'email' => ['required', 'email', 'unique:users,email'],
                 //'payment_gateway' => 'required',
             ];
-        } elseif ($this->method() == 'PATCH') {
+        }
+
+        //dd($this->method() );
+        if ($this->method() == 'PATCH') {
             return [
                 'first_name' => ['required'],
                 'last_name' => ['required'],
@@ -48,6 +51,8 @@ class CheckoutRequest extends Request
                 //'payment_gateway' => 'required',
             ];
         }
+
+        return null;
     }
 
     #[Override]

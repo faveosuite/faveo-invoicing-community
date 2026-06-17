@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -52,7 +54,7 @@ return [
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
             'strict' => false,
-            'engine' => env('DB_ENGINE', null),
+            'engine' => env('DB_ENGINE'),
         ],
 
         'testing' => [
@@ -124,14 +126,14 @@ return [
 
         'default' => [
             'host' => env('REDIS_HOST', '127.0.0.1'),
-            'password' => env('REDIS_PASSWORD', null),
+            'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', 6379),
             'database' => env('REDIS_DATABASE', 0),
         ],
 
         'cache' => [
             'host' => env('REDIS_HOST', '127.0.0.1'),
-            'password' => env('REDIS_PASSWORD', null),
+            'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', 6379),
             'database' => env('REDIS_DATABASE', 0),
         ],

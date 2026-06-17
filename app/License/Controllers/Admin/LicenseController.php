@@ -82,6 +82,7 @@ class LicenseController extends Controller
         ]);
 
         $license->load('user:id,email');
+
         $clientFormatted = LicenseHelper::formatClient($license->license_code, $license->user?->email);
 
         return successResponse(Lang::get('license::lang.adddd'), $clientFormatted, 201);
@@ -155,7 +156,7 @@ class LicenseController extends Controller
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query', '');
         $sortOrder = strtolower((string) $request->input('sort_order', 'desc')) === 'asc' ? 'asc' : 'desc';
-        $sortField = in_array($request->input('sort_field', 'id'), ['id', 'product_id', 'user_id', 'license_code', 'license_ip', 'license_limit', 'license_expire_date', 'license_support_date', 'license_order_number', 'license_domain', 'license_date', 'license_updates_date', 'license_status'], true) ? $request->input('sort_field', 'id') : 'id';
+        $sortField = in_array($request->input('sort_field', 'id'), ['id', 'product_id', 'user_id', 'license_code', 'license_ip', 'license_limit', 'license_expire_date', 'license_support_date', 'license_order_number', 'license_domain', 'license_date', 'license_updates_date', 'license_status'], strict: true) ? $request->input('sort_field', 'id') : 'id';
 
         $licenses = License::query()
             ->with(['product:id,name', 'user:id,email'])
@@ -266,12 +267,12 @@ class LicenseController extends Controller
         }
     }
 
-    public function reissueLicenseCloud(Request $request)
+    public function reissueLicenseCloud(Request $request): void
     {
         Installation::where('license_code', $request->get('license_code'))->delete();
     }
 
-    public function licenseDeactivate(Request $request)
+    public function licenseDeactivate(Request $request): void
     {
         License::where('license_code', $request->get('license_code'))->update(['license_status' => 0]);
     }
@@ -289,7 +290,7 @@ class LicenseController extends Controller
                 return response()->json(['error' => 'License not found'], 404);
             }
 
-            $ids = collect(explode(',', (string) $request->input('ids')))->filter()->map(fn ($id) => (int) $id);
+            $ids = collect(explode(',', (string) $request->input('ids')))->filter()->map(fn ($id): int => (int) $id);
             foreach ($ids as $productId) {
                 LicensePlugin::updateOrCreate(
                     ['license_id' => $license->id, 'product_id' => $productId],
@@ -297,7 +298,7 @@ class LicenseController extends Controller
                 );
             }
 
-            $inputOptions = json_decode((string) $request->input('options', '[]'), true);
+            $inputOptions = json_decode((string) $request->input('options', '[]'), associative: true);
             foreach ($inputOptions as $option) {
                 if (empty($option['key'])) {
                     continue;
@@ -315,8 +316,8 @@ class LicenseController extends Controller
             }
 
             return response()->json(['message' => 'License synchronization and options insertion complete']);
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage());
 
             return response()->json(['error' => 'Unable to sync license'], 500);
         }
@@ -327,7 +328,7 @@ class LicenseController extends Controller
         $license = License::with(['addonProducts.latestVersion'])->where('license_code', $request->input('license_code'))->firstOrFail();
         $product = Product::find($license->product_id);
 
-        $addons = $license->addonProducts->map(fn ($product) => [
+        $addons = $license->addonProducts->map(fn ($product): array => [
             'id' => $product->id,
             'product_name' => $product->name,
             'product_attributes' => $product->product_attributes,
@@ -346,7 +347,7 @@ class LicenseController extends Controller
             return successResponse('', []);
         }
 
-        $licenseOptions = $license->licenseOptions->map(fn (LicenseOption $option) => [
+        $licenseOptions = $license->licenseOptions->map(fn (LicenseOption $option): array => [
             'license_code' => $license->license_code,
             'id' => $option->id,
             'option_group' => $option->option_group,
@@ -364,7 +365,7 @@ class LicenseController extends Controller
 
     public function getPluginInfo(Request $request)
     {
-        $licenseCodes = collect(json_decode((string) $request->input('license_code'), true));
+        $licenseCodes = collect(json_decode((string) $request->input('license_code'), associative: true));
         $licenses = License::whereIn('license_code', $licenseCodes)
             ->where(function ($q): void {
                 $q->where('license_expire_date', '>', Date::now())
@@ -380,7 +381,7 @@ class LicenseController extends Controller
             }
 
             $ids = LicensePlugin::where('license_id', $license->id)->pluck('product_id')->toArray();
-            $ids = ! empty($ids) ? $ids : [$license->product_id];
+            $ids = empty($ids) ? [$license->product_id] : $ids;
 
             return collect($ids)->unique()->map(fn ($id) => $this->generateLicenseData((int) $id, $licenseCode))->filter();
         })->filter()->values();
@@ -388,7 +389,7 @@ class LicenseController extends Controller
         return successResponse('', $result);
     }
 
-    private function generateLicenseData($productId, $licenseCode)
+    private function generateLicenseData(int $productId, $licenseCode)
     {
         $product = Product::find($productId);
         $version = ProductUpload::where('product_id', $productId)->latest()->first();

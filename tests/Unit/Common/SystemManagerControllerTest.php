@@ -11,7 +11,7 @@ class SystemManagerControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -20,7 +20,7 @@ class SystemManagerControllerTest extends DBTestCase
         $this->withoutMiddleware();
     }
 
-    public function test_get_system_managers_returns_correct_structure()
+    public function test_get_system_managers_returns_correct_structure(): void
     {
         // Create account managers
         $acc1 = User::factory()->create([
@@ -56,7 +56,7 @@ class SystemManagerControllerTest extends DBTestCase
                  ->assertJsonFragment(['email' => $sales1->email]);
     }
 
-    public function test_it_shows_system_managers()
+    public function test_it_shows_system_managers(): void
     {
         User::factory()->create([
             'role' => 'admin',
@@ -87,7 +87,7 @@ class SystemManagerControllerTest extends DBTestCase
                  ]);
     }
 
-    public function test_it_returns_filtered_admin_users()
+    public function test_it_returns_filtered_admin_users(): void
     {
         User::factory()->create([
             'role' => 'admin',
@@ -102,7 +102,7 @@ class SystemManagerControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_updates_manager_settings()
+    public function test_it_updates_manager_settings(): void
     {
         // Create old and new account managers
         $oldAcc = User::factory()->create(['role' => 'admin', 'position' => 'account_manager']);
@@ -156,7 +156,7 @@ class SystemManagerControllerTest extends DBTestCase
         $this->assertTrue((bool) ManagerSetting::where('manager_role', 'sales')->value('auto_assign'));
     }
 
-    public function test_it_fails_when_same_manager_is_selected()
+    public function test_it_fails_when_same_manager_is_selected(): void
     {
         $user = User::factory()->create(['role' => 'admin', 'position' => 'manager']);
 
@@ -172,7 +172,7 @@ class SystemManagerControllerTest extends DBTestCase
         $response->assertStatus(422);
     }
 
-    public function test_it_only_updates_auto_assign_flags()
+    public function test_it_only_updates_auto_assign_flags(): void
     {
         ManagerSetting::updateOrCreate(['manager_role' => 'account'], ['auto_assign' => false]);
         ManagerSetting::updateOrCreate(['manager_role' => 'sales'], ['auto_assign' => true]);
@@ -195,7 +195,7 @@ class SystemManagerControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_search_admin_requires_term()
+    public function test_search_admin_requires_term(): void
     {
         User::factory()->create([
             'role' => 'admin',
@@ -211,7 +211,7 @@ class SystemManagerControllerTest extends DBTestCase
                  ]);
     }
 
-    public function test_search_admin_returns_no_admins_found()
+    public function test_search_admin_returns_no_admins_found(): void
     {
         User::factory()->create([
             'role' => 'admin',
@@ -227,9 +227,9 @@ class SystemManagerControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_search_admin_returns_matching_admins()
+    public function test_search_admin_returns_matching_admins(): void
     {
-        $admin = User::factory()->create([
+        User::factory()->create([
             'role' => 'admin',
             'first_name' => 'John',
             'last_name' => 'Doe',

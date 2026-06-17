@@ -17,7 +17,6 @@ class SecurityEnforcer
      * Handle an incoming request.
      *
      * @param  Request  $request
-     * @param  Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -34,7 +33,7 @@ class SecurityEnforcer
             $response->header('X-Content-Type-Options', 'nosniff');
 
             // redirecting to https if configured to open in https
-            if ($this->urlScheme(config('app.url')) == 'https' && $this->urlScheme($request->url()) == 'http') {
+            if ($this->urlScheme(config('app.url')) === 'https' && $this->urlScheme($request->url()) === 'http') {
                 return redirect()->secure($request->getPathInfo());
             }
         }
@@ -46,9 +45,8 @@ class SecurityEnforcer
      * Checks if url is http or https.
      *
      * @param  string  $url
-     * @return string
      */
-    private function urlScheme($url)
+    private function urlScheme($url): string
     {
         $parsedUrl = parse_url($url);
 

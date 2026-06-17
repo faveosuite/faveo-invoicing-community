@@ -33,7 +33,7 @@ class Handler extends ExceptionHandler
     ];
 
     #[Override]
-    public function report(Throwable $exception)
+    public function report(Throwable $exception): void
     {
         if ($this->shouldReport($exception)) {
             Log::channel('daily')->error($exception);

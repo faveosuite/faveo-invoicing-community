@@ -33,7 +33,7 @@ class RegisterController extends Controller
         $this->middleware('recaptcha:register')->only('postRegister');
     }
 
-    public function emailVerification($email)
+    public function emailVerification($email): array
     {
         try {
             $map = [
@@ -75,7 +75,7 @@ class RegisterController extends Controller
         }
     }
 
-    private function vonagePhoneVerification($provider, $phone)
+    private function vonagePhoneVerification($provider, string $phone): bool
     {
         ['api_key' => $apikey, 'mode' => $mode,'api_secret' => $apisecret] = EmailMobileValidationProviders::where('provider', $provider)
             ->select('api_key', 'mode', 'api_secret')
@@ -87,14 +87,14 @@ class RegisterController extends Controller
             'api_secret' => $apisecret,
             'number' => $phone,
         ]);
-        if ($response->successful() && $response->json('status_message') == 'Success' || $response->json('status_message') == 'Partner quota exceeded') {
+        if ($response->successful() && $response->json('status_message') == 'Success') {
             return true;
         }
 
-        return false;
+        return $response->json('status_message') == 'Partner quota exceeded';
     }
 
-    private function abstractPhoneVerification($provider, $phone)
+    private function abstractPhoneVerification($provider, string $phone): bool
     {
         $apikey = EmailMobileValidationProviders::where('provider', $provider)->value('api_key');
 
@@ -102,27 +102,20 @@ class RegisterController extends Controller
             'api_key' => $apikey,
             'phone' => $phone,
         ]);
-
-        if ($response->successful() && $response->json('valid')) {
-            return true;
-        }
-
-        return false;
+        return $response->successful() && $response->json('valid');
     }
 
-    private function phoneVerification($phone)
+    private function phoneVerification(string $phone): bool
     {
         $provider = EmailMobileValidationProviders::where('type', 'mobile')
             ->where('to_use', 1)
             ->value('provider');
 
         if ($provider == 'vonage') {
-            $response = $this->vonagePhoneVerification($provider, $phone);
-        } else {
-            $response = $this->abstractPhoneVerification($provider, $phone);
+            return $this->vonagePhoneVerification($provider, $phone);
         }
 
-        return $response;
+        return $this->abstractPhoneVerification($provider, $phone);
     }
 
     public function postRegister(ProfileRequest $request, User $user)
@@ -201,20 +194,20 @@ class RegisterController extends Controller
             Session::flash('user', $user);
 
             return successResponse(__('message.registration_complete'), ['need_verify' => $need_verify]);
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
             return errorResponse(__('message.something_wrong'));
         }
     }
 
-    public function getUserDetails($request)
+    public function getUserDetails($request): array
     {
         $location = getLocation();
 
         $state = getStateByCode($location['iso_code'], $location['state']);
 
-        $user = [
+        return [
             'state' => $state['id'],
             'town' => $location['city'],
             'mobile' => ltrim((string) $request->input('mobile'), '0'),
@@ -230,8 +223,6 @@ class RegisterController extends Controller
             'ip' => $location['ip'],
             'timezone_id' => getTimezoneByName($location['timezone']),
         ];
-
-        return $user;
     }
 
     public function logActivityRegister($user): void
@@ -240,10 +231,10 @@ class RegisterController extends Controller
             return;
         }
 
-        $userUrl = url("clients/{$user->id}");
+        $userUrl = url('clients/' . $user->id);
 
         $name = e($user->first_name.' '.$user->last_name);
-        $message = "User <a href='{$userUrl}'><strong>{$name}</strong></a> was created.";
+        $message = sprintf("User <a href='%s'><strong>%s</strong></a> was created.", $userUrl, $name);
 
         logActivity(
             $message,

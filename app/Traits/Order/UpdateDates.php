@@ -21,19 +21,22 @@ trait UpdateDates
             if ($request->filled('update_end')) {
                 $service->setDate($sub, 'update_ends_at', $this->parseDate($request->input('update_end')));
             }
+
             if ($request->filled('subscription_end')) {
                 $service->setDate($sub, 'ends_at', $this->parseDate($request->input('subscription_end')));
             }
+
             if ($request->filled('support_end')) {
                 $service->setDate($sub, 'support_ends_at', $this->parseDate($request->input('support_end')));
             }
+
             if ($request->filled('limit')) {
                 $service->updateInstallationLimit($sub, (int) $request->input('limit'));
             }
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 

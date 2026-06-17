@@ -30,7 +30,7 @@ class LogWriteControllerTest extends TestCase
 
     #[Test]
     #[Group('cron')]
-    public function test_logs_a_cron_start()
+    public function test_logs_a_cron_start(): void
     {
         $log = $this->controller->cron('my:command', 'Test description');
         $this->assertInstanceOf(CronLog::class, $log);
@@ -42,7 +42,7 @@ class LogWriteControllerTest extends TestCase
 
     #[Test]
     #[Group('cron')]
-    public function test_marks_a_cron_as_completed()
+    public function test_marks_a_cron_as_completed(): void
     {
         $log = CronLog::create([
             'command' => 'my:command',
@@ -62,7 +62,7 @@ class LogWriteControllerTest extends TestCase
     #[Test]
     #[Group('cron')]
     #[Group('exception')]
-    public function test_marks_a_cron_as_failed_with_exception()
+    public function test_marks_a_cron_as_failed_with_exception(): void
     {
         $log = CronLog::create([
             'command' => 'my:command',
@@ -84,7 +84,7 @@ class LogWriteControllerTest extends TestCase
 
     #[Test]
     #[Group('exception')]
-    public function test_logs_exceptions_under_category()
+    public function test_logs_exceptions_under_category(): void
     {
         $exception = new Exception('Something went wrong');
         $log = $this->controller->exception($exception, 'custom-category');
@@ -100,7 +100,7 @@ class LogWriteControllerTest extends TestCase
 
     #[Test]
     #[Group('mail')]
-    public function test_logs_mail_successfully()
+    public function test_logs_mail_successfully(): void
     {
         $log = $this->controller->logMailByCategory(
             'sender@example.com',
@@ -123,7 +123,7 @@ class LogWriteControllerTest extends TestCase
 
     #[Test]
     #[Group('mail')]
-    public function test_formats_mail_addresses_correctly()
+    public function test_formats_mail_addresses_correctly(): void
     {
         $addresses = [
             ['address' => 'cc1@example.com'],
@@ -135,7 +135,7 @@ class LogWriteControllerTest extends TestCase
 
     #[Test]
     #[Group('mail')]
-    public function test_marks_outgoing_mail_as_sent()
+    public function test_marks_outgoing_mail_as_sent(): void
     {
         $log = MailLog::create(['status' => 'queued']);
         $this->controller->outgoingMailSent($log->id);
@@ -148,7 +148,7 @@ class LogWriteControllerTest extends TestCase
     #[Test]
     #[Group('mail')]
     #[Group('exception')]
-    public function test_marks_outgoing_mail_as_failed_and_logs_exception()
+    public function test_marks_outgoing_mail_as_failed_and_logs_exception(): void
     {
         $log = MailLog::create(['status' => 'queued']);
         $this->controller->outgoingMailFailed($log->id, new Exception('Mail failed'));
@@ -164,7 +164,7 @@ class LogWriteControllerTest extends TestCase
 
     #[Test]
     #[Group('log-deletion')]
-    public function test_deletes_logs_by_type_and_date_range()
+    public function test_deletes_logs_by_type_and_date_range(): void
     {
         $cronLog = CronLog::create();
         $exceptionLog = ExceptionLog::create();
@@ -186,7 +186,7 @@ class LogWriteControllerTest extends TestCase
 
     #[Test]
     #[Group('log-deletion')]
-    public function delete_logs_validates_request()
+    public function delete_logs_validates_request(): void
     {
         $this->expectException(ValidationException::class);
 
@@ -199,7 +199,7 @@ class LogWriteControllerTest extends TestCase
     /**
      * Helper to call protected/private methods.
      */
-    protected function invokeMethod(&$object, $methodName, array $parameters = [])
+    protected function invokeMethod(&$object, $methodName, array $parameters = []): mixed
     {
         $reflection = new ReflectionClass($object::class);
         $method = $reflection->getMethod($methodName);

@@ -17,18 +17,18 @@ class ThrottleApiRequestTest extends TestCase
         Cache::flush();
     }
 
-    public function test_firstRequest_doesNotWait()
+    public function test_firstRequest_doesNotWait(): void
     {
-        $start = microtime(true);
+        $start = microtime(as_float: true);
 
         throttleApiRequest('https://api.example.com/users', 60, 60);
 
-        $elapsed = microtime(true) - $start;
+        $elapsed = microtime(as_float: true) - $start;
 
         $this->assertLessThan(0.1, $elapsed, 'First request should not wait');
     }
 
-    public function test_cacheKeyIsSetAfterFirstRequest()
+    public function test_cacheKeyIsSetAfterFirstRequest(): void
     {
         $url = 'https://api.example.com/users';
         $endpoint = parse_url($url, PHP_URL_HOST);
@@ -39,7 +39,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertNotNull(Cache::get($key), 'Cache key should be set after first request');
     }
 
-    public function test_secondRequestWaitsApproximatelyOneInterval()
+    public function test_secondRequestWaitsApproximatelyOneInterval(): void
     {
         $url = 'https://api.example.com/data';
 
@@ -47,16 +47,16 @@ class ThrottleApiRequestTest extends TestCase
         // First request: no wait
         throttleApiRequest($url, 1, 1);
 
-        $start = microtime(true);
+        $start = microtime(as_float: true);
         throttleApiRequest($url, 1, 1);
-        $elapsed = microtime(true) - $start;
+        $elapsed = microtime(as_float: true) - $start;
 
         // Should wait approximately 1 second
         $this->assertGreaterThan(0.8, $elapsed, 'Second request should wait ~1 second');
         $this->assertLessThan(1.5, $elapsed, 'Second request should not wait too long');
     }
 
-    public function test_defaultParametersAre60RequestsPer60Seconds()
+    public function test_defaultParametersAre60RequestsPer60Seconds(): void
     {
         $url = 'https://api.example.com/endpoint';
         $endpoint = parse_url($url, PHP_URL_HOST);
@@ -65,14 +65,14 @@ class ThrottleApiRequestTest extends TestCase
         throttleApiRequest($url);
 
         $nextAllowed = Cache::get($key);
-        $now = microtime(true);
+        $now = microtime(as_float: true);
 
         // interval = 60/60 = 1 second
         $this->assertGreaterThan($now - 0.1, $nextAllowed);
         $this->assertLessThan($now + 1.5, $nextAllowed);
     }
 
-    public function test_differentHostsAreThrottledIndependently()
+    public function test_differentHostsAreThrottledIndependently(): void
     {
         $url1 = 'https://api.example.com/users';
         $url2 = 'https://api.other.com/users';
@@ -89,15 +89,15 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertNotNull(Cache::get($key2));
 
         // Second call to url2 should not be affected by url1's throttle timing
-        $start = microtime(true);
+        $start = microtime(as_float: true);
         throttleApiRequest($url2, 1, 1);
-        $elapsed = microtime(true) - $start;
+        $elapsed = microtime(as_float: true) - $start;
 
         // url2 had only 1 prior call, so it should wait ~1s (the interval)
         $this->assertGreaterThan(0.8, $elapsed);
     }
 
-    public function test_sameHostDifferentPathsShareThrottleByDefault()
+    public function test_sameHostDifferentPathsShareThrottleByDefault(): void
     {
         $url1 = 'https://api.example.com/v1/users';
         $url2 = 'https://api.example.com/v2/users';
@@ -111,7 +111,7 @@ class ThrottleApiRequestTest extends TestCase
         );
     }
 
-    public function test_perApiFlagThrottlesByEndpoint()
+    public function test_perApiFlagThrottlesByEndpoint(): void
     {
         $url1 = 'https://api.example.com/v1/users';
         $url2 = 'https://api.example.com/v2/users';
@@ -130,7 +130,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertNotEquals(md5($endpoint1), md5($endpoint2));
     }
 
-    public function test_queryParametersDoNotAffectThrottleKey()
+    public function test_queryParametersDoNotAffectThrottleKey(): void
     {
         $url1 = 'https://api.example.com/users?page=1';
         $url2 = 'https://api.example.com/users?page=2';
@@ -142,17 +142,17 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertEquals(md5($endpoint1), md5($endpoint2));
     }
 
-    public function test_cacheExceptionDoesNotThrow()
+    public function test_cacheExceptionDoesNotThrow(): void
     {
         Cache::shouldReceive('lock')->andThrow(new RuntimeException('Cache down'));
 
         // Should not throw, the function should silently return
         throttleApiRequest('https://api.example.com/users');
 
-        $this->assertTrue(true, 'Function should not throw when cache fails');
+        $this->assertTrue(condition: true, message: 'Function should not throw when cache fails');
     }
 
-    public function test_lockTimeoutExceptionDoesNotThrow()
+    public function test_lockTimeoutExceptionDoesNotThrow(): void
     {
         $mockLock = Mockery::mock(Lock::class);
         $mockLock->shouldReceive('block')->andThrow(new LockTimeoutException());
@@ -161,16 +161,16 @@ class ThrottleApiRequestTest extends TestCase
 
         throttleApiRequest('https://api.example.com/users');
 
-        $this->assertTrue(true, 'Function should not throw on lock timeout');
+        $this->assertTrue(condition: true, message: 'Function should not throw on lock timeout');
     }
 
-    public function test_intervalCalculation_higherRateMeansSmallInterval()
+    public function test_intervalCalculation_higherRateMeansSmallInterval(): void
     {
         $url = 'https://api.example.com/fast';
         $endpoint = parse_url($url, PHP_URL_HOST);
         $key = 'api_rate_next_allowed_'.md5($endpoint);
 
-        $beforeCall = microtime(true);
+        $beforeCall = microtime(as_float: true);
         // 100 requests per 10 seconds => interval = 0.1 seconds
         throttleApiRequest($url, 100, 10);
         $nextAllowed = Cache::get($key);
@@ -179,7 +179,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertEqualsWithDelta($beforeCall + 0.1, $nextAllowed, 0.15);
     }
 
-    public function test_consecutiveCallsStackWaitTimes()
+    public function test_consecutiveCallsStackWaitTimes(): void
     {
         $url = 'https://api.example.com/stack';
         $endpoint = parse_url($url, PHP_URL_HOST);
@@ -202,23 +202,23 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertEqualsWithDelta(1.0, $third - $second, 0.3);
     }
 
-    public function test_expiredSlotDoesNotCauseWait()
+    public function test_expiredSlotDoesNotCauseWait(): void
     {
         $url = 'https://api.example.com/expired';
         $endpoint = parse_url($url, PHP_URL_HOST);
         $key = 'api_rate_next_allowed_'.md5($endpoint);
 
         // Set nextAllowed to a time in the past
-        Cache::put($key, microtime(true) - 10, 300);
+        Cache::put($key, microtime(as_float: true) - 10, 300);
 
-        $start = microtime(true);
+        $start = microtime(as_float: true);
         throttleApiRequest($url, 60, 60);
-        $elapsed = microtime(true) - $start;
+        $elapsed = microtime(as_float: true) - $start;
 
         $this->assertLessThan(0.1, $elapsed, 'Expired slot should not cause waiting');
     }
 
-    public function test_cacheKeyUsesHostByDefault()
+    public function test_cacheKeyUsesHostByDefault(): void
     {
         $url = 'https://payments.stripe.com/v1/charges';
         $expectedKey = 'api_rate_next_allowed_'.md5('payments.stripe.com');
@@ -228,7 +228,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertNotNull(Cache::get($expectedKey));
     }
 
-    public function test_cachePutStoresFor300Seconds()
+    public function test_cachePutStoresFor300Seconds(): void
     {
         // Use a spy to verify the TTL passed to Cache::put
         Cache::shouldReceive('lock')->andReturnUsing(function () {
@@ -240,8 +240,8 @@ class ThrottleApiRequestTest extends TestCase
             return $mockLock;
         });
 
-        Cache::shouldReceive('get')->andReturn(microtime(true));
-        Cache::shouldReceive('put')->once()->withArgs(fn ($key, $value, $ttl) => $ttl === 300)->andReturnTrue();
+        Cache::shouldReceive('get')->andReturn(microtime(as_float: true));
+        Cache::shouldReceive('put')->once()->withArgs(fn ($key, $value, $ttl): bool => $ttl === 300)->andReturnTrue();
 
         throttleApiRequest('https://api.example.com/ttl');
     }

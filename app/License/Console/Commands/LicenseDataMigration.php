@@ -71,11 +71,11 @@ class LicenseDataMigration extends Command
             $this->printSummary();
 
             return Command::SUCCESS;
-        } catch (Exception $e) {
-            $this->error('Migration failed: '.$e->getMessage());
+        } catch (Exception $exception) {
+            $this->error('Migration failed: '.$exception->getMessage());
             Log::error('License data migration failed', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'message' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
             ]);
 
             return Command::FAILURE;
@@ -131,11 +131,11 @@ class LicenseDataMigration extends Command
 
         foreach ($steps as $i => [$label, $action]) {
             $step = $i + 1;
-            $this->info("[{$step}/{$total}] {$label}...");
+            $this->info(sprintf('[%s/%d] %s...', $step, $total, $label));
             $result = $action();
 
             if (is_int($result)) {
-                $this->line("  Migrated {$result} records");
+                $this->line(sprintf('  Migrated %d records', $result));
             }
         }
     }
@@ -177,7 +177,7 @@ class LicenseDataMigration extends Command
 
         $this->licenseDb()->table($sourceTable)
             ->lazyById(self::CHUNK_SIZE, $primaryKey)
-            ->filter(fn (object $row) => ! $productKey || isset($this->productMap[$row->{$productKey}]))
+            ->filter(fn (object $row): bool => ! $productKey || isset($this->productMap[$row->{$productKey}]))
             ->map($transformer)
             ->filter()
             ->chunk(self::INSERT_BATCH_SIZE)
@@ -199,7 +199,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_installations', 'installations', 'installation_id',
-            fn (object $r) => [
+            fn (object $r): array => [
                 'product_id' => $this->productMap[$r->product_id],
                 'user_id' => $this->resolveUserIdForLicense($r->license_code),
                 'license_code' => $r->license_code,
@@ -219,7 +219,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_callbacks', 'license_callbacks', 'callback_id',
-            fn (object $r) => [
+            fn (object $r): array => [
                 'product_id' => $this->productMap[$r->product_id],
                 'user_id' => $this->resolveUserIdForLicense($r->license_code),
                 'license_code' => $r->license_code,
@@ -237,7 +237,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_license_schemes', 'license_schemes', 'scheme_id',
-            fn (object $r) => [
+            fn (object $r): array => [
                 'scheme_query' => $r->scheme_query,
                 'scheme_status' => $r->scheme_status ?? 1,
                 ...$this->timestamps($r),
@@ -249,7 +249,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_banned_hosts', 'license_banned_hosts', 'banned_host_id',
-            fn (object $r) => [
+            fn (object $r): array => [
                 'banned_host_ip' => $r->banned_host_ip,
                 'banned_host_comments' => $r->banned_host_comments ?? null,
                 'banned_host_date' => $this->cleanDate($r->banned_host_date ?? null),
@@ -264,7 +264,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_whitelist_ips', 'license_whitelist_ips', 'whitelist_host_id',
-            fn (object $r) => [
+            fn (object $r): array => [
                 'whitelist_host_ip' => $r->whitelist_host_ip,
                 'whitelist_host_comments' => $r->whitelist_host_comments ?? null,
                 ...$this->timestamps($r),
@@ -276,7 +276,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_reports', 'license_reports', 'report_id',
-            function (object $r) {
+            function (object $r): ?array {
                 if ($r->product_id > 0 && ! isset($this->productMap[$r->product_id])) {
                     return null;
                 }
@@ -299,7 +299,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afu_callbacks', 'version_callbacks', 'callback_id',
-            fn (object $r) => [
+            fn (object $r): array => [
                 'product_id' => $this->productMap[$r->product_id],
                 'version_id' => $this->versionMap[$r->version_id] ?? null,
                 'callback_type' => $r->callback_type,
@@ -317,7 +317,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afu_installations', 'version_installations', 'installation_id',
-            function (object $r) {
+            function (object $r): ?array {
                 $newVersionId = $this->versionMap[$r->version_id] ?? null;
                 if (! $newVersionId) {
                     return null;
@@ -340,7 +340,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'license_plugins', 'license_plugins', 'id',
-            function (object $r) {
+            function (object $r): ?array {
                 $newLicenseId = $this->licenseMap[$r->license_id] ?? null;
                 $newProductId = $this->productMap[$r->product_id] ?? null;
                 if (! $newLicenseId || ! $newProductId) {
@@ -361,7 +361,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'license_options', 'license_options', 'id',
-            function (object $r) {
+            function (object $r): ?array {
                 $newLicenseId = $this->licenseMap[$r->license_id] ?? null;
                 $newProductId = $this->productMap[$r->product_id] ?? null;
                 if (! $newLicenseId || ! $newProductId) {
@@ -385,7 +385,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'installation_logs', 'installation_logs', 'id',
-            fn (object $r) => [
+            fn (object $r): array => [
                 'license_code' => $r->license_code,
                 'version_number' => $r->version_number ?? null,
                 'installation_ip' => $r->installation_ip,
@@ -435,7 +435,7 @@ class LicenseDataMigration extends Command
                 }
 
                 $billingByName[$lp->product_title] = $newId;
-                $this->warn("  Created new product: {$lp->product_title} (ID: {$newId})");
+                $this->warn(sprintf('  Created new product: %s (ID: %d)', $lp->product_title, $newId));
             });
 
         $this->line('  Mapped '.count($this->productMap).' products');
@@ -454,7 +454,7 @@ class LicenseDataMigration extends Command
             ->each(function (object $lic) use (&$count, $orderUserMap): void {
                 $newProductId = $this->productMap[$lic->product_id] ?? null;
                 if (! $newProductId) {
-                    $this->warn("  Skipping license #{$lic->license_id} - orphaned product #{$lic->product_id}");
+                    $this->warn(sprintf('  Skipping license #%s - orphaned product #%s', $lic->license_id, $lic->product_id));
 
                     return;
                 }
@@ -471,9 +471,9 @@ class LicenseDataMigration extends Command
                     $this->resolvedViaOrder++;
                 }
 
-                if (! $newUserId && ! in_array($lic->license_code, $this->includedCodes, true)) {
+                if (! $newUserId && ! in_array($lic->license_code, $this->includedCodes, strict: true)) {
                     $this->skippedUsers++;
-                    $this->warn("  Skipping license {$lic->license_code} - no order mapping (use --include-codes to force)");
+                    $this->warn(sprintf('  Skipping license %s - no order mapping (use --include-codes to force)', $lic->license_code));
 
                     return;
                 }
@@ -530,13 +530,13 @@ class LicenseDataMigration extends Command
                         'file' => $ver->version_install_file ?? '',
                         'version_expire_date' => $this->cleanDate($ver->version_expire_date ?? null),
                         'version_install_count' => $ver->version_install_count ?? 0,
-                        'status' => ($ver->version_status === 'inactive' || $ver->version_status === 0 || $ver->version_status === '0') ? 0 : 1,
+                        'status' => (in_array($ver->version_status, ['inactive', 0, '0'], strict: true)) ? 0 : 1,
                         ...$this->timestamps($ver),
                     ]);
                     $this->versionMap[$ver->version_id] = $newId;
                     $count++;
-                } catch (Exception $e) {
-                    $this->warn("  Skipping version #{$ver->version_id}: ".$e->getMessage());
+                } catch (Exception $exception) {
+                    $this->warn(sprintf('  Skipping version #%s: ', $ver->version_id).$exception->getMessage());
                 }
             });
 
@@ -630,7 +630,7 @@ class LicenseDataMigration extends Command
                     'product_url_homepage' => $lp->product_url_homepage,
                     'product_url_download' => $lp->product_url_download,
                     'product_envato_id' => $lp->product_envato_id,
-                ], fn ($v) => $v !== null);
+                ], fn ($v): bool => $v !== null);
 
                 $afuProduct = $afuProducts[$lp->product_sku] ?? null;
 
@@ -644,7 +644,7 @@ class LicenseDataMigration extends Command
                     }
                 }
 
-                if (! empty($updateData)) {
+                if ($updateData !== []) {
                     DB::table('products')->where('id', $billingProductId)->update($updateData);
                     $count++;
                 }
@@ -675,7 +675,7 @@ class LicenseDataMigration extends Command
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
             'strict' => false,
-            'engine' => config('database.connections.mysql.engine', null),
+            'engine' => config('database.connections.mysql.engine'),
         ]);
 
         DB::purge('license');
@@ -689,7 +689,7 @@ class LicenseDataMigration extends Command
     private function importSqlFile(string $filePath): void
     {
         if (! file_exists($filePath) || ! is_readable($filePath)) {
-            throw new RuntimeException("SQL file not found or not readable: {$filePath}");
+            throw new RuntimeException('SQL file not found or not readable: ' . $filePath);
         }
 
         $host = $this->option('host') ?: config('database.connections.mysql.host', 'localhost');
@@ -699,24 +699,24 @@ class LicenseDataMigration extends Command
         $socket = $this->option('socket') ?: config('database.connections.mysql.unix_socket', '');
 
         $this->tempDatabase = 'license_migration_tmp_'.time();
-        $this->info("Creating temporary database: {$this->tempDatabase}");
+        $this->info('Creating temporary database: ' . $this->tempDatabase);
 
-        DB::statement("CREATE DATABASE `{$this->tempDatabase}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        DB::statement(sprintf('CREATE DATABASE `%s` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci', $this->tempDatabase));
 
         $cmd = ['mysql'];
         if ($socket) {
-            $cmd[] = "--socket={$socket}";
+            $cmd[] = '--socket=' . $socket;
         } else {
-            $cmd[] = "--host={$host}";
+            $cmd[] = '--host=' . $host;
             if ($port) {
-                $cmd[] = "--port={$port}";
+                $cmd[] = '--port=' . $port;
             }
         }
 
-        $cmd[] = "--user={$username}";
+        $cmd[] = '--user=' . $username;
         $cmd[] = $this->tempDatabase;
 
-        $env = array_merge(getenv() ?: [], ['MYSQL_PWD' => $password]);
+        $env = array_merge(getenv(), ['MYSQL_PWD' => $password]);
 
         $this->info('Importing SQL file into temporary database...');
 
@@ -726,10 +726,10 @@ class LicenseDataMigration extends Command
             2 => ['pipe', 'w'],
         ];
 
-        $process = proc_open($cmd, $descriptors, $pipes, null, $env); // nosemgrep: php.lang.security.exec-use.exec-use
+        $process = proc_open($cmd, $descriptors, $pipes, env_vars: $env); // nosemgrep: php.lang.security.exec-use.exec-use
 
         if (! is_resource($process)) {
-            DB::statement("DROP DATABASE IF EXISTS `{$this->tempDatabase}`");
+            DB::statement(sprintf('DROP DATABASE IF EXISTS `%s`', $this->tempDatabase));
             $this->tempDatabase = null;
             throw new RuntimeException('Failed to start mysql process. Ensure the mysql CLI is installed and in PATH.');
         }
@@ -740,12 +740,12 @@ class LicenseDataMigration extends Command
         $exitCode = proc_close($process);
 
         if ($exitCode !== 0) {
-            DB::statement("DROP DATABASE IF EXISTS `{$this->tempDatabase}`");
+            DB::statement(sprintf('DROP DATABASE IF EXISTS `%s`', $this->tempDatabase));
             $this->tempDatabase = null;
-            throw new RuntimeException("SQL import failed (exit code {$exitCode}): {$stderr}");
+            throw new RuntimeException(sprintf('SQL import failed (exit code %s): %s', $exitCode, $stderr));
         }
 
-        $this->info("SQL file imported successfully into '{$this->tempDatabase}'.");
+        $this->info(sprintf("SQL file imported successfully into '%s'.", $this->tempDatabase));
     }
 
     private function dropTempDatabase(): void
@@ -754,12 +754,12 @@ class LicenseDataMigration extends Command
             return;
         }
 
-        $this->warn("Dropping temporary database: {$this->tempDatabase}");
+        $this->warn('Dropping temporary database: ' . $this->tempDatabase);
         try {
             DB::purge('license');
-            DB::statement("DROP DATABASE IF EXISTS `{$this->tempDatabase}`");
-        } catch (Exception $e) {
-            $this->warn("Could not drop temporary database '{$this->tempDatabase}': ".$e->getMessage());
+            DB::statement(sprintf('DROP DATABASE IF EXISTS `%s`', $this->tempDatabase));
+        } catch (Exception $exception) {
+            $this->warn(sprintf("Could not drop temporary database '%s': ", $this->tempDatabase).$exception->getMessage());
         }
 
         $this->tempDatabase = null;
@@ -797,7 +797,7 @@ class LicenseDataMigration extends Command
 
     private function cleanDate(?string $date): ?string
     {
-        $parsed = rescue(fn () => Date::parse($date), null, false);
+        $parsed = rescue(fn () => Date::parse($date), report: false);
 
         return $parsed?->year > 0 ? $parsed->toDateTimeString() : null;
     }

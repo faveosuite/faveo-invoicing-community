@@ -49,16 +49,11 @@ abstract class ExportHandleController
 
 class ConcreteExportHandleController extends ExportHandleController
 {
-    public function __construct($reportType, $selectedColumns, $searchParams, $email)
-    {
-        parent::__construct($reportType, $selectedColumns, $searchParams, $email);
-    }
-
     public function userExports($selectedColumns, $searchParams, $email)
     {
         try {
             // Filter out unwanted columns
-            $selectedColumns = array_filter($selectedColumns, fn ($column) => ! in_array($column, ['checkbox', 'action']));
+            $selectedColumns = array_filter($selectedColumns, fn ($column): bool => ! in_array($column, ['checkbox', 'action']));
 
             // Prepare the query
             $users = User::query();
@@ -98,7 +93,7 @@ class ConcreteExportHandleController extends ExportHandleController
             $users->latest();
 
             // Ensure status columns are included
-            if (! empty($selectedColumns) && $selectedColumns == 'active') {
+            if ($selectedColumns == 'active') {
                 $statusColumns = ['mobile_verified', 'active', 'is_2fa_enabled'];
                 foreach ($statusColumns as $statusColumn) {
                     if (! in_array($statusColumn, $selectedColumns)) {
@@ -108,7 +103,7 @@ class ConcreteExportHandleController extends ExportHandleController
             }
 
             // Use LazyCollection for efficient memory usage
-            $filteredUsers = $users->lazy()->map(function ($user) use ($selectedColumns) {
+            $filteredUsers = $users->lazy()->map(function ($user) use ($selectedColumns): array {
                 $userData = [];
                 foreach ($selectedColumns as $column) {
                     switch ($column) {
@@ -155,7 +150,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
             // Create directory if it doesn't exist
             if (! file_exists($folderPath)) {
-                mkdir($folderPath, 0777, true);
+                mkdir($folderPath, 0777, recursive: true);
             }
 
             // Process and store each chunk
@@ -188,8 +183,8 @@ class ConcreteExportHandleController extends ExportHandleController
             $mail->SendEmail($from, $email, $emailContent, 'User report available for download', 'user-report');
 
             return response()->json(['message' => __('message.report_email_generated')], 200);
-        } catch (Exception $ex) {
-            return response()->json(['message' => __('message.failed_generate_report').$ex->getMessage()], 500);
+        } catch (Exception $exception) {
+            return response()->json(['message' => __('message.failed_generate_report').$exception->getMessage()], 500);
         }
     }
 
@@ -197,7 +192,7 @@ class ConcreteExportHandleController extends ExportHandleController
     {
         try {
             // Filter out unwanted columns
-            $selectedColumns = array_filter($selectedColumns, fn ($column) => ! in_array($column, ['checkbox', 'action']));
+            $selectedColumns = array_filter($selectedColumns, fn ($column): bool => ! in_array($column, ['checkbox', 'action']));
 
             // Perform search and filtering
             $request = new Request();
@@ -214,7 +209,7 @@ class ConcreteExportHandleController extends ExportHandleController
             $invoices->orderBy('date', 'desc');
 
             // Use LazyCollection for efficient memory usage
-            $filteredInvoices = $invoices->lazy()->map(function ($invoice) use ($selectedColumns) {
+            $filteredInvoices = $invoices->lazy()->map(function ($invoice) use ($selectedColumns): array {
                 $invoiceData = [];
                 foreach ($selectedColumns as $column) {
                     switch ($column) {
@@ -272,7 +267,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
             // Create directory if it doesn't exist
             if (! file_exists($folderPath)) {
-                mkdir($folderPath, 0777, true);
+                mkdir($folderPath, 0777, recursive: true);
             }
 
             // Get the report setting for the record limit
@@ -309,8 +304,8 @@ class ConcreteExportHandleController extends ExportHandleController
             $mail->SendEmail($from, $email, $emailContent, 'Invoice report available for download', 'invoice-report');
 
             return response()->json(['message' => __('message.report_email_generated')], 200);
-        } catch (Exception $ex) {
-            return response()->json(['message' => __('message.failed_generate_report').$ex->getMessage()], 500);
+        } catch (Exception $exception) {
+            return response()->json(['message' => __('message.failed_generate_report').$exception->getMessage()], 500);
         }
     }
 
@@ -318,7 +313,7 @@ class ConcreteExportHandleController extends ExportHandleController
     {
         try {
             // Filter out unwanted columns
-            $selectedColumns = array_filter($selectedColumns, fn ($column) => ! in_array($column, ['checkbox', 'action']));
+            $selectedColumns = array_filter($selectedColumns, fn ($column): bool => ! in_array($column, ['checkbox', 'action']));
             $searchRequest = new Request($searchParams);
 
             // Perform advanced order search
@@ -328,7 +323,7 @@ class ConcreteExportHandleController extends ExportHandleController
             $orders->orderBy('orders.created_at', 'desc');
 
             // Use LazyCollection for efficient memory usage
-            $filteredOrders = $orders->lazy()->map(function ($order) use ($selectedColumns) {
+            $filteredOrders = $orders->lazy()->map(function ($order) use ($selectedColumns): array {
                 $orderData = [];
                 foreach ($selectedColumns as $column) {
                     switch ($column) {
@@ -393,7 +388,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
             // Create directory if it doesn't exist
             if (! file_exists($folderPath)) {
-                mkdir($folderPath, 0777, true);
+                mkdir($folderPath, 0777, recursive: true);
             }
 
             // Get the report setting for the record limit
@@ -430,18 +425,18 @@ class ConcreteExportHandleController extends ExportHandleController
             $mail->SendEmail($from, $email, $emailContent, 'Order report available for download', 'order-report');
 
             return response()->json(['message' => __('message.report_email_generated')], 200);
-        } catch (Exception $ex) {
-            return response()->json(['message' => __('message.failed_generate_report').$ex->getMessage()], 500);
+        } catch (Exception $exception) {
+            return response()->json(['message' => __('message.failed_generate_report').$exception->getMessage()], 500);
         }
     }
 
-    public function tenantExports($selectedColumns, $searchParams, $email)
+    public function tenantExports($selectedColumns, $searchParams, $email): void
     {
         $this->cloud = FaveoCloud::first();
         $client = new Client();
 
         // Similar logic to export users but for orders
-        $this->selectedColumns = array_filter($this->selectedColumns, fn ($column) => ! in_array($column, ['action']));
+        $this->selectedColumns = array_filter($this->selectedColumns, fn ($column): bool => $column != 'action');
 
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
@@ -463,8 +458,8 @@ class ConcreteExportHandleController extends ExportHandleController
         $responseBody = (string) $response->getBody();
         $responseData = json_decode($responseBody);
 
-        $tenats = collect($responseData->message)->reject(fn ($item) => $item === null);
-        $filteredTenants = $tenats->map(function ($tenats) {
+        $tenats = collect($responseData->message)->reject(fn ($item): bool => $item === null);
+        $filteredTenants = $tenats->map(function ($tenats): array {
             $tenantData = [];
             foreach ($this->selectedColumns as $column) {
                 switch ($column) {
@@ -487,11 +482,7 @@ class ConcreteExportHandleController extends ExportHandleController
                                 $tenantData['name'] = null;
                             } else {
                                 $user = User::find($userId);
-                                if (! $user) {
-                                    $tenantData['name'] = null;
-                                } else {
-                                    $tenantData['name'] = $user->first_name.' '.$user->last_name;
-                                }
+                                $tenantData['name'] = $user ? $user->first_name.' '.$user->last_name : null;
                             }
                         }
 
@@ -511,11 +502,7 @@ class ConcreteExportHandleController extends ExportHandleController
                                 $tenantData['email'] = null;
                             } else {
                                 $user = User::find($userId);
-                                if (! $user) {
-                                    $tenantData['email'] = null;
-                                } else {
-                                    $tenantData['email'] = $user->email;
-                                }
+                                $tenantData['email'] = $user ? $user->email : null;
                             }
                         }
 
@@ -535,11 +522,7 @@ class ConcreteExportHandleController extends ExportHandleController
                                 $tenantData['mobile'] = null;
                             } else {
                                 $user = User::find($userId);
-                                if (! $user) {
-                                    $tenantData['mobile'] = null;
-                                } else {
-                                    $tenantData['mobile'] = $user->mobile;
-                                }
+                                $tenantData['mobile'] = $user ? $user->mobile : null;
                             }
                         }
 
@@ -656,7 +639,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
         // Create directory
         if (! file_exists($folderPath)) {
-            mkdir($folderPath, 0777, true);
+            mkdir($folderPath, 0777, recursive: true);
         }
 
         // Get the report setting for the record limit
@@ -691,7 +674,7 @@ class ConcreteExportHandleController extends ExportHandleController
         $mail->SendEmail($from, $this->email, $emailContent, 'Tenant report available for download', 'tenant-report');
     }
 
-    public function getStatus($status)
+    public function getStatus($status): string
     {
         return match ($status) {
             'Pending' => 'unpaid',
@@ -743,10 +726,10 @@ class ConcreteExportHandleController extends ExportHandleController
         return $baseQuery;
     }
 
-    public function getAgents($order)
+    public function getAgents($order): string|int
     {
         $license = substr((string) $order->serial_key, 12, 16);
-        if ($license == '0000') {
+        if ($license === '0000') {
             return 'Unlimited';
         }
 

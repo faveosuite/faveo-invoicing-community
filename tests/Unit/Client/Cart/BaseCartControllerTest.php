@@ -50,13 +50,13 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[Group('quantity')]
-    public function test_getCartValues_calculatesAgentQtyPriceOfCartWhenReducingAgtAllowed_returnArrayToBeAdded()
+    public function test_getCartValues_calculatesAgentQtyPriceOfCartWhenReducingAgtAllowed_returnArrayToBeAdded(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $plan1 = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan1->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        PlanPrice::create(['plan_id' => $plan1->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
 
         $currency = 'INR';
         $this->cart->add(
@@ -71,13 +71,13 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[Group('quantity')]
-    public function test_getCartValues_calculateAgentQtyPriceOfCartWhenIncreasinAgtAllowed_returnArrayToBeAdded()
+    public function test_getCartValues_calculateAgentQtyPriceOfCartWhenIncreasinAgtAllowed_returnArrayToBeAdded(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $plan1 = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan1->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        PlanPrice::create(['plan_id' => $plan1->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
 
         $currency = 'INR';
         $this->cart->add(
@@ -92,7 +92,7 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[Group('quantity')]
-    public function test_getCartValues_calculateAgentQtyPriceOfCartWhenInvalidProductPassed_throwsException()
+    public function test_getCartValues_calculateAgentQtyPriceOfCartWhenInvalidProductPassed_throwsException(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Product not present in cart.');
@@ -108,7 +108,7 @@ class BaseCartControllerTest extends DBTestCase
             1,
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
-        $response = $this->getPrivateMethod($this->classObject, 'getCartValues', [$product2->id]);
+        $this->getPrivateMethod($this->classObject, 'getCartValues', [$product2->id]);
     }
 
     #[Group('quantity')]
@@ -136,13 +136,13 @@ class BaseCartControllerTest extends DBTestCase
 //    }
 
     #[Group('quantity')]
-    public function test_updateAgentQty_updatesCartWhenModifyingAgentNotAllowed_returnsSameCartValues()
+    public function test_updateAgentQty_updatesCartWhenModifyingAgentNotAllowed_returnsSameCartValues(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $plan1 = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan1->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        PlanPrice::create(['plan_id' => $plan1->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
 
         $currency = 'INR';
         $this->cart->add(
@@ -152,7 +152,7 @@ class BaseCartControllerTest extends DBTestCase
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
 
-        $response = $this->call('POST', 'update-agent-qty', [
+        $this->call('POST', 'update-agent-qty', [
             'productid' => $product->id,
         ]);
         foreach ($this->cart->getContent() as $cart) {
@@ -162,14 +162,14 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[Group('quantity')]
-    public function test_updateProductQty_updatesCartWhenModifyingQtyAllowed_returnsUpdatedCart()
+    public function test_updateProductQty_updatesCartWhenModifyingQtyAllowed_returnsUpdatedCart(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         Currency::where('code', $this->user->currency)->update(['status' => 1]);
         $product = Product::factory()->create(['can_modify_quantity' => 1]);
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
 
         $this->cart->add(
@@ -178,7 +178,7 @@ class BaseCartControllerTest extends DBTestCase
             1,
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
-        $response = $this->call('POST', 'update-qty', [
+        $this->call('POST', 'update-qty', [
             'productid' => $product->id, 'planid' => $plan->id,
         ]);
         foreach ($this->cart->getContent() as $cart) {
@@ -187,7 +187,7 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[Group('quantity')]
-    public function test_updateProductQty_updatesCartWhenModifyingQtyNotAllowed_throwsException()
+    public function test_updateProductQty_updatesCartWhenModifyingQtyNotAllowed_throwsException(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Cannot Modify Quantity');
@@ -195,7 +195,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
 
         $this->cart->add(
@@ -208,14 +208,14 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[Group('quantity')]
-    public function test_reduceProductQty_reduceCartQtyWhenModifyingQtyAllowed_returnsUpdatedCart()
+    public function test_reduceProductQty_reduceCartQtyWhenModifyingQtyAllowed_returnsUpdatedCart(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         Currency::where('code', $this->user->currency)->update(['status' => 1]);
         $product = Product::factory()->create(['can_modify_quantity' => 1]);
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
         $this->cart->add(
             $plan->id, $product->name,
@@ -223,7 +223,7 @@ class BaseCartControllerTest extends DBTestCase
             1,
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
-        $response = $this->call('POST', 'reduce-product-qty', [
+        $this->call('POST', 'reduce-product-qty', [
             'productid' => $product->id,
             'planid' => $plan->id,
         ]);
@@ -233,7 +233,7 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[Group('quantity')]
-    public function test_reduceProductQty_updatesCartWhenModifyingQtyNotAllowed_throwsException()
+    public function test_reduceProductQty_updatesCartWhenModifyingQtyNotAllowed_throwsException(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Cannot Modify Quantity');
@@ -241,7 +241,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
         $this->cart->add(
             $plan->id, $product->name,
@@ -252,13 +252,13 @@ class BaseCartControllerTest extends DBTestCase
         $this->classObject->reduceProductQty(new Request(['productid' => $product->id]));
     }
 
-    public function test_cart_has_same_product_with_different_plans()
+    public function test_cart_has_same_product_with_different_plans(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
 
         $this->cart->add(
@@ -269,8 +269,7 @@ class BaseCartControllerTest extends DBTestCase
         );
         $product1 = Product::factory()->create();
         $plan1 = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan1->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
-        $currency1 = 'INR';
+        PlanPrice::create(['plan_id' => $plan1->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
 
         $this->cart->add(
             $plan1->id, $product1->name,
@@ -283,14 +282,14 @@ class BaseCartControllerTest extends DBTestCase
         }
     }
 
-    public function test_when_we_session_not_set_payment_gateway_not_selected()
+    public function test_when_we_session_not_set_payment_gateway_not_selected(): void
     {
         $user = User::factory()->create(['billing_pay_balance' => 0]);
         $this->actingAs($user);
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
         $this->cart->add(
             $plan->id, $product->name,
@@ -303,13 +302,13 @@ class BaseCartControllerTest extends DBTestCase
         $response->assertSessionHasErrors('payment_gateway');
     }
 
-    public function test_post_checkout_cart()
+    public function test_post_checkout_cart(): void
     {
         $user = User::factory()->create(['billing_pay_balance' => 0]);
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        $licensepermissiontype = LicensePermission::create(['Can be Downloaded']);
+        LicensePermission::create(['Can be Downloaded']);
         LicensePermission::create(['Generate License Expiry Date']);
         LicensePermission::create(['Generate Updates Expiry Date']);
         LicensePermission::create(['Allow Downloads Before Updates Expire']);
@@ -324,16 +323,16 @@ class BaseCartControllerTest extends DBTestCase
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
+        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
-        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+        PlanPrice::factory()->create(['plan_id' => $plan->id]);
+        Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '']);
         $currency = 'INR';
-        $taxes = TaxOption::create(['tax_enable' => 0, 'inclusive' => 0, 'shop_inclusive' => 0, 'cart_inclusive' => 0, 'rounding' => 1]);
-        $payment = Payment::create(['user_id' => $user->id, 'payment_method' => 'Credit Balance', 'payment_status' => 'success', 'amt_to_credit' => 10000]);
+        TaxOption::create(['tax_enable' => 0, 'inclusive' => 0, 'shop_inclusive' => 0, 'cart_inclusive' => 0, 'rounding' => 1]);
+        Payment::create(['user_id' => $user->id, 'payment_method' => 'Credit Balance', 'payment_status' => 'success', 'amt_to_credit' => 10000]);
         Setting::create(['sending_status' => 0, 'mailchimp_status' => 0]);
 
         $this->cart->add(
@@ -345,13 +344,15 @@ class BaseCartControllerTest extends DBTestCase
         );
         $checkoutController = new CheckoutController();
         $checkoutController->getAttributes($this->cart->getContent());
+
         $response = $this->withSession(['nothingLeft' => 0, 'discount' => 300, 'priceRemaining' => 1, 'priceToBePaid' => 0])->call('post', 'checkout-and-pay', ['cost' => 0, 'payment_gateway' => '', 'invoice_id' => 0, 'checkout_token' => Str::uuid()]);
         $response->assertStatus(200);
+
         $amount = Payment::where('user_id', Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
         $this->assertEquals(10300, $amount);
     }
 
-    public function test_successful_when_license_mocked()
+    public function test_successful_when_license_mocked(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -374,9 +375,7 @@ class BaseCartControllerTest extends DBTestCase
         $order = Order::factory()->create(['invoice_id' => $invoice->id,
             'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
         OrderInvoiceRelation::create(['invoice_id' => $invoice->id, 'order_id' => $order->id]);
-        $subscription = Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
-        $serialKey = 'eertrertyuhgbvfdrgtyujhnbvfdrethgbf';
-        $productId = 1;
+        Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
         $mock = Mockery::mock(InstallationService::class);
         $mock->shouldReceive('getInstallationsByProduct')
             ->withAnyArgs()
@@ -392,7 +391,7 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('store')]
-    public function test_store_has_groups()
+    public function test_store_has_groups(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -400,7 +399,7 @@ class BaseCartControllerTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '0']);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '0']);
         $response = $this->withSession(['store' => 1])->get('group/'.$group->pricing_templates_id.'/'.$group->id.'/');
         $response->assertStatus(200);
     }

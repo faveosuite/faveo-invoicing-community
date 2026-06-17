@@ -15,10 +15,6 @@ class LogWriteController
 {
     /**
      * Logs the start of a cron job.
-     *
-     * @param  string  $signature
-     * @param  string  $description
-     * @return CronLog|null
      */
     public function cron(string $signature, string $description = ''): ?CronLog
     {
@@ -28,8 +24,8 @@ class LogWriteController
                 'description' => $description,
                 'status' => 'running',
             ]);
-        } catch (Throwable $e) {
-            $this->exception($e, 'cron');
+        } catch (Throwable $throwable) {
+            $this->exception($throwable, 'cron');
 
             return null;
         }
@@ -37,10 +33,6 @@ class LogWriteController
 
     /**
      * Marks a cron job as failed.
-     *
-     * @param  int  $logId
-     * @param  Exception|null  $exception
-     * @return void
      */
     public function cronFailed(int $logId, ?Exception $exception = null): void
     {
@@ -52,18 +44,15 @@ class LogWriteController
             $cronLog->update([
                 'status' => 'failed',
                 'exception_log_id' => $exceptionLog?->id,
-                'duration' => (int) Date::now()->diffInSeconds($cronLog->created_at, true),
+                'duration' => (int) Date::now()->diffInSeconds($cronLog->created_at, absolute: true),
             ]);
-        } catch (Throwable $e) {
-            $this->exception($e, 'cron');
+        } catch (Throwable $throwable) {
+            $this->exception($throwable, 'cron');
         }
     }
 
     /**
      * Marks a cron job as successfully completed.
-     *
-     * @param  int  $logId
-     * @return void
      */
     public function cronCompleted(int $logId): void
     {
@@ -72,10 +61,10 @@ class LogWriteController
 
             $cronLog->update([
                 'status' => 'completed',
-                'duration' => (int) Date::now()->diffInSeconds($cronLog->created_at, true),
+                'duration' => (int) Date::now()->diffInSeconds($cronLog->created_at, absolute: true),
             ]);
-        } catch (Throwable $e) {
-            $this->exception($e, 'cron');
+        } catch (Throwable $throwable) {
+            $this->exception($throwable, 'cron');
         }
     }
 
@@ -105,17 +94,10 @@ class LogWriteController
     /**
      * Logs mail send activity.
      *
-     * @param  string  $senderMail
-     * @param  string  $receiverMail
-     * @param  array|string  $cc
-     * @param  string  $subject
-     * @param  string  $body
      * @param  string|int  $refereeId
      * @param  string  $refereeType
-     * @param  string|null  $categoryName
      * @param  string  $status
      * @param  string  $source
-     * @return Model|null
      */
     public function logMailByCategory(
         string $senderMail,
@@ -132,14 +114,14 @@ class LogWriteController
             return $category->mail()->create([
                 'sender_mail' => $senderMail,
                 'receiver_mail' => $receiverMail,
-                'carbon_copy' => ! empty($cc) ? $this->formatAddresses($cc) : null,
-                'blind_carbon_copy' => ! empty($bcc) ? $this->formatAddresses($bcc) : null,
+                'carbon_copy' => in_array($cc, ['', '0', []], strict: true) ? null : $this->formatAddresses($cc),
+                'blind_carbon_copy' => in_array($bcc, ['', '0', []], strict: true) ? null : $this->formatAddresses($bcc),
                 'subject' => $subject,
                 'body' => $body,
                 'status' => 'queued',
             ]);
-        } catch (Throwable $e) {
-            $this->exception($e, 'mail-send-exception');
+        } catch (Throwable $throwable) {
+            $this->exception($throwable, 'mail-send-exception');
 
             return null;
         }
@@ -164,7 +146,7 @@ class LogWriteController
     /**
      * Marks outgoing mail as sent.
      */
-    public function outgoingMailSent($logId)
+    public function outgoingMailSent($logId): void
     {
         MailLog::whereId($logId)->update(['status' => 'sent']);
     }
@@ -172,7 +154,7 @@ class LogWriteController
     /**
      * Marks outgoing mail as failed.
      */
-    public function outgoingMailFailed($logId, Exception $e)
+    public function outgoingMailFailed($logId, Exception $e): void
     {
         $mailLog = MailLog::select('id', 'exception_log_id')->find($logId);
 

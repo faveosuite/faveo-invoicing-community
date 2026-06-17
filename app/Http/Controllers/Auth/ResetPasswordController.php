@@ -41,8 +41,6 @@ class ResetPasswordController extends Controller
 
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -70,18 +68,17 @@ class ResetPasswordController extends Controller
                 $data = ['reset_token' => $token, 'email' => $reset->email];
 
                 return successResponse('Reset page', [$data]);
-            } else {
-                return errorResponse(__('message.reset_link_expired'));
             }
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+
+            return errorResponse(__('message.reset_link_expired'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
     /**
      * Reset the given user's password.
      *
-     * @param  Request  $request
      * @return RedirectResponse|JsonResponse
      */
     public function reset(Request $request)
@@ -133,8 +130,8 @@ class ResetPasswordController extends Controller
             Session::flash('success', __('message.password_changed_successfully'));
 
             return successResponse(__('message.password_changed_successfully'), ['redirect' => url('login')]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

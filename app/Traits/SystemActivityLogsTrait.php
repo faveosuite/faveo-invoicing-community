@@ -107,10 +107,10 @@ trait SystemActivityLogsTrait
         $eventName = $this->resolveDeletedEventName($activity, $eventName);
 
         $displayName = in_array($eventName, ['deleted', 'suspended'])
-            ? "<strong>{$name}</strong>"
+            ? sprintf('<strong>%s</strong>', $name)
             : ($this->requireLogUrl ?? true
-                ? "<a href='{$logUrl}'><strong>{$name}</strong></a>"
-                : "<strong>{$name}</strong>");
+                ? sprintf("<a href='%s'><strong>%s</strong></a>", $logUrl, $name)
+                : sprintf('<strong>%s</strong>', $name));
 
         $activity->description = __('message.log_description', [
             'module' => __('message.'.$logName, [], 'en'),
@@ -160,7 +160,6 @@ trait SystemActivityLogsTrait
      * If you need to include the ID at the end of the URL, set the logUrl property to an array with two elements:
      *
      * @param  mixed  $id
-     * @return string|null
      */
     protected function getLogUrl($id = null): ?string
     {
@@ -180,7 +179,7 @@ trait SystemActivityLogsTrait
 
         $url = url(implode('/', array_filter($segments)));
 
-        if ($params) {
+        if ($params !== []) {
             $url .= '?'.http_build_query($params);
         }
 

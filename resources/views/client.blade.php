@@ -5,7 +5,7 @@ $set = \App\Model\Common\Setting::findOrFail(1);
 $cloudBtn = \App\Model\Common\StatusSetting::where('id', 1)->value('cloud_button');
 $demoPage = App\Demo_page::first();
 
-$cartCount = app(\App\Http\Controllers\Front\Cart\CartService::class)->resolveCart(request())->itemCount();
+$cartCount = resolve(\App\Http\Controllers\Front\Cart\CartService::class)->resolveCart(request())->itemCount();
 
 $social = App\Model\Common\SocialMedia::get(['name', 'link']);
 
@@ -14,8 +14,8 @@ $chatScripts = \App\Model\Common\ChatScript::get(['id', 'script', 'google_analyt
 
 $languageList = array_map('basename', \Illuminate\Support\Facades\File::directories(lang_path()));
 $dbLanguages = \App\Model\Common\Language::all()->keyBy('locale');
-$languages = collect($languageList)->map(function ($locale, $key) use ($dbLanguages) {
-    $config = config("languages.$locale", ['', '']);
+$languages = collect($languageList)->map(function (string $locale, $key) use ($dbLanguages): array {
+    $config = config('languages.' . $locale, ['', '']);
     return [
         'id'          => $key,
         'locale'      => $locale,
@@ -33,7 +33,7 @@ $publishedPages = \App\Model\Front\FrontendPage::where('publish', 1)
 $productGroups = \App\Model\Product\ProductGroup::select('id', 'name', 'pricing_templates_id')
     ->where('hidden', '!=', 1)
     ->get()
-    ->mapWithKeys(fn($g) => [$g->id => [
+    ->mapWithKeys(fn($g): array => [$g->id => [
         'name' => $g->name,
         'url'  => url('group/' . $g->pricing_templates_id . '/' . $g->id),
     ]]);

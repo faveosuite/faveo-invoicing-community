@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     '2fa_setup' => 'Setup 2 Step Verification',
@@ -19,7 +21,7 @@ return [
     'dashboard' => 'Dashboard',
     'dashboard_show' => 'Dashboard',
     'callbacks_count' => 'Callbacks Count',
-    'callbacks_description' => 'View existing license verification callbacks. If any callback needs to be deleted, check the client or license code and click the \'Submit\' button.',
+    'callbacks_description' => "View existing license verification callbacks. If any callback needs to be deleted, check the client or license code and click the 'Submit' button.",
     'adddd' => 'License added successfully',
     'admin_privileges' => 'Admin Privileges',
     'already_exist_ip' => ' already exists in whitelist',
@@ -33,7 +35,7 @@ return [
     'Banned_Show' => 'Banned Hosts',
     'Callback_Show' => 'License Callbacks',
     'CrackingReport_Show' => 'View Cracking Reports',
-    'cant_scan' => 'CAN\'T SCAN IT?',
+    'cant_scan' => "CAN'T SCAN IT?",
     'change_icon' => 'Change Icon',
     'change_logo' => 'Change Logo',
     'change_password' => 'Change Password',
@@ -241,10 +243,10 @@ return [
     'success' => 'Success',
     'support' => 'Support',
     'support_expiry' => 'Support Expiry',
-    'to_continue_first_verify' => 'To continue, first verify it\'s you',
+    'to_continue_first_verify' => "To continue, first verify it's you",
     'turn_off' => 'TURN OFF',
     'turn_off_authenticator' => 'Turning off two-factor authentication',
-    'turn_off_authenticator_setup' => 'Turning off 2-Step Verification will remove the extra security on your account, and you\'ll only use your password to sign in.',
+    'turn_off_authenticator_setup' => "Turning off 2-Step Verification will remove the extra security on your account, and you'll only use your password to sign in.",
     'turn_on' => 'TURN ON',
     'url_error' => 'URL error',
     'type' => 'Type',
@@ -256,7 +258,7 @@ return [
     'updates_expiry' => 'Updates Expiry',
     'upgrades_count' => 'Upgrades Count',
     'user' => 'User',
-    'user_email_is_verified' => 'User\'s email address is verified',
+    'user_email_is_verified' => "User's email address is verified",
     'user_email_not_verified' => 'User has not verified email address',
     'user_enabled_2fa' => 'User has enabled 2FA',
     'user_mobile_is_verified' => 'User contact number is verified',
@@ -295,5 +297,5 @@ return [
     'view_whitelist_ip' => 'List of Whitelist API',
     'whitelist_add' => 'Whitelist IP added successfully',
     'whitelist_update' => 'Whitelist IP updated successfully',
-    'you_are_all_set_from_now_on_you_will_use_authenticator_to_sign_in_to_your_account' => 'You\'re all set. From now on, you\'ll use Authenticator to sign in to your License Manager Account.',
+    'you_are_all_set_from_now_on_you_will_use_authenticator_to_sign_in_to_your_account' => "You're all set. From now on, you'll use Authenticator to sign in to your License Manager Account.",
 ];

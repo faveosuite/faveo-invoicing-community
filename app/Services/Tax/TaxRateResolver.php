@@ -80,7 +80,7 @@ class TaxRateResolver
     private function matchRates(string $country, string $state, string $postcode, string $city, string $taxClass): array
     {
         $candidates = TaxRate::with('locations')
-            ->where('active', true)
+            ->where('active', operator: true)
             ->whereIn('country', [$country, ''])
             ->whereIn('state', [$state, ''])
             ->where('tax_class', $taxClass)
@@ -95,19 +95,19 @@ class TaxRateResolver
 
             $scored[] = [
                 'rate' => $rate,
-                'score' => $this->specificity($rate, $postcode, $city),
+                'score' => $this->specificity($rate),
             ];
         }
 
         // Most specific first, stable within a priority.
-        usort($scored, fn ($a, $b) => [$a['rate']->priority, -$a['score'], $a['rate']->id]
+        usort($scored, fn (array $a, array $b): int => [$a['rate']->priority, -$a['score'], $a['rate']->id]
             <=> [$b['rate']->priority, -$b['score'], $b['rate']->id]);
 
         $matched = [];
         $seenPriority = [];
         foreach ($scored as $entry) {
             $rate = $entry['rate'];
-            if (in_array($rate->priority, $seenPriority, true)) {
+            if (in_array($rate->priority, $seenPriority, strict: true)) {
                 continue; // one rate per priority
             }
 
@@ -130,10 +130,10 @@ class TaxRateResolver
         $cityLocations = $rate->locations->where('location_type', 'city');
 
         $postcodeOk = $postcodeLocations->isEmpty()
-            || $postcodeLocations->contains(fn ($loc) => $this->postcodeMatches($postcode, $loc->location_code));
+            || $postcodeLocations->contains(fn ($loc): bool => $this->postcodeMatches($postcode, $loc->location_code));
 
         $cityOk = $cityLocations->isEmpty()
-            || $cityLocations->contains(fn ($loc) => strtoupper(trim((string) $loc->location_code)) === $city);
+            || $cityLocations->contains(fn ($loc): bool => strtoupper(trim((string) $loc->location_code)) === $city);
 
         return $postcodeOk && $cityOk;
     }
@@ -165,7 +165,7 @@ class TaxRateResolver
         return $code === $postcode;
     }
 
-    private function specificity(TaxRate $rate, string $postcode, string $city): int
+    private function specificity(TaxRate $rate): int
     {
         $score = 0;
         $score += $rate->country !== '' ? 1 : 0;

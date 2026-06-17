@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories\Model\Product;
 
 use App\Model\Order\Order;
@@ -9,6 +11,9 @@ use App\Model\Product\Subscription;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Product\Subscription>
+ */
 class SubscriptionFactory extends Factory
 {
     /**
@@ -20,7 +25,7 @@ class SubscriptionFactory extends Factory
 
     public function definition()
     {
-        $ends = now()->addDays($this->faker->numberBetween(30, 365));
+        $ends = now()->addDays(fake()->numberBetween(30, 365));
 
         return [
             'user_id' => User::factory(),
@@ -30,8 +35,8 @@ class SubscriptionFactory extends Factory
             'ends_at' => $ends,
             'update_ends_at' => $ends->copy()->addDays(5),
             'support_ends_at' => $ends->copy()->addDays(5),
-            'version' => $this->faker->numerify('v#.##'),
-            'version_updated_at' => now()->subDays($this->faker->numberBetween(1, 60)),
+            'version' => fake()->numerify('v#.##'),
+            'version_updated_at' => now()->subDays(fake()->numberBetween(1, 60)),
         ];
     }
 }

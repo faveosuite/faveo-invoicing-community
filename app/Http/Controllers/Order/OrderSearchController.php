@@ -53,14 +53,14 @@ class OrderSearchController extends Controller
         return $query;
     }
 
-    private function filterOrderNum($query, $orderNo)
+    private function filterOrderNum($query, $orderNo): void
     {
         if ($orderNo) {
             $query->where('number', $orderNo);
         }
     }
 
-    private function filterProduct($query, $productId)
+    private function filterProduct($query, $productId): void
     {
         if (! $productId) {
             return;
@@ -75,7 +75,7 @@ class OrderSearchController extends Controller
         }
     }
 
-    private function filterDateRange($query, Request $request)
+    private function filterDateRange($query, Request $request): void
     {
         $field = $request->renewal ? 'subscription.update_ends_at' : 'created_at';
 
@@ -93,17 +93,17 @@ class OrderSearchController extends Controller
         }
     }
 
-    private function filterDomain($query, $domain)
+    private function filterDomain($query, $domain): void
     {
         if ($domain) {
             $domain = rtrim((string) $domain, '/');
             $query->whereHas('installation', function ($q) use ($domain): void {
-                $q->where('installation_path', 'like', "%$domain%");
+                $q->where('installation_path', 'like', sprintf('%%%s%%', $domain));
             });
         }
     }
 
-    private function filterInstallation($query, $filter)
+    private function filterInstallation($query, $filter): void
     {
         if (! $filter) {
             return;
@@ -125,7 +125,7 @@ class OrderSearchController extends Controller
         });
     }
 
-    private function filterRenewal($query, $renewal)
+    private function filterRenewal($query, $renewal): void
     {
         if (! $renewal) {
             return;
@@ -149,7 +149,7 @@ class OrderSearchController extends Controller
         }
     }
 
-    private function filterVersion($query, $version, $productId)
+    private function filterVersion($query, $version, $productId): void
     {
         if (! $version) {
             return;
@@ -177,31 +177,31 @@ class OrderSearchController extends Controller
         return $query->when($search, function ($q) use ($search): void {
             $q->where(function ($q) use ($search): void {
                 // Search in order-level columns
-                $q->where('number', 'like', "%{$search}%")
-                    ->orWhere('order_status', 'like', "%{$search}%")
+                $q->where('number', 'like', sprintf('%%%s%%', $search))
+                    ->orWhere('order_status', 'like', sprintf('%%%s%%', $search))
 
                     // Search in user-related fields
                     ->orWhereHas('user', function ($uq) use ($search): void {
-                        $uq->where('email', 'like', "%{$search}%")
-                            ->orWhere('mobile', 'like', "%{$search}%")
-                            ->orWhere('first_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%")
-                            ->orWhere('country', 'like', "%{$search}%")
-                            ->orWhere(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', "%{$search}%");
+                        $uq->where('email', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('mobile', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('first_name', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('last_name', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('country', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', sprintf('%%%s%%', $search));
                     })
 
                     // Search in product relation (product name)
                     ->orWhereHas('productRelation', function ($pq) use ($search): void {
-                        $pq->where('name', 'like', "%{$search}%");
+                        $pq->where('name', 'like', sprintf('%%%s%%', $search));
                     })
 
                     // Search in subscription & plan
                     ->orWhereHas('subscription', function ($sq) use ($search): void {
-                        $sq->where('version', 'like', "%{$search}%")
-                            ->orWhere('updated_at', 'like', "%{$search}%")
-                            ->orWhere('update_ends_at', 'like', "%{$search}%")
+                        $sq->where('version', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('updated_at', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('update_ends_at', 'like', sprintf('%%%s%%', $search))
                             ->orWhereHas('plan', function ($pq) use ($search): void {
-                                $pq->where('name', 'like', "%{$search}%");
+                                $pq->where('name', 'like', sprintf('%%%s%%', $search));
                             });
                     });
             });

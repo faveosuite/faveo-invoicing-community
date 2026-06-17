@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
 
     }
 
-    public function addMsgStatus()
+    public function addMsgStatus(): void
     {
         $statuses = [
             ['status_code' => 0, 'status_label' => 'Pending'],
@@ -55,12 +55,12 @@ class DatabaseSeeder extends Seeder
         }
     }
 
-    public function removeOldGitPassword()
+    public function removeOldGitPassword(): void
     {
         Github::where('id', 1)->update(['password' => null]);
     }
 
-    private function updateAppKey()
+    private function updateAppKey(): void
     {
         $env = base_path() . DIRECTORY_SEPARATOR . '.env';
 
@@ -74,7 +74,7 @@ class DatabaseSeeder extends Seeder
         }
     }
 
-    private function addFielsForPipedrive()
+    private function addFielsForPipedrive(): void
     {
         $fields = [
             ['field_name' => 'User Name', 'field_key' => 'user_name'],
@@ -111,7 +111,7 @@ class DatabaseSeeder extends Seeder
         }
     }
 
-    public function invoiceItemProductIDChange()
+    public function invoiceItemProductIDChange(): void
     {
         $orders = Order::all();
         foreach ($orders as $order) {
@@ -128,7 +128,7 @@ class DatabaseSeeder extends Seeder
         }
     }
 
-    public function langSeeder()
+    public function langSeeder(): void
     {
         $languages = [
             ["locale" => "ar", "name" => "Arabic", "translation" => "العربية"],
@@ -165,12 +165,12 @@ class DatabaseSeeder extends Seeder
 
     }
 
-    public function update_is_deleted(){
+    public function update_is_deleted(): void{
         $today= Date::today();
         $day = ExpiryMailDay::value('cloud_days');
         Subscription::whereNotNull('ends_at')
         ->whereIn('product_id',cloudPopupProducts())->whereDate(
-            DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
+            DB::raw(sprintf('DATE_ADD(ends_at, INTERVAL %s DAY)', $day)),
             '<',
             $today
         )->update(['is_deleted'=>1]);
@@ -178,7 +178,7 @@ class DatabaseSeeder extends Seeder
 
 
 
-    public function add_providers(){
+    public function add_providers(): void{
         $providers =[ ['provider'=>'reoon','type'=>'email'],
             ['provider'=>'vonage','type'=>'mobile'],
             ['provider'=>'abstract','type'=>'mobile'],

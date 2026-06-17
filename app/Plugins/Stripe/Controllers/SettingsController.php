@@ -53,8 +53,8 @@ class SettingsController extends Controller
                 'auto_renewal' => (bool) ($status->stripe_auto_renewal ?? false),
                 'webhook_url' => url('webhook/stripe'),
             ]);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -136,7 +136,7 @@ class SettingsController extends Controller
             ],
         ];
 
-        $paymentIntent = $stripe->paymentIntents->create([
+        return $stripe->paymentIntents->create([
             'amount' => $cost,
             'currency' => $currency,
             'customer' => $customer->id,
@@ -153,10 +153,8 @@ class SettingsController extends Controller
             'description' => 'Payment for purchased product',
             'shipping' => $shippingDetails,
         ], [
-            'idempotency_key' => uniqid('payment_', true),
+            'idempotency_key' => uniqid('payment_', more_entropy: true),
         ]);
-
-        return $paymentIntent;
     }
 
     /**
@@ -204,8 +202,8 @@ class SettingsController extends Controller
                 planName: $product_details->name,
                 paymentMethodReference: $stripe_payment_details->payment_intent_id,
             ));
-        } catch (Exception $e) {
-            Logger::exception($e);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
         }
     }
 }

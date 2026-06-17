@@ -80,8 +80,8 @@ class SmsOtpController extends Controller
                 'status' => $response->status(),
                 'body' => $response->json() ?? [],
             ];
-        } catch (Exception $e) {
-            Logger::exception($e);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
             return $this->errorPayload('There was an error processing your request');
         }
@@ -227,7 +227,7 @@ class SmsOtpController extends Controller
         }
 
         // Use provided mobile info (e.g. profile update with new number), or fall back to user's saved mobile
-        if ($mobileInfo) {
+        if ($mobileInfo !== []) {
             $countryIso = $mobileInfo['country_iso'];
             $mobileNumber = $mobileInfo['mobile'];
             $mobileCode = $mobileInfo['mobile_code'];
@@ -267,8 +267,8 @@ class SmsOtpController extends Controller
                     'send'
                 );
             }
-        } catch (Exception $e) {
-            Logger::exception($e);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
         }
     }
 

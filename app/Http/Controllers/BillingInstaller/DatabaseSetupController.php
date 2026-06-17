@@ -18,7 +18,7 @@ class DatabaseSetupController extends Controller
         $username = Session::get('username');
         $password = Session::get('password');
         $databasename = Session::get('databasename');
-        $dummy_install = Session::get('dummy_data_installation');
+        Session::get('dummy_data_installation');
         $port = Session::get('port');
         $sslKey = Session::get('db_ssl_key');
         $sslCert = Session::get('db_ssl_cert');
@@ -71,11 +71,7 @@ class DatabaseSetupController extends Controller
          * @link https://mariadb.com/kb/en/library/mariadb-vs-mysql-compatibility/
          * @link https://en.wikipedia.org/wiki/MariaDB
          */
-        if ($version >= 100300) {
-            return true;
-        }
-
-        return false;
+        return $version >= 100300;
     }
 
     /**
@@ -86,8 +82,6 @@ class DatabaseSetupController extends Controller
      *
      * @param  array  $results  variable linked for errors or success messages
      * @param  bool  $mysqli_ok  variable linked for mysql status
-     * @param  object  $connection
-     * @return void
      *
      * @author Manish Verma <manish.verma@ladybirdweb.com>
      */
@@ -123,9 +117,8 @@ class DatabaseSetupController extends Controller
      *
      * @param  string  $dbUsername  mysql username
      * @param  string  $dbPassword  mysql password
-     * @return null
      */
-    private function setupConfig($host, $dbUsername, $dbPassword, $port = '', $customOptions = [], $dbengine = '')
+    private function setupConfig($host, $dbUsername, $dbPassword, $port = '', array $customOptions = [], $dbengine = ''): void
     {
         $options = array_merge([null, null, null, false], $customOptions);
         Config::set('app.env', 'development');
@@ -151,11 +144,11 @@ class DatabaseSetupController extends Controller
      *
      * @return object connection object
      */
-    private function getDBConnection()
+    private function getDBConnection(): false|\mysqli
     {
         try {
             $connection = mysqli_init();
-            mysqli_ssl_set($connection, DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, null, null);
+            mysqli_ssl_set($connection, DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, ca_path: null, cipher_algos: null);
             if (DB_PORT != '' && is_numeric(DB_PORT)) {
                 $this->setupConfig(DB_HOST, DB_USER, DB_PASS, DB_PORT, [DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, DB_SSL_VERIFY_PEER_CERT]);
                 if (! mysqli_real_connect($connection, DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT)) {
@@ -176,7 +169,7 @@ class DatabaseSetupController extends Controller
         }
     }
 
-    public function testResult()
+    public function testResult(): array
     {
         if (DB_HOST && DB_USER && DB_NAME) {
             $mysqli_ok = true;

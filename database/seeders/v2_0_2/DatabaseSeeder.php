@@ -11,10 +11,8 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->call([TemplateTypeTableSeeder::class]);
         $this->command->info('Template Type table seeded!');
@@ -29,7 +27,7 @@ class DatabaseSeeder extends Seeder
 
     class TemplateTypeTableSeeder extends Seeder
    {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
@@ -44,7 +42,7 @@ class DatabaseSeeder extends Seeder
 
   class TemplateTableSeeder extends Seeder
    {
-    public function run()
+    public function run(): void
     {
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');

@@ -23,15 +23,15 @@ class ProductCategory extends Model
     public function getDescriptionForEvent(string $eventName): string
     {
         // dd(Activity::where('subject_id',)->pluck('subject_id'));
-        if ($eventName == 'created') {
+        if ($eventName === 'created') {
             return 'Product Category'.$this->name.' was created';
         }
 
-        if ($eventName == 'updated') {
+        if ($eventName === 'updated') {
             return 'Product Category  <strong> '.$this->name.'</strong> was updated';
         }
 
-        if ($eventName == 'deleted') {
+        if ($eventName === 'deleted') {
             return 'Product Category <strong> '.$this->name.' </strong> was deleted';
         }
 

@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('widgets', function (Blueprint $table): void {
             if (! Schema::hasColumn('widgets', 'allow_tweets')) {
@@ -26,10 +24,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('widgets', function (Blueprint $table): void {
             $table->dropColumn([

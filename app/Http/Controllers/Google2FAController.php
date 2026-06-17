@@ -27,8 +27,6 @@ class Google2FAController extends Controller
 
     /**
      * Create a new authentication controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -49,7 +47,6 @@ class Google2FAController extends Controller
     }
 
     /**
-     * @param  Request  $request
      * @return Response
      */
     public function enableTwoFactor(Request $request)
@@ -59,6 +56,7 @@ class Google2FAController extends Controller
         $secret = $this->generateSecret();
         $user->google2fa_secret = Crypt::encrypt($secret);
         $user->save();
+
         $imageDataUri = $google2fa->getQRCodeInline(
             $request->getHttpHost(),
             $user->email,
@@ -69,7 +67,7 @@ class Google2FAController extends Controller
         return successResponse('', ['image' => $imageDataUri, 'secret' => $secret]);
     }
 
-    private function generateSecret()
+    private function generateSecret(): string
     {
         $randomBytes = random_bytes(10);
 
@@ -77,7 +75,6 @@ class Google2FAController extends Controller
     }
 
     /**
-     * @param  ValidateSecretRequest  $request
      * @return Response
      */
     public function postLoginValidateToken(ValidateSecretRequest $request)
@@ -97,8 +94,8 @@ class Google2FAController extends Controller
                     throw new Exception(__('message.invalid_passcode'));
                 }
             });
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -113,16 +110,16 @@ class Google2FAController extends Controller
             Session::put('auth.password_confirmed_at', time());
 
             return successResponse('password_verified');
-        } else {
-            $user = Auth::user();
-            if (Hash::check($request->input('user_password'), $user->getAuthPassword())) {
-                Session::put('auth.password_confirmed_at', time());
-
-                return successResponse('password_verified');
-            } else {
-                return errorResponse('password_incorrect');
-            }
         }
+
+        $user = Auth::user();
+        if (Hash::check($request->input('user_password'), $user->getAuthPassword())) {
+            Session::put('auth.password_confirmed_at', time());
+
+            return successResponse('password_verified');
+        }
+
+        return errorResponse('password_incorrect');
     }
 
     public function postSetupValidateToken(Request $request)
@@ -147,7 +144,6 @@ class Google2FAController extends Controller
     /**
      * Disables 2FA for a user/agent, wipes out all the details related to 2FA from the Database.
      *
-     * @param  Request  $request
      * @return json \Illuminate\Http\Response
      */
     public function disableTwoFactor(Request $request)
@@ -240,15 +236,15 @@ class Google2FAController extends Controller
 
                 $code->delete();
             });
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
     private function handleTwoFactorLogin(Request $request, User $user, string $rateLimiterKey, callable $validator)
     {
         // Rate limit for 6 hours
-        RateLimiter::hit("{$rateLimiterKey}:{$user->id}");
+        RateLimiter::hit(sprintf('%s:%s', $rateLimiterKey, $user->id));
 
         // Run the type-specific validation logic. Validators MUST throw on a failed
         // check (the caller's try/catch turns it into an error response); control
@@ -257,12 +253,12 @@ class Google2FAController extends Controller
 
         // Clear session identifiers
         $session = $request->session();
-        $remember = $session->get('remember:user:id', false);
+        $remember = $session->get('remember:user:id', default: false);
         $session->forget(['2fa:user:id', 'remember:user:id']);
 
         // If it's part of password reset flow
         if ($token = $session->get('reset_token')) {
-            $session->put('2fa_verified', true);
+            $session->put('2fa_verified', value: true);
 
             return successResponse('', ['redirect' => route('password.reset', ['token' => $token])]);
         }

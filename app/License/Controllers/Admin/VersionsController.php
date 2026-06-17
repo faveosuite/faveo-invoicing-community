@@ -17,7 +17,7 @@ class VersionsController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
         $allowedSortFields = ['id', 'product_id', 'version', 'created_at', 'status'];
-        $sortField = in_array($sortField, $allowedSortFields, true) ? $sortField : 'id';
+        $sortField = in_array($sortField, $allowedSortFields, strict: true) ? $sortField : 'id';
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
 
         $versions = ProductUpload::query()
@@ -35,7 +35,7 @@ class VersionsController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $versions->getCollection()->transform(fn (ProductUpload $version) => [
+        $versions->getCollection()->transform(fn (ProductUpload $version): array => [
             'id' => $version->id,
             'product_id' => $version->product_id,
             'version_number' => $version->version,

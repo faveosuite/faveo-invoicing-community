@@ -46,10 +46,19 @@ class ClientController extends AdvanceSearchController
     use PaginationTotal;
     use PaymentsAndInvoices;
 
+    /**
+     * @var \App\User
+     */
     public $user;
 
+    /**
+     * @var \App\Model\User\AccountActivate
+     */
     public $activate;
 
+    /**
+     * @var \App\Model\Product\Product
+     */
     public $product;
 
     public function __construct()
@@ -58,13 +67,15 @@ class ClientController extends AdvanceSearchController
         $this->middleware('admin');
         $user = new User();
         $this->user = $user;
+
         $activate = new AccountActivate();
         $this->activate = $activate;
+
         $product = new Product();
         $this->product = $product;
     }
 
-    public function getActiveLabel($mobileActive, $emailActive, $twoFaActive)
+    public function getActiveLabel($mobileActive, $emailActive, $twoFaActive): string
     {
         $emailLabel = "<i class='fas fa-envelope'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top'  title='".Lang::get('message.unverified_email')."'> </label></i>";
         $mobileLabel = "<i class='fas fa-phone'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".Lang::get('message.unverified_mobile')."' >  </label></i>";
@@ -172,14 +183,14 @@ class ClientController extends AdvanceSearchController
 
             // \Session::put('test', 1000);
             return back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
-    public function sendWelcomeMail($user)
+    public function sendWelcomeMail($user): void
     {
         // Retrieve necessary data
         $contact = getContactData();
@@ -261,9 +272,7 @@ class ClientController extends AdvanceSearchController
             $query->where('is_2fa_enabled', $request->is_2fa_enabled);
         });
 
-        $baseQuery = $this->getregFromTill($baseQuery, $request->reg_from, $request->reg_till);
-
-        return $baseQuery;
+        return $this->getregFromTill($baseQuery, $request->reg_from, $request->reg_till);
     }
 
     public function exportUsers(Request $request)
@@ -288,10 +297,10 @@ class ClientController extends AdvanceSearchController
                 ->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
-        } catch (Exception $e) {
-            Logger::exception($e);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return errorResponse($e->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -337,11 +346,11 @@ class ClientController extends AdvanceSearchController
                 return errorResponse(__('message.failed_create_zip_file'));
             }
 
-            return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
-        } catch (Exception $e) {
-            Log::error('Report Export Failure'.$e->getMessage());
+            return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(shouldDelete: true);
+        } catch (Exception $exception) {
+            Log::error('Report Export Failure'.$exception->getMessage());
 
-            return errorResponse('Report Export Failure'.$e->getMessage());
+            return errorResponse('Report Export Failure'.$exception->getMessage());
         }
     }
 
@@ -353,11 +362,11 @@ class ClientController extends AdvanceSearchController
 
         // Always ensure the locked checkbox & action columns exist, while
         // preserving the incoming display order (drag-and-drop reordering).
-        if (! in_array('checkbox', $selectedKeys, true)) {
+        if (! in_array('checkbox', $selectedKeys, strict: true)) {
             array_unshift($selectedKeys, 'checkbox');
         }
 
-        if (! in_array('action', $selectedKeys, true)) {
+        if (! in_array('action', $selectedKeys, strict: true)) {
             $selectedKeys[] = 'action';
         }
 
@@ -388,7 +397,7 @@ class ClientController extends AdvanceSearchController
             }
         }
 
-        if (! empty($insertData)) {
+        if ($insertData !== []) {
             UserLinkReport::insert($insertData);
         }
 
@@ -418,7 +427,7 @@ class ClientController extends AdvanceSearchController
 
         // Merge availability with the user's preference. New columns that the
         // user has never seen sink to the bottom and stay hidden by default.
-        $columns = $allColumns->map(function ($col) use ($saved, $hasSaved) {
+        $columns = $allColumns->map(function ($col) use ($saved, $hasSaved): array {
             $savedRow = $saved->get($col->id);
 
             return [
@@ -494,7 +503,7 @@ class ClientController extends AdvanceSearchController
                 'account_manager' => $accountManagers,
                 'sales_manager' => $salesManagers,
             ])
-                ->flatMap(fn ($collection, $role) => $collection->map(fn ($u) => $u->first_name.' '.$u->last_name.' ('.__("message.$role").')'))
+                ->flatMap(fn ($collection, $role) => $collection->map(fn ($u): string => $u->first_name.' '.$u->last_name.' ('.__('message.' . $role).')'))
                 ->implode(', ');
 
             return errorResponse(__('message.deletion_blocked', [
@@ -543,8 +552,8 @@ class ClientController extends AdvanceSearchController
             dispatch(new AddUserToExternalService($user));
 
             return successResponse(__('message.user-create-successfully'), $user);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -584,14 +593,14 @@ class ClientController extends AdvanceSearchController
             : null;
 
         $mgr = $user->manager instanceof User ? $user->manager : null;
-        $managerObj = $mgr ? [
+        $managerObj = $mgr instanceof \App\User ? [
             'id' => $mgr->id,
             'name' => trim($mgr->first_name.' '.$mgr->last_name),
             'email' => $mgr->email,
         ] : null;
 
         $acm = $user->accountManager instanceof User ? $user->accountManager : null;
-        $accountManagerObj = $acm ? [
+        $accountManagerObj = $acm instanceof \App\User ? [
             'id' => $acm->id,
             'name' => trim($acm->first_name.' '.$acm->last_name),
             'email' => $acm->email,
@@ -644,8 +653,8 @@ class ClientController extends AdvanceSearchController
             $user->save();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -672,8 +681,8 @@ class ClientController extends AdvanceSearchController
                 'payment_count' => Payment::where('user_id', $id)->count(),
                 'order_count' => Order::where('client', $id)->count(),
             ]);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -686,7 +695,7 @@ class ClientController extends AdvanceSearchController
             $sortOrder = $request->input('sort-order', 'desc');
 
             $allowedSorts = ['date', 'number', 'grand_total', 'status'];
-            if (! in_array($sortField, $allowedSorts, true)) {
+            if (! in_array($sortField, $allowedSorts, strict: true)) {
                 $sortField = 'date';
             }
 
@@ -694,7 +703,7 @@ class ClientController extends AdvanceSearchController
                 ->orderBy($sortField, $sortOrder)
                 ->paginate($limit, ['*'], 'page', $page);
 
-            $invoices->getCollection()->transform(function ($invoice) {
+            $invoices->getCollection()->transform(function ($invoice): array {
                 $paid = Payment::where('invoice_id', $invoice->id)->sum('amount');
                 $balance = max(0, $invoice->grand_total - $paid);
 
@@ -711,8 +720,8 @@ class ClientController extends AdvanceSearchController
             });
 
             return successResponse('', $invoices);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -725,7 +734,7 @@ class ClientController extends AdvanceSearchController
             $sortOrder = $request->input('sort-order', 'desc');
 
             $allowedSorts = ['created_at', 'amount', 'payment_method', 'payment_status'];
-            if (! in_array($sortField, $allowedSorts, true)) {
+            if (! in_array($sortField, $allowedSorts, strict: true)) {
                 $sortField = 'created_at';
             }
 
@@ -733,7 +742,7 @@ class ClientController extends AdvanceSearchController
                 ->orderBy($sortField, $sortOrder)
                 ->paginate($limit, ['*'], 'page', $page);
 
-            $payments->getCollection()->transform(function ($payment) {
+            $payments->getCollection()->transform(function ($payment): array {
                 $invoice = $payment->invoice_id ? Invoice::find($payment->invoice_id) : null;
 
                 return [
@@ -749,8 +758,8 @@ class ClientController extends AdvanceSearchController
             });
 
             return successResponse('', $payments);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -760,7 +769,7 @@ class ClientController extends AdvanceSearchController
             $comments = Comment::with('user:id,first_name,last_name')
                 ->where('user_id', $id)->latest()
                 ->get()
-                ->map(fn ($c) => [
+                ->map(fn ($c): array => [
                     'id' => $c->id,
                     'description' => $c->description,
                     'created_at' => $c->created_at,
@@ -771,8 +780,8 @@ class ClientController extends AdvanceSearchController
                 ]);
 
             return successResponse('', $comments);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -797,8 +806,8 @@ class ClientController extends AdvanceSearchController
                 'updated_at' => $comment->updated_at,
                 'author' => trim(auth()->user()->first_name.' '.auth()->user()->last_name),
             ]);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -811,8 +820,8 @@ class ClientController extends AdvanceSearchController
             $comment->save();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -822,8 +831,8 @@ class ClientController extends AdvanceSearchController
             Comment::where('id', $commentId)->where('user_id', $id)->firstOrFail()->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 

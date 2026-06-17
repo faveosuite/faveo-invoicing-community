@@ -17,7 +17,7 @@ class SendWhatsappMessage implements ShouldQueue
 
     public $tries = 1;
 
-    public $retryAfter = 60;
+    public $backoff = 60;
 
     /**
      * Create a new job instance.
@@ -34,7 +34,7 @@ class SendWhatsappMessage implements ShouldQueue
         $client = new Client();
         $urls = Session::has('NonReachableUrls') ? Session::get('NonReachableUrls') : [];
         try {
-            $data = json_decode((string) $this->message, true);
+            $data = json_decode((string) $this->message, associative: true);
             if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
                 //$wabaId = $data['entry'][0]['id'];
                 $phoneNumberId = $data['entry'][0]['changes'][0]['value']['metadata']['phone_number_id'];

@@ -34,9 +34,9 @@ class LoginTest extends DuskTestCase
 
     #[Group('forgot_password')]
     #[Group('login_test_group')]
-    public function test_for_forgot_password_by_giving_incorrect_email_id()
+    public function test_for_forgot_password_by_giving_incorrect_email_id(): void
     {
-        $this->setUpEmail(true);
+        $this->setUpEmail(enable: true);
 
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -59,7 +59,7 @@ class LoginTest extends DuskTestCase
 
     #[Group('forgot_password')]
     #[Group('login_test_group')]
-    public function test_for_forgot_password_by_giving_invalid_email_id()
+    public function test_for_forgot_password_by_giving_invalid_email_id(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -82,7 +82,7 @@ class LoginTest extends DuskTestCase
 
     #[Group('forgot_password')]
     #[Group('login_test_group')]
-    public function test_navigate_to_login_page_from_forgot_password_page()
+    public function test_navigate_to_login_page_from_forgot_password_page(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -107,9 +107,9 @@ class LoginTest extends DuskTestCase
 
     #[Group('forgot_password')]
     #[Group('login_test_group')]
-    public function test_for_forgot_password_by_giving_valid_email_id()
+    public function test_for_forgot_password_by_giving_valid_email_id(): void
     {
-        $this->setUpEmail(true);
+        $this->setUpEmail(enable: true);
 
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -134,7 +134,7 @@ class LoginTest extends DuskTestCase
 
     #[Group('login')]
     #[Group('login_test_group')]
-    public function test_login_as_admin_without_check_recaptcha()
+    public function test_login_as_admin_without_check_recaptcha(): void
     {
         $this->user = User::factory()->create([
             'role' => 'admin',
@@ -165,7 +165,7 @@ class LoginTest extends DuskTestCase
 
     #[Group('login')]
     #[Group('login_test_group')]
-    public function test_login_as_admin_valid_user_name_and_invalid_password()
+    public function test_login_as_admin_valid_user_name_and_invalid_password(): void
     {
         $this->user = User::factory()->create([
             'role' => 'admin',
@@ -249,7 +249,7 @@ class LoginTest extends DuskTestCase
 
     #[Group('login')]
     #[Group('login_test_group')]
-    public function test_login_as_admin_with_captcha_option()
+    public function test_login_as_admin_with_captcha_option(): void
     {
         // through dusk we cannot pass the recaptcha v2 checkbox, so we use v3 for testing
         $this->user = User::factory()->create([
@@ -284,7 +284,7 @@ class LoginTest extends DuskTestCase
 
     #[Group('login')]
     #[Group('login_test_group')]
-    public function test_login_as_admin_with_valid_user_name_and_password()
+    public function test_login_as_admin_with_valid_user_name_and_password(): void
     {
         $this->user = User::factory()->create([
             'role' => 'admin',
@@ -318,7 +318,7 @@ class LoginTest extends DuskTestCase
 
     #[Group('login')]
     #[Group('login_test_group')]
-    public function test_login_as_client_without_check_recaptcha()
+    public function test_login_as_client_without_check_recaptcha(): void
     {
         $this->user = User::factory()->create([
             'role' => 'user',
@@ -351,7 +351,7 @@ class LoginTest extends DuskTestCase
 
     #[Group('login')]
     #[Group('login_test_group')]
-    public function test_login_as_client_valid_user_name_and_invalid_password()
+    public function test_login_as_client_valid_user_name_and_invalid_password(): void
     {
         $this->user = User::factory()->create([
             'role' => 'user',
@@ -435,7 +435,7 @@ class LoginTest extends DuskTestCase
 
     #[Group('login')]
     #[Group('login_test_group')]
-    public function test_login_as_client_with_captcha_option()
+    public function test_login_as_client_with_captcha_option(): void
     {
         // through dusk we cannot pass the recaptcha v2 checkbox, so we use v3 for testing
         $this->user = User::factory()->create([
@@ -470,7 +470,7 @@ class LoginTest extends DuskTestCase
 
     #[Group('login')]
     #[Group('login_test_group')]
-    public function test_login_as_client_with_valid_user_name_and_password()
+    public function test_login_as_client_with_valid_user_name_and_password(): void
     {
         $this->user = User::factory()->create([
             'role' => 'user',

@@ -30,8 +30,8 @@ class SystemManagerController extends Controller
                 ->get();
 
             $accountManagers = $users
-                ->filter(fn ($user) => $user->position === 'account_manager')
-                ->map(fn ($user) => [
+                ->filter(fn ($user): bool => $user->position === 'account_manager')
+                ->map(fn ($user): array => [
 
                     'id' => $user->id,
                     'name' => $user->first_name.' '.$user->last_name,
@@ -40,8 +40,8 @@ class SystemManagerController extends Controller
                 ->values();
 
             $salesManagers = $users
-                ->filter(fn ($user) => $user->position === 'manager')
-                ->map(fn ($user) => [
+                ->filter(fn ($user): bool => $user->position === 'manager')
+                ->map(fn ($user): array => [
                     'id' => $user->id,
                     'name' => $user->first_name.' '.$user->last_name,
                     'email' => $user->email,
@@ -62,8 +62,8 @@ class SystemManagerController extends Controller
             ];
 
             return successResponse('', $response);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -75,23 +75,23 @@ class SystemManagerController extends Controller
             $users = User::where('role', 'admin')
                 ->when($term, function ($query) use ($term): void {
                     $query->where(function ($q) use ($term): void {
-                        $q->where('first_name', 'LIKE', "%{$term}%")
-                            ->orWhere('last_name', 'LIKE', "%{$term}%")
-                            ->orWhere('email', 'LIKE', "%{$term}%");
+                        $q->where('first_name', 'LIKE', sprintf('%%%s%%', $term))
+                            ->orWhere('last_name', 'LIKE', sprintf('%%%s%%', $term))
+                            ->orWhere('email', 'LIKE', sprintf('%%%s%%', $term));
                     });
                 })
                 ->select('id', 'email', 'first_name', 'last_name')
                 ->simplePaginate();
 
-            $users->getCollection()->transform(fn ($user) => [
+            $users->getCollection()->transform(fn ($user): array => [
                 'id' => $user->id,
                 'name' => $user->first_name.' '.$user->last_name,
                 'email' => $user->email,
             ]);
 
             return successResponse('', $users);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -139,8 +139,8 @@ class SystemManagerController extends Controller
             }
 
             return successResponse(__('message.manager_settings_updated_successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -153,9 +153,8 @@ class SystemManagerController extends Controller
      * @param  int  $oldManagerId  The ID of the old manager.
      * @param  int  $newManagerId  The ID of the new manager.
      * @param  Closure  $mailCallback  Callback to send notification email.
-     * @return void
      */
-    private function updateManager($managerColumn, $positionColumn, $role, $oldManagerId, $newManagerId, Closure $mailCallback)
+    private function updateManager(string $managerColumn, string $positionColumn, string $role, $oldManagerId, $newManagerId, Closure $mailCallback): void
     {
         if (blank($oldManagerId) || blank($newManagerId)) {
             return;

@@ -52,8 +52,8 @@ class ProfileVerificationController extends BaseAuthController
             // Send OTP to current email (old email verification or mobile confirmation)
             if ($email === $user->email) {
                 $mode = $request->is_mobile ? 'mobile' : 'old_email';
-                RateLimiter::hit("email-otp-old:{$user->id}", 600);
-                $this->sendActivationOtp($user, $email, $method, $mode);
+                RateLimiter::hit('email-otp-old:' . $user->id, 600);
+                $this->sendActivationOtp($email, $method, $mode);
 
                 return successResponse(__('message.otp_code_sent_exist'));
             }
@@ -190,8 +190,8 @@ class ProfileVerificationController extends BaseAuthController
                 ? ['email_verification_required' => $emailVerificationRequired]
                 : []
             );
-        } catch (Exception $e) {
-            Log::error('OTP sending failed: '.$e->getMessage());
+        } catch (Exception $exception) {
+            Log::error('OTP sending failed: '.$exception->getMessage());
 
             return errorResponse(__('message.otp_verification.send_failure'));
         }
@@ -283,8 +283,8 @@ class ProfileVerificationController extends BaseAuthController
             return $this->updateUserEmail($newEmail);
         }
 
-        RateLimiter::hit("email-otp-old:{$user->id}", 600);
-        $this->sendActivationOtp($user, $user->email, 'POST', 'old_email');
+        RateLimiter::hit('email-otp-old:' . $user->id, 600);
+        $this->sendActivationOtp($user->email, 'POST', 'old_email');
 
         return successResponse(__('message.otp_code_sent_exist'), [
             'email_verification_required' => true,
@@ -303,8 +303,8 @@ class ProfileVerificationController extends BaseAuthController
             $existing?->delete();
         }
 
-        RateLimiter::hit("email-otp-new:{$user->id}", 600);
-        $this->sendActivationOtp($user, $email, $method, 'new_email');
+        RateLimiter::hit('email-otp-new:' . $user->id, 600);
+        $this->sendActivationOtp($email, $method, 'new_email');
 
         return successResponse(
             $method === 'GET'
@@ -313,7 +313,7 @@ class ProfileVerificationController extends BaseAuthController
         );
     }
 
-    private function sendActivationOtp($user, string $email, string $method, string $mode): void
+    private function sendActivationOtp(string $email, string $method, string $mode): void
     {
         $token = random_int(100000, 999999);
 
@@ -363,7 +363,7 @@ class ProfileVerificationController extends BaseAuthController
             default => 'email-verify-new',
         };
 
-        RateLimiter::hit("{$key}:".auth()->id(), 600);
+        RateLimiter::hit($key . ':'.auth()->id(), 600);
     }
 
     private function updateUserEmail(string $email)

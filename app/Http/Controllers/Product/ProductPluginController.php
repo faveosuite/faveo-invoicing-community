@@ -30,7 +30,7 @@ class ProductPluginController extends Controller
                 ->where('id', '!=', $productId)
                 ->orderBy('name')
                 ->get(['id', 'name'])
-                ->map(fn ($p) => [
+                ->map(fn ($p): array => [
                     'id' => $p->id,
                     'name' => $p->name,
                     'is_bundled' => in_array($p->id, $bundledIds),
@@ -38,8 +38,8 @@ class ProductPluginController extends Controller
                 ]);
 
             return successResponse('', ['plugins' => $plugins]);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -69,8 +69,8 @@ class ProductPluginController extends Controller
             });
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

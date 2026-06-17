@@ -11,16 +11,16 @@ use Illuminate\Support\Facades\Schema;
  */
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasColumn('users', 'is_tax_exempt')) {
             Schema::table('users', function (Blueprint $table): void {
-                $table->boolean('is_tax_exempt')->default(false)->after('gstin');
+                $table->boolean('is_tax_exempt')->default(value: false)->after('gstin');
             });
         }
     }
 
-    public function down()
+    public function down(): void
     {
         if (Schema::hasColumn('users', 'is_tax_exempt')) {
             Schema::table('users', function (Blueprint $table): void {

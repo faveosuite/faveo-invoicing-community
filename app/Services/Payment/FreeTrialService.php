@@ -21,10 +21,6 @@ use RuntimeException;
 
 class FreeTrialService
 {
-    public function __construct()
-    {
-    }
-
     /**
      * @throws RuntimeException
      */

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Tax;
 
 /**
@@ -80,7 +82,7 @@ class TaxEngine
             }
         }
 
-        $compoundRates = array_reverse($compoundRates, true);
+        $compoundRates = array_reverse($compoundRates, preserve_keys: true);
         $nonCompoundPrice = $price;
 
         foreach ($compoundRates as $id => $compoundRate) {

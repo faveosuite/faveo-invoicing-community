@@ -8,10 +8,8 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
 
         $this->call([PricingTemplateSeeder::class]);
@@ -27,7 +25,7 @@ class DatabaseSeeder extends Seeder
 
 class PricingTemplateSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
 
         PricingTemplate::whereIn('id', [1, 2])->update(['image' => 'pricing_template1.png','name' => 'Porto Theme(With Gap Style)']);
@@ -37,7 +35,7 @@ class PricingTemplateSeeder extends Seeder
 
 class TemplateTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
           Template::where('id',4)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>

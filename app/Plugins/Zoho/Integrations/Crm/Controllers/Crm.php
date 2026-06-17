@@ -33,7 +33,6 @@ class Crm
      * Get fields of a CRM module.
      *
      * @param  string  $module  (Leads, Contacts, Deals, etc.)
-     * @return Collection
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
@@ -48,9 +47,6 @@ class Crm
     /**
      * Get records from a CRM module.
      *
-     * @param  string  $module
-     * @param  array  $params
-     * @return Collection
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
@@ -65,8 +61,6 @@ class Crm
     /**
      * Create a CRM record.
      *
-     * @param  string  $module
-     * @param  array  $data
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
@@ -79,9 +73,6 @@ class Crm
     /**
      * Update a CRM record.
      *
-     * @param  string  $module
-     * @param  string  $recordId
-     * @param  array  $data
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
@@ -94,8 +85,6 @@ class Crm
     /**
      * Delete a CRM record.
      *
-     * @param  string  $module
-     * @param  string  $recordId
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException

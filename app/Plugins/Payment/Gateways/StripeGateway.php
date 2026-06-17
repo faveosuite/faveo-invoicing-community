@@ -110,8 +110,8 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
                 ],
                 raw: $session->toArray(),
             );
-        } catch (ApiErrorException $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (ApiErrorException $apiErrorException) {
+            throw new PaymentException($apiErrorException->getMessage(), (int) $apiErrorException->getCode(), $apiErrorException);
         }
     }
 
@@ -160,8 +160,8 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
                 ],
                 raw: $intent->toArray(),
             );
-        } catch (ApiErrorException $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (ApiErrorException $apiErrorException) {
+            throw new PaymentException($apiErrorException->getMessage(), (int) $apiErrorException->getCode(), $apiErrorException);
         }
     }
 
@@ -192,8 +192,8 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
             }
 
             $session = $this->client()->checkout->sessions->retrieve($sessionId);
-        } catch (ApiErrorException $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (ApiErrorException $apiErrorException) {
+            throw new PaymentException($apiErrorException->getMessage(), (int) $apiErrorException->getCode(), $apiErrorException);
         }
 
         return new PaymentResult(
@@ -217,8 +217,8 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
             }
 
             $refund = $this->client()->refunds->create($params);
-        } catch (ApiErrorException $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (ApiErrorException $apiErrorException) {
+            throw new PaymentException($apiErrorException->getMessage(), (int) $apiErrorException->getCode(), $apiErrorException);
         }
 
         return new PaymentResult(
@@ -234,8 +234,8 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
     {
         try {
             return (string) $this->client()->paymentIntents->retrieve($reference)->status;
-        } catch (ApiErrorException $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (ApiErrorException $apiErrorException) {
+            throw new PaymentException($apiErrorException->getMessage(), (int) $apiErrorException->getCode(), $apiErrorException);
         }
     }
 
@@ -290,8 +290,8 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
                 status: (string) $subscription->status,
                 raw: $subscription->toArray(),
             );
-        } catch (ApiErrorException $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (ApiErrorException $apiErrorException) {
+            throw new PaymentException($apiErrorException->getMessage(), (int) $apiErrorException->getCode(), $apiErrorException);
         }
     }
 
@@ -299,8 +299,8 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
     {
         try {
             return (string) $this->client()->subscriptions->retrieve($subscriptionId)->status;
-        } catch (ApiErrorException $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (ApiErrorException $apiErrorException) {
+            throw new PaymentException($apiErrorException->getMessage(), (int) $apiErrorException->getCode(), $apiErrorException);
         }
     }
 
@@ -315,8 +315,8 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
                 status: (string) $subscription->status,
                 raw: $subscription->toArray(),
             );
-        } catch (ApiErrorException $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (ApiErrorException $apiErrorException) {
+            throw new PaymentException($apiErrorException->getMessage(), (int) $apiErrorException->getCode(), $apiErrorException);
         }
     }
 
@@ -353,8 +353,8 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
             }
 
             return new SubscriptionResult($this->name(), $updated->id, (string) $updated->status, $updated->toArray());
-        } catch (ApiErrorException $e) {
-            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        } catch (ApiErrorException $apiErrorException) {
+            throw new PaymentException($apiErrorException->getMessage(), (int) $apiErrorException->getCode(), $apiErrorException);
         }
     }
 
@@ -385,7 +385,7 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
      */
     private function stringMetadata(array $metadata): array
     {
-        return array_map(static fn ($v) => (string) $v, $metadata);
+        return array_map(static fn (bool|float|int|string $v): string => (string) $v, $metadata);
     }
 
     /**
@@ -410,7 +410,7 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
                 'state' => $customer->state,
                 'postal_code' => $customer->postalCode,
                 'country' => $customer->country,
-            ], static fn ($v) => $v !== null && $v !== ''),
+            ], static fn (?string $v): bool => $v !== null && $v !== ''),
         ];
     }
 }

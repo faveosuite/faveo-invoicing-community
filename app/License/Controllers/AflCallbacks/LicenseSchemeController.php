@@ -30,8 +30,8 @@ class LicenseSchemeController extends Controller
         $installation_hash = $request->input('installation_hash');
         $license_signature = $request->input('license_signature');
         $client_id = $request->input('client_id');
-        $isPlugin = $request->input('isPlugin', null);
-        $tableCreate = $request->input('tableCreate', true);
+        $isPlugin = $request->input('isPlugin');
+        $tableCreate = $request->input('tableCreate', default: true);
         $ip = $this->validator->resolveIp($request);
 
         // Validate basic request
@@ -51,14 +51,14 @@ class LicenseSchemeController extends Controller
 
         // Verify product exists
         $product = $this->validator->validateProduct($product_id);
-        if (! $product) {
+        if (!$product instanceof \App\Model\Product\Product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
         // Find license (with LicensePlugin support)
         $license = $this->validator->findLicense($license_code, $client_email, $product_id);
 
-        if (! $license) {
+        if (!$license instanceof \App\License\Models\License) {
             return $this->notificationResponse('notification_license_not_found', []);
         }
 

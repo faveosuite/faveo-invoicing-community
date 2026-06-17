@@ -50,7 +50,7 @@ class InstallationService
             $domain = str_ireplace('www.', '', parse_url((string) $domain, PHP_URL_HOST) ?? $domain);
         }
 
-        $log = InstallationLog::updateOrCreate(
+        InstallationLog::updateOrCreate(
             [
                 'license_code' => $data['license_code'],
                 'installation_domain' => $domain,

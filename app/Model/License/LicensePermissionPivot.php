@@ -32,7 +32,7 @@ class LicensePermissionPivot extends Pivot
         ];
     }
 
-    public function getLogNameColumn()
+    public function getLogNameColumn(): string
     {
         $licenseType = LicenseType::find($this->license_type_id);
         $permission = LicensePermission::find($this->license_permission_id);

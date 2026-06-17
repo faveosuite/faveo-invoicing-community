@@ -48,7 +48,7 @@ class PostPaymentService
             'agent_alteration' => $this->handleAgentAlteration($invoice, $metadata),
             'upgrade_downgrade' => $this->handleUpgradeDowngrade($invoice, $metadata),
             default => $invoice->is_renewed == 1
-                                       ? $this->handleRenewal($invoice, $metadata)
+                                       ? $this->handleRenewal($invoice)
                                        : $this->handlePurchase($invoice),
         };
 
@@ -91,7 +91,7 @@ class PostPaymentService
         return ['status' => 'success'];
     }
 
-    private function handleRenewal(Invoice $invoice, array $metadata): array
+    private function handleRenewal(Invoice $invoice): array
     {
         new RenewController()->successRenew($invoice);
 
@@ -136,7 +136,7 @@ class PostPaymentService
             ->latest()->value('order_id');
         $newOrder = Order::find($newActiveOrderId);
         if (! $newOrder) {
-            throw new RuntimeException("New order not found for invoice #{$invoice->id} after checkoutAction.");
+            throw new RuntimeException(sprintf('New order not found for invoice #%s after checkoutAction.', $invoice->id));
         }
 
         $licenseCode = Crypt::decrypt($newOrder->serial_key);
@@ -232,7 +232,7 @@ class PostPaymentService
                 ->where('payment_status', 'success')
                 ->where('payment_method', 'Credit Balance')
                 ->value('id');
-            $formattedValue = currencyFormat($invoice->billing_pay, $invoice->currency, true);
+            $formattedValue = currencyFormat($invoice->billing_pay, $invoice->currency, includeSymbol: true);
 
             $messageAdmin = 'The payment balance of '.$formattedValue.' has been utilized or adjusted with this invoice.'
                 .' You can view the details of the invoice '
@@ -262,7 +262,6 @@ class PostPaymentService
      *
      * @param  string  $orderId  The order ID associated with the subscription.
      * @param  object  $invoice  The invoice object for the subscription.
-     * @return void
      */
     private function updateSubscriptionPriceIfNeeded($orderId, Invoice $invoice): void
     {
@@ -290,7 +289,7 @@ class PostPaymentService
             $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $invoice->currency)->where('country_id', 0)->value('renew_price');
         }
 
-        $amount = $this->getPriceForCloud($order, $price, $subscription->product_id, $invoice->currency, $subscription);
+        $amount = $this->getPriceForCloud($order, $price, $subscription->product_id);
         $renewPrice = intval(calculateUnitCost($invoice->currency, $amount));
 
         if (! $subscription->subscribe_id) {
@@ -322,15 +321,14 @@ class PostPaymentService
         }
     }
 
-    private function getPriceForCloud($order, $price, $product, $currency, $subscription): float|int
+    private function getPriceForCloud($order, $price, $product): float|int
     {
         $numberofAgents = (int) ltrim(substr((string) $order->serial_key, -4), '0');
         $finalPrice = $numberofAgents * $price;
         $controller = new InvoiceController();
         $tax = $this->calculateTax($product, Auth::user()->state, Auth::user()->country);
         $tax_rate = $tax['value'];
-        $cost = rounding($controller->calculateTotal($tax_rate, $finalPrice));
 
-        return $cost;
+        return rounding($controller->calculateTotal($tax_rate, $finalPrice));
     }
 }

@@ -35,7 +35,7 @@ class AddJsonAcceptHeader
 
     private function isAllowedWithoutApiKey($request): bool
     {
-        return array_any($this->allowedEndpoints, fn ($value) => str_contains((string) $request->url(), (string) $value));
+        return array_any($this->allowedEndpoints, fn ($value): bool => str_contains((string) $request->url(), (string) $value));
     }
 
 //    private function validateSettings($request)

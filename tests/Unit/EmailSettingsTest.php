@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use App\Http\Requests\Email\EmailSettingRequest;
@@ -13,10 +15,10 @@ class EmailSettingsTest extends TestCase
      */
     public function test_example(): void
     {
-        $this->assertTrue(true);
+        $this->assertTrue(condition: true);
     }
 
-    public function test_smtp_driver_correct_fields()
+    public function test_smtp_driver_correct_fields(): void
     {
         $data = ['driver' => 'smtp', 'password' => 'password'];
         $request = new EmailSettingRequest();

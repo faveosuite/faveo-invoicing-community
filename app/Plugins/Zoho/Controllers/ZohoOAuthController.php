@@ -23,7 +23,7 @@ class ZohoOAuthController extends Controller
         $integrations = ZohoIntegration::with('token')
             ->select('id', 'platform', 'description', 'is_active')
             ->get()
-            ->map(fn ($i) => [
+            ->map(fn ($i): array => [
                 'id' => $i->id,
                 'platform' => $i->platform,
                 'description' => $i->description,
@@ -102,10 +102,10 @@ class ZohoOAuthController extends Controller
      */
     protected function getScopesByPlatform(string $platform): string
     {
-        $scopes = config("zoho.platforms.$platform.scope");
+        $scopes = config(sprintf('zoho.platforms.%s.scope', $platform));
 
         if (empty($scopes)) {
-            throw new InvalidArgumentException("Scopes not configured for [$platform]");
+            throw new InvalidArgumentException(sprintf('Scopes not configured for [%s]', $platform));
         }
 
         return implode(',', $scopes);
@@ -117,9 +117,9 @@ class ZohoOAuthController extends Controller
 
         if (! $request->filled('code')) {
             return $this->redirectWithMessage(
-                false,
-                $platform,
-                $request->input('error')
+                success: false,
+                platform: $platform,
+                message: $request->input('error')
             );
         }
 
@@ -155,15 +155,15 @@ class ZohoOAuthController extends Controller
 
         if (empty($data['access_token'])) {
             return $this->redirectWithMessage(
-                false,
-                $platform,
-                $data['error_description'] ?? 'OAuth failed'
+                success: false,
+                platform: $platform,
+                message: $data['error_description'] ?? 'OAuth failed'
             );
         }
 
         $this->storeTokenForPlatform($integration, $data);
 
-        return $this->redirectWithMessage(true, $platform);
+        return $this->redirectWithMessage(success: true, platform: $platform);
     }
 
     /**
@@ -197,7 +197,7 @@ class ZohoOAuthController extends Controller
         string $platform,
         ?string $message = null
     ): RedirectResponse {
-        $path = config("zoho.platforms.$platform.settings_url");
+        $path = config(sprintf('zoho.platforms.%s.settings_url', $platform));
         $url = url($path);
 
         return redirect()->to(

@@ -15,8 +15,6 @@ class SendEmail implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @return void
      */
     public function __construct(protected $from, protected $to, protected $template_data, protected $template_name, protected $replace = [], protected $type = '', protected $bcc = [], protected $fromname = '', protected $toname = '', protected $cc = [], protected $attach = [], protected $logIdentifier = null, protected $auto_reply = false)
     {
@@ -32,7 +30,7 @@ class SendEmail implements ShouldQueue
         if (MailLog::whereId($this->logIdentifier)->value('status') == 'sent') {
             $this->job->delete();
 
-            return;
+            return null;
         }
 
         return $phpMailController->mailing(

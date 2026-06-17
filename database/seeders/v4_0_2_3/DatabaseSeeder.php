@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders\v4_0_2_3;
 
 use App\Model\User\AccountActivate;
@@ -15,7 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->deleteOldOTP();
     }
 
-    private function deleteOldOTP()
+    private function deleteOldOTP(): void
     {
         AccountActivate::query()->delete();
     }

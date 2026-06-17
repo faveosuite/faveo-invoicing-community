@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Schema;
  */
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('tax_rates')) {
             Schema::create('tax_rates', function (Blueprint $table): void {
@@ -25,10 +25,10 @@ return new class extends Migration
                 $table->string('state', 200)->default('');       // '' = applies to every state
                 $table->decimal('rate', 12, 4)->default(0);      // percentage, e.g. 18.0000
                 $table->unsignedInteger('priority')->default(1); // one rate per priority wins per location
-                $table->boolean('compound')->default(false);     // stacks on top of other rates
+                $table->boolean('compound')->default(value: false);     // stacks on top of other rates
                 $table->string('tax_class', 200)->default('');   // slug, '' = standard class
                 $table->unsignedInteger('display_order')->default(0);
-                $table->boolean('active')->default(true);
+                $table->boolean('active')->default(value: true);
                 $table->timestamps();
 
                 $table->index('country');
@@ -38,7 +38,7 @@ return new class extends Migration
         }
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('tax_rates');
     }

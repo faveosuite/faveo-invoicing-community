@@ -15,7 +15,7 @@ class MailchimpControllerTest extends DBTestCase
         $this->classObject = new BaseMailChimpController();
     }
 
-    public function test_post_mailchimp_settings_success()
+    public function test_post_mailchimp_settings_success(): void
     {
         $payload = [
             'list_id' => '1',

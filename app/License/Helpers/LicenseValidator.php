@@ -26,7 +26,7 @@ class LicenseValidator
         return filter_var($ip, FILTER_VALIDATE_IP) !== false
             && filter_var($refer, FILTER_VALIDATE_URL) !== false
             && $this->validateIntegerValue($product_id)
-            && ! empty($connection_hash)
+            && !in_array($connection_hash, [null, '', '0'], strict: true)
             && $connection_hash === hash('sha256', 'connection_test');
     }
 
@@ -41,7 +41,7 @@ class LicenseValidator
         return filter_var($ip, FILTER_VALIDATE_IP) !== false
             && $this->validateIntegerValue($product_id)
             && filter_var($root_url, FILTER_VALIDATE_URL) !== false
-            && (! empty($license_code) || filter_var($client_email, FILTER_VALIDATE_EMAIL) !== false);
+            && (!in_array($license_code, [null, '', '0'], strict: true) || filter_var($client_email, FILTER_VALIDATE_EMAIL) !== false);
     }
 
     /**
@@ -96,11 +96,11 @@ class LicenseValidator
         string $ip,
         string $root_url
     ): array {
-        if (! $license) {
+        if (!$license instanceof \App\License\Models\License) {
             $license = $this->findLicenseByEmail($client_email, $product_id);
         }
 
-        if (! $license) {
+        if (!$license instanceof \App\License\Models\License) {
             return ['valid' => false, 'error' => 'license_not_found'];
         }
 
@@ -138,7 +138,7 @@ class LicenseValidator
         // Check domain restriction (supports comma-separated domains, uses stripos)
         if (! empty($license->license_domain)) {
             $licensed_domains = array_map(trim(...), explode(',', (string) $license->license_domain));
-            $domain_valid = array_any($licensed_domains, fn ($domain) => stripos($root_url, (string) $domain) !== false);
+            $domain_valid = array_any($licensed_domains, fn ($domain): bool => stripos($root_url, (string) $domain) !== false);
             if (! $domain_valid) {
                 return ['valid' => false, 'error' => 'invalid_domain', 'data' => ['domain' => $root_url]];
             }
@@ -153,7 +153,7 @@ class LicenseValidator
      */
     public function findLicenseByEmail(?string $email, int $product_id): ?License
     {
-        if (empty($email)) {
+        if (in_array($email, [null, '', '0'], strict: true)) {
             return null;
         }
 
@@ -187,7 +187,7 @@ class LicenseValidator
      */
     public function validateRawDomain(?string $url): bool
     {
-        if (empty($url)) {
+        if (in_array($url, [null, '', '0'], strict: true)) {
             return false;
         }
 
@@ -199,7 +199,7 @@ class LicenseValidator
      */
     public function getRawDomain(?string $url): string
     {
-        if (empty($url)) {
+        if (in_array($url, [null, '', '0'], strict: true)) {
             return '';
         }
 
@@ -216,7 +216,7 @@ class LicenseValidator
      */
     public function verifyDateTime(?string $datetime, string $format): bool
     {
-        if (empty($datetime) || empty($format)) {
+        if (in_array($datetime, [null, '', '0'], strict: true) || ($format === '' || $format === '0')) {
             return false;
         }
 
@@ -230,9 +230,9 @@ class LicenseValidator
      * Verify script signature received from user's script.
      * Original: hash('sha256', gmdate('Y-m-d') . $root_url . $client_email . $license_code . $product_id . implode('', $root_ips_array)).
      */
-    public function verifyScriptSignature(?string $license_signature, $product_id, ?string $root_url, ?string $client_email, ?string $license_code): bool
+    public function verifyScriptSignature(?string $license_signature, string $product_id, ?string $root_url, ?string $client_email, ?string $license_code): bool
     {
-        if (empty($license_signature)) {
+        if (in_array($license_signature, [null, '', '0'], strict: true)) {
             return false;
         }
 
@@ -255,9 +255,9 @@ class LicenseValidator
      */
     public function findLicense(?string $license_code, ?string $client_email, int $product_id): ?License
     {
-        if (! empty($license_code)) {
+        if (!in_array($license_code, [null, '', '0'], strict: true)) {
             $license = $this->findLicenseWithPlugins($license_code, $product_id);
-            if ($license) {
+            if ($license instanceof \App\License\Models\License) {
                 return $license;
             }
         }
@@ -272,7 +272,7 @@ class LicenseValidator
      */
     public function findLicenseWithPlugins(?string $license_code, int $product_id): ?License
     {
-        if (empty($license_code)) {
+        if (in_array($license_code, [null, '', '0'], strict: true)) {
             return null;
         }
 
@@ -311,7 +311,7 @@ class LicenseValidator
      */
     public function validateInstallationHash(?string $hash, ?string $root_url, ?string $client_email, ?string $license_code): bool
     {
-        if (empty($hash)) {
+        if (in_array($hash, [null, '', '0'], strict: true)) {
             return false;
         }
 
@@ -324,9 +324,9 @@ class LicenseValidator
      * Verify AFU (Auto Faveo Updater) script signature.
      * Original: hash('sha256', gmdate('Y-m-d') . $product_id . $product_key . implode('', $root_ips_array)).
      */
-    public function verifyAfuScriptSignature(?string $script_signature, $product_id, ?string $product_key): bool
+    public function verifyAfuScriptSignature(?string $script_signature, string $product_id, ?string $product_key): bool
     {
-        if (empty($script_signature)) {
+        if (in_array($script_signature, [null, '', '0'], strict: true)) {
             return false;
         }
 
@@ -353,8 +353,8 @@ class LicenseValidator
     {
         return filter_var($ip, FILTER_VALIDATE_IP) !== false
             && $this->validateIntegerValue($product_id)
-            && ! empty($product_key)
-            && ! empty($user_local_path)
-            && ! empty($script_signature);
+            && !in_array($product_key, [null, '', '0'], strict: true)
+            && !in_array($user_local_path, [null, '', '0'], strict: true)
+            && !in_array($script_signature, [null, '', '0'], strict: true);
     }
 }

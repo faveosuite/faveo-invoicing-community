@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Events;
 
 use Illuminate\Queue\SerializesModels;
@@ -10,8 +12,6 @@ class PaymentGateway extends Event
 
     /**
      * Create a new event instance.
-     *
-     * @return void
      */
     public function __construct(public $para)
     {
@@ -19,10 +19,8 @@ class PaymentGateway extends Event
 
     /**
      * Get the channels the event should be broadcast on.
-     *
-     * @return array
      */
-    public function broadcastOn()
+    public function broadcastOn(): array
     {
         return [];
     }

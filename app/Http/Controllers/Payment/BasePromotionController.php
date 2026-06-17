@@ -16,12 +16,12 @@ class BasePromotionController extends Controller
     {
         try {
             return successResponse('', strtoupper(Str::random(6)));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function findCost($type, $value, $price, $productid)
+    public function findCost($type, $value, $price, $productid): float|int|null
     {
         try {
             $price = intval($price);
@@ -30,16 +30,19 @@ class BasePromotionController extends Controller
                     $percentage = $price * (intval($value) / 100);
 
                     return  $price - $percentage;
-                case 2://Fixed amount
+                case 2:
+                    //Fixed amount
                     if ($value > $price) {
                         throw new Exception(__('message.invalid_coupon_code'));
-                    } else {
-                        return $price - $value;
                     }
+
+                    return $price - $value;
             }
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
+
+        return null;
     }
 
     public function getPromotionDetails($code)
@@ -56,7 +59,7 @@ class BasePromotionController extends Controller
 
         $relation = $promo->relation()->get();
         //check the relation between code and product
-        if (count($relation) == 0) {
+        if (count($relation) === 0) {
             throw new Exception(Lang::get('message.no-product-related-to-this-code'));
         }
 
@@ -64,7 +67,7 @@ class BasePromotionController extends Controller
         $cont = new PromotionController();
         $uses = $cont->checkNumberOfUses($code);
 
-        if ($uses != 'success') {
+        if ($uses !== 'success') {
             throw new Exception(Lang::get('message.usage-of-code-completed'));
         }
 
@@ -77,7 +80,7 @@ class BasePromotionController extends Controller
         return $promo;
     }
 
-    public function findCostAfterDiscount($promoid, $productid, $userid)
+    public function findCostAfterDiscount($promoid, $productid, $userid): float|int|null
     {
         try {
             $planid = '';
@@ -89,11 +92,10 @@ class BasePromotionController extends Controller
 
             $price = $cart_control->planCost($productid, $userid, $planid);
             Session::put('oldPrice', $price);
-            $updated_price = $this->findCost($promotion->type, $promotion->value, $price, $productid);
 
-            return $updated_price;
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+            return $this->findCost($promotion->type, $promotion->value, $price, $productid);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 }

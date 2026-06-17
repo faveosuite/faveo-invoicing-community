@@ -16,17 +16,17 @@ class ClientController extends Controller
         $query = User::select('id', 'first_name', 'last_name', 'email')
             ->when($search, function ($q) use ($search): void {
                 $q->where(function ($q2) use ($search): void {
-                    $q2->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
-                        ->orWhere('email', 'like', "%{$search}%");
+                    $q2->where('first_name', 'like', sprintf('%%%s%%', $search))
+                        ->orWhere('last_name', 'like', sprintf('%%%s%%', $search))
+                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", [sprintf('%%%s%%', $search)])
+                        ->orWhere('email', 'like', sprintf('%%%s%%', $search));
                 });
             })
             ->orderBy('first_name');
 
         $paginated = $query->paginate(15, ['*'], 'page', $request->input('page', 1));
 
-        $paginated->getCollection()->transform(fn ($u) => [
+        $paginated->getCollection()->transform(fn ($u): array => [
             'client_id' => $u->id,
             'full_name' => trim($u->first_name.' '.$u->last_name),
             'email' => $u->email,
@@ -40,7 +40,7 @@ class ClientController extends Controller
         $products = Product::select('id', 'name')
             ->orderBy('name')
             ->get()
-            ->map(fn ($p) => [
+            ->map(fn ($p): array => [
                 'product_id' => $p->id,
                 'product_title' => $p->name,
             ]);

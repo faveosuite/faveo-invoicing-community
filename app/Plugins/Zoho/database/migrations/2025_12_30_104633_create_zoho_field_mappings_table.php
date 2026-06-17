@@ -26,11 +26,11 @@ return new class extends Migration
                 ->nullOnDelete();
 
             // Mapping control
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(value: true);
 
             // Default handling
             $table->json('default_value')->nullable();
-            $table->boolean('use_default_if_empty')->default(false);
+            $table->boolean('use_default_if_empty')->default(value: false);
 
             $table->json('option_mapping')->nullable();
 

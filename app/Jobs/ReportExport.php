@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Http\Controllers\Report\ConcreteExportHandleController;
@@ -10,7 +12,7 @@ class ReportExport implements ShouldQueue
 {
     use Queueable;
 
-    protected $exportHandleController;
+    protected \App\Http\Controllers\Report\ConcreteExportHandleController $exportHandleController;
 
     public $tries = 5;
 

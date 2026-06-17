@@ -87,7 +87,7 @@ class ZohoCrmApiException extends Exception
             'INTERNAL_ERROR' => 'Zoho CRM internal server error',
 
             // ─────────── FALLBACK ───────────
-            default => "Zoho CRM Error [$code]: ".($error['message'] ?? 'Unknown error'),
+            default => sprintf('Zoho CRM Error [%s]: ', $code).($error['message'] ?? 'Unknown error'),
         };
     }
 }

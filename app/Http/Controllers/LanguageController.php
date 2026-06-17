@@ -19,7 +19,7 @@ class LanguageController extends Controller
         $this->middleware(['auth', 'admin'], ['except' => ['getLanguageFile']]);
     }
 
-    public function getLanguageFile()
+    public function getLanguageFile(): void
     {
         $languages = array_unique([Lang::getFallback(), App::getLocale()]);
 
@@ -46,7 +46,7 @@ class LanguageController extends Controller
 
     private function appendRecaptchaLanguage(string $locale, array &$languageArray): void
     {
-        $path = app_path("Plugins/Recaptcha/resources/lang/{$locale}/recaptcha.php");
+        $path = app_path(sprintf('Plugins/Recaptcha/resources/lang/%s/recaptcha.php', $locale));
 
         if (! is_file($path)) {
             return;
@@ -57,7 +57,7 @@ class LanguageController extends Controller
 
     private function appendLicenseLanguage(string $locale, array &$languageArray): void
     {
-        $path = app_path("License/Lang/{$locale}");
+        $path = app_path('License/Lang/' . $locale);
         foreach ($this->getLanguageFileArray($path) as $file) {
             $content = require $file;
             $languageArray['lang'] = array_merge($languageArray['lang'] ?? [], $content);
@@ -66,7 +66,7 @@ class LanguageController extends Controller
 
     private function appendPackageLanguage(string $package, string $locale, string $namespace, array &$languageArray): void
     {
-        $path = app_path("{$package}/lang/{$locale}");
+        $path = app_path(sprintf('%s/lang/%s', $package, $locale));
         foreach ($this->getLanguageFileArray($path) as $file) {
             $content = require $file;
             $languageArray[$namespace] = array_merge($languageArray[$namespace] ?? [], $content);
@@ -104,23 +104,23 @@ class LanguageController extends Controller
             $limit = $request->input('limit', 10);
 
             $languages = Language::when($searchString, function ($query) use ($searchString): void {
-                $query->where('name', 'like', "%$searchString%")
-                    ->orWhere('locale', 'like', "%$searchString%");
+                $query->where('name', 'like', sprintf('%%%s%%', $searchString))
+                    ->orWhere('locale', 'like', sprintf('%%%s%%', $searchString));
             })
                 ->orderBy($sortField, $sortOrder)
                 ->paginate($limit);
 
             $defaultLocale = Setting::value('content') ?: 'en';
             $result = $languages->toArray();
-            $result['data'] = array_map(function ($lang) use ($defaultLocale) {
+            $result['data'] = array_map(function (array $lang) use ($defaultLocale): array {
                 $lang['is_default'] = $lang['locale'] === $defaultLocale;
 
                 return $lang;
             }, $result['data']);
 
             return successResponse(__('message.language_fetched'), $result);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -137,8 +137,8 @@ class LanguageController extends Controller
             $language->save();
 
             return successResponse(__('message.language_status_updated_successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -152,8 +152,8 @@ class LanguageController extends Controller
             $setting->save();
 
             return successResponse(__('message.language_set_as_default'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Maatwebsite\Excel\Filters\ChunkReadFilter;
 
 return [

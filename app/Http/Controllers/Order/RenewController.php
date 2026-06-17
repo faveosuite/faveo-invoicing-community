@@ -30,19 +30,19 @@ class RenewController extends BaseRenewController
 {
     use TaxCalculation;
 
-    protected $sub;
+    protected \App\Model\Product\Subscription $sub;
 
-    protected $plan;
+    protected \App\Model\Payment\Plan $plan;
 
-    protected $order;
+    protected \App\Model\Order\Order $order;
 
-    protected $invoice;
+    protected \App\Model\Order\Invoice $invoice;
 
-    protected $item;
+    protected \App\Model\Order\InvoiceItem $item;
 
-    protected $product;
+    protected \App\Model\Product\Product $product;
 
-    protected $user;
+    protected \App\User $user;
 
     public function __construct()
     {
@@ -69,7 +69,7 @@ class RenewController extends BaseRenewController
     }
 
     //Renew From admin panel
-    public function renewBySubId($id, $planid, $payment_method, $cost, $code, $isAgentIncrease = true, $agents = null)
+    public function renewBySubId($id, int $planid, $payment_method, $cost, $code, $isAgentIncrease = true, $agents = null)
     {
         try {
             $plan = $this->plan->find($planid);
@@ -87,8 +87,8 @@ class RenewController extends BaseRenewController
             }
 
             return $invoice;
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -113,14 +113,13 @@ class RenewController extends BaseRenewController
             $days = Plan::findOrFail($sub->plan_id)->days;
 
             resolve(SubscriptionRenewalService::class)->extendDates($sub, (int) $days);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry)
+    public function editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry): void
     {
-        $productId = $sub->product_id;
         $domain = $sub->order->domain;
         $orderNo = $sub->order->number;
         $licenseCode = $sub->order->serial_key;
@@ -155,8 +154,8 @@ class RenewController extends BaseRenewController
             if ($product) {
                 return $product;
             }
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -167,12 +166,12 @@ class RenewController extends BaseRenewController
             if ($user) {
                 return $user;
             }
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function createOrderInvoiceRelation($orderid, $invoiceid)
+    public function createOrderInvoiceRelation($orderid, $invoiceid): void
     {
         try {
             $relation = new OrderInvoiceRelation();
@@ -180,8 +179,8 @@ class RenewController extends BaseRenewController
                 'order_id' => $orderid,
                 'invoice_id' => $invoiceid,
             ]);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -201,12 +200,12 @@ class RenewController extends BaseRenewController
 
             $cost = $price->sales_price;
             if (! $cost) {
-                $cost = $price->regular_price;
+                return $price->regular_price;
             }
 
             return $cost;
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -221,8 +220,8 @@ class RenewController extends BaseRenewController
             $grand_total = $controller->calculateTotal($tax_rate, $cost);
 
             return rounding($grand_total);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -267,7 +266,7 @@ class RenewController extends BaseRenewController
                 new CloudExtraActivities(new Client, new FaveoCloud())->doTheAgentAltering($agents, $license, $order_id, $installation_path, $sub->product_id);
             }
 
-            $renew = $this->renewBySubId($id, $planid, $payment_method, $cost, $code = '', true, $agents);
+            $renew = $this->renewBySubId($id, $planid, $payment_method, $cost, $code = '', isAgentIncrease: true, agents: $agents);
 
             Subscription::where('order_id', $order_id)->update(['plan_id' => $planid]);
 
@@ -278,8 +277,8 @@ class RenewController extends BaseRenewController
 
             return errorResponse(__('message.cannot_process'));
             //  return redirect()->back()->with('fails', __('message.cannot_process'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
             // return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
@@ -308,8 +307,8 @@ class RenewController extends BaseRenewController
 
             return successResponse('', $data);
 //            return view('themes.default1.renew.renew', compact('id', 'productid', 'plans', 'userid', 'agents'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
             //return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
@@ -349,16 +348,16 @@ class RenewController extends BaseRenewController
             $invoiceid = $items->invoice_id;
 
             return successResponse('', ['invoice_id' => $invoiceid]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    private function checkExistingUnpaidInvoice($subscription, $planId)
+    private function checkExistingUnpaidInvoice($subscription, int $planId)
     {
         $invoice_id = OrderInvoiceRelation::where('order_id', $subscription->order_id)->latest()->value('invoice_id');
 
-        $latestInvoiceItem = InvoiceItem::whereHas('invoice', function (Builder $query) use ($invoice_id, $planId): void {
+        return InvoiceItem::whereHas('invoice', function (Builder $query) use ($invoice_id, $planId): void {
             $query->where('invoice_id', $invoice_id)
                 ->where('is_renewed', 1)
                 ->where('status', 'pending')
@@ -366,31 +365,24 @@ class RenewController extends BaseRenewController
         })
             ->latest('created_at')
             ->first();
-
-        return $latestInvoiceItem;
     }
 
-    public function setSession($sub_id, $planid)
+    public function setSession($sub_id, $planid): void
     {
         Session::put('subscription_id', $sub_id);
         Session::put('plan_id', $planid);
     }
 
-    public function removeSession()
+    public function removeSession(): void
     {
         Session::forget('subscription_id');
         Session::forget('plan_id');
         Session::forget('invoiceid');
     }
 
-    public function checkRenew($flag = 1)
+    public function checkRenew($flag = 1): bool
     {
-        $res = false;
-        if (Session::has('subscription_id') && Session::has('plan_id') && $flag) {
-            $res = true;
-        }
-
-        return $res;
+        return Session::has('subscription_id') && Session::has('plan_id') && $flag;
     }
 
     //Update License Expiry Date
@@ -429,7 +421,7 @@ class RenewController extends BaseRenewController
         return $expiry_date;
     }
 
-    private function checktheAgent($numberOfAgents, $domain)
+    private function checktheAgent($numberOfAgents, string $domain): mixed
     {
         $client = new Client([]);
         $data = ['number_of_agents' => $numberOfAgents];

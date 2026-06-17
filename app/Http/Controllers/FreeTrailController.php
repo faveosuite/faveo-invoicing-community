@@ -73,11 +73,11 @@ class FreeTrailController extends Controller
         return successResponse('', [
             'cloud_subdomain' => cloudSubDomain() ?? '',
             'data_centers' => CloudDataCenters::select('id', 'cloud_countries', 'cloud_state')->get()
-                ->map(fn ($dc) => [
+                ->map(fn ($dc): array => [
                     'id' => $dc->id,
                     'name' => trim($dc->cloud_countries.($dc->cloud_state ? ', '.$dc->cloud_state : '')),
                 ])->values(),
-            'products' => $products->map(fn ($p) => [
+            'products' => $products->map(fn ($p): array => [
                 'id' => $p->id,
                 'name' => $p->name,
                 'default_plan_id' => $cloudPlans->get($p->id),

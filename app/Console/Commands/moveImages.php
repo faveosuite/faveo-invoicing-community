@@ -24,10 +24,8 @@ class moveImages extends LoggableCommand
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
         // Define the source directories and corresponding destination directories
         $directories = [
@@ -42,7 +40,7 @@ class moveImages extends LoggableCommand
         foreach ($directories as $sourceDirectory => $destinationDirectory) {
             if (File::isDirectory($sourceDirectory)) {
                 File::copyDirectory($sourceDirectory, $destinationDirectory);
-                $this->info("Images copied from $sourceDirectory to $destinationDirectory");
+                $this->info(sprintf('Images copied from %s to %s', $sourceDirectory, $destinationDirectory));
             }
         }
 

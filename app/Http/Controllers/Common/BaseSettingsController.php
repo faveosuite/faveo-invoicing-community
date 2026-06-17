@@ -51,8 +51,9 @@ class BaseSettingsController extends PaymentSettingsController
      * In the properties column of the activity_log table, the data is stored in the below format
      * {"attributes":{"Status":"Active"},"old":{"Status":"Inactive"}}
      * where old represents the old data and attributes represents the new data.
+     * @return non-falsy-string[]
      */
-    protected function formatProperties($properties, $event)
+    protected function formatProperties(array $properties, $event): array
     {
         $formatted = [];
 
@@ -60,7 +61,7 @@ class BaseSettingsController extends PaymentSettingsController
         $attributes = $properties['attributes'] ?? [];
 
         // Helper to clean and escape values
-        $escape = function ($value) {
+        $escape = function ($value): string {
             if (is_array($value) || is_object($value)) {
                 $value = json_encode($value); // handle JSON fields
             }
@@ -94,29 +95,13 @@ class BaseSettingsController extends PaymentSettingsController
     public function postSchedular(StatusSetting $status, Request $request)
     {
         $allStatus = $status->whereId('1')->first();
-        if ($request->expiry_cron) {
-            $allStatus->expiry_mail = $request->expiry_cron;
-        } else {
-            $allStatus->expiry_mail = 0;
-        }
+        $allStatus->expiry_mail = $request->expiry_cron ? $request->expiry_cron : 0;
 
-        if ($request->activity) {
-            $allStatus->activity_log_delete = $request->activity;
-        } else {
-            $allStatus->activity_log_delete = 0;
-        }
+        $allStatus->activity_log_delete = $request->activity ? $request->activity : 0;
 
-        if ($request->subs_expirymail) {
-            $allStatus->subs_expirymail = $request->subs_expirymail;
-        } else {
-            $allStatus->subs_expirymail = 0;
-        }
+        $allStatus->subs_expirymail = $request->subs_expirymail ? $request->subs_expirymail : 0;
 
-        if ($request->postsubs_expirymail) {
-            $allStatus->post_expirymail = $request->postsubs_expirymail;
-        } else {
-            $allStatus->post_expirymail = 0;
-        }
+        $allStatus->post_expirymail = $request->postsubs_expirymail ? $request->postsubs_expirymail : 0;
 
         $allStatus->cloud_mail_status = $request->cloud_cron ?: 0;
         $allStatus->invoice_deletion_status = $request->invoice_cron ?: 0;

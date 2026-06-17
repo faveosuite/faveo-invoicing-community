@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Front;
 
 use App\Rules\Honeypot;
@@ -33,7 +35,9 @@ class ContactRequest extends FormRequest
                 'country_code' => ['required'],
                 'contact' => [new Honeypot()],
             ];
-        } elseif ($this->is('demo-request')) {
+        }
+
+        if ($this->is('demo-request')) {
             return [
                 'demoname' => ['required'],
                 'demoemail' => ['required', 'email'],

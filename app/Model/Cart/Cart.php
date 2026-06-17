@@ -43,7 +43,7 @@ class Cart extends Model
         $currency = $this->currency ?? 'USD';
 
         return (float) $this->items->sum(
-            fn (CartItem $item) => $item->priceFor($currency) * $item->quantity * $item->agents
+            fn (CartItem $item): float => $item->priceFor($currency) * $item->quantity * $item->agents
         );
     }
 

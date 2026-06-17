@@ -95,28 +95,28 @@ class WhatsappController extends Controller
             $searchString = $request->input('search-query', '');
             $sortOrder = $request->input('sort-order', 'desc');
             $allowedSorts = ['created_at', 'phone_number', 'waba_id', 'phone_number_id', 'business_id'];
-            $sortField = in_array($request->input('sort-field'), $allowedSorts, true)
+            $sortField = in_array($request->input('sort-field'), $allowedSorts, strict: true)
                 ? $request->input('sort-field')
                 : 'created_at';
 
             $users = WhatsappIntegrationUser::with('user:id,first_name,last_name,email')
                 ->when($searchString, function ($query) use ($searchString): void {
                     $query->where(function (Builder $q) use ($searchString): void {
-                        $q->where('phone_number', 'like', "%{$searchString}%")
-                            ->orWhere('waba_id', 'like', "%{$searchString}%")
-                            ->orWhere('phone_number_id', 'like', "%{$searchString}%")
-                            ->orWhere('business_id', 'like', "%{$searchString}%")
+                        $q->where('phone_number', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhere('waba_id', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhere('phone_number_id', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhere('business_id', 'like', sprintf('%%%s%%', $searchString))
                             ->orWhereHas('user', function (Builder $userQuery) use ($searchString): void {
-                                $userQuery->where('first_name', 'like', "%{$searchString}%")
-                                    ->orWhere('last_name', 'like', "%{$searchString}%")
-                                    ->orWhere('email', 'like', "%{$searchString}%");
+                                $userQuery->where('first_name', 'like', sprintf('%%%s%%', $searchString))
+                                    ->orWhere('last_name', 'like', sprintf('%%%s%%', $searchString))
+                                    ->orWhere('email', 'like', sprintf('%%%s%%', $searchString));
                             });
                     });
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($request->input('limit', 10));
 
-            $users->getCollection()->transform(function ($model) {
+            $users->getCollection()->transform(function ($model): array {
                 $name = trim(($model->user->first_name ?? '').' '.($model->user->last_name ?? ''));
 
                 return [
@@ -150,18 +150,19 @@ class WhatsappController extends Controller
         try {
             $query = WhatsappIntegrationUser::where('user_id', Auth::id())
                 ->where('order_id', $orderid);
+            $search = trim((string) $request->input('search-query', ''));
 
-            if ($search = trim((string) $request->input('search-query', ''))) {
+            if ($search !== '' && $search !== '0') {
                 $query->where(function ($q) use ($search): void {
-                    $q->where('phone_number', 'like', "%{$search}%")
-                        ->orWhere('waba_id', 'like', "%{$search}%")
-                        ->orWhere('phone_number_id', 'like', "%{$search}%")
-                        ->orWhere('business_id', 'like', "%{$search}%");
+                    $q->where('phone_number', 'like', sprintf('%%%s%%', $search))
+                        ->orWhere('waba_id', 'like', sprintf('%%%s%%', $search))
+                        ->orWhere('phone_number_id', 'like', sprintf('%%%s%%', $search))
+                        ->orWhere('business_id', 'like', sprintf('%%%s%%', $search));
                 });
             }
 
             $allowed = ['phone_number', 'waba_id', 'business_id', 'created_at'];
-            $sortField = in_array($request->input('sort-field'), $allowed, true)
+            $sortField = in_array($request->input('sort-field'), $allowed, strict: true)
                 ? $request->input('sort-field')
                 : 'created_at';
             $sortOrder = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
@@ -169,7 +170,7 @@ class WhatsappController extends Controller
 
             $paginated = $query->paginate((int) $request->input('limit', 10));
 
-            $paginated->getCollection()->transform(fn ($model) => [
+            $paginated->getCollection()->transform(fn ($model): array => [
                 'id' => $model->id,
                 'phone_number' => $model->phone_number,
                 'waba_id' => $model->waba_id,
@@ -221,7 +222,7 @@ class WhatsappController extends Controller
             Session::forget('whatsapp_url');
 
             Http::withToken($accessToken)
-                ->post("https://graph.facebook.com/v17.0/{$wabaId}/subscribed_apps");
+                ->post(sprintf('https://graph.facebook.com/v17.0/%s/subscribed_apps', $wabaId));
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
@@ -316,7 +317,7 @@ class WhatsappController extends Controller
 
             if ($request->isMethod('post')) {
                 $rawBody = $request->getContent();
-                $change = json_decode($rawBody, true)['entry'][0]['changes'][0]['value'] ?? [];
+                $change = json_decode($rawBody, associative: true)['entry'][0]['changes'][0]['value'] ?? [];
 
                 if (isset($change['statuses'])) {
                     return response()->json(['ignored' => 'status update'], 200);
@@ -352,7 +353,7 @@ class WhatsappController extends Controller
     /**
      * Resolve the display phone number for a phone_number_id from the Meta Graph API.
      */
-    private function getNumber($phoneNumberId, $accessToken): string
+    private function getNumber(?string $phoneNumberId, string $accessToken): string
     {
         if (! $phoneNumberId) {
             return '';

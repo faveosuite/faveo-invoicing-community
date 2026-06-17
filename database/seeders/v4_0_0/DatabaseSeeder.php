@@ -11,10 +11,8 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         Widgets::where('type','footer4')->delete();
 
@@ -38,7 +36,7 @@ class DatabaseSeeder extends Seeder
 
 class TemplateTypeTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         TemplateType::whereIn('id', [21, 22])->delete();
@@ -52,7 +50,7 @@ class TemplateTypeTableSeeder extends Seeder
 
 class TemplateTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
 
 
@@ -837,7 +835,7 @@ class TemplateTableSeeder extends Seeder
 
 class PricingTemplateSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
        PricingTemplate::truncate();

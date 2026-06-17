@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories\Model\Product;
 
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Product\ProductUpload>
+ */
 class ProductUploadFactory extends Factory
 {
     /**
@@ -24,13 +29,13 @@ class ProductUploadFactory extends Factory
     {
         return [
             'product_id' => Product::factory(),
-            'title' => $this->faker->sentence,
-            'description' => $this->faker->paragraph,
-            'version' => $this->faker->semver,
-            'file' => $this->faker->word.'.'.$this->faker->fileExtension,
-            'is_private' => $this->faker->boolean,
-            'is_restricted' => $this->faker->boolean,
-            'release_type' => $this->faker->randomElement(['official', 'beat']),
+            'title' => fake()->sentence,
+            'description' => fake()->paragraph,
+            'version' => fake()->semver,
+            'file' => fake()->word.'.'.fake()->fileExtension,
+            'is_private' => fake()->boolean,
+            'is_restricted' => fake()->boolean,
+            'release_type' => fake()->randomElement(['official', 'beat']),
             'dependencies' => null,
         ];
     }

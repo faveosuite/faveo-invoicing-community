@@ -137,7 +137,7 @@ class LicenseService
         $licenseId = $license->id;
 
         // Filter out empty values and deduplicate
-        $productIds = array_unique(array_filter($productIds, fn ($id) => ! empty($id)));
+        $productIds = array_unique(array_filter($productIds, fn ($id): bool => ! empty($id)));
 
         DB::transaction(function () use ($licenseId, $productIds, $options): void {
             // Insert or update license plugins (upsert like original)
@@ -243,7 +243,7 @@ class LicenseService
 
         return LicenseOption::where('option_group', (string) $license->id)
             ->get()
-            ->map(fn ($option) => [
+            ->map(fn ($option): array => [
                 'license_code' => $license->license_code,
                 'id' => $option->id,
                 'option_group' => $option->option_group,
@@ -277,7 +277,7 @@ class LicenseService
      */
     public static function parseIpAndDomain(string $domain): array
     {
-        if ($domain != '') {
+        if ($domain !== '') {
             if (ip2long($domain)) {
                 return ['ip' => $domain, 'domain' => '', 'requireDomain' => 0];
             }
@@ -294,7 +294,7 @@ class LicenseService
     public function generateLicenseCode(): string
     {
         do {
-            $code = strtoupper(substr(md5(uniqid(random_int(0, mt_getrandmax()), true)), 0, 16));
+            $code = strtoupper(substr(md5(uniqid(random_int(0, mt_getrandmax()), more_entropy: true)), 0, 16));
             $code = chunk_split($code, 4, '-');
             $code = substr($code, 0, -1);
         } while (License::where('license_code', $code)->exists());

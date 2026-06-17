@@ -42,7 +42,7 @@ class ZohoCrmControllerTest extends DBTestCase
         $this->controller = new ZohoCrmController();
     }
 
-    public function test_it_syncs_crm_fields_successfully()
+    public function test_it_syncs_crm_fields_successfully(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -67,7 +67,7 @@ class ZohoCrmControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_handles_sync_fields_error()
+    public function test_it_handles_sync_fields_error(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -83,7 +83,7 @@ class ZohoCrmControllerTest extends DBTestCase
         $this->assertFalse($response->getData()->success);
     }
 
-    public function test_it_gets_crm_mapped_fields_for_module()
+    public function test_it_gets_crm_mapped_fields_for_module(): void
     {
         $zohoField = ZohoFields::create([
             'platform' => 'crm',
@@ -105,7 +105,7 @@ class ZohoCrmControllerTest extends DBTestCase
         $this->assertTrue($response->getData()->success);
     }
 
-    public function test_it_gets_crm_contacts_fields()
+    public function test_it_gets_crm_contacts_fields(): void
     {
         ZohoFields::create([
             'platform' => 'crm',
@@ -118,7 +118,7 @@ class ZohoCrmControllerTest extends DBTestCase
         $this->assertTrue($response->getData()->success);
     }
 
-    public function test_it_gets_crm_accounts_fields()
+    public function test_it_gets_crm_accounts_fields(): void
     {
         ZohoFields::create([
             'platform' => 'crm',
@@ -131,7 +131,7 @@ class ZohoCrmControllerTest extends DBTestCase
         $this->assertTrue($response->getData()->success);
     }
 
-    public function test_it_validates_email_when_updating_to_zoho_crm()
+    public function test_it_validates_email_when_updating_to_zoho_crm(): void
     {
         $request = new Request(['email' => 'invalid-email']);
 
@@ -140,9 +140,9 @@ class ZohoCrmControllerTest extends DBTestCase
         $this->assertFalse($response->getData()->success);
     }
 
-    public function test_it_updates_user_to_zoho_crm_successfully()
+    public function test_it_updates_user_to_zoho_crm_successfully(): void
     {
-        $user = User::create(['email' => 'test@example.com']);
+        User::create(['email' => 'test@example.com']);
 
         ZohoFields::create([
             'platform' => 'crm',
@@ -161,9 +161,9 @@ class ZohoCrmControllerTest extends DBTestCase
         $this->assertTrue($response->getData()->success);
     }
 
-    public function test_it_adds_user_data_to_both_contacts_and_accounts()
+    public function test_it_adds_user_data_to_both_contacts_and_accounts(): void
     {
-        $user = User::create(['email' => 'test@example.com']);
+        User::create(['email' => 'test@example.com']);
 
         $contactField = ZohoFields::create([
             'platform' => 'crm',
@@ -201,9 +201,9 @@ class ZohoCrmControllerTest extends DBTestCase
         Http::assertSentCount(2);
     }
 
-    public function test_it_skips_insertion_when_no_record_data()
+    public function test_it_skips_insertion_when_no_record_data(): void
     {
-        $user = User::create(['email' => 'test@example.com']);
+        User::create(['email' => 'test@example.com']);
 
         Http::fake();
 
@@ -212,16 +212,16 @@ class ZohoCrmControllerTest extends DBTestCase
         Http::assertNothingSent();
     }
 
-    public function test_it_throws_exception_when_user_not_found()
+    public function test_it_throws_exception_when_user_not_found(): void
     {
         $this->expectException(ModelNotFoundException::class);
 
         $this->controller->addUserDataToCrm('nonexistent@example.com');
     }
 
-    public function test_it_uses_mapped_fields_when_inserting_module_data()
+    public function test_it_uses_mapped_fields_when_inserting_module_data(): void
     {
-        $user = User::create([
+        User::create([
             'email' => 'user@example.com',
             'first_name' => 'John',
             'last_name' => 'Doe',
@@ -248,6 +248,6 @@ class ZohoCrmControllerTest extends DBTestCase
 
         $this->controller->addUserDataToCrm('user@example.com');
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'Contacts'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'Contacts'));
     }
 }

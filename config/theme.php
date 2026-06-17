@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 $theme = 'adminlte';
 $useCdn = false;
 $cdnBase = rtrim((string) env('CDN_URL', 'https://your-cdn-server.com'), '/');

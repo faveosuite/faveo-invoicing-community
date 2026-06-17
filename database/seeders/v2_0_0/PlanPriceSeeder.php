@@ -10,15 +10,13 @@ class PlanPriceSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->mapCountriesToCurrency();
     }
 
-    private function mapCountriesToCurrency()
+    private function mapCountriesToCurrency(): void
     {
         $nonDefaultCurrencies = PlanPrice::where(
             'currency', '=', new Setting()->first()->default_currency

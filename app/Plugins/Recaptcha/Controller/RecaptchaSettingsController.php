@@ -37,7 +37,7 @@ class RecaptchaSettingsController extends Controller
     public function updateSettings(UpdateSettingsRequest $request)
     {
         $status = StatusSetting::findOrFail(1);
-        $status->recaptcha_status = $request->boolean('recaptcha_status', true);
+        $status->recaptcha_status = $request->boolean('recaptcha_status', default: true);
         $status->save();
 
         $settings = RecaptchaSetting::firstOrCreate([]);

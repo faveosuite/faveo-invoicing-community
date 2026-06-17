@@ -61,7 +61,7 @@ class SubscriptionController extends Controller
         }
 
         $days = $this->getRenewalDays();
-        if (empty($days)) {
+        if ($days === []) {
             return [];
         }
 
@@ -106,7 +106,7 @@ class SubscriptionController extends Controller
         }
 
         $days = $this->getRenewalDays();
-        if (empty($days)) {
+        if ($days === []) {
             return [];
         }
 
@@ -197,9 +197,9 @@ class SubscriptionController extends Controller
             // invoice.payment_succeeded (Stripe) or subscription.charged (Razorpay)
             // and SubscriptionWebhookController handles fulfillment. No polling needed.
             $this->createSubscriptionsForEnabledUsers($stripeDetails, $product, $unitCost, $currency, $plan, $subscription, $invoice, $order, $user, $cost, $subscription->update_ends_at);
-        } catch (Exception $ex) {
+        } catch (Exception $exception) {
             $this->PostSubscriptionHandle->sendFailedPayment(
-                $cost, $ex->getMessage(), $user,
+                $cost, $exception->getMessage(), $user,
                 $order?->number, $subscriptionData->update_ends_at,
                 $currency, $order, $product, $invoice, $paymentMethod
             );
@@ -306,8 +306,8 @@ class SubscriptionController extends Controller
                     default => null,
                 };
             }
-        } catch (Exception $ex) {
-            Logger::error($ex->getMessage());
+        } catch (Exception $exception) {
+            Logger::error($exception->getMessage());
         }
     }
 
@@ -319,7 +319,7 @@ class SubscriptionController extends Controller
         $sub = $this->PostSubscriptionHandle->successRenew($invoice, $subscription, $gateway, $invoice->currency);
         $this->PostSubscriptionHandle->recordPayment($invoice, $gateway);
         $this->PostSubscriptionHandle->sendPaymentSuccessMail($sub, $invoice->currency, $cost, $user, $productName, $order->number);
-        $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $productName, null, $order, $gateway);
+        $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $productName, template: null, order: $order, payment: $gateway);
     }
 
     // ── New subscription creation (status=1) ──────────────────────────────
@@ -352,14 +352,14 @@ class SubscriptionController extends Controller
 
             if ($cost && emailSendingStatus()) {
                 $this->PostSubscriptionHandle->sendPaymentSuccessMail($sub, $currency, $cost, $user, $product->name, $order->number);
-                $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product->name, null, $order, 'stripe');
+                $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product->name, template: null, order: $order, payment: 'stripe');
             }
         } elseif ($response->status === 'incomplete') {
             $stripeInvoice = \Stripe\Invoice::retrieve($response->raw['latest_invoice'] ?? null);
             $url = $stripeInvoice->hosted_invoice_url;
 
             if ($url && emailSendingStatus()) {
-                $this->sendPendingAuthMail($subscription, $product, $cost, $currency, $plan, $url, $user);
+                $this->sendPendingAuthMail($subscription, $product, $cost, $currency, $url, $user);
                 Subscription::where('id', $subscription->id)->update(['subscribe_id' => $response->id, 'autoRenew_status' => '2']);
             }
         }
@@ -372,7 +372,7 @@ class SubscriptionController extends Controller
         if ($response->status === 'created') {
             $cost = $this->calculateReverseUnitCost($currency, $unitCost);
             $url = $response->raw['short_url'] ?? null;
-            $this->sendPendingAuthMail($subscription, $product, $cost, $currency, $plan, $url, $user);
+            $this->sendPendingAuthMail($subscription, $product, $cost, $currency, $url, $user);
             Subscription::where('id', $subscription->id)->update(['subscribe_id' => $response->id, 'rzp_subscription' => '2']);
         }
     }
@@ -401,7 +401,7 @@ class SubscriptionController extends Controller
         };
     }
 
-    private function sendPendingAuthMail(Subscription $subscription, Product $product, $cost, string $currency, Plan $plan, ?string $url, $user): void
+    private function sendPendingAuthMail(Subscription $subscription, Product $product, $cost, string $currency, ?string $url, $user): void
     {
         $setting = Setting::find(1);
         $contact = getContactData();

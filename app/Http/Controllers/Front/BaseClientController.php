@@ -22,9 +22,7 @@ class BaseClientController extends Controller
     /**
      *  This function is to update profile.
      *
-     * @param  ProfileRequest  $request
      * @return
-     *
      * @throws
      */
     public function postProfile(ProfileRequest $request)
@@ -62,9 +60,7 @@ class BaseClientController extends Controller
     /**
      *  This function is to update password.
      *
-     * @param  ProfileRequest  $request
      * @return
-     *
      * @throws
      */
     public function postPassword(ProfileRequest $request)
@@ -88,8 +84,8 @@ class BaseClientController extends Controller
             DB::table('password_resets')->where('email', $user->email)->delete();
 
             return successResponse(Lang::get('message.updated-successfully'));
-        } catch (Exception $e) {
-            Logger::exception($e);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
             return errorResponse(__('message.failed_to_update_password'));
         }
@@ -112,7 +108,7 @@ class BaseClientController extends Controller
                 ->where('client', $userid)
                 ->firstOrFail();
 
-            if (! authorizeOwnership($userid, true)) {
+            if (! authorizeOwnership($userid, allowAdmin: true)) {
                 return back()->with('fails', __('message.unauthorized_action'));
             }
 
@@ -145,20 +141,16 @@ class BaseClientController extends Controller
                 ->simplePaginate($limit, ['*'], 'page', 1);
 
             // Map items
-            $paginated->getCollection()->transform(function ($model) use ($admin) {
+            $paginated->getCollection()->transform(function ($model) use ($admin): array {
                 $url = '';
                 $status = '';
                 $action = '';
                 $url = $this->getInvoiceLinkUrl($model->id, $admin);
-                if ($url) {
+                if ($url !== '' && $url !== '0') {
                     $url = '<a href='.url($url).'>'.$model->number.'</a>';
                 }
 
-                if (Auth::user()->role == 'admin') {
-                    $status = getStatusLabel($model->status);
-                } else {
-                    $status = getStatusLabel($model->status);
-                }
+                $status = Auth::user()->role == 'admin' ? getStatusLabel($model->status) : getStatusLabel($model->status);
 
                 if ($status != 'Success' && $model->grand_total > 0) {
                     $payment = '  <a href='.url('autopaynow/'.$model->id).
@@ -180,8 +172,8 @@ class BaseClientController extends Controller
             });
 
             return successResponse('', $paginated);
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -190,43 +182,39 @@ class BaseClientController extends Controller
      *
      * @param  $invoiceId
      * @param  $admin
-     * @return string
      *
      * @throws
      */
-    public function getInvoiceLinkUrl($invoiceId, $admin = null)
+    public function getInvoiceLinkUrl(string $invoiceId, $admin = null): string
     {
-        $link = 'my-invoice/'.$invoiceId;
         if ($admin == 'admin') {
-            $link = '/invoices/show?invoiceid='.$invoiceId;
+            return '/invoices/show?invoiceid='.$invoiceId;
         }
 
-        return $link;
+        return 'my-invoice/'.$invoiceId;
     }
 
     public function subscriptions()
     {
         try {
             return view('themes.default1.front.clients.subscription');
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
     /**
      *  This returns to the client panel orders page.
      *
-     * @param  Request  $request
      * @return View|RedirectResponse
-     *
      * @throws Exception
      */
     public function orders(Request $request)
     {
         try {
             return view('themes.default1.front.clients.order1', compact('request'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -238,7 +226,7 @@ class BaseClientController extends Controller
      *
      * @throws Exception
      */
-    public function deleteCloudPopup($orderNumber)
+    public function deleteCloudPopup($orderNumber): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         return view('themes.default1.front.clients.delete-cloud-popup', compact('orderNumber'));
     }

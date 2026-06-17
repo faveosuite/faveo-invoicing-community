@@ -8,11 +8,11 @@ use Tests\DBTestCase;
 class LocalizedLicenseControllerTest extends DBTestCase
 {
     #[Group('LocalizedLicense')]
-    public function test_chooseLicenseMode_fileChosen_returnStatusChangeSuccessfully()
+    public function test_chooseLicenseMode_fileChosen_returnStatusChangeSuccessfully(): void
     {
         $this->withoutMiddleware();
         // \App\Model\Order\Order::create(['number' => 192020, 'order_status' => 'executed', 'product' => 28]);
-        $order = Order::factory()->create(['number' => 192020, 'order_status' => 'executed', 'product' => 28]);
+        Order::factory()->create(['number' => 192020, 'order_status' => 'executed', 'product' => 28]);
         $data = [
             'choose' => null,
             'orderNo' => 192020,
@@ -23,11 +23,10 @@ class LocalizedLicenseControllerTest extends DBTestCase
     }
 
     #[Group('LocalizedLicense')]
-    public function test_storeFile_whenuserisnull_returnstatus302()
+    public function test_storeFile_whenuserisnull_returnstatus302(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser();
-        $user = $this->user;
         $data = [
             'userId' => null,
             'expiry' => now(),
@@ -90,7 +89,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
     // }
 
     #[Group('LocalizedLicense')]
-    public function test_deleteFile_deleteLicenseFile_should()
+    public function test_deleteFile_deleteLicenseFile_should(): void
     {
         $this->withoutMiddleware();
         $fileName = 'faveo-license-{192020}.txt';
@@ -100,7 +99,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
     }
 
     #[Group('LocalizedLicense')]
-    public function test_chooseLicenseMode_DatabaseChosen_returnStatusChangeSuccessfully()
+    public function test_chooseLicenseMode_DatabaseChosen_returnStatusChangeSuccessfully(): void
     {
         $this->withoutMiddleware();
         Order::create(['number' => 192020, 'order_status' => 'executed', 'product' => 28]);

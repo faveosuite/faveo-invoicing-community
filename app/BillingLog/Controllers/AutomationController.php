@@ -56,7 +56,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->groupBy('command', 'status')
             ->cursor()
             ->groupBy('command')
-            ->map(fn ($logs, $command) => array_merge([
+            ->map(fn ($logs, $command): array => array_merge([
                 'command' => $command,
                 'name' => Lang::has('log::lang.'.$command)
                     ? __('log::lang.'.$command)
@@ -73,11 +73,11 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->groupBy('log_category_id', 'status')
             ->cursor()
             ->groupBy('log_category_id')
-            ->map(fn ($logs, $categoryId) => array_merge([
+            ->map(fn ($logs, $categoryId): array => array_merge([
                 'id' => $categoryId,
                 'name' => ($key = $categoryNames[$categoryId] ?? '')
                     ? (Template::where('type', TemplateType::where('name', $key)->value('id'))->value('name')
-                        ?: (Lang::has("log::lang.$key") ? __("log::lang.$key") : $key))
+                        ?: (Lang::has('log::lang.' . $key) ? __('log::lang.' . $key) : $key))
                     : '',
             ], $logs->pluck('status_count', 'status')->toArray()))->values();
     }
@@ -90,10 +90,10 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->whereBetween('created_at', [$date->copy()->startOfDay(), $date->endOfDay()])
             ->groupBy('log_category_id')
             ->get()
-            ->map(fn ($log) => [
+            ->map(fn ($log): array => [
                 'id' => $log->log_category_id,
                 'name' => ($key = $categoryNames[$log->log_category_id] ?? '')
-                    ? (Lang::has("log::lang.$key") ? __("log::lang.$key") : $key)
+                    ? (Lang::has('log::lang.' . $key) ? __('log::lang.' . $key) : $key)
                     : '',
                 'count' => $log->count,
             ]);
@@ -113,8 +113,8 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             Logger::outgoingMailSent($id);
 
             return successResponse(trans('log::lang.queued_dispatch_successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 

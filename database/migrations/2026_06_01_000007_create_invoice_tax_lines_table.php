@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  */
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('invoice_tax_lines')) {
             Schema::create('invoice_tax_lines', function (Blueprint $table): void {
@@ -21,7 +21,7 @@ return new class extends Migration
                 $table->unsignedInteger('tax_rate_id')->nullable();
                 $table->string('label');                       // rate name at time of sale
                 $table->decimal('rate', 12, 4)->default(0);    // percentage applied
-                $table->boolean('compound')->default(false);
+                $table->boolean('compound')->default(value: false);
                 $table->decimal('amount', 16, 4)->default(0);  // tax amount for this line
                 $table->timestamps();
 
@@ -31,7 +31,7 @@ return new class extends Migration
         }
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('invoice_tax_lines');
     }

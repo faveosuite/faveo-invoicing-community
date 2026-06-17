@@ -20,31 +20,31 @@ class PaymentsAndInvoicesTest extends DBTestCase
     }
 
     #[Group('paymentandinvoice')]
-    public function test_getAgents_whenAgentsIsPassed_returnsNoOfAgents()
+    public function test_getAgents_whenAgentsIsPassed_returnsNoOfAgents(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $plan = Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => $this->user->currency, 'add_price' => '1000', 'renew_price' => '500', 'product_quantity' => 1, 'no_of_agents' => 5]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => $this->user->currency, 'add_price' => '1000', 'renew_price' => '500', 'product_quantity' => 1, 'no_of_agents' => 5]);
         $agents = $this->classObject->getAgents(5, $product->id, $plan->id);
         $this->assertEquals($agents, 5);
     }
 
     #[Group('paymentandinvoice')]
-    public function test_getAgents_whenAgentsIsPassedIsNull_returnsNoOfAgents()
+    public function test_getAgents_whenAgentsIsPassedIsNull_returnsNoOfAgents(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $plan = Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => $this->user->currency, 'add_price' => '1000', 'renew_price' => '500', 'product_quantity' => 1, 'no_of_agents' => 5]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => $this->user->currency, 'add_price' => '1000', 'renew_price' => '500', 'product_quantity' => 1, 'no_of_agents' => 5]);
         $agents = $this->classObject->getAgents('', $product->id, $plan->id);
         $this->assertEquals($agents, 5);
     }
 
     #[Group('paymentandinvoice')]
-    public function test_getAgents_whenAgentsIsPassedIsNullWhenPlanDoesNotExistForProduct_returnsNoOfAgents()
+    public function test_getAgents_whenAgentsIsPassedIsNullWhenPlanDoesNotExistForProduct_returnsNoOfAgents(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -54,31 +54,31 @@ class PaymentsAndInvoicesTest extends DBTestCase
     }
 
     #[Group('paymentandinvoice')]
-    public function test_getQuantity_whenQuantityIsPassed_returnsProductQuantity()
+    public function test_getQuantity_whenQuantityIsPassed_returnsProductQuantity(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $plan = Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => $this->user->currency, 'add_price' => '1000', 'renew_price' => '500', 'product_quantity' => 1, 'no_of_agents' => 5]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => $this->user->currency, 'add_price' => '1000', 'renew_price' => '500', 'product_quantity' => 1, 'no_of_agents' => 5]);
         $qty = $this->classObject->getQuantity(1, $product->id, $plan->id);
         $this->assertEquals($qty, 1);
     }
 
     #[Group('paymentandinvoice')]
-    public function test_getAgents_whenQtyIsPassedIsNull_returnsProductQuantity()
+    public function test_getAgents_whenQtyIsPassedIsNull_returnsProductQuantity(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $plan = Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => $this->user->currency, 'add_price' => '1000', 'renew_price' => '500', 'product_quantity' => 2, 'no_of_agents' => 5]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => $this->user->currency, 'add_price' => '1000', 'renew_price' => '500', 'product_quantity' => 2, 'no_of_agents' => 5]);
         $qty = $this->classObject->getQuantity('', $product->id, $plan->id);
         $this->assertEquals($qty, 2);
     }
 
     #[Group('paymentandinvoice')]
-    public function test_getAgents_whenQtyIsPassedIsNullWhenPlanDoesNotExistForProduct_returnsProductQuantity()
+    public function test_getAgents_whenQtyIsPassedIsNullWhenPlanDoesNotExistForProduct_returnsProductQuantity(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use App\Http\Controllers\Order\RenewController;
@@ -14,19 +16,17 @@ class HomeControllerTest extends DBTestCase
 {
     /**
      * A basic unit test example.
-     *
-     * @return void
      */
-    public function test_validation_when_given_url_empty()
+    public function test_validation_when_given_url_empty(): void
     {
         $response = $this->post('/renewurl', [
             'domain' => '',
         ]);
-        $errors = session('errors');
+        session('errors');
         $response->assertStatus(302);
     }
 
-    public function test_renewurl_return_orderid_()
+    public function test_renewurl_return_orderid_(): void
     {
         // Create test data
         $orderid = '12345';
@@ -51,7 +51,7 @@ class HomeControllerTest extends DBTestCase
             'password' => bcrypt('password'),
         ]);
 
-        $subscription = Subscription::factory()->create([
+        Subscription::factory()->create([
             'order_id' => $orderid,
             'user_id' => $user,
             'product_id' => $product->id,
@@ -59,7 +59,7 @@ class HomeControllerTest extends DBTestCase
 
         $renewController = new RenewController();
         $response = $renewController->generateInvoice($product, $user, $orderid, $plan->id, $planPrice->renew_price, $code = '', '4', 'INR');
-        $url = url("autopaynow/$response->invoice_id");
+        $url = url('autopaynow/' . $response->invoice_id);
 
         $expectedUrl = request()->getSchemeAndHttpHost().'/autopaynow/'.$response->invoice_id;
 

@@ -33,10 +33,14 @@ function zohoMappedFields(
         }
 
         if ($selected['type'] === 'zoho') {
-            $value = json_decode((string) $selected['value'], true)['value'] ?? null;
+            $value = json_decode((string) $selected['value'], associative: true)['value'] ?? null;
         }
 
-        if ($value === null || $value === '') {
+        if ($value === null) {
+            continue;
+        }
+
+        if ($value === '') {
             continue;
         }
 
@@ -53,8 +57,8 @@ function resolveOptions($zohoField, Collection $localFields): array
 {
     if ($zohoField->field_type === 'picklist') {
         return collect($zohoField->raw_metadata['pick_list_values'] ?? [])
-            ->reject(fn ($opt) => ($opt['actual_value'] ?? null) === '-None-')
-            ->map(fn ($opt) => [
+            ->reject(fn ($opt): bool => ($opt['actual_value'] ?? null) === '-None-')
+            ->map(fn ($opt): array => [
                 'type' => 'zoho',
                 'value' => $opt['actual_value'],
                 'label' => $opt['display_value'],
@@ -63,7 +67,7 @@ function resolveOptions($zohoField, Collection $localFields): array
             ->all();
     }
 
-    return $localFields->map(fn ($local) => [
+    return $localFields->map(fn ($local): array => [
         'type' => 'local',
         'value' => $local->id,
         'label' => $local->display_name,
@@ -75,7 +79,7 @@ function resolveOptions($zohoField, Collection $localFields): array
  */
 function resolveSelected(?ZohoFieldMappings $mapping): ?array
 {
-    if (! $mapping) {
+    if (!$mapping instanceof \App\Plugins\Zoho\Models\ZohoFieldMappings) {
         return null;
     }
 

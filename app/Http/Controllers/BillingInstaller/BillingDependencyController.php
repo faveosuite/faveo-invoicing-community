@@ -12,7 +12,7 @@ class BillingDependencyController extends Controller
     {
     }
 
-    public function validateDirectory($basePath, &$errorCount)
+    public function validateDirectory(string $basePath, &$errorCount)
     {
         try {
             $error = [];
@@ -20,15 +20,15 @@ class BillingDependencyController extends Controller
             $this->validateBootstrapDirectory($basePath, $errorCount, $error);
 
             return $error;
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
     /**
      * Validate storage directory.
      */
-    private function validateStorageDirectory($basePath, &$errorCount, &$error)
+    private function validateStorageDirectory(string $basePath, &$errorCount, array &$error): array
     {
         try {
             $storagePermission = is_readable($basePath.DIRECTORY_SEPARATOR.'storage') && is_writable($basePath.DIRECTORY_SEPARATOR.'storage');
@@ -43,18 +43,18 @@ class BillingDependencyController extends Controller
                 }
             }
 
-            array_push($error, ['extensionName' => $basePath.'storage', 'color' => $storagePermissionColor, 'message' => $storageMessage, 'errorCount' => $errorCount]);
+            $error[] = ['extensionName' => $basePath.'storage', 'color' => $storagePermissionColor, 'message' => $storageMessage, 'errorCount' => $errorCount];
 
             return $error;
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
     /**
      * Validate bootstrap directory.
      */
-    private function validateBootstrapDirectory($basePath, &$errorCount, &$error)
+    private function validateBootstrapDirectory(string $basePath, &$errorCount, array &$error): array
     {
         try {
             $bootstrapPermission = is_readable($basePath.DIRECTORY_SEPARATOR.'bootstrap') && is_writable($basePath.DIRECTORY_SEPARATOR.'bootstrap');
@@ -69,15 +69,15 @@ class BillingDependencyController extends Controller
                 }
             }
 
-            array_push($error, ['extensionName' => $basePath.'bootstrap', 'color' => $bootStrapPermissionColor, 'message' => $bootStrapMessage, 'errorCount' => $errorCount]);
+            $error[] = ['extensionName' => $basePath.'bootstrap', 'color' => $bootStrapPermissionColor, 'message' => $bootStrapMessage, 'errorCount' => $errorCount];
 
             return $error;
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function validateRequisites(&$errorCount)
+    public function validateRequisites(int &$errorCount)
     {
         try {
             $requiredRequisites = json_decode((string) $this->getDependenciesJson())->requisites;
@@ -87,21 +87,21 @@ class BillingDependencyController extends Controller
             }
 
             return $requisiteDetails;
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
     /**
      * Get the json content of dependencies.
      */
-    private function getDependenciesJson()
+    private function getDependenciesJson(): string|false
     {
         if ($this->extensionCheckFrom == 'probe') {
             return file_get_contents('../storage/billing-dependencies.json');
-        } else {
-            return file_get_contents(storage_path('billing-dependencies.json'));
         }
+
+        return file_get_contents(storage_path('billing-dependencies.json'));
     }
 
     /**
@@ -110,27 +110,25 @@ class BillingDependencyController extends Controller
      * @param  array  $requiredExtensions  Array of required extensions
      * @param  array  &$error  Array of errors
      */
-    private function validateRequiredExtensions(array $requiredExtensions, array &$error, int &$errorCount)
+    private function validateRequiredExtensions(array $requiredExtensions, array &$error, int &$errorCount): void
     {
         try {
             foreach ($requiredExtensions as $extension) {
                 if (! extension_loaded($extension)) {
                     if ($this->extensionCheckFrom == 'probe') {
                         $errorCount += 1;
-                        array_push($error, ['extensionName' => $extension, 'key' => 'required']);
+                        $error[] = ['extensionName' => $extension, 'key' => 'required'];
                     } else {
-                        $extString = "$extension is not enabled<p>To enable this, please install the extension on your server and  update '".php_ini_loaded_file()."' to enable $extension </p>"
+                        $extString = $extension . " is not enabled<p>To enable this, please install the extension on your server and  update '".php_ini_loaded_file().sprintf("' to enable %s </p>", $extension)
                             .'<a href="https://support.faveohelpdesk.com/show/how-to-enable-required-php-extension-on-different-servers-for-faveo-installation" target="_blank">How to install PHP extensions on my server?</a>';
                         throw new Exception($extString);
                     }
-                } else {
-                    if ($this->extensionCheckFrom == 'probe') {
-                        array_push($error, ['extensionName' => $extension, 'key' => 'no-error']);
-                    }
+                } elseif ($this->extensionCheckFrom == 'probe') {
+                    $error[] = ['extensionName' => $extension, 'key' => 'no-error'];
                 }
             }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -140,22 +138,20 @@ class BillingDependencyController extends Controller
      * @param  array  $requiredExtensions  Array of required extensions
      * @param  array  &$error  Array of errors
      */
-    private function validateOptionalExtensions(array $requiredExtensions, array &$error)
+    private function validateOptionalExtensions(array $requiredExtensions, array &$error): void
     {
         try {
             foreach ($requiredExtensions as $extension) {
                 if (! extension_loaded($extension)) {
                     if ($this->extensionCheckFrom == 'probe') {
-                        array_push($error, ['extensionName' => $extension, 'key' => 'optional']);
+                        $error[] = ['extensionName' => $extension, 'key' => 'optional'];
                     }
-                } else {
-                    if ($this->extensionCheckFrom == 'probe') {
-                        array_push($error, ['extensionName' => $extension, 'key' => 'no-error']);
-                    }
+                } elseif ($this->extensionCheckFrom == 'probe') {
+                    $error[] = ['extensionName' => $extension, 'key' => 'no-error'];
                 }
             }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -165,7 +161,7 @@ class BillingDependencyController extends Controller
      * @param  array  &$arrayOfRequisites  Array with name and status
      * @param  string  $requisite  The name of the requisite to be checked
      */
-    private function requisitesWithTheirStatus(array &$arrayOfRequisites, $requisite, int &$errorCount)
+    private function requisitesWithTheirStatus(array &$arrayOfRequisites, $requisite, int &$errorCount): array
     {
         try {
             $dependencyObject = json_decode((string) $this->getDependenciesJson());
@@ -215,8 +211,8 @@ class BillingDependencyController extends Controller
             }
 
             return $arrayOfRequisites;
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -226,7 +222,7 @@ class BillingDependencyController extends Controller
      * @param  array  $arrayOfRequisites  Requisite details
      * @param  int  $errorCount  The count of errors occured
      */
-    private function PhpVersionCheck(array &$arrayOfRequisites, int &$errorCount, $minPhpVersionRequired)
+    private function PhpVersionCheck(array &$arrayOfRequisites, int &$errorCount, string $minPhpVersionRequired): array
     {
         try {
             $versionColor = 'green';
@@ -240,11 +236,11 @@ class BillingDependencyController extends Controller
                 }
             }
 
-            array_push($arrayOfRequisites, ['extensionName' => 'PHP Version', 'connection' => $versionString, 'color' => $versionColor, 'errorCount' => $errorCount]);
+            $arrayOfRequisites[] = ['extensionName' => 'PHP Version', 'connection' => $versionString, 'color' => $versionColor, 'errorCount' => $errorCount];
 
             return $arrayOfRequisites;
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -254,7 +250,7 @@ class BillingDependencyController extends Controller
      * @param  array  $arrayOfRequisites  Requisite details
      * @param  int  $errorCount  The count of errors occured
      */
-    private function execFunctionCheck(array &$arrayOfRequisites, int &$errorCount)
+    private function execFunctionCheck(array &$arrayOfRequisites, int &$errorCount): array
     {
         $execColor = 'green';
         $execString = 'Enabled';
@@ -266,17 +262,15 @@ class BillingDependencyController extends Controller
             }
         }
 
-        array_push($arrayOfRequisites, ['extensionName' => 'PHP exec function', 'connection' => $execString, 'color' => $execColor, 'errorCount' => $errorCount]);
+        $arrayOfRequisites[] = ['extensionName' => 'PHP exec function', 'connection' => $execString, 'color' => $execColor, 'errorCount' => $errorCount];
 
         return $arrayOfRequisites;
     }
 
     /**
      * Check if exec() function is available.
-     *
-     * @return bool
      */
-    public function execEnabled()
+    public function execEnabled(): bool
     {
         try {
             // make a small test
@@ -292,7 +286,7 @@ class BillingDependencyController extends Controller
      * @param  array  $arrayOfRequisites  Requisite details
      * @param  int  $errorCount  The count of errors occured
      */
-    private function dotEnvFileCheck(array &$arrayOfRequisites, int &$errorCount)
+    private function dotEnvFileCheck(array &$arrayOfRequisites, int &$errorCount): array
     {
         $env = '../.env';
         $envFound = is_file($env);
@@ -304,7 +298,7 @@ class BillingDependencyController extends Controller
             $envString = 'Yes Found. <p>Please delete .env file from your root directory.</p>';
         }
 
-        array_push($arrayOfRequisites, ['extensionName' => '.env file', 'connection' => $envString, 'color' => $envColor, 'errorCount' => $errorCount]);
+        $arrayOfRequisites[] = ['extensionName' => '.env file', 'connection' => $envString, 'color' => $envColor, 'errorCount' => $errorCount];
 
         return $arrayOfRequisites;
     }
@@ -315,7 +309,7 @@ class BillingDependencyController extends Controller
      * @param  array  $arrayOfRequisites  Requisite details
      * @param  int  $errorCount  The count of errors occured
      */
-    private function maxExecutionTimeCheck(array &$arrayOfRequisites, int &$errorCount)
+    private function maxExecutionTimeCheck(array &$arrayOfRequisites, int &$errorCount): array
     {
         $executionColor = 'green';
         $executionString = ini_get('max_execution_time').' (Maximum execution time is as per requirement)';
@@ -324,7 +318,7 @@ class BillingDependencyController extends Controller
             $executionString = ini_get('max_execution_time').' (Maximum execution time is too low. Recommended execution time is 120 seconds)';
         }
 
-        array_push($arrayOfRequisites, ['extensionName' => 'Maximum execution time', 'connection' => $executionString, 'color' => $executionColor, 'errorCount' => $errorCount]);
+        $arrayOfRequisites[] = ['extensionName' => 'Maximum execution time', 'connection' => $executionString, 'color' => $executionColor, 'errorCount' => $errorCount];
 
         return $arrayOfRequisites;
     }
@@ -335,16 +329,16 @@ class BillingDependencyController extends Controller
      * @param  array  $arrayOfRequisites  Requisite details
      * @param  int  $errorCount  The count of errors occured
      */
-    private function allowUrlFopen(array &$arrayOfRequisites, int &$errorCount)
+    private function allowUrlFopen(array &$arrayOfRequisites, int &$errorCount): array
     {
         $color = 'green';
         $messsage = 'Enabled';
-        if (! (int) ini_get('allow_url_fopen')) {
+        if ((int) ini_get('allow_url_fopen') === 0) {
             $color = '#F89C0D';
             $messsage = 'Directive is disabled (It is recommended to keep this ON as few features in the system are dependent on this)';
         }
 
-        array_push($arrayOfRequisites, ['extensionName' => 'Allow url fopen', 'connection' => $messsage, 'color' => $color, 'errorCount' => $errorCount]);
+        $arrayOfRequisites[] = ['extensionName' => 'Allow url fopen', 'connection' => $messsage, 'color' => $color, 'errorCount' => $errorCount];
 
         return $arrayOfRequisites;
     }
@@ -355,7 +349,7 @@ class BillingDependencyController extends Controller
      * @param  array  $arrayOfRequisites  Requisite details
      * @param  int  $errorCount  The count of errors occured
      */
-    private function appUrlcheck(array &$arrayOfRequisites, int &$errorCount)
+    private function appUrlcheck(array &$arrayOfRequisites, int &$errorCount): array
     {
         $color = 'green';
         $infoString = 'Valid';
@@ -368,7 +362,7 @@ class BillingDependencyController extends Controller
             }
         }
 
-        array_push($arrayOfRequisites, ['extensionName' => 'App URL', 'connection' => $infoString, 'color' => $color, 'errorCount' => $errorCount]);
+        $arrayOfRequisites[] = ['extensionName' => 'App URL', 'connection' => $infoString, 'color' => $color, 'errorCount' => $errorCount];
 
         return $arrayOfRequisites;
     }
@@ -379,7 +373,7 @@ class BillingDependencyController extends Controller
      * @param  string  $extensionCheckFrom  Whether the request is from probe page or auto-update module
      * @return array
      */
-    public function validatePHPExtensions(&$errorCount)
+    public function validatePHPExtensions(int &$errorCount)
     {
         try {
             $error = [];
@@ -388,12 +382,12 @@ class BillingDependencyController extends Controller
             $this->validateOptionalExtensions($requiredExtensions->optional, $error);
 
             return $error;
-        } catch(Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch(Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function checkSSLCertificateOnDomain(array &$arrayOfRequisites, int &$errorCount, $cliAppUrl = null)
+    public function checkSSLCertificateOnDomain(array &$arrayOfRequisites, int &$errorCount, $cliAppUrl = null): array
     {
         $name = 'Domain SSL Certificate';
         try {
@@ -408,7 +402,7 @@ class BillingDependencyController extends Controller
 
             $oldError = error_reporting();
             error_reporting($oldError & ~E_WARNING);
-            $read = fopen($sslHost, 'rb', false, $stream);
+            $read = fopen($sslHost, 'rb', use_include_path: false, context: $stream);
             error_reporting($oldError);
             if (! $read) {
                 throw new Exception('Unable to open stream');
@@ -421,20 +415,20 @@ class BillingDependencyController extends Controller
                 throw new Exception($infoString);
             }
 
-            array_push($arrayOfRequisites, ['extensionName' => $name, 'connection' => $infoString, 'color' => $color, 'errorCount' => $errorCount]);
+            $arrayOfRequisites[] = ['extensionName' => $name, 'connection' => $infoString, 'color' => $color, 'errorCount' => $errorCount];
 
             return $arrayOfRequisites;
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             $infoString = 'The system can only be opened with secure protocol over HTTPS. Please ensure a valid SSL certificate is installed on the server to serve the application securely over HTTPS.';
-            if ($e->getMessage() == 'Unable to open stream') {
+            if ($exception->getMessage() === 'Unable to open stream') {
                 $infoString = 'Failed to open stream: '.$infoString;
             }
 
-            return $this->handleRequisiteErrors($arrayOfRequisites, $errorCount, $name, $infoString);
+            return $this->handleRequisiteErrors($arrayOfRequisites, $errorCount, $infoString);
         }
     }
 
-    private function handleRequisiteErrors(array &$arrayOfRequisites, int &$errorCount, string $name, $infoString)
+    private function handleRequisiteErrors(array &$arrayOfRequisites, int &$errorCount, string $infoString): array
     {
         $errorCount += 1;
         $color = 'red';
@@ -442,7 +436,7 @@ class BillingDependencyController extends Controller
             throw new Exception($infoString);
         }
 
-        array_push($arrayOfRequisites, ['extensionName' => 'Domain SSL Certificate', 'connection' => $infoString, 'color' => $color, 'errorCount' => $errorCount]);
+        $arrayOfRequisites[] = ['extensionName' => 'Domain SSL Certificate', 'connection' => $infoString, 'color' => $color, 'errorCount' => $errorCount];
 
         return $arrayOfRequisites;
     }

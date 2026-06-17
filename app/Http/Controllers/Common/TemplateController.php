@@ -18,8 +18,14 @@ use Session;
 
 class TemplateController extends Controller
 {
+    /**
+     * @var \App\Model\Common\Template
+     */
     public $template;
 
+    /**
+     * @var \App\Model\Common\TemplateType
+     */
     public $type;
 
     public function __construct()
@@ -51,11 +57,11 @@ class TemplateController extends Controller
 
             $paginated = $this->template
                 ->select('id', 'name', 'type')
-                ->when($search, fn ($q) => $q->where('name', 'like', "%{$search}%"))
+                ->when($search, fn ($q) => $q->where('name', 'like', sprintf('%%%s%%', $search)))
                 ->orderBy($sortField, $sortOrder === 'desc' ? 'desc' : 'asc')
                 ->paginate($limit);
 
-            $paginated->getCollection()->transform(fn ($t) => [
+            $paginated->getCollection()->transform(fn ($t): array => [
                 'id' => $t->id,
                 'name' => $t->name,
                 'type' => $typeNames[$t->type] ?? '',
@@ -77,8 +83,8 @@ class TemplateController extends Controller
             $type = $this->type->pluck('name', 'id')->toArray();
 
             return view('themes.default1.common.template.create', compact('type', 'cartUrl'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -95,8 +101,8 @@ class TemplateController extends Controller
             $this->template->fill($request->input())->save();
 
             return back()->with('success', Lang::get('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -162,9 +168,8 @@ class TemplateController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Response
      */
-    public function destroy(Request $request)
+    public function destroy(Request $request): void
     {
         try {
             $ids = $request->input('select');
@@ -201,13 +206,13 @@ class TemplateController extends Controller
                         './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
                 </div>';
             }
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
                     <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
                     /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
+                        '.$exception->getMessage().'
                 </div>';
         }
     }
@@ -250,13 +255,11 @@ class TemplateController extends Controller
             $planClass = ($plansData && $product->status != 1) ? 'stylePlan' : 'planhide';
             $planForm = '<select name="subscription" class="'.$planClass.'">'.$planOptions.'</select>';
 
-            $form = html()->form('GET', $url)->open()
+            return html()->form('GET', $url)->open()
                 .$planForm
                 .html()->input('hidden', 'id')->value($id);
-
-            return $form;
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -284,18 +287,18 @@ class TemplateController extends Controller
                 }
             }
 
-            if (! empty($prices)) {
+            if ($prices !== []) {
                 $minPrice = min($prices);
                 $cost = new PageController()->currencyFormatWithSpan($minPrice, $currency);
             }
 
             return $cost;
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
-    public function getPrice($months, $price, $priceDescription, $value, $cost, $currency, $offer, $product)
+    public function getPrice($months, array $price, $priceDescription, $value, $cost, $currency, $offer, $product): array
     {
         if (isset($offer) && $offer !== '' && $offer !== null) {
             $cost -= ($offer / 100) * $cost;
@@ -366,10 +369,10 @@ class TemplateController extends Controller
             }
 
             return $result;
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -380,7 +383,7 @@ class TemplateController extends Controller
         );
     }
 
-    public function getPriceList($id)
+    public function getPriceList($id): array
     {
         try {
             $plans = Plan::where('product', $id)->where('status', 1)->orderBy('id', 'desc')->get();
@@ -390,7 +393,11 @@ class TemplateController extends Controller
 
             foreach ($plans as $plan) {
                 $planDetails = userCurrencyAndPrice('', $plan);
-                if (! $planDetails || is_null($planDetails['plan'])) {
+                if ($planDetails === []) {
+                    continue;
+                }
+
+                if (is_null($planDetails['plan'])) {
                     continue;
                 }
 
@@ -415,8 +422,8 @@ class TemplateController extends Controller
                 'prices' => $prices,
                 'cheapestPlanId' => $cheapestPlanId,
             ];
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
             return [
                 'prices' => [],

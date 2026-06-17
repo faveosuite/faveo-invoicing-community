@@ -78,7 +78,7 @@ class ZohoBaseController extends Controller
     /**
      * Get options for a specific Zoho field.
      */
-    public function getOptions($zohoFieldID)
+    public function getOptions($zohoFieldID): array
     {
         $localFields = FaveoLocalFields::get();
 

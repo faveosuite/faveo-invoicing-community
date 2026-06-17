@@ -61,7 +61,7 @@ class OpenPaymentOrder extends Model
     /**
      * Check if payment is completed.
      */
-    public function isPaid()
+    public function isPaid(): bool
     {
         return $this->payment_status === 'completed';
     }
@@ -69,7 +69,7 @@ class OpenPaymentOrder extends Model
     /**
      * Check if payment is pending.
      */
-    public function isPending()
+    public function isPending(): bool
     {
         return $this->payment_status === 'pending';
     }
@@ -77,7 +77,7 @@ class OpenPaymentOrder extends Model
     /**
      * Check if payment failed.
      */
-    public function isFailed()
+    public function isFailed(): bool
     {
         return $this->payment_status === 'failed';
     }

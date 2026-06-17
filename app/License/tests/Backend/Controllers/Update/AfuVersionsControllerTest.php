@@ -31,7 +31,7 @@ class AfuVersionsControllerTest extends LicenseTestCase
             'version_status' => 9,
         ]);
 
-        $response = json_decode((string) $this->controller->versionAdd($request), true);
+        $response = json_decode((string) $this->controller->versionAdd($request), associative: true);
 
         $this->assertSame(0, $response['action_success']);
         $this->assertSame(1, $response['error_detected']);
@@ -80,7 +80,7 @@ class AfuVersionsControllerTest extends LicenseTestCase
     public function delete_file_directory_removes_requested_file(): void
     {
         $directory = storage_path('app/license-test-'.uniqid());
-        mkdir($directory, 0755, true);
+        mkdir($directory, 0755, recursive: true);
         file_put_contents($directory.'/delete-me.txt', 'test');
 
         $removed = $this->controller->deleteFileDirectory($directory, ['delete-me.txt']);

@@ -18,7 +18,7 @@ use Exception;
 
 class BaseAuthController extends Controller
 {
-    public function sendActivation($email, $method)
+    public function sendActivation($email, $method): void
     {
         $user = User::where('email', $email)->first();
         $contact = getContactData();
@@ -67,10 +67,11 @@ class BaseAuthController extends Controller
 
             $mail = new PhpMailController();
             $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
+
     protected function userNeedVerified(User $user): bool
     {
         $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);

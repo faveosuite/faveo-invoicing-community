@@ -11,7 +11,7 @@ use Tests\DBTestCase;
 
 class PageControllerTest extends DBTestCase
 {
-    private $con;
+    private \App\Http\Controllers\Front\PageController $con;
 
     protected function setUp(): void
     {
@@ -21,10 +21,8 @@ class PageControllerTest extends DBTestCase
 
     /**
      * A basic unit test example.
-     *
-     * @return void
      */
-    public function test_validation_fails_if_required_field_empty()
+    public function test_validation_fails_if_required_field_empty(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
@@ -34,11 +32,11 @@ class PageControllerTest extends DBTestCase
             'url' => 'http://demo.com',
             'content' => 'Here the new page created',
         ]);
-        $errors = session('errors');
+        session('errors');
         $response->assertStatus(302);
     }
 
-    public function test_updatepage_returnstatus200()
+    public function test_updatepage_returnstatus200(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
@@ -48,7 +46,7 @@ class PageControllerTest extends DBTestCase
             'publish' => 'yes',
             'content' => 'Here the new page created', ]);
 
-        $response = $this->post('/pages', [
+        $this->post('/pages', [
             'id' => $page->id,
             'name' => 'demo',
             'slug' => 'demopass',
@@ -76,7 +74,7 @@ class PageControllerTest extends DBTestCase
 //        $this->assertStringContainsString('action="'.$expectedAction.'"', $form);
 //    }
 
-    public function test_getPrice()
+    public function test_getPrice(): void
     {
         $product = Product::factory()->create([
             'id' => 40,
@@ -90,6 +88,7 @@ class PageControllerTest extends DBTestCase
             'days' => 30,
         ]);
         $value->id = 1;
+
         $cost = 100;
         $currency = 'USD';
         $offer = 10;
@@ -101,28 +100,28 @@ class PageControllerTest extends DBTestCase
         $this->assertEquals($expectedPrice, $result[$value->id]);
     }
 
-    public function testDetectSpamWithExcessivePunctuation()
+    public function testDetectSpamWithExcessivePunctuation(): void
     {
         $message = 'This is a spam message with too many exclamation marks!!!!!!!!!!';
         $response = $this->getPrivateMethod($this->con, 'containsExcessivePunctuation', [$message]);
         $this->assertTrue($response);
     }
 
-    public function testDetectSpamWithExcessiveCaps()
+    public function testDetectSpamWithExcessiveCaps(): void
     {
         $message = 'This is a SPAM message with TOO MANY CAPITAL LETTERS';
         $response = $this->getPrivateMethod($this->con, 'containsExcessiveCaps', [$message]);
         $this->assertTrue($response);
     }
 
-    public function testDetectSpamWithSpamKeywords()
+    public function testDetectSpamWithSpamKeywords(): void
     {
         $message = 'This message contains the word Viagra';
         $response = $this->getPrivateMethod($this->con, 'containsSpamKeywords', [$message]);
         $this->assertTrue($response);
     }
 
-    public function testDetectNonSpam()
+    public function testDetectNonSpam(): void
     {
         $email = 'example@gmail.com';
         $message = 'Hi,Need a demo.';
@@ -130,7 +129,7 @@ class PageControllerTest extends DBTestCase
         $this->assertFalse($response);
     }
 
-    public function testDetectSpam()
+    public function testDetectSpam(): void
     {
         $email = 'example@gmail.com';
         $message = 'Promo codes and promotions are a great way to get additional benefits from using the online bookmaker 1xbet. Promo codes for one x bet One of these promo codes is 1xpromo. It makes it possible to receive an additional bonus to your account when registering on the bookmaker’s website. In order to take advantage of this offer, you need to enter a promo code during registration and make the first deposit of at least 1000 rubles. After this, a bonus in the amount of 100% of the deposit amount will be credited to your account. The received bonus can be used for betting on sporting events or online casinos. The conditions for receiving and using the bonus are described in detail on the official 1xbet website. The site also regularly holds promotions, within which you can receive additional promotional codes or bonuses. Follow the news and don’t miss the opportunity to get even more benefits from playing at 1xbet.';

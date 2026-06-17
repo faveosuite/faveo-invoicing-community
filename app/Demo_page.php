@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App;
 
 use App\Traits\SystemActivityLogsTrait;
@@ -33,7 +35,7 @@ class Demo_page extends Model
             'id' => ['ID', fn ($value) => $value],
             'link' => ['Link', fn ($value) => $value],
             'email' => ['Email', fn ($value) => $value],
-            'status' => ['Status', fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
+            'status' => ['Status', fn ($value): array|string|null => $value === 1 ? __('message.active') : __('message.inactive')],
         ];
     }
 }

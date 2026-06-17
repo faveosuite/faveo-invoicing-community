@@ -71,6 +71,7 @@
         "barryvdh/laravel-debugbar": "^4.3.0",
         "barryvdh/laravel-ide-helper": "^v3.6.1",
         "beyondcode/laravel-query-detector": "^2.2.0",
+        "driftingly/rector-laravel": "^2.5",
         "fakerphp/faker": "^v1.24.1",
         "larastan/larastan": "^3.0",
         "laravel/dusk": "^v8.3.4",

@@ -56,9 +56,9 @@ class ZohoServiceProvider extends ServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $this->app->singleton('zoho.accounts.campaigns', fn () => $this->makeAccountsApi('campaigns'));
+        $this->app->singleton('zoho.accounts.campaigns', fn (): \App\Plugins\Zoho\Controllers\Api\ZohoAccountsApi => $this->makeAccountsApi('campaigns'));
 
-        $this->app->singleton('zoho.accounts.crm', fn () => $this->makeAccountsApi('crm'));
+        $this->app->singleton('zoho.accounts.crm', fn (): \App\Plugins\Zoho\Controllers\Api\ZohoAccountsApi => $this->makeAccountsApi('crm'));
 
         /*
         |--------------------------------------------------------------------------
@@ -100,9 +100,9 @@ class ZohoServiceProvider extends ServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $this->app->singleton('zoho.campaigns', fn ($app) => new Campaigns());
+        $this->app->singleton('zoho.campaigns', fn ($app): \App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns => new Campaigns());
 
-        $this->app->singleton('zoho.crm', fn ($app) => new Crm());
+        $this->app->singleton('zoho.crm', fn ($app): \App\Plugins\Zoho\Integrations\Crm\Controllers\Crm => new Crm());
     }
 
     /**
@@ -140,7 +140,7 @@ class ZohoServiceProvider extends ServiceProvider
         return $this->integrations[$platform]
             ??= ZohoIntegration::with(['client'])
             ->where('platform', $platform)
-            ->where('is_active', true)
+            ->where('is_active', operator: true)
             ->firstOrFail();
     }
 

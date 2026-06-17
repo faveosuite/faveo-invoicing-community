@@ -20,8 +20,10 @@ class AddonController extends Controller
         $this->middleware('admin');
         $product = new Product();
         $this->product = $product;
+
         $plan = new plan();
         $this->plan = $plan;
+
         $addon = new Addon();
         $this->addon = $addon;
     }
@@ -35,8 +37,8 @@ class AddonController extends Controller
     {
         try {
             return view('themes.default1.product.addon.index');
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -53,8 +55,8 @@ class AddonController extends Controller
 
             //dd($subscription);
             return view('themes.default1.product.addon.create', compact('product', 'subscription'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -78,8 +80,8 @@ class AddonController extends Controller
             }
 
             return back()->with('success', Lang::get('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -87,9 +89,8 @@ class AddonController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Response
      */
-    public function show($id)
+    public function show($id): void
     {
         //
     }
@@ -110,8 +111,8 @@ class AddonController extends Controller
             $addon = $this->addon->where('id', $id)->first();
 
             return view('themes.default1.product.addon.edit', compact('product', 'addon', 'subscription', 'relation'));
-        } catch (Exception $e) {
-            return back()->with('fails', $e->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -144,8 +145,8 @@ class AddonController extends Controller
             }
 
             return back()->with('success', Lang::get('message.updated-successfully'));
-        } catch (Exception $e) {
-            return back()->with('fails', $e->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -153,9 +154,8 @@ class AddonController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Response
      */
-    public function destroy(Request $request)
+    public function destroy(Request $request): void
     {
         try {
             $ids = $request->input('select');
@@ -193,13 +193,13 @@ class AddonController extends Controller
                 </div>';
                 //echo \Lang::get('message.select-a-row');
             }
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
                     <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
                     /* @scrutinizer ignore-type */Lang::get('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
+                        '.$exception->getMessage().'
                 </div>';
         }
     }

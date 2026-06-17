@@ -11,11 +11,9 @@ class InvoiceTest extends DBTestCase
 {
     /**
      * A basic test example.
-     *
-     * @return void
      */
     #[Group('ClientController')]
-    public function test_Invoices()
+    public function test_Invoices(): void
     {
         $this->expectException(Exception::class);
         $this->withoutMiddleware();

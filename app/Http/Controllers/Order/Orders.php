@@ -23,9 +23,7 @@ class Orders extends Controller
     {
         $order = $this->getOrder();
         if ($order) {
-            $subscription = $order->subscription;
-
-            return $subscription;
+            return $order->subscription;
         }
     }
 
@@ -33,9 +31,7 @@ class Orders extends Controller
     {
         $order = $this->getOrder();
         if ($order) {
-            $product = $order->product;
-
-            return $product;
+            return $order->product;
         }
     }
 
@@ -43,9 +39,7 @@ class Orders extends Controller
     {
         $subscription = $this->getSubscription();
         if ($subscription) {
-            $plan = $subscription->plan;
-
-            return $plan;
+            return $subscription->plan;
         }
     }
 
@@ -54,7 +48,7 @@ class Orders extends Controller
         $days = '';
         $plan = $this->getPlan();
         if ($plan) {
-            $days = $plan->days;
+            return $plan->days;
         }
 
         return $days;
@@ -64,7 +58,7 @@ class Orders extends Controller
     {
         $subscription = $this->getSubscription();
         if ($subscription) {
-            $version = $subscription->vesion;
+            return $subscription->vesion;
         }
 
         return $version;
@@ -90,7 +84,7 @@ class Orders extends Controller
         $name = '';
         $product = $this->getProduct();
         if ($product) {
-            $name = $product->name;
+            return $product->name;
         }
 
         return $name;

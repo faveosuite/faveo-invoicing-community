@@ -95,22 +95,21 @@ class Setting extends Model
         ];
     }
 
-    protected function getPasswordAttribute($value)
+    protected function password(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        if ($value) {
-            $value = Crypt::decrypt($value);
-        }
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+            if ($value) {
+                return Crypt::decrypt($value);
+            }
 
-        return $value;
+            return $value;
+        }, set: function ($value): array {
+            $value = Crypt::encrypt($value);
+            return ['password' => $value];
+        });
     }
 
-    protected function setPasswordAttribute($value)
-    {
-        $value = Crypt::encrypt($value);
-        $this->attributes['password'] = $value;
-    }
-
-    public function getImage($value, $path, $default = null)
+    public function getImage(?string $value, string $path, $default = null)
     {
         try {
             return $value
@@ -121,19 +120,25 @@ class Setting extends Model
         }
     }
 
-    protected function getLogoAttribute($value)
+    protected function logo(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return $this->getImage($value, 'images', asset('images/agora-invoicing.png'));
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
+            return $this->getImage($value, 'images', asset('images/agora-invoicing.png'));
+        });
     }
 
-    protected function getAdminLogoAttribute($value)
+    protected function adminLogo(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return $this->getImage($value, 'admin/images', asset('images/agora_admin_logo.png'));
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
+            return $this->getImage($value, 'admin/images', asset('images/agora_admin_logo.png'));
+        });
     }
 
-    protected function getFavIconAttribute($value)
+    protected function favIcon(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return $this->getImage($value, 'common/images', asset('images/faveo.png'));
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
+            return $this->getImage($value, 'common/images', asset('images/faveo.png'));
+        });
     }
 
     public function defaultCurrency()

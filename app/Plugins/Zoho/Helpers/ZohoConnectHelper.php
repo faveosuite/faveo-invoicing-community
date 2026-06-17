@@ -15,7 +15,7 @@ class ZohoConnectHelper
         return ZohoFields::wherePlatform($platform)
            ->whereModule($module)
            ->get()
-           ->map(fn ($z) => [
+           ->map(fn ($z): array => [
                'id' => $z->id,
                'field_name' => $z->display_name,
                'type' => $z->field_type,
@@ -34,7 +34,7 @@ class ZohoConnectHelper
             })
             ->get();
 
-        return $mappings->map(function ($mapping) {
+        return $mappings->map(function ($mapping): ?array {
             // Check for Zoho option mapping
             if ($mapping->selected_option) {
                 return [
@@ -69,13 +69,13 @@ class ZohoConnectHelper
             ->get()
             ->keyBy('zoho_field_id');
 
-        $localFieldOptions = $localFields->map(fn ($local) => [
+        $localFieldOptions = $localFields->map(fn ($local): array => [
             'id' => $local->id,
             'type' => 'local_field',
             'label' => $local->display_name,
         ])->values();
 
-        return $zohoFields->map(function ($zoho) use ($mappings, $localFieldOptions) {
+        return $zohoFields->map(function ($zoho) use ($mappings, $localFieldOptions): array {
             $mapping = $mappings->get($zoho->id);
 
             $options = collect();
@@ -89,7 +89,7 @@ class ZohoConnectHelper
             if (! empty($zoho->options)) {
                 foreach ($zoho->options as $index => $label) {
                     $options->push([
-                        'id' => "zoho_{$zoho->id}_{$index}",
+                        'id' => sprintf('zoho_%s_%s', $zoho->id, $index),
                         'type' => 'zoho_option',
                         'label' => $label,
                     ]);

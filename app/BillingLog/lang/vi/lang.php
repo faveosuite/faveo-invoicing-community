@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'Mặc định',
     'cloud-instance-created' => 'Đã tạo phiên bản đám mây',

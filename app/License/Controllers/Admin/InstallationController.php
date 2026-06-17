@@ -35,7 +35,7 @@ class InstallationController extends Controller
                 'api_error_detected' => 0,
                 'action_success' => $removed > 0 ? 1 : 0,
                 'error_detected' => $removed > 0 ? 0 : 1,
-                'page_message' => $removed > 0 ? "Deleted {$removed} installation(s)." : 'Invalid record or database error.',
+                'page_message' => $removed > 0 ? sprintf('Deleted %s installation(s).', $removed) : 'Invalid record or database error.',
             ]);
         }
 
@@ -56,7 +56,7 @@ class InstallationController extends Controller
         ]);
 
         $name = $installation->product?->name;
-        $pageMessage = "{$name} installation on {$installation->installation_domain} ({$installation->installation_ip}) updated.";
+        $pageMessage = sprintf('%s installation on %s (%s) updated.', $name, $installation->installation_domain, $installation->installation_ip);
         LicenseHelper::logAdminReport(strip_tags($pageMessage), 0, 1, 1);
 
         return response()->json([
@@ -91,7 +91,7 @@ class InstallationController extends Controller
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query');
         $sortOrder = strtolower((string) $request->input('sort_order', 'desc')) === 'asc' ? 'asc' : 'desc';
-        $sortField = in_array($request->input('sort_field', 'id'), ['id', 'product_id', 'user_id', 'license_code', 'installation_ip', 'installation_domain', 'installation_date', 'installation_status'], true) ? $request->input('sort_field', 'id') : 'id';
+        $sortField = in_array($request->input('sort_field', 'id'), ['id', 'product_id', 'user_id', 'license_code', 'installation_ip', 'installation_domain', 'installation_date', 'installation_status'], strict: true) ? $request->input('sort_field', 'id') : 'id';
 
         $installations = Installation::query()
             ->with(['product:id,name', 'user:id,email', 'license:id,license_code'])
@@ -108,7 +108,7 @@ class InstallationController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $installations->getCollection()->transform(fn (Installation $installation) => [
+        $installations->getCollection()->transform(fn (Installation $installation): array => [
             'id' => $installation->id,
             'product_id' => $installation->product_id,
             'client_id' => $installation->user_id,

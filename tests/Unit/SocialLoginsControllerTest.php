@@ -10,7 +10,7 @@ class SocialLoginsControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -19,7 +19,7 @@ class SocialLoginsControllerTest extends DBTestCase
         $this->withoutMiddleware();
     }
 
-    public function test_get_social_logins_initial_page_structure()
+    public function test_get_social_logins_initial_page_structure(): void
     {
         $response = $this->getJson('/social-logins');
         $response->assertStatus(200);
@@ -29,7 +29,7 @@ class SocialLoginsControllerTest extends DBTestCase
         $response->assertJsonFragment(['type' => 'Linkedin']);
     }
 
-    public function test_search_function_for_social_login()
+    public function test_search_function_for_social_login(): void
     {
         // search query google
         $response = $this->getJson('/social-logins?search-query=google');
@@ -47,7 +47,7 @@ class SocialLoginsControllerTest extends DBTestCase
             ->assertJsonFragment(['type' => 'Linkedin']);
     }
 
-    public function test_update_credentials_for_google_github_linkedin()
+    public function test_update_credentials_for_google_github_linkedin(): void
     {
         // Update credentials for google
         $googlePayload = [
@@ -86,7 +86,7 @@ class SocialLoginsControllerTest extends DBTestCase
                ->assertJsonFragment(['message' => __('message.social_login_settings_updated')]);
     }
 
-    public function test_returns_single_social_login_for_edit()
+    public function test_returns_single_social_login_for_edit(): void
     {
         // Google
         $row = SocialLogin::updateOrCreate([
@@ -97,7 +97,7 @@ class SocialLoginsControllerTest extends DBTestCase
             'status' => 1,
         ]);
 
-        $response = $this->getJson("/edit/SocialLogins/{$row->id}");
+        $response = $this->getJson('/edit/SocialLogins/' . $row->id);
 
         $response->assertStatus(200)
                  ->assertJsonFragment(['id' => $row->id, 'type' => 'Google']);
@@ -111,7 +111,7 @@ class SocialLoginsControllerTest extends DBTestCase
             'status' => 1,
         ]);
 
-        $response = $this->getJson("/edit/SocialLogins/{$row->id}");
+        $response = $this->getJson('/edit/SocialLogins/' . $row->id);
 
         $response->assertStatus(200)
                  ->assertJsonFragment(['id' => $row->id, 'type' => 'Github']);
@@ -125,13 +125,13 @@ class SocialLoginsControllerTest extends DBTestCase
             'status' => 1,
         ]);
 
-        $response = $this->getJson("/edit/SocialLogins/{$row->id}");
+        $response = $this->getJson('/edit/SocialLogins/' . $row->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['id' => $row->id, 'type' => 'Linkedin']);
     }
 
-    public function test_returns_validation_errors_when_required_fields_missing()
+    public function test_returns_validation_errors_when_required_fields_missing(): void
     {
         // Check validation error in google
         $googlePayload = [

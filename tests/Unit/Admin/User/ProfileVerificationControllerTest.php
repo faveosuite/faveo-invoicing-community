@@ -18,7 +18,7 @@ class ProfileVerificationControllerTest extends DBTestCase
 
     protected $profileVerificationController;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->withoutMiddleware();
@@ -35,7 +35,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     /**
      * Test user can change email after verification.
      */
-    public function test_user_can_change_email_after_verification()
+    public function test_user_can_change_email_after_verification(): void
     {
         Mail::fake();
 
@@ -67,7 +67,7 @@ class ProfileVerificationControllerTest extends DBTestCase
             ->assertJson([
                 'message' => __('message.new_email_updated'),
             ])
-            ->assertJsonPath('data.email_updated', true)
+            ->assertJsonPath('data.email_updated', expect: true)
             ->assertJsonPath('data.email', $newEmail);
 
         // Assert DB updated
@@ -80,7 +80,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     /**
      * Test wrong OTP for new email verification.
      */
-    public function test_wrong_otp_for_new_email_verification()
+    public function test_wrong_otp_for_new_email_verification(): void
     {
         Mail::fake();
 
@@ -115,7 +115,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     /**
      * Test wrong OTP for old email verification.
      */
-    public function test_wrong_otp_for_old_email_verification()
+    public function test_wrong_otp_for_old_email_verification(): void
     {
         Mail::fake();
 
@@ -155,7 +155,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     /**
      * Test mobile number change after verification.
      */
-    public function test_user_can_change_mobile_after_verification()
+    public function test_user_can_change_mobile_after_verification(): void
     {
         Mail::fake();
 
@@ -212,7 +212,7 @@ class ProfileVerificationControllerTest extends DBTestCase
             'dial_code' => $dialCode,
             'country_iso' => $countryIso,
         ])->assertStatus(200)
-            ->assertJsonPath('data.email_verification_required', true);
+            ->assertJsonPath('data.email_verification_required', expect: true);
 
         // Step 3: Send email OTP for confirmation
         $this->postJson('/profile/email/send-otp', [
@@ -232,13 +232,13 @@ class ProfileVerificationControllerTest extends DBTestCase
             ->assertJson([
                 'message' => __('message.new_mobile_no_updated'),
             ])
-            ->assertJsonPath('data.mobile_updated', true);
+            ->assertJsonPath('data.mobile_updated', expect: true);
     }
 
     /**
      * Test mobile_email verify fails without prior mobile OTP verification.
      */
-    public function test_mobile_email_verify_fails_without_mobile_otp()
+    public function test_mobile_email_verify_fails_without_mobile_otp(): void
     {
         Mail::fake();
 
@@ -274,7 +274,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     /**
      * Test wrong OTP for new email (alternate scenario).
      */
-    public function test_wrong_otp_rejected_for_new_email()
+    public function test_wrong_otp_rejected_for_new_email(): void
     {
         Mail::fake();
 
@@ -303,7 +303,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     /**
      * Test duplicate email is rejected during send OTP.
      */
-    public function test_duplicate_email_rejected_on_send_otp()
+    public function test_duplicate_email_rejected_on_send_otp(): void
     {
         $user = $this->createUser([
             'email' => 'old@example.com',
@@ -324,7 +324,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     /**
      * Test duplicate mobile number is rejected during send OTP.
      */
-    public function test_duplicate_mobile_rejected_on_send_otp()
+    public function test_duplicate_mobile_rejected_on_send_otp(): void
     {
         $user = $this->createUser([
             'mobile' => '8123456789',
@@ -347,7 +347,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     /**
      * Test invalid verify_type is rejected.
      */
-    public function test_invalid_verify_type_rejected()
+    public function test_invalid_verify_type_rejected(): void
     {
         Mail::fake();
 

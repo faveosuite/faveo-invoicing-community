@@ -19,7 +19,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
     }
 
-    public function test_it_sets_license_mode_to_file_and_generates_keys()
+    public function test_it_sets_license_mode_to_file_and_generates_keys(): void
     {
         Storage::fake('public');
 
@@ -50,7 +50,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_sets_license_mode_to_database_and_deletes_files()
+    public function test_it_sets_license_mode_to_database_and_deletes_files(): void
     {
         Storage::fake('public');
 

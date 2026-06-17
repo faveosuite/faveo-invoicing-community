@@ -107,7 +107,7 @@ class OpenPaymentService
             return false;
         }
 
-        $event = json_decode($rawPayload, true) ?: [];
+        $event = json_decode($rawPayload, associative: true) ?: [];
 
         strtolower($gateway) === 'stripe'
             ? $this->handleStripeEvent($event)
@@ -155,7 +155,7 @@ class OpenPaymentService
 
         // Client success email
         $clientTemplate = TemplateType::getSelectedTemplate('open_payment_success');
-        if ($clientTemplate) {
+        if ($clientTemplate instanceof \App\Model\Common\Template) {
             $replace = [
                 'name' => $order->name,
                 'transaction_id' => $order->transaction_id,
@@ -176,7 +176,7 @@ class OpenPaymentService
 
         // Admin notification email
         $adminTemplate = TemplateType::getSelectedTemplate('open_payment_admin_success');
-        if ($adminTemplate) {
+        if ($adminTemplate instanceof \App\Model\Common\Template) {
             $replace = [
                 'name' => $order->name,
                 'company' => $order->company,
@@ -212,7 +212,7 @@ class OpenPaymentService
 
         // Client failure email
         $clientTemplate = TemplateType::getSelectedTemplate('open_payment_failed');
-        if ($clientTemplate) {
+        if ($clientTemplate instanceof \App\Model\Common\Template) {
             $replace = [
                 'name' => $order->name,
                 'currency' => $order->currency,
@@ -231,7 +231,7 @@ class OpenPaymentService
 
         // Admin failure notification
         $adminTemplate = TemplateType::getSelectedTemplate('open_payment_admin_failed');
-        if ($adminTemplate) {
+        if ($adminTemplate instanceof \App\Model\Common\Template) {
             $replace = [
                 'name' => $order->name,
                 'company' => $order->company,

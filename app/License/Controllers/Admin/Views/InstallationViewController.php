@@ -56,7 +56,7 @@ class InstallationViewController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $callbacks->getCollection()->transform(fn (LicenseCallback $cb) => [
+        $callbacks->getCollection()->transform(fn (LicenseCallback $cb): array => [
             'id' => $cb->id,
             'callback_ip' => $cb->callback_ip,
             'callback_domain' => $cb->callback_domain,

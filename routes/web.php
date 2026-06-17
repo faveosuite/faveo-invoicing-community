@@ -267,7 +267,7 @@ Route::middleware('installAgora')->group(function (): void {
         ->middleware('recaptcha:newsletter');
     Route::post('demo-request', [PageController::class, 'postDemoReq'])
         ->withoutMiddleware(['auth']);
-    Route::get('404', fn () => view('errors.404'))->name('error404');
+    Route::get('404', fn (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View => view('errors.404'))->name('error404');
 
     // Published pages / contact info / demo status (public, no auth)
     Route::get('page-content/{slug}', [PageController::class, 'pageBySlug']);
@@ -276,7 +276,7 @@ Route::middleware('installAgora')->group(function (): void {
 
     // Open Payment (pay/*) — public payment page, no auth required
     Route::prefix('pay')->withoutMiddleware(['auth', 'web'])->group(function (): void {
-        Route::get('/', fn () => view('client'))->name('open-payment.page');
+        Route::get('/', fn (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View => view('client'))->name('open-payment.page');
         Route::get('config', [OpenPaymentController::class, 'getConfig'])->name('open-payment.config');
         Route::get('detect-country', [OpenPaymentController::class, 'detectCountry'])->name('open-payment.detect-country');
         Route::get('calculate', [OpenPaymentController::class, 'calculate'])->name('open-payment.calculate');
@@ -320,7 +320,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('group/{templateid}/{group}/', [PageController::class, 'pageTemplates']);
 
     // --- Invoices (client) ---
-    Route::get('my-invoices', fn () => view('client'))->name('my-invoices');
+    Route::get('my-invoices', fn (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View => view('client'))->name('my-invoices');
     Route::get('get-my-invoices', [ClientController::class, 'getInvoices'])->name('get-my-invoices');
     Route::get('paynow/{id}', [ClientController::class, 'payNow'])->middleware(['auth']);
     Route::post('store-basic-details', [LoginController::class, 'storeBasicDetails'])->name('store-basic-details');
@@ -493,7 +493,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::post('update-license-details', [BaseOrderController::class, 'updateLicenseDetails']);
     Route::get('get-installation-details/{orderId}', [OrderController::class, 'getInstallationDetails']);
     Route::get('export-orders', [OrderController::class, 'exportOrders'])->name('export-orders');
-    Route::get('orders/license/{order_number}', fn ($orderNumber) => redirect('/orders/'.Order::where('number', $orderNumber)->value('id')));
+    Route::get('orders/license/{order_number}', fn ($orderNumber): \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse => redirect('/orders/'.Order::where('number', $orderNumber)->value('id')));
 
     Route::post('switch-license-mode', [LocalizedLicenseController::class, 'chooseLicenseMode']);
 
@@ -897,9 +897,9 @@ Route::middleware('installAgora')->group(function (): void {
 // ============================================================
 
 // Admin SPA
-Route::get('/admin/{any?}', fn () => view('admin'))
+Route::get('/admin/{any?}', fn (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View => view('admin'))
     ->where('any', '.*');
 
 // Client SPA catch-all — Route::fallback() always matches last,
 // even after routes registered by service providers.
-Route::fallback(fn () => view('client'));
+Route::fallback(fn (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View => view('client'));

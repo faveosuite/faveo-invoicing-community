@@ -50,10 +50,11 @@
 
             class TestResult
             {
-                var $message;
-                var $status;
+                public $message;
 
-                function __construct($message, $status = STATUS_OK)
+                public $status;
+
+                public function __construct($message, $status = STATUS_OK)
                 {
                     $this->message = $message;
                     $this->status = $status;
@@ -81,7 +82,6 @@
                 if ($version >= 50600 && $version < 90000) {
                     return true;
                 }
-
                 /**
                  * MariaDB had directly released version 10 after 5.5 so if DB server is MariaDB
                  * then we need to check the version must be 10.3 or greater which is compatible
@@ -90,11 +90,7 @@
                  * @link https://mariadb.com/kb/en/library/mariadb-vs-mysql-compatibility/
                  * @link https://en.wikipedia.org/wiki/MariaDB
                  */
-                if ($version >= 100300) {
-                    return true;
-                }
-
-                return false;
+                return $version >= 100300;
             }
 
             /**
@@ -105,8 +101,6 @@
              *
              * @param array $results variable linked for errors or success messages
              * @param bool $mysqli_ok variable linked for mysql status
-             * @param object $connection
-             * @return void
              *
              * @author Manish Verma <manish.verma@ladybirdweb.com>
              */
@@ -142,9 +136,8 @@
              *
              * @param string $dbUsername mysql username
              * @param string $dbPassword mysql password
-             * @return null
              */
-            function setupConfig($host, $dbUsername, $dbPassword, $port = '', $customOptions = [], $dbengine = '')
+            function setupConfig($host, $dbUsername, $dbPassword, $port = '', $customOptions = [], $dbengine = ''): void
             {
                 $options = array_merge([null, null, null, false], $customOptions);
                 Config::set('app.env', 'development');
@@ -174,7 +167,7 @@
             {
                 try {
                     $connection = mysqli_init();
-                    mysqli_ssl_set($connection, DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, null, null);
+                    mysqli_ssl_set($connection, DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, ca_path: null, cipher_algos: null);
                     if (DB_PORT != '' && is_numeric(DB_PORT)) {
                         setupConfig(DB_HOST, DB_USER, DB_PASS, DB_PORT, [DB_SSL_KEY, DB_SSL_CERT, DB_SSL_CA, DB_SSL_VERIFY_PEER_CERT]);
                         if (!mysqli_real_connect($connection, DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT)) {
@@ -189,7 +182,7 @@
                     }
 
                     return $connection;
-                } catch (Exception $e) {
+                } catch (Exception $exception) {
                     return false;
                 }
                 return $connection;
@@ -226,7 +219,7 @@
                 }
 
 
-                function getIconAndBgClass($status)
+                function getIconAndBgClass($status): array
                 {
                     switch ($status) {
                         case 'Ok':

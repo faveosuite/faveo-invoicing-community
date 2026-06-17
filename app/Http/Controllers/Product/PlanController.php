@@ -20,13 +20,13 @@ use Throwable;
 
 class PlanController extends ExtendedPlanController
 {
-    protected $currency;
+    protected \App\Model\Payment\Currency $currency;
 
-    protected $price;
+    protected \App\Model\Payment\PlanPrice $price;
 
-    protected $period;
+    protected \App\Model\Payment\Period $period;
 
-    protected $product;
+    protected \App\Model\Product\Product $product;
 
     public function __construct()
     {
@@ -34,14 +34,19 @@ class PlanController extends ExtendedPlanController
         $this->middleware('admin');
         $plan = new Plan();
         $this->plan = $plan;
+
         $subscription = new Subscription();
         $this->subscription = $subscription;
+
         $currency = new Currency();
         $this->currency = $currency;
+
         $price = new PlanPrice();
         $this->price = $price;
+
         $period = new Period();
         $this->period = $period;
+
         $product = new Product();
         $this->product = $product;
     }
@@ -89,16 +94,14 @@ class PlanController extends ExtendedPlanController
             }
 
             return back()->with('success', Lang::get('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return back()->withj('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->withj('fails', $exception->getMessage());
         }
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  Plan  $plan
-     * @param  PlanRequest  $request
      * @return RedirectResponse
      */
     public function update(Plan $plan, PlanRequest $request)
@@ -147,18 +150,18 @@ class PlanController extends ExtendedPlanController
                 $query->where(function (Builder $q) use ($searchQuery): void {
                     $daysRange = $this->parsePeriodToDaysRange($searchQuery);
 
-                    $q->where('name', 'like', "%$searchQuery%")
+                    $q->where('name', 'like', sprintf('%%%s%%', $searchQuery))
                         ->when($daysRange, fn ($q2) => $q2->orWhereBetween('days', $daysRange))
-                        ->orWhereHas('productRelation', fn (Builder $q3) => $q3->where('name', 'like', "%$searchQuery%")
+                        ->orWhereHas('productRelation', fn (Builder $q3) => $q3->where('name', 'like', sprintf('%%%s%%', $searchQuery))
                         )
-                        ->orWhereHas('planPrice', fn (Builder $q4) => $q4->where('currency', 'like', "%$searchQuery%")
+                        ->orWhereHas('planPrice', fn (Builder $q4) => $q4->where('currency', 'like', sprintf('%%%s%%', $searchQuery))
                         );
                 });
             })
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
 
-        $plans->getCollection()->transform(fn ($plan) => [
+        $plans->getCollection()->transform(fn ($plan): array => [
             'id' => $plan->id,
             'name' => $plan->name,
             'product' => $plan->productRelation?->name,
@@ -174,7 +177,6 @@ class PlanController extends ExtendedPlanController
     /**
      * Convert human-readable period into a days range.
      *
-     * @param  string  $period
      * @return array|null [minDays, maxDays] or null if invalid
      */
     protected function parsePeriodToDaysRange(string $period): ?array
@@ -212,15 +214,13 @@ class PlanController extends ExtendedPlanController
             );
 
             // Attach period if days is provided
-            if ($request->filled('days')) {
-                if ($periodId = Period::where('days', $request->days)->value('id')) {
-                    $plan->periods()->attach($periodId);
-                }
+            if ($request->filled('days') && $periodId = Period::where('days', $request->days)->value('id')) {
+                $plan->periods()->attach($periodId);
             }
 
             // Insert pricing data
             if ($request->filled('add_price')) {
-                $priceData = collect($request->add_price)->map(fn ($addPrice, $key) => [
+                $priceData = collect($request->add_price)->map(fn ($addPrice, $key): array => [
                     'plan_id' => $plan->id,
                     'currency' => $request->currency[$key],
                     'add_price' => $addPrice,
@@ -235,8 +235,8 @@ class PlanController extends ExtendedPlanController
             }
 
             return successResponse(__('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -258,8 +258,8 @@ class PlanController extends ExtendedPlanController
             }
 
             return successResponse('', $plan);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -271,17 +271,16 @@ class PlanController extends ExtendedPlanController
             $plan->fill($request->validated())->save();
 
             // Update period if days is provided
-            if ($request->filled('days')) {
-                if ($periodId = Period::where('days', $request->days)->value('id')) {
-                    $plan->periods()->sync([$periodId]); // sync replaces existing periods
-                }
+            if ($request->filled('days') && $periodId = Period::where('days', $request->days)->value('id')) {
+                $plan->periods()->sync([$periodId]);
+                // sync replaces existing periods
             }
 
             // Update plan prices
             if ($request->filled('add_price')) {
                 $plan->planPrice()->delete();
 
-                $priceData = collect($request->add_price)->map(fn ($addPrice, $key) => [
+                $priceData = collect($request->add_price)->map(fn ($addPrice, $key): array => [
                     'plan_id' => $plan->id,
                     'currency' => $request->currency[$key],
                     'add_price' => $addPrice,
@@ -296,8 +295,8 @@ class PlanController extends ExtendedPlanController
             }
 
             return successResponse(__('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -319,8 +318,8 @@ class PlanController extends ExtendedPlanController
             });
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Throwable $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
         }
     }
 }

@@ -23,7 +23,7 @@ return new class extends Migration
             // Field behavior
             $table->string('field_type');
 
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(value: true);
 
             $table->timestamps();
 

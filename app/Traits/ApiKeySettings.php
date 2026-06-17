@@ -43,7 +43,7 @@ trait ApiKeySettings
             $input = $request->all();
 
             // Find the first matching status key
-            $statusEntry = $statusData->first(fn ($value, $inputKey) => array_key_exists($inputKey, $input));
+            $statusEntry = $statusData->first(fn ($value, $inputKey): bool => array_key_exists($inputKey, $input));
 
             if (! $statusEntry) {
                 return errorResponse(Lang::get('message.invalid_key'));
@@ -62,13 +62,13 @@ trait ApiKeySettings
         }
     }
 
-    public function mobileStatus(Request $request)
+    public function mobileStatus(Request $request): void
     {
-        $status = $request->input('status');
+        $request->input('status');
     }
 
     //Save Auto Update status in Database
-    public function updateDetails(Request $request)
+    public function updateDetails(Request $request): array
     {
         $status = $request->input('status');
         $updateApiSecret = $request->input('update_api_secret');
@@ -131,7 +131,7 @@ trait ApiKeySettings
     /*
      * Update Zoho Details In Database
      */
-    public function updatezohoDetails(Request $request)
+    public function updatezohoDetails(Request $request): array
     {
         $status = $request->input('status');
         $key = $request->input('zoho_key');
@@ -144,7 +144,7 @@ trait ApiKeySettings
     /*
      * Update Email Status In Database
      */
-    public function updateEmailDetails(Request $request)
+    public function updateEmailDetails(Request $request): array
     {
         $status = $request->input('status');
         StatusSetting::find(1)->update(['emailverification_status' => $status]);
@@ -155,7 +155,7 @@ trait ApiKeySettings
     /*
      * Update Domain Check status In Database
      */
-    public function updatedomainCheckDetails(Request $request)
+    public function updatedomainCheckDetails(Request $request): array
     {
         $status = $request->input('status');
         StatusSetting::find(1)->update(['domain_check' => $status]);
@@ -166,7 +166,7 @@ trait ApiKeySettings
     /*
     * Update Twitter Details In Database
     */
-    public function updatetwitterDetails(Request $request)
+    public function updatetwitterDetails(Request $request): array
     {
         $consumer_key = $request->input('consumer_key');
         $consumer_secret = $request->input('consumer_secret');
@@ -193,7 +193,7 @@ trait ApiKeySettings
                 return errorResponse(Lang::get('message.pipedrive_error'));
             }
 
-            $result = json_decode($response, true);
+            $result = json_decode($response, associative: true);
             if (isset($result['success']) && $result['success'] !== true) {
                 return errorResponse(Lang::get('message.pipedrive_error'));
             }
@@ -208,14 +208,14 @@ trait ApiKeySettings
         }
     }
 
-    public function updateMailchimpProductStatus(Request $request)
+    public function updateMailchimpProductStatus(Request $request): array
     {
         StatusSetting::first()->update(['mailchimp_product_status' => $request->input('status')]);
 
         return ['message' => 'success', 'update' => __('message.mailchimp_products_group_status_saved')];
     }
 
-    public function updateMailchimpIsPaidStatus(Request $request)
+    public function updateMailchimpIsPaidStatus(Request $request): array
     {
         StatusSetting::first()->update(['mailchimp_ispaid_status' => $request->input('status')]);
 
@@ -229,7 +229,7 @@ trait ApiKeySettings
 
             $dc = substr((string) $chimp_auth_key, strpos((string) $chimp_auth_key, '-') + 1);
             // Mailchimp API URL
-            $url = "https://{$dc}.api.mailchimp.com/3.0/";
+            $url = sprintf('https://%s.api.mailchimp.com/3.0/', $dc);
             // Make an API request
             $response = Http::withBasicAuth('anystring', $chimp_auth_key)->get($url);
             if ($response->successful()) {
@@ -294,17 +294,16 @@ trait ApiKeySettings
         return $newDate;
     }
 
-    public function getDateFormat($dbdate = '')
+    public function getDateFormat($dbdate = ''): string
     {
         $created = new DateTime($dbdate);
         $tz = Auth::user()->timezone()->first()->name;
         $created->setTimezone(new DateTimeZone($tz));
-        $date = $created->format('Y-m-d H:m:i');
 
-        return $date;
+        return $created->format('Y-m-d H:m:i');
     }
 
-    public function saveConditions(Request $request)
+    public function saveConditions(Request $request): void
     {
         if (\Request::get('expiry-commands') && \Request::get('activity-commands')) {
             $expiry_commands = \Request::get('expiry-commands');
@@ -368,16 +367,16 @@ trait ApiKeySettings
         }
     }
 
-    public function getCommand($command, $daily_at)
+    public function getCommand($command, string $daily_at)
     {
         if ($command == 'dailyAt') {
-            $command = "dailyAt,$daily_at";
+            return 'dailyAt,' . $daily_at;
         }
 
         return $command;
     }
 
-    public function storeCommand(array $jobs = [])
+    public function storeCommand(array $jobs = []): void
     {
         $model = new Condition();
 
@@ -411,8 +410,8 @@ trait ApiKeySettings
             ];
 
             return successResponse('', $fileStorage);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -493,7 +492,7 @@ trait ApiKeySettings
                 's3_path_style_endpoint' => 'AWS_USE_PATH_STYLE_ENDPOINT',
             };
 
-            if ($envKey) {
+            if ($envKey !== '0') {
                 setEnvValue([$envKey => $value]);
             }
         }
@@ -511,7 +510,7 @@ trait ApiKeySettings
                 ],
                 'endpoint' => $s3EndpointUrl,
                 'url' => $s3Url,
-                'use_path_style_endpoint' => $s3PathStyleEndpoint === 'true' ? true : false,
+                'use_path_style_endpoint' => $s3PathStyleEndpoint === 'true',
             ]);
 
             return $s3Client->doesBucketExist($s3Bucket);
@@ -530,8 +529,8 @@ trait ApiKeySettings
                 'npm_path' => $settings->npm_path ?? '',
                 'chrome_path' => $settings->chrome_path ?? '',
             ]);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -547,8 +546,8 @@ trait ApiKeySettings
             $settings->save();
 
             return successResponse(trans('message.setting_updated'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

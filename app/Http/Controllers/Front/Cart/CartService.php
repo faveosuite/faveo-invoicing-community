@@ -55,7 +55,7 @@ class CartService
     private function resolveGuestCurrency(Request $request): string
     {
         $ip = $request->ip();
-        $iso = cache()->remember("user_location_{$ip}", 60, fn () => getLocation($ip)['iso_code'] ?? null);
+        $iso = cache()->remember('user_location_' . $ip, 60, fn () => getLocation($ip)['iso_code'] ?? null);
 
         return getCurrencyForClient($iso ? findCountryByGeoip($iso) : null);
     }
@@ -68,7 +68,7 @@ class CartService
                 'quantity' => $data['quantity'] ?? null,
                 'agents' => $data['agents'] ?? null,
                 'domain' => $data['domain'] ?? null,
-            ], fn ($v) => $v !== null));
+            ], fn ($v): bool => $v !== null));
             $this->recalculateCoupon($item->cart);
 
             return;
@@ -183,7 +183,7 @@ class CartService
             $invoice = $this->reusablePendingInvoice($cart);
 
             $cloudItem = $cart->items->first(
-                fn ($item) => $item->domain && in_array($item->product_id, cloudPopupProducts())
+                fn ($item): bool => $item->domain && in_array($item->product_id, cloudPopupProducts())
             );
 
             $attributes = [
@@ -199,7 +199,7 @@ class CartService
                 'cloud_domain' => $cloudItem?->domain ?: null,
             ];
 
-            if ($invoice) {
+            if ($invoice instanceof \App\Model\Order\Invoice) {
                 $invoice->update($attributes);
                 $invoice->invoiceItem()->delete();
                 InvoiceTaxLine::where('invoice_id', $invoice->id)->delete();
@@ -393,7 +393,7 @@ class CartService
         $currency = $cart->currency ?? 'USD';
         $tax = resolve(TaxService::class);
 
-        return $cart->items->map(function (CartItem $line) use ($user, $currency, $tax) {
+        return $cart->items->map(function (CartItem $line) use ($user, $currency, $tax): array {
             $lineTotal = $line->priceFor($currency) * $line->quantity * $line->agents;
             $result = $tax->calculate($lineTotal, (int) $line->product_id, $user);
 
@@ -428,7 +428,7 @@ class CartService
                 return [];
             }
 
-            return array_map(fn ($name) => ['name' => $name, 'processing_fee' => ProcessingFee::percent($name) ?: null], $names);
+            return array_map(fn ($name): array => ['name' => $name, 'processing_fee' => ProcessingFee::percent($name) ?: null], $names);
         } catch (Throwable) {
             return [];
         }
@@ -491,11 +491,7 @@ class CartService
             return false;
         }
 
-        if ($this->hasDateBound($promo->expiry) && $now->gt(Date::parse($promo->expiry))) {
-            return false;
-        }
-
-        return true;
+        return !($this->hasDateBound($promo->expiry) && $now->gt(Date::parse($promo->expiry)));
     }
 
     /**

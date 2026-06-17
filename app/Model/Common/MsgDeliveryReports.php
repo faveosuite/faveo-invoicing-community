@@ -31,9 +31,11 @@ class MsgDeliveryReports extends Model
         return $this->belongsTo(Msg91Status::class, 'status', 'status_code');
     }
 
-    protected function getFormattedSenderIdAttribute()
+    protected function formattedSenderId(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return strtoupper($this->sender_id);
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
+            return strtoupper($this->sender_id);
+        });
     }
 
     public function user()

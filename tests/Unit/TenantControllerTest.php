@@ -24,7 +24,7 @@ class TenantControllerTest extends TestCase
         $this->withoutExceptionHandling();
     }
 
-    public function test_get_tenants_success()
+    public function test_get_tenants_success(): void
     {
         // Mock ThirdPartyApp data
         ThirdPartyApp::create([
@@ -72,14 +72,14 @@ class TenantControllerTest extends TestCase
         $response = $controller->getTenants($request);
 
         // Assert response
-        $responseData = json_decode((string) $response->getContent(), true);
+        $responseData = json_decode((string) $response->getContent(), associative: true);
 
         $this->assertCount(2, $responseData['data']);
         $this->assertEquals('test_db', $responseData['data'][0]['db_name']);
         $this->assertEquals('test_user', $responseData['data'][0]['db_username']);
     }
 
-    public function test_get_tenants_invalid_app_key()
+    public function test_get_tenants_invalid_app_key(): void
     {
         // Mock ThirdPartyApp with invalid app key
         ThirdPartyApp::create([
@@ -101,13 +101,13 @@ class TenantControllerTest extends TestCase
         // Instantiate controller and call method
         $controller = new TenantController($client, $cloud);
         $request = new Request();
-        $response = $controller->getTenants($request);
+        $controller->getTenants($request);
 
         // Assert redirect and error message
         $this->assertEquals('Invalid App key provided. Please contact admin.', session('fails'));
     }
 
-    public function test_get_tenants_guzzle_exception()
+    public function test_get_tenants_guzzle_exception(): void
     {
         // Mock ThirdPartyApp data
         ThirdPartyApp::create([
@@ -131,7 +131,7 @@ class TenantControllerTest extends TestCase
         // Instantiate controller and call method
         $controller = new TenantController($client, $cloud);
         $request = new Request();
-        $response = $controller->getTenants($request);
+        $controller->getTenants($request);
 
         // Assert redirect and error message
         $this->assertEquals('Connection error', session('fails'));

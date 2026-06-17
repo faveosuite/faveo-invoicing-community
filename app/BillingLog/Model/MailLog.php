@@ -76,13 +76,17 @@ class MailLog extends BaseModel
         return $this->belongsTo(LogCategory::class, 'log_category_id');
     }
 
-    protected function getIsRetryAttribute()
+    protected function isRetry(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return in_array($this->status, ['failed', 'queued']) && (bool) $this->job_payload;
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (): bool {
+            return in_array($this->status, ['failed', 'queued']) && (bool) $this->job_payload;
+        });
     }
 
-    protected function getJobPayloadAttribute($value)
+    protected function jobPayload(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return $value ? Crypt::decrypt($value) : null;
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+            return $value ? Crypt::decrypt($value) : null;
+        });
     }
 }

@@ -16,7 +16,7 @@ class PageControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
     }
 
-    public function test_get_all_pages_success()
+    public function test_get_all_pages_success(): void
     {
         FrontendPage::factory()->count(5)->create();
 
@@ -26,7 +26,7 @@ class PageControllerTest extends DBTestCase
             ->assertJsonCount(5, 'data.data');
     }
 
-    public function test_get_all_pages_empty()
+    public function test_get_all_pages_empty(): void
     {
         $response = $this->getJson('/pages');
 
@@ -35,7 +35,7 @@ class PageControllerTest extends DBTestCase
     }
 
     // Test cases for DELETE /pages
-    public function test_delete_bulk_pages_success()
+    public function test_delete_bulk_pages_success(): void
     {
         $pages = FrontendPage::factory()->count(3)->create();
         $pageIds = $pages->pluck('id')->toArray();
@@ -50,7 +50,7 @@ class PageControllerTest extends DBTestCase
         }
     }
 
-    public function test_delete_bulk_pages_validation_error()
+    public function test_delete_bulk_pages_validation_error(): void
     {
         $response = $this->deleteJson('/pages', ['page_ids' => []]);
 
@@ -59,7 +59,7 @@ class PageControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_get_page_success()
+    public function test_get_page_success(): void
     {
         $page = FrontendPage::factory()->create();
 
@@ -69,14 +69,14 @@ class PageControllerTest extends DBTestCase
             ->assertJsonFragment(['type' => $page->type]);
     }
 
-    public function test_get_page_not_found()
+    public function test_get_page_not_found(): void
     {
         $response = $this->getJson('/page/9999');
 
         $response->assertStatus(400);
     }
 
-    public function test_update_page_success()
+    public function test_update_page_success(): void
     {
         $page = FrontendPage::factory()->create();
         $updateData = [
@@ -92,14 +92,14 @@ class PageControllerTest extends DBTestCase
         $this->assertDatabaseHas('frontend_pages', array_merge(['id' => $page->id], $updateData));
     }
 
-    public function test_update_page_not_found()
+    public function test_update_page_not_found(): void
     {
         $response = $this->putJson('/page/9999');
 
         $response->assertStatus(400);
     }
 
-    public function test_save_demo_page_success()
+    public function test_save_demo_page_success(): void
     {
         $response = $this->postJson('/save/demo', ['status' => 1]);
 
@@ -109,7 +109,7 @@ class PageControllerTest extends DBTestCase
         $this->assertDatabaseHas('demo_pages', ['status' => 1]);
     }
 
-    public function test_save_demo_page_validation_error()
+    public function test_save_demo_page_validation_error(): void
     {
         $response = $this->postJson('/save/demo', ['status' => '']);
 

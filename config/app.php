@@ -100,7 +100,7 @@ return [
     |
     */
 
-    'debug' => env('APP_DEBUG', false),
+    'debug' => env('APP_DEBUG', default: false),
 
     /*
     |--------------------------------------------------------------------------
@@ -183,7 +183,7 @@ return [
       |to AGORA developers  when any exception/error occurs or not. True value of this variable will
       |allow application to send error reports to AGORA team's bugsnag log.
      */
-    'sentry_reporting' => env('APP_SENTRY', true),
+    'sentry_reporting' => env('APP_SENTRY', default: true),
     /*
 
     /*
@@ -302,7 +302,7 @@ return [
         'GeoIP' => GeoIP::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
         'Html' => Html::class,
-        'Input' => Input::class,
+        'Input' => \Illuminate\Support\Facades\Request::class,
         'Redis' => Redis::class,
         'Gravatar' => Gravatar::class,
         'Socialite' => Socialite::class,

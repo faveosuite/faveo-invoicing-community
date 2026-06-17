@@ -37,10 +37,8 @@ abstract class BaseExternalSyncListener implements ShouldQueue
             if (! $this->isUserFullyVerified($event->user)) {
                 return;
             }
-        } else {
-            if ($event->trigger !== 'register') {
-                return;
-            }
+        } elseif ($event->trigger !== 'register') {
+            return;
         }
 
         $this->sync($event->user);

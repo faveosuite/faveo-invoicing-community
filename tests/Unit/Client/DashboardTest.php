@@ -28,12 +28,12 @@ class DashboardTest extends DBTestCase
     }
 
     #[Group('dashboard')]
-    public function test_dashboard_returning_correct_view()
+    public function test_dashboard_returning_correct_view(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $order = Order::factory()->create(['client' => $user->id]);
+        Order::factory()->create(['client' => $user->id]);
         $response = $this->call('get', 'client-dashboard-details');
         $content = $response->json()['data'];
         $response->assertStatus(200);
@@ -43,24 +43,24 @@ class DashboardTest extends DBTestCase
     }
 
     #[Group('dashboard')]
-    public function test_when_no_orders_are_created()
+    public function test_when_no_orders_are_created(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        Invoice::factory()->create(['user_id' => $user->id]);
         $response = $this->call('get', 'client-dashboard-details');
         $response->assertStatus(200);
         $this->assertDatabaseCount('orders', 0);
     }
 
     #[Group('dashboard')]
-    public function test_when_no_invoices_are_created()
+    public function test_when_no_invoices_are_created(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $order = Order::factory()->create(['client' => $user->id]);
+        Order::factory()->create(['client' => $user->id]);
         $response = $this->call('get', 'client-dashboard-details');
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -73,17 +73,17 @@ class DashboardTest extends DBTestCase
     }
 
     #[Group('dashboard')]
-    public function test_when_user_is_not_authenticated()
+    public function test_when_user_is_not_authenticated(): void
     {
         $user = User::factory()->create();
         $this->withoutMiddleware();
-        $order = Order::factory()->create(['client' => $user->id]);
+        Order::factory()->create(['client' => $user->id]);
         $response = $this->call('get', 'client-dashboard-details');
         $response->assertStatus(500);
     }
 
     #[Group('dashboard')]
-    public function test_when_there_are_order_renewals()
+    public function test_when_there_are_order_renewals(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -91,9 +91,9 @@ class DashboardTest extends DBTestCase
         $date = '2025-03-02 18:15:02';
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $order = Order::factory()->create(['client' => $user->id]);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
+        Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+        Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $response = $this->call('get', 'client-dashboard-details');
         $content = $response->json();
@@ -103,17 +103,16 @@ class DashboardTest extends DBTestCase
     }
 
     #[Group('dashboard')]
-    public function test_when_there_are_no_order_renewals()
+    public function test_when_there_are_no_order_renewals(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $date = '2025-04-30 18:15:02';
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
         $order = Order::factory()->create(['client' => $user->id]);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
+        Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+        Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => Date::now()]);
         $response = $this->call('get', 'client-dashboard-details');
         $content = $response->json();
@@ -122,14 +121,14 @@ class DashboardTest extends DBTestCase
     }
 
     #[Group('dashboard')]
-    public function test_return_to_invoice_correctly()
+    public function test_return_to_invoice_correctly(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
+        Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
         $response = $this->call('get', 'my-invoices?status=pending');
-        $content = $response->json();
+        $response->json();
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
@@ -141,14 +140,14 @@ class DashboardTest extends DBTestCase
     }
 
     #[Group('dashboard')]
-    public function test_return_invoice_details_correctly()
+    public function test_return_invoice_details_correctly(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
         $order = Order::factory()->create(['client' => $user->id, 'invoice_id' => $invoice->id]);
-        $relation = OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+        OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
         $response = $this->call('get', 'get-my-invoices', ['status' => 'pending']);
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -178,7 +177,7 @@ class DashboardTest extends DBTestCase
         ]);
     }
 
-    public function test_get_client_dashboard_details()
+    public function test_get_client_dashboard_details(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -186,8 +185,8 @@ class DashboardTest extends DBTestCase
         Invoice::factory(['user_id' => $user->id, 'status' => 'pending'])->create();
         Order::factory(10)->create();
         $pendingInvoicesCount = $user->invoice()->where('status', 'pending')->count();
-        $ordersCount = $user->order()->count();
-        $renewalCount = $user->order()
+        $user->order()->count();
+        $user->order()
             ->whereHas('subscription', function ($query): void {
                 $query->where('update_ends_at', '<', now());
             })

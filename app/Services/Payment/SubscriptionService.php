@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Payment;
 
 use App\Plugins\Payment\Contracts\SubscriptionGateway;
@@ -72,7 +74,7 @@ class SubscriptionService
         $driver = $this->payments->manager()->gateway($gateway);
 
         if (! $driver instanceof SubscriptionGateway) {
-            throw new PaymentException("Payment gateway [{$gateway}] does not support subscriptions.");
+            throw new PaymentException(sprintf('Payment gateway [%s] does not support subscriptions.', $gateway));
         }
 
         return $driver;

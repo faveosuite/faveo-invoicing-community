@@ -35,8 +35,8 @@ class SettingsController extends Controller
                 'auto_renewal' => (bool) ($status->razorpay_auto_renewal ?? false),
                 'webhook_url' => url('webhook/razorpay'),
             ]);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 

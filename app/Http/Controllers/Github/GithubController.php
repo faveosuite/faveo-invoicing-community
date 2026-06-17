@@ -44,9 +44,9 @@ class GithubController extends Controller
     public function authForSpecificApp()
     {
         try {
-            return app(GithubApiController::class)->authorizeApp();
-        } catch (Exception $ex) {
-            return redirect('/')->with('fails', $ex->getMessage());
+            return resolve(GithubApiController::class)->authorizeApp();
+        } catch (Exception $exception) {
+            return redirect('/')->with('fails', $exception->getMessage());
         }
     }
 }

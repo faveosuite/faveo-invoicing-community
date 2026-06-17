@@ -13,7 +13,7 @@ class Util
      * @param  $input
      * @return array|mixed|string
      */
-    public static function urlencodeRfc3986($input)
+    public static function urlencodeRfc3986($input): string|array
     {
         $output = '';
         if (is_array($input)) {
@@ -27,9 +27,8 @@ class Util
 
     /**
      * @param  string  $string
-     * @return string
      */
-    public static function urldecodeRfc3986($string)
+    public static function urldecodeRfc3986($string): string
     {
         return urldecode($string);
     }
@@ -40,9 +39,8 @@ class Util
      * array('a' => array('b','c'), 'd' => 'e').
      *
      * @param  mixed  $input
-     * @return array
      */
-    public static function parseParameters($input)
+    public static function parseParameters($input): array
     {
         if (! isset($input) || ! $input) {
             return [];
@@ -77,9 +75,8 @@ class Util
 
     /**
      * @param  $params
-     * @return string
      */
-    public static function buildHttpQuery($params)
+    public static function buildHttpQuery($params): string
     {
         if (! $params) {
             return '';

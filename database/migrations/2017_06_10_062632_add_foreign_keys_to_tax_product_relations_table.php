@@ -7,17 +7,15 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('tax_product_relations', function (Blueprint $table): void {
             // Fetch all indexes for the tax_product_relations table
             $indexes = DB::select('SHOW INDEX FROM tax_product_relations');
 
             // Helper function to check if a specific index exists
-            $indexExists = function ($indexName) use ($indexes) {
+            $indexExists = function ($indexName) use ($indexes): bool {
                 foreach ($indexes as $index) {
                     if ($index->Key_name === $indexName) {
                         return true;
@@ -49,10 +47,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('tax_product_relations', function (Blueprint $table): void {
             $table->dropForeign('tax_product_relations_product_id_foreign');

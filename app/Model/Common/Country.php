@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Model\Common;
 
 use App\BaseModel;
@@ -23,7 +25,7 @@ class Country extends BaseModel
     protected static function booted(): void
     {
         static::addGlobalScope('status', function (Builder $builder): void {
-            $builder->where('status', true);
+            $builder->where('status', operator: true);
         });
     }
 

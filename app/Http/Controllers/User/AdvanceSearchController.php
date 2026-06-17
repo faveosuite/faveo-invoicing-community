@@ -33,7 +33,7 @@ class AdvanceSearchController extends AdminOrderInvoiceController
     {
         try {
             $term = trim($request->q);
-            if (empty($term)) {
+            if ($term === '' || $term === '0') {
                 return Response::json([]);
             }
 
@@ -49,13 +49,13 @@ class AdvanceSearchController extends AdminOrderInvoiceController
             }
 
             return Response::json($formatted_users);
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             // returns if try fails with exception meaagse
-            return back()->with('fails', $e->getMessage());
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
-    public function getClientDetail($id)
+    public function getClientDetail($id): array
     {
         $client = $this->user->where('id', $id)->first();
         $currency = $client->currency;
@@ -65,9 +65,7 @@ class AdvanceSearchController extends AdminOrderInvoiceController
 
         $client->country = ucwords(strtolower((string) getCountryByCode($client->country)));
 
-        $displayData = ['currency' => $currency, 'client' => $client];
-
-        return $displayData;
+        return ['currency' => $currency, 'client' => $client];
     }
 
     public function getExtraAmt($userId)
@@ -82,10 +80,10 @@ class AdvanceSearchController extends AdminOrderInvoiceController
             }
 
             return $balance;
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $exception->getMessage());
         }
     }
 }

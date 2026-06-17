@@ -21,7 +21,7 @@ class LogViewController
 
     private $limit;
 
-    public function getSystemLogs()
+    public function getSystemLogs(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         return view('log::index');
     }
@@ -63,8 +63,8 @@ class LogViewController
                 ->when($this->searchString, function ($q): void {
                     $search = $this->searchString;
                     $q->where(function ($q) use ($search): void {
-                        $q->where('message', 'like', "%$search%")
-                            ->orWhere('file', 'like', "%$search%");
+                        $q->where('message', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('file', 'like', sprintf('%%%s%%', $search));
                     });
                 })
                 ->orderBy($this->sortField, $this->sortOrder)
@@ -95,8 +95,8 @@ class LogViewController
                 ->when($this->searchString, function ($q): void {
                     $search = $this->searchString;
                     $q->where(function ($q) use ($search): void {
-                        $q->where('description', 'like', "%$search%")
-                            ->orWhere('command', 'like', "%$search%");
+                        $q->where('description', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('command', 'like', sprintf('%%%s%%', $search));
                     });
                 })
                 ->orderBy($this->sortField, $this->sortOrder)
@@ -133,9 +133,9 @@ class LogViewController
                 ->when($this->searchString, function ($q): void {
                     $search = $this->searchString;
                     $q->where(function ($sub) use ($search): void {
-                        $sub->where('sender_mail', 'like', "%$search%")
-                            ->orWhere('receiver_mail', 'like', "%$search%")
-                            ->orWhere('carbon_copy', 'like', "%$search%");
+                        $sub->where('sender_mail', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('receiver_mail', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('carbon_copy', 'like', sprintf('%%%s%%', $search));
                     });
                 })
                 ->orderBy($this->sortField, $this->sortOrder)
@@ -147,7 +147,7 @@ class LogViewController
         }
     }
 
-    public function deleteLogsByDate(array $logTypes, $date = null)
+    public function deleteLogsByDate(array $logTypes, $date = null): void
     {
         $logModels = [
             'cron' => CronLog::class,
@@ -180,7 +180,7 @@ class LogViewController
         }
     }
 
-    private function applyListFiltersForLogs(Request $request)
+    private function applyListFiltersForLogs(Request $request): void
     {
         $this->searchString = $request->input('search-query', '');
         $this->sortOrder = $request->input('sort-order', 'desc');

@@ -88,7 +88,7 @@ class PipedriveController extends Controller
 
             return is_array($result) ? $result : (array) $result;
         } catch (ApiException $e) {
-            throw new Exception(json_decode($e->getResponseBody())->error);
+            throw new Exception(json_decode($e->getResponseBody())->error, $e->getCode(), $e);
         } catch (Exception $e) {
             Logger::exception($e);
 
@@ -179,7 +179,7 @@ class PipedriveController extends Controller
     /**
      * Add organization to Pipedrive or get existing one.
      */
-    public function addOrGetOrganization($organization)
+    public function addOrGetOrganization(array $organization)
     {
         try {
             if (! isset($organization['name'])) {
@@ -191,7 +191,7 @@ class PipedriveController extends Controller
 
             // Search for existing organization
             $orgSearchResult = $this->fetchApiData('organizations', 'searchOrganization', $organization['name'], 'name');
-            $orgSearchResult = json_decode(json_encode($orgSearchResult), true);
+            $orgSearchResult = json_decode(json_encode($orgSearchResult), associative: true);
             $orgId = $orgSearchResult['items'][0]['item']['id'] ?? null;
 
             // Create new organization if not found
@@ -201,10 +201,10 @@ class PipedriveController extends Controller
             }
 
             return $orgId;
-        } catch (Exception $e) {
-            Logger::exception($e);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            throw new Exception($e->getMessage());
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -236,15 +236,15 @@ class PipedriveController extends Controller
         $existingFields = PipedriveField::where('pipedrive_group_id', $groupId)->get()->keyBy('field_key');
 
         // Filter bulk-edit-allowed fields
-        $allowedFields = collect($fields)->filter(fn ($field) => isset($field->bulk_edit_allowed) && $field->bulk_edit_allowed === true &&
+        $allowedFields = collect($fields)->filter(fn ($field): bool => isset($field->bulk_edit_allowed) && $field->bulk_edit_allowed === true &&
             (! isset($field->use_field) || $field->use_field === 'id') &&
             ! in_array($field->key, $this->excludeKeysFromPipedrive($groupId)));
 
         $newFieldKeys = $allowedFields->pluck('key')->toArray();
-        $existingKeys = $existingFields->keys()->toArray();
+        $existingFields->keys()->toArray();
 
         // Delete fields
-        $fieldsToDelete = $existingFields->filter(fn ($field, $key) => ! in_array($key, $newFieldKeys));
+        $fieldsToDelete = $existingFields->filter(fn ($field, $key): bool => ! in_array($key, $newFieldKeys));
         if ($fieldsToDelete->isNotEmpty()) {
             PipedriveField::whereIn('id', $fieldsToDelete->pluck('id'))->delete();
         }
@@ -272,7 +272,7 @@ class PipedriveController extends Controller
                 $existingOptionKeys = $existingOptions->keys()->toArray();
 
                 // Delete options
-                $optionsToDelete = $existingOptions->filter(fn ($opt, $key) => ! in_array($key, $newOptionKeys));
+                $optionsToDelete = $existingOptions->filter(fn ($opt, $key): bool => ! in_array($key, $newOptionKeys));
                 if ($optionsToDelete->isNotEmpty()) {
                     PipedriveFieldOption::whereIn('id', $optionsToDelete->pluck('id'))->delete();
                 }
@@ -288,7 +288,7 @@ class PipedriveController extends Controller
         }
     }
 
-    private function excludeKeysFromPipedrive($groupID)
+    private function excludeKeysFromPipedrive(int $groupID): array
     {
         return match ($groupID) {
             $this->groups['personId'] => ['label_ids'],
@@ -322,8 +322,8 @@ class PipedriveController extends Controller
                 'person_id' => $personID,
             ]);
             $this->addDeal($deal);
-        } catch (Exception $e) {
-            Logger::exception($e);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
         }
     }
 
@@ -384,7 +384,7 @@ class PipedriveController extends Controller
 
                 // Reset non-selected options
                 $fieldIds = PipedriveField::where('pipedrive_group_id', $groupID)->pluck('id')->toArray();
-                $selectedOptionIds = collect($select2)->filter(fn ($item) => isset($item['id']) && $item['faveo_fields'] !== 'true')->pluck('id')->toArray();
+                $selectedOptionIds = collect($select2)->filter(fn ($item): bool => isset($item['id']) && $item['faveo_fields'] !== 'true')->pluck('id')->toArray();
 
                 PipedriveFieldOption::whereIn('pipedrive_field_id', $fieldIds)
                     ->whereNotIn('id', $selectedOptionIds)
@@ -397,8 +397,8 @@ class PipedriveController extends Controller
                     throw new Exception($response);
                 }
             });
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
 
         return successResponse(__('message.fields_mapped_successfully'));
@@ -427,7 +427,6 @@ class PipedriveController extends Controller
                 $this->groups['dealId'] => $this->addDeal($this->transformPipedriveData($user, $groupId)),
                 default => null,
             };
-
             // Clean up if successful
             if (is_numeric($response)) {
                 match ($groupId) {
@@ -436,15 +435,17 @@ class PipedriveController extends Controller
                     $this->groups['dealId'] => $this->deleteDeal($response),
                     default => null,
                 };
-
                 return true;
-            } elseif (isset($response->success) && $response->success === false) {
+            }
+
+            // Clean up if successful
+            if (isset($response->success) && $response->success === false) {
                 return $response->error;
             }
 
             return true;
-        } catch (Exception $e) {
-            return $e->getMessage();
+        } catch (Exception $exception) {
+            return $exception->getMessage();
         } finally {
             $user->forceDelete();
         }
@@ -490,7 +491,7 @@ class PipedriveController extends Controller
                         }
                     }
 
-                    if (empty($selectedField) && $field->pipedriveOptions->isNotEmpty()) {
+                    if ($selectedField === [] && $field->pipedriveOptions->isNotEmpty()) {
                         $activeOption = $field->pipedriveOptions->firstWhere('status', 1);
                         if ($activeOption) {
                             $selectedField = [
@@ -533,7 +534,7 @@ class PipedriveController extends Controller
             ->get(['id', 'value']);
 
         if ($fieldOptions->isEmpty()) {
-            $localOptions = PipedriveLocalFields::get(['id', 'field_name'])->map(fn ($item) => [
+            $localOptions = PipedriveLocalFields::get(['id', 'field_name'])->map(fn ($item): array => [
                 'id' => $item->id,
                 'value' => $item->field_name,
             ]);
@@ -566,7 +567,7 @@ class PipedriveController extends Controller
             ->get();
 
         // Map fields to values
-        $mapped = $pipedriveFields->mapWithKeys(function ($field) use ($user) {
+        $mapped = $pipedriveFields->mapWithKeys(function ($field) use ($user): array {
             $result = [];
             $fieldKey = $field->field_key;
             $localFieldKey = $field->localField->field_key ?? null;

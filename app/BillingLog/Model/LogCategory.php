@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\BillingLog\Model;
 
 use Illuminate\Database\Eloquent\Model;

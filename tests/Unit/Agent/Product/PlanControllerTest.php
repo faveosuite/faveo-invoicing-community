@@ -20,7 +20,7 @@ class PlanControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
     }
 
-    public function test_get_all_plans_successfully()
+    public function test_get_all_plans_successfully(): void
     {
         $product = Product::factory()->create();
         $plan = Plan::factory()->create(['product' => $product->id]);
@@ -37,7 +37,7 @@ class PlanControllerTest extends DBTestCase
             ->assertJsonFragment(['id' => $plan->id]);
     }
 
-    public function test_get_all_plans_with_search_filter()
+    public function test_get_all_plans_with_search_filter(): void
     {
         $product = Product::factory()->create(['name' => 'Billing Pro']);
         $plan = Plan::factory()->create(['name' => 'Yearly Plan', 'product' => $product->id]);
@@ -53,7 +53,7 @@ class PlanControllerTest extends DBTestCase
         $response->assertJsonFragment(['name' => 'Yearly Plan']);
     }
 
-    public function test_get_all_plans_pagination()
+    public function test_get_all_plans_pagination(): void
     {
         Plan::factory()->count(25)->create();
 
@@ -63,7 +63,7 @@ class PlanControllerTest extends DBTestCase
             ->assertJsonCount(20, 'data.data');
     }
 
-    public function test_create_plan_successfully()
+    public function test_create_plan_successfully(): void
     {
         $product = Product::factory()->create();
 
@@ -92,7 +92,7 @@ class PlanControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_create_plan_duplicate_rejected()
+    public function test_create_plan_duplicate_rejected(): void
     {
         $product = Product::factory()->create();
         Period::create(['days' => 30]);
@@ -127,33 +127,33 @@ class PlanControllerTest extends DBTestCase
             ->assertJsonFragment(['message' => 'Plan already exists']);
     }
 
-    public function test_get_single_plan_success()
+    public function test_get_single_plan_success(): void
     {
         $product = Product::factory()->create();
         $plan = Plan::factory()->create(['product' => $product->id]);
 
-        $price = PlanPrice::factory()->create([
+        PlanPrice::factory()->create([
             'plan_id' => $plan->id,
             'currency' => 'USD',
             'product_quantity' => 2,
             'no_of_agents' => 5,
         ]);
 
-        $response = $this->getJson("/plan/{$plan->id}");
+        $response = $this->getJson('/plan/' . $plan->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['id' => $plan->id])
             ->assertJsonFragment(['currency' => 'USD']);
     }
 
-    public function test_get_plan_not_found()
+    public function test_get_plan_not_found(): void
     {
         $response = $this->getJson('/plan/999999');
 
         $response->assertStatus(400);
     }
 
-    public function test_update_plan_successfully()
+    public function test_update_plan_successfully(): void
     {
         $product = Product::factory()->create();
         $original = Plan::factory()->create(['product' => $product->id]);
@@ -174,7 +174,7 @@ class PlanControllerTest extends DBTestCase
             'no_of_agents' => 10,
         ];
 
-        $response = $this->patchJson("/plan/{$original->id}", $payload);
+        $response = $this->patchJson('/plan/' . $original->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['message' => __('message.saved-successfully')]);
@@ -183,7 +183,7 @@ class PlanControllerTest extends DBTestCase
         $this->assertDatabaseHas('plan_prices', ['plan_id' => $original->id, 'add_price' => 200]);
     }
 
-    public function test_update_plan_not_found()
+    public function test_update_plan_not_found(): void
     {
         $response = $this->patchJson('/plan/999999', [
             'name' => 'Invalid',
@@ -198,7 +198,7 @@ class PlanControllerTest extends DBTestCase
         $response->assertStatus(422);
     }
 
-    public function test_bulk_delete_plans_successfully()
+    public function test_bulk_delete_plans_successfully(): void
     {
         $plans = Plan::factory()->count(3)->create();
 
@@ -214,7 +214,7 @@ class PlanControllerTest extends DBTestCase
         }
     }
 
-    public function test_bulk_delete_without_ids()
+    public function test_bulk_delete_without_ids(): void
     {
         $response = $this->deleteJson('/plans', ['select' => []]);
 

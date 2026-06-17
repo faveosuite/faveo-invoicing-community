@@ -13,6 +13,9 @@ use Illuminate\Http\Request;
 
 class WidgetController extends Controller
 {
+    /**
+     * @var \App\Model\Front\Widgets
+     */
     public $widget;
 
     public function __construct()
@@ -36,29 +39,29 @@ class WidgetController extends Controller
             $widgets = $this->widget
                 ->select('id', 'name', 'type', 'created_at', 'content')
                 ->when($searchString, fn ($query) => $query->where(function ($q) use ($searchString): void {
-                    $q->where('name', 'like', "%{$searchString}%")
-                        ->orWhere('type', 'like', "%{$searchString}%");
+                    $q->where('name', 'like', sprintf('%%%s%%', $searchString))
+                        ->orWhere('type', 'like', sprintf('%%%s%%', $searchString));
                 }))
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
             $total = $widgets->count();
 
-            $widgets->getCollection()->transform(fn ($widget) => [
+            $widgets->getCollection()->transform(fn ($widget): array => [
                 'id' => $widget->id,
                 'name' => ucfirst((string) $widget->name),
                 'type' => $widget->type,
                 'created_at' => getDateHtml($widget->created_at),
                 'content' => $widget->content,
-                'action' => hyperLinkGenerator("widgets/show/{$widget->id}", __('message.edit')),
+                'action' => hyperLinkGenerator('widgets/show/' . $widget->id, __('message.edit')),
             ]);
 
             return successResponse(__('message.widget_fetched'), [
                 'pages' => $widgets,
                 'total' => $total,
             ]);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -84,8 +87,8 @@ class WidgetController extends Controller
                 ],
                 200
             );
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -119,12 +122,12 @@ class WidgetController extends Controller
             $this->widget->save();
 
             return successResponse(__('message.saved-successfully'), '', 201);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function updateWidget($id, Request $request)
+    public function updateWidget(string $id, Request $request)
     {
         $this->validate($request, [
             'name' => 'required|max:50',
@@ -174,8 +177,8 @@ class WidgetController extends Controller
             $widget->save();
 
             return successResponse(__('message.updated-successfully'), ['widgets' => $widget], 200);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -197,7 +200,7 @@ class WidgetController extends Controller
             // Clean IDs - remove empty values & convert to integer
             $ids = array_filter(array_map(intval(...), array_map(trim(...), $ids)));
 
-            if (empty($ids)) {
+            if ($ids === []) {
                 return errorResponse(__('message.select-a-row'), 400);
             }
 
@@ -212,8 +215,8 @@ class WidgetController extends Controller
             }
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -230,9 +233,9 @@ class WidgetController extends Controller
     {
         $set = new Setting();
         $set = $set->findOrFail(1);
+
         $social = SocialMedia::get();
         $footerWidgetTypes = ['footer1', 'footer2', 'footer3'];
-        $isV2RecaptchaEnabledForNewsletter = 0;
         $data = [];
         foreach ($footerWidgetTypes as $widgetType) {
             $widget = Widgets::where('publish', 1)->where('type', $widgetType)->select('name', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media')->first();
@@ -254,9 +257,8 @@ class WidgetController extends Controller
      * @param  $set
      * @param  $social
      * @param  $mailchimpKey
-     * @return string
      */
-    public function renderWidget($widget, $set, $social, $mailchimpKey)
+    public function renderWidget($widget, $set, $social, $mailchimpKey): string
     {
         $tweetDetails = $widget->allow_tweets == 1 ? '<div id="tweets" class="twitter"></div>' : '';
 

@@ -84,7 +84,7 @@ class OpenPaymentControllerTest extends DBTestCase
 
     /* ==================== createOrder() Tests ==================== */
 
-    public function test_create_order_with_valid_data()
+    public function test_create_order_with_valid_data(): void
     {
         $response = $this->postJson('/open-payment/create', $this->getValidOrderData());
 
@@ -102,7 +102,7 @@ class OpenPaymentControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_create_order_sets_pending_status()
+    public function test_create_order_sets_pending_status(): void
     {
         $response = $this->postJson('/open-payment/create', $this->getValidOrderData());
 
@@ -112,7 +112,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $this->assertEquals('pending', $order->payment_status);
     }
 
-    public function test_create_order_generates_transaction_id()
+    public function test_create_order_generates_transaction_id(): void
     {
         $response = $this->postJson('/open-payment/create', $this->getValidOrderData());
 
@@ -123,7 +123,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $this->assertStringStartsWith('txn_', $order->transaction_id);
     }
 
-    public function test_create_order_fails_without_name()
+    public function test_create_order_fails_without_name(): void
     {
         $data = $this->getValidOrderData();
         unset($data['name']);
@@ -134,7 +134,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['name']);
     }
 
-    public function test_create_order_fails_without_email()
+    public function test_create_order_fails_without_email(): void
     {
         $data = $this->getValidOrderData();
         unset($data['email']);
@@ -145,7 +145,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['email']);
     }
 
-    public function test_create_order_fails_with_invalid_email()
+    public function test_create_order_fails_with_invalid_email(): void
     {
         $data = $this->getValidOrderData(['email' => 'invalid-email']);
 
@@ -155,7 +155,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['email']);
     }
 
-    public function test_create_order_fails_without_amount()
+    public function test_create_order_fails_without_amount(): void
     {
         $data = $this->getValidOrderData();
         unset($data['amount']);
@@ -166,7 +166,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['amount']);
     }
 
-    public function test_create_order_fails_with_zero_amount()
+    public function test_create_order_fails_with_zero_amount(): void
     {
         $data = $this->getValidOrderData(['amount' => 0]);
 
@@ -176,7 +176,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['amount']);
     }
 
-    public function test_create_order_fails_with_negative_amount()
+    public function test_create_order_fails_with_negative_amount(): void
     {
         $data = $this->getValidOrderData(['amount' => -100]);
 
@@ -186,7 +186,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['amount']);
     }
 
-    public function test_create_order_fails_with_invalid_currency()
+    public function test_create_order_fails_with_invalid_currency(): void
     {
         $data = $this->getValidOrderData(['currency' => 'EUR']);
 
@@ -196,7 +196,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['currency']);
     }
 
-    public function test_create_order_fails_with_invalid_gateway()
+    public function test_create_order_fails_with_invalid_gateway(): void
     {
         $data = $this->getValidOrderData(['gateway' => 'PayPal']);
 
@@ -206,7 +206,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['gateway']);
     }
 
-    public function test_create_order_with_razorpay_gateway()
+    public function test_create_order_with_razorpay_gateway(): void
     {
         $data = $this->getValidOrderData(['gateway' => 'Razorpay']);
 
@@ -218,7 +218,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $this->assertEquals('Razorpay', $order->gateway);
     }
 
-    public function test_create_order_with_stripe_gateway()
+    public function test_create_order_with_stripe_gateway(): void
     {
         $data = $this->getValidOrderData(['gateway' => 'Stripe']);
 
@@ -230,7 +230,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $this->assertEquals('Stripe', $order->gateway);
     }
 
-    public function test_create_order_with_usd_currency()
+    public function test_create_order_with_usd_currency(): void
     {
         $data = $this->getValidOrderData(['currency' => 'USD']);
 
@@ -242,7 +242,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $this->assertEquals('USD', $order->currency);
     }
 
-    public function test_create_order_stores_all_fields()
+    public function test_create_order_stores_all_fields(): void
     {
         $data = $this->getValidOrderData();
 
@@ -268,7 +268,7 @@ class OpenPaymentControllerTest extends DBTestCase
 
     /* ==================== getOrderDetails() Tests ==================== */
 
-    public function test_get_order_details_returns_order()
+    public function test_get_order_details_returns_order(): void
     {
         $this->createApiKeys();
         $order = $this->createOrder();
@@ -286,7 +286,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_get_order_details_returns_api_keys()
+    public function test_get_order_details_returns_api_keys(): void
     {
         // Update or create API keys (since ApiKey::first() is used in controller)
         $apiKeys = ApiKey::first();
@@ -314,7 +314,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $this->assertArrayHasKey('stripe_key', $data);
     }
 
-    public function test_get_order_details_returns_error_for_invalid_id()
+    public function test_get_order_details_returns_error_for_invalid_id(): void
     {
         $this->createApiKeys();
 
@@ -322,14 +322,14 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns error response (may be 200 with success:false or 404)
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 404]), "Expected 200 or 404, got {$statusCode}");
+        $this->assertTrue(in_array($statusCode, [200, 404]), 'Expected 200 or 404, got ' . $statusCode);
 
         if ($statusCode === 200) {
-            $response->assertJsonPath('success', false);
+            $response->assertJsonPath('success', expect: false);
         }
     }
 
-    public function test_get_order_details_fails_without_api_keys()
+    public function test_get_order_details_fails_without_api_keys(): void
     {
         // Clear existing API keys to test this edge case
         ApiKey::query()->delete();
@@ -340,12 +340,12 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns 500 when API keys are not configured
         $response->assertStatus(500)
-            ->assertJsonPath('success', false);
+            ->assertJsonPath('success', expect: false);
     }
 
     /* ==================== preparePayment() Tests ==================== */
 
-    public function test_prepare_payment_requires_order_id()
+    public function test_prepare_payment_requires_order_id(): void
     {
         $response = $this->postJson('/open-payment/prepare', []);
 
@@ -353,7 +353,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['order_id']);
     }
 
-    public function test_prepare_payment_fails_for_non_existent_order()
+    public function test_prepare_payment_fails_for_non_existent_order(): void
     {
         $response = $this->postJson('/open-payment/prepare', [
             'order_id' => 99999,
@@ -361,10 +361,10 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller uses findOrFail which throws ModelNotFoundException
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 404]), "Expected 200 or 404, got {$statusCode}");
+        $this->assertTrue(in_array($statusCode, [200, 404]), 'Expected 200 or 404, got ' . $statusCode);
     }
 
-    public function test_prepare_payment_fails_for_already_paid_order()
+    public function test_prepare_payment_fails_for_already_paid_order(): void
     {
         $this->createApiKeys();
         $order = $this->createOrder(['payment_status' => 'completed']);
@@ -375,12 +375,12 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns error for already paid order (may be 200 or 400)
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 400]), "Expected 200 or 400, got {$statusCode}");
-        $response->assertJsonPath('success', false)
+        $this->assertTrue(in_array($statusCode, [200, 400]), 'Expected 200 or 400, got ' . $statusCode);
+        $response->assertJsonPath('success', expect: false)
             ->assertJsonFragment(['message' => 'This order has already been paid']);
     }
 
-    public function test_prepare_payment_fails_for_invalid_gateway()
+    public function test_prepare_payment_fails_for_invalid_gateway(): void
     {
         // Manually create order with invalid gateway (bypassing validation)
         $order = new OpenPaymentOrder();
@@ -393,14 +393,14 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns error for invalid gateway (may be 200 or 400)
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 400]), "Expected 200 or 400, got {$statusCode}");
-        $response->assertJsonPath('success', false)
+        $this->assertTrue(in_array($statusCode, [200, 400]), 'Expected 200 or 400, got ' . $statusCode);
+        $response->assertJsonPath('success', expect: false)
             ->assertJsonFragment(['message' => 'Invalid payment gateway']);
     }
 
     /* ==================== verifyRazorpayPayment() Tests ==================== */
 
-    public function test_verify_razorpay_requires_all_fields()
+    public function test_verify_razorpay_requires_all_fields(): void
     {
         $response = $this->postJson('/open-payment/verify/razorpay', []);
 
@@ -413,7 +413,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_verify_razorpay_fails_for_invalid_order_id()
+    public function test_verify_razorpay_fails_for_invalid_order_id(): void
     {
         $response = $this->postJson('/open-payment/verify/razorpay', [
             'order_id' => 99999,
@@ -426,7 +426,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['order_id']);
     }
 
-    public function test_verify_razorpay_returns_success_for_already_paid_order()
+    public function test_verify_razorpay_returns_success_for_already_paid_order(): void
     {
         $this->createApiKeys();
         $order = $this->createOrder(['payment_status' => 'completed']);
@@ -439,11 +439,11 @@ class OpenPaymentControllerTest extends DBTestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonPath('success', true)
+            ->assertJsonPath('success', expect: true)
             ->assertJsonFragment(['message' => 'Payment already processed!']);
     }
 
-    public function test_verify_razorpay_fails_without_api_keys()
+    public function test_verify_razorpay_fails_without_api_keys(): void
     {
         // Clear existing API keys
         ApiKey::query()->delete();
@@ -459,12 +459,12 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns 500 when API keys not configured
         $response->assertStatus(500)
-            ->assertJsonPath('success', false);
+            ->assertJsonPath('success', expect: false);
     }
 
     /* ==================== verifyStripePayment() Tests ==================== */
 
-    public function test_verify_stripe_requires_all_fields()
+    public function test_verify_stripe_requires_all_fields(): void
     {
         $response = $this->postJson('/open-payment/verify/stripe', []);
 
@@ -475,7 +475,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_verify_stripe_fails_for_invalid_order_id()
+    public function test_verify_stripe_fails_for_invalid_order_id(): void
     {
         $response = $this->postJson('/open-payment/verify/stripe', [
             'order_id' => 99999,
@@ -486,7 +486,7 @@ class OpenPaymentControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['order_id']);
     }
 
-    public function test_verify_stripe_returns_success_for_already_paid_order()
+    public function test_verify_stripe_returns_success_for_already_paid_order(): void
     {
         $this->createApiKeys();
         $order = $this->createOrder(['payment_status' => 'completed']);
@@ -497,11 +497,11 @@ class OpenPaymentControllerTest extends DBTestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonPath('success', true)
+            ->assertJsonPath('success', expect: true)
             ->assertJsonFragment(['message' => 'Payment already processed!']);
     }
 
-    public function test_verify_stripe_fails_without_api_keys()
+    public function test_verify_stripe_fails_without_api_keys(): void
     {
         // Clear existing API keys
         ApiKey::query()->delete();
@@ -515,12 +515,12 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns 500 when API keys not configured
         $response->assertStatus(500)
-            ->assertJsonPath('success', false);
+            ->assertJsonPath('success', expect: false);
     }
 
     /* ==================== handleRazorpayWebhook() Tests ==================== */
 
-    public function test_razorpay_webhook_fails_without_api_keys()
+    public function test_razorpay_webhook_fails_without_api_keys(): void
     {
         // Clear existing API keys
         ApiKey::query()->delete();
@@ -529,10 +529,10 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns 500 when API keys not configured
         $response->assertStatus(500)
-            ->assertJsonPath('success', false);
+            ->assertJsonPath('success', expect: false);
     }
 
-    public function test_razorpay_webhook_fails_with_invalid_payload()
+    public function test_razorpay_webhook_fails_with_invalid_payload(): void
     {
         $this->createApiKeys();
 
@@ -540,11 +540,11 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns error for invalid payload (may be 200 or 400)
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 400]), "Expected 200 or 400, got {$statusCode}");
-        $response->assertJsonPath('success', false);
+        $this->assertTrue(in_array($statusCode, [200, 400]), 'Expected 200 or 400, got ' . $statusCode);
+        $response->assertJsonPath('success', expect: false);
     }
 
-    public function test_razorpay_webhook_processes_payment_captured_event()
+    public function test_razorpay_webhook_processes_payment_captured_event(): void
     {
         $this->createApiKeys();
         $order = $this->createOrder();
@@ -568,14 +568,14 @@ class OpenPaymentControllerTest extends DBTestCase
         ], $payload);
 
         $response->assertStatus(200)
-            ->assertJsonPath('success', true);
+            ->assertJsonPath('success', expect: true);
 
         $order->refresh();
         $this->assertEquals('completed', $order->payment_status);
         $this->assertEquals('pay_test123', $order->gateway_transaction_id);
     }
 
-    public function test_razorpay_webhook_processes_payment_failed_event()
+    public function test_razorpay_webhook_processes_payment_failed_event(): void
     {
         $this->createApiKeys();
         $order = $this->createOrder();
@@ -604,7 +604,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $this->assertEquals('failed', $order->payment_status);
     }
 
-    public function test_razorpay_webhook_skips_already_paid_order()
+    public function test_razorpay_webhook_skips_already_paid_order(): void
     {
         $this->createApiKeys();
         $order = $this->createOrder(['payment_status' => 'completed']);
@@ -636,7 +636,7 @@ class OpenPaymentControllerTest extends DBTestCase
 
     /* ==================== handleStripeWebhook() Tests ==================== */
 
-    public function test_stripe_webhook_fails_without_api_keys()
+    public function test_stripe_webhook_fails_without_api_keys(): void
     {
         // Clear existing API keys
         ApiKey::query()->delete();
@@ -645,10 +645,10 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns 500 when API keys not configured
         $response->assertStatus(500)
-            ->assertJsonPath('success', false);
+            ->assertJsonPath('success', expect: false);
     }
 
-    public function test_stripe_webhook_fails_with_invalid_payload()
+    public function test_stripe_webhook_fails_with_invalid_payload(): void
     {
         $this->createApiKeys();
 
@@ -656,11 +656,11 @@ class OpenPaymentControllerTest extends DBTestCase
 
         // Controller returns error for invalid payload (may be 200 or 400)
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 400]), "Expected 200 or 400, got {$statusCode}");
-        $response->assertJsonPath('success', false);
+        $this->assertTrue(in_array($statusCode, [200, 400]), 'Expected 200 or 400, got ' . $statusCode);
+        $response->assertJsonPath('success', expect: false);
     }
 
-    public function test_stripe_webhook_processes_payment_succeeded_event()
+    public function test_stripe_webhook_processes_payment_succeeded_event(): void
     {
         $this->createApiKeys();
         $order = $this->createOrder(['gateway' => 'Stripe']);
@@ -682,13 +682,13 @@ class OpenPaymentControllerTest extends DBTestCase
         ], $payload);
 
         $response->assertStatus(200)
-            ->assertJsonPath('success', true);
+            ->assertJsonPath('success', expect: true);
 
         $order->refresh();
         $this->assertEquals('completed', $order->payment_status);
     }
 
-    public function test_stripe_webhook_processes_payment_failed_event()
+    public function test_stripe_webhook_processes_payment_failed_event(): void
     {
         $this->createApiKeys();
         $order = $this->createOrder(['gateway' => 'Stripe']);
@@ -717,7 +717,7 @@ class OpenPaymentControllerTest extends DBTestCase
 
     /* ==================== listOrders() Tests ==================== */
 
-    public function test_list_orders_returns_paginated_results()
+    public function test_list_orders_returns_paginated_results(): void
     {
         $this->createOrder();
         $this->createOrder(['email' => 'jane@example.com']);
@@ -739,10 +739,10 @@ class OpenPaymentControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_list_orders_filters_by_status()
+    public function test_list_orders_filters_by_status(): void
     {
         $this->createOrder(['payment_status' => 'pending']);
-        $completedOrder = $this->createOrder(['payment_status' => 'completed', 'email' => 'completed@example.com']);
+        $this->createOrder(['payment_status' => 'completed', 'email' => 'completed@example.com']);
         $this->createOrder(['payment_status' => 'failed', 'email' => 'failed@example.com']);
 
         $response = $this->getJson('/open-payment/list?status=completed');
@@ -751,14 +751,14 @@ class OpenPaymentControllerTest extends DBTestCase
 
         $orders = $response->json('data.orders.data');
         // Filter only our test orders
-        $matchingOrders = array_filter($orders, fn ($o) => $o['payment_status'] === 'completed');
+        $matchingOrders = array_filter($orders, fn (array $o): bool => $o['payment_status'] === 'completed');
         $this->assertGreaterThanOrEqual(1, count($matchingOrders));
     }
 
-    public function test_list_orders_filters_by_gateway()
+    public function test_list_orders_filters_by_gateway(): void
     {
         $this->createOrder(['gateway' => 'Razorpay']);
-        $stripeOrder = $this->createOrder(['gateway' => 'Stripe', 'email' => 'stripe@example.com']);
+        $this->createOrder(['gateway' => 'Stripe', 'email' => 'stripe@example.com']);
         $this->createOrder(['gateway' => 'Razorpay', 'email' => 'rzp2@example.com']);
 
         $response = $this->getJson('/open-payment/list?gateway=Stripe');
@@ -772,7 +772,7 @@ class OpenPaymentControllerTest extends DBTestCase
         }
     }
 
-    public function test_list_orders_searches_by_name()
+    public function test_list_orders_searches_by_name(): void
     {
         $this->createOrder(['name' => 'UniqueSearchName123']);
         $this->createOrder(['name' => 'Jane Smith', 'email' => 'jane@example.com']);
@@ -786,7 +786,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $this->assertEquals('UniqueSearchName123', $orders[0]['name']);
     }
 
-    public function test_list_orders_searches_by_email()
+    public function test_list_orders_searches_by_email(): void
     {
         $this->createOrder(['email' => 'uniquesearch@example.com']);
         $this->createOrder(['email' => 'another@example.com']);
@@ -802,38 +802,38 @@ class OpenPaymentControllerTest extends DBTestCase
 
     /* ==================== getOrder() Tests ==================== */
 
-    public function test_get_order_returns_order()
+    public function test_get_order_returns_order(): void
     {
         $order = $this->createOrder();
 
         $response = $this->getJson('/open-payment/admin/'.$order->id);
 
         $response->assertStatus(200)
-            ->assertJsonPath('success', true)
+            ->assertJsonPath('success', expect: true)
             ->assertJsonStructure([
                 'data' => ['order'],
             ]);
     }
 
-    public function test_get_order_returns_error_for_invalid_id()
+    public function test_get_order_returns_error_for_invalid_id(): void
     {
         $response = $this->getJson('/open-payment/admin/99999');
 
         // Controller uses findOrFail which throws ModelNotFoundException
         $statusCode = $response->getStatusCode();
-        $this->assertTrue(in_array($statusCode, [200, 404]), "Expected 200 or 404, got {$statusCode}");
+        $this->assertTrue(in_array($statusCode, [200, 404]), 'Expected 200 or 404, got ' . $statusCode);
     }
 
     /* ==================== handleStripeCallback() Tests ==================== */
 
-    public function test_stripe_callback_redirects_without_order_id()
+    public function test_stripe_callback_redirects_without_order_id(): void
     {
         $response = $this->get('/open-payment/stripe/callback');
 
         $response->assertRedirect('/open-payment');
     }
 
-    public function test_stripe_callback_redirects_for_already_paid_order()
+    public function test_stripe_callback_redirects_for_already_paid_order(): void
     {
         $this->createApiKeys();
         $order = $this->createOrder([
@@ -846,14 +846,14 @@ class OpenPaymentControllerTest extends DBTestCase
         $response->assertRedirect('/open-payment?order_id='.$order->id.'&status=success');
     }
 
-    public function test_stripe_callback_redirects_for_invalid_order()
+    public function test_stripe_callback_redirects_for_invalid_order(): void
     {
         $response = $this->get('/open-payment/stripe/callback?order_id=99999');
 
         $response->assertRedirect();
     }
 
-    public function test_stripe_callback_redirects_without_api_keys()
+    public function test_stripe_callback_redirects_without_api_keys(): void
     {
         $order = $this->createOrder(['gateway' => 'Stripe']);
 
@@ -865,35 +865,35 @@ class OpenPaymentControllerTest extends DBTestCase
 
     /* ==================== OpenPaymentOrder Model Tests ==================== */
 
-    public function test_order_is_paid_returns_true_for_completed()
+    public function test_order_is_paid_returns_true_for_completed(): void
     {
         $order = $this->createOrder(['payment_status' => 'completed']);
 
         $this->assertTrue($order->isPaid());
     }
 
-    public function test_order_is_paid_returns_false_for_pending()
+    public function test_order_is_paid_returns_false_for_pending(): void
     {
         $order = $this->createOrder(['payment_status' => 'pending']);
 
         $this->assertFalse($order->isPaid());
     }
 
-    public function test_order_is_pending_returns_true_for_pending()
+    public function test_order_is_pending_returns_true_for_pending(): void
     {
         $order = $this->createOrder(['payment_status' => 'pending']);
 
         $this->assertTrue($order->isPending());
     }
 
-    public function test_order_is_failed_returns_true_for_failed()
+    public function test_order_is_failed_returns_true_for_failed(): void
     {
         $order = $this->createOrder(['payment_status' => 'failed']);
 
         $this->assertTrue($order->isFailed());
     }
 
-    public function test_order_gateway_id_returns_gateway_transaction_id()
+    public function test_order_gateway_id_returns_gateway_transaction_id(): void
     {
         $order = $this->createOrder();
         $order->update(['gateway_transaction_id' => 'gateway_123']);
@@ -901,7 +901,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $this->assertEquals('gateway_123', $order->getGatewayId());
     }
 
-    public function test_order_gateway_id_returns_null_when_not_set()
+    public function test_order_gateway_id_returns_null_when_not_set(): void
     {
         $order = $this->createOrder();
 
@@ -910,11 +910,11 @@ class OpenPaymentControllerTest extends DBTestCase
 
     /* ==================== Edge Cases & Integration Tests ==================== */
 
-    public function test_each_order_has_unique_transaction_id()
+    public function test_each_order_has_unique_transaction_id(): void
     {
         $orders = [];
         for ($i = 0; $i < 5; $i++) {
-            $orders[] = $this->createOrder(['email' => "unique{$i}@example.com"]);
+            $orders[] = $this->createOrder(['email' => sprintf('unique%d@example.com', $i)]);
         }
 
         $transactionIds = collect($orders)->pluck('transaction_id')->unique();
@@ -922,7 +922,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $this->assertCount(5, $transactionIds);
     }
 
-    public function test_order_amount_is_stored_correctly()
+    public function test_order_amount_is_stored_correctly(): void
     {
         $order = $this->createOrder(['amount' => 100.50]);
 
@@ -930,7 +930,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $this->assertEquals(100.50, (float) $order->amount);
     }
 
-    public function test_order_paid_at_is_cast_to_datetime()
+    public function test_order_paid_at_is_cast_to_datetime(): void
     {
         $order = $this->createOrder();
         $order->update(['paid_at' => now()]);

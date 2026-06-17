@@ -20,7 +20,7 @@ class WebhookDispatcher
 
     public function dispatch(string $eventType, array $event): void
     {
-        ($this->handlers[$eventType] ?? static fn () => null)($event);
+        ($this->handlers[$eventType] ?? static fn (): null => null)($event);
     }
 
     // ── Pre-configured dispatchers ────────────────────────────────────────
@@ -30,15 +30,15 @@ class WebhookDispatcher
         return (new static)
             ->on(
                 ['invoice.payment_succeeded', 'invoice.payment_failed', 'customer.subscription.deleted'],
-                fn ($e) => resolve(SubscriptionWebhookService::class)->handleStripeEvent($e)
+                fn (array $e) => resolve(SubscriptionWebhookService::class)->handleStripeEvent($e)
             )
             ->on(
                 ['checkout.session.completed', 'payment_intent.succeeded'],
-                fn ($e) => static::confirmStripePayment($e['data']['object'] ?? [])
+                fn ($e) => self::confirmStripePayment($e['data']['object'] ?? [])
             )
             ->on(
                 'payment_intent.payment_failed',
-                fn ($e) => static::failStripePayment($e['data']['object'] ?? [])
+                fn ($e) => self::failStripePayment($e['data']['object'] ?? [])
             );
     }
 
@@ -47,11 +47,11 @@ class WebhookDispatcher
         return (new static)
             ->on(
                 ['subscription.charged', 'subscription.halted'],
-                fn ($e) => resolve(SubscriptionWebhookService::class)->handleRazorpayEvent($e)
+                fn (array $e) => resolve(SubscriptionWebhookService::class)->handleRazorpayEvent($e)
             )
             ->on(
                 ['payment.captured', 'payment.failed'],
-                fn ($e) => static::handleRazorpayPayment($e)
+                fn (array $e) => self::handleRazorpayPayment($e)
             );
     }
 
@@ -70,24 +70,20 @@ class WebhookDispatcher
         }
 
         $orderId = $object['metadata']['order_id'] ?? null;
-        if ($orderId && $order = OpenPaymentOrder::find($orderId)) {
-            if (! $order->isPaid()) {
-                $order->update([
-                    'payment_status' => 'completed',
-                    'gateway_transaction_id' => $object['payment_intent'] ?? $object['id'] ?? null,
-                    'paid_at' => now(),
-                ]);
-            }
+        if ($orderId && ($order = OpenPaymentOrder::find($orderId)) && ! $order->isPaid()) {
+            $order->update([
+                'payment_status' => 'completed',
+                'gateway_transaction_id' => $object['payment_intent'] ?? $object['id'] ?? null,
+                'paid_at' => now(),
+            ]);
         }
     }
 
     private static function failStripePayment(array $object): void
     {
         $orderId = $object['metadata']['order_id'] ?? null;
-        if ($orderId && $order = OpenPaymentOrder::find($orderId)) {
-            if (! $order->isPaid()) {
-                $order->update(['payment_status' => 'failed']);
-            }
+        if ($orderId && ($order = OpenPaymentOrder::find($orderId)) && ! $order->isPaid()) {
+            $order->update(['payment_status' => 'failed']);
         }
     }
 
@@ -99,12 +95,10 @@ class WebhookDispatcher
         $type = $event['event'] ?? '';
 
         if ($invoiceId = $payment['notes']['invoice_id'] ?? null) {
-            if ($invoice = Invoice::find($invoiceId)) {
-                if ($type === 'payment.captured') {
-                    resolve(InvoicePaymentService::class)->confirm($invoice, 'Razorpay', [
-                        'razorpay_payment_id' => $payment['id'] ?? null,
-                    ]);
-                }
+            if (($invoice = Invoice::find($invoiceId)) && $type === 'payment.captured') {
+                resolve(InvoicePaymentService::class)->confirm($invoice, 'Razorpay', [
+                    'razorpay_payment_id' => $payment['id'] ?? null,
+                ]);
             }
 
             return;

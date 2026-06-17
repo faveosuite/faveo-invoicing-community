@@ -208,7 +208,7 @@ class Campaigns
     protected function loadLists(): Collection
     {
         return collect($this->zohoApi->lists())
-            ->mapWithKeys(fn (array $list) => [
+            ->mapWithKeys(fn (array $list): array => [
                 $list['listname'] => [
                     'listKey' => $list['listkey'],
                 ],
@@ -241,8 +241,6 @@ class Campaigns
 
     /**
      * Get Zoho topic ID by topic name.
-     *
-     * @return string|null
      */
     protected function getTopicId(string $topicName): ?string
     {
@@ -250,7 +248,7 @@ class Campaigns
 
         $topics = collect($this->zohoApi->topics());
 
-        $matched = $topics->first(fn ($topic) => strtolower(trim($topic['topicName'] ?? '')) === $topicName);
+        $matched = $topics->first(fn ($topic): bool => strtolower(trim($topic['topicName'] ?? '')) === $topicName);
 
         if ($matched) {
             return $matched['topicId'] ?? null;

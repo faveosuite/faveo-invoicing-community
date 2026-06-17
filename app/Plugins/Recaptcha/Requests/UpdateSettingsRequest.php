@@ -8,15 +8,15 @@ use Override;
 
 class UpdateSettingsRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         $isV3 = $this->input('captcha_version') === 'v3_invisible';
-        $needsV2 = in_array($this->input('captcha_version'), ['v2_checkbox', 'v2_invisible'], true)
+        $needsV2 = in_array($this->input('captcha_version'), ['v2_checkbox', 'v2_invisible'], strict: true)
             || ($this->input('captcha_version') === 'v3_invisible' && $this->input('failover_action') === 'v2_checkbox');
 
         return [
@@ -78,11 +78,11 @@ class UpdateSettingsRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
+    public function withValidator($validator): void
     {
         $validator->after(function ($validator): void {
             $isV3 = $this->input('captcha_version') === 'v3_invisible';
-            $needsV2 = in_array($this->input('captcha_version'), ['v2_checkbox', 'v2_invisible'], true)
+            $needsV2 = in_array($this->input('captcha_version'), ['v2_checkbox', 'v2_invisible'], strict: true)
                 || ($this->input('captcha_version') === 'v3_invisible' && $this->input('failover_action') === 'v2_checkbox');
 
             $verifier = resolve(RecaptchaVerifier::class);

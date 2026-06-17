@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Common;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -9,10 +11,8 @@ class SocialMediaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -25,18 +25,21 @@ class SocialMediaRequest extends FormRequest
     public function rules()
     {
         $regex = '/^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i';
-
         if ($this->method() == 'POST') {
             return [
                 'name' => ['required', 'unique:social_media', 'max:50'],
                 'link' => 'required|regex:'.$regex,
             ];
-        } elseif ($this->method() == 'PATCH') {
+        }
+
+        if ($this->method() == 'PATCH') {
             return [
                 'name' => ['required'],
                 'link' => 'required|url|regex:'.$regex,
             ];
         }
+
+        return null;
     }
 
     #[Override]

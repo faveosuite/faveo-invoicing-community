@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories\Model\Payment;
 
 use App\Model\Payment\Plan;
@@ -22,12 +24,12 @@ class PlanPriceFactory extends Factory
     {
         return [
             'plan_id' => Plan::factory(),
-            'currency' => $this->faker->randomElement(['INR', 'USD', 'EUR']),
-            'add_price' => $this->faker->randomFloat(2, 10, 5000),
-            'renew_price' => $this->faker->randomFloat(2, 10, 5000),
-            'price_description' => $this->faker->sentence(6),
-            'product_quantity' => $this->faker->numberBetween(1, 10),
-            'no_of_agents' => $this->faker->numberBetween(1, 10),
+            'currency' => fake()->randomElement(['INR', 'USD', 'EUR']),
+            'add_price' => fake()->randomFloat(2, 10, 5000),
+            'renew_price' => fake()->randomFloat(2, 10, 5000),
+            'price_description' => fake()->sentence(6),
+            'product_quantity' => fake()->numberBetween(1, 10),
+            'no_of_agents' => fake()->numberBetween(1, 10),
         ];
     }
 }

@@ -21,7 +21,7 @@ class CouponTest extends DBTestCase
 
     public $cart;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->cart = new Cart();
@@ -92,7 +92,7 @@ class CouponTest extends DBTestCase
     // }
 
     #[Group('coupon')]
-    public function test_checkCode_whenExpiredCouponProvided()
+    public function test_checkCode_whenExpiredCouponProvided(): void
     {
         $this->expectException(Exception::class);
         $this->withoutMiddleware();
@@ -100,9 +100,8 @@ class CouponTest extends DBTestCase
         $this->getLoggedInUser();
         $user = $this->user;
         $currency = $user->currency;
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        Invoice::factory()->create(['user_id' => $user->id]);
         $promotionTypeName = PromotionType::find(2);
-        $promotionType = $promotionTypeName->name;
         $product = Product::factory()->create();
         $promotion = Promotion::create(['code' => 'FAVEOCOUPON',
             'type' => $promotionTypeName->id,
@@ -113,9 +112,9 @@ class CouponTest extends DBTestCase
 
         ]);
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
-        $promotion = PromoProductRelation::create(['promotion_id' => $promotion->id,
+        PromoProductRelation::create(['promotion_id' => $promotion->id,
             'product_id' => $product->id,
         ]);
 
@@ -134,20 +133,19 @@ class CouponTest extends DBTestCase
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
         $controller = new PromotionController();
-        $response = $controller->checkCode('FAVEOCOUPON');
+        $controller->checkCode('FAVEOCOUPON');
     }
 
     #[Group('coupon')]
-    public function test_checkCode_whenInvalidCouponProvided()
+    public function test_checkCode_whenInvalidCouponProvided(): void
     {
         $this->expectException(Exception::class);
         $this->withoutMiddleware();
         $this->getLoggedInUser();
         $user = $this->user;
         $currency = $user->currency;
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        Invoice::factory()->create(['user_id' => $user->id]);
         $promotionTypeName = PromotionType::find(2);
-        $promotionType = $promotionTypeName->name;
         $product = Product::factory()->create();
         $promotion = Promotion::create(['code' => 'FAVEOCOUPON',
             'type' => $promotionTypeName->id,
@@ -157,11 +155,11 @@ class CouponTest extends DBTestCase
             'expiry' => '2018-07-30 00:00:00',
         ]);
 
-        $promotion = PromoProductRelation::create(['promotion_id' => $promotion->id,
+        PromoProductRelation::create(['promotion_id' => $promotion->id,
             'product_id' => $product->id,
         ]);
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
         $this->cart->add(
             $plan->id, $product->name,
@@ -170,6 +168,6 @@ class CouponTest extends DBTestCase
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
         $controller = new PromotionController();
-        $response = $controller->checkCode('FAVEOCOUPON123');
+        $controller->checkCode('FAVEOCOUPON123');
     }
 }

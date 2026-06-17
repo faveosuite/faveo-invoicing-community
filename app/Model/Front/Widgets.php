@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Model\Front;
 
 use App\BaseModel;
@@ -30,10 +32,10 @@ class Widgets extends BaseModel
         return [
             'name' => ['Name', fn ($value) => $value],
             'type' => ['Type', fn ($value) => $value],
-            'publish' => ['Publish status', fn ($value) => $value ? __('message.active') : __('message.inactive')],
-            'allow_tweets' => ['Allow Tweets', fn ($value) => $value ? __('message.active') : __('message.inactive')],
-            'allow_mailchimp' => ['Allow Mailchimp', fn ($value) => $value ? __('message.active') : __('message.inactive')],
-            'allow_social_media' => ['Allow Social Media', fn ($value) => $value ? __('message.active') : __('message.inactive')],
+            'publish' => ['Publish status', fn ($value): array|string|null => $value ? __('message.active') : __('message.inactive')],
+            'allow_tweets' => ['Allow Tweets', fn ($value): array|string|null => $value ? __('message.active') : __('message.inactive')],
+            'allow_mailchimp' => ['Allow Mailchimp', fn ($value): array|string|null => $value ? __('message.active') : __('message.inactive')],
+            'allow_social_media' => ['Allow Social Media', fn ($value): array|string|null => $value ? __('message.active') : __('message.inactive')],
         ];
     }
 }

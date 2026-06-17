@@ -66,11 +66,8 @@ class AttachmentHelper
 
     /**
      * Create unique filename for uploaded file.
-     *
-     * @param  UploadedFile  $file
-     * @return string
      */
-    public function createFilename(UploadedFile $file)
+    public function createFilename(UploadedFile $file): string
     {
         $extension = $file->getClientOriginalExtension();
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME); // Filename without extension
@@ -81,7 +78,7 @@ class AttachmentHelper
         return $safeName.'_'.md5(time()).'.'.$extension;
     }
 
-    public function getUrlPath($path, $disk = null)
+    public function getUrlPath(string $path, $disk = null): string
     {
         $adapter = $this->getStorageAdapter($disk);
 
@@ -109,11 +106,10 @@ class AttachmentHelper
     /**
      * get file meta data.
      *
-     * @return array
      *
      * @throws Exception
      */
-    public function getMetadata($path, $disk = null)
+    public function getMetadata($path, $disk = null): array
     {
         $disk = $this->getStorageAdapter($disk);
 

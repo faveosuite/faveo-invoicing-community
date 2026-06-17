@@ -32,7 +32,7 @@ class GithubApiController
      */
     public function releases(string $owner, string $repo): array
     {
-        return $this->http->get("/repos/{$owner}/{$repo}/releases")->json() ?? [];
+        return $this->http->get(sprintf('/repos/%s/%s/releases', $owner, $repo))->json() ?? [];
     }
 
     /**
@@ -40,7 +40,7 @@ class GithubApiController
      */
     public function latestRelease(string $owner, string $repo): array
     {
-        return $this->http->get("/repos/{$owner}/{$repo}/releases/latest")->json() ?? [];
+        return $this->http->get(sprintf('/repos/%s/%s/releases/latest', $owner, $repo))->json() ?? [];
     }
 
     /**
@@ -56,7 +56,7 @@ class GithubApiController
      */
     public function zipballUrl(string $owner, string $repo, string $ref = 'master'): string
     {
-        return self::API_BASE."/repos/{$owner}/{$repo}/zipball/{$ref}";
+        return self::API_BASE.sprintf('/repos/%s/%s/zipball/%s', $owner, $repo, $ref);
     }
 
     /**
@@ -115,7 +115,7 @@ class GithubApiController
         $github = Github::firstOrFail();
 
         return $this->http
-            ->put("/authorizations/clients/{$github->client_id}", [
+            ->put('/authorizations/clients/' . $github->client_id, [
                 'client_secret' => $github->client_secret,
             ])
             ->json('hashed_token');

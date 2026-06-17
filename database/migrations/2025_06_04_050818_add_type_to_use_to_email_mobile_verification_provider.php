@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('email_mobile_validation_providers', function (Blueprint $table): void {
-            $table->boolean('to_use')->default(false)->after('accepted_output');
+            $table->boolean('to_use')->default(value: false)->after('accepted_output');
             $table->string('type')->nullable()->after('provider');
         });
     }

@@ -21,7 +21,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
     /**
      * Get Grandtotal.
      **/
-    public function getGrandTotal($code, $total, $cost, $productid, $currency, $user_id = '')
+    public function getGrandTotal($code, $total, $cost, $productid, $currency, $user_id = ''): array
     {
         if (! $total) {
             return ['total' => $total, 'code' => '', 'value' => '', 'mode' => ''];
@@ -33,24 +33,22 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             $total = $cont->findCostAfterDiscount($promo->id, $productid, $user_id);
 
             return ['total' => $total, 'code' => $promo->code, 'value' => $promo->value, 'mode' => 'coupon'];
-        } else {
-            return ['total' => $total, 'code' => '', 'value' => '', 'mode' => ''];
         }
+
+        return ['total' => $total, 'code' => '', 'value' => '', 'mode' => ''];
     }
 
     /**
      * Get Message on Invoice Generation.
      **/
-    public function getMessage($items, $user_id)
+    public function getMessage($items, $user_id): array
     {
         if ($items) {
             // $this->sendmailClientAgent($user_id, $items->invoice_id);
-            $result = ['success' => Lang::get('message.invoice-generated-successfully')];
-        } else {
-            $result = ['fails' => Lang::get('message.can-not-generate-invoice')];
+            return ['success' => Lang::get('message.invoice-generated-successfully')];
         }
 
-        return $result;
+        return ['fails' => Lang::get('message.can-not-generate-invoice')];
     }
 
     public function checkExecution($invoiceid)
@@ -69,12 +67,12 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             }
 
             return $response;
-        } catch (Exception $e) {
-            return back()->with('fails', $e->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
-    public function invoiceContent($invoiceid)
+    public function invoiceContent($invoiceid): string
     {
         $invoice = $this->invoice->find($invoiceid);
         $items = $invoice->invoiceItem()->get();
@@ -120,7 +118,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         return $cur;
     }
 
-    public function sendInvoiceMail($userid, $number, $total, $invoiceid)
+    public function sendInvoiceMail($userid, $number, $total, $invoiceid): void
     {
         $contact = getContactData();
         //user
@@ -149,11 +147,9 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    public function invoiceUrl($invoiceid)
+    public function invoiceUrl(string $invoiceid): \Illuminate\Contracts\Routing\UrlGenerator|string
     {
-        $url = url('my-invoice/'.$invoiceid);
-
-        return $url;
+        return url('my-invoice/'.$invoiceid);
     }
 
     public function paymentDeleleById($id)
@@ -174,8 +170,8 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             }
 
             return back()->with('success', __('message.payment_deleted_successfully', ['invoice_no' => $invoice_no]));
-        } catch (Exception $e) {
-            return back()->with('fails', $e->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -195,7 +191,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
                 ->whereNotIn('status', ['success', 'Success'])
                 ->orderBy('created_at', 'desc')
                 ->get()
-                ->map(function ($inv) {
+                ->map(function ($inv): array {
                     $paid = Payment::where('invoice_id', $inv->id)
                         ->where('payment_status', 'success')
                         ->sum('amount');
@@ -209,7 +205,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
                         'status' => $inv->status,
                     ];
                 })
-                ->filter(fn ($inv) => $inv['pending'] > 0)
+                ->filter(fn ($inv): bool => $inv['pending'] > 0)
                 ->values();
 
             return successResponse('', [
@@ -224,8 +220,8 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
                 'symbol' => $symbol,
                 'currency' => $client->currency,
             ]);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

@@ -12,16 +12,16 @@ use Tests\DBTestCase;
 
 class FreeTrialControllerTest extends DBTestCase
 {
-    public function test_firstLoginAttempt_return_exception_when_not_first_time_register_users()
+    public function test_firstLoginAttempt_return_exception_when_not_first_time_register_users(): void
     {
         $this->expectException(Exception::class);
         $user = User::factory()->create(['role' => 'user', 'country' => 'IN']);
         Product::factory()->create();
-        $auth = Auth::loginUsingId($user->id);
+        Auth::loginUsingId($user->id);
         $this->actingAs($user);
         $response = new FreeTrailController()->firstLoginAttempt(new Request(['id' => $user->id, 'first_time_login' => 1]));
         $this->expectExceptionMessage('Can not Generate Freetrial Cloud instance');
-        $response = $response->getOriginalContent();
+        $response->getOriginalContent();
         $this->assertFalse(auth()->check());
     }
 }

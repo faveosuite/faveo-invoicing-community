@@ -25,7 +25,7 @@ class BaseModel extends Model
     ];
 
     #[Override]
-    public function setAttribute($property, $value)
+    public function setAttribute($property, $value): void
     {
         // require_once base_path('vendor'.DIRECTORY_SEPARATOR.'htmlpurifier'
         //     .DIRECTORY_SEPARATOR.'library'.DIRECTORY_SEPARATOR.'HTMLPurifier.auto.php');
@@ -39,10 +39,8 @@ class BaseModel extends Model
 
         $config = HTMLPurifier_Config::createDefault();
         $purifier = new HTMLPurifier($config);
-        if (! is_array($value) && ! in_array($property, $this->purifyExcept)) {
-            if ($value != strip_tags((string) $value)) {
-                $value = $purifier->purify($value);
-            }
+        if (! is_array($value) && !in_array($property, $this->purifyExcept) && $value != strip_tags((string) $value)) {
+            $value = $purifier->purify($value);
         }
 
         parent::setAttribute($property, $value);

@@ -9,10 +9,8 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->call(ExpiryMailDaySeeder::class);
        
@@ -23,7 +21,7 @@ class DatabaseSeeder extends Seeder
 
 class ExpiryMailDaySeeder extends Seeder
    {
-    public function run()
+    public function run(): void
     {
     ExpiryMailDay::truncate();
     ExpiryMailDay::create([

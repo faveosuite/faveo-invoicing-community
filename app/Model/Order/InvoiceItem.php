@@ -21,12 +21,14 @@ class InvoiceItem extends BaseModel
         return $this->hasMany(InvoiceTaxLine::class, 'invoice_item_id');
     }
 
-    protected function setDomainAttribute($value)
+    protected function domain(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        $this->attributes['domain'] = $this->get_domain($value);
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(set: function ($value): array {
+            return ['domain' => $this->get_domain($value)];
+        });
     }
 
-    public function get_domain($url)
+    public function get_domain($url): string
     {
         $pieces = parse_url((string) $url);
         $domain = $pieces['host'] ?? '';

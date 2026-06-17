@@ -49,7 +49,7 @@ class CampaignsTest extends DBTestCase
         $this->campaigns = new Campaigns();
     }
 
-    public function test_it_subscribes_contact_to_list()
+    public function test_it_subscribes_contact_to_list(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -59,10 +59,10 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->subscribe('test@example.com', ['First_Name' => 'John']);
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'listsubscribe'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'listsubscribe'));
     }
 
-    public function test_it_resubscribes_contact_to_list()
+    public function test_it_resubscribes_contact_to_list(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -72,10 +72,10 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->resubscribe('test@example.com', ['First_Name' => 'John']);
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'donotmail_resub=true'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'donotmail_resub=true'));
     }
 
-    public function test_it_unsubscribes_contact_from_list()
+    public function test_it_unsubscribes_contact_from_list(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -85,10 +85,10 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->unsubscribe('test@example.com');
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'listunsubscribe'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'listunsubscribe'));
     }
 
-    public function test_it_retrieves_subscribers_lazily()
+    public function test_it_retrieves_subscribers_lazily(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -105,7 +105,7 @@ class CampaignsTest extends DBTestCase
         $this->assertCount(2, $subscribers->take(10));
     }
 
-    public function test_it_retrieves_subscribers_count()
+    public function test_it_retrieves_subscribers_count(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -120,7 +120,7 @@ class CampaignsTest extends DBTestCase
         $this->assertIsInt($count);
     }
 
-    public function test_it_retrieves_all_tags()
+    public function test_it_retrieves_all_tags(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -137,7 +137,7 @@ class CampaignsTest extends DBTestCase
         $this->assertGreaterThanOrEqual(2, $tags->count());
     }
 
-    public function test_it_attaches_tag_to_contact()
+    public function test_it_attaches_tag_to_contact(): void
     {
         Http::fake([
             '*/api/v1.1/getmailinglists*' => Http::response([
@@ -152,10 +152,10 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->attachTag('test@example.com', 'VIP');
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'associate'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'associate'));
     }
 
-    public function test_it_creates_tag_if_not_exists_when_attaching()
+    public function test_it_creates_tag_if_not_exists_when_attaching(): void
     {
         Http::fake([
             '*/api/v1.1/getmailinglists*' => Http::response([
@@ -171,10 +171,10 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->attachTag('test@example.com', 'NewTag');
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'tag/add'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'tag/add'));
     }
 
-    public function test_it_detaches_tag_from_contact()
+    public function test_it_detaches_tag_from_contact(): void
     {
         Http::fake([
             '*/api/v1.1/getmailinglists*' => Http::response([
@@ -189,10 +189,10 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->detachTag('test@example.com', 'VIP');
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'tag/deassociate'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'tag/deassociate'));
     }
 
-    public function test_it_handles_detach_tag_when_tag_not_found()
+    public function test_it_handles_detach_tag_when_tag_not_found(): void
     {
         Http::fake([
             '*/api/v1.1/getmailinglists*' => Http::response([
@@ -210,10 +210,10 @@ class CampaignsTest extends DBTestCase
         // Should not throw exception
         $this->campaigns->detachTag('test@example.com', 'NonExistent');
 
-        $this->assertTrue(true);
+        $this->assertTrue(condition: true);
     }
 
-    public function test_it_retrieves_contact_fields()
+    public function test_it_retrieves_contact_fields(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -230,7 +230,7 @@ class CampaignsTest extends DBTestCase
         $this->assertInstanceOf(Collection::class, $fields);
     }
 
-    public function test_it_syncs_topics_from_config()
+    public function test_it_syncs_topics_from_config(): void
     {
         Config::set('zoho_campaigns.topics', [
             'newsletter' => [
@@ -255,10 +255,10 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->syncTopics();
 
-        Http::assertSent(fn ($request) => $request->method() === 'POST' && str_contains((string) $request->url(), 'topics'));
+        Http::assertSent(fn ($request): bool => $request->method() === 'POST' && str_contains((string) $request->url(), 'topics'));
     }
 
-    public function test_it_skips_existing_topics_when_syncing()
+    public function test_it_skips_existing_topics_when_syncing(): void
     {
         Config::set('zoho_campaigns.topics', [
             'newsletter' => [
@@ -282,12 +282,12 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->syncTopics();
 
-        Http::assertSent(fn ($request) => $request->method() === 'GET' &&
+        Http::assertSent(fn ($request): bool => $request->method() === 'GET' &&
             str_contains((string) $request->url(), 'topics') &&
             $request->method() !== 'POST');
     }
 
-    public function test_it_resolves_list_key_from_list_name()
+    public function test_it_resolves_list_key_from_list_name(): void
     {
         Http::fake([
             '*' => Http::response(['response' => ['message' => 'success']], 200),
@@ -295,10 +295,10 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->subscribe('test@example.com', [], 'Test List');
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'test_list_key'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'test_list_key'));
     }
 
-    public function test_it_throws_exception_when_default_list_cannot_be_resolved()
+    public function test_it_throws_exception_when_default_list_cannot_be_resolved(): void
     {
         $this->expectException(RuntimeException::class);
 
@@ -316,7 +316,7 @@ class CampaignsTest extends DBTestCase
         $campaigns->subscribe('test@example.com');
     }
 
-    public function test_it_limits_chunk_size_to_650_for_subscribers()
+    public function test_it_limits_chunk_size_to_650_for_subscribers(): void
     {
         Http::fake([
             '*/api/v1.1/getmailinglists*' => Http::response([
@@ -334,10 +334,10 @@ class CampaignsTest extends DBTestCase
         // Force lazy collection evaluation by iterating
         $subscribers->take(1)->all();
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'range=650'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'range=650'));
     }
 
-    public function test_it_subscribes_with_topic()
+    public function test_it_subscribes_with_topic(): void
     {
         Config::set('zoho_campaigns.topics.newsletter.name', 'Newsletter');
 
@@ -348,8 +348,8 @@ class CampaignsTest extends DBTestCase
             '*' => Http::response(['response' => ['message' => 'success']], 200),
         ]);
 
-        $this->campaigns->subscribe('test@example.com', [], null, 'Newsletter');
+        $this->campaigns->subscribe('test@example.com', [], topic: 'Newsletter');
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'listsubscribe'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'listsubscribe'));
     }
 }

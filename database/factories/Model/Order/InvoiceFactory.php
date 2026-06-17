@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories\Model\Order;
 
 use App\Model\Order\Invoice;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Order\Invoice>
+ */
 class InvoiceFactory extends Factory
 {
     /**
@@ -19,12 +24,12 @@ class InvoiceFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'number' => $this->faker->unique()->numerify('########'),
-            'date' => $this->faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
-            'grand_total' => $this->faker->randomFloat(2, 500, 5000),
-            'currency' => $this->faker->randomElement(['INR', 'USD', 'EUR']),
-            'status' => $this->faker->randomElement(['success', 'partially paid', 'pending']),
-            'description' => $this->faker->sentence(6),
+            'number' => fake()->unique()->numerify('########'),
+            'date' => fake()->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
+            'grand_total' => fake()->randomFloat(2, 500, 5000),
+            'currency' => fake()->randomElement(['INR', 'USD', 'EUR']),
+            'status' => fake()->randomElement(['success', 'partially paid', 'pending']),
+            'description' => fake()->sentence(6),
         ];
     }
 }

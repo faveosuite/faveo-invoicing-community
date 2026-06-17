@@ -13,7 +13,7 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
     use DatabaseTransactions;
 
     #[Group('InvoiceAndPayment')]
-    public function test_change_invoiceTotal_whenInvoiceIsUpdated()
+    public function test_change_invoiceTotal_whenInvoiceIsUpdated(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser();
@@ -30,7 +30,7 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
     }
 
     #[Group('InvoiceAndPayment')]
-    public function test_change_get_clients_invoiceDetailsWhenInvoiceIsViewed()
+    public function test_change_get_clients_invoiceDetailsWhenInvoiceIsViewed(): void
     {
         $this->getLoggedInUser();
         $user = $this->user;
@@ -47,7 +47,7 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
             'domain' => 'faveo.com',
             'plan_id' => 1,
         ]);
-        $order = Order::factory()->create(['invoice_id' => $invoice->id,
+        Order::factory()->create(['invoice_id' => $invoice->id,
             'invoice_item_id' => $invoiceItem->id, 'client' => $user_id, ]);
 
         $response = $this->call('GET', 'clients/'.$user_id, [

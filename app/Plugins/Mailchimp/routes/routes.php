@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Plugins\Mailchimp\Http\Controllers\SettingsController;
 use App\Plugins\Mailchimp\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;

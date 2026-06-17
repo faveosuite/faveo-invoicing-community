@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->domainDelete();
     }
 
-    public function packageRemoval()
+    public function packageRemoval(): void
     {
         $paths = [
             base_path('vendor' . DIRECTORY_SEPARATOR . 'arcanedev'),
@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
         }
     }
 
-    private function deleteDirectory($dir)
+    private function deleteDirectory(string $dir): void
     {
         if (!is_dir($dir)) {
             return;
@@ -55,7 +55,11 @@ class DatabaseSeeder extends Seeder
         }
 
         foreach ($items as $item) {
-            if ($item === '.' || $item === '..') {
+            if ($item === '.') {
+                continue;
+            }
+
+            if ($item === '..') {
                 continue;
             }
 
@@ -71,7 +75,7 @@ class DatabaseSeeder extends Seeder
     }
 
 
-    public function domaincheck()
+    public function domaincheck(): void
     {
 
         $env = base_path('.env');
@@ -97,7 +101,7 @@ class DatabaseSeeder extends Seeder
             $responseBody = (string)$response->getBody();
             $responseData = json_decode($responseBody);
 
-            $collection = collect($responseData->message)->reject(fn($item) => $item === null);
+            $collection = collect($responseData->message)->reject(fn($item): bool => $item === null);
 
             $allowedDomains = $collection->pluck('domain')->toArray();
 
@@ -125,10 +129,14 @@ class DatabaseSeeder extends Seeder
                 $installationDetails = InstallationDetail::where('installation_path', $domain)->get();
 
                 $orderIds = $installationDetails->pluck('order_id')->filter()->toArray();
-                if (empty($orderIds)) return null;
+                if (empty($orderIds)) {
+                    return null;
+                }
 
                 $subscriptions = Subscription::whereIn('order_id', $orderIds)->get();
-                if ($subscriptions->isEmpty()) return null;
+                if ($subscriptions->isEmpty()) {
+                    return null;
+                }
 
                 $latest = $subscriptions->sortByDesc('ends_at')->first();
 
@@ -141,7 +149,7 @@ class DatabaseSeeder extends Seeder
     }
 
 
-    public function domainDelete()
+    public function domainDelete(): void
     {
         $env = base_path('.env');
         if (File::exists($env) && (env('DB_INSTALL') == 1)) {
@@ -166,7 +174,7 @@ class DatabaseSeeder extends Seeder
             $responseBody = (string)$response->getBody();
             $responseData = json_decode($responseBody);
 
-            $collection = collect($responseData->message)->reject(fn($item) => $item === null);
+            $collection = collect($responseData->message)->reject(fn($item): bool => $item === null);
 
             $allowedDomains = $collection->pluck('domain')->toArray();
             $cloudProductIds = cloudPopupProducts();

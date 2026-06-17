@@ -120,12 +120,12 @@ class GuestCart
         $productIds = array_column($data['items'], 'product_id');
         $planIds = array_filter(array_column($data['items'], 'plan_id'));
 
-        $products = $productIds ? Product::whereIn('id', $productIds)->get()->keyBy('id') : collect();
-        $plans = $planIds ? Plan::with('planPrice')->whereIn('id', $planIds)->get()->keyBy('id') : collect();
+        $products = $productIds !== [] ? Product::whereIn('id', $productIds)->get()->keyBy('id') : collect();
+        $plans = $planIds !== [] ? Plan::with('planPrice')->whereIn('id', $planIds)->get()->keyBy('id') : collect();
 
         $cart = new Cart(['coupon_discount' => 0, 'currency' => $currency]);
 
-        $items = collect($data['items'])->map(function (array $row) use ($products, $plans, $cart) {
+        $items = collect($data['items'])->map(function (array $row) use ($products, $plans, $cart): \App\Model\Cart\CartItem {
             $item = new CartItem($row);
             $item->id = $row['id'];
             $item->setRelation('product', $products->get($row['product_id']));

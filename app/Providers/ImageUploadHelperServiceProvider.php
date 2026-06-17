@@ -10,21 +10,17 @@ class ImageUploadHelperServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
-     *
-     * @return void
      */
     #[Override]
-    public function register()
+    public function register(): void
     {
-        $this->app->bind('ImageUpload-helper', fn () => new ImageUploadHelper());
+        $this->app->bind('ImageUpload-helper', fn (): \App\Helper\ImageUploadHelper => new ImageUploadHelper());
     }
 
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         //
     }

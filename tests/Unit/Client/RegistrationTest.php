@@ -16,7 +16,7 @@ class RegistrationTest extends DBTestCase
 
     private $mock;
 
-    private function setUpServerVariable($ip, $address, $content)
+    private function setUpServerVariable(string $ip, string $address, string $content): void
     {
         global $_SERVER;
         $this->address = $_SERVER;
@@ -26,13 +26,13 @@ class RegistrationTest extends DBTestCase
         $builder = new MockBuilder();
         $builder->setNamespace('Illuminate\Foundation\Auth')
                 ->setName('file_get_contents')
-                ->setFunction(fn () => $content);
+                ->setFunction(fn (): string => $content);
 
         $this->mock = $builder->build();
         $this->mock->disable();
     }
 
-    private function tearDownServerVariable()
+    private function tearDownServerVariable(): void
     {
         global $_SERVER;
         $_SERVER = $this->address;
@@ -40,7 +40,7 @@ class RegistrationTest extends DBTestCase
     }
 
     #[Group('postRegister')]
-    public function test_when_user_registers_emailAndUsername_not_given()
+    public function test_when_user_registers_emailAndUsername_not_given(): void
     {
         $user = User::factory()->create();
         $this->withoutMiddleware();
@@ -64,7 +64,7 @@ class RegistrationTest extends DBTestCase
     }
 
     #[Group('postRegister')]
-    public function test_postRegister_whenPasswordDoesNotMatch()
+    public function test_postRegister_whenPasswordDoesNotMatch(): void
     {
         $this->setUpServerVariable('192.168.12.12', 'someaddress', 'IN');
         $user = User::factory()->create(['bussiness' => 'Accounting', 'mobile_code' => 91]);
@@ -88,7 +88,7 @@ class RegistrationTest extends DBTestCase
             'password_confirmation' => 'adsadsd',
             'terms' => 'on',
         ]);
-        $errors = session('errors');
+        session('errors');
         $response->assertStatus(302);
         // $this->assertEquals($errors->get('password_confirmation')[0], 'The password confirmation and password must match.');
         $this->mock->disable();
@@ -96,7 +96,7 @@ class RegistrationTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postRegister')]
-    public function test_when_confirm_password_does_not_match()
+    public function test_when_confirm_password_does_not_match(): void
     {
         $user = User::factory()->create();
         $this->withoutMiddleware();
@@ -121,7 +121,7 @@ class RegistrationTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postRegister')]
-    public function test_registration_success_message()
+    public function test_registration_success_message(): void
     {
         $user = User::factory()->create();
         $this->withoutMiddleware();
@@ -152,7 +152,7 @@ class RegistrationTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postRegister')]
-    public function test_when_mobile_number_is_not_sent()
+    public function test_when_mobile_number_is_not_sent(): void
     {
         $user = User::factory()->create();
         $this->withoutMiddleware();
@@ -174,7 +174,7 @@ class RegistrationTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postRegister')]
-    public function test_when_user_registered_present_in_database()
+    public function test_when_user_registered_present_in_database(): void
     {
         $user = User::factory()->create(['bussiness' => '--', 'company_type' => '--']);
         $this->withoutMiddleware();
@@ -205,12 +205,12 @@ class RegistrationTest extends DBTestCase
         ]);
     }
 
-    public function test_postRegister_whenEverythingMatches()
+    public function test_postRegister_whenEverythingMatches(): void
     {
         $this->withoutMiddleware();
         $this->setUpServerVariable('192.168.12.12', 'someaddress', 'IN');
         $user = User::factory()->create(['bussiness' => 'Accounting', 'mobile_code' => 91]);
-        $status = StatusSetting::where('id', 1)->update(['email_validation_status' => 0, 'mobile_validation_status' => 0]);
+        StatusSetting::where('id', 1)->update(['email_validation_status' => 0, 'mobile_validation_status' => 0]);
 
         $response = $this->call('POST', 'auth/register', [
             'first_name' => $user->first_name,
@@ -239,7 +239,8 @@ class RegistrationTest extends DBTestCase
         ]);
 
         $response->assertStatus(200);
+
         $content = $response->original;
-        $this->assertEquals(true, $content['success']);
+        $this->assertEquals(expected: true, actual: $content['success']);
     }
 }

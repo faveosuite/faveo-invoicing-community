@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'default' => 'Default',
     'cloud-instance-created' => 'Istanza Cloud Maħluqa',
@@ -8,9 +10,9 @@ return [
     'user-mail-verify' => 'Verifikazzjoni tal-Email tal-Utent',
     'forgot-mail-send' => 'Email tal-Password Minsija Mibgħuta',
     'replace' => 'Ibdel',
-    'expiry-notification' => 'Notifika ta\' Skadenza',
+    'expiry-notification' => "Notifika ta' Skadenza",
     'autorenewal-notification' => 'Notifika ta\' Tiġdid Awtomatiku',
-    'expired-notification' => 'Notifika ta\' Skadenza',
+    'expired-notification' => "Notifika ta' Skadenza",
     'cloud-delete' => 'Ħassar il-Cloud',
     'payment-success' => 'Ħlas Suċċessiv',
     'payment-failed' => 'Ħlas Fallut',
@@ -25,11 +27,11 @@ return [
     'review-notification' => 'Notifika ta\' Reviżjoni',
     'cloud-created' => 'Cloud Maħluq',
     'welcome-mail' => 'Email ta\' Merħba',
-    'expiry:notification' => 'Notifika ta\' Skadenza',
+    'expiry:notification' => "Notifika ta' Skadenza",
     'inspire' => 'Uri Kwotazzjoni Ispirati',
     'renewal:cron' => 'Cron ta\' Tiġdid Awtomatiku',
     'mail-send-exception' => 'Eċċezzjoni fil-Kunsinna tal-Email',
-    'postexpiry:notification' => 'Notifika ta\' Wara l-Iskadenza',
+    'postexpiry:notification' => "Notifika ta' Wara l-Iskadenza",
     'renewal:notification' => 'Notifika ta\' Tiġdid',
     'cleanup:msg-reports' => 'Tindif tar-Rapporti MSG91',
     'invoices:delete' => 'Ħassar Fatturi Antiki',
@@ -71,7 +73,7 @@ return [
     'delete_logs' => 'Ħassar il-Logs',
     'from_date' => 'Minn Data',
     'to_date' => 'Sa Data',
-    'log_types' => 'Tipi ta\' Logs',
+    'log_types' => "Tipi ta' Logs",
     'mail_logs' => 'Logs tal-Email',
     'cron_logs' => 'Logs tal-Cron',
     'exception_logs' => 'Logs tal-Eċċezzjonijiet',

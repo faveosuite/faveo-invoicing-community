@@ -49,14 +49,12 @@ class LanguageMiddleware
 
     public function getLangFromSessionOrCache()
     {
-        $lang = match (true) {
+        return match (true) {
             Session::has('language') => Session::get('language'),
             Cache::has('language') => Cache::get('language'),
             ! Cache::has('language') && isInstall() => Setting::select('content')->where('id', 1)->first()->content,
             default => 'en',
         };
-
-        return $lang;
     }
 
     public function checkEnabledLanguage($lang)

@@ -11,7 +11,7 @@ use Stringable;
 
 class Request implements Stringable
 {
-    protected $parameters;
+    protected array $parameters;
 
     protected $httpUrl;
 
@@ -28,18 +28,16 @@ class Request implements Stringable
     {
         $parameters = array_merge(Util::parseParameters(parse_url($httpUrl, PHP_URL_QUERY)), $parameters);
         $this->parameters = $parameters;
+
         $this->httpUrl = $httpUrl;
     }
 
     /**
      * pretty much a helper function to set up the request.
      *
-     * @param  Consumer  $consumer
      * @param  Token  $token
      * @param  string  $httpMethod
      * @param  string  $httpUrl
-     * @param  array  $parameters
-     * @return Request
      */
     public static function fromConsumerAndToken(
         Consumer $consumer,
@@ -47,14 +45,14 @@ class Request implements Stringable
         $httpMethod = null,
         $httpUrl = null,
         array $parameters = []
-    ) {
+    ): self {
         $defaults = [
             'oauth_version' => self::$version,
             'oauth_nonce' => self::generateNonce(),
             'oauth_timestamp' => time(),
             'oauth_consumer_key' => $consumer->key,
         ];
-        if (null !== $token) {
+        if ($token instanceof \App\Http\Controllers\Common\Twitter\Token) {
             $defaults['oauth_token'] = $token->key;
         }
 
@@ -67,7 +65,7 @@ class Request implements Stringable
      * @param  string  $name
      * @param  string  $value
      */
-    public function setParameter($name, $value)
+    public function setParameter($name, $value): void
     {
         $this->parameters[$name] = $value;
     }
@@ -81,10 +79,7 @@ class Request implements Stringable
         return $this->parameters[$name] ?? null;
     }
 
-    /**
-     * @return array
-     */
-    public function getParameters()
+    public function getParameters(): array
     {
         return $this->parameters;
     }
@@ -92,17 +87,15 @@ class Request implements Stringable
     /**
      * @param  $name
      */
-    public function removeParameter($name)
+    public function removeParameter($name): void
     {
         unset($this->parameters[$name]);
     }
 
     /**
      * The request parameters, sorted and concatenated into a normalized string.
-     *
-     * @return string
      */
-    public function getSignableParameters()
+    public function getSignableParameters(): string
     {
         // Grab all parameters
         $params = $this->parameters;
@@ -122,10 +115,8 @@ class Request implements Stringable
      * The base string defined as the method, the url
      * and the parameters (normalized), each urlencoded
      * and the concated with &.
-     *
-     * @return string
      */
-    public function getSignatureBaseString()
+    public function getSignatureBaseString(): string
     {
         $parts = [
             $this->getNormalizedHttpMethod(),
@@ -140,10 +131,8 @@ class Request implements Stringable
 
     /**
      * Returns the HTTP Method in uppercase.
-     *
-     * @return string
      */
-    public function getNormalizedHttpMethod()
+    public function getNormalizedHttpMethod(): string
     {
         return strtoupper((string) $this->httpMethod);
     }
@@ -151,10 +140,8 @@ class Request implements Stringable
     /**
      * parses the url and rebuilds it to be
      * scheme://host/path.
-     *
-     * @return string
      */
-    public function getNormalizedHttpUrl()
+    public function getNormalizedHttpUrl(): string
     {
         $parts = parse_url((string) $this->httpUrl);
 
@@ -162,19 +149,17 @@ class Request implements Stringable
         $host = strtolower($parts['host']);
         $path = $parts['path'];
 
-        return "$scheme://$host$path";
+        return sprintf('%s://%s%s', $scheme, $host, $path);
     }
 
     /**
      * Builds a url usable for a GET request.
-     *
-     * @return string
      */
-    public function toUrl()
+    public function toUrl(): string
     {
         $postData = $this->toPostdata();
         $out = $this->getNormalizedHttpUrl();
-        if ($postData) {
+        if ($postData !== '' && $postData !== '0') {
             $out .= '?'.$postData;
         }
 
@@ -183,10 +168,8 @@ class Request implements Stringable
 
     /**
      * Builds the data one would send in a POST request.
-     *
-     * @return string
      */
-    public function toPostdata()
+    public function toPostdata(): string
     {
         return Util::buildHttpQuery($this->parameters);
     }
@@ -194,11 +177,10 @@ class Request implements Stringable
     /**
      * Builds the Authorization: header.
      *
-     * @return string
      *
      * @throws TwitterOAuthException
      */
-    public function toHeader()
+    public function toHeader(): string
     {
         $first = true;
         $out = 'Authorization: OAuth';
@@ -220,20 +202,15 @@ class Request implements Stringable
         return $out;
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->toUrl();
     }
 
     /**
-     * @param  SignatureMethod  $signatureMethod
-     * @param  Consumer  $consumer
      * @param  Token  $token
      */
-    public function signRequest(SignatureMethod $signatureMethod, Consumer $consumer, ?Token $token = null)
+    public function signRequest(SignatureMethod $signatureMethod, Consumer $consumer, ?Token $token = null): void
     {
         $this->setParameter('oauth_signature_method', $signatureMethod->getName());
         $signature = $this->buildSignature($signatureMethod, $consumer, $token);
@@ -241,8 +218,6 @@ class Request implements Stringable
     }
 
     /**
-     * @param  SignatureMethod  $signatureMethod
-     * @param  Consumer  $consumer
      * @param  Token  $token
      * @return string
      */
@@ -251,10 +226,7 @@ class Request implements Stringable
         return $signatureMethod->buildSignature($this, $consumer, $token);
     }
 
-    /**
-     * @return string
-     */
-    public static function generateNonce()
+    public static function generateNonce(): string
     {
         return md5(microtime().mt_rand());
     }

@@ -20,7 +20,7 @@ class ZohoCampaignsController extends ZohoBaseController
      */
     protected function campaigns(): Campaigns
     {
-        if ($this->campaigns === null) {
+        if (!$this->campaigns instanceof \App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns) {
             $this->campaigns = new Campaigns();
         }
 
@@ -41,8 +41,8 @@ class ZohoCampaignsController extends ZohoBaseController
             );
 
             return successResponse('Campaigns fields and topics synced successfully');
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -66,8 +66,8 @@ class ZohoCampaignsController extends ZohoBaseController
             $this->subscribe($data['email'], 'newsletter');
 
             return successResponse('Subscribed successfully');
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -89,9 +89,7 @@ class ZohoCampaignsController extends ZohoBaseController
 
         ZohoCampaigns::subscribe(
             $email,
-            $contactInfo,
-            null,
-            $topicName
+            $contactInfo
         );
     }
 

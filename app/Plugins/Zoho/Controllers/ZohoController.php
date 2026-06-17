@@ -28,14 +28,14 @@ class ZohoController extends Controller
 
         try {
             $this->campaignsController->subscribe($email, 'newsletter');
-        } catch (Throwable $e) {
-            Logger::exception($e);
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
         }
 
         try {
             $this->crmController->addUserDataToCrm($email);
-        } catch (Throwable $e) {
-            Logger::exception($e);
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
         }
     }
 
@@ -53,7 +53,7 @@ class ZohoController extends Controller
             return errorResponse('Demo user not found');
         }
 
-        $item = $productType === 'free'
+        $productType === 'free'
             ? InvoiceItem::where('product_id', $productId)
                 ->where('subtotal', 0)
                 ->first()
@@ -70,12 +70,12 @@ class ZohoController extends Controller
                 ])),
 
             'purchase' => event(new OrderPlacedEvent(
-                Invoice::whereHas('invoiceItem', fn ($q) => $q->where('product_id', $productId))->latest()->firstOrFail()
+                Invoice::whereHas('invoiceItem', fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->where('product_id', $productId))->latest()->firstOrFail()
             )),
 
             default => abort(400, 'Invalid event type'),
         };
 
-        return successResponse("Event '{$event}' triggered successfully");
+        return successResponse(sprintf("Event '%s' triggered successfully", $event));
     }
 }

@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
 
         foreach ($packages as $package) {
 
-            $packagePath = base_path("vendor/{$package}");
+            $packagePath = base_path('vendor/' . $package);
 
             if (! File::exists($packagePath)) {
                 continue;

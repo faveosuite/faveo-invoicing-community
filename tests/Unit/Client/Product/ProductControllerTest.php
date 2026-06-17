@@ -13,7 +13,7 @@ class ProductControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function test_it_returns_subscription_dropdown_when_plans_exist()
+    public function test_it_returns_subscription_dropdown_when_plans_exist(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser('admin');
@@ -34,7 +34,7 @@ class ProductControllerTest extends DBTestCase
             'currency' => 'INR',
         ]);
 
-        $response = $this->get("/get-subscription/{$product->id}?user_id={$this->user->id}");
+        $response = $this->get(sprintf('/get-subscription/%s?user_id=%s', $product->id, $this->user->id));
 
         $response->assertStatus(200);
         $response->assertJsonFragment(['success' => true]);
@@ -45,7 +45,7 @@ class ProductControllerTest extends DBTestCase
         $this->assertStringContainsString('getPrice(this.value)', $response['data']);
     }
 
-    public function test_it_returns_error_when_no_plans_found()
+    public function test_it_returns_error_when_no_plans_found(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser('admin');

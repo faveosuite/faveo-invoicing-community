@@ -56,7 +56,7 @@ final class PaymentGatewayManager
         $key = strtolower($name);
 
         if (! isset($this->factories[$key])) {
-            throw new PaymentException("Payment gateway [{$name}] is not registered.");
+            throw new PaymentException(sprintf('Payment gateway [%s] is not registered.', $name));
         }
 
         return $this->resolved[$key] ??= ($this->factories[$key])();

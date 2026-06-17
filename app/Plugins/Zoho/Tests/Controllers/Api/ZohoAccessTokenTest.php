@@ -22,14 +22,14 @@ class ZohoAccessTokenTest extends DBTestCase
         $this->accessToken = new ZohoAccessToken();
     }
 
-    public function test_it_returns_valid_access_token()
+    public function test_it_returns_valid_access_token(): void
     {
-        $client = ZohoOAuthClient::create([
+        ZohoOAuthClient::create([
             'integration_id' => 1,
             'region' => 'us',
         ]);
 
-        $token = ZohoOAuthToken::create([
+        ZohoOAuthToken::create([
             'integration_id' => 1,
             'access_token' => 'valid_token',
             'refresh_token' => 'refresh_token',
@@ -41,16 +41,16 @@ class ZohoAccessTokenTest extends DBTestCase
         $this->assertEquals('valid_token', $result);
     }
 
-    public function test_it_refreshes_expired_access_token()
+    public function test_it_refreshes_expired_access_token(): void
     {
-        $client = ZohoOAuthClient::create([
+        ZohoOAuthClient::create([
             'integration_id' => 1,
             'client_id' => 'test_client',
             'client_secret' => 'test_secret',
             'region' => 'us',
         ]);
 
-        $token = ZohoOAuthToken::create([
+        ZohoOAuthToken::create([
             'integration_id' => 1,
             'access_token' => 'expired_token',
             'refresh_token' => 'refresh_token',
@@ -69,23 +69,23 @@ class ZohoAccessTokenTest extends DBTestCase
         $this->assertEquals('new_access_token', $result);
     }
 
-    public function test_it_returns_empty_string_when_no_token_exists()
+    public function test_it_returns_empty_string_when_no_token_exists(): void
     {
         $result = $this->accessToken->get(999);
 
         $this->assertEquals('', $result);
     }
 
-    public function test_it_refreshes_token_about_to_expire()
+    public function test_it_refreshes_token_about_to_expire(): void
     {
-        $client = ZohoOAuthClient::create([
+        ZohoOAuthClient::create([
             'integration_id' => 1,
             'client_id' => 'test_client',
             'client_secret' => 'test_secret',
             'region' => 'us',
         ]);
 
-        $token = ZohoOAuthToken::create([
+        ZohoOAuthToken::create([
             'integration_id' => 1,
             'access_token' => 'expiring_soon_token',
             'refresh_token' => 'refresh_token',
@@ -104,14 +104,14 @@ class ZohoAccessTokenTest extends DBTestCase
         $this->assertEquals('refreshed_token', $result);
     }
 
-    public function test_it_caches_access_token_for_subsequent_calls()
+    public function test_it_caches_access_token_for_subsequent_calls(): void
     {
-        $client = ZohoOAuthClient::create([
+        ZohoOAuthClient::create([
             'integration_id' => 1,
             'region' => 'us',
         ]);
 
-        $token = ZohoOAuthToken::create([
+        ZohoOAuthToken::create([
             'integration_id' => 1,
             'access_token' => 'cached_token',
             'expires_at' => now()->addHours(2),
@@ -124,16 +124,16 @@ class ZohoAccessTokenTest extends DBTestCase
         $this->assertEquals('cached_token', $result2);
     }
 
-    public function test_it_handles_failed_token_refresh()
+    public function test_it_handles_failed_token_refresh(): void
     {
-        $client = ZohoOAuthClient::create([
+        ZohoOAuthClient::create([
             'integration_id' => 1,
             'client_id' => 'test_client',
             'client_secret' => 'test_secret',
             'region' => 'us',
         ]);
 
-        $token = ZohoOAuthToken::create([
+        ZohoOAuthToken::create([
             'integration_id' => 1,
             'access_token' => 'expired_token',
             'refresh_token' => 'invalid_refresh',
@@ -151,16 +151,16 @@ class ZohoAccessTokenTest extends DBTestCase
         $this->accessToken->get(1);
     }
 
-    public function test_it_uses_correct_client_credentials_when_refreshing()
+    public function test_it_uses_correct_client_credentials_when_refreshing(): void
     {
-        $client = ZohoOAuthClient::create([
+        ZohoOAuthClient::create([
             'integration_id' => 1,
             'client_id' => 'specific_client_id',
             'client_secret' => 'specific_client_secret',
             'region' => 'eu',
         ]);
 
-        $token = ZohoOAuthToken::create([
+        ZohoOAuthToken::create([
             'integration_id' => 1,
             'access_token' => 'expired',
             'refresh_token' => 'refresh',
@@ -176,21 +176,21 @@ class ZohoAccessTokenTest extends DBTestCase
 
         $this->accessToken->get(1);
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'accounts.zoho.eu') &&
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'accounts.zoho.eu') &&
                str_contains((string) $request->url(), 'client_id=specific_client_id') &&
                str_contains((string) $request->url(), 'client_secret=specific_client_secret'));
     }
 
-    public function test_it_saves_new_access_token_after_refresh()
+    public function test_it_saves_new_access_token_after_refresh(): void
     {
-        $client = ZohoOAuthClient::create([
+        ZohoOAuthClient::create([
             'integration_id' => 1,
             'client_id' => 'test_client',
             'client_secret' => 'test_secret',
             'region' => 'us',
         ]);
 
-        $token = ZohoOAuthToken::create([
+        ZohoOAuthToken::create([
             'integration_id' => 1,
             'access_token' => 'old_token',
             'refresh_token' => 'refresh_token',
@@ -212,7 +212,7 @@ class ZohoAccessTokenTest extends DBTestCase
         ]);
     }
 
-    public function test_it_handles_multiple_integrations_independently()
+    public function test_it_handles_multiple_integrations_independently(): void
     {
         ZohoOAuthClient::create([
             'integration_id' => 1,

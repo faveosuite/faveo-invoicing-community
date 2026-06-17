@@ -24,7 +24,7 @@ class ZohoAccountsApiTest extends DBTestCase
         );
     }
 
-    public function test_it_generates_access_token_successfully()
+    public function test_it_generates_access_token_successfully(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -43,7 +43,7 @@ class ZohoAccountsApiTest extends DBTestCase
         $this->assertEquals(3600, $result['expires_in']);
     }
 
-    public function test_it_throws_exception_for_invalid_client()
+    public function test_it_throws_exception_for_invalid_client(): void
     {
         $this->expectException(ZohoAccountsApiException::class);
 
@@ -56,7 +56,7 @@ class ZohoAccountsApiTest extends DBTestCase
         $this->api->generateAccessToken('auth_code_123');
     }
 
-    public function test_it_throws_exception_for_invalid_client_secret()
+    public function test_it_throws_exception_for_invalid_client_secret(): void
     {
         $this->expectException(ZohoAccountsApiException::class);
 
@@ -69,7 +69,7 @@ class ZohoAccountsApiTest extends DBTestCase
         $this->api->generateAccessToken('auth_code_123');
     }
 
-    public function test_it_throws_exception_for_invalid_code()
+    public function test_it_throws_exception_for_invalid_code(): void
     {
         $this->expectException(ZohoAccountsApiException::class);
 
@@ -82,7 +82,7 @@ class ZohoAccountsApiTest extends DBTestCase
         $this->api->generateAccessToken('invalid_code');
     }
 
-    public function test_it_throws_generic_exception_for_unknown_errors()
+    public function test_it_throws_generic_exception_for_unknown_errors(): void
     {
         $this->expectException(ZohoAccountsApiException::class);
 
@@ -95,7 +95,7 @@ class ZohoAccountsApiTest extends DBTestCase
         $this->api->generateAccessToken('auth_code_123');
     }
 
-    public function test_it_refreshes_access_token_successfully()
+    public function test_it_refreshes_access_token_successfully(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -113,7 +113,7 @@ class ZohoAccountsApiTest extends DBTestCase
         $this->assertArrayNotHasKey('refresh_token', $result);
     }
 
-    public function test_it_sends_correct_parameters_when_generating_token()
+    public function test_it_sends_correct_parameters_when_generating_token(): void
     {
         Http::fake();
 
@@ -123,7 +123,7 @@ class ZohoAccountsApiTest extends DBTestCase
             // Ignore response errors for this test
         }
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function ($request): bool {
             $url = $request->url();
 
             return str_contains($url, 'client_id=test_client_id') &&
@@ -133,7 +133,7 @@ class ZohoAccountsApiTest extends DBTestCase
         });
     }
 
-    public function test_it_sends_correct_parameters_when_refreshing_token()
+    public function test_it_sends_correct_parameters_when_refreshing_token(): void
     {
         Http::fake();
 
@@ -143,7 +143,7 @@ class ZohoAccountsApiTest extends DBTestCase
             // Ignore response errors for this test
         }
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function ($request): bool {
             $url = $request->url();
 
             return str_contains($url, 'client_id=test_client_id') &&
@@ -153,7 +153,7 @@ class ZohoAccountsApiTest extends DBTestCase
         });
     }
 
-    public function test_it_uses_correct_endpoint_for_us_region()
+    public function test_it_uses_correct_endpoint_for_us_region(): void
     {
         $api = new ZohoAccountsApi(
             'client_id',
@@ -168,10 +168,10 @@ class ZohoAccountsApiTest extends DBTestCase
         } catch (Throwable) {
         }
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'accounts.zoho.com/oauth/v2/token'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'accounts.zoho.com/oauth/v2/token'));
     }
 
-    public function test_it_uses_correct_endpoint_for_eu_region()
+    public function test_it_uses_correct_endpoint_for_eu_region(): void
     {
         $api = new ZohoAccountsApi(
             'client_id',
@@ -186,10 +186,10 @@ class ZohoAccountsApiTest extends DBTestCase
         } catch (Throwable) {
         }
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'accounts.zoho.eu/oauth/v2/token'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'accounts.zoho.eu/oauth/v2/token'));
     }
 
-    public function test_it_uses_correct_endpoint_for_india_region()
+    public function test_it_uses_correct_endpoint_for_india_region(): void
     {
         $api = new ZohoAccountsApi(
             'client_id',
@@ -204,10 +204,10 @@ class ZohoAccountsApiTest extends DBTestCase
         } catch (Throwable) {
         }
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'accounts.zoho.in/oauth/v2/token'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'accounts.zoho.in/oauth/v2/token'));
     }
 
-    public function test_it_handles_error_in_refresh_token()
+    public function test_it_handles_error_in_refresh_token(): void
     {
         $this->expectException(ZohoAccountsApiException::class);
 

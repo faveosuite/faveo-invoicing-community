@@ -9,10 +9,8 @@ class SettingsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         Setting::where('id',1)->update([
             'autosubscription_going_to_end' => 12,

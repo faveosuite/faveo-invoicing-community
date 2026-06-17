@@ -52,7 +52,7 @@ class PaymentController extends Controller
 
         // Each gateway carries its processing fee; surface the fee amount and the
         // resulting payable total so the pay page shows exactly what's charged.
-        $gateways = array_map(fn ($gateway) => $gateway + [
+        $gateways = array_map(fn (array $gateway): array => $gateway + [
             'fee_amount' => ProcessingFee::amount($outstanding, $gateway['name']),
             'payable' => ProcessingFee::addTo($outstanding, $gateway['name']),
         ], $this->invoices->gatewaysFor($model->currency));
@@ -90,11 +90,11 @@ class PaymentController extends Controller
      */
     private function invoiceSummary(Invoice $model, $items): array
     {
-        $subtotal = round((float) $items->sum(fn ($i) => (float) $i->subtotal), 2);
+        $subtotal = round((float) $items->sum(fn ($i): float => (float) $i->subtotal), 2);
 
         $taxes = InvoiceTaxLine::where('invoice_id', $model->id)->get()
             ->groupBy('label')
-            ->map(fn ($group) => [
+            ->map(fn ($group): array => [
                 'label' => $group->first()->label,
                 'rate' => (float) $group->first()->rate,
                 'amount' => round((float) $group->sum('amount'), 2),
@@ -130,7 +130,7 @@ class PaymentController extends Controller
         $permissions = resolve(LicensePermissionsController::class);
         $cloudProducts = cloudPopupProducts();
 
-        $orders = Order::whereIn('id', $orderIds)->get()->map(function ($order) use ($permissions, $cloudProducts) {
+        $orders = Order::whereIn('id', $orderIds)->get()->map(function ($order) use ($permissions, $cloudProducts): array {
             $product = Product::select('id', 'name', 'type')->find($order->product);
 
             $downloadable = false;
@@ -149,7 +149,7 @@ class PaymentController extends Controller
                 'qty' => $order->qty,
                 'price' => (float) $order->price_override,
                 'downloadable' => $downloadable,
-                'download_url' => $downloadable ? url("product/download/{$order->product}") : null,
+                'download_url' => $downloadable ? url('product/download/' . $order->product) : null,
             ];
         });
 
@@ -180,8 +180,8 @@ class PaymentController extends Controller
 
         try {
             return successResponse('', $this->invoices->start($model, 'Stripe')->clientConfig);
-        } catch (Throwable $e) {
-            return errorResponse($e->getMessage());
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
         }
     }
 
@@ -200,8 +200,8 @@ class PaymentController extends Controller
             return $paid
                 ? successResponse('success', [])
                 : errorResponse(__('message.payment_declined_try_other_gateway'));
-        } catch (Throwable $e) {
-            return errorResponse($e->getMessage());
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
         }
     }
 
@@ -215,8 +215,8 @@ class PaymentController extends Controller
 
         try {
             return successResponse('', ['razorpay' => $this->invoices->start($model, 'Razorpay')->clientConfig]);
-        } catch (Throwable $e) {
-            return errorResponse($e->getMessage());
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
         }
     }
 

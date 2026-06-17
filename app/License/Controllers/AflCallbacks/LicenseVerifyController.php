@@ -44,22 +44,22 @@ class LicenseVerifyController extends Controller
 
         // Verify license signature
         if (! $this->validator->verifyScriptSignature($license_signature, $product_id, $root_url, $client_email, $license_code)) {
-            $this->createReport($product_id ?? null, null, $license_code, 'Invalid license signature', 1);
+            $this->createReport($product_id ?? null, userId: null, licenseCode: $license_code, text: 'Invalid license signature', system: 1);
 
             return $this->notificationResponse('notification_invalid_signature', []);
         }
 
         // Check banned hosts
         if ($this->validator->isBanned($ip)) {
-            $this->createReport($product_id ?? null, null, $license_code, 'Host banned: '.$ip, 1);
+            $this->createReport($product_id ?? null, userId: null, licenseCode: $license_code, text: 'Host banned: '.$ip, system: 1);
 
             return $this->notificationResponse('notification_host_banned', []);
         }
 
         // Verify product exists
         $product = $this->validator->validateProduct($product_id);
-        if (! $product) {
-            $this->createReport(null, null, $license_code, 'Product not found (ID: '.$product_id.')', 1);
+        if (!$product instanceof \App\Model\Product\Product) {
+            $this->createReport(productId: null, userId: null, licenseCode: $license_code, text: 'Product not found (ID: '.$product_id.')', system: 1);
 
             return $this->notificationResponse('notification_product_not_found', []);
         }
@@ -67,8 +67,8 @@ class LicenseVerifyController extends Controller
         // Find license (with LicensePlugin multi-product support)
         $license = $this->validator->findLicense($license_code, $client_email, $product_id);
 
-        if (! $license) {
-            $this->createReport($product_id, null, $license_code, 'License not found during verification', 1);
+        if (!$license instanceof \App\License\Models\License) {
+            $this->createReport($product_id, userId: null, licenseCode: $license_code, text: 'License not found during verification', system: 1);
 
             return $this->notificationResponse('notification_license_not_found', []);
         }
@@ -90,13 +90,9 @@ class LicenseVerifyController extends Controller
             ->where('installation_domain', $installation_domain)
             ->first();
 
-        if ($existingInstallation) {
-            if ((! empty($license_code) && $license_code != $existingInstallation->license_code)
-                || ($this->validator->validateIntegerValue($client_id) && $client_id != $existingInstallation->user_id)) {
-                $this->createReport($product_id, $license->user_id, $license_code, "Installation on $installation_domain ($ip) belongs to another user", 1);
-
-                return $this->notificationResponse('notification_domain_in_use', []);
-            }
+        if ($existingInstallation && (! empty($license_code) && $license_code != $existingInstallation->license_code || $this->validator->validateIntegerValue($client_id) && $client_id != $existingInstallation->user_id)) {
+            $this->createReport($product_id, $license->user_id, $license_code, sprintf('Installation on %s (%s) belongs to another user', $installation_domain, $ip), 1);
+            return $this->notificationResponse('notification_domain_in_use', []);
         }
 
         // Check installation limit
@@ -110,7 +106,7 @@ class LicenseVerifyController extends Controller
                 ->count();
 
             if ($allInstallations > $license->license_limit) {
-                $this->createReport($product_id, $license->user_id, $license_code, "Maximum installations limit ({$license->license_limit}) exceeded", 1);
+                $this->createReport($product_id, $license->user_id, $license_code, sprintf('Maximum installations limit (%s) exceeded', $license->license_limit), 1);
 
                 return $this->notificationResponse('notification_license_limit', []);
             }

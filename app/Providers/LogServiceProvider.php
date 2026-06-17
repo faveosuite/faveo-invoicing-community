@@ -12,13 +12,11 @@ class LogServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
      * Register the application services.
-     *
-     * @return void
      */
     #[Override]
-    public function register()
+    public function register(): void
     {
-        App::bind('Log', fn () => new LogWriteController);
+        App::bind('Log', fn (): \App\BillingLog\Controllers\LogWriteController => new LogWriteController);
     }
 
     #[Override]

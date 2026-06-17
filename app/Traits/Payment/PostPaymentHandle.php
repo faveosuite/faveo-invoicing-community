@@ -11,14 +11,14 @@ use Auth;
 
 trait PostPaymentHandle
 {
-    public static function sendFailedPaymenttoAdmin($invoice, $total, $productName, $exceptionMessage, $user)
+    public static function sendFailedPaymenttoAdmin($invoice, $total, $productName, string $exceptionMessage, $user): void
     {
         $amount = currencyFormat($total, Auth::user()->currency);
         $payment = Payment::where('invoice_id', $invoice->id)->first();
         $orderid = OrderInvoiceRelation::where('invoice_id', $invoice->id)->value('order_id');
         $order = Order::find($orderid);
         $setting = Setting::find(1);
-        $paymentFailData = 'Payment for'.' '.'of'.' '.$invoice->currency.' '.round($total).' '.'failed by'.' '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.'. User Email:'.' '.Auth::user()->email.'<br>'.'Reason:'.$exceptionMessage;
+        $paymentFailData = 'Payment for of '.$invoice->currency.' '.round($total).' '.'failed by'.' '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.'. User Email:'.' '.Auth::user()->email.'<br>'.'Reason:'.$exceptionMessage;
         $mail = new PhpMailController();
         $mail->SendEmail($setting->email, $setting->company_email, $paymentFailData, 'Payment failed ', 'payment-failed');
         if ($payment) {
@@ -27,7 +27,7 @@ trait PostPaymentHandle
         }
     }
 
-    public static function sendPaymentSuccessMailtoAdmin($invoice, $total, $user, $productName)
+    public static function sendPaymentSuccessMailtoAdmin($invoice, $total, $user, string $productName): void
     {
         $amount = currencyFormat($total, Auth::user()->currency);
         $payment = Payment::where('invoice_id', $invoice->id)->first();
@@ -40,7 +40,7 @@ trait PostPaymentHandle
         $mail->SendEmail($setting->email, $setting->company_email, $paymentSuccessdata, 'Payment Successful', 'payment-success');
         if ($payment) {
             $message = $invoice->is_renewed == 1 ? 'Product renew' : 'Product purchase';
-            $mail->payment_log($user->email, $payment->payment_method, $payment->payment_status, $order->number, null, $amount, $message);
+            $mail->payment_log($user->email, $payment->payment_method, $payment->payment_status, $order->number, amount: $amount, payment_type: $message);
         }
     }
 }

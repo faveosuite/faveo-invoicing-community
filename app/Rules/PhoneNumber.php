@@ -20,7 +20,7 @@ class PhoneNumber implements ValidationRule
 
         $phoneService = new PhoneNumberController();
 
-        if (! $phoneService->isValid($value, $this->mobileCountryIso, true)) {
+        if (! $phoneService->isValid($value, $this->mobileCountryIso, strict: true)) {
             $fail(__('validation.phone_number', [
                 'attribute' => $attribute,
             ]));

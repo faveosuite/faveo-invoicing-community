@@ -27,10 +27,8 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         //Model::unguard();
 
@@ -156,7 +154,7 @@ class DatabaseSeeder extends Seeder
 
 class TaxOptionTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('tax_rules')->truncate();
@@ -167,7 +165,7 @@ class TaxOptionTableSeeder extends Seeder
 
 class ApiKeyTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('api_keys')->truncate();
@@ -198,7 +196,7 @@ class ApiKeyTableSeeder extends Seeder
 
 class PeriodTypeTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('periods')->truncate();
@@ -222,7 +220,7 @@ class PeriodTypeTableSeeder extends Seeder
 
 class PromotionTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('promotions')->truncate();
@@ -233,7 +231,7 @@ class PromotionTableSeeder extends Seeder
 
 class PromotionTypeTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('promotion_types')->truncate();
@@ -245,7 +243,7 @@ class PromotionTypeTableSeeder extends Seeder
 
 class mailchimpFieldAgoraSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('mailchimp_field_agora_relations')->truncate();
@@ -256,7 +254,7 @@ class mailchimpFieldAgoraSeeder extends Seeder
 
 class mailchimpSettingSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('mailchimp_settings')->truncate();
@@ -267,7 +265,7 @@ class mailchimpSettingSeeder extends Seeder
 
 class TemplateTypeTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('template_types')->truncate();
@@ -287,7 +285,7 @@ class TemplateTypeTableSeeder extends Seeder
 
 class TemplateTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('templates')->truncate();
@@ -838,7 +836,7 @@ class TemplateTableSeeder extends Seeder
 
 class LicensePermissionTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('license_permissions')->truncate();
@@ -853,7 +851,7 @@ class LicensePermissionTableSeeder extends Seeder
 
 class StatusSettingSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('status_settings')->truncate();
@@ -885,7 +883,7 @@ class StatusSettingSeeder extends Seeder
 
 class PricingTemplateSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('pricing_templates')->truncate();
@@ -917,7 +915,7 @@ class PricingTemplateSeeder extends Seeder
 
 class GitHubTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('githubs')->truncate();
@@ -928,7 +926,7 @@ class GitHubTableSeeder extends Seeder
 
 class ConditionSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $data = [
             ['job' => 'expiryMail', 'value' => 'everyFiveMinutes'],
@@ -943,7 +941,7 @@ class ConditionSeeder extends Seeder
 
 class ActivityLogDelSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('activity_log_days')->truncate();
@@ -977,7 +975,7 @@ class ActivityLogDelSeeder extends Seeder
 
 class PluginSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('plugins')->truncate();

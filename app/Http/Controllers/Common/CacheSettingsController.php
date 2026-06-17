@@ -28,7 +28,7 @@ class CacheSettingsController extends Controller
             ->where('optional_field', 'driver')
             ->value('option_value') ?? 'file';
 
-        $drivers = collect(self::DRIVERS)->map(fn ($d) => [
+        $drivers = collect(self::DRIVERS)->map(fn ($d): array => [
             'DriverDetails' => [
                 'id' => $d['short_name'],
                 'name' => ['text' => $d['name'], 'link' => $this->hasForm($d['short_name'])],
@@ -57,12 +57,12 @@ class CacheSettingsController extends Controller
 
     public function update(Request $request, string $driver)
     {
-        if (empty($this->formFields($driver))) {
+        if ($this->formFields($driver) === []) {
             return errorResponse(__('message.no_fields_to_update'), 422);
         }
 
         $data = collect($request->except('_token'))
-            ->mapWithKeys(fn ($value, $key) => [strtoupper((string) $key) => $value ?? ''])
+            ->mapWithKeys(fn ($value, $key): array => [strtoupper((string) $key) => $value ?? ''])
             ->all();
 
         $error = $this->testConnection($driver, $data);
@@ -107,7 +107,7 @@ class CacheSettingsController extends Controller
 
     private function hasForm(string $driver): bool
     {
-        return in_array($driver, ['redis', 'memcached', 'dynamodb']);
+        return in_array($driver, ['redis', 'memcached', 'dynamodb'], strict: true);
     }
 
     private function testConnection(string $driver, array $data): ?string
@@ -125,8 +125,8 @@ class CacheSettingsController extends Controller
                 ),
                 default => null,
             };
-        } catch (Throwable $e) {
-            return $e->getMessage();
+        } catch (Throwable $throwable) {
+            return $throwable->getMessage();
         }
 
         return null;
@@ -137,10 +137,10 @@ class CacheSettingsController extends Controller
         if (extension_loaded('redis')) {
             $redis = new Redis();
             if (! $redis->connect($host, $port, 3)) {
-                throw new RuntimeException("Could not connect to Redis at {$host}:{$port}");
+                throw new RuntimeException(sprintf('Could not connect to Redis at %s:%d', $host, $port));
             }
 
-            if (! empty($password)) {
+            if ($password !== '' && $password !== '0') {
                 $redis->auth($password);
             }
 
@@ -167,10 +167,11 @@ class CacheSettingsController extends Controller
 
         $memcached = new Memcached();
         $memcached->addServer($host, $port);
+
         $stats = $memcached->getStats();
 
-        if (empty($stats) || ! isset($stats["{$host}:{$port}"])) {
-            throw new RuntimeException("Could not connect to Memcached at {$host}:{$port}");
+        if (empty($stats) || ! isset($stats[sprintf('%s:%d', $host, $port)])) {
+            throw new RuntimeException(sprintf('Could not connect to Memcached at %s:%d', $host, $port));
         }
     }
 
@@ -188,23 +189,23 @@ class CacheSettingsController extends Controller
     {
         return match ($driver) {
             'redis' => [
-                $this->field('Host', 'REDIS_HOST', env('REDIS_HOST', '127.0.0.1'), true),
-                $this->field('Port', 'REDIS_PORT', env('REDIS_PORT', 6379), true),
-                $this->field('Password', 'REDIS_PASSWORD', '', false, 'password'),
+                $this->field('Host', 'REDIS_HOST', env('REDIS_HOST', '127.0.0.1'), required: true),
+                $this->field('Port', 'REDIS_PORT', env('REDIS_PORT', 6379), required: true),
+                $this->field('Password', 'REDIS_PASSWORD', '', required: false, type: 'password'),
             ],
             'memcached' => [
-                $this->field('Host', 'MEMCACHED_HOST', env('MEMCACHED_HOST', '127.0.0.1'), true),
-                $this->field('Port', 'MEMCACHED_PORT', env('MEMCACHED_PORT', 11211), true),
-                $this->field('Persistent ID', 'MEMCACHED_PERSISTENT_ID', env('MEMCACHED_PERSISTENT_ID', ''), false),
-                $this->field('SASL Username', 'MEMCACHED_USERNAME', env('MEMCACHED_USERNAME', ''), false),
-                $this->field('SASL Password', 'MEMCACHED_PASSWORD', '', false, 'password'),
+                $this->field('Host', 'MEMCACHED_HOST', env('MEMCACHED_HOST', '127.0.0.1'), required: true),
+                $this->field('Port', 'MEMCACHED_PORT', env('MEMCACHED_PORT', 11211), required: true),
+                $this->field('Persistent ID', 'MEMCACHED_PERSISTENT_ID', env('MEMCACHED_PERSISTENT_ID', ''), required: false),
+                $this->field('SASL Username', 'MEMCACHED_USERNAME', env('MEMCACHED_USERNAME', ''), required: false),
+                $this->field('SASL Password', 'MEMCACHED_PASSWORD', '', required: false, type: 'password'),
             ],
             'dynamodb' => [
-                $this->field('AWS Key ID', 'AWS_ACCESS_KEY_ID', env('AWS_ACCESS_KEY_ID', ''), true),
-                $this->field('AWS Secret', 'AWS_SECRET_ACCESS_KEY', '', true, 'password'),
-                $this->field('Region', 'AWS_DEFAULT_REGION', env('AWS_DEFAULT_REGION', 'us-east-1'), true),
-                $this->field('Cache Table', 'DYNAMODB_CACHE_TABLE', env('DYNAMODB_CACHE_TABLE', 'cache'), true),
-                $this->field('Endpoint', 'DYNAMODB_ENDPOINT', env('DYNAMODB_ENDPOINT', ''), false),
+                $this->field('AWS Key ID', 'AWS_ACCESS_KEY_ID', env('AWS_ACCESS_KEY_ID', ''), required: true),
+                $this->field('AWS Secret', 'AWS_SECRET_ACCESS_KEY', '', required: true, type: 'password'),
+                $this->field('Region', 'AWS_DEFAULT_REGION', env('AWS_DEFAULT_REGION', 'us-east-1'), required: true),
+                $this->field('Cache Table', 'DYNAMODB_CACHE_TABLE', env('DYNAMODB_CACHE_TABLE', 'cache'), required: true),
+                $this->field('Endpoint', 'DYNAMODB_ENDPOINT', env('DYNAMODB_ENDPOINT', ''), required: false),
             ],
             default => [],
         };

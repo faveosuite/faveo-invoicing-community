@@ -22,8 +22,6 @@ class Token implements Stringable
     /**
      * Generates the basic string serialization of a token that a server
      * would respond to request_token and access_token calls with.
-     *
-     * @return string
      */
     public function __toString(): string
     {

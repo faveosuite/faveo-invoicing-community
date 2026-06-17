@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\License;
 
 use App\Model\License\LicenseType;
@@ -17,7 +19,7 @@ class LicenseSettingsControllerTest extends DBTestCase
         $this->withoutMiddleware();
     }
 
-    public function test_get_license_settings_success()
+    public function test_get_license_settings_success(): void
     {
         LicenseType::factory()->create(['name' => 'Starter']);
         LicenseType::factory()->create(['name' => 'Premium']);
@@ -29,7 +31,7 @@ class LicenseSettingsControllerTest extends DBTestCase
                  ->assertJsonFragment(['name' => 'Premium']);
     }
 
-    public function test_get_license_types_search_filter()
+    public function test_get_license_types_search_filter(): void
     {
         LicenseType::factory()->create(['name' => 'Starter']);
         LicenseType::factory()->create(['name' => 'Business']);
@@ -41,7 +43,7 @@ class LicenseSettingsControllerTest extends DBTestCase
                  ->assertJsonMissing(['name' => 'Business']);
     }
 
-    public function test_create_license_saves_successfully()
+    public function test_create_license_saves_successfully(): void
     {
         $payload = ['name' => 'Enterprise'];
 
@@ -53,13 +55,13 @@ class LicenseSettingsControllerTest extends DBTestCase
         $this->assertDatabaseHas('license_types', ['name' => 'Enterprise']);
     }
 
-    public function test_update_license_updates_record()
+    public function test_update_license_updates_record(): void
     {
         $type = LicenseType::factory()->create(['name' => 'Basic']);
 
         $payload = ['name' => 'Updated Basic'];
 
-        $response = $this->putJson("/update-license-type/{$type->id}", $payload);
+        $response = $this->putJson('/update-license-type/' . $type->id, $payload);
 
         $response->assertStatus(200)
                  ->assertJsonFragment(['message' => __('message.updated-successfully')]);
@@ -67,7 +69,7 @@ class LicenseSettingsControllerTest extends DBTestCase
         $this->assertDatabaseHas('license_types', ['id' => $type->id, 'name' => 'Updated Basic']);
     }
 
-    public function test_delete_license_returns_error_if_no_ids()
+    public function test_delete_license_returns_error_if_no_ids(): void
     {
         $response = $this->deleteJson('/delete-license-type', ['select' => []]);
 
@@ -75,7 +77,7 @@ class LicenseSettingsControllerTest extends DBTestCase
                  ->assertJsonFragment(['message' => __('message.select-a-row')]);
     }
 
-    public function test_delete_license_deletes_selected_records()
+    public function test_delete_license_deletes_selected_records(): void
     {
         $type1 = LicenseType::factory()->create();
         $type2 = LicenseType::factory()->create();

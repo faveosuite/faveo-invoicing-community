@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
-    '2fa_setup' => 'Issettja Verifikazzjoni ta\' 2 Pass',
+    '2fa_setup' => "Issettja Verifikazzjoni ta' 2 Pass",
     'actions' => 'Azzjonijiet',
     'activation_date' => 'Data tal-Attivazzjoni',
     'active' => 'Attiv',
@@ -32,7 +34,7 @@ return [
     'banned_ip_in_whitelist' => 'Dan l-IP diġà jinsab fil-lista bajda',
     'Banned_Show' => 'Hosts Ipprojbiti',
     'Callback_Show' => 'Callbacks tal-Liċenzja',
-    'CrackingReport_Show' => 'Ara r-Rapporti ta\' Cracking',
+    'CrackingReport_Show' => "Ara r-Rapporti ta' Cracking",
     'cant_scan' => 'MA TISTAX TISKENNJA?',
     'change_icon' => 'Ibdel l-Ikona',
     'change_logo' => 'Ibdel il-Logo',
@@ -259,7 +261,7 @@ return [
     'user_email_is_verified' => 'L-indirizz tal-email tal-utent huwa verifikat',
     'user_email_not_verified' => 'L-utent ma vverifikax l-indirizz tal-email',
     'user_enabled_2fa' => 'L-utent ħaddem il-2FA',
-    'user_mobile_is_verified' => 'In-numru ta\' kuntatt tal-utent huwa verifikat',
+    'user_mobile_is_verified' => "In-numru ta' kuntatt tal-utent huwa verifikat",
     'user_mobile_not_verified' => 'L-utent ma vverifikax il-mowbajl',
     'user_name' => 'Isem tal-Utent',
     'user_not_enabled_2fa' => 'L-utent ma ħaddimx il-2FA',
@@ -288,7 +290,7 @@ return [
     'view' => 'Ara',
     'view_all' => 'Ara Kollox',
     'view_banned_hosts' => 'Lista tal-Hosts Ipprojbiti',
-    'view_cracking_reports' => 'Ara r-Rapporti ta\' Cracking',
+    'view_cracking_reports' => "Ara r-Rapporti ta' Cracking",
     'view_license_reports' => 'Ara r-Rapporti tal-Liċenzja',
     'view_system_reports' => 'Ara r-Rapporti tas-Sistema',
     'view_update_reports' => 'Ara r-Rapporti tal-Aġġornament',

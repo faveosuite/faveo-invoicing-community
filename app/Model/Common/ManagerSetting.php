@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Model\Common;
 
 use App\Traits\SystemActivityLogsTrait;
@@ -31,7 +33,7 @@ class ManagerSetting extends Model
     {
         return [
             'manager_role' => ['Manager Role', fn ($value) => $value],
-            'auto_assign' => ["{$this->manager_role} manager assign status", fn ($value) => $value ? __('message.active') : __('message.inactive')],
+            'auto_assign' => [$this->manager_role . ' manager assign status', fn ($value): array|string|null => $value ? __('message.active') : __('message.inactive')],
         ];
     }
 }

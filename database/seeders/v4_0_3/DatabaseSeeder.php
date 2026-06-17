@@ -77,7 +77,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         FaveoLocalFields::insert(
-            collect($fields)->map(fn ($field) => [
+            collect($fields)->map(fn ($field): array => [
                 'display_name' => $field['label'],
                 'field_key'    => $field['key'],
                 'field_type'   => $field['type'],
@@ -232,7 +232,9 @@ Dear {{name}},<br/><br/>
 
     private function seedTemplate(string $name, int $typeId, string $html): void
     {
-        if (DB::table('templates')->where('name', $name)->exists()) return;
+        if (DB::table('templates')->where('name', $name)->exists()) {
+            return;
+        }
 
         $id = DB::table('templates')->insertGetId([
             'name'       => $name,
@@ -278,7 +280,7 @@ Dear {{name}},<br/><br/>
 
         foreach ($packages as $package) {
 
-            $packagePath = base_path("vendor/{$package}");
+            $packagePath = base_path('vendor/' . $package);
 
             if (! File::exists($packagePath)) {
                 continue;

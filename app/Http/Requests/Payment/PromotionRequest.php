@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
@@ -9,20 +11,16 @@ class PromotionRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [
             'code' => 'required',
@@ -33,11 +31,7 @@ class PromotionRequest extends Request
             'expiry' => 'required|after:start',
         ];
         // If 'type' is 'percentage', add additional validation for 'value'
-        if ($this->input('type') === '1') {
-            $rules['value'] = 'required|numeric|between:1,100';
-        } else {
-            $rules['value'] = 'required|integer|min:0';
-        }
+        $rules['value'] = $this->input('type') === '1' ? 'required|numeric|between:1,100' : 'required|integer|min:0';
 
         return $rules;
     }

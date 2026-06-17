@@ -37,7 +37,7 @@ class MailchimpService
      */
     public function subscribe(User $user): void
     {
-        if (! $this->listId) {
+        if ($this->listId === '' || $this->listId === '0') {
             return;
         }
 
@@ -50,19 +50,19 @@ class MailchimpService
         ];
 
         try {
-            $this->client->post("lists/{$this->listId}/members", $payload);
-        } catch (MailchimpApiException $e) {
-            if ($e->isMemberExists()) {
+            $this->client->post(sprintf('lists/%s/members', $this->listId), $payload);
+        } catch (MailchimpApiException $mailchimpApiException) {
+            if ($mailchimpApiException->isMemberExists()) {
                 // Already subscribed — update instead
                 $this->client->put(
-                    "lists/{$this->listId}/members/{$this->memberHash($user->email)}",
+                    sprintf('lists/%s/members/%s', $this->listId, $this->memberHash($user->email)),
                     array_merge($payload, ['status_if_new' => $payload['status']])
                 );
 
                 return;
             }
 
-            throw $e;
+            throw $mailchimpApiException;
         }
     }
 
@@ -71,7 +71,7 @@ class MailchimpService
      */
     public function subscribeEmail(string $email): void
     {
-        if (! $this->listId) {
+        if ($this->listId === '' || $this->listId === '0') {
             return;
         }
 
@@ -81,13 +81,13 @@ class MailchimpService
         ];
 
         try {
-            $this->client->post("lists/{$this->listId}/members", $payload);
-        } catch (MailchimpApiException $e) {
-            if ($e->isMemberExists()) {
+            $this->client->post(sprintf('lists/%s/members', $this->listId), $payload);
+        } catch (MailchimpApiException $mailchimpApiException) {
+            if ($mailchimpApiException->isMemberExists()) {
                 return;
             }
 
-            throw $e;
+            throw $mailchimpApiException;
         }
     }
 
@@ -96,19 +96,19 @@ class MailchimpService
      */
     public function unsubscribe(string $email): void
     {
-        if (! $this->listId) {
+        if ($this->listId === '' || $this->listId === '0') {
             return;
         }
 
         try {
             $this->client->patch(
-                "lists/{$this->listId}/members/{$this->memberHash($email)}",
+                sprintf('lists/%s/members/%s', $this->listId, $this->memberHash($email)),
                 ['status' => 'unsubscribed']
             );
-        } catch (MailchimpApiException $e) {
+        } catch (MailchimpApiException $mailchimpApiException) {
             // 404 = not in list; silently ignore
-            if ($e->getHttpStatus() !== 404) {
-                throw $e;
+            if ($mailchimpApiException->getHttpStatus() !== 404) {
+                throw $mailchimpApiException;
             }
         }
     }
@@ -118,17 +118,17 @@ class MailchimpService
      */
     public function updatePurchaseInterests(User $user, int $productId, bool $isPaid): void
     {
-        if (! $this->listId) {
+        if ($this->listId === '' || $this->listId === '0') {
             return;
         }
 
         $interests = $this->contactBuilder->purchaseInterests($productId, $isPaid);
-        if (empty($interests)) {
+        if ($interests === []) {
             return;
         }
 
         $this->client->patch(
-            "lists/{$this->listId}/members/{$this->memberHash($user->email)}",
+            sprintf('lists/%s/members/%s', $this->listId, $this->memberHash($user->email)),
             ['interests' => $interests]
         );
     }
@@ -158,11 +158,11 @@ class MailchimpService
 
     public function getMergeFields(): array
     {
-        if (! $this->listId) {
+        if ($this->listId === '' || $this->listId === '0') {
             return [];
         }
 
-        $result = $this->client->get("lists/{$this->listId}/merge-fields", ['count' => 100]);
+        $result = $this->client->get(sprintf('lists/%s/merge-fields', $this->listId), ['count' => 100]);
 
         return $result['merge_fields'] ?? [];
     }
@@ -198,23 +198,23 @@ class MailchimpService
 
     public function getInterestCategories(): array
     {
-        if (! $this->listId) {
+        if ($this->listId === '' || $this->listId === '0') {
             return [];
         }
 
-        $result = $this->client->get("lists/{$this->listId}/interest-categories", ['count' => 100]);
+        $result = $this->client->get(sprintf('lists/%s/interest-categories', $this->listId), ['count' => 100]);
 
         return $result['categories'] ?? [];
     }
 
     public function getInterestGroupOptions(string $categoryId): array
     {
-        if (! $this->listId) {
+        if ($this->listId === '' || $this->listId === '0') {
             return [];
         }
 
         $result = $this->client->get(
-            "lists/{$this->listId}/interest-categories/{$categoryId}/interests",
+            sprintf('lists/%s/interest-categories/%s/interests', $this->listId, $categoryId),
             ['count' => 100]
         );
 
@@ -254,9 +254,9 @@ class MailchimpService
 
         foreach ($options as $option) {
             $name = strtolower((string) $option['name']);
-            if (in_array($name, ['yes', 'true'], true)) {
+            if (in_array($name, ['yes', 'true'], strict: true)) {
                 MailchimpFieldAgoraRelation::find(1)?->update(['is_paid_yes' => $option['id']]);
-            } elseif (in_array($name, ['no', 'false'], true)) {
+            } elseif (in_array($name, ['no', 'false'], strict: true)) {
                 MailchimpFieldAgoraRelation::find(1)?->update(['is_paid_no' => $option['id']]);
             }
         }

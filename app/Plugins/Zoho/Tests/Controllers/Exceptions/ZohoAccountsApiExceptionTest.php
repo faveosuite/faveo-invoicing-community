@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Plugins\Zoho\Tests\Controllers\Exceptions;
 
 use App\Plugins\Zoho\Controllers\Exceptions\ZohoAccountsApiException;
@@ -9,7 +11,7 @@ use Tests\DBTestCase;
 
 class ZohoAccountsApiExceptionTest extends DBTestCase
 {
-    public function test_it_extends_zoho_api_exception()
+    public function test_it_extends_zoho_api_exception(): void
     {
         $exception = ZohoAccountsApiException::invalidClient();
 
@@ -17,7 +19,7 @@ class ZohoAccountsApiExceptionTest extends DBTestCase
         $this->assertInstanceOf(ZohoAccountsApiException::class, $exception);
     }
 
-    public function test_it_creates_invalid_client_exception()
+    public function test_it_creates_invalid_client_exception(): void
     {
         $exception = ZohoAccountsApiException::invalidClient();
 
@@ -26,7 +28,7 @@ class ZohoAccountsApiExceptionTest extends DBTestCase
         $this->assertStringContainsString('datacenter location', $exception->getMessage());
     }
 
-    public function test_it_creates_invalid_client_secret_exception()
+    public function test_it_creates_invalid_client_secret_exception(): void
     {
         $exception = ZohoAccountsApiException::invalidClientSecret();
 
@@ -35,7 +37,7 @@ class ZohoAccountsApiExceptionTest extends DBTestCase
         $this->assertStringContainsString('missing or invalid', $exception->getMessage());
     }
 
-    public function test_it_creates_invalid_code_exception()
+    public function test_it_creates_invalid_code_exception(): void
     {
         $exception = ZohoAccountsApiException::invalidCode();
 
@@ -68,27 +70,27 @@ class ZohoAccountsApiExceptionTest extends DBTestCase
         throw ZohoAccountsApiException::invalidCode();
     }
 
-    public function test_it_can_be_caught_as_zoho_api_exception()
+    public function test_it_can_be_caught_as_zoho_api_exception(): void
     {
         try {
             throw ZohoAccountsApiException::invalidClient();
-        } catch (ZohoApiException $e) {
-            $this->assertInstanceOf(ZohoAccountsApiException::class, $e);
-            $this->assertEquals('invalid_client', $e->getErrorId());
+        } catch (ZohoApiException $zohoApiException) {
+            $this->assertInstanceOf(ZohoAccountsApiException::class, $zohoApiException);
+            $this->assertEquals('invalid_client', $zohoApiException->getErrorId());
         }
     }
 
-    public function test_it_can_be_caught_as_generic_exception()
+    public function test_it_can_be_caught_as_generic_exception(): void
     {
         try {
             throw ZohoAccountsApiException::invalidClientSecret();
-        } catch (Exception $e) {
-            $this->assertInstanceOf(ZohoAccountsApiException::class, $e);
-            $this->assertEquals('invalid_client_secret', $e->getErrorId());
+        } catch (Exception $exception) {
+            $this->assertInstanceOf(ZohoAccountsApiException::class, $exception);
+            $this->assertEquals('invalid_client_secret', $exception->getErrorId());
         }
     }
 
-    public function test_each_static_method_returns_unique_error_id()
+    public function test_each_static_method_returns_unique_error_id(): void
     {
         $client = ZohoAccountsApiException::invalidClient();
         $secret = ZohoAccountsApiException::invalidClientSecret();
@@ -99,7 +101,7 @@ class ZohoAccountsApiExceptionTest extends DBTestCase
         $this->assertNotEquals($secret->getErrorId(), $code->getErrorId());
     }
 
-    public function test_it_provides_helpful_error_messages()
+    public function test_it_provides_helpful_error_messages(): void
     {
         $client = ZohoAccountsApiException::invalidClient();
         $secret = ZohoAccountsApiException::invalidClientSecret();

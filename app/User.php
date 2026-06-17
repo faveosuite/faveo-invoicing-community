@@ -156,27 +156,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasMany(ExportDetail::class, 'user_id');
     }
 
-    // public function getCreatedAtAttribute($value)
-    // {
-    //     if (\Auth::user()) {
-    //         $tz = \Auth::user()->timezone()->first()->name;
-    //         $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $value, 'UTC');
-
-    //         return $date->setTimezone($tz);
-    //     }
-
-    //     return $value;
-    // }
-
-    protected function getProfilePicAttribute($value)
+    protected function profilePic(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        $image = Gravatar::get($this->attributes['email']);
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
+            if ($value) {
+                return Attach::getUrlPath('common/images/users/'.$value);
+            }
 
-        if ($value) {
-            $image = Attach::getUrlPath('common/images/users/'.$value);
-        }
-
-        return $image;
+            return Gravatar::get($this->attributes['email']);
+        });
     }
 
     public function payment()
@@ -184,34 +172,40 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasMany(Payment::class);
     }
 
-    protected function setCountryAttribute($value)
+    protected function country(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        $value = strtoupper((string) $value);
-        $this->attributes['country'] = $value;
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(set: function ($value): array {
+            $value = strtoupper((string) $value);
+            return ['country' => $value];
+        });
     }
 
-    protected function getBussinessAttribute($value)
+    protected function bussiness(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        $short = $this->attributes['bussiness'] ?? null;
-        $name = '--';
-        $bussiness = Bussiness::where('short', $short)->first();
-        if ($bussiness) {
-            $name = $bussiness->name;
-        }
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+            $short = $this->attributes['bussiness'] ?? null;
+            $name = '--';
+            $bussiness = Bussiness::where('short', $short)->first();
+            if ($bussiness) {
+                return $bussiness->name;
+            }
 
-        return $name;
+            return $name;
+        });
     }
 
-    protected function getCompanyTypeAttribute()
+    protected function companyType(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        $short = $this->attributes['company_type'] ?? null;
-        $name = '--';
-        $company = DB::table('company_types')->where('short', $short)->first();
-        if ($company) {
-            $name = $company->name;
-        }
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
+            $short = $this->attributes['company_type'] ?? null;
+            $name = '--';
+            $company = DB::table('company_types')->where('short', $short)->first();
+            if ($company) {
+                return $company->name;
+            }
 
-        return $name;
+            return $name;
+        });
     }
 
     // public function forceDelete()
@@ -245,7 +239,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     #[Override]
-    public function save(array $options = [])
+    public function save(array $options = []): void
     {
         $changed = $this->isDirty() ? $this->getDirty() : false;
         parent::save($options);
@@ -275,7 +269,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             'mobile_country_iso' => ['Mobile country ISO', fn ($value) => $value],
             'email' => ['Email', fn ($value) => $value],
             'role' => ['Role', ucfirst(...)],
-            'active' => ['User active status', fn ($value) => $value === 1 ? trans('message.active') : trans('message.inactive')],
+            'active' => ['User active status', fn ($value): \Illuminate\Contracts\Translation\Translator|string|array => $value === 1 ? trans('message.active') : trans('message.inactive')],
             'profile_pic' => ['Profile picture', fn ($value) => $value],
             'address' => ['Address', fn ($value) => $value],
             'country' => ['Country', fn ($value) => $value],
@@ -289,11 +283,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                 default => $value,
             }],
             'ip' => ['IP address', fn ($value) => $value],
-            'mobile_verified' => ['Mobile verified', fn ($value) => $value === 1 ? trans('message.active') : trans('message.inactive')],
-            'email_verified' => ['Email verified', fn ($value) => $value === 1 ? trans('message.active') : trans('message.inactive')],
+            'mobile_verified' => ['Mobile verified', fn ($value): \Illuminate\Contracts\Translation\Translator|string|array => $value === 1 ? trans('message.active') : trans('message.inactive')],
+            'email_verified' => ['Email verified', fn ($value): \Illuminate\Contracts\Translation\Translator|string|array => $value === 1 ? trans('message.active') : trans('message.inactive')],
             'position' => [
                 'Position',
-                fn ($value) => match ($value) {
+                fn ($value): ?string => match ($value) {
                     'account_manager' => 'Account Manager',
                     'manager' => 'Sales Manager',
                     default => null,
@@ -319,9 +313,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasMany(UserLinkReport::class);
     }
 
-    protected function getFullNameAttribute()
+    protected function fullName(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return "{$this->first_name} {$this->last_name}";
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (): string {
+            return sprintf('%s %s', $this->first_name, $this->last_name);
+        });
     }
 
     public function countryRelation()

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Model\Mailjob;
 
 use Illuminate\Database\Eloquent\Model;

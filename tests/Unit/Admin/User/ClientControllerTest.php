@@ -17,7 +17,7 @@ use Tests\DBTestCase;
 
 class ClientControllerTest extends DBTestCase
 {
-    private $classObject;
+    private \App\Http\Controllers\User\ClientController $classObject;
 
     protected function setUp(): void
     {
@@ -26,7 +26,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenCountryIsPresentInTheRequest_filtersResultByThatCountry()
+    public function test_getBaseQueryForUserSearch_whenCountryIsPresentInTheRequest_filtersResultByThatCountry(): void
     {
         $request = new Request(['country' => 'US']);
         User::factory()->create(['country' => 'US']);
@@ -38,7 +38,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenIndustryIsPresentInTheRequest_filtersResultByThatIndustry()
+    public function test_getBaseQueryForUserSearch_whenIndustryIsPresentInTheRequest_filtersResultByThatIndustry(): void
     {
         $request = new Request(['industry' => 'testOne']);
         $userOne = User::factory()->create(['bussiness' => 'testOne']);
@@ -50,7 +50,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenRoleIsPresentInTheRequest_filtersResultByThatRole()
+    public function test_getBaseQueryForUserSearch_whenRoleIsPresentInTheRequest_filtersResultByThatRole(): void
     {
         $request = new Request(['role' => 'user']);
         $userOne = User::factory()->create(['role' => 'user']);
@@ -62,7 +62,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenPositionIsPresentInTheRequest_filtersResultByThatPosition()
+    public function test_getBaseQueryForUserSearch_whenPositionIsPresentInTheRequest_filtersResultByThatPosition(): void
     {
         $request = new Request(['position' => 'positionOne']);
         $userOne = User::factory()->create(['position' => 'positionOne']);
@@ -74,7 +74,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenAccountManagerIsPresentInTheRequest_filtersResultByThatAccountManager()
+    public function test_getBaseQueryForUserSearch_whenAccountManagerIsPresentInTheRequest_filtersResultByThatAccountManager(): void
     {
         $managerOneId = User::factory()->create()->id;
         $request = new Request(['actmanager' => $managerOneId]);
@@ -88,7 +88,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenSalesManagerIsPresentInTheRequest_filtersResultByThatSalesManager()
+    public function test_getBaseQueryForUserSearch_whenSalesManagerIsPresentInTheRequest_filtersResultByThatSalesManager(): void
     {
         $managerOneId = User::factory()->create()->id;
         $request = new Request(['salesmanager' => $managerOneId]);
@@ -102,7 +102,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_GivesPhoneNumberFormattedWithCountryCode()
+    public function test_getBaseQueryForUserSearch_GivesPhoneNumberFormattedWithCountryCode(): void
     {
         $request = new Request(['country' => 'US']);
         User::factory()->create(['country' => 'US', 'mobile_code' => '1', 'mobile' => '9087654321']);
@@ -112,7 +112,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenMobilestatusIsPresentInTheRequest_filtersResultByThatMobilestatus()
+    public function test_getBaseQueryForUserSearch_whenMobilestatusIsPresentInTheRequest_filtersResultByThatMobilestatus(): void
     {
         $request = new Request(['mobile_verified' => 1]);
         $methodResponse = $this->getPrivateMethod($this->classObject, 'getBaseQueryForUserSearch', [$request]);
@@ -122,7 +122,7 @@ class ClientControllerTest extends DBTestCase
         $this->assertTrue($firstUser->mobile_verified == 1);
     }
 
-    public function test_getBaseQueryForUserSearch_whenEmailstatusIsPresentInTheRequest_filtersResultByThatEmailstatus()
+    public function test_getBaseQueryForUserSearch_whenEmailstatusIsPresentInTheRequest_filtersResultByThatEmailstatus(): void
     {
         $request = new Request(['active' => 1]);
         $methodResponse = $this->getPrivateMethod($this->classObject, 'getBaseQueryForUserSearch', [$request]);
@@ -133,7 +133,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_when2FAstatusIsPresentInTheRequest_filtersResultByThat2FAstatus()
+    public function test_getBaseQueryForUserSearch_when2FAstatusIsPresentInTheRequest_filtersResultByThat2FAstatus(): void
     {
         $request = new Request(['is_2fa_enabled' => 0]);
         $methodResponse = $this->getPrivateMethod($this->classObject, 'getBaseQueryForUserSearch', [$request]);
@@ -144,7 +144,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_Admin_error_when_address_is_not_present()
+    public function test_Admin_error_when_address_is_not_present(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
@@ -177,7 +177,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_when_admin_user_creation_successFull()
+    public function test_when_admin_user_creation_successFull(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
@@ -209,7 +209,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_admin_when_zip_is_given_wrong()
+    public function test_admin_when_zip_is_given_wrong(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
@@ -243,11 +243,11 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_add_columns_to_db_successfully()
+    public function test_add_columns_to_db_successfully(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
-        $response = UserLinkReport::create([
+        UserLinkReport::create([
             'user_id' => $admin->id,
             'column_id' => '1',
             'type' => 'users',
@@ -256,13 +256,13 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_get_columns_with_user_columns()
+    public function test_get_columns_with_user_columns(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
-        $reportColumn = ReportColumn::create(['type' => 'orders', 'key' => 'order_id']);
+        ReportColumn::create(['type' => 'orders', 'key' => 'order_id']);
 
-        $userlink = UserLinkReport::create([
+        UserLinkReport::create([
             'user_id' => $admin->id,
             'column_id' => '1',
             'type' => 'orders',
@@ -273,7 +273,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_get_active_inactive_label()
+    public function test_get_active_inactive_label(): void
     {
         $mobileActive = 1;
         $emailActive = 0;
@@ -284,7 +284,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_show_individual_user()
+    public function test_show_individual_user(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
@@ -302,7 +302,7 @@ class ClientControllerTest extends DBTestCase
             'domain' => 'faveo.com',
             'plan_id' => 1,
         ]);
-        $order = Order::factory()->create(['invoice_id' => $invoice->id,
+        Order::factory()->create(['invoice_id' => $invoice->id,
             'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
         Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '50000']);
 
@@ -316,7 +316,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_get_user_in_table()
+    public function test_get_user_in_table(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);

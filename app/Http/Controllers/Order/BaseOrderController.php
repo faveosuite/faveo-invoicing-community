@@ -34,28 +34,24 @@ class BaseOrderController extends ExtendedOrderController
 
     use UpdateDates;
 
-    public function getUrl($model, $status, $subscriptionId, $agents = null)
+    public function getUrl($model, $status, ?string $subscriptionId, $agents = null): string
     {
         $url = '';
-        if ($model->order_status != 'Terminated') {
-            if ($status == 'success') {
-                if ($subscriptionId) {
-                    if (! is_null($agents)) {
-                        $url = '<a href='.url('renew/'.$subscriptionId.'/'.$agents)." 
+        if ($model->order_status != 'Terminated' && $status == 'success' && $subscriptionId) {
+            if (! is_null($agents)) {
+                $url = '<a href='.url('renew/'.$subscriptionId.'/'.$agents)." 
                 class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.renew'))."<i class='fas fa-credit-card'
                  style='color:white;'> </i></a>";
-                    } else {
-                        $url = '<a href='.url('renew/'.$subscriptionId)." 
+            } else {
+                $url = '<a href='.url('renew/'.$subscriptionId)." 
                 class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.renew'))."<i class='fas fa-credit-card'
                  style='color:white;'> </i></a>";
-                    }
-                }
             }
         }
 
         return '<p><a href='.url('orders/'.$model->id)." 
         class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."<i class='fas fa-eye'
-         style='color:white;'> </i></a> $url</p>";
+         style='color:white;'> </i></a> {$url}</p>";
     }
 
     /**
@@ -72,7 +68,7 @@ class BaseOrderController extends ExtendedOrderController
         $userId = Invoice::findOrFail($invoiceId)->user_id;
         $items = InvoiceItem::where('invoice_id', $invoiceId)->get();
 
-        return $items->map(fn ($item) => $this->processInvoiceItem($item, $userId));
+        return $items->map(fn ($item): \App\Model\Order\Order => $this->processInvoiceItem($item, $userId));
     }
 
     private function processInvoiceItem($item, $userId): Order
@@ -119,14 +115,12 @@ class BaseOrderController extends ExtendedOrderController
      * @param  int  $orderid
      * @param  int  $planid
      * @param  string  $version
-     * @param  int  $product
      * @param  string  $serial_key
      *
      * @throws Exception
-     *
      * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
      */
-    public function addSubscription($orderid, $planid, $version, $product, $serial_key, $invoiceId = null): void
+    public function addSubscription($orderid, $planid, $version, int $product, $serial_key, $invoiceId = null): void
     {
         $permissions = LicensePermissionsController::getPermissionsForProduct($product);
         $version ??= '';
@@ -143,7 +137,9 @@ class BaseOrderController extends ExtendedOrderController
             $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $days);
         } elseif (isset($meta['increase-decrease-days-dont-cloud'])) {
             $sub = Subscription::where('order_id', $meta['increase-decrease-days-dont-cloud'])->first();
-            $licenseExpiry = $updatesExpiry = $supportExpiry = $sub?->ends_at;
+            $licenseExpiry = $sub?->ends_at;
+            $updatesExpiry = $sub?->ends_at;
+            $supportExpiry = $sub?->ends_at;
         } else {
             $isOneTime = $plan->periods()->where('name', 'One Time')->exists();
             $licenseExpiry = $isOneTime ? '' : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $plan->days);
@@ -234,7 +230,7 @@ class BaseOrderController extends ExtendedOrderController
         return $support_ends_at;
     }
 
-    public function sendOrderMail($userid, $orderid, $itemid)
+    public function sendOrderMail($userid, string $orderid, $itemid): void
     {
         //order
         $order = Order::find($orderid);
@@ -254,17 +250,17 @@ class BaseOrderController extends ExtendedOrderController
         $number = $invoice?->number;
         $downloadurl = '';
         if ($user && $order->order_status == 'Executed') {
-            $downloadurl = url('product/'.'download'.'/'.$productId.'/'.$number);
+            $downloadurl = url('product/download/'.$productId.'/'.$number);
         }
 
         // $downloadurl = $this->downloadUrl($userid, $orderid,$productId);
         $myaccounturl = url('my-order/'.$orderid);
         $invoiceurl = $this->invoiceUrl($orderid);
         //template
-        $mail = $this->getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $order->serial_key);
+        $this->getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $order->serial_key);
     }
 
-    public function getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $licenseCode)
+    public function getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, string $orderid, $myaccounturl, $licenseCode): void
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
@@ -318,12 +314,11 @@ class BaseOrderController extends ExtendedOrderController
         }
     }
 
-    public function invoiceUrl($orderid)
+    public function invoiceUrl($orderid): \Illuminate\Contracts\Routing\UrlGenerator|string
     {
         $invoiceid = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-        $url = url('my-invoice/'.$invoiceid);
 
-        return $url;
+        return url('my-invoice/'.$invoiceid);
     }
 
     /**
@@ -338,19 +333,18 @@ class BaseOrderController extends ExtendedOrderController
     {
         try {
             return Price::where('product_id', $product_id)->first();
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function downloadUrl($userid, $orderid)
+    public function downloadUrl(string $userid, $orderid): \Illuminate\Contracts\Routing\UrlGenerator|string
     {
         $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
         $invoice = Invoice::find($invoiceId);
         $number = $invoice?->number;
-        $url = url('download/'.$userid.'/'.$number);
 
-        return $url;
+        return url('download/'.$userid.'/'.$number);
     }
 
     public function formatConfigurableOptions($productId)
@@ -372,7 +366,7 @@ class BaseOrderController extends ExtendedOrderController
         }
 
         // Format the configuration options
-        return $products->flatMap(fn ($product) => $product->configOptions->flatMap(fn ($configOption) => $configOption->configOptionValues->map(fn ($configOptionValue) => [
+        return $products->flatMap(fn ($product) => $product->configOptions->flatMap(fn ($configOption) => $configOption->configOptionValues->map(fn ($configOptionValue): array => [
             'product_id' => $product->id,
             'option_group' => $configOption->configGroup->config_group_name,
             'option_name' => $configOption->config_option_name,

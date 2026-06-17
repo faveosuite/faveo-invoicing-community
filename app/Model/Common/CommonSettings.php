@@ -20,7 +20,7 @@ class CommonSettings extends Model
         $status = '';
         $schema = $this->where('option_name', $option_name)->first();
         if ($schema) {
-            $status = $schema->status;
+            return $schema->status;
         }
 
         return $status;

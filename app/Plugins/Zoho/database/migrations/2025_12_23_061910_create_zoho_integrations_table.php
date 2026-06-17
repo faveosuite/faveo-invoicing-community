@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->enum('platform', ['crm', 'campaigns'])->unique();
             $table->string('description')->nullable();
-            $table->boolean('is_active')->default(false);
+            $table->boolean('is_active')->default(value: false);
             $table->timestamps();
         });
     }

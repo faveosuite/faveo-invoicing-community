@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -162,7 +164,7 @@ return [
      *
      */
     'do_not_log_events' => [
-        'illuminate.log',
+        \Illuminate\Log\Events\MessageLogged::class,
         'eloquent.*',
         'router.*',
         'composing: *',

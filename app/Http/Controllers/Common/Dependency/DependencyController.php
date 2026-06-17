@@ -25,8 +25,8 @@ class DependencyController extends NonPublicDependencies
             }
 
             return successResponse('', $data);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 

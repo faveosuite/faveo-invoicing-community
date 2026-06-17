@@ -18,7 +18,7 @@ class LicensePermissionsControllerTest extends DBTestCase
         $this->withoutMiddleware();
     }
 
-    public function test_get_permissions_returns_license_types_with_permissions()
+    public function test_get_permissions_returns_license_types_with_permissions(): void
     {
         // Create permissions
         $permA = LicensePermission::create(['permissions' => 'view']);
@@ -47,7 +47,7 @@ class LicensePermissionsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_get_permissions_search_filter()
+    public function test_get_permissions_search_filter(): void
     {
         LicenseType::factory()->create(['name' => 'Starter']);
         LicenseType::factory()->create(['name' => 'Enterprise']);
@@ -59,10 +59,10 @@ class LicensePermissionsControllerTest extends DBTestCase
                  ->assertJsonMissing(['name' => 'Enterprise']);
     }
 
-    public function test_get_permissions_includes_all_permission_mapping()
+    public function test_get_permissions_includes_all_permission_mapping(): void
     {
         $perm1 = LicensePermission::create(['permissions' => 'view']);
-        $perm2 = LicensePermission::create(['permissions' => 'delete']);
+        LicensePermission::create(['permissions' => 'delete']);
 
         $type = LicenseType::factory()->create(['name' => 'Business']);
         $type->permissions()->attach($perm1->id);
@@ -78,7 +78,7 @@ class LicensePermissionsControllerTest extends DBTestCase
         $response->assertJsonFragment(['assigned' => false]);
     }
 
-    public function test_add_permission_updates_license_permissions()
+    public function test_add_permission_updates_license_permissions(): void
     {
         $type = LicenseType::factory()->create(['name' => 'Professional']);
 
@@ -107,7 +107,7 @@ class LicensePermissionsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_add_permission_allows_empty_sync()
+    public function test_add_permission_allows_empty_sync(): void
     {
         $type = LicenseType::create(['name' => 'Basic']);
         $perm = LicensePermission::create(['permissions' => 'read']);
@@ -132,7 +132,7 @@ class LicensePermissionsControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_add_permission_fails_for_invalid_license_id()
+    public function test_add_permission_fails_for_invalid_license_id(): void
     {
         $payload = [
             'licenseId' => 999999,

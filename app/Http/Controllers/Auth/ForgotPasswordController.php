@@ -33,8 +33,6 @@ class ForgotPasswordController extends Controller
 
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -46,7 +44,6 @@ class ForgotPasswordController extends Controller
     /**
      * Send a reset link to the given user.
      *
-     * @param  Request  $request
      * @return Response
      */
     public function sendResetLinkEmail(Request $request)
@@ -79,7 +76,7 @@ class ForgotPasswordController extends Controller
             $activate = $password->create(['email' => $email, 'token' => $token, 'created_at' => Date::now()]);
             $token = $activate->token;
 
-            $url = url("password/reset/$token");
+            $url = url('password/reset/' . $token);
 
             $user = new User();
             $user = $user->where('email', $email)->firstOrFail();
@@ -103,11 +100,9 @@ class ForgotPasswordController extends Controller
                 $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 
                 return successResponse(__('validation.forgot_email_validation'));
-            } else {
-                return errorResponse(__('validation.forgot_email_validation'));
             }
 
-            return successResponse(__('validation.forgot_email_validation'));
+            return errorResponse(__('validation.forgot_email_validation'));
         } catch (Exception) {
             return successResponse(__('validation.forgot_email_validation'));
         }

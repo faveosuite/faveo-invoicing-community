@@ -25,8 +25,14 @@ class RazorpayController extends Controller
 {
     use PostPaymentHandle;
 
+    /**
+     * @var \App\Model\Order\Invoice
+     */
     public $invoice;
 
+    /**
+     * @var \App\Model\Order\InvoiceItem
+     */
     public $invoiceItem;
 
     public function __construct()
@@ -78,20 +84,16 @@ class RazorpayController extends Controller
 
     public function getCurrency()
     {
-        $symbol = Auth::user()->currency_symbol;
-
-        return $symbol;
+        return Auth::user()->currency_symbol;
     }
 
     public function getState($country, $stateCode)
     {
         if (Auth::user()->country != 'IN') {
-            $state = State::where('country_code', $country)->where('iso2', $stateCode)->pluck('state_subdivision_name')->first();
-        } else {
-            $state = TaxByState::where('state_code', Auth::user()->state)->pluck('state')->first();
+            return State::where('country_code', $country)->where('iso2', $stateCode)->pluck('state_subdivision_name')->first();
         }
 
-        return $state;
+        return TaxByState::where('state_code', Auth::user()->state)->pluck('state')->first();
     }
 
     public function afterPayment(Request $request)
@@ -112,14 +114,14 @@ class RazorpayController extends Controller
                 Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
 
                 return redirect('checkout')->with($result['status'], $result['message']);
-            } else {
-                $control = new RenewController();
-                if ($control->checkRenew($invoice->is_renewed) != true) {
-                    return redirect('checkout')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
-                } else {
-                    return redirect('paynow/'.$invoice->id)->with('fails', 'Your Payment was declined. Please try with another card or gateway');
-                }
             }
+
+            $control = new RenewController();
+            if (!$control->checkRenew($invoice->is_renewed)) {
+                return redirect('checkout')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
+            }
+
+            return redirect('paynow/'.$invoice->id)->with('fails', 'Your Payment was declined. Please try with another card or gateway');
         } catch (Exception) {
             return redirect('checkout')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
         }
@@ -134,7 +136,7 @@ class RazorpayController extends Controller
      * ->id and ->raw['short_url']. $cost is already in minor units; start_at /
      * expire_by are derived here from the subscription's current period.
      */
-    public function handleRzpAutoPay($cost, $days, $product_name, $invoice, $currency, $subscription, $user, $order, $endDate, $productDetails)
+    public function handleRzpAutoPay($cost, $days, $product_name, $invoice, $currency, $subscription, $user, $order, $endDate, $productDetails): \App\Plugins\Payment\Dto\SubscriptionResult
     {
         return resolve(SubscriptionService::class)->createSubscription('Razorpay', new SubscriptionRequest(
             amountMinor: (int) $cost,

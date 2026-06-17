@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     '2fa_setup' => 'Configura la verifica in 2 passaggi',
@@ -50,7 +52,7 @@ return [
     'comments' => 'Commenti',
     'confirm_password' => 'Conferma password',
     'copy' => 'Copia',
-    'copyright' => 'Diritti d\'autore',
+    'copyright' => "Diritti d'autore",
     'create_banned_host' => 'Crea host bloccato',
     'created_at' => 'Creato il',
     'create_license' => 'Crea licenza',
@@ -243,7 +245,7 @@ return [
     'support_expiry' => 'Scadenza supporto',
     'to_continue_first_verify' => 'Per continuare, verifica prima la tua identità',
     'turn_off' => 'DISATTIVA',
-    'turn_off_authenticator' => 'Disattivazione dell\'autenticazione a due fattori',
+    'turn_off_authenticator' => "Disattivazione dell'autenticazione a due fattori",
     'turn_off_authenticator_setup' => 'La disattivazione della verifica in 2 passaggi rimuoverà la sicurezza aggiuntiva dal tuo account e userai solo la password per accedere.',
     'turn_on' => 'ATTIVA',
     'url_error' => 'Errore URL',
@@ -257,12 +259,12 @@ return [
     'upgrades_count' => 'Conteggio upgrade',
     'user' => 'Utente',
     'user_email_is_verified' => 'L\'indirizzo email dell\'utente è verificato',
-    'user_email_not_verified' => 'L\'utente non ha verificato l\'indirizzo email',
-    'user_enabled_2fa' => 'L\'utente ha abilitato il 2FA',
+    'user_email_not_verified' => "L'utente non ha verificato l'indirizzo email",
+    'user_enabled_2fa' => "L'utente ha abilitato il 2FA",
     'user_mobile_is_verified' => 'Il numero di telefono dell\'utente è verificato',
-    'user_mobile_not_verified' => 'L\'utente non ha verificato il numero di telefono',
+    'user_mobile_not_verified' => "L'utente non ha verificato il numero di telefono",
     'user_name' => 'Nome utente',
-    'user_not_enabled_2fa' => 'L\'utente non ha abilitato il 2FA',
+    'user_not_enabled_2fa' => "L'utente non ha abilitato il 2FA",
     'validate' => 'Valida',
     'verify' => 'Verifica',
     'version' => 'Versione',
@@ -295,5 +297,5 @@ return [
     'view_whitelist_ip' => 'Elenco delle API nella whitelist',
     'whitelist_add' => 'IP nella whitelist aggiunto con successo',
     'whitelist_update' => 'IP nella whitelist aggiornato con successo',
-    'you_are_all_set_from_now_on_you_will_use_authenticator_to_sign_in_to_your_account' => 'Tutto pronto. D\'ora in poi utilizzerai l\'Autenticatore per accedere al tuo account Gestore Licenze.',
+    'you_are_all_set_from_now_on_you_will_use_authenticator_to_sign_in_to_your_account' => "Tutto pronto. D'ora in poi utilizzerai l'Autenticatore per accedere al tuo account Gestore Licenze.",
 ];

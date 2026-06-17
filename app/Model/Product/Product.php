@@ -76,29 +76,29 @@ class Product extends BaseModel
             'group' => ['Product Group', fn ($value) => $value ? ProductGroup::find($value)?->name : 'No Group'],
             'file' => ['Product File', fn ($value) => $value],
             'image' => ['Product Image', fn ($value) => $value],
-            'require_domain' => ['Require Domain', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+            'require_domain' => ['Require Domain', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
             'category' => ['Category', fn ($value) => $value],
-            'can_modify_agent' => ['Can Modify Agent', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'can_modify_quantity' => ['Can Modify Quantity', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'show_agent' => ['Show Agent', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'tax_apply' => ['Tax Apply', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'show_product_quantity' => ['Show Product Quantity', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'hidden' => ['Hidden', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'auto_terminate' => ['Auto Terminate', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'setup_order_placed' => ['Setup on Order Placed', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'setup_first_payment' => ['Setup on First Payment', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'setup_accept_manually' => ['Setup Accept Manually', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'no_auto_setup' => ['No Auto Setup', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+            'can_modify_agent' => ['Can Modify Agent', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'can_modify_quantity' => ['Can Modify Quantity', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'show_agent' => ['Show Agent', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'tax_apply' => ['Tax Apply', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'show_product_quantity' => ['Show Product Quantity', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'hidden' => ['Hidden', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'auto_terminate' => ['Auto Terminate', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'setup_order_placed' => ['Setup on Order Placed', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'setup_first_payment' => ['Setup on First Payment', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'setup_accept_manually' => ['Setup Accept Manually', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'no_auto_setup' => ['No Auto Setup', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
             'shoping_cart_link' => ['Shopping Cart Link', fn ($value) => $value],
             'process_url' => ['Process URL', fn ($value) => $value],
             'github_owner' => ['GitHub Owner', fn ($value) => $value],
             'github_repository' => ['GitHub Repository', fn ($value) => $value],
-            'deny_after_subscription' => ['Deny After Subscription', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+            'deny_after_subscription' => ['Deny After Subscription', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
             'version' => ['Version', fn ($value) => $value],
             'subscription' => ['Subscription', fn ($value) => $value],
             'product_sku' => ['Product SKU', fn ($value) => $value],
-            'perpetual_license' => ['Perpetual License', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'invoice_hidden' => ['Hide on Invoice', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+            'perpetual_license' => ['Perpetual License', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
+            'invoice_hidden' => ['Hide on Invoice', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
         ];
     }
 
@@ -159,28 +159,25 @@ class Product extends BaseModel
         return parent::delete();
     }
 
-    protected function getImageAttribute($value)
+    protected function image(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        if (! $value) {
-            $image = asset('common/images/image.png');
-        } else {
-            $image = Attach::getUrlPath('common/images/'.$value);
-        }
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
+            if (! $value) {
+                return asset('common/images/image.png');
+            }
 
-        return $image;
+            return Attach::getUrlPath('common/images/'.$value);
+        });
     }
 
-    protected function setParentAttribute($value)
+    protected function parent(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        $value = implode(',', $value);
-        $this->attributes['parent'] = $value;
-    }
-
-    protected function getParentAttribute($value)
-    {
-        $value = explode(',', (string) $value);
-
-        return $value;
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value): array {
+            return explode(',', (string) $value);
+        }, set: function ($value): array {
+            $value = implode(',', $value);
+            return ['parent' => $value];
+        });
     }
 
     public function planRelation()
@@ -197,9 +194,7 @@ class Product extends BaseModel
 
     public function plan()
     {
-        $plan = $this->planRelation()->first();
-
-        return $plan;
+        return $this->planRelation()->first();
     }
 
     // Define the relationship with ProductPluginGroup (as product)

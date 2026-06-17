@@ -52,7 +52,7 @@ class Invoice extends BaseModel
             'currency' => ['Currency', fn ($value) => $value],
             'status' => ['Status', fn ($value) => $value],
             'description' => ['Description', fn ($value) => $value],
-            'is_renewed' => ['Is Renewed', fn ($value) => $value === 1 ? 'Yes' : 'No'],
+            'is_renewed' => ['Is Renewed', fn ($value): string => $value === 1 ? 'Yes' : 'No'],
             'processing_fee' => ['Processing Fee', fn ($value) => $value],
             'billing_pay' => ['Billing Pay', fn ($value) => $value],
             'cloud_domain' => ['Cloud Domain', fn ($value) => $value],
@@ -109,9 +109,11 @@ class Invoice extends BaseModel
         return $this->hasMany(Payment::class);
     }
 
-    protected function getStatusAttribute($value)
+    protected function status(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return ucfirst((string) $value);
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value): string {
+            return ucfirst((string) $value);
+        });
     }
 
     #[Override]

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('display_name');
             $table->string('field_type')->nullable();
 
-            $table->boolean('is_mandatory')->default(false);
+            $table->boolean('is_mandatory')->default(value: false);
 
             $table->json('raw_metadata');
 

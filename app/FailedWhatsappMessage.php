@@ -12,24 +12,23 @@ class FailedWhatsappMessage extends Model
 
     protected $fillable = ['message'];
 
-    protected function setMessageAttribute($value)
+    protected function message(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        try {
-            $this->attributes['message'] = Crypt::encrypt($value);
-        } catch (DecryptException) {
-            // if encryption fails, store original value
-            $this->attributes['message'] = $value;
-        }
-    }
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+            try {
+                return Crypt::decrypt($value);
+            } catch (DecryptException) {
+                return $value;
+            }
+        }, set: function ($value): array {
+            try {
+                $this->attributes['message'] = Crypt::encrypt($value);
+            } catch (DecryptException) {
+                // if encryption fails, store original value
+                $this->attributes['message'] = $value;
+            }
 
-    protected function getMessageAttribute($value)
-    {
-        try {
-            $decrypted = Crypt::decrypt($value);
-
-            return $decrypted;
-        } catch (DecryptException) {
-            return $value;
-        }
+            return ['message' => $value];
+        });
     }
 }

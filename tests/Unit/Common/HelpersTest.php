@@ -10,14 +10,14 @@ use Tests\DBTestCase;
 
 class HelpersTest extends DBTestCase
 {
-    public function test_getTimeInLoggedInUserTimeZone_whenUserTimezoneIsPresent_shouldConsiderTimezoneAsUserTimezone()
+    public function test_getTimeInLoggedInUserTimeZone_whenUserTimezoneIsPresent_shouldConsiderTimezoneAsUserTimezone(): void
     {
         $this->getLoggedInUser('admin');
         $this->user->timezone()->updateOrCreate(['name' => 'Asia/Kolkata']);
         $this->assertEquals('Jan 1, 2001, 5:30 am', getTimeInLoggedInUserTimeZone(Date::now()->startOfMillennium()));
     }
 
-    public function test_getTimeInLoggedInUserTimeZone_cachesUserTimezoneForFiveSeconds()
+    public function test_getTimeInLoggedInUserTimeZone_cachesUserTimezoneForFiveSeconds(): void
     {
         $this->getLoggedInUser('admin');
 
@@ -26,14 +26,14 @@ class HelpersTest extends DBTestCase
         getTimeInLoggedInUserTimeZone(Date::now()->startOfMillennium());
     }
 
-    public function test_getDateHtml_whenDateTimeStringIsPassedAsNull_shouldReturnDash()
+    public function test_getDateHtml_whenDateTimeStringIsPassedAsNull_shouldReturnDash(): void
     {
         $this->getLoggedInUser('admin');
 
-        $this->assertEquals('--', getDateHtml(null));
+        $this->assertEquals('--', getDateHtml());
     }
 
-    public function test_getDateHtml_whenValidDateTimeStringIsPassedAsNull_shouldReturnFormattedDateInHTMLForm()
+    public function test_getDateHtml_whenValidDateTimeStringIsPassedAsNull_shouldReturnFormattedDateInHTMLForm(): void
     {
         $this->getLoggedInUser('admin');
 
@@ -41,10 +41,10 @@ class HelpersTest extends DBTestCase
 
         $expectedDateTime = $now->clone()->setTimezone('Asia/Kolkata')->format('M j, Y, g:i a');
         $expectedDate = $now->clone()->setTimezone('Asia/Kolkata')->format('M j, Y');
-        $this->assertEquals("<label data-toggle='tooltip'style='font-weight:500; margin: 0px' data-placement='top' title='$expectedDateTime'>$expectedDate</label>", getDateHtml($now->toDateTimeString()));
+        $this->assertEquals(sprintf("<label data-toggle='tooltip'style='font-weight:500; margin: 0px' data-placement='top' title='%s'>%s</label>", $expectedDateTime, $expectedDate), getDateHtml($now->toDateTimeString()));
     }
 
-    public function test_bifurcateTax_whenIntraStateTaxPassed_returnsArrayOfTaxAndValue()
+    public function test_bifurcateTax_whenIntraStateTaxPassed_returnsArrayOfTaxAndValue(): void
     {
         $this->getLoggedInUser();
         $this->user->country = 'IN';
@@ -54,7 +54,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals($a, ['html' => 'CGST@9%<br>SGST@9%', 'tax' => '₹90.00<br>₹90.00']);
     }
 
-    public function test_bifurcateTax_whenInterStateTaxPassed_returnsArrayOfTaxAndValue()
+    public function test_bifurcateTax_whenInterStateTaxPassed_returnsArrayOfTaxAndValue(): void
     {
         $this->getLoggedInUser();
         $this->user->country = 'IN';
@@ -64,7 +64,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals($a, ['html' => 'IGST@18%', 'tax' => '₹180.00']);
     }
 
-    public function test_bifurcateTax_whenUnionTerretoryTaxPassed_returnsArrayOfTaxAndValue()
+    public function test_bifurcateTax_whenUnionTerretoryTaxPassed_returnsArrayOfTaxAndValue(): void
     {
         $this->getLoggedInUser();
         $this->user->country = 'IN';
@@ -74,7 +74,7 @@ class HelpersTest extends DBTestCase
         $this->assertEquals($a, ['html' => 'CGST@9%<br>UTGST@9%', 'tax' => '₹90.00<br>₹90.00']);
     }
 
-    public function test_bifurcateTax_whenUserFromOtherCountry_returnsArrayOfTaxAndValue()
+    public function test_bifurcateTax_whenUserFromOtherCountry_returnsArrayOfTaxAndValue(): void
     {
         $this->getLoggedInUser();
         $this->user->country = 'US';
@@ -107,7 +107,7 @@ class HelpersTest extends DBTestCase
     //     $this->assertEquals($currency['currency'], 'INR');
     // }
 
-    public function test_rounding_whenRoundingIsOn_returnsRoundedOffPrice()
+    public function test_rounding_whenRoundingIsOn_returnsRoundedOffPrice(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -115,12 +115,12 @@ class HelpersTest extends DBTestCase
         $this->assertEquals($price, '1000');
     }
 
-    public function test_rounding_whenRoundingIsOff_returnsPriceUptoTwoDecimalPlace()
+    public function test_rounding_whenRoundingIsOff_returnsPriceUptoTwoDecimalPlace(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $tax_rule = new TaxOption();
-        $rule = $tax_rule->findOrFail(1)->update(['rounding' => 0]);
+        $tax_rule->findOrFail(1)->update(['rounding' => 0]);
         $price = rounding('999.6677777');
         $this->assertEquals($price, '999.67');
     }

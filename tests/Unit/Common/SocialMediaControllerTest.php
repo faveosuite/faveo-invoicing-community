@@ -10,7 +10,7 @@ class SocialMediaControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -19,7 +19,7 @@ class SocialMediaControllerTest extends DBTestCase
         $this->withoutMiddleware();
     }
 
-    public function test_it_returns_social_media_list()
+    public function test_it_returns_social_media_list(): void
     {
         SocialMedia::create([
             'name' => 'facebook',
@@ -42,7 +42,7 @@ class SocialMediaControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_creates_social_media()
+    public function test_it_creates_social_media(): void
     {
         $payload = [
             'name' => 'twitter',
@@ -63,14 +63,14 @@ class SocialMediaControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_returns_single_social_media()
+    public function test_it_returns_single_social_media(): void
     {
         $social = SocialMedia::create([
             'name' => 'linkedin',
             'link' => 'https://linkedin.com',
         ]);
 
-        $response = $this->getJson("/social-media/show/{$social->id}");
+        $response = $this->getJson('/social-media/show/' . $social->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -79,7 +79,7 @@ class SocialMediaControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_returns_error_when_social_media_not_found()
+    public function test_it_returns_error_when_social_media_not_found(): void
     {
         $response = $this->getJson('/social-media/show/999');
 
@@ -90,7 +90,7 @@ class SocialMediaControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_updates_social_media()
+    public function test_it_updates_social_media(): void
     {
         $social = SocialMedia::create([
             'name' => 'instagram',
@@ -102,7 +102,7 @@ class SocialMediaControllerTest extends DBTestCase
             'link' => 'https://instagram.com/new',
         ];
 
-        $response = $this->patchJson("/social-media/update/{$social->id}", $payload);
+        $response = $this->patchJson('/social-media/update/' . $social->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -115,7 +115,7 @@ class SocialMediaControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_returns_error_when_updating_non_existing_social_media()
+    public function test_it_returns_error_when_updating_non_existing_social_media(): void
     {
         $response = $this->patchJson('/social-media/update/999', [
             'name' => 'test',
@@ -128,7 +128,7 @@ class SocialMediaControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_deletes_selected_social_media()
+    public function test_it_deletes_selected_social_media(): void
     {
         $social1 = SocialMedia::create(['name' => 'fb', 'link' => 'x']);
         $social2 = SocialMedia::create(['name' => 'tw', 'link' => 'y']);
@@ -146,7 +146,7 @@ class SocialMediaControllerTest extends DBTestCase
         $this->assertDatabaseMissing('social_media', ['id' => $social2->id]);
     }
 
-    public function test_it_returns_error_when_no_rows_selected_for_delete()
+    public function test_it_returns_error_when_no_rows_selected_for_delete(): void
     {
         $response = $this->deleteJson('/social-media/delete', [
             'select' => [],
@@ -158,14 +158,14 @@ class SocialMediaControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_fails_validation_when_creating_social_media_without_required_fields()
+    public function test_it_fails_validation_when_creating_social_media_without_required_fields(): void
     {
         $response = $this->postJson('/social-media/create', []);
 
         $response->assertStatus(422);
     }
 
-    public function test_it_filters_social_media_list_by_search_query()
+    public function test_it_filters_social_media_list_by_search_query(): void
     {
         SocialMedia::create([
             'name' => 'facebook',

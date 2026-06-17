@@ -14,7 +14,7 @@ class ZohoControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function test_it_adds_user_to_zoho_campaigns_successfully()
+    public function test_it_adds_user_to_zoho_campaigns_successfully(): void
     {
         $user = User::factory()->create(['email' => 'test@example.com']);
 
@@ -36,7 +36,7 @@ class ZohoControllerTest extends DBTestCase
         $controller->addUserToZoho($user);
     }
 
-    public function test_it_handles_campaigns_exception_gracefully()
+    public function test_it_handles_campaigns_exception_gracefully(): void
     {
         $user = User::factory()->create(['email' => 'test@example.com']);
 
@@ -57,7 +57,7 @@ class ZohoControllerTest extends DBTestCase
         $controller->addUserToZoho($user);
     }
 
-    public function test_it_handles_crm_exception_gracefully()
+    public function test_it_handles_crm_exception_gracefully(): void
     {
         $user = User::factory()->create(['email' => 'test@example.com']);
 

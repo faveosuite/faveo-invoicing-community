@@ -14,11 +14,11 @@ class Timezone extends BaseModel
 
     protected $appends = ['timezone_name'];
 
-    protected function getTimezoneNameAttribute()
+    protected function timezoneName(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        $extractGMT = explode(' ', $this->location);
-        $timezone = reset($extractGMT).' '.$this->name;
-
-        return $timezone;
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (): string {
+            $extractGMT = explode(' ', $this->location);
+            return reset($extractGMT).' '.$this->name;
+        });
     }
 }

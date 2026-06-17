@@ -45,8 +45,6 @@ class LoginController extends BaseAuthController
 
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -72,7 +70,7 @@ class LoginController extends BaseAuthController
 
             $social = SocialLogin::whereIn('type', ['google', 'github', 'twitter', 'linkedin'])
                 ->pluck('status', 'type')
-                ->map(fn ($s) => (int) $s)
+                ->map(fn ($s): int => (int) $s)
                 ->toArray();
 
             return successResponse('login-config', [
@@ -82,8 +80,8 @@ class LoginController extends BaseAuthController
                 'location' => $location,
                 'social' => $social,
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -119,7 +117,6 @@ class LoginController extends BaseAuthController
     /**
      * Handle a login request to the application.
      *
-     * @param  LoginRequest  $request
      * @return
      */
     public function login(LoginRequest $request) // 2. Type-hint the LoginRequest
@@ -131,7 +128,7 @@ class LoginController extends BaseAuthController
             // 2. Attempt to authenticate the user
             if (! Auth::attempt($credentials, $request->boolean('remember'))) {
                 $rateLimitKey = $this->getLoginRateLimitKey($request->input('email_username'));
-                RateLimiter::hit("login-attempt:{$rateLimitKey}", 600);
+                RateLimiter::hit('login-attempt:' . $rateLimitKey, 600);
 
                 return errorResponse(__('message.enter_valid_credentials'));
             }
@@ -154,8 +151,8 @@ class LoginController extends BaseAuthController
             $this->logActivityLogin($user);
 
             return successResponse('', ['redirect' => $this->redirectPath()]);
-        } catch(Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch(Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -214,7 +211,7 @@ class LoginController extends BaseAuthController
      *
      * @return string
      */
-    public function redirectPath()
+    public function redirectPath(): \Illuminate\Contracts\Routing\UrlGenerator|string
     {
         $auth = Auth::user();
 
@@ -240,9 +237,9 @@ class LoginController extends BaseAuthController
     {
         $details = SocialLogin::where('type', $provider)->first();
 
-        Config::set("services.$provider.redirect", $details->redirect_url);
-        Config::set("services.$provider.client_id", $details->client_id);
-        Config::set("services.$provider.client_secret", $details->client_secret);
+        Config::set(sprintf('services.%s.redirect', $provider), $details->redirect_url);
+        Config::set(sprintf('services.%s.client_id', $provider), $details->client_id);
+        Config::set(sprintf('services.%s.client_secret', $provider), $details->client_secret);
 
         //return Socialite::driver($provider)->redirect();
         return successResponse('success', ['url' => Socialite::driver($provider)->redirect()->getTargetUrl()]);
@@ -260,9 +257,9 @@ class LoginController extends BaseAuthController
     public function handler($provider)
     {
         $details = SocialLogin::where('type', $provider)->first();
-        Config::set("services.$provider.redirect", $details->redirect_url);
-        Config::set("services.$provider.client_id", $details->client_id);
-        Config::set("services.$provider.client_secret", $details->client_secret);
+        Config::set(sprintf('services.%s.redirect', $provider), $details->redirect_url);
+        Config::set(sprintf('services.%s.client_id', $provider), $details->client_id);
+        Config::set(sprintf('services.%s.client_secret', $provider), $details->client_secret);
 
         $githubUser = Socialite::driver($provider)->user();
         $location = getLocation();
@@ -274,11 +271,7 @@ class LoginController extends BaseAuthController
         if ($existingUser) {
             $existingUser->active = '1';
 
-            if ($existingUser->role == 'admin') {
-                $existingUser->role = 'admin';
-            } else {
-                $existingUser->role = 'user';
-            }
+            $existingUser->role = $existingUser->role == 'admin' ? 'admin' : 'user';
 
             $existingUser->save();
             $user = $existingUser;
@@ -323,10 +316,8 @@ class LoginController extends BaseAuthController
     /**
      * This function stores basic details for social logins.
      *
-     * @param  Request  $request
      * @param
      * @return
-     *
      * @throws
      */
     public function storeBasicDetails(Request $request)
@@ -349,8 +340,8 @@ class LoginController extends BaseAuthController
             $user->save();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -359,7 +350,6 @@ class LoginController extends BaseAuthController
      *
      * @param  $user
      * @param
-     * @return bool
      *
      * @throws
      */
@@ -373,14 +363,14 @@ class LoginController extends BaseAuthController
         switch ($context) {
             case 'login':
                 $identifier = $this->getLoginRateLimitKey($user->email ?? $user->username);
-                $keys = ["login-attempt:{$identifier}"];
+                $keys = ['login-attempt:' . $identifier];
                 break;
 
             case '2fa':
                 $identifier = $user->id;
                 $keys = [
-                    "2fa-code:{$user->id}",
-                    "recovery-code:{$user->id}",
+                    '2fa-code:' . $user->id,
+                    'recovery-code:' . $user->id,
                 ];
                 break;
 
@@ -392,8 +382,8 @@ class LoginController extends BaseAuthController
             RateLimiter::clear($key);
         }
 
-        Cache::forget("penalty_level:{$context}:{$identifier}");
-        Cache::forget("penalty_applied:{$context}:{$identifier}");
+        Cache::forget(sprintf('penalty_level:%s:%s', $context, $identifier));
+        Cache::forget(sprintf('penalty_applied:%s:%s', $context, $identifier));
     }
 
     public function logActivityLogin($user): void
@@ -402,10 +392,10 @@ class LoginController extends BaseAuthController
             return;
         }
 
-        $userUrl = url("clients/{$user->id}");
+        $userUrl = url('clients/' . $user->id);
 
         $name = e($user->first_name.' '.$user->last_name);
-        $message = "User <a href='{$userUrl}'><strong>{$name}</strong></a> logged in successfully.";
+        $message = sprintf("User <a href='%s'><strong>%s</strong></a> logged in successfully.", $userUrl, $name);
 
         logActivity(
             $message,

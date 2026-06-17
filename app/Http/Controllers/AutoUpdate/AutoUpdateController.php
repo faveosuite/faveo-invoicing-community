@@ -16,7 +16,7 @@ class AutoUpdateController extends Controller
     /*
     *  Add New Version
     */
-    public function addNewVersion($product_id, $version_number, $upgrade_zip_file, $version_status)
+    public function addNewVersion($product_id, $version_number, $upgrade_zip_file, $version_status): void
     {
         $this->versionService->create([
             'product_id' => $product_id,
@@ -29,7 +29,7 @@ class AutoUpdateController extends Controller
     /*
     *  Edit Version
     */
-    public function editVersion($version_number, $product_sku)
+    public function editVersion(string $version_number, $product_sku): void
     {
         $product = Product::where('product_sku', $product_sku)->first();
         if (! $product) {
@@ -37,7 +37,7 @@ class AutoUpdateController extends Controller
         }
 
         $version = $this->versionService->getVersionByNumber($product->id, $version_number);
-        if (! $version) {
+        if (!$version instanceof \App\Model\Product\ProductUpload) {
             throw new Exception(__('message.version_not_found'));
         }
 
@@ -48,7 +48,7 @@ class AutoUpdateController extends Controller
     /*
     *  Search Version
     */
-    public function searchVersion($version_number, $product_sku)
+    public function searchVersion(string $version_number, $product_sku): array
     {
         $product = Product::where('product_sku', $product_sku)->first();
         if (! $product) {
@@ -58,7 +58,7 @@ class AutoUpdateController extends Controller
         $version = $this->versionService->getVersionByNumber($product->id, $version_number);
 
         return [
-            'version_id' => $version ? $version->id : '',
+            'version_id' => $version instanceof \App\Model\Product\ProductUpload ? $version->id : '',
             'product_id' => $product->id,
         ];
     }

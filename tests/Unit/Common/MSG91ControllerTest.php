@@ -23,14 +23,14 @@ class MSG91ControllerTest extends DBTestCase
         $this->withoutMiddleware();
     }
 
-    public function test_validate_third_party_request_returns_false_for_invalid_credentials()
+    public function test_validate_third_party_request_returns_false_for_invalid_credentials(): void
     {
         $controller = new Msg91Controller();
 
         $this->assertFalse($controller->validateThirdPartyRequest('invalid', 'invalid'));
     }
 
-    public function test_validate_third_party_request_returns_true_when_app_and_api_key_exist()
+    public function test_validate_third_party_request_returns_true_when_app_and_api_key_exist(): void
     {
         $app = ThirdPartyApp::create([
             'app_name' => 'testkey',
@@ -47,7 +47,7 @@ class MSG91ControllerTest extends DBTestCase
         $this->assertTrue($controller->validateThirdPartyRequest('key123', 'secret123'));
     }
 
-    public function test_update_otp_request_creates_or_updates_record()
+    public function test_update_otp_request_creates_or_updates_record(): void
     {
         User::factory()->create(['id' => 42]);
 
@@ -88,7 +88,7 @@ class MSG91ControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_handle_reports_skips_if_validation_fails()
+    public function test_handle_reports_skips_if_validation_fails(): void
     {
         // Spy on DB transaction to ensure it's never called
         DB::shouldReceive('transaction')->never();
@@ -107,7 +107,7 @@ class MSG91ControllerTest extends DBTestCase
         $controller->handleReports($request, 'x', 'y');
     }
 
-    public function test_handle_reports_processes_each_report_and_calls_processIndividualReport()
+    public function test_handle_reports_processes_each_report_and_calls_processIndividualReport(): void
     {
         $app = ThirdPartyApp::create([
             'app_key' => 'k',
@@ -143,7 +143,7 @@ class MSG91ControllerTest extends DBTestCase
             ->toDateTimeString();
         $controller->shouldReceive('processIndividualReport')
             ->once()
-            ->with(Mockery::on(fn ($arg) => $arg['request_id'] === 'r1'
+            ->with(Mockery::on(fn ($arg): bool => $arg['request_id'] === 'r1'
                 && $arg['number'] === '555'
                 && $arg['status'] === 'DELIVRD'
                 && $arg['date'] === $expectedUtcDate));
@@ -220,7 +220,7 @@ class MSG91ControllerTest extends DBTestCase
         return MsgDeliveryReports::create(array_merge($defaults, $overrides));
     }
 
-    public function test_get_msg91_logs_returns_data()
+    public function test_get_msg91_logs_returns_data(): void
     {
         $this->createMsg91Log();
         $this->createMsg91Log();
@@ -232,10 +232,10 @@ class MSG91ControllerTest extends DBTestCase
                  ->assertJsonCount(2, 'data.logs.data');
     }
 
-    public function test_get_msg91_logs_search_filter()
+    public function test_get_msg91_logs_search_filter(): void
     {
         $user = User::factory()->create(['first_name' => 'Test', 'last_name' => 'User']);
-        $log = $this->createMsg91Log([
+        $this->createMsg91Log([
             'request_id' => 'REQ-123',
             'user_id' => $user->id,
         ]);
@@ -261,10 +261,10 @@ class MSG91ControllerTest extends DBTestCase
                   ->assertJsonCount(1, 'data.logs.data');
     }
 
-    public function test_msg91_filter_by_request_id()
+    public function test_msg91_filter_by_request_id(): void
     {
         //filter by request_id
-        $log = $this->createMsg91Log(['request_id' => 'REQ12345']);
+        $this->createMsg91Log(['request_id' => 'REQ12345']);
         $this->createMsg91Log();
 
         $response = $this->getJson('/sms/reports?request_id=REQ12345');
@@ -274,7 +274,7 @@ class MSG91ControllerTest extends DBTestCase
             ->assertJsonCount(1, 'data.logs.data');
     }
 
-    public function test_msg91_filter_by_full_name()
+    public function test_msg91_filter_by_full_name(): void
     {
         //filter by full_name
         $user = User::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
@@ -289,7 +289,7 @@ class MSG91ControllerTest extends DBTestCase
                  ->assertJsonCount(1, 'data.logs.data');
     }
 
-    public function test_msg91_filter_by_email()
+    public function test_msg91_filter_by_email(): void
     {
         //filter by email
         $user = User::factory()->create(['email' => 'john@example.com']);
@@ -301,7 +301,7 @@ class MSG91ControllerTest extends DBTestCase
             ->assertJsonFragment(['user_email' => 'john@example.com']);
     }
 
-    public function test_msg91_filter_by_mobile_and_country()
+    public function test_msg91_filter_by_mobile_and_country(): void
     {
         //filter by mobile_number and country_iso
         $this->createMsg91Log(['mobile_number' => '7894561230', 'country_iso' => 'US']);
@@ -314,7 +314,7 @@ class MSG91ControllerTest extends DBTestCase
             ->assertJsonCount(1, 'data.logs.data');
     }
 
-    public function test_msg91_filter_by_failure_reason()
+    public function test_msg91_filter_by_failure_reason(): void
     {
         //filter by failure_reason
         $this->createMsg91Log(['failure_reason' => 'Route not found']);
@@ -326,7 +326,7 @@ class MSG91ControllerTest extends DBTestCase
             ->assertJsonFragment(['failure_reason' => 'Route not found']);
     }
 
-    public function test_msg91_filter_by_single_date_range()
+    public function test_msg91_filter_by_single_date_range(): void
     {
         //filter by single date range (from and till are same)
         $this->createMsg91Log(['created_at' => now()->subDay()]);
@@ -341,7 +341,7 @@ class MSG91ControllerTest extends DBTestCase
                  ->assertJsonCount(1, 'data.logs.data');
     }
 
-    public function test_msg91_filter_by_multiple_date_range()
+    public function test_msg91_filter_by_multiple_date_range(): void
     {
         //filter by multiple date range (from and till are different)
         $log1 = $this->createMsg91Log();
@@ -363,7 +363,7 @@ class MSG91ControllerTest extends DBTestCase
                  ->assertJsonCount(3, 'data.logs.data');
     }
 
-    public function test_msg91_filter_by_without_give_till_date()
+    public function test_msg91_filter_by_without_give_till_date(): void
     {
         //filter by date range without giving till date
         $this->createMsg91Log();
@@ -379,12 +379,12 @@ class MSG91ControllerTest extends DBTestCase
                  ->assertJsonCount(3, 'data.logs.data');
     }
 
-    public function test_msg91_filters_all_conditions_together()
+    public function test_msg91_filters_all_conditions_together(): void
     {
         //filter by all conditions together
         $user = User::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
 
-        $log1 = $this->createMsg91Log([
+        $this->createMsg91Log([
             'user_id' => $user->id,
             'mobile_number' => '9876540000',
             'status' => 'DEL',
@@ -392,7 +392,7 @@ class MSG91ControllerTest extends DBTestCase
             'created_at' => now()->subDay(),
         ]);
 
-        $log2 = $this->createMsg91Log([
+        $this->createMsg91Log([
             'user_id' => $user->id,
             'mobile_number' => '9876540000',
             'status' => 'DEL',
@@ -410,7 +410,7 @@ class MSG91ControllerTest extends DBTestCase
             'log_till' => now()->toDateString(),
         ]);
 
-        $response = $this->getJson("/sms/reports?$qs");
+        $response = $this->getJson('/sms/reports?' . $qs);
 
         $response->assertStatus(200)
                  ->assertJsonCount(2, 'data.logs.data');

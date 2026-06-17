@@ -35,7 +35,7 @@ class CrmTest extends DBTestCase
         $this->crm = new Crm();
     }
 
-    public function test_it_retrieves_crm_module_fields()
+    public function test_it_retrieves_crm_module_fields(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -56,7 +56,7 @@ class CrmTest extends DBTestCase
         $this->assertInstanceOf(Collection::class, $fields);
     }
 
-    public function test_it_retrieves_crm_records()
+    public function test_it_retrieves_crm_records(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -73,7 +73,7 @@ class CrmTest extends DBTestCase
         $this->assertInstanceOf(Collection::class, $records);
     }
 
-    public function test_it_creates_crm_record()
+    public function test_it_creates_crm_record(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -88,10 +88,10 @@ class CrmTest extends DBTestCase
             'Email' => 'test@example.com',
         ]);
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'Accounts'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'Accounts'));
     }
 
-    public function test_it_updates_crm_record()
+    public function test_it_updates_crm_record(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -105,11 +105,11 @@ class CrmTest extends DBTestCase
             'Phone' => '1234567890',
         ]);
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'Contacts') &&
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'Contacts') &&
                str_contains((string) $request->url(), '123456'));
     }
 
-    public function test_it_deletes_crm_record()
+    public function test_it_deletes_crm_record(): void
     {
         Http::fake([
             '*' => Http::response([
@@ -121,11 +121,11 @@ class CrmTest extends DBTestCase
 
         $this->crm->delete('Leads', '789');
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'Leads') &&
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'Leads') &&
                str_contains((string) $request->url(), '789'));
     }
 
-    public function test_it_passes_params_to_records_query()
+    public function test_it_passes_params_to_records_query(): void
     {
         Http::fake([
             '*' => Http::response(['data' => []], 200),
@@ -133,6 +133,6 @@ class CrmTest extends DBTestCase
 
         $this->crm->records('Deals', ['per_page' => 50, 'page' => 2]);
 
-        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'Deals'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'Deals'));
     }
 }

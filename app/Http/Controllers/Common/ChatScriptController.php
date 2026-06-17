@@ -32,28 +32,26 @@ class ChatScriptController extends Controller
             $scripts = $this->script
                 ->select('id', 'name')
                 ->when($searchString, function ($query) use ($searchString): void {
-                    $query->where('name', 'like', "%{$searchString}%");
+                    $query->where('name', 'like', sprintf('%%%s%%', $searchString));
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $scripts->getCollection()->transform(fn ($script) => [
+            $scripts->getCollection()->transform(fn ($script): array => [
                 'id' => $script->id,
                 'name' => $script->name,
                 'checkbox' => $script->id,
-                'action' => hyperLinkGenerator("chat/show/{$script->id}", __('message.edit')),
+                'action' => hyperLinkGenerator('chat/show/' . $script->id, __('message.edit')),
             ]);
 
             return successResponse(__('message.scripts_fetched'), $scripts);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  Request  $request
      */
     public function createScript(Request $request)
     {
@@ -72,10 +70,10 @@ class ChatScriptController extends Controller
             $this->script->fill($request->all())->save();
 
             return successResponse(__('message.saved-successfully'));
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return errorResponse($ex->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -94,15 +92,14 @@ class ChatScriptController extends Controller
             }
 
             return successResponse(__('message.chat_fetched'), $chat);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  Request  $request
      * @param  int  $id
      */
     public function updateScript(Request $request, $id)
@@ -130,10 +127,10 @@ class ChatScriptController extends Controller
             $script->save();
 
             return successResponse(__('message.updated-successfully'), $script);
-        } catch (Exception $ex) {
-            Log::error($ex->getMessage());
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage());
 
-            return errorResponse($ex->getMessage(), 500);
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 
@@ -149,7 +146,7 @@ class ChatScriptController extends Controller
 
             $ids = array_filter(array_unique(array_map(intval(...), array_map(trim(...), $ids))));
 
-            if (empty($ids)) {
+            if ($ids === []) {
                 return errorResponse(__('message.select-a-row'), 400);
             }
 
@@ -166,8 +163,8 @@ class ChatScriptController extends Controller
             $this->script->whereIn('id', $ids)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage(), 500);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 }

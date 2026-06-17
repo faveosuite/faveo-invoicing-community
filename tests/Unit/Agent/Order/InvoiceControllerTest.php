@@ -31,7 +31,7 @@ class InvoiceControllerTest extends DBTestCase
         return $invoice;
     }
 
-    public function test_get_invoices_success()
+    public function test_get_invoices_success(): void
     {
         Invoice::factory()->count(4)->create();
 
@@ -53,7 +53,7 @@ class InvoiceControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_get_invoices_with_search_query()
+    public function test_get_invoices_with_search_query(): void
     {
         Invoice::factory()->create([
             'status' => 'success',
@@ -66,7 +66,7 @@ class InvoiceControllerTest extends DBTestCase
             ->assertJsonFragment(['number' => 'INV12345']);
     }
 
-    public function test_get_invoices_empty_list()
+    public function test_get_invoices_empty_list(): void
     {
         $response = $this->getJson('/invoices');
 
@@ -75,7 +75,7 @@ class InvoiceControllerTest extends DBTestCase
         $this->assertEquals(0, count($response->json('data.data')));
     }
 
-    public function test_delete_bulk_invoices_success()
+    public function test_delete_bulk_invoices_success(): void
     {
         $invoices = Invoice::factory()->count(3)->create();
         $ids = $invoices->pluck('id')->toArray();
@@ -92,7 +92,7 @@ class InvoiceControllerTest extends DBTestCase
         }
     }
 
-    public function test_delete_bulk_invoices_empty_ids()
+    public function test_delete_bulk_invoices_empty_ids(): void
     {
         $response = $this->deleteJson('/invoices', [
             'invoice_ids' => [],
@@ -102,7 +102,7 @@ class InvoiceControllerTest extends DBTestCase
             ->assertJsonFragment(['message' => __('message.select-a-row')]);
     }
 
-    public function test_get_invoice_success()
+    public function test_get_invoice_success(): void
     {
         $invoice = $this->createInvoiceWithItems();
 
@@ -127,14 +127,14 @@ class InvoiceControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_get_invoice_not_found()
+    public function test_get_invoice_not_found(): void
     {
         $response = $this->getJson('/invoice/999999');
 
         $response->assertStatus(400);
     }
 
-    public function test_get_invoice_user_suspended()
+    public function test_get_invoice_user_suspended(): void
     {
         $invoice = $this->createInvoiceWithItems();
         $invoice->user->delete();

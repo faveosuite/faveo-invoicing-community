@@ -12,16 +12,16 @@ class ReportControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->getLoggedInUser('admin');
     }
 
-    public function test_it_returns_all_reports()
+    public function test_it_returns_all_reports(): void
     {
-        $detail = ExportDetail::create([
+        ExportDetail::create([
             'user_id' => $this->user->id,
             'file' => 'report1.xlsx',
             'file_path' => storage_path('app/reports/report1.xlsx'),
@@ -48,7 +48,7 @@ class ReportControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_filters_reports_by_search()
+    public function test_it_filters_reports_by_search(): void
     {
         ExportDetail::create([
             'user_id' => $this->user->id,
@@ -61,7 +61,7 @@ class ReportControllerTest extends DBTestCase
         $this->assertStringContainsString('invoice_export.xlsx', $response->getContent());
     }
 
-    public function test_it_deletes_bulk_reports_successfully()
+    public function test_it_deletes_bulk_reports_successfully(): void
     {
         $folderName = 'users_export_'.auth()->id().'_'.now()->format('Ymd_His').'_XLSX';
         $folderPath = storage_path('app/public/export/'.$folderName);
@@ -93,7 +93,7 @@ class ReportControllerTest extends DBTestCase
         Storage::disk('system')->assertMissing('export/'.$folderName);
     }
 
-    public function test_it_returns_error_if_bulk_delete_has_no_ids()
+    public function test_it_returns_error_if_bulk_delete_has_no_ids(): void
     {
         $response = $this->deleteJson('/reports', [
             'select' => [],
@@ -105,7 +105,7 @@ class ReportControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_returns_report_settings()
+    public function test_it_returns_report_settings(): void
     {
         ReportSetting::updateOrCreate(['id' => 1], [
             'records' => 100,
@@ -118,7 +118,7 @@ class ReportControllerTest extends DBTestCase
             ->assertJsonFragment(['records' => '100']);
     }
 
-    public function test_it_updates_report_settings()
+    public function test_it_updates_report_settings(): void
     {
         $setting = ReportSetting::updateOrCreate(['id' => 1], [
             'records' => 50,
@@ -139,7 +139,7 @@ class ReportControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_fails_validation_when_records_invalid()
+    public function test_it_fails_validation_when_records_invalid(): void
     {
         ReportSetting::create();
 

@@ -74,7 +74,7 @@ trait AflCallbackHelpers
      */
     protected function getRawDomain(?string $url): string
     {
-        if (empty($url)) {
+        if (in_array($url, [null, '', '0'], strict: true)) {
             return '';
         }
 
@@ -93,7 +93,7 @@ trait AflCallbackHelpers
      */
     protected function getInstallationDomain(?string $url): string
     {
-        if (empty($url) || ! filter_var($url, FILTER_VALIDATE_URL)) {
+        if (in_array($url, [null, '', '0'], strict: true) || ! filter_var($url, FILTER_VALIDATE_URL)) {
             return $this->getRawDomain($url);
         }
 

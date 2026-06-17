@@ -23,11 +23,9 @@ class RouteServiceProvider extends ServiceProvider
 
     /**
      * Define your route model bindings, pattern filters, etc.
-     *
-     * @return void
      */
     #[Override]
-    public function boot()
+    public function boot(): void
     {
         $this->configureRateLimiting();
 
@@ -59,11 +57,11 @@ class RouteServiceProvider extends ServiceProvider
 
         if (isV3Api()) {
             $this->setV3ApiConfiguration();
-
             $routeConfig['prefix'] = 'v3';
-            array_push($middlewares, 'api', 'force.json');
+            $middlewares[] = 'api';
+            $middlewares[] = 'force.json';
         } else {
-            array_push($middlewares, 'web');
+            $middlewares[] = 'web';
         }
 
         $routeConfig['middleware'] = $middlewares;
@@ -75,10 +73,8 @@ class RouteServiceProvider extends ServiceProvider
 
     /**
      * Sets up version 3 authentication coonfiguration.
-     *
-     * @return null
      */
-    private function setV3ApiConfiguration()
+    private function setV3ApiConfiguration(): void
     {
         // if v3 is given, we will set a api guard
         Config::set('auth.defaults.guard', 'api');
@@ -128,7 +124,7 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
 
         // Web Rate Limiting
-        RateLimiter::for('web', function (Request $request) {
+        RateLimiter::for('web', function (Request $request): array {
             $maxAttempts = 600;
             $limits = [];
 
@@ -142,19 +138,19 @@ class RouteServiceProvider extends ServiceProvider
 
             if ($ip = $request->ip()) {
                 $limits[] = Limit::perMinute($maxAttempts)
-                    ->by("web:ip:{$ip}")
+                    ->by('web:ip:' . $ip)
                     ->response($customResponse);
             }
 
             if ($userId = $request->user()?->id) {
                 $limits[] = Limit::perMinute($maxAttempts)
-                    ->by("web:user:{$userId}")
+                    ->by('web:user:' . $userId)
                     ->response($customResponse);
             }
 
             if ($sessionId = $request->session()->getId()) {
                 $limits[] = Limit::perMinute($maxAttempts)
-                    ->by("web:session:{$sessionId}")
+                    ->by('web:session:' . $sessionId)
                     ->response($customResponse);
             }
 

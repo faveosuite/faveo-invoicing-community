@@ -30,16 +30,16 @@ class ClientFooterGeneralTest extends DBTestCase
     }
 
     #[Group('demo')]
-    public function test_request_demo_required_field_not_given()
+    public function test_request_demo_required_field_not_given(): void
     {
-        $user = User::factory()->create();
+        User::factory()->create();
         $this->withoutMiddleware();
         $response = $this->call('POST', 'demo-request');
         $response->assertSessionHasErrors('demoname', 'The name field is required');
     }
 
     #[Group('demo')]
-    public function test_request_demo_fields_are_given()
+    public function test_request_demo_fields_are_given(): void
     {
         $this->withoutMiddleware();
         $response = $this->call('POST', 'demo-request', ['demoname' => 'test',
@@ -56,7 +56,7 @@ class ClientFooterGeneralTest extends DBTestCase
     }
 
     #[Group('demo')]
-    public function test_request_demo_spam_detected()
+    public function test_request_demo_spam_detected(): void
     {
         $this->withoutMiddleware();
         $response = $this->call('POST', 'demo-request', ['demoname' => 'test',
@@ -74,7 +74,7 @@ class ClientFooterGeneralTest extends DBTestCase
     }
 
     #[Group('demo')]
-    public function test_request_demo_when_spam_name_given()
+    public function test_request_demo_when_spam_name_given(): void
     {
         $this->withoutMiddleware();
         $response = $this->call('POST', 'demo-request', ['demoname' => 'test',
@@ -91,7 +91,7 @@ class ClientFooterGeneralTest extends DBTestCase
     }
 
     #[Group('trial')]
-    public function test_start_free_trial_domain_is_wrong()
+    public function test_start_free_trial_domain_is_wrong(): void
     {
         $this->withoutMiddleware();
         $response = $this->call('POST', 'first-login', ['domain' => 'test@123.com']);
@@ -99,7 +99,7 @@ class ClientFooterGeneralTest extends DBTestCase
     }
 
     #[Group('trial')]
-    public function test_start_free_trial_tenant_not_created()
+    public function test_start_free_trial_tenant_not_created(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -107,8 +107,8 @@ class ClientFooterGeneralTest extends DBTestCase
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 13]);
         PlanPrice::create(['plan_id' => $plan->id, 'add_price' => '1000', 'currency' => 'USD']);
-        $cloudProduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name]);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name]);
+        Invoice::factory()->create(['user_id' => $user->id]);
         $response = $this->call('POST', 'first-login', ['domain' => 'test', 'id' => $user->id, 'product' => $product->name]);
         $content = $response->json();
 
@@ -116,7 +116,7 @@ class ClientFooterGeneralTest extends DBTestCase
     }
 
     #[Group('trial')]
-    public function test_start_free_trial_tenant_created()
+    public function test_start_free_trial_tenant_created(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -124,11 +124,12 @@ class ClientFooterGeneralTest extends DBTestCase
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 15]);
         PlanPrice::create(['plan_id' => $plan->id, 'add_price' => '1000', 'currency' => 'USD']);
-        $cloudProduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name]);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name]);
+        Invoice::factory()->create(['user_id' => $user->id]);
         $tenantControllerMock = Mockery::mock(TenantController::class);
         $requestMock = Mockery::mock(Request::class);
         $requestMock->domain = 'example.com';
+
         $request = new Request([
             'domain' => 'test',
             'id' => $user->id,
@@ -146,15 +147,15 @@ class ClientFooterGeneralTest extends DBTestCase
     }
 
     #[Group('trial')]
-    public function test_free_trial_attempt_more_then_one()
+    public function test_free_trial_attempt_more_then_one(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 15]);
-        $cloudProduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name]);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name]);
+        Invoice::factory()->create(['user_id' => $user->id]);
         DB::table('free_trial_allowed')->insert([
             'id' => 1,
             'user_id' => $user->id,
@@ -169,19 +170,19 @@ class ClientFooterGeneralTest extends DBTestCase
 
         $response = $this->call('POST', 'first-login', ['domain' => 'test', 'id' => $user->id, 'product' => $product->name]);
         $content = $response->json();
-        $this->assertEquals($content['success'], false);
+        $this->assertEquals($content['success'], actual: false);
         $this->assertEquals($content['message'], 'It has come to our notice that you have crossed the free trial limit, please delete your existing instances to proceed further.');
     }
 
     #[Group('group')]
-    public function test_master_group_display()
+    public function test_master_group_display(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $template = PricingTemplate::create(['data' => 'good']);
         $group1 = ProductGroup::create(['name' => 'Helpdesk Advance group', 'pricing_templates_id' => $template->id, 'hidden' => 0]);
-        $group2 = ProductGroup::create(['name' => 'Service Advance group', 'pricing_templates_id' => $template->id, 'hidden' => 0]);
+        ProductGroup::create(['name' => 'Service Advance group', 'pricing_templates_id' => $template->id, 'hidden' => 0]);
         $response = $this->call('POST', 'available-groups');
         $this->assertEquals($response['message'], 'Success');
         $data = $response['data'][$group1->id];

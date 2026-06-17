@@ -45,7 +45,7 @@ class Install extends LoggableCommand
      *
      * @return void
      */
-    protected $install;
+    protected \App\Http\Controllers\BillingInstaller\InstallerController $install;
 
     public function __construct()
     {
@@ -55,10 +55,8 @@ class Install extends LoggableCommand
 
     /**
      * Execute the console command.
-     *
-     * @return void
      */
-    public function handleAndLog()
+    public function handleAndLog(): void
     {
         try {
             $this->displayArtLogo();
@@ -106,21 +104,18 @@ class Install extends LoggableCommand
             $this->info('');
             $this->call('preinstall:check');
             $this->maybeInstallDb();
-        } catch (Exception $ex) {
-            $this->error($ex->getMessage());
+        } catch (Exception $exception) {
+            $this->error($exception->getMessage());
         }
     }
 
     /**
      * Removes trailing slash from the url.
-     *
-     * @param  string  $url
-     * @return string
      */
     public function formatAppUrl(string $url): string
     {
         if (Str::finish($url, '/')) {
-            $url = rtrim($url, '/ ');
+            return rtrim($url, '/ ');
         }
 
         return $url;
@@ -134,7 +129,7 @@ class Install extends LoggableCommand
     public function appEnv()
     {
         // Load extension details from billing-dependencies.json
-        $dependencies = json_decode(file_get_contents(storage_path('billing-dependencies.json')), true);
+        $dependencies = json_decode(file_get_contents(storage_path('billing-dependencies.json')), associative: true);
         $requiredExtensions = $dependencies['extensions']['required'];
         $minPhpVersion = $dependencies['min_php_version'];
 
@@ -188,10 +183,8 @@ class Install extends LoggableCommand
 
     /**
      * Display Faveo's ASCII art logo in CLI.
-     *
-     * @return void
      */
-    public function displayArtLogo()
+    public function displayArtLogo(): void
     {
         $this->line("
                                  _____                 _      _             
@@ -208,7 +201,7 @@ class Install extends LoggableCommand
     /**
      * Handle the application URL input.
      */
-    public function handleAppUrl()
+    public function handleAppUrl(): void
     {
         $url = $this->option('appurl') ?: $this->ask('Enter your app URL (with only https)');
         $this->appUrl = $this->formatAppUrl($url);
@@ -217,7 +210,7 @@ class Install extends LoggableCommand
     /**
      * Collect database credentials from user input or command options.
      */
-    public function collectDatabaseCredentials()
+    public function collectDatabaseCredentials(): void
     {
         $allowedEngines = ['mysql'];
         $this->default = in_array($this->option('sqlengine'), $allowedEngines)
@@ -227,17 +220,17 @@ class Install extends LoggableCommand
         $this->dbname = $this->option('dbname') ?: $this->ask('Enter your database name');
         $this->dbuser = $this->option('dbuser') ?: $this->ask('Enter your database username');
         $this->dbpass = $this->option('dbpass') ?: $this->ask('Enter your database password');
-        $this->port = $this->option('sqlport') ?? $this->ask('Enter your SQL port (leave blank if none)', null);
+        $this->port = $this->option('sqlport') ?? $this->ask('Enter your SQL port (leave blank if none)');
     }
 
     /**
      *  Configure SSL options for the database connection.
-     *
-     * @return void
      */
-    public function configureSslOptions()
+    public function configureSslOptions(): void
     {
-        $this->sslKey = $this->sslCert = $this->sslCa = null;
+        $this->sslKey = null;
+        $this->sslCert = null;
+        $this->sslCa = null;
         $this->sslVerify = false;
 
         //If want ssl connection enabled then uncomment below code
@@ -254,10 +247,8 @@ class Install extends LoggableCommand
 
     /**
      *  Maybe install the database and run migrations.
-     *
-     * @return void
      */
-    public function maybeInstallDb()
+    public function maybeInstallDb(): void
     {
         $options = [
             'migrate', 'dummy', 'env',

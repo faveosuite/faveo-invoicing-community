@@ -20,7 +20,7 @@ class ProfileTest extends DBTestCase
         self::getLoggedInUser();
     }
 
-    public function test_postProfile_successful_update()
+    public function test_postProfile_successful_update(): void
     {
         Storage::fake('local');
 
@@ -44,7 +44,7 @@ class ProfileTest extends DBTestCase
         ]);
     }
 
-    public function test_postProfile_validation_failure()
+    public function test_postProfile_validation_failure(): void
     {
         $response = $this->patchJson('/my-profile', [
             'email' => 'invalid-email',
@@ -61,7 +61,7 @@ class ProfileTest extends DBTestCase
         ]);
     }
 
-    public function test_postPassword_successful_update()
+    public function test_postPassword_successful_update(): void
     {
         $this->user->update(['password' => Hash::make('oldpassword')]);
         $response = $this->patchJson('/my-password', [
@@ -74,7 +74,7 @@ class ProfileTest extends DBTestCase
         $this->assertTrue(Hash::check('Newpassword@123', $this->user->fresh()->password));
     }
 
-    public function test_postPassword_incorrect_old_password()
+    public function test_postPassword_incorrect_old_password(): void
     {
         $response = $this->patchJson('/my-password', [
             'old_password' => 'wrongpassword',
@@ -86,7 +86,7 @@ class ProfileTest extends DBTestCase
         $response->assertJson(['message' => 'Incorrect old password']);
     }
 
-    public function test_postPassword_with_short_new_password()
+    public function test_postPassword_with_short_new_password(): void
     {
         $response = $this->patchJson('/my-password', [
             'old_password' => 'oldpassword',
@@ -99,7 +99,7 @@ class ProfileTest extends DBTestCase
         ]);
     }
 
-    public function test_my_profile_successful_update()
+    public function test_my_profile_successful_update(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -118,7 +118,7 @@ class ProfileTest extends DBTestCase
             'success', 'message']);
     }
 
-    public function test_when_mandatory_field_not_filled()
+    public function test_when_mandatory_field_not_filled(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -134,7 +134,7 @@ class ProfileTest extends DBTestCase
         $response->assertSessionHasErrors(['first_name' => 'First name is required.']);
     }
 
-    public function test_when_email_already_present()
+    public function test_when_email_already_present(): void
     {
         $user1 = User::factory()->create(['email' => 'santhanu@gmail.com']);
         $user = User::factory()->create();
@@ -152,7 +152,7 @@ class ProfileTest extends DBTestCase
         $response->assertSessionHasErrors(['email' => 'The email address has already been taken. Please choose a different email.']);
     }
 
-    public function test_when_2fa_update_recovery_code()
+    public function test_when_2fa_update_recovery_code(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -162,11 +162,11 @@ class ProfileTest extends DBTestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success', 'message']);
-        $this->assertEquals(true, $content['success']);
-        $this->assertTrue(20 == strlen((string) $content['message']['code']));
+        $this->assertEquals(expected: true, actual: $content['success']);
+        $this->assertTrue(20 === strlen((string) $content['message']['code']));
     }
 
-    public function test_when_2fa_verify_password()
+    public function test_when_2fa_verify_password(): void
     {
         $user = User::factory()->create(['password' => Hash::make('password')]);
         $this->actingAs($user);
@@ -177,7 +177,7 @@ class ProfileTest extends DBTestCase
             'success', 'message']);
     }
 
-    public function test_when_password_is_wrong()
+    public function test_when_password_is_wrong(): void
     {
         $user = User::factory()->create(['password' => Hash::make('password')]);
         $this->actingAs($user);

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('subscriptions', function (Blueprint $table): void {
-            $table->boolean('is_deleted')->default(false);
+            $table->boolean('is_deleted')->default(value: false);
         });
     }
 

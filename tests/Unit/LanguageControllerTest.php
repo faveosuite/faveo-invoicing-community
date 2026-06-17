@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -9,7 +11,7 @@ class LanguageControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -18,13 +20,13 @@ class LanguageControllerTest extends DBTestCase
         $this->withoutMiddleware();
     }
 
-    public function test_get_languages_success()
+    public function test_get_languages_success(): void
     {
         $response = $this->getJson('languages');
         $response->assertStatus(200);
     }
 
-    public function test_applies_search_filter_in_languages()
+    public function test_applies_search_filter_in_languages(): void
     {
         // Search by tamil
         $tamil = $this->getJson('/languages?search-query=tamil');
@@ -47,7 +49,7 @@ class LanguageControllerTest extends DBTestCase
                 ->assertJsonMissing(['name' => 'French']);
     }
 
-    public function test_updates_language_status_successfully()
+    public function test_updates_language_status_successfully(): void
     {
         // Update Language
         $payload = [
@@ -66,7 +68,7 @@ class LanguageControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_fails_toggle_language_status_validation()
+    public function test_fails_toggle_language_status_validation(): void
     {
         // Check the Missing locale
         $response = $this->postJson('/language-toggle', [
@@ -81,7 +83,7 @@ class LanguageControllerTest extends DBTestCase
                   ]);
     }
 
-    public function test_returns_error_if_language_not_found()
+    public function test_returns_error_if_language_not_found(): void
     {
         // Update Language with invalid locale
         $payload = [

@@ -38,26 +38,59 @@ class ProductController extends BaseProductController
 {
     use ChunkUpload;
 
+    /**
+     * @var \App\Model\Product\Product
+     */
     public $product;
 
+    /**
+     * @var \App\Model\Product\Price
+     */
     public $price;
 
+    /**
+     * @var \App\Model\License\LicenseType
+     */
     public $type;
 
+    /**
+     * @var \App\Model\Product\Subscription
+     */
     public $subscription;
 
+    /**
+     * @var \App\Model\Payment\Currency
+     */
     public $currency;
 
+    /**
+     * @var \App\Model\Product\ProductGroup
+     */
     public $group;
 
+    /**
+     * @var \App\Model\Payment\Plan
+     */
     public $plan;
 
+    /**
+     * @var \App\Model\Payment\Tax
+     */
     public $tax;
 
+    /**
+     * @var \App\Model\Payment\TaxProductRelation
+     */
     public $tax_relation;
 
+    /**
+     * @var \App\Model\Payment\TaxClass
+     */
     public $tax_class;
 
+    /**
+     * @var \App\Model\Product\ProductUpload
+     */
     public $product_upload;
 
     public function __construct()
@@ -140,10 +173,10 @@ class ProductController extends BaseProductController
             $this->product->where('id', $product_id->id)->update(['version' => $request->input('version')]);
 
             return successResponse(__('message.product_uploaded_successfully'));
-        } catch (Exception $e) {
-            Logger::exception($e);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return errorResponse($e->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -175,38 +208,14 @@ class ProductController extends BaseProductController
             }
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse(__('message.errors_occurs_delete_product').$e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse(__('message.errors_occurs_delete_product').$exception->getMessage());
         }
     }
 
-    public function getSubscriptionCheckScript()
+    public function getSubscriptionCheckScript(): void
     {
-        $response = "<script>
-        function getPrice(val) {
-            var user = document.getElementsByName('user')[0].value;
-            var plan = '';
-            if ($('#plan').length > 0) {
-                var plan = document.getElementsByName('plan')[0].value;
-            }
-            //var plan = document.getElementsByName('plan')[0].value;
-            //alert(user);
-
-            $.ajax({
-                type: 'POST',
-                url: ".url('get-price').",
-                data: {'product': val, 'user': user,'plan':plan},
-                //data: 'product=' + val+'user='+user,
-                success: function (data) {
-                    var price = data['price'];
-                    var field = data['field'];
-                    $('#price').val(price);
-                    $('#fields').append(field);
-                }
-            });
-        }
-
-    </script>";
+        url('get-price');
     }
 
     public function uploadImage(Request $request)
@@ -251,12 +260,12 @@ class ProductController extends BaseProductController
         $page = $request->input('page', 1);
 
         $productsQuery = Product::where('invoice_hidden', 0)
-            ->when($searchQuery, function ($query, $searchQuery): void {
-                $query->where('name', 'like', "%{$searchQuery}%");
+            ->when($searchQuery, function ($query, string $searchQuery): void {
+                $query->where('name', 'like', sprintf('%%%s%%', $searchQuery));
             })
             ->paginate($limit, ['*'], 'page', $page);
 
-        $productsQuery->getCollection()->transform(fn ($item) => ['id' => $item->id, 'name' => $item->name]);
+        $productsQuery->getCollection()->transform(fn ($item): array => ['id' => $item->id, 'name' => $item->name]);
 
         return successResponse('', $productsQuery);
     }
@@ -265,12 +274,12 @@ class ProductController extends BaseProductController
     {
         $searchQuery = $request->input('search-query', '');
         $limit = $request->input('limit', 10);
-        $page = $request->input('page', 1);
+        $request->input('page', 1);
 
         $plans = Plan::select('id', 'name')
             ->where('product', $productId)
-            ->when($searchQuery, function ($query, $searchQuery): void {
-                $query->where('name', 'like', "%{$searchQuery}%");
+            ->when($searchQuery, function ($query, string $searchQuery): void {
+                $query->where('name', 'like', sprintf('%%%s%%', $searchQuery));
             })
             ->simplePaginate($limit);
 
@@ -296,19 +305,19 @@ class ProductController extends BaseProductController
                 'groupRelation',
                 'licenseType',
             ])
-            ->when($searchQuery, function ($query, $searchQuery): void {
-                $query->where('products.name', 'like', "%{$searchQuery}%")
+            ->when($searchQuery, function ($query, string $searchQuery): void {
+                $query->where('products.name', 'like', sprintf('%%%s%%', $searchQuery))
                       ->orWhereHas('groupRelation', function ($q) use ($searchQuery): void {
-                          $q->where('name', 'like', "%{$searchQuery}%");
+                          $q->where('name', 'like', sprintf('%%%s%%', $searchQuery));
                       });
             })
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
 
-        $products->getCollection()->transform(function ($product) {
+        $products->getCollection()->transform(function ($product): array {
             $permissions = LicensePermissionsController::getPermissionsForProduct($product->id);
             $download_url = (is_array($permissions) && ! empty($permissions['downloadPermission']))
-                ? url("product/download/{$product->id}")
+                ? url('product/download/' . $product->id)
                 : null;
 
             return [
@@ -346,8 +355,8 @@ class ProductController extends BaseProductController
             });
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse(__('message.errors_occurs_delete_product').' '.$e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse(__('message.errors_occurs_delete_product').' '.$exception->getMessage());
         }
     }
 
@@ -367,8 +376,8 @@ class ProductController extends BaseProductController
                 'product' => $product,
                 'github_status' => (bool) $githubStatus,
             ]);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -412,8 +421,8 @@ class ProductController extends BaseProductController
             });
 
             return successResponse(__('message.product_uploaded_successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -431,22 +440,22 @@ class ProductController extends BaseProductController
             $search = $request->input('search-query', '');
 
             $allowed = ['created_at', 'version', 'title', 'release_type', 'status'];
-            if (! in_array($sortField, $allowed, true)) {
+            if (! in_array($sortField, $allowed, strict: true)) {
                 $sortField = 'created_at';
             }
 
             $uploads = ProductUpload::where('product_id', $productId)
                 ->when($search, function ($q, $search): void {
                     $q->where(function ($qq) use ($search): void {
-                        $qq->where('title', 'like', "%{$search}%")
-                            ->orWhere('version', 'like', "%{$search}%")
-                            ->orWhere('release_type', 'like', "%{$search}%");
+                        $qq->where('title', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('version', 'like', sprintf('%%%s%%', $search))
+                            ->orWhere('release_type', 'like', sprintf('%%%s%%', $search));
                     });
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->paginate($limit, ['*'], 'page', $page);
 
-            $uploads->getCollection()->transform(fn ($u) => [
+            $uploads->getCollection()->transform(fn ($u): array => [
                 'id' => $u->id,
                 'title' => $u->title,
                 'description' => $u->description,
@@ -458,8 +467,8 @@ class ProductController extends BaseProductController
             ]);
 
             return successResponse('', $uploads);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -481,10 +490,10 @@ class ProductController extends BaseProductController
                 'release_type' => $u->release_type,
                 'is_private' => (bool) $u->is_private,
                 'is_restricted' => (bool) $u->is_restricted,
-                'dependencies' => json_decode((string) $u->getRawOriginal('dependencies'), true) ?: [],
+                'dependencies' => json_decode((string) $u->getRawOriginal('dependencies'), associative: true) ?: [],
             ]);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -531,8 +540,8 @@ class ProductController extends BaseProductController
             }
 
             return successResponse(__('message.product_updated_successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -585,8 +594,8 @@ class ProductController extends BaseProductController
             });
 
             return successResponse(__('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -655,8 +664,8 @@ class ProductController extends BaseProductController
             });
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 }

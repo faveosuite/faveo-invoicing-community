@@ -40,7 +40,7 @@ class PromotionControllerTest extends DBTestCase
         ], $overrides);
     }
 
-    public function test_it_returns_paginated_promotions_with_default_params()
+    public function test_it_returns_paginated_promotions_with_default_params(): void
     {
         Promotion::factory()->count(15)->create();
 
@@ -58,7 +58,7 @@ class PromotionControllerTest extends DBTestCase
             ->assertJsonFragment(['success' => true]);
     }
 
-    public function test_it_respects_limit_parameter_in_get_all_promotions()
+    public function test_it_respects_limit_parameter_in_get_all_promotions(): void
     {
         Promotion::factory()->count(5)->create();
 
@@ -68,7 +68,7 @@ class PromotionControllerTest extends DBTestCase
             ->assertJsonCount(2, 'data.data');
     }
 
-    public function test_it_filters_promotions_by_code_search_query()
+    public function test_it_filters_promotions_by_code_search_query(): void
     {
         Promotion::factory()->create(['code' => 'SPECIAL2025']);
         Promotion::factory()->create(['code' => 'OTHER']);
@@ -81,7 +81,7 @@ class PromotionControllerTest extends DBTestCase
             ->assertJsonMissing(['code' => 'OTHER']);
     }
 
-    public function test_it_filters_promotions_by_product_name()
+    public function test_it_filters_promotions_by_product_name(): void
     {
         $productMatch = Product::factory()->create(['name' => 'Pro Helpdesk']);
         $productNoMatch = Product::factory()->create(['name' => 'Something Else']);
@@ -106,17 +106,17 @@ class PromotionControllerTest extends DBTestCase
             ->assertJsonMissing(['code' => 'P_NO_MATCH']);
     }
 
-    public function test_it_filters_promotions_by_promotion_type_name()
+    public function test_it_filters_promotions_by_promotion_type_name(): void
     {
         $typePercentage = PromotionType::where('name', 'Percentage')->first();
         $typeFixedAmount = PromotionType::where('name', 'Fixed Amount')->first();
 
-        $promoDiscount = Promotion::factory()->create([
+        Promotion::factory()->create([
             'code' => 'DISC01',
             'type' => $typePercentage->id,
         ]);
 
-        $promoGift = Promotion::factory()->create([
+        Promotion::factory()->create([
             'code' => 'GIFT01',
             'type' => $typeFixedAmount->id,
         ]);
@@ -128,7 +128,7 @@ class PromotionControllerTest extends DBTestCase
             ->assertJsonMissing(['code' => 'GIFT01']);
     }
 
-    public function test_it_sorts_promotions_by_code_desc()
+    public function test_it_sorts_promotions_by_code_desc(): void
     {
         Promotion::factory()->create(['code' => 'AAAA']);
         Promotion::factory()->create(['code' => 'ZZZZ']);
@@ -144,7 +144,7 @@ class PromotionControllerTest extends DBTestCase
         $this->assertEquals('ZZZZ', $codes[0]);
     }
 
-    public function test_it_returns_single_promotion_with_relations()
+    public function test_it_returns_single_promotion_with_relations(): void
     {
         $typePercentage = PromotionType::where('name', 'Percentage')->first();
         $product = Product::factory()->create(['name' => 'Cloud Helpdesk']);
@@ -168,7 +168,7 @@ class PromotionControllerTest extends DBTestCase
             ->assertJsonFragment(['name' => 'Cloud Helpdesk']);
     }
 
-    public function test_it_returns_error_response_when_promotion_not_found()
+    public function test_it_returns_error_response_when_promotion_not_found(): void
     {
         $response = $this->getJson('/promotion/999999');
 
@@ -176,7 +176,7 @@ class PromotionControllerTest extends DBTestCase
             ->assertJsonFragment(['success' => false]);
     }
 
-    public function test_it_creates_percentage_promotion_code_successfully()
+    public function test_it_creates_percentage_promotion_code_successfully(): void
     {
         $payload = $this->makePromotionPayload([
             'type' => 1, // 1 means percentage
@@ -201,7 +201,7 @@ class PromotionControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_creates_flat_promotion_code_for_type_two()
+    public function test_it_creates_flat_promotion_code_for_type_two(): void
     {
         $product = Product::factory()->create();
         $type = PromotionType::create(['name' => 'Flat']);
@@ -227,7 +227,7 @@ class PromotionControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_fails_to_create_promotion_with_invalid_payload()
+    public function test_it_fails_to_create_promotion_with_invalid_payload(): void
     {
         $response = $this->putJson('/promotionCreate', [
             'code' => '',
@@ -237,7 +237,7 @@ class PromotionControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['code', 'type', 'value']);
     }
 
-    public function test_it_updates_promotion_code_with_percentage_value()
+    public function test_it_updates_promotion_code_with_percentage_value(): void
     {
         $product = Product::factory()->create();
         $type1 = PromotionType::create(['name' => 'Percentage']);
@@ -285,7 +285,7 @@ class PromotionControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_updates_promotion_code_with_flat_value_for_type_two()
+    public function test_it_updates_promotion_code_with_flat_value_for_type_two(): void
     {
         $product = Product::factory()->create();
         $type2 = PromotionType::create(['name' => 'Flat']);
@@ -327,7 +327,7 @@ class PromotionControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_returns_error_when_updating_non_existing_promotion()
+    public function test_it_returns_error_when_updating_non_existing_promotion(): void
     {
         $type = PromotionType::create();
 
@@ -347,7 +347,7 @@ class PromotionControllerTest extends DBTestCase
             ->assertJsonFragment(['success' => false]);
     }
 
-    public function test_it_fails_to_update_promotion_with_invalid_payload()
+    public function test_it_fails_to_update_promotion_with_invalid_payload(): void
     {
         $promotion = Promotion::factory()->create();
 
@@ -359,7 +359,7 @@ class PromotionControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['code', 'type', 'value']);
     }
 
-    public function test_it_deletes_bulk_promotions_successfully()
+    public function test_it_deletes_bulk_promotions_successfully(): void
     {
         $p1 = Promotion::factory()->create();
         $p2 = Promotion::factory()->create();
@@ -378,7 +378,7 @@ class PromotionControllerTest extends DBTestCase
         $this->assertDatabaseMissing('promotions', ['id' => $p2->id]);
     }
 
-    public function test_it_returns_error_if_delete_bulk_called_with_empty_selection()
+    public function test_it_returns_error_if_delete_bulk_called_with_empty_selection(): void
     {
         $response = $this->deleteJson('/promotions', [
             'select' => [],
@@ -391,7 +391,7 @@ class PromotionControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_ignores_invalid_ids_in_bulk_delete_but_deletes_valid_ones()
+    public function test_it_ignores_invalid_ids_in_bulk_delete_but_deletes_valid_ones(): void
     {
         $p1 = Promotion::factory()->create();
 

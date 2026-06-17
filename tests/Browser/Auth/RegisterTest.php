@@ -36,7 +36,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_new_register_with_duplicate_values()
+    public function test_new_register_with_duplicate_values(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -62,7 +62,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_new_register_with_mandatory_fields_left_blank()
+    public function test_new_register_with_mandatory_fields_left_blank(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -86,7 +86,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_register_with_invalid_first_and_last_name_and_email()
+    public function test_register_with_invalid_first_and_last_name_and_email(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -114,7 +114,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_register_witt_invalid_lastname_and_email()
+    public function test_register_witt_invalid_lastname_and_email(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -141,7 +141,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_invalid_firstname_and_lastname()
+    public function test_invalid_firstname_and_lastname(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -168,14 +168,14 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_check_for_registration()
+    public function test_check_for_registration(): void
     {
         StatusSetting::first()->update([
             'msg91_status' => 1,
             'emailverification_status' => 1,
         ]);
 
-        $this->enableEmailAndMobile(true, false);
+        $this->enableEmailAndMobile(email: true, mobile: false);
 
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -207,14 +207,14 @@ class RegisterTest extends DuskTestCase
             $browser->press('#emailVerifyBtn');
             $browser->waitForText('You’re all set! Registration complete.', 10)
                 ->assertSee('You’re all set! Registration complete.');
-            $this->enableEmailAndMobile(false, false);
+            $this->enableEmailAndMobile(email: false, mobile: false);
         });
     }
 
     #[Group('register')]
-    public function test_for_terms_field_validation()
+    public function test_for_terms_field_validation(): void
     {
-        $this->enableOrDisableTerms(true);
+        $this->enableOrDisableTerms(enable: true);
 
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -240,13 +240,13 @@ class RegisterTest extends DuskTestCase
             $browser->pause(3000);
         });
 
-        $this->enableOrDisableTerms(false);
+        $this->enableOrDisableTerms(enable: false);
     }
 
     #[Group('register')]
-    public function test_for_terms_and_condition_field_validation()
+    public function test_for_terms_and_condition_field_validation(): void
     {
-        $this->enableOrDisableTerms(true);
+        $this->enableOrDisableTerms(enable: true);
 
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -284,11 +284,11 @@ class RegisterTest extends DuskTestCase
             $browser->driver->switchTo()->window($existingWindows[0]);
         });
 
-        $this->enableOrDisableTerms(false);
+        $this->enableOrDisableTerms(enable: false);
     }
 
     #[Group('register')]
-    public function test_for_mandatory_validation_in_re_enter_password_field()
+    public function test_for_mandatory_validation_in_re_enter_password_field(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -316,7 +316,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_invalid_re_enter_password_field()
+    public function test_invalid_re_enter_password_field(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -344,7 +344,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_password_field_mandatory_validation()
+    public function test_password_field_mandatory_validation(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -370,7 +370,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_with_invalid_password()
+    public function test_with_invalid_password(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -398,7 +398,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_password_field_validation_in_signup_for_free()
+    public function test_for_password_field_validation_in_signup_for_free(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -427,7 +427,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_mobile_field_validation_in_sign_up()
+    public function test_for_mobile_field_validation_in_sign_up(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -452,7 +452,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_with_invalid_mobile_number_for_sign_up()
+    public function test_with_invalid_mobile_number_for_sign_up(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -480,7 +480,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_mobile_field_validation()
+    public function test_for_mobile_field_validation(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -509,7 +509,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_company_name_validation()
+    public function test_for_company_name_validation(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -534,7 +534,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_invalid_company_name()
+    public function test_for_invalid_company_name(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -561,7 +561,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_company_name_field_validation()
+    public function test_for_company_name_field_validation(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -590,7 +590,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_email_field_validation1()
+    public function test_for_email_field_validation1(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -615,7 +615,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_invalid_email_id()
+    public function test_for_invalid_email_id(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -641,7 +641,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_duplicate_email_id()
+    public function test_for_duplicate_email_id(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -668,7 +668,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_email_field_validation()
+    public function test_for_email_field_validation(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -697,7 +697,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_error_message_if_last_name_field_left_blank()
+    public function test_for_error_message_if_last_name_field_left_blank(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -722,7 +722,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_invalid_last_name_validation()
+    public function test_for_invalid_last_name_validation(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -748,7 +748,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_last_name_field_validation1()
+    public function test_for_last_name_field_validation1(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -777,7 +777,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_error_message_if_first_name_field_left_blank()
+    public function test_for_error_message_if_first_name_field_left_blank(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -804,7 +804,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_for_first_name_field_validation1()
+    public function test_for_first_name_field_validation1(): void
     {
         $this->browse(function (Browser $browser): void {
             $browser->visit('/login');
@@ -833,7 +833,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_register_with_v2_recaptcha()
+    public function test_register_with_v2_recaptcha(): void
     {
         $this->enableRecaptcha('v2');
 
@@ -861,7 +861,7 @@ class RegisterTest extends DuskTestCase
     }
 
     #[Group('register')]
-    public function test_register_with_v3_recaptcha()
+    public function test_register_with_v3_recaptcha(): void
     {
         $this->enableRecaptcha('v3');
 

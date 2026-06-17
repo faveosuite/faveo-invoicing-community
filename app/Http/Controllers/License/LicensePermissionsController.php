@@ -16,6 +16,9 @@ use Logger;
 */
 class LicensePermissionsController extends Controller
 {
+    /**
+     * @var \App\Model\License\LicensePermission
+     */
     public $licensePermission;
 
     public function __construct()
@@ -42,16 +45,16 @@ class LicensePermissionsController extends Controller
 
             $licenseTypes = LicenseType::with('permissions:id,permissions')
                 ->when($searchString, function ($query) use ($searchString): void {
-                    $query->where('name', 'like', "%$searchString%");
+                    $query->where('name', 'like', sprintf('%%%s%%', $searchString));
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $data = $licenseTypes->getCollection()->map(fn ($license) => [
+            $data = $licenseTypes->getCollection()->map(fn ($license): array => [
                 'id' => $license->id,
                 'name' => $license->name,
                 'permissions' => $license->permissions->pluck('permissions'),
-                'all_permissions' => $allPermissions->map(fn ($perm) => [
+                'all_permissions' => $allPermissions->map(fn ($perm): array => [
                     'id' => $perm->id,
                     'permissions' => $perm->permissions,
                     'assigned' => $license->permissions->contains('id', $perm->id),
@@ -83,10 +86,10 @@ class LicensePermissionsController extends Controller
             $licenseType->permissions()->sync($request->input('permissionid'));
 
             return successResponse(__('message.permissions_updated_successfully'));
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return errorResponse($ex->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -161,9 +164,9 @@ class LicensePermissionsController extends Controller
             }
 
             return $result;
-        } catch (Exception $ex) {
-            Logger::exception($ex);
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 }

@@ -19,12 +19,12 @@ class MonitoringController extends Controller
     {
         $type = strtolower((string) $request->get('type', ''));
 
-        if (! in_array($type, ['pulse', 'horizon', 'clockwork'], true)) {
+        if (! in_array($type, ['pulse', 'horizon', 'clockwork'], strict: true)) {
             return errorResponse('Invalid monitoring type', 400);
         }
 
         $basePath = trim(parse_url(url('/'), PHP_URL_PATH) ?? '', '/');
-        $installedInSubdirectory = ! empty($basePath);
+        $installedInSubdirectory = $basePath !== '' && $basePath !== '0';
 
         $titleKeys = [
             'pulse' => 'message.pulse_could_not_load',

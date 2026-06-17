@@ -24,7 +24,7 @@ class DashboardControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
     }
 
-    public function test_it_returns_zero_values_when_database_is_empty()
+    public function test_it_returns_zero_values_when_database_is_empty(): void
     {
         $response = $this->getJson('dashboard');
 
@@ -49,7 +49,7 @@ class DashboardControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_it_calculates_total_yearly_and_monthly_sales_by_currency()
+    public function test_it_calculates_total_yearly_and_monthly_sales_by_currency(): void
     {
         // 1. Current Month USD
         $invoice1 = Invoice::factory()->create(['currency' => 'USD', 'status' => 'paid', 'created_at' => now()]);
@@ -83,7 +83,7 @@ class DashboardControllerTest extends DBTestCase
         $response->assertJsonPath('monthlySales.USD', 100);
     }
 
-    public function test_it_calculates_pending_payments_correctly()
+    public function test_it_calculates_pending_payments_correctly(): void
     {
         // Scenario: Invoice for 500 USD, 200 paid. Pending should be 300.
         $invoice = Invoice::factory()->create([
@@ -98,7 +98,7 @@ class DashboardControllerTest extends DBTestCase
         $response->assertJsonPath('pendingPayments.USD', 300);
     }
 
-    public function test_it_calculates_product_installation_rate()
+    public function test_it_calculates_product_installation_rate(): void
     {
         // Active
         $sub1 = Subscription::factory()->create(['created_at' => now()->subDays(5)]);
@@ -108,7 +108,7 @@ class DashboardControllerTest extends DBTestCase
 
         // Inactive (No installation detail)
         $sub2 = Subscription::factory()->create(['created_at' => now()->subDays(5)]);
-        $order2 = Order::find($sub2->order_id);
+        Order::find($sub2->order_id);
 
         $response = $this->getJson('dashboard');
 
@@ -117,7 +117,7 @@ class DashboardControllerTest extends DBTestCase
         $response->assertJsonPath('productInstalledRate.rate', 50);
     }
 
-    public function test_it_calculates_paid_order_conversion_rate_last_30_days()
+    public function test_it_calculates_paid_order_conversion_rate_last_30_days(): void
     {
         // 1. Paid recent
         Order::factory()->create([
@@ -144,7 +144,7 @@ class DashboardControllerTest extends DBTestCase
         $response->assertJsonPath('paidOrderRate.rate', 50);
     }
 
-    public function test_it_fetches_users_with_verified_mobile_and_email()
+    public function test_it_fetches_users_with_verified_mobile_and_email(): void
     {
         // Valid User
         User::factory()->create([
@@ -165,7 +165,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertCount(1, $response->json('clientWithMobileAndEmailActivation'));
     }
 
-    public function test_it_identifies_expiring_and_expired_orders()
+    public function test_it_identifies_expiring_and_expired_orders(): void
     {
         // 1. Expiring in 5 days (Should appear in expiringOrders)
         $expiring = Subscription::factory()->create([
@@ -195,7 +195,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals($expired->id, $expiredList[0]['id']);
     }
 
-    public function test_it_identifies_clients_using_old_versions()
+    public function test_it_identifies_clients_using_old_versions(): void
     {
         $product = Product::factory()->create();
 
@@ -218,7 +218,7 @@ class DashboardControllerTest extends DBTestCase
             'version' => '1.0',
         ]);
         // Ensure order exists and is paid for the query condition
-        $order = Order::find($outdatedSub->order_id)->update([
+        Order::find($outdatedSub->order_id)->update([
             'product' => $product->id,
             'client' => $this->user->id,
             'price_override' => 10,
@@ -244,7 +244,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals($outdatedSub->id, $outdatedClients[0]['id']);
     }
 
-    public function test_it_lists_products_sold_in_last_30_days()
+    public function test_it_lists_products_sold_in_last_30_days(): void
     {
         $product1 = Product::factory()->create(['name' => 'Popular Product']);
         $product2 = Product::factory()->create(['name' => 'Old Product']);
@@ -273,7 +273,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals(2, $soldProducts[0]['order_count']);
     }
 
-    public function test_it_lists_recent_invoices_with_calculated_balances()
+    public function test_it_lists_recent_invoices_with_calculated_balances(): void
     {
         $user = User::factory()->create();
         $invoice = Invoice::factory()->create([

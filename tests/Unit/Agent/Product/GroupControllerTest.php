@@ -13,13 +13,13 @@ class GroupControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->getLoggedInUser('admin');
     }
 
-    public function test_can_fetch_product_groups()
+    public function test_can_fetch_product_groups(): void
     {
         ProductGroup::factory()->count(5)->create();
 
@@ -30,7 +30,7 @@ class GroupControllerTest extends DBTestCase
         $this->assertCount(5, $response->json('data.data'));
     }
 
-    public function test_product_group_search_works()
+    public function test_product_group_search_works(): void
     {
         ProductGroup::factory()->create(['name' => 'Alpha']);
         ProductGroup::factory()->create(['name' => 'Beta']);
@@ -41,7 +41,7 @@ class GroupControllerTest extends DBTestCase
         $this->assertEquals('Alpha', $response->json('data.data')[0]['name']);
     }
 
-    public function test_can_get_single_group()
+    public function test_can_get_single_group(): void
     {
         $template = PricingTemplate::query()->first();
         $group = ProductGroup::factory()->create(['pricing_templates_id' => $template->id]);
@@ -59,14 +59,14 @@ class GroupControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_get_group_returns_error_if_not_found()
+    public function test_get_group_returns_error_if_not_found(): void
     {
         $response = $this->getJson('/group/999');
 
         $response->assertStatus(400);
     }
 
-    public function test_group_can_be_created()
+    public function test_group_can_be_created(): void
     {
         $template = PricingTemplate::query()->first();
 
@@ -83,7 +83,7 @@ class GroupControllerTest extends DBTestCase
         $this->assertDatabaseHas('product_groups', ['name' => 'New Group']);
     }
 
-    public function test_group_create_validation_fails()
+    public function test_group_create_validation_fails(): void
     {
         $response = $this->putJson('/group', [
             'name' => '',
@@ -92,7 +92,7 @@ class GroupControllerTest extends DBTestCase
         $response->assertStatus(422);
     }
 
-    public function test_group_can_be_updated_when_all_products_have_monthly_and_yearly_plans()
+    public function test_group_can_be_updated_when_all_products_have_monthly_and_yearly_plans(): void
     {
         $template = PricingTemplate::query()->first();
 
@@ -108,7 +108,7 @@ class GroupControllerTest extends DBTestCase
         Plan::factory()->create(['product' => $productB->id, 'days' => 31]);
         Plan::factory()->create(['product' => $productB->id, 'days' => 366]);
 
-        $response = $this->patchJson("/group/{$group->id}", [
+        $response = $this->patchJson('/group/' . $group->id, [
             'pricing_templates_id' => $template->id,
             'name' => 'Updated Group',
             'status' => 1,
@@ -121,7 +121,7 @@ class GroupControllerTest extends DBTestCase
         $this->assertDatabaseHas('products', ['group' => $group->id, 'status' => 1]);
     }
 
-    public function test_group_update_fails_if_products_missing_monthly_or_yearly_plans()
+    public function test_group_update_fails_if_products_missing_monthly_or_yearly_plans(): void
     {
         $template = PricingTemplate::query()->first();
 
@@ -132,7 +132,7 @@ class GroupControllerTest extends DBTestCase
         // Only monthly plan exists
         Plan::factory()->create(['product' => $product->id, 'days' => 30]);
 
-        $response = $this->patchJson("/group/{$group->id}", [
+        $response = $this->patchJson('/group/' . $group->id, [
             'pricing_templates_id' => $template->id,
             'name' => 'Bad Update',
             'status' => 1,
@@ -142,17 +142,17 @@ class GroupControllerTest extends DBTestCase
         $response->assertJson(['message' => __('message.all_products_monthly_yearly_plan')]);
     }
 
-    public function test_group_can_be_disabled_even_if_plans_missing()
+    public function test_group_can_be_disabled_even_if_plans_missing(): void
     {
         $template = PricingTemplate::query()->first();
 
         $group = ProductGroup::factory()->create(['status' => 1]);
 
-        $product = Product::factory()->create(['group' => $group->id]);
+        Product::factory()->create(['group' => $group->id]);
 
         // No plans at all
 
-        $response = $this->patchJson("/group/{$group->id}", [
+        $response = $this->patchJson('/group/' . $group->id, [
             'pricing_templates_id' => $template->id,
             'name' => 'Disabled Group',
             'status' => 0,
@@ -163,7 +163,7 @@ class GroupControllerTest extends DBTestCase
         $this->assertDatabaseHas('product_groups', ['status' => 0]);
     }
 
-    public function test_bulk_group_delete_works()
+    public function test_bulk_group_delete_works(): void
     {
         $groups = ProductGroup::factory()->count(3)->create();
 
@@ -178,7 +178,7 @@ class GroupControllerTest extends DBTestCase
         }
     }
 
-    public function test_bulk_delete_requires_ids()
+    public function test_bulk_delete_requires_ids(): void
     {
         $response = $this->deleteJson('/group', ['select' => []]);
 

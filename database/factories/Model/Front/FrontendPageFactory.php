@@ -1,10 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories\Model\Front;
 
 use App\Model\Front\FrontendPage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Front\FrontendPage>
+ */
 class FrontendPageFactory extends Factory
 {
     /**
@@ -23,12 +28,12 @@ class FrontendPageFactory extends Factory
     {
         return [
             'parent_page_id' => 0,
-            'slug' => $this->faker->unique()->slug,
-            'name' => $this->faker->sentence,
-            'content' => $this->faker->paragraph,
-            'url' => $this->faker->url,
-            'publish' => $this->faker->boolean,
-            'type' => $this->faker->randomElement(['header', 'footer', 'other']),
+            'slug' => fake()->unique()->slug,
+            'name' => fake()->sentence,
+            'content' => fake()->paragraph,
+            'url' => fake()->url,
+            'publish' => fake()->boolean,
+            'type' => fake()->randomElement(['header', 'footer', 'other']),
             'created_at' => now(),
         ];
     }

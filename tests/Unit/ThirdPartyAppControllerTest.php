@@ -10,7 +10,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -19,7 +19,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
         $this->withoutMiddleware();
     }
 
-    public function test_fetches_third_party_apps_with_masked_secret()
+    public function test_fetches_third_party_apps_with_masked_secret(): void
     {
         $app = ThirdPartyApp::create([
             'app_name' => 'MailApp',
@@ -34,7 +34,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
                  ->assertJsonFragment(['app_name' => $app->app_name]);
     }
 
-    public function test_applies_search_filter()
+    public function test_applies_search_filter(): void
     {
         ThirdPartyApp::create([
             'app_name' => 'MailGun',
@@ -55,7 +55,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
                  ->assertJsonMissing(['app_name' => 'StripeAPI']);
     }
 
-    public function test_creates_third_party_app_successfully()
+    public function test_creates_third_party_app_successfully(): void
     {
         $payload = [
             'app_name' => 'TestApp',
@@ -73,7 +73,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_fails_validation_when_creating_invalid_request()
+    public function test_fails_validation_when_creating_invalid_request(): void
     {
         $payload = [
             'app_name' => '',
@@ -87,7 +87,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
                  ->assertJsonValidationErrors(['app_name', 'app_key', 'app_secret']);
     }
 
-    public function test_updates_third_party_app_successfully()
+    public function test_updates_third_party_app_successfully(): void
     {
         $app = ThirdPartyApp::create([
             'app_name' => 'OldApp',
@@ -101,7 +101,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
             'app_secret' => 'new-secret',
         ];
 
-        $response = $this->putJson("/third-party-app-update/{$app->id}", $payload);
+        $response = $this->putJson('/third-party-app-update/' . $app->id, $payload);
         $response->assertStatus(200)
                  ->assertJsonFragment(['message' => __('message.updated-successfully')]);
 
@@ -111,7 +111,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_returns_error_when_deleting_with_empty_ids()
+    public function test_returns_error_when_deleting_with_empty_ids(): void
     {
         $response = $this->deleteJson('/third-party-delete', ['select' => []]);
 
@@ -119,7 +119,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
                  ->assertJsonFragment(['message' => __('message.select-a-row')]);
     }
 
-    public function test_deletes_selected_third_party_apps()
+    public function test_deletes_selected_third_party_apps(): void
     {
         $app1 = ThirdPartyApp::create([
             'app_name' => 'App1',
@@ -144,7 +144,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
         $this->assertDatabaseMissing('third_party_apps', ['id' => $app2->id]);
     }
 
-    public function test_returns_error_when_deleting_non_existing_app()
+    public function test_returns_error_when_deleting_non_existing_app(): void
     {
         $response = $this->deleteJson('/third-party-delete', ['select' => [999]]);
 

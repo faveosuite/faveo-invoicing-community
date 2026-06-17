@@ -8,10 +8,10 @@ use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 
 class CommonMailer
 {
-    public function setSmtpDriver($config)
+    public function setSmtpDriver(array $config): bool|string
     {
         try {
-            if (! $config) {
+            if ($config === []) {
                 return false;
             }
 
@@ -23,10 +23,10 @@ class CommonMailer
             Mail::setSymfonyTransport($transport);
 
             return true;
-        } catch (Exception $e) {
-            \Logger::exception($e);
+        } catch (Exception $exception) {
+            \Logger::exception($exception);
 
-            return $e->getMessage();
+            return $exception->getMessage();
         }
     }
 }

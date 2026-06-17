@@ -19,7 +19,7 @@ class WhatsappControllerTest extends DBTestCase
         $this->class = new WhatsappController();
     }
 
-    public function testWhatsappIndex()
+    public function testWhatsappIndex(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -32,7 +32,7 @@ class WhatsappControllerTest extends DBTestCase
         $response->assertViewHas('app_id');
     }
 
-    public function testUrlSave()
+    public function testUrlSave(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -44,18 +44,18 @@ class WhatsappControllerTest extends DBTestCase
         $this->assertEquals('success', $content['message']);
     }
 
-    public function testWhatsappTable()
+    public function testWhatsappTable(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $order = Order::factory()->create();
-        $data = WhatsappIntegrationUser::create(['waba_id' => 'testing',
+        WhatsappIntegrationUser::create(['waba_id' => 'testing',
             'phone_number_id' => 'fsfdsf', 'business_id' => 'fsfdsf',
             'user_id' => $user->id, 'access_token' => 'fsfdsf',
             'user_callback_url' => 'https://api.examplde.com/send/', 'order_id' => $order->id]);
         $response = $this->call('GET', 'whatsapp-users-table');
-        $json = $response->decodeResponseJson();
+        $json = $response->json();
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
@@ -68,18 +68,18 @@ class WhatsappControllerTest extends DBTestCase
         );
     }
 
-    public function testWhatsappClientTable()
+    public function testWhatsappClientTable(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $order = Order::factory()->create();
-        $data = WhatsappIntegrationUser::create(['waba_id' => 'orderTesting',
+        WhatsappIntegrationUser::create(['waba_id' => 'orderTesting',
             'phone_number_id' => 'fsfdsf', 'business_id' => 'fsfdsf',
             'user_id' => $user->id, 'access_token' => 'fsfdsf',
             'user_callback_url' => 'https://api.examplde.com/send/', 'order_id' => $order->id]);
         $response = $this->call('GET', 'whatsapp-client-table/'.$order->id);
-        $json = $response->decodeResponseJson();
+        $json = $response->json();
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
@@ -92,14 +92,14 @@ class WhatsappControllerTest extends DBTestCase
         );
     }
 
-    public function testWhatsappIntegrationInfo()
+    public function testWhatsappIntegrationInfo(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $cont = WhatsappIntegration::create(['app_id' => 'fsfdsf', 'config_id' => 'fsfdsf', 'app_secret' => 'fsfdsf', 'verify_token' => 'fsfdsf']);
         $response = $this->call('GET', 'whatsapp-integration-info');
-        $json = $response->decodeResponseJson();
+        $json = $response->json();
         $content = $json['data'];
         $response->assertStatus(200);
         $this->assertEquals($cont->app_id, $content['app_id']);
@@ -108,18 +108,19 @@ class WhatsappControllerTest extends DBTestCase
         $this->assertEquals($cont->verify_token, $content['verify_token']);
     }
 
-    public function testWhatsappIntegrationSave()
+    public function testWhatsappIntegrationSave(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $response = $this->call('POST', 'whatsapp-integration-save', ['app_id' => 'fsfdsf', 'config_id' => 'fsfdsf', 'app_secret' => 'fsfdsf', 'verify_token' => 'fsfdsf']);
         $response->assertStatus(200);
+
         $content = $response->json();
         $this->assertEquals('Updated Successfully', $content['message']);
     }
 
-    public function testGetWhatsappWebhook()
+    public function testGetWhatsappWebhook(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -130,12 +131,12 @@ class WhatsappControllerTest extends DBTestCase
         $this->assertEquals('fsfdsf', $response->getContent());
     }
 
-    public function testGetWebhookFail()
+    public function testGetWebhookFail(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $cont = WhatsappIntegration::create(['app_id' => 'fsfdsf', 'config_id' => 'fsfdsf', 'app_secret' => 'fsfdsf', 'verify_token' => 'fsfdsf']);
+        WhatsappIntegration::create(['app_id' => 'fsfdsf', 'config_id' => 'fsfdsf', 'app_secret' => 'fsfdsf', 'verify_token' => 'fsfdsf']);
         $response = $this->call('GET', 'faveo-whatsapp', ['hub_mode' => 'subscribe', 'hub_verify_token' => 'sdfewef', 'hub_challenge' => 'fsfdsf']);
         $response->assertStatus(403);
         $this->assertEquals('Forbidden', $response->getContent());

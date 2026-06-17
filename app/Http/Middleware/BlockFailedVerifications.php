@@ -100,7 +100,7 @@ class BlockFailedVerifications
 
         $limits = self::CONFIGS[$context]['limits'];
 
-        if (! empty($onlyTypes)) {
+        if ($onlyTypes !== []) {
             $limits = array_intersect_key($limits, array_flip($onlyTypes));
         }
 
@@ -132,7 +132,7 @@ class BlockFailedVerifications
      */
     private function enforce(string $context, string $type, string $identifier, int $maxAttempts, Request $request)
     {
-        $key = "{$type}:{$identifier}";
+        $key = sprintf('%s:%s', $type, $identifier);
 
         if (! RateLimiter::tooManyAttempts($key, $maxAttempts)) {
             return null;
@@ -160,8 +160,8 @@ class BlockFailedVerifications
      */
     private function applyProgressivePenalty(string $context, string $type, string $identifier, string $key, int $maxAttempts): void
     {
-        $penaltyKey = "penalty_level:{$context}:{$identifier}";
-        $appliedKey = "penalty_applied:{$context}:{$type}:{$identifier}";
+        $penaltyKey = sprintf('penalty_level:%s:%s', $context, $identifier);
+        $appliedKey = sprintf('penalty_applied:%s:%s:%s', $context, $type, $identifier);
 
         if (Cache::get($appliedKey, false)) {
             return;

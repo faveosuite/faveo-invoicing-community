@@ -24,7 +24,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_can_fetch_all_users_paginated()
+    public function test_can_fetch_all_users_paginated(): void
     {
         User::factory()->count(15)->create();
 
@@ -43,7 +43,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_can_search_users_by_name_or_email()
+    public function test_can_search_users_by_name_or_email(): void
     {
         $targetUser = User::factory()->create([
             'first_name' => 'John',
@@ -61,14 +61,15 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_can_filter_users_by_country_and_role()
+    public function test_can_filter_users_by_country_and_role(): void
     {
         $usUser = User::factory()->create(['country' => 'USA', 'role' => 'manager']);
-        $ukUser = User::factory()->create(['country' => 'UK', 'role' => 'user']);
+        User::factory()->create(['country' => 'UK', 'role' => 'user']);
 
         $response = $this->getJson('/users?country=USA&role=manager');
 
         $response->assertStatus(200);
+
         $data = $response->json('data.data');
 
         $this->assertCount(1, $data);
@@ -76,10 +77,10 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_can_sort_users()
+    public function test_can_sort_users(): void
     {
-        $userA = User::factory()->create(['first_name' => 'Alpha', 'created_at' => now()->subDays(1)]);
-        $userB = User::factory()->create(['first_name' => 'Beta', 'created_at' => now()]);
+        User::factory()->create(['first_name' => 'Alpha', 'created_at' => now()->subDays(1)]);
+        User::factory()->create(['first_name' => 'Beta', 'created_at' => now()]);
 
         $response = $this->getJson('/users?sort-field=first_name&sort-order=asc');
 
@@ -89,9 +90,9 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_filter_by_registration_date_range()
+    public function test_filter_by_registration_date_range(): void
     {
-        $oldUser = User::factory()->create(['created_at' => '2023-01-01 10:00:00']);
+        User::factory()->create(['created_at' => '2023-01-01 10:00:00']);
         $newUser = User::factory()->create(['created_at' => '2023-12-01 10:00:00']);
 
         $response = $this->getJson('/users?reg_from=2023-11-01&reg_till=2023-12-31');
@@ -102,7 +103,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_bulk_delete_fails_if_no_ids_provided()
+    public function test_bulk_delete_fails_if_no_ids_provided(): void
     {
         $response = $this->deleteJson('/users', []);
 
@@ -111,7 +112,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_bulk_delete_success_for_regular_users()
+    public function test_bulk_delete_success_for_regular_users(): void
     {
         $users = User::factory()->count(3)->create();
         $ids = $users->pluck('id')->toArray();
@@ -125,7 +126,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_bulk_delete_blocked_if_user_is_account_manager()
+    public function test_bulk_delete_blocked_if_user_is_account_manager(): void
     {
         $manager = User::factory()->create([
             'first_name' => 'Boss', 'last_name' => 'Man', 'position' => 'account_manager',
@@ -146,7 +147,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_bulk_delete_blocked_if_user_is_sales_manager()
+    public function test_bulk_delete_blocked_if_user_is_sales_manager(): void
     {
         $salesManager = User::factory()->create(['first_name' => 'Sales', 'last_name' => 'Guru', 'position' => 'manager']);
 
@@ -165,7 +166,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_create_user_successfully_with_job_dispatch()
+    public function test_create_user_successfully_with_job_dispatch(): void
     {
         Bus::fake();
 
@@ -195,7 +196,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_create_user_calculates_mobile_code_from_country()
+    public function test_create_user_calculates_mobile_code_from_country(): void
     {
         Bus::fake();
 
@@ -216,9 +217,9 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_create_user_handles_exception_gracefully()
+    public function test_create_user_handles_exception_gracefully(): void
     {
-        $existing = User::factory()->create(['email' => 'duplicate@test.com']);
+        User::factory()->create(['email' => 'duplicate@test.com']);
 
         $response = $this->putJson('/users', [
             'first_name' => 'Dup',
@@ -235,18 +236,18 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_get_edit_user_returns_data()
+    public function test_get_edit_user_returns_data(): void
     {
         $user = User::factory()->create();
 
-        $response = $this->getJson("/user/{$user->id}");
+        $response = $this->getJson('/user/' . $user->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['email' => $user->email]);
     }
 
     #[Group('User')]
-    public function test_update_user_successfully()
+    public function test_update_user_successfully(): void
     {
         $user = User::factory()->create([
             'first_name' => 'OldName',
@@ -267,7 +268,7 @@ class ClientControllerTest extends DBTestCase
             'last_name' => 'Updated',
         ];
 
-        $response = $this->patchJson("/user/{$user->id}", $payload);
+        $response = $this->patchJson('/user/' . $user->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -283,7 +284,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_update_user_handles_non_existent_id()
+    public function test_update_user_handles_non_existent_id(): void
     {
         $payload = [
             'email' => 'unique_test_'.uniqid().'@example.com',
@@ -306,7 +307,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_create_user_fails_with_validation_errors()
+    public function test_create_user_fails_with_validation_errors(): void
     {
         $response = $this->putJson('/users', []);
 
@@ -315,21 +316,21 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_update_user_fails_if_email_is_taken()
+    public function test_update_user_fails_if_email_is_taken(): void
     {
         $user1 = User::factory()->create();
-        $user2 = User::factory()->create(['email' => 'existing@example.com']);
+        User::factory()->create(['email' => 'existing@example.com']);
 
         $payload = ['email' => 'existing@example.com'];
 
-        $response = $this->patchJson("/user/{$user1->id}", $payload);
+        $response = $this->patchJson('/user/' . $user1->id, $payload);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['email']);
     }
 
     #[Group('User')]
-    public function test_search_returns_no_results_for_unfound_query()
+    public function test_search_returns_no_results_for_unfound_query(): void
     {
         User::factory()->count(5)->create();
 
@@ -340,7 +341,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_pagination_to_second_page()
+    public function test_pagination_to_second_page(): void
     {
         User::factory()->count(15)->create();
 
@@ -357,7 +358,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_filtering_with_no_results()
+    public function test_filtering_with_no_results(): void
     {
         User::factory()->create(['country' => 'USA']);
         $response = $this->getJson('/users?country=Canada');
@@ -366,7 +367,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_combined_filtering_for_country_and_role()
+    public function test_combined_filtering_for_country_and_role(): void
     {
         User::factory()->create(['country' => 'USA', 'role' => 'admin']);
         User::factory()->create(['country' => 'USA', 'role' => 'user']);
@@ -376,16 +377,16 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_update_user_cannot_change_role()
+    public function test_update_user_cannot_change_role(): void
     {
         $user = User::factory()->create(['role' => 'user']);
         $payload = ['role' => 'admin'];
-        $this->patchJson("/user/{$user->id}", $payload);
+        $this->patchJson('/user/' . $user->id, $payload);
         $this->assertDatabaseHas('users', ['id' => $user->id, 'role' => 'user']);
     }
 
     #[Group('User')]
-    public function test_bulk_delete_with_mixed_user_types()
+    public function test_bulk_delete_with_mixed_user_types(): void
     {
         $deletableUser = User::factory()->create();
         $manager = User::factory()->create(['position' => 'account_manager']);
@@ -400,13 +401,13 @@ class ClientControllerTest extends DBTestCase
         $this->assertDatabaseHas('users', ['id' => $manager->id]);
     }
 
-    public function test_it_downloads_export_file_successfully()
+    public function test_it_downloads_export_file_successfully(): void
     {
         $folderName = 'users_export_'.auth()->id().'_'.now()->format('Ymd_His').'_XLSX';
         $folderPath = storage_path('app/public/export/'.$folderName);
 
         if (! is_dir(dirname($folderPath))) {
-            mkdir(dirname($folderPath), 0777, true);
+            mkdir(dirname($folderPath), 0777, recursive: true);
         }
 
         file_put_contents($folderPath, 'sample excel content');
@@ -428,7 +429,7 @@ class ClientControllerTest extends DBTestCase
         $this->assertFileExists($zipPath);
     }
 
-    public function test_it_returns_error_if_export_detail_not_found()
+    public function test_it_returns_error_if_export_detail_not_found(): void
     {
         $response = $this->getJson(route('download.exported.file', 99999));
 
@@ -436,7 +437,7 @@ class ClientControllerTest extends DBTestCase
             ->assertJson(['success' => false]);
     }
 
-    public function test_it_returns_error_if_download_link_is_expired()
+    public function test_it_returns_error_if_download_link_is_expired(): void
     {
         $folderName = 'users_export_'.auth()->id().'_'.now()->format('Ymd_His').'_XLSX';
         $folderPath = storage_path('app/public/export/'.$folderName);
@@ -459,7 +460,7 @@ class ClientControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_returns_error_if_file_not_found()
+    public function test_it_returns_error_if_file_not_found(): void
     {
         $folderName = 'users_export_'.auth()->id().'_'.now()->format('Ymd_His').'_XLSX';
         $folderPath = storage_path('app/public/export/'.$folderName);
@@ -479,7 +480,7 @@ class ClientControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_zips_directory_contents_successfully()
+    public function test_it_zips_directory_contents_successfully(): void
     {
         $folderName = 'users_export_'.auth()->id().'_'.now()->format('Ymd_His').'_XLSX';
         $folderPath = storage_path('app/public/export/'.$folderName);

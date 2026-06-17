@@ -22,7 +22,7 @@ class QueueService extends Model
         $value = '';
         $setting = $this->extraFieldRelation()->where('key', $key)->first();
         if ($setting) {
-            $value = $setting->value;
+            return $setting->value;
         }
 
         return $value;
@@ -33,13 +33,13 @@ class QueueService extends Model
         $check = true;
         $settings = $this->extraFieldRelation()->get();
         if ($settings->count() == 0) {
-            $check = false;
+            return false;
         }
 
         return $check;
     }
 
-    public function getQueueDetails()
+    public function getQueueDetails(): array
     {
         $id = $this->attributes['id'];
         $name = $this->attributes['name'];
@@ -49,7 +49,7 @@ class QueueService extends Model
             'id' => $id,
             'name' => [
                 'text' => $name,
-                'link' => ($name == 'Sync' || $name == 'Database') ? null : url("queue/{$id}"),
+                'link' => ($name == 'Sync' || $name == 'Database') ? null : url('queue/' . $id),
             ],
             'status' => [
                 'code' => (int) $status,
@@ -57,7 +57,7 @@ class QueueService extends Model
             ],
             'action' => [
                 'type' => $status == 1 ? 'activated' : 'activate',
-                'url' => url("queue/{$id}/activate"),
+                'url' => url(sprintf('queue/%s/activate', $id)),
                 'disabled' => (bool) $status,
             ],
         ];

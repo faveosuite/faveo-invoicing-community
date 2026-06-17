@@ -53,9 +53,9 @@ class TaxRate extends BaseModel
             ],
             'rate' => ['Tax Rate (%)', fn ($value) => $value],
             'priority' => ['Priority', fn ($value) => $value],
-            'compound' => ['Is Compound Tax', fn ($value) => $value ? 'Yes' : 'No'],
+            'compound' => ['Is Compound Tax', fn ($value): string => $value ? 'Yes' : 'No'],
             'tax_class' => ['Tax Class', fn ($value) => $value ?: 'Standard'],
-            'active' => ['Tax Status', fn ($value) => $value ? __('message.active') : __('message.inactive')],
+            'active' => ['Tax Status', fn ($value): array|string|null => $value ? __('message.active') : __('message.inactive')],
         ];
     }
 

@@ -30,28 +30,26 @@ class PaymentSettingsController extends Controller
                 }
             }
 
-            if (count($fields) > 0) {
-                foreach ($fields as $key => $field) {
-                    $plug = $plugs->where('name', $field['name'])->select(['path', 'status'])->orderBy('name')->get();
+            foreach ($fields as $key => $field) {
+                $plug = $plugs->where('name', $field['name'])->select(['path', 'status'])->orderBy('name')->get();
 
-                    if ($plug->isNotEmpty()) {
-                        foreach ($plug as $value) {
-                            $attributes[$key]['path'] = $value['path'];
-                            $attributes[$key]['status'] = $value['status'];
-                        }
-                    } else {
-                        $attributes[$key]['path'] = $field['name'];
-                        $attributes[$key]['status'] = 0;
+                if ($plug->isNotEmpty()) {
+                    foreach ($plug as $value) {
+                        $attributes[$key]['path'] = $value['path'];
+                        $attributes[$key]['status'] = $value['status'];
                     }
-
-                    $attributes[$key]['name'] = $field['name'];
-                    $attributes[$key]['settings'] = $field['settings'];
-                    $attributes[$key]['description'] = $field['description'];
-                    $attributes[$key]['website'] = $field['website'];
-                    $attributes[$key]['version'] = $field['version'];
-                    $attributes[$key]['author'] = $field['author'];
-                    $attributes[$key]['supported_currencies'] = $field['supported_currencies'];
+                } else {
+                    $attributes[$key]['path'] = $field['name'];
+                    $attributes[$key]['status'] = 0;
                 }
+
+                $attributes[$key]['name'] = $field['name'];
+                $attributes[$key]['settings'] = $field['settings'];
+                $attributes[$key]['description'] = $field['description'];
+                $attributes[$key]['website'] = $field['website'];
+                $attributes[$key]['version'] = $field['version'];
+                $attributes[$key]['author'] = $field['author'];
+                $attributes[$key]['supported_currencies'] = $field['supported_currencies'];
             }
 
             return $attributes;
@@ -60,13 +58,17 @@ class PaymentSettingsController extends Controller
         }
     }
 
-    public function readConfigs()
+    public function readConfigs(): array|string
     {
         $dir = app_path().DIRECTORY_SEPARATOR.'Plugins'.DIRECTORY_SEPARATOR;
         $directories = scandir($dir);
         $files = [];
         foreach ($directories as $key => $file) {
-            if ($file === '.' or $file === '..') {
+            if ($file === '.') {
+                continue;
+            }
+
+            if ($file === '..') {
                 continue;
             }
 
@@ -77,7 +79,7 @@ class PaymentSettingsController extends Controller
 
         $config = [];
         $plugins = [];
-        if (count($files) > 0) {
+        if ($files !== []) {
             foreach ($files as $key => $file) {
                 $plugin = $dir.$file;
                 $plugins[$key] = array_diff(scandir($plugin), ['.', '..', 'ServiceProvider.php']);
@@ -89,7 +91,7 @@ class PaymentSettingsController extends Controller
                 //opendir($dir);
                 if ($dh = opendir($dir)) {
                     while (($file = readdir($dh)) !== false) {
-                        if ($file == 'config.php') {
+                        if ($file === 'config.php') {
                             $config[] = $dir.DIRECTORY_SEPARATOR.$file;
                         }
                     }
@@ -99,19 +101,20 @@ class PaymentSettingsController extends Controller
             }
 
             return $config;
-        } else {
-            return 'null';
         }
+
+        return 'null';
     }
 
-    public function statusPlugin($slug)
+    public function statusPlugin(string $slug)
     {
         $plugs = new Plugin();
         $plug = $plugs->where('name', $slug)->first();
 
         if (! $plug) {
             $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
-            $str = "\n'App\\Plugins\\$slug"."\\ServiceProvider',";
+            $str = '
+\'App\Plugins\\' . $slug."\\ServiceProvider',";
             $line_i_am_looking_for = 102;
             $lines = file($app, FILE_IGNORE_NEW_LINES);
             $lines[$line_i_am_looking_for] = $str;
@@ -127,7 +130,8 @@ class PaymentSettingsController extends Controller
             $plug->status = 1;
 
             $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
-            $str = "\n'App\\Plugins\\$slug"."\\ServiceProvider',";
+            $str = '
+\'App\Plugins\\' . $slug."\\ServiceProvider',";
             $line_i_am_looking_for = 102;
             $lines = file($app, FILE_IGNORE_NEW_LINES);
             $lines[$line_i_am_looking_for] = $str;
@@ -137,7 +141,8 @@ class PaymentSettingsController extends Controller
             /*
              * remove service provider from app.php
              */
-            $str = "\n'App\\Plugins\\$slug"."\\ServiceProvider',";
+            $str = '
+\'App\Plugins\\' . $slug."\\ServiceProvider',";
             $path_to_file = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
 
             $file_contents = file_get_contents($path_to_file);
@@ -157,7 +162,8 @@ class PaymentSettingsController extends Controller
         $status = $request->input('status');
         $plug = $plugs->where('name', $name)->first();
         $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
-        $str = "\n'App\\Plugins\\$name"."\\ServiceProvider',";
+        $str = '
+\'App\Plugins\\' . $name."\\ServiceProvider',";
         $line_i_am_looking_for = 102;
         $lines = file($app, FILE_IGNORE_NEW_LINES);
         $lines[$line_i_am_looking_for] = $str;
@@ -189,8 +195,8 @@ class PaymentSettingsController extends Controller
             $configs = $this->fetchConfig();
 
             return successResponse('', array_values($configs));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage(), 500);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 

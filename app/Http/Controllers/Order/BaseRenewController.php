@@ -21,15 +21,15 @@ class BaseRenewController extends Controller
 {
     use TaxCalculation;
 
-    public function invoiceBySubscriptionId($id, $planid, $cost, $currency, $agents = null)
+    public function invoiceBySubscriptionId($id, int $planid, $cost, $currency, $agents = null)
     {
         try {
             $sub = Subscription::find($id);
             $order_id = $sub->order_id;
 
             return $this->getInvoiceByOrderId($order_id, $planid, $cost, $currency, $agents);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -68,8 +68,8 @@ class BaseRenewController extends Controller
             }
 
             return $this->generateInvoice($product, $user, $orderid, $planid, $cost, $code = '', $agents, $currency);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -79,13 +79,11 @@ class BaseRenewController extends Controller
             $product = Product::find($id);
             if ($product) {
                 return $product;
-            } else {
-                $product = Product::where('id', $order->product)->first();
-
-                return $product;
             }
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+
+            return Product::where('id', $order->product)->first();
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -117,14 +115,14 @@ class BaseRenewController extends Controller
                 $renewalPrice = $price;
             }
 
-            $formattedCurrency = currencyFormat($renewalPrice, $currency, true);
+            $formattedCurrency = currencyFormat($renewalPrice, $currency, includeSymbol: true);
 
             return successResponse('', [
                 'formatted_price' => $formattedCurrency,
                 'renewalPrice' => $renewalPrice,
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -178,8 +176,8 @@ class BaseRenewController extends Controller
             }
 
             return $items;
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 }

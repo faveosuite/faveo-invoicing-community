@@ -14,10 +14,19 @@ use Exception;
 
 class ServiceProviderController extends Controller
 {
+    /**
+     * @var \App\Model\licence\SlaServiceRelation
+     */
     public $slaServiceRelation;
 
+    /**
+     * @var \App\Model\Product\Service
+     */
     public $service;
 
+    /**
+     * @var \App\Model\licence\Licence
+     */
     public $licence;
 
     public function __construct()
@@ -49,8 +58,8 @@ class ServiceProviderController extends Controller
     {
         try {
             return view('themes.default1.serviceprovider.orders');
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -58,8 +67,8 @@ class ServiceProviderController extends Controller
     {
         try {
             return view('themes.default1.serviceprovider.sla');
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -70,8 +79,8 @@ class ServiceProviderController extends Controller
             $licences = $licence->get();
 
             return view('themes.default1.serviceprovider.pricing', compact('licences'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 }

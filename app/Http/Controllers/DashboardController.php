@@ -35,7 +35,7 @@ class DashboardController extends Controller
      * Only two currencies are allowed to be displayed on the dashboard. One is system deafult currency. Other is the activated
      * currency from the system.
      */
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $allowedCurrencies1 = Setting::find(1)->value('default_currency');
         $currency1Symbol = Setting::find(1)->value('default_symbol');
@@ -56,7 +56,7 @@ class DashboardController extends Controller
         $recentOrders = $this->getRecentOrders();
         $subscriptions = $this->getExpiringSubscriptions();
 
-        $expiredSubscriptions = $this->getExpiringSubscriptions(true);
+        $expiredSubscriptions = $this->getExpiringSubscriptions(past30Days: true);
 
         $invoices = $this->getRecentInvoices();
         $allSoldProducts = $this->getSoldProducts();
@@ -76,10 +76,8 @@ class DashboardController extends Controller
 
     /**
      * Get all the orders that got converted into paid orders in last 30 days.
-     *
-     * @return array
      */
-    private function getConversionRate()
+    private function getConversionRate(): array
     {
         $dayUtc = new Carbon('-30 days');
         $rate = 0;
@@ -95,10 +93,8 @@ class DashboardController extends Controller
 
     /**
      * Get all the installations and their percentage that got active in the last 30 days with respect to inactive installation.
-     *
-     * @return array
      */
-    public function getLast30DaysInstallation()
+    public function getLast30DaysInstallation(): array
     {
         $dayUtc = new Carbon('-30 days');
         $now = Date::now()->subDays(1);
@@ -116,26 +112,23 @@ class DashboardController extends Controller
      * Calculates total sales.
      *
      * @param  $allowedCurrencies  The currency in which total needs to be calculated
-     * @return float|int
      */
-    public function getTotalSales($allowedCurrencies)
+    public function getTotalSales($allowedCurrencies): float|int
     {
         $total = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
                  ->where('invoices.currency', $allowedCurrencies)
                  ->where('invoices.status', '!=', 'pending')
                  ->pluck('payments.amount')->all();
-        $grandTotal = array_sum($total);
 
-        return $grandTotal;
+        return array_sum($total);
     }
 
     /**
      * Calculates yearly sales.
      *
      * @param  $allowedCurrencies  The currency in which yearly sales needs to be calculated
-     * @return float|int
      */
-    public function getYearlySales($allowedCurrencies)
+    public function getYearlySales($allowedCurrencies): float|int
     {
         $currentYear = date('Y');
         $yearlytotal = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
@@ -143,18 +136,16 @@ class DashboardController extends Controller
                 ->where('invoices.currency', $allowedCurrencies)
                  ->where('invoices.status', '!=', 'pending')
                  ->pluck('payments.amount')->all();
-        $grandTotal = array_sum($yearlytotal);
 
-        return $grandTotal;
+        return array_sum($yearlytotal);
     }
 
     /**
      * Calculates monthly sales.
      *
      * @param  $allowedCurrencies  Currency in which monthly sales needs to be calculated
-     * @return float|int
      */
-    public function getMonthlySales($allowedCurrencies)
+    public function getMonthlySales($allowedCurrencies): float|int
     {
         $currentMonth = date('m');
         $currentYear = date('Y');
@@ -163,25 +154,22 @@ class DashboardController extends Controller
                 ->where('invoices.currency', $allowedCurrencies)
                  ->where('invoices.status', '!=', 'pending')
                  ->pluck('payments.amount')->all();
-        $grandTotal = array_sum($total);
 
-        return $grandTotal;
+        return array_sum($total);
     }
 
     /**
      * Calculates pending payments in the system.
      *
      * @param  $allowedCurrencies  Currency in which pending payment need to be calculated
-     * @return float|int
      */
-    public function getPendingPayments($allowedCurrencies)
+    public function getPendingPayments($allowedCurrencies): float|int
     {
         $total = Invoice::where('currency', $allowedCurrencies)
         ->where('status', '=', 'pending')
         ->pluck('grand_total')->all();
-        $grandTotal = array_sum($total);
 
-        return $grandTotal;
+        return array_sum($total);
     }
 
     /**
@@ -197,7 +185,7 @@ class DashboardController extends Controller
         $fromDateStart = date_create($dateBefore)->format('Y-m-d').' 00:00:00';
         $tillDateEnd = date_create($today)->format('Y-m-d').' 23:59:59';
 
-        $todayInclusive = Date::now()->endOfDay()->second(59);
+        Date::now()->endOfDay()->second(59);
 
         return User::orderBy('created_at', 'desc')
             ->where('active', 1)
@@ -218,7 +206,7 @@ class DashboardController extends Controller
     public function getSoldProducts(?int $noOfDays = null)
     {
         // ASSUMING THIS CODE WON"T STAY ALIVE TILL year 3000
-        $dateBefore = $noOfDays ? new Carbon("-$noOfDays days")->toDateTimeString() : Date::now()->startOfMillennium()->toDateTimeString();
+        $dateBefore = $noOfDays ? new Carbon(sprintf('-%s days', $noOfDays))->toDateTimeString() : Date::now()->startOfMillennium()->toDateTimeString();
 
         return Order::join('products', 'products.id', '=', 'orders.product')
             ->select(DB::raw('COUNT(*) as order_count'), 'products.id as product_id',
@@ -291,7 +279,7 @@ class DashboardController extends Controller
         $baseQuery->latest('subscription_ends_at')
             ->groupBy('subscriptions.id');
 
-        $subscriptions = $baseQuery->get()->map(function ($element) {
+        return $baseQuery->get()->map(function ($element) {
             $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)->first_name.' '.User::onlyTrashed()->find($element->user_id)->last_name;
             $element->client_profile_link = config('app.url').'/clients/'.$element->user_id;
             $element->order_link = config('app.url').'/orders/'.$element->order_id;
@@ -301,8 +289,6 @@ class DashboardController extends Controller
 
             return $element;
         });
-
-        return $subscriptions;
     }
 
     /**
@@ -318,7 +304,7 @@ class DashboardController extends Controller
         $fromDateStart = date_create($dateBefore)->format('Y-m-d').' 00:00:00';
         $tillDateEnd = date_create($today)->format('Y-m-d').' 23:59:59';
 
-        $todayInclusive = Date::now()->endOfDay()->second(59);
+        Date::now()->endOfDay()->second(59);
 
         return Invoice::with('user:id,first_name,last_name,email,user_name')
             ->leftJoin('currencies', 'invoices.currency', '=', 'currencies.code')
@@ -353,12 +339,11 @@ class DashboardController extends Controller
     private function getClientsUsingOldVersions()
     {
         $latestVersion = (string) Subscription::orderBy('version', 'desc')->value('version');
-        $baseQuery = $this->getBaseQueryForOrders()->where('price_override', '>', 0)
+
+        return $this->getBaseQueryForOrders()->where('price_override', '>', 0)
         ->where('subscriptions.version', '<', $latestVersion)->
         orderBy('subscriptions.created_at', 'desc')
         ->get();
-
-        return $baseQuery;
     }
 
     private function getBaseQueryForOrders()
@@ -372,8 +357,9 @@ class DashboardController extends Controller
             )->groupBy('orders.number');
     }
 
-    private function formatCurrencyTotals($totals)
+    private function formatCurrencyTotals(array $totals): array
     {
+
         $allowedCurrencies1 = Setting::find(1)->value('default_currency');
         $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->pluck('code')->first();
 
@@ -388,13 +374,13 @@ class DashboardController extends Controller
         return $totals;
     }
 
-    public function dashboard()
+    public function dashboard(): array
     {
         return [
-            'totalSales' => $this->formatCurrencyTotals($this->getTotalSalesByCurrency()),
-            'yearlySales' => $this->formatCurrencyTotals($this->getYearlySalesByCurrency()),
-            'monthlySales' => $this->formatCurrencyTotals($this->getMonthlySalesByCurrency()),
-            'pendingPayments' => $this->formatCurrencyTotals($this->getAllPendingPayments()),
+            'totalSales' => $this->formatCurrencyTotals($this->getTotalSalesByCurrency()->toArray()),
+            'yearlySales' => $this->formatCurrencyTotals($this->getYearlySalesByCurrency()->toArray()),
+            'monthlySales' => $this->formatCurrencyTotals($this->getMonthlySalesByCurrency()->toArray()),
+            'pendingPayments' => $this->formatCurrencyTotals($this->getAllPendingPayments()->toArray()),
             'productInstalledRate' => $this->getLastNoOfDaysInstallation(30),
             'paidOrderRate' => $this->getConversionRateByDays(30),
 
@@ -422,7 +408,7 @@ class DashboardController extends Controller
 
     private function getExpiredOrders(int $days)
     {
-        $subscriptions = Subscription::select(
+        return Subscription::select(
             'id',
             'order_id',
             'update_ends_at',
@@ -441,13 +427,11 @@ class DashboardController extends Controller
             ])
             ->orderBy('days_expired')
             ->get();
-
-        return $subscriptions;
     }
 
     private function getExpiringOrders(int $days)
     {
-        $subscriptions = Subscription::select(
+        return Subscription::select(
             'id',
             'order_id',
             'update_ends_at',
@@ -466,8 +450,6 @@ class DashboardController extends Controller
             ])
             ->orderBy('days_to_expire')
             ->get();
-
-        return $subscriptions;
     }
 
     public function getClientsUsingOldVersion()
@@ -566,7 +548,7 @@ class DashboardController extends Controller
             ->get();
 
         // Group by currency and sum pending amounts
-        $totals = $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(function ($invoice) {
+        $totals = $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(function ($invoice): int|float {
             $paidAmount = $invoice->payment->sum('amount');
 
             return $invoice->grand_total - $paidAmount;
@@ -575,7 +557,7 @@ class DashboardController extends Controller
         return $totals;
     }
 
-    public function getLastNoOfDaysInstallation(int $days)
+    public function getLastNoOfDaysInstallation(int $days): array
     {
         $startDate = Date::now()->subDays($days)->startOfDay();
         $endDate = Date::now()->subDay()->endOfDay();
@@ -598,7 +580,7 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getConversionRateByDays(int $days)
+    private function getConversionRateByDays(int $days): array
     {
         $startDate = Date::now()->subDays($days)->startOfDay();
         $endDate = Date::now()->endOfDay();
@@ -642,7 +624,7 @@ class DashboardController extends Controller
                 'status',
             ]);
 
-        return $invoices->map(function ($invoice) {
+        return $invoices->map(function ($invoice): array {
             $paidAmount = $invoice->payment_sum_amount ?? 0;
             $balance = $invoice->grand_total - $paidAmount;
 

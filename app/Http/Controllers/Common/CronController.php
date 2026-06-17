@@ -29,15 +29,15 @@ class CronController extends BaseCronController
 {
     protected $subscription;
 
-    protected $order;
+    protected \App\Model\Order\Order $order;
 
-    protected $user;
+    protected \App\User $user;
 
-    protected $template;
+    protected \App\Model\Common\Template $template;
 
-    protected $invoice;
+    protected \App\Model\Order\Invoice $invoice;
 
-    protected $client;
+    protected \GuzzleHttp\Client $client;
 
     protected $PostSubscriptionHandle;
 
@@ -70,7 +70,10 @@ class CronController extends BaseCronController
         $this->client = new Client();
     }
 
-    public function getAllDaysExpiryUsers($day)
+    /**
+     * @return array{users: mixed, orders: mixed, subscription: mixed}[]
+     */
+    public function getAllDaysExpiryUsers($day): array
     {
         $sub = $this->getAllDaysExpiryInfo($day);
         $users = [];
@@ -85,7 +88,10 @@ class CronController extends BaseCronController
         return $users;
     }
 
-    public function get15DaysExpiryUsers()
+    /**
+     * @return array{users: mixed, orders: mixed, subscription: mixed}[]
+     */
+    public function get15DaysExpiryUsers(): array
     {
         $sub = $this->get15DaysExpiryInfo();
         $users = [];
@@ -100,7 +106,10 @@ class CronController extends BaseCronController
         return $users;
     }
 
-    public function getOneDayExpiryUsers()
+    /**
+     * @return array{users: mixed, orders: mixed, subscription: mixed}[]
+     */
+    public function getOneDayExpiryUsers(): array
     {
         $sub = $this->getOneDayExpiryInfo();
         $users = [];
@@ -115,7 +124,10 @@ class CronController extends BaseCronController
         return $users;
     }
 
-    public function getOnDayExpiryUsers()
+    /**
+     * @return array{users: mixed, orders: mixed, subscription: mixed}[]
+     */
+    public function getOnDayExpiryUsers(): array
     {
         $sub = $this->getOnDayExpiryInfo();
         $users = [];
@@ -130,7 +142,10 @@ class CronController extends BaseCronController
         return $users;
     }
 
-    public function getExpiredUsers()
+    /**
+     * @return array{users: mixed, orders: mixed, subscription: mixed}[]
+     */
+    public function getExpiredUsers(): array
     {
         $sub = $this->getExpiredInfo();
         $users = [];
@@ -147,9 +162,8 @@ class CronController extends BaseCronController
 
     public function get1DaysSubscription()
     {
-        $users = [];
         $users = $this->getOneDayExpiryUsers();
-        if (count($users) > 0) {
+        if ($users !== []) {
             return $users[0]['subscription'];
         }
 
@@ -158,9 +172,8 @@ class CronController extends BaseCronController
 
     public function get0DaysSubscription()
     {
-        $users = [];
         $users = $this->getOnDayExpiryUsers();
-        if (count($users) > 0) {
+        if ($users !== []) {
             return $users[0]['subscription'];
         }
 
@@ -169,43 +182,48 @@ class CronController extends BaseCronController
 
     public function getPlus1Subscription()
     {
-        $users = [];
         $users = $this->getExpiredUsers();
-        if (count($users) > 0) {
+        if ($users !== []) {
             return $users[0]['subscription'];
         }
 
         return $users;
     }
 
-    public function getUsers()
+    /**
+     * @return list
+     */
+    public function getUsers(): array
     {
         $users = [];
-        if (count($this->get30DaysUsers())) {
-            array_push($users, $this->get30DaysUsers());
+        if (count($this->get30DaysUsers()) > 0) {
+            $users[] = $this->get30DaysUsers();
         }
 
-        if (count($this->get15DaysUsers())) {
-            array_push($users, $this->get15DaysUsers());
+        if (count($this->get15DaysUsers()) > 0) {
+            $users[] = $this->get15DaysUsers();
         }
 
-        if (count($this->get1DaysUsers())) {
-            array_push($users, $this->get1DaysUsers());
+        if (count($this->get1DaysUsers()) > 0) {
+            $users[] = $this->get1DaysUsers();
         }
 
-        if (count($this->get0DaysUsers())) {
-            array_push($users, $this->get0DaysUsers());
+        if (count($this->get0DaysUsers()) > 0) {
+            $users[] = $this->get0DaysUsers();
         }
 
-        if (count($this->getPlus1Users())) {
-            array_push($users, $this->getPlus1Users());
+        if (count($this->getPlus1Users()) > 0) {
+            $users[] = $this->getPlus1Users();
         }
 
         return $users;
     }
 
+    /**
+     * @return mixed[]
+     */
     #[Override]
-    public function getSubscriptions($days)
+    public function getSubscriptions($days): array
     {
         $decodedData = json_decode((string) $days[0]);
 
@@ -239,14 +257,15 @@ class CronController extends BaseCronController
                 ->toArray(); // Convert the collection to an array
 
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
-        }
+        } // nosemgrep: php.lang.security.unserialize-use.unserialize-use
 
-        $uniqueSubscriptions = array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions))); // nosemgrep: php.lang.security.unserialize-use.unserialize-use
-
-        return $uniqueSubscriptions;
+        return array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions)));
     }
 
-    public function getautoSubscriptions($days)
+    /**
+     * @return mixed[]
+     */
+    public function getautoSubscriptions($days): array
     {
         $decodedData = json_decode((string) $days[0]);
 
@@ -279,14 +298,15 @@ class CronController extends BaseCronController
                 ->toArray(); // Convert the collection to an array
 
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
-        }
+        } // nosemgrep: php.lang.security.unserialize-use.unserialize-use
 
-        $uniqueSubscriptions = array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions))); // nosemgrep: php.lang.security.unserialize-use.unserialize-use
-
-        return $uniqueSubscriptions;
+        return array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions)));
     }
 
-    public function getPostSubscriptions($days)
+    /**
+     * @return mixed[]
+     */
+    public function getPostSubscriptions($days): array
     {
         $decodedData = json_decode((string) $days[0]);
 
@@ -319,14 +339,12 @@ class CronController extends BaseCronController
                 ->toArray();
 
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
-        }
+        } // nosemgrep: php.lang.security.unserialize-use.unserialize-use
 
-        $uniqueSubscriptions = array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions))); // nosemgrep: php.lang.security.unserialize-use.unserialize-use
-
-        return $uniqueSubscriptions;
+        return array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions)));
     }
 
-    public function eachSubscription()
+    public function eachSubscription(): void
     {
         $status = StatusSetting::value('expiry_mail');
         if ($status == 1) {
@@ -348,7 +366,7 @@ class CronController extends BaseCronController
         }
     }
 
-    public function autoRenewalExpiryNotify()
+    public function autoRenewalExpiryNotify(): void
     {
         $status = StatusSetting::value('subs_expirymail');
         if ($status == 1) {
@@ -371,7 +389,7 @@ class CronController extends BaseCronController
         }
     }
 
-    public function postRenewalNotify()
+    public function postRenewalNotify(): void
     {
         $status = StatusSetting::value('post_expirymail');
         if ($status == 1) {
@@ -401,10 +419,8 @@ class CronController extends BaseCronController
      *
      * This function checks if invoices should be deleted, retrieves old invoices,
      * and deletes invoices that meet specific conditions.
-     *
-     * @return void
      */
-    public function invoicesDeletion()
+    public function invoicesDeletion(): void
     {
         if (! $this->shouldDeleteInvoices()) {
             return;
@@ -420,7 +436,7 @@ class CronController extends BaseCronController
         }
     }
 
-    public function reoonLogsDeletion()
+    public function reoonLogsDeletion(): void
     {
         if (! $this->shouldDeleteReooLogs()) {
             return;
@@ -433,7 +449,7 @@ class CronController extends BaseCronController
         }
     }
 
-    public function failedMessageDelivery()
+    public function failedMessageDelivery(): void
     {
         Session::forget('NonReachableUrls');
         $messages = FailedWhatsappMessage::get();
@@ -446,12 +462,12 @@ class CronController extends BaseCronController
         }
     }
 
-    private function shouldDeleteInvoices()
+    private function shouldDeleteInvoices(): bool
     {
         return StatusSetting::value('invoice_deletion_status') == 1;
     }
 
-    private function shouldDeleteReooLogs()
+    private function shouldDeleteReooLogs(): bool
     {
         return StatusSetting::value('reoon_deletion_status') == 1;
     }
@@ -460,24 +476,21 @@ class CronController extends BaseCronController
     {
         $date = Date::now()->subDays($days)->toDateString();
 
-        $oldInvoices = Invoice::where('status', 'pending')
+        return Invoice::where('status', 'pending')
             ->whereDate('date', '<=', $date)
             ->with(['invoiceItem', 'orderRelation'])
             ->get();
-
-        return $oldInvoices;
     }
 
     private function getOldReoonLogs($days)
     {
         $date = Date::now()->subDays($days)->toDateString();
-        $oldLogs = EmailValidationResults::whereDate('created_at', '<=', $date)
-            ->get();
 
-        return $oldLogs;
+        return EmailValidationResults::whereDate('created_at', '<=', $date)
+            ->get();
     }
 
-    private function canDeleteInvoice($invoice)
+    private function canDeleteInvoice($invoice): bool
     {
         $condition1 = $invoice->is_renewed == 0 &&
             ! $invoice->orderRelation()->exists() &&
@@ -506,7 +519,7 @@ class CronController extends BaseCronController
         });
     }
 
-    public function msgDeletions()
+    public function msgDeletions(): void
     {
         if (StatusSetting::value('msg91_report_delete_status') != 1) {
             return;
@@ -514,7 +527,7 @@ class CronController extends BaseCronController
 
         $days = ExpiryMailDay::value('msg91_days');
 
-        $from = CarbonImmutable::startOfTime();
+        CarbonImmutable::startOfTime();
 
         $to = Date::now()->subDays($days)->endOfDay();
 

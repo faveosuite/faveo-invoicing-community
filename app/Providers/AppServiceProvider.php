@@ -19,16 +19,14 @@ class AppServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         Schema::defaultStringLength(191);
 
-        Validator::extend('no_http', fn ($attribute, $value, $parameters, $validator) => ! str_contains((string) $value, 'http://') && ! str_contains((string) $value, 'https://'));
+        Validator::extend('no_http', fn ($attribute, $value, $parameters, $validator): bool => ! str_contains((string) $value, 'http://') && ! str_contains((string) $value, 'https://'));
 
-        Collection::macro('paginate', function ($perPage, $total = null, $page = null, $pageName = 'page') {
+        Collection::macro('paginate', function ($perPage, $total = null, $page = null, $pageName = 'page'): \Illuminate\Pagination\LengthAwarePaginator {
             $page = $page ?: LengthAwarePaginator::resolveCurrentPage($pageName);
 
             return new LengthAwarePaginator(
@@ -51,21 +49,17 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Register any application services.
-     *
-     * @return void
      */
     #[Override]
-    public function register()
+    public function register(): void
     {
         $this->app->singleton(NewsletterManager::class);
     }
 
     /**
      * Register custom file macros for session management.
-     *
-     * @return void
      */
-    public function fileMacros()
+    public function fileMacros(): void
     {
         // Clean directory except specified files and folders
         File::macro('cleanDirectoryFiles', function (
@@ -82,14 +76,14 @@ class AppServiceProvider extends ServiceProvider
 
             // Remove files
             foreach (File::files($directory) as $file) {
-                if (! in_array($file->getFilename(), $excludedFiles, true)) {
+                if (! in_array($file->getFilename(), $excludedFiles, strict: true)) {
                     File::delete($file->getPathname());
                 }
             }
 
             // Remove directories
             foreach (File::directories($directory) as $folder) {
-                if (! in_array(basename($folder), $excludedFolders, true)) {
+                if (! in_array(basename($folder), $excludedFolders, strict: true)) {
                     File::deleteDirectory($folder);
                 }
             }

@@ -24,7 +24,7 @@ class LogViewControllerTest extends DBTestCase
 {
     protected $defaultCategoryId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->withoutMiddleware();
@@ -35,7 +35,7 @@ class LogViewControllerTest extends DBTestCase
     /** ----------------------- Exception Logs ----------------------- */
     #[Test]
     #[Group('exception-logs')]
-    public function test_exceptionLogs_withoutFilters()
+    public function test_exceptionLogs_withoutFilters(): void
     {
         Logger::exception(new Exception('test_exception_1'));
         Logger::exception(new Exception('test_exception_2'));
@@ -50,7 +50,7 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('exception-logs')]
-    public function test_exceptionLogs_withSearchQuery()
+    public function test_exceptionLogs_withSearchQuery(): void
     {
         Logger::exception(new Exception('test_exception_1'));
         Logger::exception(new Exception('test_exception_2'));
@@ -66,10 +66,10 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('exception-logs')]
-    public function test_exceptionLogs_withLimit()
+    public function test_exceptionLogs_withLimit(): void
     {
         foreach (range(1, 5) as $i) {
-            Logger::exception(new Exception("test_exception_$i"));
+            Logger::exception(new Exception('test_exception_' . $i));
         }
 
         $payload = $this->defaultExceptionPayload(['limit' => 3]);
@@ -81,7 +81,7 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('exception-logs')]
-    public function test_exceptionLogs_withFutureDateSearch()
+    public function test_exceptionLogs_withFutureDateSearch(): void
     {
         Logger::exception(new Exception('test_exception_1'));
 
@@ -94,7 +94,7 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('exception-logs')]
-    public function test_exceptionLogs_withCategoryFilter()
+    public function test_exceptionLogs_withCategoryFilter(): void
     {
         $cat1 = LogCategory::create(['name' => 'test_category_1']);
         $cat2 = LogCategory::create(['name' => 'test_category_2']);
@@ -116,7 +116,7 @@ class LogViewControllerTest extends DBTestCase
     /** ----------------------- Cron Logs ----------------------- */
     #[Test]
     #[Group('cron-logs')]
-    public function test_cronLogs_withCategoryAndStatus()
+    public function test_cronLogs_withCategoryAndStatus(): void
     {
         LogCategory::create(['name' => 'database:sync']);
         $cronLog = Logger::cron('database:sync', 'Update DB to latest version');
@@ -132,7 +132,7 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('cron-logs')]
-    public function test_cronLogs_withLimit()
+    public function test_cronLogs_withLimit(): void
     {
         $log1 = Logger::cron('database:sync', 'Update DB to latest version');
         $log2 = Logger::cron('database:sync', 'Update DB to latest version');
@@ -149,7 +149,7 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('cron-logs')]
-    public function test_cronLogs_withCreatedAtFilter()
+    public function test_cronLogs_withCreatedAtFilter(): void
     {
         $log1 = Logger::cron('database:sync', 'Update DB to latest version');
         $log2 = Logger::cron('database:sync', 'Update DB to latest version');
@@ -167,7 +167,7 @@ class LogViewControllerTest extends DBTestCase
     /** ----------------------- Mail Logs ----------------------- */
     #[Test]
     #[Group('mail-logs')]
-    public function test_mailLogs_withoutFilters()
+    public function test_mailLogs_withoutFilters(): void
     {
         $log = $this->logMailByCategory();
 
@@ -180,13 +180,13 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('mail-logs')]
-    public function test_mailLogs_withSearchQuery()
+    public function test_mailLogs_withSearchQuery(): void
     {
         $log = $this->logMailByCategory('', '', [], [], 'First Subject');
         $categoryName = LogCategory::find($log->log_category_id)->name;
 
-        $this->logMailByCategory('', 'test1@gmail.com', [], [], 'Second Subject', 'queued', $categoryName);
-        $this->logMailByCategory('', 'test2@gmail.com', [], [], 'Third Subject', 'queued', $categoryName);
+        $this->logMailByCategory('', 'test1@gmail.com', [], [], 'Second Subject', $categoryName);
+        $this->logMailByCategory('', 'test2@gmail.com', [], [], 'Third Subject', $categoryName);
 
         $payload = $this->defaultMailPayload([
             'category' => $log->log_category_id,
@@ -200,13 +200,13 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('mail-logs')]
-    public function test_mailLogs_withLimit()
+    public function test_mailLogs_withLimit(): void
     {
         $log = $this->logMailByCategory('', '', [], [], 'First Subject');
         $categoryName = LogCategory::find($log->log_category_id)->name;
 
         foreach (['a@gmail.com', 'b@gmail.com', 'c@gmail.com', 'd@gmail.com'] as $mail) {
-            $this->logMailByCategory('', $mail, [], [], 'Some Subject', 'queued', $categoryName);
+            $this->logMailByCategory('', $mail, [], [], 'Some Subject', $categoryName);
         }
 
         $payload = $this->defaultMailPayload([
@@ -264,7 +264,7 @@ class LogViewControllerTest extends DBTestCase
 
     private function defaultColumns(array $fields): array
     {
-        return collect($fields)->map(fn ($f) => [
+        return collect($fields)->map(fn ($f): array => [
             'data' => $f,
             'searchable' => true,
             'orderable' => true,
@@ -273,14 +273,13 @@ class LogViewControllerTest extends DBTestCase
     }
 
     private function logMailByCategory(
-        $senderMail = 'test@sender.com',
-        $receiverMail = 'receiver@example.com',
-        $cc = [],
-        $bcc = [],
-        $subject = 'Test Subject',
-        $status = 'queued',
-        $categoryName = 'test_category'
-    ) {
+        string $senderMail = 'test@sender.com',
+        string $receiverMail = 'receiver@example.com',
+        array $cc = [],
+        array $bcc = [],
+        string $subject = 'Test Subject',
+        ?string $categoryName = 'test_category'
+    ): ?\Illuminate\Database\Eloquent\Model {
         return new LogWriteController()->logMailByCategory(
             $senderMail,
             $receiverMail,
@@ -296,7 +295,7 @@ class LogViewControllerTest extends DBTestCase
      * Delete Exception Log Test Cases
     */
     #[Test]
-    public function it_deletes_exception_logs()
+    public function it_deletes_exception_logs(): void
     {
         // Older log → should be deleted
         ExceptionLog::create([
@@ -334,7 +333,7 @@ class LogViewControllerTest extends DBTestCase
      */
 
     #[Test]
-    public function it_deletes_mail_logs()
+    public function it_deletes_mail_logs(): void
     {
         $category = LogCategory::create([
             'name' => 'default',
@@ -372,7 +371,7 @@ class LogViewControllerTest extends DBTestCase
     /*
      * Activity Log Test Cases
     */
-    public function test_get_activity_returns_activity_logs()
+    public function test_get_activity_returns_activity_logs(): void
     {
         $this->createActivity([
             'log_name' => 'User',
@@ -386,7 +385,7 @@ class LogViewControllerTest extends DBTestCase
             ->assertJsonFragment(['message' => 'Activity logs fetched successfully']);
     }
 
-    public function test_get_activity_search_filter_works()
+    public function test_get_activity_search_filter_works(): void
     {
         $user = User::factory()->create([
             'first_name' => 'Jon',
@@ -442,7 +441,7 @@ class LogViewControllerTest extends DBTestCase
         return Activity::create(array_merge($defaults, $overrides));
     }
 
-    public function test_filter_activity_logs_by_module()
+    public function test_filter_activity_logs_by_module(): void
     {
         // Filter by Module
         $this->createActivity(['log_name' => 'Billing']);
@@ -476,7 +475,7 @@ class LogViewControllerTest extends DBTestCase
         $response->assertStatus(200);
     }
 
-    public function test_get_activity_applies_all_filters_together()
+    public function test_get_activity_applies_all_filters_together(): void
     {
         $targetUser = User::factory()->create([
             'first_name' => 'John',
@@ -489,7 +488,7 @@ class LogViewControllerTest extends DBTestCase
         $otherUser = User::factory()->create();
 
         // Activity that MUST MATCH the filters
-        $matchingActivity = $this->createActivity([
+        $this->createActivity([
             'log_name' => 'Billing',
             'event' => 'created',
             'causer_id' => $targetUser->id,
@@ -516,7 +515,7 @@ class LogViewControllerTest extends DBTestCase
             'search-query' => 'Invoice',
         ]);
 
-        $response = $this->getJson("/get-activity?$queryString");
+        $response = $this->getJson('/get-activity?' . $queryString);
 
         $response->assertStatus(200)
                  ->assertJsonFragment([
@@ -532,7 +531,7 @@ class LogViewControllerTest extends DBTestCase
     /*
      * Delete Activity Log Test Cases
     */
-    public function test_it_deletes_activity_logs()
+    public function test_it_deletes_activity_logs(): void
     {
         // Old log (should be deleted)
         $this->createActivity([
@@ -560,9 +559,9 @@ class LogViewControllerTest extends DBTestCase
     /*
      * Delete Cron Log Test Cases
     */
-    public function test_it_deletes_cron_logs()
+    public function test_it_deletes_cron_logs(): void
     {
-        $category = LogCategory::create(['name' => 'database:sync']);
+        LogCategory::create(['name' => 'database:sync']);
 
         //Create OLD cron log — should be deleted
         $oldCronLog = Logger::cron('database:sync', 'Old cron execution');
@@ -590,7 +589,7 @@ class LogViewControllerTest extends DBTestCase
     /*
      * Delete Failed Job Log Test Cases
     */
-    public function test_it_deletes_failed_job_logs()
+    public function test_it_deletes_failed_job_logs(): void
     {
         // Create OLD failed job — should be deleted
         $oldFailedId = DB::table('failed_jobs')->insertGetId([
@@ -642,7 +641,7 @@ class LogViewControllerTest extends DBTestCase
      * Test Cases for Payment Logs
     */
 
-    protected function createPaymentLog(array $overrides = [])
+    protected function createPaymentLog(array $overrides = []): \App\Payment_log
     {
         $defaults = [
             'status' => 'success',
@@ -659,7 +658,7 @@ class LogViewControllerTest extends DBTestCase
         return $log;
     }
 
-    public function test_get_payment_logs()
+    public function test_get_payment_logs(): void
     {
         $user = User::factory()->create();
         $order = Order::factory()->create();
@@ -676,7 +675,7 @@ class LogViewControllerTest extends DBTestCase
                  ->assertJsonFragment(['status' => 'Success']);
     }
 
-    public function test_get_payment_logs_search_filter()
+    public function test_get_payment_logs_search_filter(): void
     {
         $user = User::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
         $order = Order::factory()->create();
@@ -692,7 +691,7 @@ class LogViewControllerTest extends DBTestCase
                   ->assertJsonFragment(['payment_email' => $user->email]);
 
         // Search by user name (first_name + last_name)
-        $fullName = "{$user->first_name} {$user->last_name}";
+        $fullName = sprintf('%s %s', $user->first_name, $user->last_name);
         $response2 = $this->getJson('/get-paymentlog?search-query='.$fullName);
         $response2->assertStatus(200)
                   ->assertJsonFragment(['user_name' => $fullName]);
@@ -722,7 +721,7 @@ class LogViewControllerTest extends DBTestCase
                   ->assertJsonFragment(['payment_method' => ucfirst((string) $paymentLog->payment_method)]);
     }
 
-    public function test_payment_log_applies_all_filters_together()
+    public function test_payment_log_applies_all_filters_together(): void
     {
         $user = User::factory()->create();
         $order = Order::factory()->create();
@@ -782,7 +781,7 @@ class LogViewControllerTest extends DBTestCase
     /*
     * Delete Payment Log Test Cases
     */
-    public function test_destroy_payment_returns_error_when_no_ids_sent()
+    public function test_destroy_payment_returns_error_when_no_ids_sent(): void
     {
         $payload = ['select' => []];
 
@@ -795,7 +794,7 @@ class LogViewControllerTest extends DBTestCase
     /*
     * Delete Payment Log Test Cases
     */
-    public function test_destroy_payment_deletes_selected_records()
+    public function test_destroy_payment_deletes_selected_records(): void
     {
         $user = User::factory()->create();
         $order = Order::factory()->create();

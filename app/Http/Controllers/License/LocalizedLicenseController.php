@@ -27,7 +27,7 @@ class LocalizedLicenseController extends Controller
         $this->middleware('admin', ['except' => ['downloadFile', 'downloadPrivate', 'storeFile']]);
     }
 
-    private function postCurl($post_url, $post_info, $token = null)
+    private function postCurl($post_url, $post_info, $token = null): bool|string
     {
         if (! empty($token)) {
             $ch = curl_init();
@@ -44,20 +44,19 @@ class LocalizedLicenseController extends Controller
             curl_close($ch);
 
             return $result;
-        } else {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $post_url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-            $result = curl_exec($ch);
-            curl_close($ch);
-
-            return $result;
         }
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $post_url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return $result;
     }
 
     /**
@@ -71,15 +70,15 @@ class LocalizedLicenseController extends Controller
             $filePath = storage_path('app/public/'.$fileName);
 
             return response()->download($filePath);
-        } else {
-            return redirect(url('login'));
         }
+
+        return redirect(url('login'));
     }
 
     /**
      * Downloads the license file through admin.
      * */
-    public function downloadFileAdmin($fileName)
+    public function downloadFileAdmin(string $fileName)
     {
         $filePath = storage_path('app/public/'.$fileName);
 
@@ -89,7 +88,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Downloads the private key for the license.
      * */
-    public function downloadPrivate($orderNo)
+    public function downloadPrivate(string $orderNo)
     {
         $fileName = storage_path('app/public/privateKey-'.$orderNo.'.txt');
 
@@ -123,9 +122,9 @@ class LocalizedLicenseController extends Controller
             resolve(EncryptDecryptController::class)->generateKeys($orderNo);
         } else {
             $files = [
-                "publicKey-{$orderNo}.txt",
-                "privateKey-{$orderNo}.txt",
-                "faveo-license-{$orderNo}.txt",
+                sprintf('publicKey-%s.txt', $orderNo),
+                sprintf('privateKey-%s.txt', $orderNo),
+                sprintf('faveo-license-%s.txt', $orderNo),
             ];
             Storage::disk('public')->delete($files);
         }
@@ -145,7 +144,7 @@ class LocalizedLicenseController extends Controller
             $files = collect(Storage::disk('public')->files())
                 ->filter(fn ($file) => Str::startsWith($file, 'faveo-license'))
                 ->values()
-                ->map(function ($file) {
+                ->map(function (string $file): array {
                     $orderNo = null;
                     if (preg_match('/faveo-license-\{(.+)}\.txt/', $file, $matches)) {
                         $orderNo = $matches[1];
@@ -160,7 +159,7 @@ class LocalizedLicenseController extends Controller
                 });
 
             if ($searchQuery) {
-                $files = $files->filter(fn ($f) => str_contains(strtolower($f['file_name'] ?? ''), strtolower((string) $searchQuery)) ||
+                $files = $files->filter(fn ($f): bool => str_contains(strtolower($f['file_name'] ?? ''), strtolower((string) $searchQuery)) ||
                     str_contains(strtolower($f['order_number'] ?? ''), strtolower((string) $searchQuery))
                 )->values();
             }
@@ -236,7 +235,7 @@ class LocalizedLicenseController extends Controller
                     ['license_code' => $licenseCode, 'installation_domain' => $domain],
                     ['installation_path' => $domain, 'version' => $Latestversion, 'installation_status' => 1]
                 );
-                $this->localizedLicenseInstallLM($orderNo, $domain, $licenseCode);
+                $this->localizedLicenseInstallLM($orderNo);
 
                 $userData = '<root_url>'.$domain.'</root_url><license_code>'.$licenseCode.'</license_code><license_expiry>'.$licenseExpiry.'</license_expiry><updates_expiry>'.$updatesExpiry.'</updates_expiry><support_expiry>'.$supportExpiry.'</support_expiry>';
 
@@ -249,12 +248,12 @@ class LocalizedLicenseController extends Controller
                 $link = $this->tempOrderLink($orderNo, $userID);
 
                 return Redirect::to($link);
-            } else {
-                return redirect(url('login'));
             }
-        } else {
+
             return redirect(url('login'));
         }
+
+        return redirect(url('login'));
     }
 
     /**
@@ -263,23 +262,18 @@ class LocalizedLicenseController extends Controller
     public function tempOrderLink($orderNo, $userID)
     {
         if (! empty($userID) && ! empty(Auth::user()->id)) {
-            $url = URL::temporarySignedRoute('event.rsvp', now()->addSeconds(30), [
+            return URL::temporarySignedRoute('event.rsvp', now()->addSeconds(30), [
                 'orderNo' => $orderNo,
             ]);
-
-            return $url;
-        } else {
-            return redirect(url('login'));
         }
+
+        return redirect(url('login'));
     }
 
-    private function localizedLicenseInstallLM($orderNo, $domain, $licenseCode)
+    private function localizedLicenseInstallLM($orderNo): void
     {
-        $client_email = '';
-        $productId = Order::where('number', $orderNo)->value('product');
-        $installation_date = date('Y-m-d');
-        $installation_hash = hash('sha256', $domain.$client_email.$licenseCode);
-
+        Order::where('number', $orderNo)->value('product');
+        date('Y-m-d');
         // Registration is now handled internally - no API call needed
     }
 
@@ -337,16 +331,16 @@ class LocalizedLicenseController extends Controller
     }
 
     //return an array with license data
-    private function getLicenseData($fileName, $orderNo)
+    private function getLicenseData($fileName, string $orderNo): array
     {
-        $settings_row = [];
-        $settings_row = $this->parseLicenseFile($fileName, $orderNo);
-
-        return $settings_row;
+        return $this->parseLicenseFile($fileName, $orderNo);
     }
 
     //parse license file and make an array with license data
-    private function parseLicenseFile($fileName, $orderNo)
+    /**
+     * @return string[]
+     */
+    private function parseLicenseFile($fileName, string $orderNo): array
     {
         $license_data_array = [];
         $stored = Storage::disk('public')->path($fileName);
@@ -357,11 +351,9 @@ class LocalizedLicenseController extends Controller
             $stored = Storage::disk('public')->path($fileName);
             $file_content = file_get_contents($stored);
             preg_match_all("/<([a-z_]+)>(.*?)<\/([a-z_]+)>/", $file_content, $matches, PREG_SET_ORDER);
-            if (! empty($matches)) {
-                foreach ($matches as $value) {
-                    if (! empty($value[1]) && $value[1] == $value[3]) {
-                        $license_data_array[$value[1]] = $value[2];
-                    }
+            foreach ($matches as $value) {
+                if (isset($value[1]) && ($value[1] !== '' && $value[1] !== '0') && $value[1] == $value[3]) {
+                    $license_data_array[$value[1]] = $value[2];
                 }
             }
         }

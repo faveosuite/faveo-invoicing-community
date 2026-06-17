@@ -48,7 +48,7 @@ class ProductGroup extends BaseModel
     }
 
     #[Override]
-    public function delete()
+    public function delete(): void
     {
         $this->config()->delete();
         $this->features()->delete();

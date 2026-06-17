@@ -25,7 +25,7 @@ class LinkLicenseToPlugin extends Command
         $products = array_filter(explode(',', $productOption));
         $plugins = array_filter(explode(',', $pluginOption));
 
-        if (empty($products) || empty($plugins)) {
+        if ($products === [] || $plugins === []) {
             $this->error('Invalid product or plugin values.');
 
             return 1;
@@ -35,13 +35,13 @@ class LinkLicenseToPlugin extends Command
             $licenses = License::where('product_id', $product)->get();
 
             if ($licenses->isEmpty()) {
-                $this->warn("No licenses found for product ID: {$product}");
+                $this->warn('No licenses found for product ID: ' . $product);
                 continue;
             }
 
             foreach ($licenses as $license) {
                 $license->licensePlugins()->createMany(
-                    collect($plugins)->map(fn ($plugin) => ['product_id' => $plugin])->all()
+                    collect($plugins)->map(fn ($plugin): array => ['product_id' => $plugin])->all()
                 );
             }
         }

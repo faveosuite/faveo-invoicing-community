@@ -11,10 +11,8 @@ class invoiceDeletionTest extends DBTestCase
 {
     /**
      * A basic unit test example.
-     *
-     * @return void
      */
-    public function test_oldinvoice_deletion_if_not_renewal_return_success()
+    public function test_oldinvoice_deletion_if_not_renewal_return_success(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser();
@@ -43,7 +41,7 @@ class invoiceDeletionTest extends DBTestCase
         $this->assertDatabaseMissing('invoices', ['id' => $invoice->id]);
     }
 
-    public function test_oldinvoice_deletion_if__renewal_return_success()
+    public function test_oldinvoice_deletion_if__renewal_return_success(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser();

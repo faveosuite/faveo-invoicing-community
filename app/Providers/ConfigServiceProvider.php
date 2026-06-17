@@ -29,7 +29,7 @@ class ConfigServiceProvider extends ServiceProvider
             $rows = DB::table('common_settings')
                 ->whereIn('option_name', ['debugging', 'sentry', 'cache'])
                 ->get()
-                ->keyBy(fn ($r) => "{$r->option_name}:{$r->optional_field}");
+                ->keyBy(fn ($r): string => sprintf('%s:%s', $r->option_name, $r->optional_field));
 
             $bool = fn (string $key): bool => (bool) ($rows->get($key)?->option_value ?? false);
             $debugOn = $bool('debugging:app_debug');
@@ -64,8 +64,8 @@ class ConfigServiceProvider extends ServiceProvider
                     ?->getOptions()
                     ->setTracesSampleRate(config('sentry.traces_sample_rate') ?: null);
             }
-        } catch (Exception $e) {
-            Log::warning('ConfigServiceProvider: Sentry config failed — '.$e->getMessage());
+        } catch (Exception $exception) {
+            Log::warning('ConfigServiceProvider: Sentry config failed — '.$exception->getMessage());
         }
     }
 }

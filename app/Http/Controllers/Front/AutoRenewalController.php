@@ -39,15 +39,15 @@ class AutoRenewalController extends Controller
             // Use a unique nonce in the reference so each modal open creates a
             // fresh PaymentIntent — prevents idempotency returning an already-
             // confirmed PI when the user retries after a partial failure.
-            $paymentRequest = $this->buildRequest($order, 'stripe', uniqid('', true));
+            $paymentRequest = $this->buildRequest($order, 'stripe', uniqid('', more_entropy: true));
             $session = $this->payments->startCardPayment('Stripe', $paymentRequest);
 
             return successResponse('', array_merge($session->clientConfig, [
                 'display_amount' => $amount,
                 'currency_symbol' => $symbol,
             ]));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -80,8 +80,8 @@ class AutoRenewalController extends Controller
             $this->saveRenewal($order, 'stripe', $paymentIntentId);
 
             return successResponse(__('message.card_details_updated_successfully'));
-        } catch (Exception $e) {
-            $this->logPayment($order, 'stripe', 'failed', $e->getMessage());
+        } catch (Exception $exception) {
+            $this->logPayment($order, 'stripe', 'failed', $exception->getMessage());
 
             return errorResponse(__('message.something_different_payment'));
         }
@@ -98,8 +98,8 @@ class AutoRenewalController extends Controller
             $session = $this->payments->start('Razorpay', $this->buildRequest($order, 'razorpay'));
 
             return successResponse('', $session->clientConfig);
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -125,10 +125,10 @@ class AutoRenewalController extends Controller
             $this->saveRenewal($order, 'razorpay', $request->input('razorpay_payment_id'));
 
             return successResponse(__('message.card_details_updated_successfully'));
-        } catch (Exception $e) {
-            $this->logPayment($order, 'razorpay', 'failed', $e->getMessage());
+        } catch (Exception $exception) {
+            $this->logPayment($order, 'razorpay', 'failed', $exception->getMessage());
 
-            return errorResponse($e->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -145,8 +145,8 @@ class AutoRenewalController extends Controller
             $this->cancelSubscription($subscription);
 
             return successResponse(__('message.auto_subscription_disabled'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -167,7 +167,7 @@ class AutoRenewalController extends Controller
 
         $amount = getMinimumAmountForPayments($currency, $gateway);
 
-        $reference = $nonce ? 'renewal_'.$order->id.'_'.$nonce : 'renewal_'.$order->id;
+        $reference = $nonce !== '' && $nonce !== '0' ? 'renewal_'.$order->id.'_'.$nonce : 'renewal_'.$order->id;
 
         return new GatewayPaymentRequest(
             amount: $amount,
@@ -217,7 +217,7 @@ class AutoRenewalController extends Controller
                 $service->cancelSubscription($gateway, $subscription->subscribe_id);
             } catch (Exception $e) {
                 // Already cancelled at gateway — continue to reset local state
-                Logger::warning("Subscription cancel skipped [{$gateway}]: ".$e->getMessage());
+                Logger::warning(sprintf('Subscription cancel skipped [%s]: ', $gateway).$e->getMessage());
             }
         }
 

@@ -36,9 +36,9 @@ class Plan extends BaseModel
         return [
             'name' => ['Plan Name', fn ($value) => $value],
             'product' => ['Product', fn ($value) => Product::find($value)?->name],
-            'allow_tax' => ['Allow Tax', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+            'allow_tax' => ['Allow Tax', fn ($value): array|string|null => $value === 1 ? __('message.yes') : __('message.no')],
             'days' => ['Plan Days', fn ($value) => $value],
-            'status' => ['Status', fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
+            'status' => ['Status', fn ($value): array|string|null => $value === 1 ? __('message.active') : __('message.inactive')],
         ];
     }
 

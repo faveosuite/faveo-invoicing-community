@@ -90,44 +90,45 @@ class Order extends BaseModel
     }
 
     #[Override]
-    public function delete()
+    public function delete(): void
     {
         $this->invoices()->detach();
         $this->subscription()->delete();
         parent::delete();
     }
 
-    protected function getOrderStatusAttribute($value)
+    protected function orderStatus(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return ucfirst((string) $value);
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value): string {
+            return ucfirst((string) $value);
+        });
     }
 
-    protected function getSerialKeyAttribute($value)
+    protected function serialKey(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        try {
-            $decrypted = Crypt::decrypt($value);
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+            try {
+                return Crypt::decrypt($value);
+            } catch (DecryptException) {
+                return $value;
+            }
+        });
+    }
 
-            return $decrypted;
-        } catch (DecryptException) {
+    protected function domain(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+            if (Str::endsWith($value, '/')) {
+                return substr_replace($value, '', -1, 0);
+            }
+
             return $value;
-        }
+        }, set: function ($value): array {
+            return ['domain' => $this->get_domain($value)];
+        });
     }
 
-    protected function getDomainAttribute($value)
-    {
-        if (Str::endsWith($value, '/')) {
-            $value = substr_replace($value, '', -1, 0);
-        }
-
-        return $value;
-    }
-
-    protected function setDomainAttribute($value)
-    {
-        $this->attributes['domain'] = $this->get_domain($value);
-    }
-
-    public function get_domain($url)
+    public function get_domain($url): string
     {
         $pieces = parse_url((string) $url);
         $domain = $pieces['host'] ?? '';
@@ -142,12 +143,12 @@ class Order extends BaseModel
         return strtolower($domain);
     }
 
-    public static function getOrderLink($orderId, $url = 'orders')
+    public static function getOrderLink($orderId, string $url = 'orders'): string
     {
         $link = '--';
         $order = Order::where('id', $orderId)->select('id', 'number')->first();
         if ($order) {
-            $link = '<a href='.url($url.'/'.$order->id).'>'.$order->number.'</a>';
+            return '<a href='.url($url.'/'.$order->id).'>'.$order->number.'</a>';
         }
 
         return $link;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Plugins\Zoho\Tests\Controllers\Api;
 
 use App\Plugins\Zoho\Controllers\Api\ZohoRegion;
@@ -7,7 +9,7 @@ use Tests\DBTestCase;
 
 class ZohoRegionTest extends DBTestCase
 {
-    public function test_it_returns_correct_label_for_each_region()
+    public function test_it_returns_correct_label_for_each_region(): void
     {
         $expectations = [
             'us' => 'United States',
@@ -24,7 +26,7 @@ class ZohoRegionTest extends DBTestCase
         }
     }
 
-    public function test_it_returns_correct_campaigns_domain_for_each_region()
+    public function test_it_returns_correct_campaigns_domain_for_each_region(): void
     {
         $expectations = [
             'us' => 'campaigns.zoho.com',
@@ -41,7 +43,7 @@ class ZohoRegionTest extends DBTestCase
         }
     }
 
-    public function test_it_returns_correct_accounts_domain_for_each_region()
+    public function test_it_returns_correct_accounts_domain_for_each_region(): void
     {
         $expectations = [
             'us' => 'accounts.zoho.com',
@@ -58,7 +60,7 @@ class ZohoRegionTest extends DBTestCase
         }
     }
 
-    public function test_it_returns_correct_api_domain_for_each_region()
+    public function test_it_returns_correct_api_domain_for_each_region(): void
     {
         $expectations = [
             'us' => 'www.zohoapis.com',
@@ -75,7 +77,7 @@ class ZohoRegionTest extends DBTestCase
         }
     }
 
-    public function test_it_can_be_instantiated_from_string_value()
+    public function test_it_can_be_instantiated_from_string_value(): void
     {
         $this->assertEquals(ZohoRegion::UnitedStates, ZohoRegion::from('us'));
         $this->assertEquals(ZohoRegion::Europe, ZohoRegion::from('eu'));
@@ -85,12 +87,12 @@ class ZohoRegionTest extends DBTestCase
         $this->assertEquals(ZohoRegion::China, ZohoRegion::from('cn'));
     }
 
-    public function test_it_returns_null_for_invalid_region_with_try_from()
+    public function test_it_returns_null_for_invalid_region_with_try_from(): void
     {
         $this->assertNull(ZohoRegion::tryFrom('invalid'));
     }
 
-    public function test_it_has_correct_enum_values()
+    public function test_it_has_correct_enum_values(): void
     {
         $this->assertEquals('us', ZohoRegion::UnitedStates->value);
         $this->assertEquals('eu', ZohoRegion::Europe->value);
@@ -100,7 +102,7 @@ class ZohoRegionTest extends DBTestCase
         $this->assertEquals('cn', ZohoRegion::China->value);
     }
 
-    public function test_it_returns_all_enum_cases()
+    public function test_it_returns_all_enum_cases(): void
     {
         $cases = ZohoRegion::cases();
 

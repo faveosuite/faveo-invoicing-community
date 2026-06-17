@@ -38,8 +38,8 @@ class TaxController extends Controller
                     ->orderBy('name')->pluck('name')->implode("\n"),
                 'countries' => getSupportedCountriesForIntlInput(),
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage(), 500);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 
@@ -60,15 +60,15 @@ class TaxController extends Controller
                 })
                 ->when($searchString, function ($query) use ($searchString): void {
                     $query->where(function (Builder $q) use ($searchString): void {
-                        $q->where('name', 'like', "%{$searchString}%")
-                            ->orWhere('country', 'like', "%{$searchString}%")
-                            ->orWhere('state', 'like', "%{$searchString}%");
+                        $q->where('name', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhere('country', 'like', sprintf('%%%s%%', $searchString))
+                            ->orWhere('state', 'like', sprintf('%%%s%%', $searchString));
                     });
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $rates->getCollection()->transform(fn ($rate) => [
+            $rates->getCollection()->transform(fn ($rate): array => [
                 'id' => $rate->id,
                 'name' => $rate->name,
                 'country' => $rate->country ?: 'All',
@@ -81,8 +81,8 @@ class TaxController extends Controller
             ]);
 
             return successResponse(__('message.tax_fetched'), $rates);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -107,8 +107,8 @@ class TaxController extends Controller
                 'classes' => $this->taxClassList(),
                 'states' => $rate->country ? findStateByRegionId($rate->country) : [],
             ]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -124,8 +124,8 @@ class TaxController extends Controller
             $this->syncLocations($rate, $request);
 
             return successResponse(__('message.created-successfully'), ['tax' => $rate]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage(), 500);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 
@@ -146,8 +146,8 @@ class TaxController extends Controller
             $this->syncLocations($rate, $request);
 
             return successResponse(__('message.tax_updated_successfully'), ['tax' => $rate]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -156,7 +156,7 @@ class TaxController extends Controller
     {
         try {
             $ids = array_filter(array_unique(array_map(intval(...), (array) $request->input('select', []))));
-            if (empty($ids)) {
+            if ($ids === []) {
                 return errorResponse(__('message.select-a-row'), 400);
             }
 
@@ -168,8 +168,8 @@ class TaxController extends Controller
             TaxRate::whereIn('id', $ids)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage(), 500);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 
@@ -182,8 +182,8 @@ class TaxController extends Controller
                 ->get(['iso2', 'state_subdivision_name']);
 
             return successResponse('', ['states' => $states]);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -205,8 +205,8 @@ class TaxController extends Controller
             }
 
             return successResponse(__('message.tax_settings_saved_successfully'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -215,7 +215,7 @@ class TaxController extends Controller
     private function taxClassList(): array
     {
         return TaxClass::orderBy('name')->get(['name', 'slug'])
-            ->map(fn ($c) => ['slug' => $c->slug, 'name' => $c->name])->all();
+            ->map(fn ($c): array => ['slug' => $c->slug, 'name' => $c->name])->all();
     }
 
     /**
@@ -227,9 +227,9 @@ class TaxController extends Controller
     private function syncAdditionalClasses(string $raw): void
     {
         $desired = collect(preg_split('/\r\n|\r|\n/', $raw))
-            ->map(fn ($n) => trim($n))
+            ->map(fn ($n): string => trim($n))
             ->filter()
-            ->mapWithKeys(fn ($n) => [Str::slug($n) => $n])
+            ->mapWithKeys(fn ($n): array => [Str::slug($n) => $n])
             ->forget('');
 
         $standardId = TaxClass::where('slug', '')->value('id');
@@ -269,7 +269,7 @@ class TaxController extends Controller
             'country' => strtoupper((string) $request->input('country', '')),
             'state' => (string) $request->input('state', ''),
             'priority' => (int) ($request->input('priority') ?: 1),
-            'compound' => (bool) $request->input('compound', false),
+            'compound' => (bool) $request->input('compound', default: false),
             'tax_class' => (string) $request->input('tax_class', ''),
             'active' => $request->has('active') ? (bool) $request->input('active') : true,
         ];

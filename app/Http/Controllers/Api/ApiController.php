@@ -14,7 +14,7 @@ class ApiController extends Controller
     {
         $content = $request->getContent();
 
-        $json = json_decode($content, true);
+        $json = json_decode($content, associative: true);
 
         Log::channel('csp')->info('CSP Report Received', $json ?? ['raw' => $content]);
 

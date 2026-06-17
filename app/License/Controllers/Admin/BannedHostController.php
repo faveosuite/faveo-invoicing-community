@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Lang;
  */
 class BannedHostController extends Controller
 {
-    public function __construct(Request $request)
+    public function __construct()
     {
         $this->ip_address = request()->server('REMOTE_ADDR');
     }
@@ -25,7 +25,6 @@ class BannedHostController extends Controller
     /**
      *To Add Banned hosts of License manager.
      *
-     * @param  BannedHostRequest  $request
      * @param  $api_key_secret
      * @param  $banned_host_ip
      * @param  $comments

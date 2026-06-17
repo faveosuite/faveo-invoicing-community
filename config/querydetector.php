@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use BeyondCode\QueryDetector\Outputs\Alert;
 use BeyondCode\QueryDetector\Outputs\Log;
 
@@ -8,7 +10,7 @@ return [
      * Enable or disable the query detection.
      * If this is set to "null", the app.debug config value will be used.
      */
-    'enabled' => env('QUERY_DETECTOR_ENABLED', null),
+    'enabled' => env('QUERY_DETECTOR_ENABLED'),
 
     /*
      * Threshold level for the N+1 query detection. If a relation query will be

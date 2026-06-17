@@ -10,7 +10,7 @@ class SocialLoginTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function test_updates_social_login_settings_successfully()
+    public function test_updates_social_login_settings_successfully(): void
     {
         $admin = User::factory()->create([
             'role' => 'admin',

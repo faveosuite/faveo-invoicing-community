@@ -17,7 +17,7 @@ use Logger;
 
 class BaseProductController extends ExtendedBaseProductController
 {
-    public function getMyUrl()
+    public function getMyUrl(): string
     {
         $server = new Request();
         $url = \Illuminate\Support\Facades\Request::server('REQUEST_URI');
@@ -25,15 +25,14 @@ class BaseProductController extends ExtendedBaseProductController
         $server['path'] = dirname($server['path']);
         $server = parse_url($server['path']);
         $server['path'] = dirname($server['path']);
-        $server = 'http://'.\Illuminate\Support\Facades\Request::server('HTTP_HOST').$server['path'];
 
-        return $server;
+        return 'http://'.\Illuminate\Support\Facades\Request::server('HTTP_HOST').$server['path'];
     }
 
     /*
     * Get Product Qty if Product can be modified
      */
-    public function getProductQtyCheck(int $productId, Plan $plan, string $currency)
+    public function getProductQtyCheck(int $productId, Plan $plan, string $currency): array
     {
         if (! self::checkMultiProduct($productId)) {
             return [
@@ -58,20 +57,18 @@ class BaseProductController extends ExtendedBaseProductController
     *
     * @return boolean
      */
-    public function checkMultiProduct(int $productid)
+    public function checkMultiProduct(int $productid): bool
     {
         $product = new Product();
         $product = $product->find($productid);
-        if ($product) {
-            if ($product->can_modify_quantity == 1) {
-                return true;
-            }
+        if (!$product) {
+            return false;
         }
 
-        return false;
+        return $product->can_modify_quantity == 1;
     }
 
-    public function getAgentQtyCheck(int $productId, Plan $plan, string $currency)
+    public function getAgentQtyCheck(int $productId, Plan $plan, string $currency): array
     {
         if (! self::checkMultiAgent($productId)) {
             return [
@@ -96,24 +93,20 @@ class BaseProductController extends ExtendedBaseProductController
     *
     * @return boolean
      */
-    public function checkMultiAgent(int $productid)
+    public function checkMultiAgent(int $productid): bool
     {
         $product = new Product();
         $product = $product->find($productid);
-        if ($product) {
-            if ($product->can_modify_agent == 1) {
-                return true;
-            }
+        if (!$product) {
+            return false;
         }
 
-        return false;
+        return $product->can_modify_agent == 1;
     }
 
     /**
      * Get the Subscription and Price Based on the Product Selected while generating Invoice (Admin Panel).
      *
-     * @param  int  $productid
-     * @param  Request  $request
      * @return [type]
      */
     public function getSubscriptionCheck(int $productid, Request $request)
@@ -152,10 +145,10 @@ class BaseProductController extends ExtendedBaseProductController
                 ->toHtml();
 
             return successResponse('', $field);
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return errorResponse($ex->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -182,9 +175,9 @@ class BaseProductController extends ExtendedBaseProductController
 
             if ($product->github_owner) {
                 $tag = $version_id
-                    ?: app(GithubApiController::class)->latestTag($product->github_owner, $product->github_repository);
+                    ?: resolve(GithubApiController::class)->latestTag($product->github_owner, $product->github_repository);
 
-                return $this->download($product, null, $tag);
+                return $this->download($product, tag: $tag);
             }
 
             $version = ProductUpload::where('product_id', $order->product)
@@ -199,10 +192,10 @@ class BaseProductController extends ExtendedBaseProductController
             }
 
             return $this->download($product, $version);
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return errorResponse($ex->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -247,15 +240,15 @@ class BaseProductController extends ExtendedBaseProductController
             ];
 
             return successResponse('', $result);
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    public function updateVersionFromGithub($productid, $github_owner, $github_repository): void
+    public function updateVersionFromGithub($productid, string $github_owner, string $github_repository): void
     {
         $product = Product::findOrFail($productid);
-        $product->version = app(GithubApiController::class)->latestTag($github_owner, $github_repository);
+        $product->version = resolve(GithubApiController::class)->latestTag($github_owner, $github_repository);
         $product->save();
     }
 
@@ -266,7 +259,6 @@ class BaseProductController extends ExtendedBaseProductController
      *
      * @date   2019-01-11T00:18:49+0530
      *
-     * @param  int  $productid
      * @return bool
      */
     public function allowQuantityOrAgent(int $productid)
@@ -283,7 +275,7 @@ class BaseProductController extends ExtendedBaseProductController
      * @param  int  $productid  The id of the Product added to the cart
      * @return array The permissons for Agents and Quantity
      */
-    public function isAllowedtoEdit(int $productid)
+    public function isAllowedtoEdit(int $productid): array
     {
         $product = Product::where('id', $productid)->first();
 
@@ -300,7 +292,7 @@ class BaseProductController extends ExtendedBaseProductController
         $licenseRecord = resolve(LicenseService::class)->findByCode($license_code);
         $product = $licenseRecord ? [collect($licenseRecord)->toArray()] : [];
 
-        if (! $product) {
+        if ($product === []) {
             return errorResponse(Lang::get('message.product_not_found'));
         }
 

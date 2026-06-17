@@ -36,8 +36,8 @@ class CloudProducts extends BaseModel
             'cloud_free_plan' => ['Free Plan', fn ($value) => Plan::find($value)?->name],
             'cloud_product_key' => ['Product Key', fn ($value) => $value],
             'trial_status' => [
-                "Trial Status for {$product} (Plan : {$plan})",
-                fn ($value) => $value ? __('message.active') : __('message.inactive'),
+                sprintf('Trial Status for %s (Plan : %s)', $product, $plan),
+                fn ($value): array|string|null => $value ? __('message.active') : __('message.inactive'),
             ],
         ];
     }

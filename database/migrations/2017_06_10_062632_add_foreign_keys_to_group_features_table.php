@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('group_features', function (Blueprint $table): void {
             // Get all indexes for the group_features table
@@ -39,10 +37,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('group_features', function (Blueprint $table): void {
             $table->dropForeign('group_features_group_id_foreign');

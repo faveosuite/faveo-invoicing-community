@@ -42,8 +42,8 @@ class ExtendedPlanController extends Controller
 
                 return response(Period::create($data));
             }
-        } catch (Exception $ex) {
-            $result = [$ex->getMessage()];
+        } catch (Exception $exception) {
+            $result = [$exception->getMessage()];
 
             return response()->json(compact('result'), 500);
         }

@@ -16,7 +16,7 @@ class LoginTest extends DBTestCase
     use DatabaseTransactions;
 
     #[Group('postLogin')]
-    public function test_postLogin_forVerifiedUsers()
+    public function test_postLogin_forVerifiedUsers(): void
     {
         $user = User::factory()->create(['password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
@@ -45,7 +45,7 @@ class LoginTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
-    public function test_postLogin_forAdmin()
+    public function test_postLogin_forAdmin(): void
     {
         $user = User::factory()->create(['role' => 'admin', 'password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
@@ -74,7 +74,7 @@ class LoginTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
-    public function test_postLogin_when_mobile_is_Unverified()
+    public function test_postLogin_when_mobile_is_Unverified(): void
     {
         $user = User::factory()->create(['mobile_verified' => 0, 'password' => Hash::make('password')]);
         StatusSetting::updateOrCreate(
@@ -97,7 +97,7 @@ class LoginTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
-    public function test_postLogin_when_email_is_Unverified()
+    public function test_postLogin_when_email_is_Unverified(): void
     {
         $user = User::factory()->create(['email_verified' => 0, 'password' => Hash::make('password')]);
         StatusSetting::updateOrCreate(
@@ -120,7 +120,7 @@ class LoginTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
-    public function test_postLogin_when_email_and_mobile_are_Unverified()
+    public function test_postLogin_when_email_and_mobile_are_Unverified(): void
     {
         $user = User::factory()->create(['password' => Hash::make('password'), 'email_verified' => 0, 'mobile_verified' => 0]);
         $this->withoutMiddleware();
@@ -128,7 +128,7 @@ class LoginTest extends DBTestCase
             ['id' => 1],
             ['emailverification_status' => 1, 'msg91_status' => 1]
         );
-        $attempts = VerificationAttempt::create(['user_id' => $user->id, 'mobile_attempt' => 2, 'email_attempt' => 3]);
+        VerificationAttempt::create(['user_id' => $user->id, 'mobile_attempt' => 2, 'email_attempt' => 3]);
         $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password',  'login' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
@@ -142,7 +142,7 @@ class LoginTest extends DBTestCase
         ]);
     }
 
-    public function test_login_should_fail_when_the_user_not_present()
+    public function test_login_should_fail_when_the_user_not_present(): void
     {
         User::factory()->create(['password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 1, 'msg91_status' => 0, 'recaptcha_status' => 0]);
@@ -158,7 +158,7 @@ class LoginTest extends DBTestCase
         ]);
     }
 
-    public function test_login_fails_when_password_is_wrong()
+    public function test_login_fails_when_password_is_wrong(): void
     {
         $user = User::factory()->create(['password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
@@ -174,7 +174,7 @@ class LoginTest extends DBTestCase
         ]);
     }
 
-    public function test_when_2fa_is_enabled()
+    public function test_when_2fa_is_enabled(): void
     {
         $user = User::factory()->create(['password' => Hash::make('password'), 'is_2fa_enabled' => 1]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
@@ -198,7 +198,7 @@ class LoginTest extends DBTestCase
     }
 
     #[Group('postLogin')]
-    public function test_it_fails_when_honeypot_field_is_filled()
+    public function test_it_fails_when_honeypot_field_is_filled(): void
     {
         $this->withoutMiddleware();
 
@@ -216,7 +216,7 @@ class LoginTest extends DBTestCase
     }
 
     #[Group('postLogin')]
-    public function test_it_fails_when_recaptcha_is_missing()
+    public function test_it_fails_when_recaptcha_is_missing(): void
     {
         StatusSetting::updateOrCreate(
             ['id' => 1],
@@ -253,7 +253,7 @@ class LoginTest extends DBTestCase
     }
 
     #[Group('postLogin')]
-    public function test_it_succeeds_with_valid_input_and_no_honeypot()
+    public function test_it_succeeds_with_valid_input_and_no_honeypot(): void
     {
         $user = User::factory()->create(['active' => 1, 'email' => 'user@example.com', 'password' => bcrypt('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
@@ -280,10 +280,10 @@ class LoginTest extends DBTestCase
     }
 
     #[Group('postLogin')]
-    public function test_login_fails_with_invalid_credentials()
+    public function test_login_fails_with_invalid_credentials(): void
     {
         $this->withoutMiddleware();
-        $user = User::factory()->create([
+        User::factory()->create([
             'user_name' => 'testuser',
             'password' => bcrypt('password123'),
             'role' => 'admin',
@@ -299,7 +299,7 @@ class LoginTest extends DBTestCase
     }
 
     #[Group('postLogin')]
-    public function test_login_with_email()
+    public function test_login_with_email(): void
     {
         $this->withoutMiddleware();
         $user = User::factory()->create([
@@ -328,7 +328,7 @@ class LoginTest extends DBTestCase
     }
 
     #[Group('postLogin')]
-    public function test_login_with_username()
+    public function test_login_with_username(): void
     {
         $this->withoutMiddleware();
         $user = User::factory()->create([
@@ -355,13 +355,14 @@ class LoginTest extends DBTestCase
         ]);
     }
 
-    public function test_login_page()
+    public function test_login_page(): void
     {
         $this->withoutMiddleware();
         $response = $this->get('/login');
         $response->assertStatus(200);
+
         $content = $response->getOriginalContent();
-        $this->assertEquals(true, $content['success']);
+        $this->assertEquals(expected: true, actual: $content['success']);
         $this->assertEquals('Login Page', $content['message']);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Spatie\Activitylog\Models\Activity;
 
 return [
@@ -7,7 +9,7 @@ return [
     /*
      * If set to false, no activities will be saved to the database.
      */
-    'enabled' => env('ACTIVITY_LOGGER_ENABLED', true),
+    'enabled' => env('ACTIVITY_LOGGER_ENABLED', default: true),
 
     /*
      * When the clean-command is executed, all recording activities older than

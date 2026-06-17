@@ -25,12 +25,12 @@ class InvoiceControllerTest extends DBTestCase
     }
 
     #[Group('invoice')]
-    public function test_generateInvoice_generatesInvoiceAndInvoiceItem()
+    public function test_generateInvoice_generatesInvoiceAndInvoiceItem(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $product = Product::factory()->create();
-        $setting = Setting::factory()->create(['default_currency' => 'INR']);
+        Setting::factory()->create(['default_currency' => 'INR']);
         $taxCondition = new CartCondition([
             'name' => 'GST', 'type' => 'tax',
             'value' => 5,
@@ -49,13 +49,13 @@ class InvoiceControllerTest extends DBTestCase
     }
 
     #[Group('invoice')]
-    public function test_createInvoiceItems_createsNewInvoiceItem()
+    public function test_createInvoiceItems_createsNewInvoiceItem(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
-        $setting = Setting::factory()->create(['default_currency' => 'INR']);
+        Setting::factory()->create(['default_currency' => 'INR']);
         $product = Product::factory()->create();
-        $plan = Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
+        Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
         $taxCondition = new CartCondition([
             'name' => 'GST', 'type' => 'tax',
             'value' => 5,
@@ -77,12 +77,12 @@ class InvoiceControllerTest extends DBTestCase
     }
 
     #[Group('invoice')]
-    public function test_invoiceGenerateByForm_createsNewInvoice()
+    public function test_invoiceGenerateByForm_createsNewInvoice(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         Currency::where('code', $this->user->currency)->update(['status' => 1]);
-        $setting = Setting::factory()->create(['state' => 'IN-KA']);
+        Setting::factory()->create(['state' => 'IN-KA']);
         $product = Product::factory()->create();
         $plan = Plan::create(['name' => 'Helpdesk 1 year', 'product' => $product->id, 'days' => 365]);
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => $this->user->currency, 'add_price' => '1000', 'renew_price' => '500', 'product_quantity' => 1, 'no_of_agents' => 0]);

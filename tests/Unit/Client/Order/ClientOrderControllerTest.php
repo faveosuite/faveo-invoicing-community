@@ -36,13 +36,13 @@ class ClientOrderControllerTest extends DBTestCase
     }
 
     #[Group('order')]
-    public function test_my_orders_datatable_sends_data()
+    public function test_my_orders_datatable_sends_data(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        $licensepermissiontype = LicensePermission::create(['Can be Downloaded']);
+        LicensePermission::create(['Can be Downloaded']);
         LicensePermission::create(['Generate License Expiry Date']);
         LicensePermission::create(['Generate Updates Expiry Date']);
         LicensePermission::create(['Allow Downloads Before Updates Expire']);
@@ -57,15 +57,15 @@ class ClientOrderControllerTest extends DBTestCase
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
+        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
-        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+        PlanPrice::factory()->create(['plan_id' => $plan->id]);
+        Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '']);
         $response = $this->call('get', 'get-my-orders', ['updated_ends_at' => '']);
-        $content = $response->json();
+        $response->json();
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -85,7 +85,7 @@ class ClientOrderControllerTest extends DBTestCase
     }
 
     #[Group('order')]
-    public function test_while_selecting_plan_provides_price()
+    public function test_while_selecting_plan_provides_price(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -102,7 +102,7 @@ class ClientOrderControllerTest extends DBTestCase
     }
 
     #[Group('order')]
-    public function test_successful_when_license_mocked()
+    public function test_successful_when_license_mocked(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -121,14 +121,12 @@ class ClientOrderControllerTest extends DBTestCase
             'plan_id' => 1,
         ]);
         $plan = Plan::factory()->create(['product' => $product->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
         $order = Order::factory()->create(['invoice_id' => $invoice->id,
             'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
-        $subscription = Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
+        Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
         ApiKey::create(['rzp_key' => 'test_key', 'rzp_secret' => 'test_secret', 'stripe_key' => 'test_stripe']);
         Setting::create(['id' => 1, 'autorenewal_status' => 1]);
-        $serialKey = 'eertrertyuhgbvfdrgtyujhnbvfdrethgbf';
-        $productId = 1;
         $mock = Mockery::mock(InstallationService::class);
         $mock->shouldReceive('getInstallationsByProduct')
             ->withAnyArgs()
@@ -141,7 +139,7 @@ class ClientOrderControllerTest extends DBTestCase
     }
 
     #[Group('order')]
-    public function test_auto_renewal()
+    public function test_auto_renewal(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -149,11 +147,11 @@ class ClientOrderControllerTest extends DBTestCase
         $date = '2025-03-02 18:15:02';
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'product_id' => $product->id]);
+        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'product_id' => $product->id]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v6.0.0', 'update_ends_at' => $date]);
 
         $response = $this->call('post', 'client/renew/'.$subscription->id, ['plan' => $plan->id, 'user' => $user->id]);
@@ -162,7 +160,7 @@ class ClientOrderControllerTest extends DBTestCase
     }
 
     #[Group('order')]
-    public function test_to_payNow_exception()
+    public function test_to_payNow_exception(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -171,12 +169,12 @@ class ClientOrderControllerTest extends DBTestCase
         $date = '2025-03-02 18:15:02';
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $invoice = Invoice::factory()->create(['user_id' => $user1->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'product_id' => $product->id]);
+        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'product_id' => $product->id]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
-        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+        PlanPrice::factory()->create(['plan_id' => $plan->id]);
+        Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $response = $this->call('get', 'paynow/'.$invoice->id);
         $content = $response->json();
@@ -184,7 +182,7 @@ class ClientOrderControllerTest extends DBTestCase
     }
 
     #[Group('order')]
-    public function test_to_payNow_redirection()
+    public function test_to_payNow_redirection(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -192,29 +190,30 @@ class ClientOrderControllerTest extends DBTestCase
         $date = '2025-03-02 18:15:02';
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'product_id' => $product->id, 'quantity' => 1, 'regular_price' => 1000,
+        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'product_id' => $product->id, 'quantity' => 1, 'regular_price' => 1000,
             'tax_name' => 'GST', 'tax_percentage' => '10', 'subtotal' => 300, ]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
-        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+        PlanPrice::factory()->create(['plan_id' => $plan->id]);
+        Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $response = $this->call('get', 'paynow/'.$invoice->id);
         $response->assertStatus(200);
+
         $content = $response->json()['data'];
         $this->assertArrayHasKey('paid', $content);
     }
 
     #[Group('order')]
-    public function test_download_version()
+    public function test_download_version(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $date = '2025-03-02 18:15:02';
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        $licensepermissiontype = LicensePermission::create(['Can be Downloaded']);
+        LicensePermission::create(['Can be Downloaded']);
         LicensePermission::create(['Generate License Expiry Date']);
         LicensePermission::create(['Generate Updates Expiry Date']);
         LicensePermission::create(['Allow Downloads Before Updates Expire']);
@@ -228,17 +227,17 @@ class ClientOrderControllerTest extends DBTestCase
         $licensetype->permissions()->attach($permissionid);
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
-        $permissions = Product::find($product->id)->licenseType->permissions->pluck('permissions'); //Get All the permissions related to patrticular Product
+        Product::find($product->id)->licenseType->permissions->pluck('permissions'); //Get All the permissions related to patrticular Product
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
+        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
-        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+        PlanPrice::factory()->create(['plan_id' => $plan->id]);
+        Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => $date]);
-        $productupload = ProductUpload::create(['product_id' => $product->id, 'version' => 'v6.0.0', 'title' => $product->name, 'description' => $product->description, 'release_type' => 'official', 'is_private' => 0]);
+        ProductUpload::create(['product_id' => $product->id, 'version' => 'v6.0.0', 'title' => $product->name, 'description' => $product->description, 'release_type' => 'official', 'is_private' => 0]);
         $response = $this->call('get', 'get-versions/'.$product->id.'/'.$order->client.'/'.$invoice->number.'/');
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -257,13 +256,13 @@ class ClientOrderControllerTest extends DBTestCase
     }
 
     #[Group('order')]
-    public function test_my_orders_datatable_individual_data()
+    public function test_my_orders_datatable_individual_data(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
-        $licensepermissiontype = LicensePermission::create(['Can be Downloaded']);
+        LicensePermission::create(['Can be Downloaded']);
         LicensePermission::create(['Generate License Expiry Date']);
         LicensePermission::create(['Generate Updates Expiry Date']);
         LicensePermission::create(['Allow Downloads Before Updates Expire']);
@@ -278,12 +277,12 @@ class ClientOrderControllerTest extends DBTestCase
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
+        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
-        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
+        Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '']);
         $response = $this->call('get', 'get-my-orders', ['updated_ends_at' => '']);
         $content = $response->json()['data'];

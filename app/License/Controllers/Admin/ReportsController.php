@@ -18,7 +18,7 @@ class ReportsController extends Controller
 
     public $action_success = 1;
 
-    public function reports(Request $request)
+    public function reports(Request $request): \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
     {
         $report_ids_array = $request->arr;
         $whichReport = $request->get('which_report');
@@ -44,7 +44,7 @@ class ReportsController extends Controller
         return response(['message' => $page_message]);
     }
 
-    protected function whichReportDeleted($whichReport, $action_success, $removed_records, $error_details = '')
+    protected function whichReportDeleted($whichReport, $action_success, $removed_records, $error_details = ''): \Illuminate\Contracts\Translation\Translator|string|array
     {
         if (! empty($whichReport)) {
             if ($action_success == 1) { // everything OK
@@ -77,7 +77,7 @@ class ReportsController extends Controller
         $sortField = $request->input('sort_field', 'id');
 
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
-        $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], true) ? $sortField : 'id';
+        $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], strict: true) ? $sortField : 'id';
 
         $reportsQuery = LicenseReport::query()
             ->with('user:id,email')
@@ -91,7 +91,7 @@ class ReportsController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $reportsQuery->getCollection()->transform(fn (LicenseReport $report) => [
+        $reportsQuery->getCollection()->transform(fn (LicenseReport $report): array => [
             'id' => $report->id,
             'account_id' => $report->user_id,
             'license_code' => $report->license_code,
@@ -113,7 +113,7 @@ class ReportsController extends Controller
         $sortField = $request->input('sort_field', 'id');
 
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
-        $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], true) ? $sortField : 'id';
+        $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], strict: true) ? $sortField : 'id';
 
         $crakingReports = LicenseReport::query()
             ->whereNull('user_id')
@@ -135,7 +135,7 @@ class ReportsController extends Controller
         $licenseIdsByCode = License::whereIn('license_code', $crakingReports->pluck('license_code')->filter()->unique())
             ->pluck('id', 'license_code');
 
-        $crakingReports->getCollection()->transform(fn (LicenseReport $report) => [
+        $crakingReports->getCollection()->transform(fn (LicenseReport $report): array => [
             'id' => $report->id,
             'user_id' => $report->user_id,
             'license_code' => $report->license_code,
@@ -157,7 +157,7 @@ class ReportsController extends Controller
         $sortField = $request->input('sort_field', 'id');
 
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
-        $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], true) ? $sortField : 'id';
+        $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], strict: true) ? $sortField : 'id';
 
         $LicenseReports = LicenseReport::query()
             ->with('user:id,email')
@@ -179,7 +179,7 @@ class ReportsController extends Controller
         $licenseIdsByCode = License::whereIn('license_code', $LicenseReports->pluck('license_code')->filter()->unique())
             ->pluck('id', 'license_code');
 
-        $LicenseReports->getCollection()->transform(fn (LicenseReport $report) => [
+        $LicenseReports->getCollection()->transform(fn (LicenseReport $report): array => [
             'id' => $report->id,
             'client_id' => $report->user_id,
             'report_text' => $report->report_text,
@@ -202,7 +202,7 @@ class ReportsController extends Controller
         $sortField = $request->input('sort_field', 'id');
 
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
-        $sortField = in_array($sortField, ['id', 'user_id', 'product_id', 'report_text', 'report_date_time', 'report_status'], true) ? $sortField : 'id';
+        $sortField = in_array($sortField, ['id', 'user_id', 'product_id', 'report_text', 'report_date_time', 'report_status'], strict: true) ? $sortField : 'id';
 
         $updateReports = LicenseReport::query()
             ->with('product:id,name')
@@ -220,7 +220,7 @@ class ReportsController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $updateReports->getCollection()->transform(fn (LicenseReport $report) => [
+        $updateReports->getCollection()->transform(fn (LicenseReport $report): array => [
             'id' => $report->id,
             'user_id' => $report->user_id,
             'report_text' => $report->report_text,
@@ -235,16 +235,16 @@ class ReportsController extends Controller
 
     private function reportStatusFormatter($status)
     {
-        if (strtolower($status) == 'success') {
+        if (strtolower($status) === 'success') {
             $status = 'success';
         }
 
-        if (strtolower($status) == 'error') {
+        if (strtolower($status) === 'error') {
             $status = 'error';
         }
 
-        if (strtolower($status) == 'pending') {
-            $status = 'pending';
+        if (strtolower($status) === 'pending') {
+            return 'pending';
         }
 
         return $status;

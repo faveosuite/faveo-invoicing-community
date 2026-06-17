@@ -185,7 +185,7 @@ trait DuskHelper
 
         $setting->update(match ($enable) {
             true => $this->configs()['msg91'],
-            false => array_fill_keys(['msg91_auth_key', 'msg91_sender', 'msg91_template_id'], null),
+            false => array_fill_keys(['msg91_auth_key', 'msg91_sender', 'msg91_template_id'], value: null),
         });
     }
 

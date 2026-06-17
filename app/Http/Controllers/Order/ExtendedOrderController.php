@@ -26,13 +26,11 @@ class ExtendedOrderController extends Controller
     /**
      * generate serial key and add no of agents in the last 4 digits og the 16 string/digit serial key .
      *
-     * @param  int  $productid
      * @param  int  $agents  No Of Agents
      * @return string The Final Serial Key after adding no of agents in the last 4 digits
-     *
      * @throws Exception
      */
-    public function generateSerialKey(int $productid, $agents)
+    public function generateSerialKey(int $productid, $agents): string
     {
         try {
             $len = strlen($agents);
@@ -44,22 +42,21 @@ class ExtendedOrderController extends Controller
                 default => '0000',
             };
             $str = strtoupper(Str::random(12));
-            $licCode = $str.$lastFour;
 
-            return $licCode;
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+            return $str.$lastFour;
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            throw new Exception($ex->getMessage());
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function generateNumber()
+    public function generateNumber(): int
     {
         try {
             return random_int('10000000', '99999999');
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -108,8 +105,8 @@ class ExtendedOrderController extends Controller
             });
 
             return successResponse(__('message.license_reissued'));
-        } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 

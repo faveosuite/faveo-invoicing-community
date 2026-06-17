@@ -31,7 +31,7 @@ class BaseOrderControllerTest extends DBTestCase
     /**
      * Shared helpers.
      */
-    private function mockPermissions(int $productId, array $permissionNames)
+    private function mockPermissions(int $productId, array $permissionNames): void
     {
         $licenseType = LicenseType::updateOrCreate(
             ['id' => 1],
@@ -48,7 +48,7 @@ class BaseOrderControllerTest extends DBTestCase
         ];
 
         $permissionDisplayNames = collect($map)
-            ->filter(fn ($key) => isset($permissionNames[$key]) && $permissionNames[$key] == 1)
+            ->filter(fn ($key): bool => isset($permissionNames[$key]) && $permissionNames[$key] == 1)
             ->keys()
             ->all();
 
@@ -62,7 +62,7 @@ class BaseOrderControllerTest extends DBTestCase
         ]);
     }
 
-    private function mockLicenseController()
+    private function mockLicenseController(): void
     {
         $this->mock(LicenseController::class, function (MockInterface $mock): void {
             $mock->shouldReceive('updateExpirationDate')->andReturn(true);
@@ -72,12 +72,12 @@ class BaseOrderControllerTest extends DBTestCase
         });
     }
 
-    private function date()
+    private function date(): string
     {
         return Date::now()->addDays(30)->toDateString();
     }
 
-    private function assertExpiryUpdated($field, $orderId, $date)
+    private function assertExpiryUpdated(string $field, $orderId, string $date): void
     {
         $this->assertDatabaseHas('subscriptions', [
             'order_id' => $orderId,
@@ -90,7 +90,7 @@ class BaseOrderControllerTest extends DBTestCase
      * UPDATE EXPIRY TESTS
      * =========================================================.
      */
-    public function test_edit_update_expiry_success()
+    public function test_edit_update_expiry_success(): void
     {
         $order = Order::factory()->withRelations()->create();
 
@@ -110,7 +110,7 @@ class BaseOrderControllerTest extends DBTestCase
         $this->assertExpiryUpdated('update_ends_at', $order->id, $date);
     }
 
-    public function test_edit_update_expiry_permission_denied()
+    public function test_edit_update_expiry_permission_denied(): void
     {
         $order = Order::factory()->withRelations()->create();
 
@@ -126,7 +126,7 @@ class BaseOrderControllerTest extends DBTestCase
             ->assertJsonFragment(['message' => __('message.license_permission_denied')]);
     }
 
-    public function test_edit_update_expiry_validation_error()
+    public function test_edit_update_expiry_validation_error(): void
     {
         $order = Order::factory()->withRelations()->create();
 
@@ -138,7 +138,7 @@ class BaseOrderControllerTest extends DBTestCase
         $response->assertStatus(422);
     }
 
-    public function test_edit_update_expiry_file_license_handling()
+    public function test_edit_update_expiry_file_license_handling(): void
     {
         $order = Order::factory()
             ->withRelations(['license_mode' => 'File', 'is_downloadable' => 1])
@@ -163,7 +163,7 @@ class BaseOrderControllerTest extends DBTestCase
      * LICENSE EXPIRY TESTS
      * =========================================================.
      */
-    public function test_edit_license_expiry_success()
+    public function test_edit_license_expiry_success(): void
     {
         $order = Order::factory()->withRelations()->create();
 
@@ -183,7 +183,7 @@ class BaseOrderControllerTest extends DBTestCase
         $this->assertExpiryUpdated('ends_at', $order->id, $date);
     }
 
-    public function test_edit_license_expiry_permission_denied()
+    public function test_edit_license_expiry_permission_denied(): void
     {
         $order = Order::factory()->withRelations()->create();
 
@@ -199,7 +199,7 @@ class BaseOrderControllerTest extends DBTestCase
             ->assertJsonFragment(['message' => __('message.license_permission_denied')]);
     }
 
-    public function test_edit_license_expiry_validation_error()
+    public function test_edit_license_expiry_validation_error(): void
     {
         $order = Order::factory()->withRelations()->create();
 
@@ -211,7 +211,7 @@ class BaseOrderControllerTest extends DBTestCase
         $response->assertStatus(422);
     }
 
-    public function test_edit_license_expiry_file_license_handling()
+    public function test_edit_license_expiry_file_license_handling(): void
     {
         $order = Order::factory()
             ->withRelations(['license_mode' => 'File', 'is_downloadable' => 1])
@@ -236,7 +236,7 @@ class BaseOrderControllerTest extends DBTestCase
      * SUPPORT EXPIRY TESTS
      * =========================================================.
      */
-    public function test_edit_support_expiry_success()
+    public function test_edit_support_expiry_success(): void
     {
         $order = Order::factory()->withRelations()->create();
 
@@ -256,7 +256,7 @@ class BaseOrderControllerTest extends DBTestCase
         $this->assertExpiryUpdated('support_ends_at', $order->id, $date);
     }
 
-    public function test_edit_support_expiry_permission_denied()
+    public function test_edit_support_expiry_permission_denied(): void
     {
         $order = Order::factory()->withRelations()->create();
 
@@ -272,7 +272,7 @@ class BaseOrderControllerTest extends DBTestCase
             ->assertJsonFragment(['message' => __('message.license_permission_denied')]);
     }
 
-    public function test_edit_support_expiry_validation_error()
+    public function test_edit_support_expiry_validation_error(): void
     {
         $order = Order::factory()->withRelations()->create();
 
@@ -284,7 +284,7 @@ class BaseOrderControllerTest extends DBTestCase
         $response->assertStatus(422);
     }
 
-    public function test_edit_support_expiry_file_license_handling()
+    public function test_edit_support_expiry_file_license_handling(): void
     {
         $order = Order::factory()
             ->withRelations(['license_mode' => 'File', 'is_downloadable' => 1])
@@ -309,7 +309,7 @@ class BaseOrderControllerTest extends DBTestCase
      * INSTALLATION LIMIT TESTS
      * =========================================================.
      */
-    public function test_edit_installation_limit_success()
+    public function test_edit_installation_limit_success(): void
     {
         $order = Order::factory()->withRelations()->create();
 
@@ -324,7 +324,7 @@ class BaseOrderControllerTest extends DBTestCase
             ->assertJsonFragment(['message' => 'Installation Limit Updated']);
     }
 
-    public function test_edit_installation_limit_non_numeric()
+    public function test_edit_installation_limit_non_numeric(): void
     {
         $order = Order::factory()->withRelations()->create();
 
@@ -336,7 +336,7 @@ class BaseOrderControllerTest extends DBTestCase
         $response->assertStatus(422);
     }
 
-    public function test_edit_installation_limit_negative_value()
+    public function test_edit_installation_limit_negative_value(): void
     {
         $order = Order::factory()->withRelations()->create();
 

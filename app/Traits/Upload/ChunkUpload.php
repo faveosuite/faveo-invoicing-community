@@ -34,11 +34,11 @@ trait ChunkUpload
                 $res = $zip->open($filePath);
                 if ($res === true && $zip->numFiles > 0) {
                     return $this->saveFile($save->getFile());
-                } else {
-                    unlink($filePath); // nosemgrep: php.lang.security.unlink-use.unlink-use
-
-                    return response()->json(__('message.file_invalid'), 500);
                 }
+
+                unlink($filePath);
+                // nosemgrep: php.lang.security.unlink-use.unlink-use
+                return response()->json(__('message.file_invalid'), 500);
 
                 // save the file and return any response you need, current example uses `move` function. If you are
                 // not using move, you need to manually delete the file by unlink($save->getFile()->getPathname())
@@ -52,17 +52,16 @@ trait ChunkUpload
                 'done' => $handler->getPercentageDone(),
                 'status' => true,
             ]);
-        } catch (Exception $ex) {
-            $response = ['success' => 'false', 'message' => $ex->getMessage()];
+        } catch (Exception $exception) {
+            $response = ['success' => 'false', 'message' => $exception->getMessage()];
 
-            return response()->json($ex->getMessage(), 500);
+            return response()->json($exception->getMessage(), 500);
         }
     }
 
     /**
      * Saves the file.
      *
-     * @param  UploadedFile  $file
      * @return JsonResponse
      */
     protected function saveFile(UploadedFile $file)

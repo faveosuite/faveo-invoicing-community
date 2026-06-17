@@ -36,8 +36,8 @@ class WhitelistIpsController extends Controller
             $statusCode = $id ? 200 : 201;
 
             return successResponse($responseMessage, $whitelist, $statusCode);
-        } catch(Exception $e) {
-            return errorResponse($e, 404);
+        } catch(Exception $exception) {
+            return errorResponse($exception, 404);
         }
     }
 
@@ -76,7 +76,7 @@ class WhitelistIpsController extends Controller
             ->orWhere('whitelist_host_comments', 'like', '%'.$searchQuery.'%'))->orderBy($sortField, $sortOrder)
         ->paginate($perPage, ['*'], 'page', $page);
 
-        $records->getCollection()->transform(fn ($record) => [
+        $records->getCollection()->transform(fn ($record): array => [
             'id' => $record->id,
             'whitelist_host_date' => $record->created_at ? $record->created_at->format('Y-m-d') : '',
             'whitelist_host_ip' => $record->whitelist_host_ip,

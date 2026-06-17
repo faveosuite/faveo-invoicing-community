@@ -47,7 +47,7 @@ class PipedriveControllerTest extends DBTestCase
         parent::tearDown();
     }
 
-    public function test_it_handles_field_mapping_validation()
+    public function test_it_handles_field_mapping_validation(): void
     {
         $dealGroup = PipedriveGroups::where('group_name', 'Deal')->first();
 
@@ -61,7 +61,7 @@ class PipedriveControllerTest extends DBTestCase
         $this->assertFalse($data['success']);
     }
 
-    public function test_it_adds_user_to_pipedrive_when_enabled()
+    public function test_it_adds_user_to_pipedrive_when_enabled(): void
     {
         $mockController = Mockery::mock(PipedriveController::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $reflection = new ReflectionClass($mockController);
@@ -78,10 +78,10 @@ class PipedriveControllerTest extends DBTestCase
         $user = User::factory()->create();
         $mockController->addUserToPipedrive($user);
 
-        $this->assertTrue(true);
+        $this->assertTrue(condition: true);
     }
 
-    public function test_it_skips_adding_user_when_pipedrive_disabled()
+    public function test_it_skips_adding_user_when_pipedrive_disabled(): void
     {
         StatusSetting::first()->update(['pipedrive_status' => 0]);
 
@@ -91,10 +91,10 @@ class PipedriveControllerTest extends DBTestCase
         $user = User::factory()->create();
         $mockController->addUserToPipedrive($user);
 
-        $this->assertTrue(true);
+        $this->assertTrue(condition: true);
     }
 
-    public function test_it_syncs_fields_from_pipedrive()
+    public function test_it_syncs_fields_from_pipedrive(): void
     {
         $mockController = Mockery::mock(PipedriveController::class)->makePartial();
         $reflection = new ReflectionClass($mockController);
@@ -136,7 +136,7 @@ class PipedriveControllerTest extends DBTestCase
         $this->assertDatabaseHas('pipedrive_fields', ['field_key' => 'deal_field']);
     }
 
-    public function test_it_creates_new_organization_when_not_exists()
+    public function test_it_creates_new_organization_when_not_exists(): void
     {
         $mockController = Mockery::mock(PipedriveController::class)->makePartial();
         $mockController->shouldReceive('addOrGetOrganization')
@@ -147,7 +147,7 @@ class PipedriveControllerTest extends DBTestCase
         $this->assertEquals(123, $result);
     }
 
-    public function test_it_returns_existing_organization_when_found()
+    public function test_it_returns_existing_organization_when_found(): void
     {
         $mockController = Mockery::mock(PipedriveController::class)->makePartial();
         $mockController->shouldReceive('addOrGetOrganization')
@@ -158,7 +158,7 @@ class PipedriveControllerTest extends DBTestCase
         $this->assertEquals(456, $result);
     }
 
-    public function test_it_validates_required_fields_for_deals()
+    public function test_it_validates_required_fields_for_deals(): void
     {
         $dealGroup = PipedriveGroups::where('group_name', 'Deal')->first();
         $request = new Request(['group_id' => $dealGroup->id]);
@@ -170,7 +170,7 @@ class PipedriveControllerTest extends DBTestCase
         $this->assertStringContainsString('required', $data['message']);
     }
 
-    public function test_it_updates_field_mappings_correctly()
+    public function test_it_updates_field_mappings_correctly(): void
     {
         // Create a group
         $group = PipedriveGroups::create(['group_name' => 'Organization']);

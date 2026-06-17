@@ -12,9 +12,9 @@ use Exception;
 
 class SyncBillingToLatestVersion
 {
-    private $log = '';
+    private string $log = '';
 
-    public function sync()
+    public function sync(): string
     {
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', '-1');
@@ -26,7 +26,7 @@ class SyncBillingToLatestVersion
         (env('DB_ENGINE') == 'InnoDB') ?: $this->forceInnodbOnUpdate();
 
         try {
-            if (version_compare($latestVersion, $olderVersion) == 1) {
+            if (version_compare($latestVersion, $olderVersion) === 1) {
                 $this->updateToLatestVersion($latestVersion, $olderVersion);
             }
 
@@ -38,13 +38,13 @@ class SyncBillingToLatestVersion
             $this->clearConfig();
             isInstall() && $this->restartHorizon();
             $this->storageLink();
-        } catch (Exception $ex) {
+        } catch (Exception $exception) {
             if (! isInstall()) {
                 //if system is not installed chances are logs tables are not present
-                throw $ex;
+                throw $exception;
             }
 
-            $this->log = $this->log."\n".$ex->getMessage();
+            $this->log = $this->log."\n".$exception->getMessage();
         }
 
         return $this->log;
@@ -62,33 +62,33 @@ class SyncBillingToLatestVersion
                     }
                 }
             }
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    private function writeToEnvAndRunConfigClear($key, $value)
+    private function writeToEnvAndRunConfigClear(string $key, string $value)
     {
         try {
             $path = app()->environmentFilePath();
 
             $escaped = preg_quote('='.env($key), '/');
             file_put_contents($path, preg_replace(
-                "/^{$key}{$escaped}/m",
-                "{$key}={$value}",
+                sprintf('/^%s%s/m', $key, $escaped),
+                sprintf('%s=%s', $key, $value),
                 file_get_contents($path)
             ));
             Artisan::call('config:clear');
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
         }
     }
 
-    private function cacheDbVersion()
+    private function cacheDbVersion(): void
     {
         $filesystemVersion = Config::get('app.version');
         Cache::forget($filesystemVersion);
-        $dbversion = Cache::remember($filesystemVersion, 3600,
+        Cache::remember($filesystemVersion, 3600,
             //Caching version for 1 hr
             fn () => Setting::first()->value('version'));
     }
@@ -110,7 +110,7 @@ class SyncBillingToLatestVersion
         return $this->getPHPCompatibleVersionString($olderVersion);
     }
 
-    public function updateToLatestVersion(string $latestVersion, string $olderVersion)
+    public function updateToLatestVersion(string $latestVersion, string $olderVersion): void
     {
         $this->updateMigrationTable($olderVersion);
 
@@ -131,42 +131,42 @@ class SyncBillingToLatestVersion
             // convert older and newer version into underscore format
             $formattedOlderVersion = $olderVersion;
             foreach ($seederVersions as $version) {
-                if (version_compare($this->getPHPCompatibleVersionString($version), $formattedOlderVersion) == 1) {
+                if (version_compare($this->getPHPCompatibleVersionString($version), $formattedOlderVersion) === 1) {
                     // scan for $version directory and get file names
-                    $this->log = $this->log."\n"."Running Seeder for version $version";
+                    $this->log = $this->log."\n".('Running Seeder for version ' . $version);
 
-                    Artisan::call('db:seed', ['--class' => "Database\Seeders\\$version\DatabaseSeeder", '--force' => true]);
+                    Artisan::call('db:seed', ['--class' => sprintf('Database\Seeders\%s\DatabaseSeeder', $version), '--force' => true]);
                     $this->handleArtisanLogs();
                 }
             }
         }
     }
 
-    private function updateMigrationTable(string $olderVersion)
+    private function updateMigrationTable(string $olderVersion): void
     {
-        if ($olderVersion != '0.0.0') {
+        if ($olderVersion !== '0.0.0') {
             Artisan::call('migrate', ['--force' => true]);
         }
     }
 
-    private function handleArtisanLogs()
+    private function handleArtisanLogs(): void
     {
         $this->log = $this->log."\n\n".Artisan::output();
     }
 
-    private function clearViewCache()
+    private function clearViewCache(): void
     {
         Artisan::call('view:clear');
         $this->handleArtisanLogs();
     }
 
-    private function clearConfig()
+    private function clearConfig(): void
     {
         Artisan::call('config:clear');
         $this->handleArtisanLogs();
     }
 
-    private function restartHorizon()
+    private function restartHorizon(): void
     {
         if (QueueService::where('status', 1)->value('short_name') != 'redis') {
             return;
@@ -176,7 +176,7 @@ class SyncBillingToLatestVersion
         $this->handleArtisanLogs();
     }
 
-    private function storageLink()
+    private function storageLink(): void
     {
         Artisan::call('storage:link');
         $this->handleArtisanLogs();

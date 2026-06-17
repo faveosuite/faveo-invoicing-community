@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories\Model\Order;
 
 use App\Model\Order\Invoice;
@@ -7,6 +9,9 @@ use App\Model\Order\Payment;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Order\Payment>
+ */
 class PaymentFactory extends Factory
 {
     protected $model = Payment::class;
@@ -16,12 +21,12 @@ class PaymentFactory extends Factory
         return [
             'parent_id' => 0,
             'invoice_id' => Invoice::factory(),
-            'amount' => $this->faker->randomFloat(2, 50, 5000),
-            'payment_method' => $this->faker->randomElement(['razorpay', 'stripe', 'bank_transfer', 'manual']),
+            'amount' => fake()->randomFloat(2, 50, 5000),
+            'payment_method' => fake()->randomElement(['razorpay', 'stripe', 'bank_transfer', 'manual']),
             'user_id' => User::factory(),
-            'payment_status' => $this->faker->randomElement(['success', 'failed', 'pending']),
+            'payment_status' => fake()->randomElement(['success', 'failed', 'pending']),
             'created_at' => now(),
-            'amt_to_credit' => $this->faker->randomFloat(2, 10, 5000),
+            'amt_to_credit' => fake()->randomFloat(2, 10, 5000),
         ];
     }
 }

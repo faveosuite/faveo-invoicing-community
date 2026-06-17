@@ -13,10 +13,8 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         ReleaseType::truncate();
@@ -39,10 +37,8 @@ class ReleaseTypeSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         ReleaseType::create(['id' => 1, 'type' => 'Pre Release','value' => '1']);
         ReleaseType::create(['id' => 2, 'type' => 'Official Release','value' => '0']);
@@ -53,10 +49,8 @@ class LicenseTypeSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         LicenseType::create(['id' => 7, 'name' => 'Development License']);
     }
@@ -64,7 +58,7 @@ class LicenseTypeSeeder extends Seeder
 
 class TemplateTypeTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         TemplateType::where('id',23)->delete();
         TemplateType::create(['id' => 23, 'name' => 'stripe_subscription_authentication']);
@@ -74,7 +68,7 @@ class TemplateTypeTableSeeder extends Seeder
 
 class TemplateTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         Template::where('id',21)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>

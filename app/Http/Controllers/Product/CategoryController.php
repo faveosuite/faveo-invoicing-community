@@ -11,6 +11,9 @@ use Lang;
 
 class CategoryController extends Controller
 {
+    /**
+     * @var \App\Model\Product\ProductCategory
+     */
     public $productCategory;
 
     public function __construct()
@@ -33,8 +36,8 @@ class CategoryController extends Controller
             $productCategory = $this->productCategory->fill($request->input())->save();
 
             return back()->with('success', Lang::get('message.saved-successfully'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -45,8 +48,8 @@ class CategoryController extends Controller
             $category = $this->productCategory->where('id', $id)->update(['category_name' => $cat_name]);
 
             return back()->with('success', Lang::get('message.updated-successfully'));
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 }

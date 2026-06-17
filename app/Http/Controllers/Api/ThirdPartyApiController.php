@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -14,9 +16,9 @@ class ThirdPartyApiController extends Controller
 {
     use ChunkUpload;
 
-    private $product_upload;
+    private \App\Model\Product\ProductUpload $product_upload;
 
-    private $product;
+    private \App\Model\Product\Product $product;
 
     public function __construct()
     {
@@ -36,8 +38,8 @@ class ThirdPartyApiController extends Controller
             $result = $this->uploadFile($request);
 
             return $result;
-        } catch (Exception $ex) {
-            $error = $ex->getMessage();
+        } catch (Exception $exception) {
+            $error = $exception->getMessage();
 
             return response()->json(compact('error'));
         }

@@ -15,13 +15,13 @@ class ProductControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->getLoggedInUser('admin');
     }
 
-    public function test_it_fetches_all_products_paginated()
+    public function test_it_fetches_all_products_paginated(): void
     {
         Product::factory()->count(5)->create();
 
@@ -38,17 +38,17 @@ class ProductControllerTest extends DBTestCase
             ]);
     }
 
-    public function test_products_listing_respects_sort_and_limit()
+    public function test_products_listing_respects_sort_and_limit(): void
     {
         Product::factory()->count(20)->create();
 
         $response = $this->getJson('/products?limit=5&sort-field=id&sort-order=desc');
 
         $response->assertStatus(200)
-            ->assertJsonPath('data.data', fn ($list) => count($list) === 5);
+            ->assertJsonPath('data.data', fn ($list): bool => count($list) === 5);
     }
 
-    public function test_get_products_handles_empty_result_gracefully()
+    public function test_get_products_handles_empty_result_gracefully(): void
     {
         $response = $this->getJson('/products');
 
@@ -56,17 +56,17 @@ class ProductControllerTest extends DBTestCase
             ->assertJsonPath('data.data', []);
     }
 
-    public function test_get_product_success()
+    public function test_get_product_success(): void
     {
         $product = Product::factory()->create();
 
-        $response = $this->getJson("/product/{$product->id}");
+        $response = $this->getJson('/product/' . $product->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['id' => $product->id]);
     }
 
-    public function test_get_product_throws_not_found()
+    public function test_get_product_throws_not_found(): void
     {
         $response = $this->getJson('/product/99999');
 
@@ -74,7 +74,7 @@ class ProductControllerTest extends DBTestCase
             ->assertJsonFragment(['success' => false]);
     }
 
-    public function test_create_product_successfully()
+    public function test_create_product_successfully(): void
     {
         StatusSetting::updateOrCreate([
             'id' => 1,
@@ -98,7 +98,7 @@ class ProductControllerTest extends DBTestCase
         $this->assertDatabaseHas('products', ['product_sku' => 'SKU001']);
     }
 
-    public function test_product_create_fails_with_missing_fields()
+    public function test_product_create_fails_with_missing_fields(): void
     {
         $response = $this->putJson('/product', []);
 
@@ -106,7 +106,7 @@ class ProductControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['name', 'type', 'description']);
     }
 
-    public function test_product_create_fails_if_sku_not_unique()
+    public function test_product_create_fails_if_sku_not_unique(): void
     {
         Product::factory()->create(['product_sku' => 'SKU123']);
 
@@ -126,7 +126,7 @@ class ProductControllerTest extends DBTestCase
             ->assertJsonValidationErrors(['product_sku']);
     }
 
-    public function test_update_product_success()
+    public function test_update_product_success(): void
     {
         $product = Product::factory()->create();
 
@@ -140,13 +140,13 @@ class ProductControllerTest extends DBTestCase
             'show_agent' => true,
         ];
 
-        $response = $this->patchJson("/product/{$product->id}", $payload);
+        $response = $this->patchJson('/product/' . $product->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['message' => __('message.updated-successfully')]);
     }
 
-    public function test_update_product_fails_with_invalid_image()
+    public function test_update_product_fails_with_invalid_image(): void
     {
         $product = Product::factory()->create();
 
@@ -161,13 +161,13 @@ class ProductControllerTest extends DBTestCase
             'image' => UploadedFile::fake()->create('file.zip'),
         ];
 
-        $response = $this->patchJson("/product/{$product->id}", $payload);
+        $response = $this->patchJson('/product/' . $product->id, $payload);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['image']);
     }
 
-    public function test_delete_bulk_products_success()
+    public function test_delete_bulk_products_success(): void
     {
         $prodA = Product::factory()->create();
         $prodB = Product::factory()->create();
@@ -184,7 +184,7 @@ class ProductControllerTest extends DBTestCase
         $this->assertDatabaseMissing('products', ['id' => $prodA->id]);
     }
 
-    public function test_delete_bulk_products_requires_ids()
+    public function test_delete_bulk_products_requires_ids(): void
     {
         $response = $this->deleteJson('/products', []);
 
@@ -192,7 +192,7 @@ class ProductControllerTest extends DBTestCase
             ->assertJsonFragment(['success' => false]);
     }
 
-    public function test_product_upload_create_success()
+    public function test_product_upload_create_success(): void
     {
         $product = Product::factory()->create();
 
@@ -209,7 +209,7 @@ class ProductControllerTest extends DBTestCase
             'id' => 1,
         ], ['license_status' => 0]);
 
-        $response = $this->putJson("/product/upload/{$product->id}", $payload);
+        $response = $this->putJson('/product/upload/' . $product->id, $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['message' => __('message.product_uploaded_successfully')]);
@@ -220,17 +220,17 @@ class ProductControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_product_upload_create_fails_if_missing_fields()
+    public function test_product_upload_create_fails_if_missing_fields(): void
     {
         $product = Product::factory()->create();
 
-        $response = $this->putJson("/product/upload/{$product->id}", []);
+        $response = $this->putJson('/product/upload/' . $product->id, []);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['producttitle', 'version', 'filename']);
     }
 
-    public function test_delete_bulk_product_upload_success()
+    public function test_delete_bulk_product_upload_success(): void
     {
         Storage::fake('system');
 
@@ -252,7 +252,7 @@ class ProductControllerTest extends DBTestCase
         $this->assertDatabaseMissing('product_uploads', ['id' => $upload->id]);
     }
 
-    public function test_edit_product_fails_if_product_not_found()
+    public function test_edit_product_fails_if_product_not_found(): void
     {
         $response = $this->patchJson('/product/99999', [
             'name' => 'x',
@@ -267,9 +267,9 @@ class ProductControllerTest extends DBTestCase
         $response->assertStatus(400);
     }
 
-    public function test_download_permissions_hidden_product_has_no_download_url()
+    public function test_download_permissions_hidden_product_has_no_download_url(): void
     {
-        $product = Product::factory()->create(['invoice_hidden' => 1]);
+        Product::factory()->create(['invoice_hidden' => 1]);
 
         $response = $this->getJson('/products?limit=5');
 
@@ -277,7 +277,7 @@ class ProductControllerTest extends DBTestCase
             ->assertJsonMissing(['download_url']);
     }
 
-    public function test_product_upload_version_updates_product_version()
+    public function test_product_upload_version_updates_product_version(): void
     {
         $product = Product::factory()->create();
 
@@ -290,7 +290,7 @@ class ProductControllerTest extends DBTestCase
             'dependencies' => ['php8'],
         ];
 
-        $this->putJson("/product/upload/{$product->id}", $payload);
+        $this->putJson('/product/upload/' . $product->id, $payload);
 
         $this->assertDatabaseHas('product_uploads', [
             'product_id' => $product->id,
@@ -298,35 +298,35 @@ class ProductControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_get_product_uploads_success()
+    public function test_get_product_uploads_success(): void
     {
         $product = Product::factory()->create();
         ProductUpload::factory()->count(3)->create(['product_id' => $product->id]);
 
-        $response = $this->getJson("/product/uploads/{$product->id}");
+        $response = $this->getJson('/product/uploads/' . $product->id);
 
         $response->assertStatus(200)
             ->assertJsonCount(3, 'data.data');
     }
 
-    public function test_get_product_upload_success()
+    public function test_get_product_upload_success(): void
     {
         $upload = ProductUpload::factory()->create();
 
-        $response = $this->getJson("/product/upload/{$upload->id}");
+        $response = $this->getJson('/product/upload/' . $upload->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['id' => $upload->id]);
     }
 
-    public function test_get_product_upload_not_found()
+    public function test_get_product_upload_not_found(): void
     {
         $response = $this->getJson('/product/upload/9999');
 
         $response->assertStatus(400);
     }
 
-    public function test_delete_bulk_product_upload_requires_ids()
+    public function test_delete_bulk_product_upload_requires_ids(): void
     {
         $response = $this->deleteJson('/product/upload', []);
 

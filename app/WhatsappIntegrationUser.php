@@ -39,24 +39,23 @@ class WhatsappIntegrationUser extends BaseModel
         ];
     }
 
-    protected function setAccessTokenAttribute($value)
+    protected function accessToken(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        try {
-            $this->attributes['access_token'] = Crypt::encrypt($value);
-        } catch (DecryptException) {
-            // if encryption fails, store original value
-            $this->attributes['access_token'] = $value;
-        }
-    }
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+            try {
+                return Crypt::decrypt($value);
+            } catch (DecryptException) {
+                return $value;
+            }
+        }, set: function ($value): array {
+            try {
+                $this->attributes['access_token'] = Crypt::encrypt($value);
+            } catch (DecryptException) {
+                // if encryption fails, store original value
+                $this->attributes['access_token'] = $value;
+            }
 
-    protected function getAccessTokenAttribute($value)
-    {
-        try {
-            $decrypted = Crypt::decrypt($value);
-
-            return $decrypted;
-        } catch (DecryptException) {
-            return $value;
-        }
+            return ['access_token' => $value];
+        });
     }
 }

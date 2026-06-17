@@ -66,8 +66,8 @@ class OpenPaymentController extends Controller
             ]);
 
             return successResponse('Order created successfully', ['order' => $order]);
-        } catch (Exception $e) {
-            return errorResponse('Failed to create order: '.$e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse('Failed to create order: '.$exception->getMessage());
         }
     }
 
@@ -144,8 +144,8 @@ class OpenPaymentController extends Controller
             $order->update(['gateway_transaction_id' => $session->id]);
 
             return successResponse('', $session->clientConfig);
-        } catch (Throwable $e) {
-            return errorResponse('Failed to create card session: '.$e->getMessage());
+        } catch (Throwable $throwable) {
+            return errorResponse('Failed to create card session: '.$throwable->getMessage());
         }
     }
 
@@ -196,8 +196,8 @@ class OpenPaymentController extends Controller
             return $paid
                 ? successResponse('Payment successful!', ['order' => $order->fresh()])
                 : errorResponse('Payment not completed.', 400);
-        } catch (Exception $e) {
-            return errorResponse('Payment verification failed: '.$e->getMessage(), 500);
+        } catch (Exception $exception) {
+            return errorResponse('Payment verification failed: '.$exception->getMessage(), 500);
         }
     }
 
@@ -256,7 +256,7 @@ class OpenPaymentController extends Controller
             ->whereIn('name', ['Stripe', 'Razorpay'])
             ->pluck('name');
 
-        $gateways = $gatewayNames->map(function ($name) {
+        $gateways = $gatewayNames->map(function ($name): array {
             $table = strtolower($name);
             $fee = DB::table($table)->value('processing_fee');
 
@@ -286,23 +286,19 @@ class OpenPaymentController extends Controller
             $search = $request->input('search-query') ?: $request->input('search');
             if ($search) {
                 $query->where(function (Builder $q) use ($search): void {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%")
-                      ->orWhere('company', 'like', "%{$search}%")
-                      ->orWhere('transaction_id', 'like', "%{$search}%");
+                    $q->where('name', 'like', sprintf('%%%s%%', $search))
+                      ->orWhere('email', 'like', sprintf('%%%s%%', $search))
+                      ->orWhere('company', 'like', sprintf('%%%s%%', $search))
+                      ->orWhere('transaction_id', 'like', sprintf('%%%s%%', $search));
                 });
             }
 
-            if ($status = $request->input('status')) {
-                if ($status !== 'all') {
-                    $query->where('payment_status', $status);
-                }
+            if (($status = $request->input('status')) && $status !== 'all') {
+                $query->where('payment_status', $status);
             }
 
-            if ($gateway = $request->input('gateway')) {
-                if ($gateway !== 'all') {
-                    $query->where('gateway', $gateway);
-                }
+            if (($gateway = $request->input('gateway')) && $gateway !== 'all') {
+                $query->where('gateway', $gateway);
             }
 
             if ($from = $request->input('from_date')) {
@@ -326,12 +322,12 @@ class OpenPaymentController extends Controller
                 ->select('open_payment_orders.*')
                 ->leftJoin('currencies', 'open_payment_orders.currency', '=', 'currencies.code')
                 ->addSelect('currencies.symbol as currency_symbol')
-                ->orderBy("open_payment_orders.{$sortField}", $sortOrder === 'asc' ? 'asc' : 'desc')
+                ->orderBy('open_payment_orders.' . $sortField, $sortOrder === 'asc' ? 'asc' : 'desc')
                 ->paginate($perPage);
 
             return successResponse('', $orders);
-        } catch (Exception $e) {
-            return errorResponse('Failed to fetch orders: '.$e->getMessage());
+        } catch (Exception $exception) {
+            return errorResponse('Failed to fetch orders: '.$exception->getMessage());
         }
     }
 
@@ -362,7 +358,7 @@ class OpenPaymentController extends Controller
      * gateway no longer redirects here; this remains only as a safety net that
      * reflects the order's current status back to the open-payment page.
      */
-    public function handleStripeCallback(Request $request)
+    public function handleStripeCallback(Request $request): \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
     {
         $orderId = $request->query('order_id');
 

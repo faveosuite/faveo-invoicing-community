@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('license_order_number')->nullable();
             $table->string('license_ip')->nullable();
             $table->string('license_domain')->nullable();
-            $table->boolean('license_require_domain')->default(false);
+            $table->boolean('license_require_domain')->default(value: false);
             $table->integer('license_limit')->default(1);
             $table->timestamp('license_date')->nullable();
             $table->timestamp('license_cancel_date')->nullable();

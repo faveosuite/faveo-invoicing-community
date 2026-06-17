@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Model\Payment;
 
 use App\BaseModel;
@@ -33,7 +35,7 @@ class Currency extends BaseModel
     {
         static::addGlobalScope('active_country', function (Builder $builder): void {
             $builder->whereHas('country', function (\Illuminate\Contracts\Database\Query\Builder $query): void {
-                $query->where('status', true);
+                $query->where('status', operator: true);
             });
         });
     }
@@ -44,7 +46,7 @@ class Currency extends BaseModel
             'code' => ['Currency Code', fn ($value) => $value],
             'symbol' => ['Currency Symbol', fn ($value) => $value],
             'name' => ['Currency Name', fn ($value) => $value],
-            'status' => ["{$this->name} currency status", fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
+            'status' => [$this->name . ' currency status', fn ($value): array|string|null => $value === 1 ? __('message.active') : __('message.inactive')],
         ];
     }
 

@@ -233,7 +233,7 @@ class ZohoCampaignsApi extends ZohoBaseApi
         }
 
         return Collection::make($response['tags'] ?? [])
-            ->flatMap(fn (array $tag) => $tag)
+            ->flatMap(fn (array $tag): array => $tag)
             ->all();
     }
 

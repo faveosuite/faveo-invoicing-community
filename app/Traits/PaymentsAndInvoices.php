@@ -57,10 +57,10 @@ trait PaymentsAndInvoices
             $finalAmt = $creditAmt + $diffSum;
             $updatedAmt = $this->payment->where('user_id', $creditAmtUserId)
         ->where('invoice_id', '=', 0)->update(['amt_to_credit' => $creditAmt]);
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -71,7 +71,7 @@ trait PaymentsAndInvoices
        $parent_id = '',
         $userid = '',
         $payment_status = 'pending'
-    ) {
+    ): void {
         try {
             if ($amount > 0) {
                 if ($userid == '') {
@@ -92,8 +92,8 @@ trait PaymentsAndInvoices
                 ]);
                 $this->updateInvoice($invoiceid);
             }
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -128,7 +128,7 @@ trait PaymentsAndInvoices
         return $qty;
     }
 
-    public function updateInvoice($invoiceid)
+    public function updateInvoice($invoiceid): void
     {
         try {
             $invoice = $this->invoice->findOrFail($invoiceid);
@@ -152,8 +152,8 @@ trait PaymentsAndInvoices
             }
 
             $invoice->save();
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -176,7 +176,7 @@ trait PaymentsAndInvoices
         $invoice->update(['status' => 'success']);
     }
 
-    public function sendmailClientAgent($userid, $invoiceid)
+    public function sendmailClientAgent($userid, $invoiceid): void
     {
         try {
             $agent = Input::get('agent');
@@ -189,9 +189,9 @@ trait PaymentsAndInvoices
             if ($client == 1) {
                 $this->sendMail($userid, $invoiceid);
             }
-        } catch (Exception $ex) {
-            Logger::exception($ex);
-            throw new Exception($ex->getMessage());
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -236,8 +236,8 @@ trait PaymentsAndInvoices
             }
 
             return back();
-        } catch (Exception $ex) {
-            return back()->with('fails', $ex->getMessage());
+        } catch (Exception $exception) {
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -253,17 +253,17 @@ trait PaymentsAndInvoices
             }
 
             return $balance;
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
     /**
      * Get total of the Invoices for a User.
      */
-    public function getTotalInvoice($invoices)
+    public function getTotalInvoice($invoices): int|float
     {
         $sum = 0;
         foreach ($invoices as $invoice) {
@@ -286,10 +286,10 @@ trait PaymentsAndInvoices
             }
 
             return $paidSum;
-        } catch (Exception $ex) {
-            Logger::exception($ex);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
 
-            return back()->with('fails', $ex->getMessage());
+            return back()->with('fails', $exception->getMessage());
         }
     }
 }

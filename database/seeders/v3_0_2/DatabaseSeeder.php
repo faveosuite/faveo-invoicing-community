@@ -11,10 +11,8 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {	    
  
         $this->call([TemplateTypeTableSeeder::class]);
@@ -31,7 +29,7 @@ class DatabaseSeeder extends Seeder
     
     class TemplateTypeTableSeeder extends Seeder
    {
-    public function run()
+    public function run(): void
     {
 
         TemplateType::create(['id' => 17, 'name' => 'Free_trail_expired']);
@@ -44,7 +42,7 @@ class DatabaseSeeder extends Seeder
 
     class TemplateTableSeeder extends Seeder
    {
-     public function run()
+     public function run(): void
     {
 
                 Template::create(['id' => 16, 'name' => '[Faveo Helpdesk] Purchase confirmation', 'type' => 7, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">

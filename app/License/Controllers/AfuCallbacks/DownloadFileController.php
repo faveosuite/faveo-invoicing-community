@@ -64,9 +64,9 @@ class DownloadFileController extends Controller
         }
 
         if (! $version) {
-            $notifKey = ! empty($version_number)
-                ? 'notification_version_not_found'
-                : 'notification_product_no_versions';
+            $notifKey = empty($version_number)
+                ? 'notification_product_no_versions'
+                : 'notification_version_not_found';
 
             return $this->notificationResponse($notifKey, []);
         }

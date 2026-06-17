@@ -18,9 +18,9 @@ use Tests\DBTestCase;
 
 class StoreTest extends DBTestCase
 {
-    private $con;
+    private \App\Http\Controllers\Common\TemplateController $con;
 
-    private $con1;
+    private \App\Http\Controllers\Front\PageController $con1;
 
     protected function setUp(): void
     {
@@ -34,7 +34,7 @@ class StoreTest extends DBTestCase
     }
 
     #[Group('store')]
-    public function test_store_has_groups()
+    public function test_store_has_groups(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -42,14 +42,14 @@ class StoreTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '0', 'currency' => 'USD']);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '0', 'currency' => 'USD']);
         $response = $this->call('GET', 'group/'.$group->pricing_templates_id.'/'.$group->id.'/');
-        $content = $response->json()['data'];
+        $response->json();
         $response->assertStatus(200);
     }
 
     #[Group('store')]
-    public function test_store_get_monthly_price()
+    public function test_store_get_monthly_price(): void
     {
         $user = User::factory()->create(['country' => 'US']);
         $this->actingAs($user);
@@ -57,14 +57,14 @@ class StoreTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => 200, 'currency' => 'USD']);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => 200, 'currency' => 'USD']);
         $response = $this->con->leastAmount($product->id);
 //        $response = $this->getPrivateMethod($this->con, 'leastAmount', [$product->id]);
         $this->assertEquals($response, '<span class="price-unit">$</span>200.00');
     }
 
     #[Group('store')]
-    public function test_store_monthly_price_more_days()
+    public function test_store_monthly_price_more_days(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -72,13 +72,13 @@ class StoreTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id]);
         $response = $this->getPrivateMethod($this->con, 'leastAmount', [$product->id]);
         $this->assertEquals($response, 'Free');
     }
 
     #[Group('store')]
-    public function test_store_yearly_price()
+    public function test_store_yearly_price(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -86,13 +86,13 @@ class StoreTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'currency' => 'USD']);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'currency' => 'USD']);
         $response = $this->getPrivateMethod($this->con1, 'YearlyAmount', [$product->id]);
         $this->assertEquals($response, '<span class="price-unit" id="'.$plan->id.'">$</span>500.00');
     }
 
     #[Group('store')]
-    public function test_store_get_price_description()
+    public function test_store_get_price_description(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -106,7 +106,7 @@ class StoreTest extends DBTestCase
     }
 
     #[Group('store')]
-    public function test_store_get_number_of_agents_monthly()
+    public function test_store_get_number_of_agents_monthly(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -116,11 +116,11 @@ class StoreTest extends DBTestCase
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7]);
         $response = $this->getPrivateMethod($this->con1, 'getmonthPriceDescription', [$product->id]);
-        $this->assertEquals($response, "per month for <strong> $planPrice->no_of_agents agent</strong>");
+        $this->assertEquals($response, sprintf('per month for <strong> %s agent</strong>', $planPrice->no_of_agents));
     }
 
     #[Group('store')]
-    public function test_store_get_url()
+    public function test_store_get_url(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -128,7 +128,7 @@ class StoreTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7]);
         $orderButton = 'btn-dark';
         $highlight = false;
         $response = $this->getPrivateMethod($this->con1, 'generateProductUrl', [$product, $orderButton, $highlight]);
@@ -136,7 +136,7 @@ class StoreTest extends DBTestCase
     }
 
     #[Group('store')]
-    public function test_store_when_product_registered_in_cloud()
+    public function test_store_when_product_registered_in_cloud(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -144,8 +144,8 @@ class StoreTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7]);
-        $cloudproduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $orderButton = 'btn-dark';
         $highlight = false;
         $response = $this->getPrivateMethod($this->con1, 'generateProductUrl', [$product, $orderButton, $highlight]);
@@ -154,7 +154,7 @@ class StoreTest extends DBTestCase
     }
 
     #[Group('store')]
-    public function test_store_get_offer_price_monthly()
+    public function test_store_get_offer_price_monthly(): void
     {
         $user = User::factory()->create(['country' => 'US']);
         $this->actingAs($user);
@@ -163,16 +163,14 @@ class StoreTest extends DBTestCase
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7, 'offer_price' => '100', 'currency' => 'USD']);
-        $cloudproduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        $orderButton = 'btn-dark';
-        $highlight = false;
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $response = $this->getPrivateMethod($this->con1, 'getOfferprice', [$product->id]);
 
         $this->assertEquals($response['30_days'], $planPrice->offer_price);
     }
 
     #[Group('store')]
-    public function test_store_get_offer_price_yearly()
+    public function test_store_get_offer_price_yearly(): void
     {
         $user = User::factory()->create(['country' => 'US']);
         $this->actingAs($user);
@@ -181,14 +179,12 @@ class StoreTest extends DBTestCase
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 365]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7, 'offer_price' => '100', 'currency' => 'USD']);
-        $cloudproduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
-        $orderButton = 'btn-dark';
-        $highlight = false;
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $response = $this->getPrivateMethod($this->con1, 'getOfferprice', [$product->id]);
         $this->assertEquals($response['365_days'], $planPrice->offer_price);
     }
 
-    public function test_wordpress_plugin_url()
+    public function test_wordpress_plugin_url(): void
     {
         $user = User::factory()->create(['country' => 'US']);
         $this->actingAs($user);
@@ -199,7 +195,7 @@ class StoreTest extends DBTestCase
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7, 'offer_price' => '100']);
         $response = $this->call('GET', 'pricing/data', ['ipAddress' => '121.0.0.1', 'group' => $group->id]);
 
-        $json = $response->decodeResponseJson();
+        $json = $response->json();
         $response->assertStatus(200);
         $this->assertEquals($planPrice->add_price, $json['products'][0]['add_price']);
         $this->assertEquals($product->name, $json['products'][0]['name']);

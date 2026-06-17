@@ -12,10 +12,8 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->call([Demo_pageTableSeeder::class]);
 
@@ -31,7 +29,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Pricing Template Table Seeded!');
     }
 
-    private function SocialLoginSeeder()
+    private function SocialLoginSeeder(): void
     {
         DB::table('social_logins')->truncate();
         $social_logins = [
@@ -74,7 +72,7 @@ class DatabaseSeeder extends Seeder
 
 class Demo_pageTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
       DB::table('demo_pages')->truncate();
       Demo_page::create(['id' => 1, 'status' => 0]);
@@ -83,7 +81,7 @@ class Demo_pageTableSeeder extends Seeder
 
 class TemplateTypeTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
 
         DB::table('template_types')->where('id',20)->delete();
@@ -94,7 +92,7 @@ class TemplateTypeTableSeeder extends Seeder
 
 class TemplateTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
       Template::where('id',2)->update(['name' => 'Verify your email address', 'type' => 1, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
       <tbody>
@@ -893,7 +891,7 @@ Template::create(['id' => 20, 'name' => 'New instance created', 'type' => 20, 'u
 
 class PricingTemplateSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         PricingTemplate::where('id',1)->update(['data' => '<div class="col-md-3 col-sm-6">
                             <div class="plan">

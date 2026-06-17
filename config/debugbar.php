@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -14,7 +16,7 @@ return [
      |
      */
 
-    'enabled' => env('DEBUGBAR_ENABLED', null),
+    'enabled' => env('DEBUGBAR_ENABLED'),
     'except' => [
         'telescope*',
         'horizon*',

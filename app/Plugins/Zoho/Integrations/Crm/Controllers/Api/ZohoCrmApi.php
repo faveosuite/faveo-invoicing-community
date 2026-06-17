@@ -14,7 +14,6 @@ class ZohoCrmApi extends ZohoBaseApi
      * @link https://www.zoho.com/crm/developer/docs/api/v8/field-meta.html
      *
      * @param  string  $module  (Leads, Contacts, Deals, etc.)
-     * @return array
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
@@ -38,15 +37,11 @@ class ZohoCrmApi extends ZohoBaseApi
      * Get records from a CRM module.
      *
      * @link https://www.zoho.com/crm/developer/docs/api/v8/get-records.html
-     *
-     * @param  string  $module
-     * @param  array  $params
-     * @return array
      */
     public function records(string $module, array $params = []): array
     {
         $response = $this->newRequest()
-            ->get("/crm/v8/{$module}", $params)
+            ->get('/crm/v8/' . $module, $params)
             ->json();
 
         if (isset($response['status']) && $response['status'] === 'error') {
@@ -60,14 +55,11 @@ class ZohoCrmApi extends ZohoBaseApi
      * Create a CRM record.
      *
      * @link https://www.zoho.com/crm/developer/docs/api/v8/insert-records.html
-     *
-     * @param  string  $module
-     * @param  array  $data
      */
     public function create(string $module, array $data): void
     {
         $response = $this->newRequest()
-            ->post("/crm/v8/{$module}", [
+            ->post('/crm/v8/' . $module, [
                 'data' => [
                     $data,
                 ],
@@ -87,7 +79,7 @@ class ZohoCrmApi extends ZohoBaseApi
     public function update(string $module, string $recordId, array $data): void
     {
         $response = $this->newRequest()
-            ->put("/crm/v8/{$module}/{$recordId}", [
+            ->put(sprintf('/crm/v8/%s/%s', $module, $recordId), [
                 'data' => [$data],
             ])
             ->json();
@@ -105,7 +97,7 @@ class ZohoCrmApi extends ZohoBaseApi
     public function delete(string $module, string $recordId): void
     {
         $response = $this->newRequest()
-            ->delete("/crm/v8/{$module}/{$recordId}")
+            ->delete(sprintf('/crm/v8/%s/%s', $module, $recordId))
             ->json();
 
         if (($response['data'][0]['status'] ?? '') !== 'success') {

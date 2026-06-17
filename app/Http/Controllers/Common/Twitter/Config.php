@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Common\Twitter;
 
 /**
@@ -39,7 +41,7 @@ class Config
      * @param  int  $connectionTimeout
      * @param  int  $timeout
      */
-    public function setTimeouts($connectionTimeout, $timeout)
+    public function setTimeouts($connectionTimeout, $timeout): void
     {
         $this->connectionTimeout = (int) $connectionTimeout;
         $this->timeout = (int) $timeout;
@@ -48,7 +50,7 @@ class Config
     /**
      * @param  bool  $value
      */
-    public function setDecodeJsonAsArray($value)
+    public function setDecodeJsonAsArray($value): void
     {
         $this->decodeJsonAsArray = (bool) $value;
     }
@@ -56,15 +58,12 @@ class Config
     /**
      * @param  string  $userAgent
      */
-    public function setUserAgent($userAgent)
+    public function setUserAgent($userAgent): void
     {
         $this->userAgent = (string) $userAgent;
     }
 
-    /**
-     * @param  array  $proxy
-     */
-    public function setProxy(array $proxy)
+    public function setProxy(array $proxy): void
     {
         $this->proxy = $proxy;
     }
@@ -74,7 +73,7 @@ class Config
      *
      * @param  bool  $gzipEncoding
      */
-    public function setGzipEncoding($gzipEncoding)
+    public function setGzipEncoding($gzipEncoding): void
     {
         $this->gzipEncoding = (bool) $gzipEncoding;
     }

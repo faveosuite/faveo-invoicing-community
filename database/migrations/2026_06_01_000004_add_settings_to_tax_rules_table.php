@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Schema;
  */
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         Schema::table('tax_rules', function (Blueprint $table): void {
             if (! Schema::hasColumn('tax_rules', 'tax_based_on')) {
@@ -25,12 +25,12 @@ return new class extends Migration
             }
 
             if (! Schema::hasColumn('tax_rules', 'round_at_subtotal')) {
-                $table->boolean('round_at_subtotal')->default(false)->after('tax_based_on');
+                $table->boolean('round_at_subtotal')->default(value: false)->after('tax_based_on');
             }
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::table('tax_rules', function (Blueprint $table): void {
             foreach (['tax_based_on', 'round_at_subtotal'] as $column) {

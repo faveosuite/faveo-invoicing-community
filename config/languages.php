@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 //Iso codes for languages
 return [
     'aa' => ['Afar', 'ʿAfár af'],
@@ -107,7 +109,7 @@ return [
     'si' => ['Singhalese', 'සිංහල'],
     'sk' => ['Slovak', 'Slovenčina'],
     'sl' => ['Slovenian', 'Slovenščina'],
-    'sm' => ['Samoan', 'gagana fa\'a Samoa'],
+    'sm' => ['Samoan', "gagana fa'a Samoa"],
     'sn' => ['Shona', 'chiShona'],
     'so' => ['Somali', 'Soomaaliga'],
     'sq' => ['Albanian', 'Shqip'],

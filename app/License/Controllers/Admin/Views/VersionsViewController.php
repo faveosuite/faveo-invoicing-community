@@ -17,7 +17,7 @@ class VersionsViewController extends Controller
             ->find($version_id);
 
         if (! $version) {
-            return successResponse(Lang::get('lang.version_details'), null);
+            return successResponse(Lang::get('lang.version_details'), data: null);
         }
 
         return successResponse(Lang::get('lang.version_details'), [
@@ -55,7 +55,7 @@ class VersionsViewController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $versionInstallation->getCollection()->transform(fn (VersionCallback $cb) => [
+        $versionInstallation->getCollection()->transform(fn (VersionCallback $cb): array => [
             'id' => $cb->id,
             'version_id' => $cb->version_id,
             'callback_ip' => $cb->callback_ip,

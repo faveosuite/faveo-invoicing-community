@@ -18,7 +18,7 @@ class BaseInvoiceControllerTest extends DBTestCase
     }
 
     #[Group('baseinvoicecontroller')]
-    public function test_calculateTotal_calculateTotalAfterApplyingRateWhenInclusiveOfTax_returnsPriceAfterAddingTax()
+    public function test_calculateTotal_calculateTotalAfterApplyingRateWhenInclusiveOfTax_returnsPriceAfterAddingTax(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -27,12 +27,12 @@ class BaseInvoiceControllerTest extends DBTestCase
     }
 
     #[Group('baseinvoicecontroller')]
-    public function test_calculateTotal_calculateTotalAfterApplyingRateWhenExclusiveOfTax_returnsPriceWithoutTax()
+    public function test_calculateTotal_calculateTotalAfterApplyingRateWhenExclusiveOfTax_returnsPriceWithoutTax(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $tax_rule = new TaxOption();
-        $rule = $tax_rule->findOrFail(1)->update(['inclusive' => 1]);
+        $tax_rule->findOrFail(1)->update(['inclusive' => 1]);
         $price = $this->classObject->calculateTotal('10%', '1000');
         $this->assertEquals($price, '1000');
     }

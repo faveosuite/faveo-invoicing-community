@@ -40,8 +40,8 @@ class WebhookController extends Controller
                 'unsubscribe', 'cleaned' => $this->handleUnsubscribe($email),
                 default => null,
             };
-        } catch (Throwable $e) {
-            Logger::exception($e);
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
         }
 
         return response('', 200);
@@ -51,6 +51,6 @@ class WebhookController extends Controller
     {
         // Log the event — the user is already unsubscribed in Mailchimp's side.
         // Extend here if you want to update a local flag on the User model.
-        Log::info("Mailchimp unsubscribe webhook received for: {$email}");
+        Log::info('Mailchimp unsubscribe webhook received for: ' . $email);
     }
 }
