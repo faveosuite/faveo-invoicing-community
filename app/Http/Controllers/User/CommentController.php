@@ -5,9 +5,9 @@ namespace App\Http\Controllers\User;
 use App\Comment;
 use App\Http\Controllers\Controller;
 use App\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Exception;
 use Lang;
 use Logger;
 
