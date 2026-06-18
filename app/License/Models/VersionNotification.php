@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $notification_invalid_signature
  * @property string|null $notification_host_banned
  * @property string|null $notification_unknown_error
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionNotification newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionNotification newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionNotification query()
@@ -52,6 +53,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionNotification whereNotificationVersionExpired($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionNotification whereNotificationVersionInactive($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionNotification whereNotificationVersionNotFound($value)
+ *
  * @mixin \Eloquent
  */
 class VersionNotification extends Model

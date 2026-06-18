@@ -520,7 +520,7 @@ class SettingsController extends BaseSettingsController
                 'licensesystem_cron' => 'license_system_reports_cleanup_status',
                 'licenseversions_cron' => 'license_versions_cleanup_status',
             ];
-            $status->msg91_report_delete_status = (string)(int) $request->boolean('statuses.msg91_cron');
+            $status->msg91_report_delete_status = (string) (int) $request->boolean('statuses.msg91_cron');
             foreach ($map as $input => $column) {
                 $status->{$column} = (int) $request->boolean('statuses.'.$input);
             }

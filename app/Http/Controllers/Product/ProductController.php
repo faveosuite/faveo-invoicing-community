@@ -177,7 +177,6 @@ class ProductController extends BaseProductController
 
     /**
      * Remove the specified resource from storage.
-     *
      */
     public function fileDestroy(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {

@@ -12,7 +12,6 @@ use App\User;
 use Exception;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 
@@ -43,7 +42,6 @@ class ForgotPasswordController extends Controller
 
     /**
      * Send a reset link to the given user.
-     *
      */
     public function sendResetLinkEmail(Request $request)
     {

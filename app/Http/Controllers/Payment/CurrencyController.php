@@ -104,8 +104,6 @@ class CurrencyController extends Controller
 
     /**
      * Activate the Currency to be Shown on Dashboard.
-     *
-     *
      */
     public function setDashboardCurrency($id)
     {
@@ -120,7 +118,6 @@ class CurrencyController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
      */
     public function store(Request $request)
     {
@@ -173,7 +170,6 @@ class CurrencyController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
      */
     public function update(Request $request)
     {
@@ -197,7 +193,6 @@ class CurrencyController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
      */
     public function destroy(Request $request): void
     {

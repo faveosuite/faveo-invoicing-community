@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Lang;
 use Logger;
 
@@ -43,7 +42,6 @@ class CommentController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
      */
     public function store(Request $request)
     {

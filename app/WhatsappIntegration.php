@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $config_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegration newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegration newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegration query()
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegration whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegration whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegration whereVerifyToken($value)
+ *
  * @mixin \Eloquent
  */
 class WhatsappIntegration extends Model

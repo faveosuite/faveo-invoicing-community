@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $is_active
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoLocalFields newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoLocalFields newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoLocalFields query()
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoLocalFields whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoLocalFields whereIsActive($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoLocalFields whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class FaveoLocalFields extends Model

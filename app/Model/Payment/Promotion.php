@@ -24,6 +24,7 @@ use Override;
  * @property-read \App\Model\Payment\PromotionType $promotionType
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\PromoProductRelation> $relation
  * @property-read int|null $relation_count
+ *
  * @method static \Database\Factories\Model\Payment\PromotionFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Promotion newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Promotion newQuery()
@@ -37,6 +38,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Promotion whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Promotion whereUses($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Promotion whereValue($value)
+ *
  * @mixin \Eloquent
  */
 class Promotion extends BaseModel

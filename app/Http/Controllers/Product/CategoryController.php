@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Model\Product\ProductCategory;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Lang;
 
 class CategoryController extends Controller
@@ -27,7 +26,6 @@ class CategoryController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     *
      */
     public function store(Request $request)
     {

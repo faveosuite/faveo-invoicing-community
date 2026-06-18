@@ -29,6 +29,7 @@ use Override;
  * @property-read PricingTemplate|null $pricingTemplate
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\Product> $product
  * @property-read int|null $product_count
+ *
  * @method static \Database\Factories\Model\Product\ProductGroupFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductGroup newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductGroup newQuery()
@@ -44,6 +45,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductGroup whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductGroup whereTagline($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductGroup whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class ProductGroup extends BaseModel
@@ -96,6 +98,7 @@ class ProductGroup extends BaseModel
     {
         $this->config()->delete();
         $this->features()->delete();
+
         return (bool) parent::delete();
     }
 

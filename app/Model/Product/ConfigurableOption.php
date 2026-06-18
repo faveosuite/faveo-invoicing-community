@@ -15,6 +15,7 @@ use App\BaseModel;
  * @property int $price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigurableOption newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigurableOption newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigurableOption query()
@@ -26,6 +27,7 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigurableOption whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigurableOption whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigurableOption whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class ConfigurableOption extends BaseModel

@@ -13,6 +13,7 @@ use Override;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\Product> $product
  * @property-read int|null $product_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Type newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Type newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Type query()
@@ -21,6 +22,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Type whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Type whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Type whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Type extends BaseModel

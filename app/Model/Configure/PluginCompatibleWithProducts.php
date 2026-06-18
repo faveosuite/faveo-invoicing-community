@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Product $pluginComp
  * @property-read Product $productComp
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PluginCompatibleWithProducts newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PluginCompatibleWithProducts newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PluginCompatibleWithProducts query()
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PluginCompatibleWithProducts wherePluginId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PluginCompatibleWithProducts whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PluginCompatibleWithProducts whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class PluginCompatibleWithProducts extends Model

@@ -441,6 +441,6 @@ class OrderController extends BaseOrderController
             'products' => $invoice->invoiceItem->pluck('product_name')->toArray(),
         ]);
 
-        return successResponse("", $invoices);
+        return successResponse('', $invoices);
     }
 }
