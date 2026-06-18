@@ -46,8 +46,6 @@ class Google2FAController extends Controller
         }
     }
 
-    /**
-     */
     public function enableTwoFactor(Request $request)
     {
         $user = $request->user();
@@ -73,8 +71,6 @@ class Google2FAController extends Controller
         return Base32::encodeUpper($randomBytes);
     }
 
-    /**
-     */
     public function postLoginValidateToken(ValidateSecretRequest $request)
     {
         try {

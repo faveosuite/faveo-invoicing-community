@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Model\Common\PipedriveGroups|null $pipedriveGroups
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Common\PipedriveFieldOption> $pipedriveOptions
  * @property-read int|null $pipedrive_options_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField query()
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField whereLocalFieldId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField wherePipedriveGroupId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class PipedriveField extends Model

@@ -10,6 +10,7 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductAddonRelation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductAddonRelation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductAddonRelation query()
+ *
  * @mixin \Eloquent
  */
 class ProductAddonRelation extends BaseModel

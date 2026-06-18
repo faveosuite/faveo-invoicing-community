@@ -66,7 +66,6 @@ class PromotionController extends BasePromotionController
 
     /**
      * Store a newly created resource in storage.
-     *
      */
     public function store(PromotionRequest $request)
     {

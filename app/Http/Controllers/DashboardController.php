@@ -14,7 +14,6 @@ use Carbon\CarbonImmutable;
 use DateTime;
 use DB;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 
@@ -174,7 +173,6 @@ class DashboardController extends Controller
 
     /**
      * Get the list of previous month registered users.
-     *
      */
     public function getAllUsers()
     {
@@ -224,7 +222,6 @@ class DashboardController extends Controller
 
     /**
      * List of orders of past 30 days.
-     *
      */
     public function getRecentOrders()
     {
@@ -289,7 +286,6 @@ class DashboardController extends Controller
 
     /**
      * List of Invoices of past 30 ays.
-     *
      */
     public function getRecentInvoices()
     {

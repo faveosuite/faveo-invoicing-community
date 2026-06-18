@@ -12,6 +12,7 @@ use App\BaseModel;
  * @property string $features
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFeatures newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFeatures newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFeatures query()
@@ -20,6 +21,7 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFeatures whereGroupId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFeatures whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFeatures whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class GroupFeatures extends BaseModel

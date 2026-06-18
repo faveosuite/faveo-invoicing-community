@@ -166,7 +166,6 @@ class TemplateController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
      */
     public function destroy(Request $request): void
     {
@@ -382,6 +381,7 @@ class TemplateController extends Controller
     public function toggle(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         Session::put('toggleState', $request->toggleState === 'selected' ? 'yearly' : 'monthly');
+
         return successResponse('');
     }
 

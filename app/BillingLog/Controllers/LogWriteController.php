@@ -95,7 +95,6 @@ class LogWriteController
 
     /**
      * Logs mail send activity.
-     *
      */
     public function logMailByCategory(
         string $senderMail,

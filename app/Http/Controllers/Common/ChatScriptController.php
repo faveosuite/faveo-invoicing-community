@@ -135,7 +135,6 @@ class ChatScriptController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
      */
     public function deleteScript(Request $request)
     {

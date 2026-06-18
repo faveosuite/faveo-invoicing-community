@@ -5,7 +5,6 @@ namespace App\Http\Controllers\License;
 use App\Model\License\LicenseType;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class LicenseSettingsController extends LicensePermissionsController
 {
@@ -48,7 +47,6 @@ class LicenseSettingsController extends LicensePermissionsController
 
     /**
      * Store a newly created resource in storage.
-     *
      */
     public function createLicense(Request $request)
     {
@@ -80,7 +78,6 @@ class LicenseSettingsController extends LicensePermissionsController
 
     /**
      * Remove the specified resource from storage.
-     *
      */
     public function deleteLicense(Request $request)
     {

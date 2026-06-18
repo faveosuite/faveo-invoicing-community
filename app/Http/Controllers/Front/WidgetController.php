@@ -184,7 +184,6 @@ class WidgetController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
      */
     public function deleteWidget(Request $request)
     {

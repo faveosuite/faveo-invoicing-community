@@ -30,7 +30,6 @@ class AddonController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
      */
     public function index()
     {
@@ -43,7 +42,6 @@ class AddonController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     *
      */
     public function create()
     {
@@ -60,7 +58,6 @@ class AddonController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
      */
     public function store(AddonRequest $request)
     {
@@ -147,7 +144,6 @@ class AddonController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
      */
     public function destroy(Request $request): void
     {
