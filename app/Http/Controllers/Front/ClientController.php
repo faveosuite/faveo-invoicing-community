@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Front;
 
-use App\Auto_renewal;
-use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Common\SettingsController;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
@@ -17,7 +15,6 @@ use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
-use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
@@ -38,7 +35,6 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Logger;
 use Override;
-use Session;
 
 class ClientController extends BaseClientController
 {

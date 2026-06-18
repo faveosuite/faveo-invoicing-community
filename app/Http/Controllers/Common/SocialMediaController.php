@@ -101,7 +101,7 @@ class SocialMediaController extends Controller
      * Update the specified social media account in storage.
      *
      * @param  SocialMediaRequest  $request
-     * @param int $id
+     * @param  int  $id
      * @return JsonResponse
      */
     public function updateSocial(int $id, SocialMediaRequest $request)
@@ -124,7 +124,7 @@ class SocialMediaController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return JsonResponse
      */
     public function deleteSocialMedia(Request $request): JsonResponse
