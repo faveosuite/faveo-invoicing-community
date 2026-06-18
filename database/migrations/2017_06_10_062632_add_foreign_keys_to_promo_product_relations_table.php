@@ -11,8 +11,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('promo_product_relations', function (Blueprint $table): void {
-            $table->foreign('product_id')->references('id')->on('products')->onUpdate('RESTRICT')->onDelete('RESTRICT');
-            $table->foreign('promotion_id')->references('id')->on('promotions')->onUpdate('RESTRICT')->onDelete('RESTRICT');
+            $table->foreign('product_id')->references('id')->on('products')->onUpdate('restrict')->onDelete('restrict');
+            $table->foreign('promotion_id')->references('id')->on('promotions')->onUpdate('restrict')->onDelete('restrict');
         });
     }
 

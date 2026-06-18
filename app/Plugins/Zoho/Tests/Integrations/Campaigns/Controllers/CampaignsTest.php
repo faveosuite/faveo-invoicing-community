@@ -117,7 +117,7 @@ class CampaignsTest extends DBTestCase
 
         $count = $this->campaigns->subscribersCount('active');
 
-        $this->assertIsInt($count);
+        $this->assertIsInt($count); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     public function test_it_retrieves_all_tags(): void
@@ -210,7 +210,7 @@ class CampaignsTest extends DBTestCase
         // Should not throw exception
         $this->campaigns->detachTag('test@example.com', 'NonExistent');
 
-        $this->assertTrue(condition: true);
+        $this->assertTrue(condition: true); // @phpstan-ignore method.alreadyNarrowedType, argument.named
     }
 
     public function test_it_retrieves_contact_fields(): void

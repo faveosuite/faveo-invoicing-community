@@ -169,7 +169,7 @@ class SmsOtpController extends Controller
      */
     public function responseHandler(array $response): array
     {
-        $body = $response['body'] ?? [];
+        $body = $response['body'] ?? []; // @phpstan-ignore nullCoalesce.offset
         $type = $body['type'] ?? 'error';
         $message = $body['message'] ?? '';
 

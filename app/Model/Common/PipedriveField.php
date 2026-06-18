@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Model\Common\PipedriveGroups|null $pipedriveGroups
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Common\PipedriveFieldOption> $pipedriveOptions
  * @property-read int|null $pipedrive_options_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField query()
@@ -34,7 +33,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField whereLocalFieldId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField wherePipedriveGroupId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class PipedriveField extends Model
@@ -74,7 +72,7 @@ class PipedriveField extends Model
             'field_name' => ['Field Name', fn ($value) => $value],
             'field_key' => ['Field Key', fn ($value) => $value],
             'field_type' => ['Field Type', fn ($value) => $value],
-            'pipedrive_group_id' => ['Pipedrive Group', fn ($value) => $this->pipedriveGroups?->name],
+            'pipedrive_group_id' => ['Pipedrive Group', fn ($value) => $this->pipedriveGroups?->name], // @phpstan-ignore property.notFound
             'local_field_id' => ['Local Field', fn ($value) => $this->localField?->field_name],
         ];
     }

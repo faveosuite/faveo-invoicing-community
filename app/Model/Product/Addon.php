@@ -8,11 +8,9 @@ use Override;
 /**
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\ProductAddonRelation> $relation
  * @property-read int|null $relation_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Addon newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Addon newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Addon query()
- *
  * @mixin \Eloquent
  */
 class Addon extends BaseModel

@@ -511,7 +511,6 @@ class SettingsController extends BaseSettingsController
                 'postsubs_expirymail' => 'post_expirymail',
                 'cloud_cron' => 'cloud_mail_status',
                 'invoice_cron' => 'invoice_deletion_status',
-                'msg91_cron' => 'msg91_report_delete_status',
                 'reoon_cron' => 'reoon_deletion_status',
                 'systemlogs_cron' => 'system_log_status',
                 'installationlogs_cron' => 'installation_logs_status',
@@ -521,8 +520,9 @@ class SettingsController extends BaseSettingsController
                 'licensesystem_cron' => 'license_system_reports_cleanup_status',
                 'licenseversions_cron' => 'license_versions_cleanup_status',
             ];
+            $status->msg91_report_delete_status = (string)(int) $request->boolean('statuses.msg91_cron');
             foreach ($map as $input => $column) {
-                $status->{$column} = $request->boolean('statuses.'.$input);
+                $status->{$column} = (int) $request->boolean('statuses.'.$input);
             }
 
             $status->save();
@@ -766,11 +766,11 @@ class SettingsController extends BaseSettingsController
             $paymentSortColumn = $paymentSortMap[$sortField] ?? 'payment_logs.'.$sortField;
             $logs = $query->orderBy($paymentSortColumn, $sortOrder)->simplePaginate($limit);
 
-            $logs->getCollection()->transform(fn ($row): array => [
+            $logs->getCollection()->transform(fn ($row): array => [ // @phpstan-ignore argument.unresolvableType
                 'id' => $row->id,
                 'date' => $row->date ? Date::parse($row->date)->format('Y-m-d H:i') : '—',
-                'user' => $row->user_name ? trim((string) $row->user_name) : ($row->from ?? '—'),
-                'user_id' => $row->user_id,
+                'user' => $row->user_name ? trim((string) $row->user_name) : ($row->from ?? '—'), // @phpstan-ignore property.notFound
+                'user_id' => $row->user_id, // @phpstan-ignore property.notFound
                 'order' => $row->order ?? '—',
                 'amount' => $row->amount ?? '—',
                 'payment_method' => ucfirst($row->payment_method ?? '—'),

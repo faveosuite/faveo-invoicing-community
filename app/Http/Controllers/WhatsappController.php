@@ -284,7 +284,7 @@ class WhatsappController extends Controller
         }
 
         try {
-            $url = $this->base_url.'/'.$this->api_version.'/'.$record->phone_number_id.'/'.$this->endpoint['deregister'];
+            $url = $this->base_url.'/'.$this->api_version.'/'.$record->phone_number_id.'/'.$this->endpoint['deregister']; // @phpstan-ignore offsetAccess.notFound
             Http::post($url, ['access_token' => $record->access_token]);
             $record->delete();
 
@@ -376,7 +376,7 @@ class WhatsappController extends Controller
             WhatsappIntegration::select(['app_id', 'app_secret'])->first()->toArray()
         );
 
-        $url = $this->base_url.'/'.$this->api_version.'/'.$this->endpoint['access_token'];
+        $url = $this->base_url.'/'.$this->api_version.'/'.$this->endpoint['access_token']; // @phpstan-ignore offsetAccess.notFound
 
         $shortLived = Http::get($url, [
             'client_id' => $app_id,

@@ -21,6 +21,10 @@ trait SystemActivityLogsTrait
      *   'email' => ['email_address', fn($val) => strtolower($val)],
      * ].
      */
+    protected ?string $causerID = null;
+
+    protected bool $requireLogUrl = false;
+
     abstract protected function getMappings(): array;
 
     /**
@@ -146,12 +150,12 @@ trait SystemActivityLogsTrait
      */
     private function getLogName(): string
     {
-        return $this->logName;
+        return $this->logName; // @phpstan-ignore staticProperty.nonStaticAccess
     }
 
     private function getLogNameColumn(): string
     {
-        return $this->logNameColumn;
+        return $this->logNameColumn; // @phpstan-ignore property.notFound
     }
 
     /**

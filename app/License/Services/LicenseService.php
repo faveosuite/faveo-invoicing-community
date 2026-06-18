@@ -74,7 +74,7 @@ class LicenseService
      */
     public function deactivate(string $licenseCode): bool
     {
-        return License::where('license_code', $licenseCode)
+        return (bool) License::where('license_code', $licenseCode)
             ->update(['license_status' => 0]);
     }
 
@@ -227,7 +227,7 @@ class LicenseService
 
         return [
             'license' => $license->toArray(),
-            'product' => $license->product ? $license->product->toArray() : null,
+            'product' => $license->product ? $license->product->toArray() : null, // @phpstan-ignore ternary.alwaysTrue
             'addons' => $addons,
         ];
     }
@@ -296,7 +296,7 @@ class LicenseService
     public function generateLicenseCode(): string
     {
         do {
-            $code = strtoupper(substr(md5(uniqid(random_int(0, mt_getrandmax()), more_entropy: true)), 0, 16));
+            $code = strtoupper(substr(md5(uniqid((string) random_int(0, mt_getrandmax()), more_entropy: true)), 0, 16));
             $code = chunk_split($code, 4, '-');
             $code = substr($code, 0, -1);
         } while (License::where('license_code', $code)->exists());

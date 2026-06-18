@@ -49,7 +49,6 @@ class LicenseSettingsController extends LicensePermissionsController
     /**
      * Store a newly created resource in storage.
      *
-     * @return Response
      */
     public function createLicense(Request $request)
     {
@@ -82,8 +81,6 @@ class LicenseSettingsController extends LicensePermissionsController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return Response
      */
     public function deleteLicense(Request $request)
     {

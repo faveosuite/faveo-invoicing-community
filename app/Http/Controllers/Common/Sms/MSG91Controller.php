@@ -164,7 +164,7 @@ class MSG91Controller extends Controller
             ->orderBy('action')
             ->pluck('action');
 
-        return view('themes.default1.common.sms.msgReports', compact('status', 'sources', 'actions'));
+        return view('themes.default1.common.sms.msgReports', compact('status', 'sources', 'actions')); // @phpstan-ignore argument.type
     }
 
     public function getMsg91Reports(Request $request): \Illuminate\Http\JsonResponse

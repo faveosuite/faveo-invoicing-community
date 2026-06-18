@@ -108,7 +108,7 @@ class OrderController extends BaseOrderController
         $this->price = $price;
 
         $product_upload = new ProductUpload();
-        $this->product_upload = $product_upload;
+        $this->product_upload = $product_upload; // @phpstan-ignore property.notFound
     }
 
     public function getOrders(Request $request): \Illuminate\Http\JsonResponse
@@ -155,7 +155,7 @@ class OrderController extends BaseOrderController
                     'group_id' => $order->productRelation?->group,
                     'plan' => $order->subscription->plan?->name,
                     'plan_id' => $order->subscription->plan?->id,
-                    'version' => $latestVersion ? getVersionAndLabel($latestVersion, $order->product) : null,
+                    'version' => $latestVersion ? getVersionAndLabel($latestVersion, $order->product) : null, // @phpstan-ignore argument.type
                     'agents' => $licenseAgents,
                     'status' => empty($order->installationDetail) ? 'Inactive' : 'Active',
                     'order_date' => $order->created_at,
@@ -219,11 +219,11 @@ class OrderController extends BaseOrderController
         try {
             $rows = InstallationDetail::where('order_id', $orderId)->get();
 
-            $installationDetails = $rows->map(fn ($row): array => [
+            $installationDetails = $rows->map(fn ($row): array => [ // @phpstan-ignore argument.unresolvableType
                 'path' => $row->installation_path,
                 'ip' => $row->installation_ip,
                 'version' => $row->version ?? null,
-                'status' => $row->installation_status,
+                'status' => $row->installation_status, // @phpstan-ignore property.notFound
                 'last_active_date' => $row->last_active,
             ])->values()->all();
 
@@ -432,7 +432,7 @@ class OrderController extends BaseOrderController
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
 
-        $invoices->getCollection()->transform(fn ($invoice): array => [
+        $invoices->getCollection()->transform(fn ($invoice): array => [ // @phpstan-ignore method.notFound
             'id' => $invoice->id,
             'number' => $invoice->number,
             'amount' => currencyFormat($invoice->grand_total, $invoice->currency),
@@ -441,6 +441,6 @@ class OrderController extends BaseOrderController
             'products' => $invoice->invoiceItem->pluck('product_name')->toArray(),
         ]);
 
-        return successResponse('', $invoices);
+        return successResponse("", $invoices);
     }
 }

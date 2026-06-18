@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $category_name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroup newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroup newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroup query()
@@ -25,7 +24,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroup whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroup whereListId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroup whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class MailchimpGroup extends Model

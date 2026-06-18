@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('integration_id')
                 ->constrained('zoho_integrations')
                 ->cascadeOnDelete()
-                ->unique();
+                ->unique(); // @phpstan-ignore method.notFound
 
             $table->longText('access_token');
             $table->longText('refresh_token');

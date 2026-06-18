@@ -113,7 +113,7 @@ class BaseSettingsController extends PaymentSettingsController
         $allStatus->license_system_reports_cleanup_status = $request->licensesystem_cron ?: 0;
         $allStatus->license_versions_cleanup_status = $request->licenseversions_cron ?: 0;
         $allStatus->save();
-        $this->saveConditions();
+        $this->saveConditions(); // @phpstan-ignore arguments.count
 
         /* redirect to Index page with Success Message */
         return redirect('job-scheduler')->with('success', Lang::get('message.updated-successfully'));

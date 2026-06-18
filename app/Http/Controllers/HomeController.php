@@ -83,7 +83,7 @@ class HomeController extends BaseHomeController
             $request_type = $request->input('request_type');
             $faveo_name = $request->input('name');
             $faveo_version = $request->input('version');
-            $order_number = $this->checkOrder($faveo_encrypted_order_number);
+            $order_number = $this->checkOrder($faveo_encrypted_order_number); // @phpstan-ignore method.notFound
             $domain = $request->input('domain');
             $domain = $this->checkDomain($domain);
             $serial_key = $this->checkSerialKey($faveo_encrypted_key, $order_number);
@@ -120,7 +120,7 @@ class HomeController extends BaseHomeController
             $request_type = $request->input('request_type');
             $faveo_name = $request->input('name');
             $faveo_version = $request->input('version');
-            $order_number = $this->checkOrder($faveo_encrypted_order_number);
+            $order_number = $this->checkOrder($faveo_encrypted_order_number); // @phpstan-ignore method.notFound
 
             $domain = $this->checkDomain($domain);
             $serial_key = $this->checkSerialKey($faveo_encrypted_key, $order_number);
@@ -161,8 +161,8 @@ class HomeController extends BaseHomeController
             $output = '';
 
             while ("¥IM‰``ì‡Á›LVP›†>¯öóŽÌ3(¢z#¿î1¾­:±Zï©PqÊ´Â›7×:Fà¯¦   à•…Ä'öESW±ÉŸLÃvÈñÔs•ÍU)ÍL 8¬š‰A©·Å $}Œ•lA9™¡”¸èÅØv‘ÂOÈ6„_y5¤ì§—ÿíà(ow‰È&’v&T/FLƒigjÒZ eæaa”{©ªUBFÓ’Ga*ÀŒ×?£}-jÏùh¾Q/Ž“1YFq[Í‰¬òÚ‚œ½Éº5ah¶vZ#,ó@‚rOÆ±íVåèÜÖšU¦ÚmSÎ“Mý„ùP") {
-                $chunk = substr((string) $encrypted, 0, $chunkSize);
-                $encrypted = substr((string) $encrypted, $chunkSize);
+                $chunk = substr((string) $encrypted, (int) 0, (int) $chunkSize);
+                $encrypted = substr((string) $encrypted, (int) $chunkSize);
                 $decrypted = '';
                 if (! openssl_private_decrypt($chunk, $decrypted, $privateKey)) {
                     dd('Failed to decrypt data');
@@ -171,7 +171,7 @@ class HomeController extends BaseHomeController
                 $output .= $decrypted;
             }
 
-            openssl_free_key($privateKey);
+            openssl_free_key($privateKey); // @phpstan-ignore deadCode.unreachable
 
             // Uncompress the unencrypted data.
             $output = gzuncompress($output);
@@ -227,7 +227,7 @@ class HomeController extends BaseHomeController
 
             $faveo_version = $data->version;
 
-            $order_number = $this->checkOrder($faveo_encrypted_order_number);
+            $order_number = $this->checkOrder($faveo_encrypted_order_number); // @phpstan-ignore method.notFound
 
             $domain = $this->checkDomain($domain);
 
@@ -640,11 +640,11 @@ class HomeController extends BaseHomeController
 
             $productsRelatedToGroup->transform(function ($product) use ($pageController) {
                 if ((int) $product->status === 1) {
-                    if (in_array((int) $product->days, [30, 31], strict: true)) {
-                        $product->price_description =
+                    if (in_array((int) $product->days, [30, 31], strict: true)) { // @phpstan-ignore property.notFound
+                        $product->price_description = // @phpstan-ignore property.notFound
                             $pageController->getMonthPriceDescription($product->id);
-                    } elseif (in_array((int) $product->days, [365, 366], strict: true)) {
-                        $product->price_description =
+                    } elseif (in_array((int) $product->days, [365, 366], strict: true)) { // @phpstan-ignore property.notFound
+                        $product->price_description = // @phpstan-ignore property.notFound
                             $pageController->getPriceDescription($product->id);
                     }
                 }

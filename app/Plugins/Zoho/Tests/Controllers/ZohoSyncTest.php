@@ -187,7 +187,7 @@ class ZohoSyncTest extends DBTestCase
 
         $field = ZohoFields::where('zoho_field_uid', '123')->first();
 
-        $this->assertNotNull($field->raw_metadata);
+        $this->assertNotNull($field->raw_metadata); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertIsArray($field->raw_metadata);
         $this->assertEquals('custom_value', $field->raw_metadata['custom_property']);
     }

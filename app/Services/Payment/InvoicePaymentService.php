@@ -156,7 +156,7 @@ class InvoicePaymentService
         }
 
         $invoice->processing_fee = ProcessingFee::label($fee);
-        $invoice->grand_total = ProcessingFee::addTo((float) $invoice->grand_total, $gateway);
+        $invoice->grand_total = (string) ProcessingFee::addTo((float) $invoice->grand_total, $gateway);
         $invoice->save();
     }
 

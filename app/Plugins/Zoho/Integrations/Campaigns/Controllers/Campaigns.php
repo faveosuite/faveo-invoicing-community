@@ -55,7 +55,7 @@ class Campaigns
 
         $topicId = $topic !== null ? $this->getTopicId($topic) : null;
 
-        $this->zohoApi->listSubscribe($listKey, $email, $contactInfo, [], $topicId);
+        $this->zohoApi->listSubscribe($listKey, $email, $contactInfo, [], $topicId); // @phpstan-ignore argument.type
     }
 
     /**
@@ -70,7 +70,7 @@ class Campaigns
 
         $additionalParams = ['donotmail_resub' => 'true'];
 
-        $this->zohoApi->listSubscribe($listKey, $email, $contactInfo, $additionalParams, $topicId);
+        $this->zohoApi->listSubscribe($listKey, $email, $contactInfo, $additionalParams, $topicId); // @phpstan-ignore argument.type
     }
 
     /**

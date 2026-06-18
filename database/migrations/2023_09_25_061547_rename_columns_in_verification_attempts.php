@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('verification_attempts', function (Blueprint $table): void {
-            $table->renameColumn('type', 'mobile_attempt')->nullabe();
-            $table->renameColumn('attempt_count', 'email_attempt')->nullable();
+            $table->renameColumn('type', 'mobile_attempt')->nullable(); // @phpstan-ignore method.notFound
+            $table->renameColumn('attempt_count', 'email_attempt')->nullable(); // @phpstan-ignore method.notFound
         });
     }
 

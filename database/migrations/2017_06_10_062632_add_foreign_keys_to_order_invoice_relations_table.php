@@ -31,8 +31,8 @@ return new class extends Migration
                 $table->foreign('invoice_id')
                     ->references('id')
                     ->on('invoices')
-                    ->onUpdate('RESTRICT')
-                    ->onDelete('RESTRICT');
+                    ->onUpdate('restrict')
+                    ->onDelete('restrict');
             }
 
             // Check and add foreign key for order_id
@@ -40,8 +40,8 @@ return new class extends Migration
                 $table->foreign('order_id')
                     ->references('id')
                     ->on('orders')
-                    ->onUpdate('RESTRICT')
-                    ->onDelete('RESTRICT');
+                    ->onUpdate('restrict')
+                    ->onDelete('restrict');
             }
         });
     }

@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate query()
@@ -19,7 +18,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate whereToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class AccountActivate extends Model

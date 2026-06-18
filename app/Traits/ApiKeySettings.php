@@ -266,7 +266,7 @@ trait ApiKeySettings
         try {
             $response = Http::get($terms_url);
 
-            if ($response == false) {
+            if ($response == false) { // @phpstan-ignore equal.alwaysFalse
                 return errorResponse(Lang::get('message.terms_error'));
             }
 
@@ -420,7 +420,7 @@ trait ApiKeySettings
         $disk = $request->input('disk');
         $fileStorageSettings = FileSystemSettings::first();
 
-        $response = match ($disk) {
+        $response = match ($disk) { // @phpstan-ignore match.unhandled
             'system' => $this->updateLocalStorage($request, $fileStorageSettings),
             's3' => $this->updateS3Storage($request, $fileStorageSettings),
         };
@@ -482,7 +482,7 @@ trait ApiKeySettings
     protected function updateS3EnvSettings($s3fields)
     {
         foreach ($s3fields as $key => $value) {
-            $envKey = match ($key) {
+            $envKey = match ($key) { // @phpstan-ignore match.unhandled
                 's3_bucket' => 'AWS_BUCKET',
                 's3_region' => 'AWS_DEFAULT_REGION',
                 's3_access_key' => 'AWS_ACCESS_KEY_ID',

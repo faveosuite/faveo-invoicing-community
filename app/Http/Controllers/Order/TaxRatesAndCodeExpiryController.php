@@ -74,7 +74,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
 
     public function invoiceContent(int $invoiceid): string
     {
-        $invoice = $this->invoice->find($invoiceid);
+        $invoice = $this->invoice->find($invoiceid); // @phpstan-ignore property.notFound
         $items = $invoice->invoiceItem()->get();
         $content = '';
         if ($items->count() > 0) {
@@ -180,7 +180,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         try {
             $payment = Payment::findOrFail($id);
             $clientid = $payment->user_id;
-            $client = $this->user->where('id', $clientid)->firstOrFail();
+            $client = $this->user->where('id', $clientid)->firstOrFail(); // @phpstan-ignore property.notFound
             $symbol = Currency::where('code', $client->currency)->value('symbol');
 
             // Client's available credit balance = sum of their invoice_id = 0 rows.
@@ -201,7 +201,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
                         'number' => $inv->number,
                         'date' => $inv->date,
                         'grand_total' => $inv->grand_total,
-                        'pending' => max(0, $inv->grand_total - $paid),
+                        'pending' => max(0, (float) $inv->grand_total - $paid),
                         'status' => $inv->status,
                     ];
                 })

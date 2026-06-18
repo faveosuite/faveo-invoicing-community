@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Plugins\Zoho\Models\FaveoLocalFields|null $faveoLocalField
  * @property-read \App\Plugins\Zoho\Models\ZohoFields $zohoField
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFieldMappings newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFieldMappings newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFieldMappings query()
@@ -32,7 +31,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFieldMappings whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFieldMappings whereUseDefaultIfEmpty($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFieldMappings whereZohoFieldId($value)
- *
  * @mixin \Eloquent
  */
 class ZohoFieldMappings extends Model

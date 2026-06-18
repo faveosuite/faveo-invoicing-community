@@ -26,8 +26,8 @@ class ProductUploadFactory extends Factory
             'product_id' => Product::factory(),
             'title' => fake()->sentence,
             'description' => fake()->paragraph,
-            'version' => fake()->semver,
-            'file' => fake()->word.'.'.fake()->fileExtension,
+            'version' => fake()->semver, // @phpstan-ignore property.notFound
+            'file' => fake()->word.'.'.fake()->fileExtension, // @phpstan-ignore property.notFound
             'is_private' => fake()->boolean,
             'is_restricted' => fake()->boolean,
             'release_type' => fake()->randomElement(['official', 'beat']),

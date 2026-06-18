@@ -36,7 +36,6 @@ use Override;
  * @property-read Plan|null $plan
  * @property-read \App\Model\Product\Product|null $product
  * @property-read User|null $user
- *
  * @method static \Database\Factories\Model\Product\SubscriptionFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription newQuery()
@@ -60,7 +59,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereVersionUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Subscription extends Model
@@ -88,7 +86,7 @@ class Subscription extends Model
             'days' => ['Subscription Days', fn ($value) => $value],
             'ends_at' => ['Subscription End Date', fn ($value) => $value],
             'update_ends_at' => ['Update End Date', fn ($value) => $value],
-            'user_id' => ['User', fn ($value) => User::find($value)?->name],
+            'user_id' => ['User', fn ($value) => User::find($value)?->name], // @phpstan-ignore property.notFound
             'plan_id' => ['Plan', fn ($value) => Plan::find($value)?->name],
             'order_id' => ['Order', fn ($value) => $value ? Order::find($value)?->number : 'No Order'],
             'deny_after_subscription' => ['Deny After Subscription', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],

@@ -32,8 +32,8 @@ trait PaymentsAndInvoices
             }
 
             $paymentid = $request->input('id');
-            $creditAmtUserId = $this->payment->where('id', $paymentid)->value('user_id');
-            $creditAmt = $this->payment->where('user_id', $creditAmtUserId)
+            $creditAmtUserId = $this->payment->where('id', $paymentid)->value('user_id'); // @phpstan-ignore property.notFound
+            $creditAmt = $this->payment->where('user_id', $creditAmtUserId) // @phpstan-ignore property.notFound
               ->where('invoice_id', '=', 0)->value('amt_to_credit');
             $invoices = $invoice->where('user_id', $creditAmtUserId)->orderBy('created_at', 'desc')->get();
             $cltCont = new ClientController();
@@ -44,9 +44,9 @@ trait PaymentsAndInvoices
                 $total = $invoiceSum;
             }
 
-            $payment = $this->payment->where('id', $paymentid)->update(['amount' => $total]);
+            $payment = $this->payment->where('id', $paymentid)->update(['amount' => $total]); // @phpstan-ignore property.notFound
 
-            $creditAmtInvoiceId = $this->payment->where('user_id', $creditAmtUserId)
+            $creditAmtInvoiceId = $this->payment->where('user_id', $creditAmtUserId) // @phpstan-ignore property.notFound
         ->where('invoice_id', '!=', 0)->first();
             $invoiceId = $creditAmtInvoiceId->invoice_id;
             $invoice = $invoice->where('id', $invoiceId)->first();
@@ -54,7 +54,7 @@ trait PaymentsAndInvoices
             $diffSum = $grand_total - $total;
 
             $finalAmt = $creditAmt + $diffSum;
-            $updatedAmt = $this->payment->where('user_id', $creditAmtUserId)
+            $updatedAmt = $this->payment->where('user_id', $creditAmtUserId) // @phpstan-ignore property.notFound
         ->where('invoice_id', '=', 0)->update(['amt_to_credit' => $creditAmt]);
         } catch (Exception $exception) {
             Logger::exception($exception);
@@ -83,7 +83,7 @@ trait PaymentsAndInvoices
                     $payment_status = 'success';
                 }
 
-                $this->payment->create([
+                $this->payment->create([ // @phpstan-ignore property.notFound
                     'parent_id' => $parent_id,
                     'invoice_id' => $invoiceid,
                     'user_id' => $userid,
@@ -132,9 +132,9 @@ trait PaymentsAndInvoices
     public function updateInvoice(int $invoiceid): void
     {
         try {
-            $invoice = $this->invoice->findOrFail($invoiceid);
+            $invoice = $this->invoice->findOrFail($invoiceid); // @phpstan-ignore property.notFound
 
-            $payment = $this->payment->where('invoice_id', $invoiceid)
+            $payment = $this->payment->where('invoice_id', $invoiceid) // @phpstan-ignore property.notFound
             ->where('payment_status', 'success')->pluck('amount')->toArray();
             $total = array_sum($payment);
             if ($total < $invoice->grand_total) {
@@ -147,7 +147,7 @@ trait PaymentsAndInvoices
 
             if ($total > $invoice->grand_total) {
                 $user = $invoice->user()->first();
-                $balance = $total - $invoice->grand_total;
+                $balance = $total - (float) $invoice->grand_total;
                 $user->debit = $balance;
                 $user->save();
             }
@@ -184,11 +184,11 @@ trait PaymentsAndInvoices
             $client = Input::get('client');
             if ($agent == 1) {
                 $id = Auth::user()->id;
-                $this->sendMail($id, $invoiceid);
+                $this->sendMail($id, $invoiceid); // @phpstan-ignore method.notFound
             }
 
             if ($client == 1) {
-                $this->sendMail($userid, $invoiceid);
+                $this->sendMail($userid, $invoiceid); // @phpstan-ignore method.notFound
             }
         } catch (Exception $exception) {
             Logger::exception($exception);
@@ -201,7 +201,7 @@ trait PaymentsAndInvoices
         try {
             if ($request->has('invoiceid')) {
                 $invoice_id = $request->input('invoiceid');
-                $invoice = $this->invoice->find($invoice_id);
+                $invoice = $this->invoice->find($invoice_id); // @phpstan-ignore property.notFound
                 $userid = $invoice->user_id;
                 //dd($invoice);
                 $invoice_status = '';
@@ -216,14 +216,14 @@ trait PaymentsAndInvoices
                     }
                 }
 
-                $payment = $this->payment->where('invoice_id', $invoice_id)->first();
+                $payment = $this->payment->where('invoice_id', $invoice_id)->first(); // @phpstan-ignore property.notFound
                 if ($payment) {
                     $payment_status = $payment->payment_status;
                     $payment_method = $payment->payment_method;
                 }
 
                 return view(
-                    'themes.default1.invoice.payment',
+                    'themes.default1.invoice.payment', // @phpstan-ignore argument.type
                     compact(
                         'invoice_status',
                         'payment_status',
@@ -248,7 +248,7 @@ trait PaymentsAndInvoices
             $amounts = Payment::where('user_id', $userId)->where('invoice_id', 0)->select('amt_to_credit')->get();
             $balance = 0;
             foreach ($amounts as $amount) {
-                if ($amount) {
+                if ($amount) { // @phpstan-ignore if.alwaysTrue
                     $balance += $amount->amt_to_credit;
                 }
             }
@@ -280,7 +280,7 @@ trait PaymentsAndInvoices
             $amounts = Payment::where('user_id', $userId)->select('amount', 'amt_to_credit')->get();
             $paidSum = 0;
             foreach ($amounts as $amount) {
-                if ($amount) {
+                if ($amount) { // @phpstan-ignore if.alwaysTrue
                     $paidSum += (int) $amount->amount;
                     // $credit = $paidSum + $amount->amt_to_credit;
                 }

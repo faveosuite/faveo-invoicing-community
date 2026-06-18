@@ -28,7 +28,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $notification_unknown_error
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseNotification newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseNotification newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseNotification query()
@@ -53,7 +52,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseNotification whereNotificationUnknownError($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseNotification whereNotificationUpdatesExpired($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseNotification whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class LicenseNotification extends Model

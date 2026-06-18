@@ -21,7 +21,7 @@ class PlanPriceSeeder extends Seeder
         $nonDefaultCurrencies = PlanPrice::where(
             'currency', '=', new Setting()->first()->default_currency
         )->get(['id', 'currency']);
-        if ($nonDefaultCurrencies) {
+        if ($nonDefaultCurrencies) { // @phpstan-ignore if.alwaysTrue
             foreach ($nonDefaultCurrencies as $currency) {
                 $currency->update(['country_id' => 0]);
             }

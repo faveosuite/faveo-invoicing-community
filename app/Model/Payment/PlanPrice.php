@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read \App\Model\Payment\Plan|null $plan
- *
  * @method static \Database\Factories\Model\Payment\PlanPriceFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice newQuery()
@@ -38,7 +37,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereProductQuantity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereRenewPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class PlanPrice extends Model
@@ -72,7 +70,7 @@ class PlanPrice extends Model
             'price_description' => ['Price Description', fn ($value) => $value],
             'product_quantity' => ['Product Quantity', fn ($value) => $value],
             'no_of_agents' => ['Number of Agents', fn ($value) => $value],
-            'country_id' => ['Country', fn ($value) => Country::find($value)?->name],
+            'country_id' => ['Country', fn ($value) => Country::find($value)?->name], // @phpstan-ignore property.notFound
             'offer_price' => ['Offer Price', fn ($value) => $value],
         ];
     }

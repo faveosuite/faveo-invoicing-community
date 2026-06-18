@@ -52,7 +52,7 @@ class LanguageMiddleware
         return match (true) {
             Session::has('language') => Session::get('language'),
             Cache::has('language') => Cache::get('language'),
-            ! Cache::has('language') && isInstall() => Setting::select('content')->where('id', 1)->first()->content,
+            ! Cache::has('language') && isInstall() => Setting::select('content')->where('id', 1)->first()->content, // @phpstan-ignore booleanNot.alwaysTrue
             default => 'en',
         };
     }

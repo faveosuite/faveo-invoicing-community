@@ -163,7 +163,7 @@ class AutomationControllerTest extends TestCase
 
         // Assert database record exists and payload is not null
         $this->assertNotNull($mailLog);
-        $this->assertNotNull($mailLog->job_payload);
+        $this->assertNotNull($mailLog->job_payload); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertEquals('test_category', $mailLog->category->name);
     }
 

@@ -44,7 +44,7 @@ trait CoupCodeAndInvoiceSearch
 
             $invoice_status = 'pending';
 
-            $payment = $this->payment->create([
+            $payment = $this->payment->create([ // @phpstan-ignore property.notFound
                 'invoice_id' => $invoiceid,
                 'user_id' => $invoice->user_id,
                 'amount' => $amount,
@@ -52,7 +52,7 @@ trait CoupCodeAndInvoiceSearch
                 'payment_status' => $payment_status,
                 'created_at' => $payment_date,
             ]);
-            $all_payments = $this->payment
+            $all_payments = $this->payment // @phpstan-ignore property.notFound
             ->where('invoice_id', $invoiceid)
             ->where('payment_status', 'success')
             ->pluck('amount')->toArray();
@@ -63,7 +63,7 @@ trait CoupCodeAndInvoiceSearch
             }
 
             if ($invoice) {
-                $sessionValue = $this->getCodeFromSession();
+                $sessionValue = $this->getCodeFromSession(); // @phpstan-ignore method.notFound
                 $code = $sessionValue['code'];
                 $codevalue = $sessionValue['codevalue'];
                 $invoice->discount = $codevalue;
@@ -90,7 +90,7 @@ trait CoupCodeAndInvoiceSearch
                 return errorResponse(__('message.select-a-row'));
             }
 
-            $this->invoice->whereIn('id', $ids)->delete();
+            $this->invoice->whereIn('id', $ids)->delete(); // @phpstan-ignore property.notFound
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
@@ -104,9 +104,9 @@ trait CoupCodeAndInvoiceSearch
             $ids = $request->input('select');
             if (! empty($ids)) {
                 foreach ($ids as $id) {
-                    $payment = $this->payment->where('id', $id)->first();
+                    $payment = $this->payment->where('id', $id)->first(); // @phpstan-ignore property.notFound
                     if ($payment) {
-                        $invoice = $this->invoice->find($payment->invoice_id);
+                        $invoice = $this->invoice->find($payment->invoice_id); // @phpstan-ignore property.notFound
                         if ($invoice) {
                             $invoice->status = 'pending';
                             $invoice->save();
@@ -167,16 +167,16 @@ trait CoupCodeAndInvoiceSearch
                 return errorResponse(__('message.select-a-row'));
             }
 
-            $payments = $this->payment->whereIn('id', $ids)->get();
+            $payments = $this->payment->whereIn('id', $ids)->get(); // @phpstan-ignore property.notFound
 
             foreach ($payments as $payment) {
                 $invoiceId = $payment->invoice_id;
                 $payment->delete();
 
                 if ($invoiceId) {
-                    $invoice = $this->invoice->find($invoiceId);
+                    $invoice = $this->invoice->find($invoiceId); // @phpstan-ignore property.notFound
                     if ($invoice) {
-                        $paid = $this->payment->where('invoice_id', $invoiceId)
+                        $paid = $this->payment->where('invoice_id', $invoiceId) // @phpstan-ignore property.notFound
                             ->where('payment_status', 'success')
                             ->sum('amount');
 

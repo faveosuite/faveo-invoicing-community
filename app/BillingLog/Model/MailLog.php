@@ -22,7 +22,6 @@ use Crypt;
  * @property-read \App\BillingLog\Model\LogCategory|null $category
  * @property-read \App\BillingLog\Model\ExceptionLog|null $exception
  * @property-read bool $is_retry
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog query()
@@ -39,7 +38,6 @@ use Crypt;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereSubject($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class MailLog extends BaseModel
@@ -101,7 +99,7 @@ class MailLog extends BaseModel
 
     protected $hidden = ['job_payload'];
 
-    protected bool $htmlAble = ['body'];
+    protected array $htmlAble = ['body'];
 
     public function exception()
     {

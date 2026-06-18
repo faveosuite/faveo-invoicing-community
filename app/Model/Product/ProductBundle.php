@@ -18,7 +18,6 @@ use Override;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\ProductBundleRelation> $relation
  * @property-read int|null $relation_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundle newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundle newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundle query()
@@ -32,7 +31,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundle whereUses($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundle whereValidFrom($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundle whereValidTill($value)
- *
  * @mixin \Eloquent
  */
 class ProductBundle extends BaseModel

@@ -20,7 +20,6 @@ use App\Traits\SystemActivityLogsTrait;
  * @property int $allow_social_media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Widgets newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Widgets newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Widgets query()
@@ -34,7 +33,6 @@ use App\Traits\SystemActivityLogsTrait;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Widgets wherePublish($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Widgets whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Widgets whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Widgets extends BaseModel

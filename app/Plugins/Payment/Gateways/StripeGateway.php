@@ -327,7 +327,7 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
             $current = $client->subscriptions->retrieve($subscriptionId, []);
 
             // Only touch an active subscription, and only when the price differs.
-            if ($current->status !== 'active' || (int) $current->plan->amount === $request->amountMinor) {
+            if ($current->status !== 'active' || (int) $current->plan->amount === $request->amountMinor) { // @phpstan-ignore property.notFound
                 return new SubscriptionResult($this->name(), $current->id, (string) $current->status, $current->toArray());
             }
 

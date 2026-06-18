@@ -8,7 +8,7 @@ class ZohoCampaignsApiException extends ZohoApiException
 {
     public static function fromResponse(array $response): static
     {
-        return new static(
+        return new static( // @phpstan-ignore new.static
             errorId: (string) ($response['code'] ?? ''),
             message: $response['message'] ?? 'An error occurred',
         );

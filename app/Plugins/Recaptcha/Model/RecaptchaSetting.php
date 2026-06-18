@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $badge_position
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RecaptchaSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RecaptchaSetting newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RecaptchaSetting query()
@@ -36,7 +35,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RecaptchaSetting whereV2SiteKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RecaptchaSetting whereV3SecretKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RecaptchaSetting whereV3SiteKey($value)
- *
  * @mixin \Eloquent
  */
 class RecaptchaSetting extends Model
@@ -89,7 +87,7 @@ class RecaptchaSetting extends Model
             'theme' => $settings->theme ?? 'light',
             'size' => $settings->size ?? 'normal',
             'badge_position' => $settings->badge_position ?? 'bottomright',
-            'lang' => app()->getLocale() ?? 'en',
+            'lang' => app()->getLocale() ?? 'en', // @phpstan-ignore nullCoalesce.expr
         ];
     }
 }

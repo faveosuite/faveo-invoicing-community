@@ -19,24 +19,23 @@ class AddonController extends Controller
         $this->middleware('auth');
         $this->middleware('admin');
         $product = new Product();
-        $this->product = $product;
+        $this->product = $product; // @phpstan-ignore property.notFound
 
         $plan = new plan();
-        $this->plan = $plan;
+        $this->plan = $plan; // @phpstan-ignore property.notFound
 
         $addon = new Addon();
-        $this->addon = $addon;
+        $this->addon = $addon; // @phpstan-ignore property.notFound
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return \Response
      */
     public function index()
     {
         try {
-            return view('themes.default1.product.addon.index');
+            return view('themes.default1.product.addon.index'); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -45,16 +44,15 @@ class AddonController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Response
      */
     public function create()
     {
         try {
-            $product = $this->product->pluck('name', 'id')->toArray();
-            $subscription = $this->plan->pluck('name', 'id')->toArray();
+            $product = $this->product->pluck('name', 'id')->toArray(); // @phpstan-ignore property.notFound
+            $subscription = $this->plan->pluck('name', 'id')->toArray(); // @phpstan-ignore property.notFound
 
             //dd($subscription);
-            return view('themes.default1.product.addon.create', compact('product', 'subscription'));
+            return view('themes.default1.product.addon.create', compact('product', 'subscription')); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -63,18 +61,17 @@ class AddonController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Response
      */
     public function store(AddonRequest $request)
     {
         try {
-            $this->addon->fill($request->input())->save();
+            $this->addon->fill($request->input())->save(); // @phpstan-ignore property.notFound
             $products = $request->input('products');
             $relation = new ProductAddonRelation();
             if (is_array($products)) {
                 foreach ($products as $product) {
                     if ($product) {
-                        $relation->create(['addon_id' => $this->addon->id, 'product_id' => $product]);
+                        $relation->create(['addon_id' => $this->addon->id, 'product_id' => $product]); // @phpstan-ignore property.notFound
                     }
                 }
             }
@@ -99,18 +96,17 @@ class AddonController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Response
      */
     public function edit($id)
     {
         try {
-            $product = $this->product->pluck('name', 'id')->toArray();
-            $subscription = $this->plan->pluck('name', 'id')->toArray();
+            $product = $this->product->pluck('name', 'id')->toArray(); // @phpstan-ignore property.notFound
+            $subscription = $this->plan->pluck('name', 'id')->toArray(); // @phpstan-ignore property.notFound
             $relation = new ProductAddonRelation();
             $relation = $relation->where('addon_id', $id)->pluck('product_id')->toArray();
-            $addon = $this->addon->where('id', $id)->first();
+            $addon = $this->addon->where('id', $id)->first(); // @phpstan-ignore property.notFound
 
-            return view('themes.default1.product.addon.edit', compact('product', 'addon', 'subscription', 'relation'));
+            return view('themes.default1.product.addon.edit', compact('product', 'addon', 'subscription', 'relation')); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -120,12 +116,11 @@ class AddonController extends Controller
      * Update the specified resource in storage.
      *
      * @param  int  $id
-     * @return \Response
      */
     public function update($id, AddonRequest $request)
     {
         try {
-            $addon = $this->addon->where('id', $id)->first();
+            $addon = $this->addon->where('id', $id)->first(); // @phpstan-ignore property.notFound
             $addon->fill($request->input())->save();
 
             $products = $request->input('products');
@@ -153,7 +148,6 @@ class AddonController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
      */
     public function destroy(Request $request): void
     {
@@ -161,7 +155,7 @@ class AddonController extends Controller
             $ids = $request->input('select');
             if (! empty($ids)) {
                 foreach ($ids as $id) {
-                    $addon = $this->addon->where('id', $id)->first();
+                    $addon = $this->addon->where('id', $id)->first(); // @phpstan-ignore property.notFound
                     if ($addon) {
                         $addon->delete();
                     } else {

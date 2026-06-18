@@ -45,7 +45,7 @@ class FreeTrialService
         $plan = $this->resolveFreePlan($cloudProduct);
         $product = Product::findOrFail($cloudProduct->cloud_product);
 
-        return DB::transaction(function () use ($user, $domain, $cloudProduct, $plan, $product, $currency) {
+        return DB::transaction(function () use ($user, $domain, $cloudProduct, $plan, $product, $currency) { // @phpstan-ignore return.type
             $invoice = $this->createInvoice($user, $plan, $currency);
             $this->createInvoiceItem($invoice, $product, $plan, $currency);
 

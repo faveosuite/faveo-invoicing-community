@@ -16,6 +16,6 @@ class ApiController extends Controller
 
         Log::channel('csp')->info('CSP Report Received', $json ?? ['raw' => $content]);
 
-        return successResponse('CSP report received successfully', 200);
+        return successResponse('CSP report received successfully', '200');
     }
 }

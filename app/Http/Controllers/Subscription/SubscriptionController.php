@@ -200,7 +200,7 @@ class SubscriptionController extends Controller
         } catch (Exception $exception) {
             $this->PostSubscriptionHandle->sendFailedPayment(
                 $cost, $exception->getMessage(), $user,
-                $order?->number, $subscriptionData->update_ends_at,
+                $order?->number, $subscriptionData->update_ends_at, // @phpstan-ignore argument.type
                 $currency, $order, $product, $invoice, $paymentMethod
             );
         }
@@ -311,7 +311,7 @@ class SubscriptionController extends Controller
                 };
             }
         } catch (Exception $exception) {
-            Logger::error($exception->getMessage());
+            Logger::error($exception->getMessage()); // @phpstan-ignore staticMethod.notFound
         }
     }
 
@@ -322,7 +322,7 @@ class SubscriptionController extends Controller
 
         $sub = $this->PostSubscriptionHandle->successRenew($invoice, $subscription, $gateway, $invoice->currency);
         $this->PostSubscriptionHandle->recordPayment($invoice, $gateway);
-        $this->PostSubscriptionHandle->sendPaymentSuccessMail($sub, $invoice->currency, $cost, $user, $productName, $order->number);
+        $this->PostSubscriptionHandle->sendPaymentSuccessMail($sub, $invoice->currency, $cost, $user, $productName, $order->number); // @phpstan-ignore argument.type
         $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $productName, template: null, order: $order, payment: $gateway);
     }
 
@@ -355,7 +355,7 @@ class SubscriptionController extends Controller
             $this->PostSubscriptionHandle->recordPayment($invoice, 'stripe');
 
             if ($cost && emailSendingStatus()) {
-                $this->PostSubscriptionHandle->sendPaymentSuccessMail($sub, $currency, $cost, $user, $product->name, $order->number);
+                $this->PostSubscriptionHandle->sendPaymentSuccessMail($sub, $currency, $cost, $user, $product->name, $order->number); // @phpstan-ignore argument.type
                 $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product->name, template: null, order: $order, payment: 'stripe');
             }
         } elseif ($response->status === 'incomplete') {

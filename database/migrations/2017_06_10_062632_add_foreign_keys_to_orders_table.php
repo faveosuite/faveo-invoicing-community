@@ -30,8 +30,8 @@ return new class extends Migration
                 $table->foreign('client')
                     ->references('id')
                     ->on('users')
-                    ->onUpdate('RESTRICT')
-                    ->onDelete('RESTRICT');
+                    ->onUpdate('restrict')
+                    ->onDelete('restrict');
             }
 
             // Check and add foreign key for product
@@ -39,8 +39,8 @@ return new class extends Migration
                 $table->foreign('product')
                     ->references('id')
                     ->on('products')
-                    ->onUpdate('RESTRICT')
-                    ->onDelete('RESTRICT');
+                    ->onUpdate('restrict')
+                    ->onDelete('restrict');
             }
         });
     }

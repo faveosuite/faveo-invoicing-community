@@ -28,7 +28,6 @@ use App\Traits\SystemActivityLogsTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read \App\Model\Payment\TaxClass|null $taxClass
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax query()
@@ -49,7 +48,6 @@ use App\Traits\SystemActivityLogsTrait;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax whereTaxClassesId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax whereUtGst($value)
- *
  * @mixin \Eloquent
  */
 class Tax extends BaseModel

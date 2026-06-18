@@ -40,7 +40,7 @@ class ExtendedPlanController extends Controller
                     'days' => $request->input('days'),
                 ];
 
-                return response(Period::create($data));
+                return response()->json(Period::create($data));
             }
         } catch (Exception $exception) {
             $result = [$exception->getMessage()];

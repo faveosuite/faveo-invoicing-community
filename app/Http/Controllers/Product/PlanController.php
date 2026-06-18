@@ -33,10 +33,10 @@ class PlanController extends ExtendedPlanController
         $this->middleware('auth');
         $this->middleware('admin');
         $plan = new Plan();
-        $this->plan = $plan;
+        $this->plan = $plan; // @phpstan-ignore property.notFound
 
         $subscription = new Subscription();
-        $this->subscription = $subscription;
+        $this->subscription = $subscription; // @phpstan-ignore property.notFound
 
         $currency = new Currency();
         $this->currency = $currency;
@@ -69,17 +69,17 @@ class PlanController extends ExtendedPlanController
             $add_prices = $request->add_price;
             $renew_prices = $request->renew_price;
             $offer_prices = $request->offer_price;
-            $this->plan->fill($request->input())->save();
+            $this->plan->fill($request->input())->save(); // @phpstan-ignore property.notFound
             if ($request->input('days') != '') {
                 $period = Period::where('days', $request->input('days'))->first()->id;
-                $this->plan->periods()->attach($period);
+                $this->plan->periods()->attach($period); // @phpstan-ignore property.notFound
             }
 
             if (count($add_prices) > 0) {
                 $dataForCreating = [];
                 foreach ($add_prices as $key => $value) {
                     $dataForCreating[] = [
-                        'plan_id' => $this->plan->id,
+                        'plan_id' => $this->plan->id, // @phpstan-ignore property.notFound
                         'currency' => $request->input('currency')[$key],
                         'add_price' => $value,
                         'renew_price' => $renew_prices[$key],
@@ -90,7 +90,7 @@ class PlanController extends ExtendedPlanController
                     ];
                 }
 
-                $this->plan->planPrice()->insert($dataForCreating);
+                $this->plan->planPrice()->insert($dataForCreating); // @phpstan-ignore property.notFound
             }
 
             return back()->with('success', Lang::get('message.saved-successfully'));
@@ -248,8 +248,8 @@ class PlanController extends ExtendedPlanController
             ])->findOrFail($planId);
 
             $firstPrice = $plan->planPrice->first();
-            $plan->no_of_agents = $firstPrice?->no_of_agents;
-            $plan->product_quantity = $firstPrice?->product_quantity;
+            $plan->no_of_agents = $firstPrice?->no_of_agents; // @phpstan-ignore property.notFound
+            $plan->product_quantity = $firstPrice?->product_quantity; // @phpstan-ignore property.notFound
 
             // Remove these fields from each planPrice item
             foreach ($plan->planPrice as $price) {

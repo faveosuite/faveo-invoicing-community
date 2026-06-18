@@ -50,7 +50,7 @@ class BaseRenewController extends Controller
         try {
             $order = Order::find($orderid);
             $invoice_item_id = $order->invoice_item_id;
-            $invoice_id = $order->invoice_id;
+            $invoice_id = $order->invoice_id; // @phpstan-ignore property.notFound
             $invoice = Invoice::find($invoice_id);
             if ($invoice_item_id == 0) {
                 $invoice_item_id = $invoice->invoiceItem()->first()->id;
@@ -58,7 +58,7 @@ class BaseRenewController extends Controller
 
             $item = InvoiceItem::find($invoice_item_id);
             $product = $this->getProductByProductId($item->product_id, $order);
-            $user = $this->getUserById($order->client);
+            $user = $this->getUserById($order->client); // @phpstan-ignore method.notFound
             if (! $user) {
                 throw new Exception(__('message.user_removed_database'));
             }
@@ -135,7 +135,7 @@ class BaseRenewController extends Controller
         try {
             $controller = new InvoiceController();
             if ($code != '') {
-                $product_cost = $controller->checkCode($code, $product->id, $currency);
+                $product_cost = $controller->checkCode($code, $product->id, $currency); // @phpstan-ignore method.notFound
             }
 
 //            if (!empty($agents) && in_array($product->id, cloudPopupProducts())) {
@@ -161,7 +161,7 @@ class BaseRenewController extends Controller
             ]);
             $renewController = new RenewController();
             $renewController->createOrderInvoiceRelation($orderid, $invoice->id);
-            $items = $controller->createInvoiceItemsByAdmin($invoice->id, (string) $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, $tax_rate, $renewalPrice);
+            $items = $controller->createInvoiceItemsByAdmin($invoice->id, (string) $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, $tax_rate, $renewalPrice); // @phpstan-ignore argument.type
             if (in_array($product->id, cloudPopupProducts())) {
                 $license_code = Order::where('id', $orderid)->value('serial_key');
                 $installation_path = Installation::where('license_code', Order::find($orderid)?->serial_key)

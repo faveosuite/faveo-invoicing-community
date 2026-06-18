@@ -15,11 +15,9 @@ use Override;
  * This is a model representing the attachment table.
  *
  * @author Ladybird <info@ladybirdweb.com>
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseModel newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseModel newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseModel query()
- *
  * @mixin \Eloquent
  */
 class BaseModel extends Model

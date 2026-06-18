@@ -345,7 +345,6 @@ class PageController extends Controller
      *
      * @date   2019-01-10T01:20:52+0530
      *
-     * @param  int  $groupid  Group id
      * @param  int  $templateid  Id of the Template
      */
     public function pageTemplates(?int $templateid = null, int $group = 0): \Illuminate\Http\JsonResponse
@@ -465,9 +464,7 @@ class PageController extends Controller
      *
      * @param  $helpdesk_products
      * @param  $data
-     * @param  $trasform
-     * @return string
-     */
+     * @param  $trasform     */
     public function getTemplateOne(\Illuminate\Database\Eloquent\Collection $helpdesk_products, array &$trasform): mixed
     {
         try {
@@ -497,7 +494,7 @@ class PageController extends Controller
                     'feature' => $product->description,
                     'product_description' => $product->short_description,
                     'subscription' => $product->type == 4 ? '' : $temp_controller->plans($product->shoping_cart_link, $productId),
-                    'url' => $this->generateProductUrl($product, $orderButton),
+                    'url' => $this->generateProductUrl($product, $orderButton), // @phpstan-ignore argument.type
                 ];
             }
 
@@ -560,8 +557,7 @@ class PageController extends Controller
                 $plan_form = Form::select('subscription', ['Plans' => $plans], null);
             }
 
-            /** @phpstan-ignore class.notFound, class.notFound */
-            $form = Form::open(['method' => 'get', 'url' => $url]).
+            $form = Form::open(['method' => 'get', 'url' => $url]). // @phpstan-ignore class.notFound
             $plan_form.
             Form::hidden('id', $id); // @phpstan-ignore class.notFound
 
@@ -746,7 +742,7 @@ class PageController extends Controller
                 if ($plan->days == 30 || $plan->days == 31) {
                     $description = $plan->planPrice->first();
 
-                    if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) {
+                    if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) { // @phpstan-ignore function.impossibleType
                         $priceDescription = 'free';
                     } else {
                         $priceDescription = $description->no_of_agents ? 'per month for <strong> '.$description->no_of_agents.' '.'agent</strong>' : 'per month';
@@ -773,7 +769,6 @@ class PageController extends Controller
      *
      * @date   2019-01-09T00:20:09+0530
      *
-     * @param  int  $productid  Id of the Product
      * @return string $priceDescription        The Description of the Price
      */
     public function getPriceDescription(int $productId): string
@@ -794,7 +789,7 @@ class PageController extends Controller
                 if (in_array($plan->days, [365, 366])) {
                     $description = $plan->planPrice->first();
                     if ($description) {
-                        if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) {
+                        if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) { // @phpstan-ignore function.impossibleType
                             return 'free';
                         }
 
@@ -1127,7 +1122,7 @@ class PageController extends Controller
             $page->fill($request->except('created_at'));
 
             // parent_page_id is NOT NULL in the schema; default to 0 (no parent)
-            if ($page->parent_page_id === null) {
+            if ($page->parent_page_id === null) { // @phpstan-ignore identical.alwaysFalse
                 $page->parent_page_id = 0;
             }
 
@@ -1135,7 +1130,7 @@ class PageController extends Controller
             if ($request->filled('created_at')) {
                 $date = DateTime::createFromFormat('m/d/Y', $request->input('created_at'));
                 if ($date) {
-                    $page->created_at = $date->format('Y-m-d H:i:s');
+                    $page->created_at = \Illuminate\Support\Carbon::instance($date);
                 }
             }
 

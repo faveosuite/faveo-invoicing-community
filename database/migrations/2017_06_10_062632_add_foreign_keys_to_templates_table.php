@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('templates', function (Blueprint $table): void {
-            $table->foreign('type')->references('id')->on('template_types')->onUpdate('RESTRICT')->onDelete('RESTRICT');
+            $table->foreign('type')->references('id')->on('template_types')->onUpdate('restrict')->onDelete('restrict');
         });
     }
 

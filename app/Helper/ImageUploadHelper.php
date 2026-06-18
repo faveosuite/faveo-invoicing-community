@@ -11,8 +11,6 @@ class ImageUploadHelper
     /**
      * Stores the files in default disk.
      *
-     * @param  UploadedFile  $contents
-     *
      * @throws Exception
      */
     public static function saveImageToStorage(UploadedFile $image, $directory, $disk = 'public'): string

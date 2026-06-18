@@ -217,7 +217,7 @@ class ClientController extends AdvanceSearchController
 
         // Get template type name
 
-        $type = $template->type ? TemplateType::find($template->type)->name : '';
+        $type = $template->type ? TemplateType::find($template->type)->name : ''; // @phpstan-ignore property.notFound
 
         // Send the email
         $mail = new PhpMailController();
@@ -651,7 +651,7 @@ class ClientController extends AdvanceSearchController
 
             $invoices->getCollection()->transform(function ($invoice): array {
                 $paid = Payment::where('invoice_id', $invoice->id)->sum('amount');
-                $balance = max(0, $invoice->grand_total - $paid);
+                $balance = max(0, (float) $invoice->grand_total - $paid);
 
                 return [
                     'id' => $invoice->id,

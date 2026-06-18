@@ -40,7 +40,7 @@ class LinkLicenseToPlugin extends Command
             }
 
             foreach ($licenses as $license) {
-                $license->licensePlugins()->createMany(
+                $license->licensePlugins()->createMany( // @phpstan-ignore method.notFound
                     collect($plugins)->map(fn ($plugin): array => ['product_id' => $plugin])->all()
                 );
             }

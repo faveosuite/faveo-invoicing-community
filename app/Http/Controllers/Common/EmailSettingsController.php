@@ -133,7 +133,7 @@ class EmailSettingsController extends Controller
     /**
      * Checks services status by raw sending mail and waiting for the response.
      *
-     * @return SentMessage true if success else false
+     * @return \Illuminate\Mail\SentMessage|false
      */
     private function checkServices()
     {

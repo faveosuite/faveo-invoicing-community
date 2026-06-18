@@ -42,12 +42,12 @@ class LicenseViewController extends Controller
             'product_title' => $license->product->name,
             'client_email' => $license->user->email,
             'license_order_url' => $license->license_order_number ?? '',
-            'installation_counts' => $license->installation_counts,
-            'latest_call_backs' => $license->latest_call_backs,
+            'installation_counts' => $license->installation_counts, // @phpstan-ignore property.notFound
+            'latest_call_backs' => $license->latest_call_backs, // @phpstan-ignore property.notFound
             'call_backs_count' => $license->call_backs_count,
         ];
 
-        return successResponse(Lang::get('lang.license_details'), $formatted);
+        return successResponse(Lang::get('lang.license_details'), (array) $formatted);
     }
 
     public function getLicenseInstallations(Request $request, $license_id)
@@ -66,7 +66,7 @@ class LicenseViewController extends Controller
         $licenseInstallations = Installation::query()
             ->select('id', 'user_id as client_id', 'installation_domain', 'installation_ip', 'installation_date', 'installation_status')
             ->where('license_code', $license->license_code)
-            ->when($license->client_id, fn ($query) => $query->where('user_id', $license->client_id))
+            ->when($license->client_id, fn ($query) => $query->where('user_id', $license->client_id)) // @phpstan-ignore property.notFound, property.notFound
             ->when($searchQuery, function ($query) use ($searchQuery): void {
                 $query->where(function (Builder $q) use ($searchQuery): void {
                     $q->where('installation_domain', 'LIKE', '%'.$searchQuery.'%')
@@ -93,7 +93,7 @@ class LicenseViewController extends Controller
             return successResponse(Lang::get('lang.license_callback'), collect([]));
         }
 
-        $licenseCallBacks = LicenseCallback::where('user_id', $license->client_id)
+        $licenseCallBacks = LicenseCallback::where('user_id', $license->client_id) // @phpstan-ignore property.notFound
             ->where('license_code', $license->license_code)
             ->when($searchQuery, function ($query) use ($searchQuery): void {
                 $query->where(function ($q) use ($searchQuery): void {

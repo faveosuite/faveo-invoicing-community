@@ -82,7 +82,7 @@ class TemplateController extends Controller
             $cartUrl = $url.'/'.$i;
             $type = $this->type->pluck('name', 'id')->toArray();
 
-            return view('themes.default1.common.template.create', compact('type', 'cartUrl'));
+            return view('themes.default1.common.template.create', compact('type', 'cartUrl')); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -167,7 +167,6 @@ class TemplateController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
      */
     public function destroy(Request $request): void
     {
@@ -255,9 +254,9 @@ class TemplateController extends Controller
             $planClass = ($product->status != 1) ? 'stylePlan' : 'planhide';
             $planForm = '<select name="subscription" class="'.$planClass.'">'.$planOptions.'</select>';
 
-            return html()->form('GET', $url)->open()
+            return (string) html()->form('GET', $url)->open() // @phpstan-ignore cast.string
                 .$planForm
-                .html()->input('hidden', 'id')->value($id);
+                .html()->input('hidden', 'id')->value((string) $id);
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -352,7 +351,7 @@ class TemplateController extends Controller
 
                 $cost = rounding($planData->add_price);
                 $priceDescription = $planData->price_description;
-                $months = $plan->period ? $plan->period->name : '';
+                $months = $plan->period ? $plan->period->name : ''; // @phpstan-ignore property.notFound
 
                 $includePrice =
                     (! in_array($product->id, $cloudPopupProducts)) ||
@@ -382,9 +381,8 @@ class TemplateController extends Controller
 
     public function toggle(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
-        return successResponse('',
-            Session::put('toggleState', $request->toggleState === 'selected' ? 'yearly' : 'monthly')
-        );
+        Session::put('toggleState', $request->toggleState === 'selected' ? 'yearly' : 'monthly');
+        return successResponse('');
     }
 
     public function getPriceList(int $id): array

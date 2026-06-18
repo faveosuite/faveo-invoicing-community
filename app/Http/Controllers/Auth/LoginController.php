@@ -60,7 +60,7 @@ class LoginController extends BaseAuthController
         try {
             $status = StatusSetting::select('msg91_status', 'emailverification_status', 'terms')->first();
             if ($status) {
-                $status->terms = (bool) $status->terms;
+                $status->terms = (int) $status->terms;
             }
 
             $apiKeys = ApiKey::select('nocaptcha_sitekey', 'terms_url')->first();
@@ -225,7 +225,6 @@ class LoginController extends BaseAuthController
      * This function redirects to the social login based on the provider(twitter,gitHub).
      *
      * @param  $provider
-     * @return RedirectResponse
      */
     public function redirectToGithub($provider)
     {
@@ -260,7 +259,7 @@ class LoginController extends BaseAuthController
         $existingUser = User::where('email', $githubUser->getEmail())->first();
 
         if ($existingUser) {
-            $existingUser->active = '1';
+            $existingUser->active = 1;
 
             $existingUser->role = $existingUser->role == 'admin' ? 'admin' : 'user';
 
@@ -348,7 +347,7 @@ class LoginController extends BaseAuthController
     {
         switch ($context) {
             case 'login':
-                $identifier = $this->getLoginRateLimitKey($user->email ?? $user->username);
+                $identifier = $this->getLoginRateLimitKey($user->email ?? $user->username); // @phpstan-ignore property.notFound
                 $keys = ['login-attempt:'.$identifier];
                 break;
 

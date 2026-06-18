@@ -29,8 +29,8 @@ return new class extends Migration
                 $table->foreign('group_id')
                     ->references('id')
                     ->on('product_groups')
-                    ->onUpdate('RESTRICT')
-                    ->onDelete('RESTRICT');
+                    ->onUpdate('restrict')
+                    ->onDelete('restrict');
             }
         });
     }

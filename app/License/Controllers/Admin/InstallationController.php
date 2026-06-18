@@ -15,7 +15,7 @@ class InstallationController extends Controller
 {
     public function __construct()
     {
-        $this->ip_address = request()->server('REMOTE_ADDR');
+        $this->ip_address = request()->server('REMOTE_ADDR'); // @phpstan-ignore property.notFound
     }
 
     public function installationUpdate(Request $request)

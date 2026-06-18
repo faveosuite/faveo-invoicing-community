@@ -13,7 +13,6 @@ use App\BaseModel;
  * @property-read \App\Model\Common\Template|null $selectedTemplate
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Common\Template> $templates
  * @property-read int|null $templates_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TemplateType newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TemplateType newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TemplateType query()
@@ -22,7 +21,6 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TemplateType whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TemplateType whereSelectedTemplateId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TemplateType whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class TemplateType extends BaseModel

@@ -44,7 +44,6 @@ class ForgotPasswordController extends Controller
     /**
      * Send a reset link to the given user.
      *
-     * @return Response
      */
     public function sendResetLinkEmail(Request $request)
     {

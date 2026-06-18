@@ -46,7 +46,7 @@ class PageRequest extends FormRequest
             ];
         }
 
-        return null;
+        return [];
     }
 
     #[Override]

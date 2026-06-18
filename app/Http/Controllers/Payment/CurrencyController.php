@@ -106,7 +106,6 @@ class CurrencyController extends Controller
      * Activate the Currency to be Shown on Dashboard.
      *
      *
-     * @return \Response
      */
     public function setDashboardCurrency($id)
     {
@@ -122,7 +121,6 @@ class CurrencyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Response
      */
     public function store(Request $request)
     {
@@ -140,9 +138,9 @@ class CurrencyController extends Controller
             $currency->code = $request->code;
             $currency->symbol = $request->symbol;
             $currency->name = $request->currency_name;
-            $currency->base_conversion = '1.0';
-            $currency->country_code_char2 = $codeChar2;
-            $currency->nicename = $nicename;
+            $currency->base_conversion = '1.0'; // @phpstan-ignore property.notFound
+            $currency->country_code_char2 = $codeChar2; // @phpstan-ignore property.notFound
+            $currency->nicename = $nicename; // @phpstan-ignore property.notFound
             $currency->save();
 
             // $this->currency->fill($request->input())->save();
@@ -176,7 +174,6 @@ class CurrencyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
      */
     public function update(Request $request)
     {
@@ -187,9 +184,9 @@ class CurrencyController extends Controller
             $currency->code = $request->editcode;
             $currency->symbol = $request->editsymbol;
             $currency->name = $request->editcurrency_name;
-            $currency->base_conversion = '1.0';
-            $currency->country_code_char2 = $codeChar2;
-            $currency->nicename = $nicename;
+            $currency->base_conversion = '1.0'; // @phpstan-ignore property.notFound
+            $currency->country_code_char2 = $codeChar2; // @phpstan-ignore property.notFound
+            $currency->nicename = $nicename; // @phpstan-ignore property.notFound
             $currency->save();
 
             return successResponse(__('message.updated-successfully'));
@@ -201,7 +198,6 @@ class CurrencyController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
      */
     public function destroy(Request $request): void
     {
@@ -269,8 +265,8 @@ class CurrencyController extends Controller
     {
         $countryDetails = Country::where('country_id', $request->id)->select('currency_code', 'currency_symbol', 'currency_name')->first();
 
-        return ['code' => $countryDetails->currency_code,
-            'symbol' => $countryDetails->currency_symbol, 'currency' => $countryDetails->currency_name, ];
+        return ['code' => $countryDetails->currency_code, // @phpstan-ignore property.notFound
+            'symbol' => $countryDetails->currency_symbol, 'currency' => $countryDetails->currency_name, ]; // @phpstan-ignore property.notFound, property.notFound
     }
 
     public function updatecurrency(Request $request)

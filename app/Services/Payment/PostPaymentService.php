@@ -55,7 +55,7 @@ class PostPaymentService
         if ($invoice->grand_total && emailSendingStatus()) {
             $user = User::find($invoice->user_id);
             $productNames = $invoice->invoiceItem()->pluck('product_name')->implode(', ');
-            self::sendPaymentSuccessMailtoAdmin($invoice, $invoice->grand_total, $user, $productNames);
+            self::sendPaymentSuccessMailtoAdmin($invoice, $invoice->grand_total, $user, $productNames); // @phpstan-ignore argument.type
         }
 
         return $result;
@@ -168,8 +168,8 @@ class PostPaymentService
                     'autoRenew_status' => $oldSub->autoRenew_status,
                     'rzp_subscription' => $oldSub->rzp_subscription,
                 ]);
-                $this->updateSubscriptionPriceIfNeeded($newActiveOrderId, $invoice);
-            } elseif ($oldSub?->is_subscribed === '1') {
+                $this->updateSubscriptionPriceIfNeeded($newActiveOrderId, $invoice); // @phpstan-ignore argument.type
+            } elseif ($oldSub?->is_subscribed === '1') { // @phpstan-ignore identical.alwaysFalse
                 Subscription::where('order_id', $newActiveOrderId)->update([
                     'is_subscribed' => $oldSub->is_subscribed,
                     'autoRenew_status' => $oldSub->autoRenew_status,

@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $chrome_path
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings query()
@@ -31,7 +30,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereNodePath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereNpmPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class FileSystemSettings extends Model

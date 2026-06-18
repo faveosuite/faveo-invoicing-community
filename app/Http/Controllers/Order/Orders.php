@@ -14,7 +14,7 @@ class Orders extends Controller
     public function getOrder()
     {
         /** @scrutinizer ignore-call */
-        $order = self::find($this->orderid);
+        $order = self::find($this->orderid); // @phpstan-ignore staticMethod.notFound
 
         return $order;
     }

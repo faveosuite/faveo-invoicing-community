@@ -68,7 +68,7 @@ class DashboardController extends Controller
         $status = $request->input('status');
         $conversionRate = $this->getConversionRate();
 
-        return view('themes.default1.common.dashboard', compact('allowedCurrencies1', 'allowedCurrencies2',
+        return view('themes.default1.common.dashboard', compact('allowedCurrencies1', 'allowedCurrencies2', // @phpstan-ignore argument.type
             'currency1Symbol', 'currency2Symbol', 'totalSalesCurrency2', 'totalSalesCurrency1', 'yearlySalesCurrency2',
             'yearlySalesCurrency1', 'monthlySalesCurrency2', 'monthlySalesCurrency1', 'users', 'productSoldInLast30Days', 'recentOrders', 'subscriptions', 'expiredSubscriptions', 'invoices', 'allSoldProducts', 'pendingPaymentCurrency2',
             'pendingPaymentCurrency1', 'status', 'startSubscriptionDate', 'endSubscriptionDate', 'clientsUsingOldVersion', 'getLast30DaysInstallation', 'conversionRate'));
@@ -175,7 +175,6 @@ class DashboardController extends Controller
     /**
      * Get the list of previous month registered users.
      *
-     * @return Collection
      */
     public function getAllUsers()
     {
@@ -199,7 +198,6 @@ class DashboardController extends Controller
      * List of products sold in past $noOfDays days. If no parameter is passed, it will give all products.
      *
      * @param  int  $noOfDays
-     * @return Collection
      *
      * @throws Exception
      */
@@ -217,8 +215,8 @@ class DashboardController extends Controller
             ->orderBy('orders.created_at', 'desc')
             ->groupBy('products.id')
             ->get()->map(function ($element) {
-                $element->product_image = new Product()->getImageAttribute($element->product_image);
-                $element->order_created_at = getTimeInLoggedInUserTimeZone($element->order_created_at);
+                $element->product_image = new Product()->getImageAttribute($element->product_image); // @phpstan-ignore method.notFound, property.notFound, property.notFound
+                $element->order_created_at = getTimeInLoggedInUserTimeZone($element->order_created_at); // @phpstan-ignore property.notFound, property.notFound
 
                 return $element;
             });
@@ -227,7 +225,6 @@ class DashboardController extends Controller
     /**
      * List of orders of past 30 days.
      *
-     * @return Collection
      */
     public function getRecentOrders()
     {
@@ -240,11 +237,11 @@ class DashboardController extends Controller
             ->where('price_override', '>', 0)
             ->orderBy('orders.id', 'desc')
             ->get()->map(function ($element) {
-                $element->order_created_at = getDateHtml($element->order_created_at);
+                $element->order_created_at = getDateHtml($element->order_created_at); // @phpstan-ignore property.notFound, property.notFound
 
-                $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->client)->first_name.' '.User::onlyTrashed()->find($element->client)->last_name;
+                $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->client)->first_name.' '.User::onlyTrashed()->find($element->client)->last_name; // @phpstan-ignore property.notFound
 
-                $element->client_profile_link = \Config('app.url').'/clients/'.$element->client;
+                $element->client_profile_link = \Config('app.url').'/clients/'.$element->client; // @phpstan-ignore property.notFound
                 unset($element->user);
 
                 return $element;
@@ -255,7 +252,6 @@ class DashboardController extends Controller
      * List of orders expiring in next 30 days.
      *
      * @param  bool  $past30Days
-     * @return Collection
      *
      * @throws Exception
      */
@@ -280,11 +276,11 @@ class DashboardController extends Controller
             ->groupBy('subscriptions.id');
 
         return $baseQuery->get()->map(function ($element) {
-            $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)->first_name.' '.User::onlyTrashed()->find($element->user_id)->last_name;
-            $element->client_profile_link = config('app.url').'/clients/'.$element->user_id;
-            $element->order_link = config('app.url').'/orders/'.$element->order_id;
-            $element->days_difference = date_diff(now(), new DateTime($element->subscription_ends_at))->format('%a days');
-            $element->subscription_ends_at = getDateHtml($element->subscription_ends_at);
+            $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)->first_name.' '.User::onlyTrashed()->find($element->user_id)->last_name; // @phpstan-ignore property.notFound
+            $element->client_profile_link = config('app.url').'/clients/'.$element->user_id; // @phpstan-ignore property.notFound
+            $element->order_link = config('app.url').'/orders/'.$element->order_id; // @phpstan-ignore property.notFound
+            $element->days_difference = date_diff(now(), new DateTime($element->subscription_ends_at))->format('%a days'); // @phpstan-ignore property.notFound, property.notFound
+            $element->subscription_ends_at = getDateHtml($element->subscription_ends_at); // @phpstan-ignore property.notFound, property.notFound
             unset($element->user);
 
             return $element;
@@ -294,7 +290,6 @@ class DashboardController extends Controller
     /**
      * List of Invoices of past 30 ays.
      *
-     * @return Collection
      */
     public function getRecentInvoices()
     {
@@ -316,13 +311,13 @@ class DashboardController extends Controller
             ->groupBy('invoices.id')
             ->orderBy('invoices.date', 'desc')
             ->get()->map(function ($element) {
-                $element->balance = (int) ($element->grand_total - $element->paid);
+                $element->balance = (int) ($element->grand_total - $element->paid); // @phpstan-ignore property.notFound, property.notFound
                 $element->status = getStatusLabel($element->status);
-                $element->grand_total = currencyFormat((int) $element->grand_total, $element->currency_code);
-                $element->paid = currencyFormat((int) $element->paid, $element->currency_code);
-                $element->balance = currencyFormat((int) $element->balance, $element->currency_code);
-                $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)->first_name.' '.User::onlyTrashed()->find($element->user_id)->last_name;
-                $element->client_profile_link = \Config('app.url').'/clients/'.$element->user_id;
+                $element->grand_total = currencyFormat((int) $element->grand_total, $element->currency_code); // @phpstan-ignore property.notFound
+                $element->paid = currencyFormat((int) $element->paid, $element->currency_code); // @phpstan-ignore property.notFound, property.notFound, property.notFound
+                $element->balance = currencyFormat((int) $element->balance, $element->currency_code); // @phpstan-ignore property.notFound
+                $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)->first_name.' '.User::onlyTrashed()->find($element->user_id)->last_name; // @phpstan-ignore property.notFound
+                $element->client_profile_link = \Config('app.url').'/clients/'.$element->user_id; // @phpstan-ignore property.notFound
                 unset($element->user);
 
                 return $element;

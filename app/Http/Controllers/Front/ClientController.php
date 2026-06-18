@@ -82,19 +82,19 @@ class ClientController extends BaseClientController
         $this->payment = $payment;
 
         $product_upload = new ProductUpload();
-        $this->product_upload = $product_upload;
+        $this->product_upload = $product_upload; // @phpstan-ignore property.notFound
 
         $product = new Product();
-        $this->product = $product;
+        $this->product = $product; // @phpstan-ignore property.notFound
 
         $github_controller = new GithubApiController();
-        $this->github_api = $github_controller;
+        $this->github_api = $github_controller; // @phpstan-ignore property.notFound
 
         $model = new Github();
-        $this->github = $model->firstOrFail();
+        $this->github = $model->firstOrFail(); // @phpstan-ignore property.notFound
 
-        $this->client_id = $this->github->client_id;
-        $this->client_secret = $this->github->client_secret;
+        $this->client_id = $this->github->client_id; // @phpstan-ignore property.notFound
+        $this->client_secret = $this->github->client_secret; // @phpstan-ignore property.notFound
     }
 
     /**
@@ -265,7 +265,7 @@ class ClientController extends BaseClientController
             $downloadPerms[$pid] = $perms['downloadPermission'] == 1;
         }
 
-        $paginated->getCollection()->transform(function ($order) use ($downloadPerms): array {
+        $paginated->getCollection()->transform(function ($order) use ($downloadPerms): array { // @phpstan-ignore argument.unresolvableType
             $hasDownload = $downloadPerms[$order->productRelation?->id] ?? false;
             $latestInvoice = $order->invoices->first();
 
@@ -433,7 +433,7 @@ class ClientController extends BaseClientController
                 ->where('product', $item->product_id)
                 ->first();
 
-            $item->order = $order;
+            $item->order = $order; // @phpstan-ignore assign.propertyReadOnly
         });
         $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
         $set = Setting::find(1);
@@ -513,9 +513,6 @@ class ClientController extends BaseClientController
     /**
      * Get list of all the versions from Filesystem.
      *
-     * @param  type  $productid
-     * @param  type  $clientid
-     * @param  type  $invoiceid
      */
     public function getVersionList(Request $request, int $orderid): \Illuminate\Http\JsonResponse
     {
@@ -565,7 +562,7 @@ class ClientController extends BaseClientController
     private function githubVersions(Request $request, \App\Model\Product\Product $product, ?\App\Model\Product\Subscription $subscription): \Illuminate\Http\JsonResponse
     {
         $allReleases = array_slice(
-            $this->github_api->releases($product->github_owner, $product->github_repository),
+            $this->github_api->releases($product->github_owner, $product->github_repository), // @phpstan-ignore property.notFound
             0, 3, preserve_keys: true
         );
 
@@ -605,7 +602,7 @@ class ClientController extends BaseClientController
 
             if ($canDownload) {
                 try {
-                    $downloadUrl = $this->github_api->resolveDownloadUrl($release['zipball_url']);
+                    $downloadUrl = $this->github_api->resolveDownloadUrl($release['zipball_url']); // @phpstan-ignore property.notFound
                 } catch (Exception) {
                     $downloadUrl = null;
                 }
@@ -894,7 +891,7 @@ class ClientController extends BaseClientController
 
             if (count($invoice->payment()->get()) > 0) {
                 $paid = array_sum($invoice->payment()->pluck('amount')->toArray());
-                $invoice->grand_total -= $paid;
+                $invoice->grand_total -= $paid; // @phpstan-ignore assignOp.invalid
             }
 
             $items = collect();

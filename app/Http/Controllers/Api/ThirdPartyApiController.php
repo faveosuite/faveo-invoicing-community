@@ -15,9 +15,9 @@ class ThirdPartyApiController extends Controller
 {
     use ChunkUpload;
 
-    private \App\Model\Product\ProductUpload $product_upload;
+    private \App\Model\Product\ProductUpload $product_upload; // @phpstan-ignore property.onlyWritten
 
-    private \App\Model\Product\Product $product;
+    private \App\Model\Product\Product $product; // @phpstan-ignore property.onlyWritten
 
     public function __construct()
     {

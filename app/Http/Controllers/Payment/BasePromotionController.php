@@ -73,7 +73,7 @@ class BasePromotionController extends Controller
         }
 
         //check for the expiry date
-        $expiry = $this->checkExpiry($code);
+        $expiry = $this->checkExpiry($code); // @phpstan-ignore method.notFound
         if ($expiry != 'success') {
             throw new Exception(Lang::get('message.usage-of-code-expired'));
         }

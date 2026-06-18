@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $non_authenticated
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript query()
@@ -34,7 +33,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript whereOnRegistration($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript whereScript($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class ChatScript extends Model

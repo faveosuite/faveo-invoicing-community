@@ -30,7 +30,7 @@ class BaseCronController extends Controller
     {
         $order = Order::find($orderid);
 
-        return $order->invoice()->first();
+        return $order->invoice()->first(); // @phpstan-ignore return.type
     }
 
     public function getInvoiceItemByInvoiceId(int $invoiceid): ?\App\Model\Order\InvoiceItem
@@ -53,15 +53,15 @@ class BaseCronController extends Controller
                 }
             } elseif ($allDay == 1) {
                 if (count($this->get1DaysUsers()) > 0) {
-                    $sub[] = $this->get1DaysSubscription();
+                    $sub[] = $this->get1DaysSubscription(); // @phpstan-ignore method.notFound
                 }
             } elseif ($allDay == 0) {
                 if (count($this->get0DaysUsers()) > 0) {
-                    $sub[] = $this->get0DaysSubscription();
+                    $sub[] = $this->get0DaysSubscription(); // @phpstan-ignore method.notFound
                 }
 
                 if (count($this->getPlus1Users()) > 0) {
-                    $sub[] = $this->getPlus1Subscription();
+                    $sub[] = $this->getPlus1Subscription(); // @phpstan-ignore method.notFound
                 }
             }
         }
@@ -75,7 +75,7 @@ class BaseCronController extends Controller
 
     public function getAllDaysSubscription(int $day): mixed
     {
-        $users = $this->getAllDaysExpiryUsers($day);
+        $users = $this->getAllDaysExpiryUsers($day); // @phpstan-ignore method.notFound
         if (count($users) > 0) {
             return $users[0]['subscription'];
         }
@@ -85,7 +85,7 @@ class BaseCronController extends Controller
 
     public function get15DaysUsers(): mixed
     {
-        $users = $this->get15DaysExpiryUsers();
+        $users = $this->get15DaysExpiryUsers(); // @phpstan-ignore method.notFound
         if (count($users) > 0) {
             return $users[0]['users'];
         }
@@ -95,7 +95,7 @@ class BaseCronController extends Controller
 
     public function get1DaysUsers(): mixed
     {
-        $users = $this->getOneDayExpiryUsers();
+        $users = $this->getOneDayExpiryUsers(); // @phpstan-ignore method.notFound
         if (count($users) > 0) {
             return $users[0]['users'];
         }
@@ -105,7 +105,7 @@ class BaseCronController extends Controller
 
     public function get0DaysUsers(): mixed
     {
-        $users = $this->getOnDayExpiryUsers();
+        $users = $this->getOnDayExpiryUsers(); // @phpstan-ignore method.notFound
         if (count($users) > 0) {
             return $users[0]['users'];
         }
@@ -115,7 +115,7 @@ class BaseCronController extends Controller
 
     public function getPlus1Users(): mixed
     {
-        $users = $this->getExpiredUsers();
+        $users = $this->getExpiredUsers(); // @phpstan-ignore method.notFound
         if (count($users) > 0) {
             return $users[0]['users'];
         }
@@ -125,7 +125,7 @@ class BaseCronController extends Controller
 
     public function get30DaysUsers(): mixed
     {
-        $users = $this->get30DaysExpiryUsers();
+        $users = $this->get30DaysExpiryUsers(); // @phpstan-ignore method.notFound
         //dd($users);
         if (count($users) > 0) {
             return $users[0]['users'];

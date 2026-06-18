@@ -31,15 +31,20 @@ use Override;
  * @property int $is_downloadable
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Installation> $installation
+ * @property-read int|null $installation_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Installation> $installationDetail
  * @property-read int|null $installation_detail_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\Invoice> $invoice
+ * @property-read int|null $invoice_count
  * @property-read \App\Model\Order\InvoiceItem|null $invoiceItem
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\OrderInvoiceRelation> $invoiceRelation
+ * @property-read int|null $invoice_relation_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\Invoice> $invoices
  * @property-read int|null $invoices_count
  * @property-read Product|null $productRelation
  * @property-read Subscription|null $subscription
  * @property-read User|null $user
- *
  * @method static \Database\Factories\Model\Order\OrderFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
@@ -58,7 +63,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereQty($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSerialKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Order extends BaseModel
@@ -137,6 +141,17 @@ class Order extends BaseModel
         );
     }
 
+
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->invoices();
+    }
+
+    public function invoiceRelation(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Model\Order\OrderInvoiceRelation::class, 'order_id');
+    }
+
     // The invoice item that generated this order
     public function invoiceItem()
     {
@@ -160,11 +175,11 @@ class Order extends BaseModel
     }
 
     #[Override]
-    public function delete(): void
+    public function delete(): bool
     {
         $this->invoices()->detach();
         $this->subscription()->delete();
-        parent::delete();
+        return (bool) parent::delete();
     }
 
     protected function orderStatus(): \Illuminate\Database\Eloquent\Casts\Attribute

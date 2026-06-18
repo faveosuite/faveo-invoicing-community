@@ -50,7 +50,7 @@ class LicensePermissionsController extends Controller
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $data = $licenseTypes->getCollection()->map(fn ($license): array => [
+            $data = $licenseTypes->getCollection()->map(fn ($license): array => [ // @phpstan-ignore return.type
                 'id' => $license->id,
                 'name' => $license->name,
                 'permissions' => $license->permissions->pluck('permissions'),
@@ -61,7 +61,7 @@ class LicensePermissionsController extends Controller
                 ]),
             ]);
 
-            $licenseTypes->setCollection($data);
+            $licenseTypes->setCollection($data); // @phpstan-ignore argument.type
 
             return successResponse(__('message.license_types_permissions_fetched'), [
                 'license_types' => $licenseTypes,
@@ -151,7 +151,7 @@ class LicensePermissionsController extends Controller
 
             $product = Product::find($productid);
 
-            if (! $product || ! $product->licenseType || ! $product->licenseType->permissions) {
+            if (! $product || ! $product->licenseType || ! $product->licenseType->permissions) { // @phpstan-ignore booleanNot.alwaysFalse
                 return $result;
             }
 

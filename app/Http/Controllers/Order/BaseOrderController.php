@@ -74,7 +74,7 @@ class BaseOrderController extends ExtendedOrderController
         $product = $productModel->id;
         $version = ProductUpload::where('product_id', $product)->value('version') ?? '';
 
-        $serialKey = $this->generateSerialKey($product, $item->agents);
+        $serialKey = $this->generateSerialKey($product, $item->agents); // @phpstan-ignore argument.type
 
         $order = Order::create([
             'invoice_item_id' => $item->id,
@@ -100,7 +100,7 @@ class BaseOrderController extends ExtendedOrderController
         }
 
         if (emailSendingStatus()) {
-            $this->sendOrderMail($userId, $order->id, $item->id);
+            $this->sendOrderMail($userId, $order->id, $item->id); // @phpstan-ignore argument.type
         }
 
         return $order;
@@ -121,7 +121,7 @@ class BaseOrderController extends ExtendedOrderController
     public function addSubscription(int $orderid, int $planid, string $version, int $product, string $serial_key, ?int $invoiceId = null): void
     {
         $permissions = LicensePermissionsController::getPermissionsForProduct($product);
-        $version ??= '';
+        $version ??= ''; // @phpstan-ignore nullCoalesce.variable
 
         $plan = Plan::findOrFail($planid);
         $order = Order::findOrFail($orderid);
@@ -140,9 +140,9 @@ class BaseOrderController extends ExtendedOrderController
             $supportExpiry = $sub?->ends_at;
         } else {
             $isOneTime = $plan->periods()->where('name', 'One Time')->exists();
-            $licenseExpiry = $isOneTime ? '' : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $plan->days);
-            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $plan->days);
-            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $plan->days);
+            $licenseExpiry = $isOneTime ? '' : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $plan->days); // @phpstan-ignore argument.type
+            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $plan->days); // @phpstan-ignore argument.type
+            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $plan->days); // @phpstan-ignore argument.type
         }
 
         Subscription::create([
@@ -233,7 +233,7 @@ class BaseOrderController extends ExtendedOrderController
         //order
         $order = Order::find($orderid);
         //product
-        $product = $this->product($itemid);
+        $product = $this->product($itemid); // @phpstan-ignore method.notFound
         //user
         $productId = Product::where('id', $product)->value('id');
         $users = new User();
@@ -253,7 +253,7 @@ class BaseOrderController extends ExtendedOrderController
 
         // $downloadurl = $this->downloadUrl($userid, $orderid,$productId);
         $myaccounturl = url('my-order/'.$orderid);
-        $invoiceurl = $this->invoiceUrl($orderid);
+        $invoiceurl = $this->invoiceUrl($orderid); // @phpstan-ignore argument.type
         //template
         $this->getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $order->serial_key);
     }
@@ -308,7 +308,7 @@ class BaseOrderController extends ExtendedOrderController
         $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
         $orderInvoice = $invoiceId ? Invoice::find($invoiceId) : null;
         if ($orderInvoice?->grand_total) {
-            SettingsController::sendPaymentSuccessMailtoAdmin($orderInvoice, $orderInvoice->grand_total, $user, $product->name);
+            SettingsController::sendPaymentSuccessMailtoAdmin($orderInvoice, $orderInvoice->grand_total, $user, $product->name); // @phpstan-ignore argument.type
         }
     }
 
@@ -364,6 +364,7 @@ class BaseOrderController extends ExtendedOrderController
         }
 
         // Format the configuration options
+        // @phpstan-ignore return.type
         return $products->flatMap(fn ($product) => $product->configOptions->flatMap(fn ($configOption) => $configOption->configOptionValues->map(fn ($configOptionValue): array => [
             'product_id' => $product->id,
             'option_group' => $configOption->configGroup->config_group_name,

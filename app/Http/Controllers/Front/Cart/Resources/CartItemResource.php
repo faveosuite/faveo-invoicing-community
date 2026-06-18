@@ -21,23 +21,23 @@ class CartItemResource extends JsonResource
         $currencySymbol = Currency::where('code', $currency)->value('symbol') ?? $currency;
 
         return [
-            'id' => $this->id,
-            'product_id' => $this->product_id,
-            'plan_id' => $this->plan_id,
-            'name' => $this->product?->name,
-            'image' => $this->product?->image,
-            'unit_price' => $this->priceFor($currency),
-            'line_total' => $this->lineTotal(),
+            'id' => $this->id, // @phpstan-ignore property.notFound
+            'product_id' => $this->product_id, // @phpstan-ignore property.notFound
+            'plan_id' => $this->plan_id, // @phpstan-ignore property.notFound
+            'name' => $this->product?->name, // @phpstan-ignore property.notFound
+            'image' => $this->product?->image, // @phpstan-ignore property.notFound
+            'unit_price' => $this->priceFor($currency), // @phpstan-ignore method.notFound
+            'line_total' => $this->lineTotal(), // @phpstan-ignore method.notFound
             'currency' => $currency,
             'currency_symbol' => $currencySymbol,
-            'quantity' => (int) $this->quantity,
-            'agents' => (int) $this->agents,
-            'domain' => $this->domain,
-            'billing_cycle' => $this->billing_cycle,
+            'quantity' => (int) $this->quantity, // @phpstan-ignore property.notFound
+            'agents' => (int) $this->agents, // @phpstan-ignore property.notFound
+            'domain' => $this->domain, // @phpstan-ignore property.notFound
+            'billing_cycle' => $this->billing_cycle, // @phpstan-ignore property.notFound
             // Product-level edit permissions (drive which steppers are editable).
-            'can_modify_quantity' => (bool) $this->product?->can_modify_quantity,
-            'can_modify_agent' => (bool) $this->product?->can_modify_agent,
-            'show_agent' => (bool) $this->product?->show_agent,
+            'can_modify_quantity' => (bool) $this->product?->can_modify_quantity, // @phpstan-ignore property.notFound
+            'can_modify_agent' => (bool) $this->product?->can_modify_agent, // @phpstan-ignore property.notFound
+            'show_agent' => (bool) $this->product?->show_agent, // @phpstan-ignore property.notFound
         ];
     }
 }

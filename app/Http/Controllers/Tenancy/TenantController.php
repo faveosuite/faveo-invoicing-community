@@ -43,7 +43,7 @@ class TenantController extends Controller
 
     public function __construct(Client $client, FaveoCloud $cloud)
     {
-        $this->client = $client;
+        $this->client = $client; // @phpstan-ignore property.notFound
         $this->cloud = $cloud->first();
 
         $this->middleware('auth', ['except' => ['verifyThirdPartyToken']]);
@@ -62,7 +62,7 @@ class TenantController extends Controller
 
                 $app_key = $keys?->app_key;
 
-                if ($response = $this->client->request(
+                if ($response = $this->client->request( // @phpstan-ignore property.notFound
                     'GET',
                     $this->cloud->cloud_central_domain.'/tenants',
                     [
@@ -138,7 +138,7 @@ class TenantController extends Controller
                 return errorResponse(__('message.cloud_invalid_message'));
             }
 
-            $response = $this->client->request('GET',
+            $response = $this->client->request('GET', // @phpstan-ignore property.notFound
                 $this->cloud->cloud_central_domain.'/tenants',
                 ['query' => ['key' => $keys->app_key]]
             );
@@ -494,7 +494,7 @@ class TenantController extends Controller
             $token = Str::random(32);
             $order_id = Order::where('number', $orderNumber)->where('client', Auth::user()->id)->value('id');
             $installation_path = DB::table('installation_details')->where('order_id', $order_id)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
-            $response = $this->client->request(
+            $response = $this->client->request( // @phpstan-ignore property.notFound
                 'GET',
                 $this->cloud->cloud_central_domain.'/tenants', [
                     'query' => [

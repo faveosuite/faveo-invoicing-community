@@ -35,7 +35,7 @@ class VersionsController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $versions->getCollection()->transform(fn (ProductUpload $version): array => [
+        $versions->getCollection()->transform(fn (ProductUpload $version): array => [ // @phpstan-ignore argument.unresolvableType
             'id' => $version->id,
             'product_id' => $version->product_id,
             'version_number' => $version->version,
@@ -43,7 +43,7 @@ class VersionsController extends Controller
             'version_status' => $version->status,
             'version_install_count' => $version->version_install_count ?? 0,
             'product_title' => $version->product?->name,
-            'callback_count' => $version->callback_count,
+            'callback_count' => $version->callback_count, // @phpstan-ignore property.notFound
         ]);
 
         return successResponse('', $versions);

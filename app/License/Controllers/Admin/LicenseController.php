@@ -26,7 +26,7 @@ class LicenseController extends Controller
 {
     public function __construct()
     {
-        $this->ip_address = request()->server('REMOTE_ADDR');
+        $this->ip_address = request()->server('REMOTE_ADDR'); // @phpstan-ignore property.notFound
     }
 
     public function licenseAdd(LicenseRequest $request): \Illuminate\Http\JsonResponse
@@ -181,7 +181,7 @@ class LicenseController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $licenses->getCollection()->transform(fn (License $license) => (object) [
+        $licenses->getCollection()->transform(fn (License $license) => (object) [ // @phpstan-ignore argument.unresolvableType
             'id' => $license->id,
             'product_id' => $license->product_id,
             'client_id' => $license->user_id,
@@ -198,8 +198,8 @@ class LicenseController extends Controller
             'product_title' => $license->product->name,
             'client_email' => $license->user->email,
             'license_order_url' => $license->license_order_number ?? '',
-            'installation_counts' => $license->installation_counts,
-            'latest_call_backs' => $license->latest_call_backs,
+            'installation_counts' => $license->installation_counts, // @phpstan-ignore property.notFound
+            'latest_call_backs' => $license->latest_call_backs, // @phpstan-ignore property.notFound
             'call_backs_count' => $license->call_backs_count,
         ]);
 
@@ -330,10 +330,10 @@ class LicenseController extends Controller
         $license = License::with(['addonProducts.latestVersion'])->where('license_code', $request->input('license_code'))->firstOrFail();
         $product = Product::find($license->product_id);
 
-        $addons = $license->addonProducts->map(fn ($product): array => [
+        $addons = $license->addonProducts->map(fn ($product): array => [ // @phpstan-ignore argument.unresolvableType
             'id' => $product->id,
             'product_name' => $product->name,
-            'product_attributes' => $product->product_attributes,
+            'product_attributes' => $product->product_attributes, // @phpstan-ignore property.notFound
             'product_attributes_license' => $product->pivot->product_attributes_license ?? null,
             'latest_version' => $product->latestVersion?->version,
             'latest_version_file' => $product->latestVersion?->file,
@@ -411,7 +411,7 @@ class LicenseController extends Controller
             'product_description' => $product->product_description,
             'version' => $version->version,
             'license_code' => $licenseCode,
-            'path' => $product->product_path,
+            'path' => $product->product_path, // @phpstan-ignore property.notFound
         ];
     }
 }

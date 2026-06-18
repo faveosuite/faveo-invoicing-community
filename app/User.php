@@ -132,7 +132,6 @@ use Override;
  * @property-read int|null $verification_attempts_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\WhatsappIntegrationUser> $whatsappUsers
  * @property-read int|null $whatsapp_users_count
- *
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
@@ -187,10 +186,9 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereZip($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
- *
  * @mixin \Eloquent
  */
-class User extends Model implements AuthenticatableContract, CanResetPasswordContract
+class User extends Model implements AuthenticatableContract, CanResetPasswordContract // @phpstan-ignore class.missingImplements
 {
     use HasFactory;
     use Authenticatable;
@@ -384,10 +382,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     #[Override]
-    public function save(array $options = []): void
+    public function save(array $options = []): bool
     {
         $changed = $this->isDirty() ? $this->getDirty() : false;
-        parent::save($options);
+        $result = parent::save($options);
         $role = $this->role;
         if ($changed && checkArray('manager', $changed) && $role == 'user' && emailSendingStatus()) {
             $auth = new AuthController();
@@ -398,6 +396,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             $auth = new AuthController();
             $auth->accountManagerMail($this);
         }
+
+        return $result;
     }
 
     protected function getMappings(): array

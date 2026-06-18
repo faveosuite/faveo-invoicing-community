@@ -36,6 +36,8 @@ use Override;
  * @property-read int|null $activities_as_subject_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\InvoiceItem> $invoiceItem
  * @property-read int|null $invoice_item_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\OrderInvoiceRelation> $orderRelation
+ * @property-read int|null $order_relation_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\Order> $orders
  * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\Payment> $payment
@@ -43,7 +45,6 @@ use Override;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Subscription> $subscriptions
  * @property-read int|null $subscriptions_count
  * @property-read User|null $user
- *
  * @method static \Database\Factories\Model\Order\InvoiceFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice newQuery()
@@ -68,7 +69,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereUserId($value)
- *
  * @mixin \Eloquent
  */
 class Invoice extends BaseModel
@@ -143,6 +143,12 @@ class Invoice extends BaseModel
             'order_id'
         );
     }
+
+    public function orderRelation(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Model\Order\OrderInvoiceRelation::class, 'invoice_id');
+    }
+
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>

@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $value
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition query()
@@ -20,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition whereJob($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition whereValue($value)
- *
  * @mixin \Eloquent
  */
 class Condition extends Model
@@ -106,7 +104,7 @@ class Condition extends Model
         if ($condition) {
             $condition_value = explode(',', (string) $condition->value);
             $value = ['condition' => $condition_value, 'at' => ''];
-            if (is_array($condition_value)) {
+            if (is_array($condition_value)) { // @phpstan-ignore function.alreadyNarrowedType
                 $value = ['condition' => $this->checkArray(0, $condition_value), 'at' => $this->checkArray(1, $condition_value)];
             }
         }

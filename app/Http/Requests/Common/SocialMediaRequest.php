@@ -39,7 +39,7 @@ class SocialMediaRequest extends FormRequest
             ];
         }
 
-        return null;
+        return [];
     }
 
     #[Override]

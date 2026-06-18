@@ -79,7 +79,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read Currency|null $defaultCurrency
  * @property-read \App\Model\Common\Language|null $language
  * @property-read \App\Model\Common\Timezone|null $timezone
- *
  * @method static \Database\Factories\Model\Common\SettingFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting newQuery()
@@ -147,7 +146,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting whereWebsite($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting whereWelcomeMail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting whereZip($value)
- *
  * @mixin \Eloquent
  */
 class Setting extends Model

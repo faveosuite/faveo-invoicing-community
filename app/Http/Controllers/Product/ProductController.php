@@ -118,7 +118,7 @@ class ProductController extends BaseProductController
         $this->tax = $tax;
 
         $period = new Period();
-        $this->period = $period;
+        $this->period = $period; // @phpstan-ignore property.notFound
 
         $tax_relation = new TaxProductRelation();
         $this->tax_relation = $tax_relation;
@@ -178,7 +178,6 @@ class ProductController extends BaseProductController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
      */
     public function fileDestroy(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {

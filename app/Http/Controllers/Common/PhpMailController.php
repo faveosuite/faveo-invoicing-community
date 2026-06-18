@@ -105,7 +105,7 @@ class PhpMailController extends Controller
     {
         $this->setQueue();
         $job = new NotifyMail();
-        dispatchNow($job);
+        dispatchNow($job); // @phpstan-ignore function.notFound
     }
 
     /**
@@ -204,7 +204,7 @@ class PhpMailController extends Controller
 
                     $mail = new PhpMailController();
                     $type = $template?->type()->value('name') ?? '';
-                    $replace = ['name' => $user->first_name.' '.$user->last_name,
+                    $replace = ['name' => $user->first_name.' '.$user->last_name, // @phpstan-ignore property.nonObject, property.nonObject
                         'product' => $product->name,
                         'number' => $order->number,
                         'expiry' => date('j M Y', strtotime((string) $data->update_ends_at)),
@@ -212,6 +212,7 @@ class PhpMailController extends Controller
                         'logo' => $contact['logo'],
                         'reply_email' => $setting->company_email,
                     ];
+                    // @phpstan-ignore property.nonObject
                     $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
                 }
             }
@@ -257,7 +258,7 @@ class PhpMailController extends Controller
         }
     }
 
-    public function setMailConfig(array $settings): bool|string|null
+    public function setMailConfig(object $settings): bool|string|null
     {
         switch ($settings->driver) {
             case 'smtp':
@@ -272,7 +273,7 @@ class PhpMailController extends Controller
                 $mail = new CommonMailer();
                 $mailer = $mail->setSmtpDriver($config);
                 if (! $this->commonMailer->setSmtpDriver($config)) {
-                    Log::info('Invaid configuration :- '.$config);
+                    Log::info('Invaid configuration :- '.json_encode($config));
 
                     return 'invalid mail configuration';
                 }

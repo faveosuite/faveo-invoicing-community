@@ -67,7 +67,6 @@ class PromotionController extends BasePromotionController
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Response
      */
     public function store(PromotionRequest $request)
     {
@@ -97,7 +96,6 @@ class PromotionController extends BasePromotionController
      * Update the specified resource in storage.
      *
      * @param  int  $id
-     * @return \Response
      */
     public function update($id, PromotionRequest $request)
     {

@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $option_group
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption group($group)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption newQuery()
@@ -23,7 +22,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption whereOptionKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption whereOptionValue($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class LicenseOption extends Model

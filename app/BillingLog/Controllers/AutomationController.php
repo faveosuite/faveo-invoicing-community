@@ -90,12 +90,12 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->whereBetween('created_at', [$date->copy()->startOfDay(), $date->endOfDay()])
             ->groupBy('log_category_id')
             ->get()
-            ->map(fn ($log): array => [
+            ->map(fn ($log): array => [ // @phpstan-ignore argument.unresolvableType
                 'id' => $log->log_category_id,
                 'name' => ($key = $categoryNames[$log->log_category_id] ?? '')
                     ? (Lang::has('log::lang.'.$key) ? __('log::lang.'.$key) : $key)
                     : '',
-                'count' => $log->count,
+                'count' => $log->count, // @phpstan-ignore property.notFound
             ]);
     }
 

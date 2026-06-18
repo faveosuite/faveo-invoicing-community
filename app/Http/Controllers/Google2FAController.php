@@ -47,7 +47,6 @@ class Google2FAController extends Controller
     }
 
     /**
-     * @return Response
      */
     public function enableTwoFactor(Request $request)
     {
@@ -75,7 +74,6 @@ class Google2FAController extends Controller
     }
 
     /**
-     * @return Response
      */
     public function postLoginValidateToken(ValidateSecretRequest $request)
     {
@@ -269,7 +267,7 @@ class Google2FAController extends Controller
 
         $loginController = new LoginController();
         $loginController->logActivityLogin($user);
-        $loginController->convertCart();
+        $loginController->convertCart(); // @phpstan-ignore method.notFound
 
         return successResponse('', ['redirect' => $loginController->redirectPath()]);
     }

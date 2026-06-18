@@ -19,10 +19,10 @@ class CommentController extends Controller
         $this->middleware('admin');
 
         $user = new User();
-        $this->user = $user;
+        $this->user = $user; // @phpstan-ignore property.notFound
 
         $comment = new Comment();
-        $this->comment = $comment;
+        $this->comment = $comment; // @phpstan-ignore property.notFound
     }
 
     /**
@@ -44,12 +44,11 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @return Response
      */
     public function store(Request $request)
     {
         try {
-            $comments = $this->comment->fill($request->input())->save();
+            $comments = $this->comment->fill($request->input())->save(); // @phpstan-ignore property.notFound
 
             return back()->with('success', Lang::get('message.saved-successfully'));
         } catch (Exception $exception) {

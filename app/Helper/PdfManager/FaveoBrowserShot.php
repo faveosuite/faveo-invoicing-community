@@ -3,7 +3,7 @@
 namespace App\Helper\PdfManager;
 
 use App\FileSystemSettings;
-use Spatie\Browsershot\Browsershot; // @phpstan-ignore class.notFound
+use Spatie\Browsershot\Browsershot;
 
 class FaveoBrowserShot
 {

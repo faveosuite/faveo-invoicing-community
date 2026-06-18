@@ -28,7 +28,7 @@ class DropTables extends LoggableCommand
      */
     public function handleAndLog(): void
     {
-        $droplist = Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
+        $droplist = Schema::getConnection()->getDoctrineSchemaManager()->listTableNames(); // @phpstan-ignore method.notFound
         $droplist = implode(',', array_map(fn (string $table): string => sprintf('`%s`', $table), $droplist));
 
         try {

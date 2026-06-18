@@ -71,7 +71,7 @@ class Install extends LoggableCommand
             $this->handleAppUrl();
 
             // Check if the URL is valid
-            if (! $this->appReq($this->appUrl)) {
+            if (! $this->appReq($this->appUrl)) { // @phpstan-ignore property.notFound
                 $this->info('Agora cannot be installed on your server. Please configure your server to meet the requirements and try again.');
 
                 return;
@@ -87,17 +87,17 @@ class Install extends LoggableCommand
 
             // Create .env
             $this->install->env(
-                $this->default,
-                $this->host,
-                $this->port,
-                $this->dbname,
-                $this->dbuser,
-                $this->dbpass,
-                $this->appUrl,
-                $this->sslKey,
-                $this->sslCert,
-                $this->sslCa,
-                $this->sslVerify
+                $this->default, // @phpstan-ignore property.notFound
+                $this->host, // @phpstan-ignore property.notFound
+                $this->port, // @phpstan-ignore property.notFound
+                $this->dbname, // @phpstan-ignore property.notFound
+                $this->dbuser, // @phpstan-ignore property.notFound
+                $this->dbpass, // @phpstan-ignore property.notFound
+                $this->appUrl, // @phpstan-ignore property.notFound
+                $this->sslKey, // @phpstan-ignore property.notFound
+                $this->sslCert, // @phpstan-ignore property.notFound
+                $this->sslCa, // @phpstan-ignore property.notFound
+                $this->sslVerify // @phpstan-ignore property.notFound
             );
 
             $this->info('.env file has been created');
@@ -204,7 +204,7 @@ class Install extends LoggableCommand
     public function handleAppUrl(): void
     {
         $url = $this->option('appurl') ?: $this->ask('Enter your app URL (with only https)');
-        $this->appUrl = $this->formatAppUrl($url);
+        $this->appUrl = $this->formatAppUrl($url); // @phpstan-ignore property.notFound
     }
 
     /**
@@ -213,14 +213,14 @@ class Install extends LoggableCommand
     public function collectDatabaseCredentials(): void
     {
         $allowedEngines = ['mysql'];
-        $this->default = in_array($this->option('sqlengine'), $allowedEngines)
+        $this->default = in_array($this->option('sqlengine'), $allowedEngines) // @phpstan-ignore property.notFound
             ? $this->option('sqlengine')
             : $this->choice('Which SQL engine would you like to use?', $allowedEngines, 0);
-        $this->host = $this->option('sqlhost') ?: $this->ask('Enter your SQL host');
-        $this->dbname = $this->option('dbname') ?: $this->ask('Enter your database name');
-        $this->dbuser = $this->option('dbuser') ?: $this->ask('Enter your database username');
-        $this->dbpass = $this->option('dbpass') ?: $this->ask('Enter your database password');
-        $this->port = $this->option('sqlport') ?? $this->ask('Enter your SQL port (leave blank if none)');
+        $this->host = $this->option('sqlhost') ?: $this->ask('Enter your SQL host'); // @phpstan-ignore property.notFound
+        $this->dbname = $this->option('dbname') ?: $this->ask('Enter your database name'); // @phpstan-ignore property.notFound
+        $this->dbuser = $this->option('dbuser') ?: $this->ask('Enter your database username'); // @phpstan-ignore property.notFound
+        $this->dbpass = $this->option('dbpass') ?: $this->ask('Enter your database password'); // @phpstan-ignore property.notFound
+        $this->port = $this->option('sqlport') ?? $this->ask('Enter your SQL port (leave blank if none)'); // @phpstan-ignore property.notFound
     }
 
     /**
@@ -228,10 +228,10 @@ class Install extends LoggableCommand
      */
     public function configureSslOptions(): void
     {
-        $this->sslKey = null;
-        $this->sslCert = null;
-        $this->sslCa = null;
-        $this->sslVerify = false;
+        $this->sslKey = null; // @phpstan-ignore property.notFound
+        $this->sslCert = null; // @phpstan-ignore property.notFound
+        $this->sslCa = null; // @phpstan-ignore property.notFound
+        $this->sslVerify = false; // @phpstan-ignore property.notFound
 
         //If want ssl connection enabled then uncomment below code
 

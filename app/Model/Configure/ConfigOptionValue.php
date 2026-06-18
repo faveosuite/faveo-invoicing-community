@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Model\Configure\ConfigOption $configOption
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue query()
@@ -25,7 +24,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue whereOptionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue whereValue($value)
- *
  * @mixin \Eloquent
  */
 class ConfigOptionValue extends Model

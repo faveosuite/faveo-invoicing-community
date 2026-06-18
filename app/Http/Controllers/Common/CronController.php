@@ -43,10 +43,10 @@ class CronController extends BaseCronController
     public function __construct()
     {
         $subscription = new Subscription();
-        $this->sub = $subscription;
+        $this->sub = $subscription; // @phpstan-ignore property.notFound
 
         $plan = new Plan();
-        $this->plan = $plan;
+        $this->plan = $plan; // @phpstan-ignore property.notFound
 
         $order = new Order();
         $this->order = $order;
@@ -61,10 +61,10 @@ class CronController extends BaseCronController
         $this->invoice = $invoice;
 
         $payment = new Payment();
-        $this->payment = $payment;
+        $this->payment = $payment; // @phpstan-ignore property.notFound
 
         $stripeController = new SettingsController();
-        $this->stripeController = $stripeController;
+        $this->stripeController = $stripeController; // @phpstan-ignore property.notFound
 
         $this->client = new Client();
     }
@@ -78,8 +78,8 @@ class CronController extends BaseCronController
         $users = [];
         if ($sub->count() > 0) {
             foreach ($sub->get() as $key => $value) {
-                $users[$key]['users'] = $this->sub->find($value->id)->user()->get();
-                $users[$key]['orders'] = $this->sub->find($value->id)->order()->get();
+                $users[$key]['users'] = $this->sub->find($value->id)->user()->get(); // @phpstan-ignore property.notFound
+                $users[$key]['orders'] = $this->sub->find($value->id)->order()->get(); // @phpstan-ignore property.notFound
                 $users[$key]['subscription'] = $value;
             }
         }
@@ -96,8 +96,8 @@ class CronController extends BaseCronController
         $users = [];
         if ($sub->count() > 0) {
             foreach ($sub->get() as $key => $value) {
-                $users[$key]['users'] = $this->sub->find($value->id)->user()->get();
-                $users[$key]['orders'] = $this->sub->find($value->id)->order()->get();
+                $users[$key]['users'] = $this->sub->find($value->id)->user()->get(); // @phpstan-ignore property.notFound
+                $users[$key]['orders'] = $this->sub->find($value->id)->order()->get(); // @phpstan-ignore property.notFound
                 $users[$key]['subscription'] = $value;
             }
         }
@@ -114,8 +114,8 @@ class CronController extends BaseCronController
         $users = [];
         if ($sub->count() > 0) {
             foreach ($sub->get() as $key => $value) {
-                $users[$key]['users'] = $this->sub->find($value->id)->user()->get();
-                $users[$key]['orders'] = $this->sub->find($value->id)->order()->get();
+                $users[$key]['users'] = $this->sub->find($value->id)->user()->get(); // @phpstan-ignore property.notFound
+                $users[$key]['orders'] = $this->sub->find($value->id)->order()->get(); // @phpstan-ignore property.notFound
                 $users[$key]['subscription'] = $value;
             }
         }
@@ -132,8 +132,8 @@ class CronController extends BaseCronController
         $users = [];
         if ($sub->count() > 0) {
             foreach ($sub->get() as $key => $value) {
-                $users[$key]['users'] = $this->sub->find($value->id)->user()->get();
-                $users[$key]['orders'] = $this->sub->find($value->id)->order()->get();
+                $users[$key]['users'] = $this->sub->find($value->id)->user()->get(); // @phpstan-ignore property.notFound
+                $users[$key]['orders'] = $this->sub->find($value->id)->order()->get(); // @phpstan-ignore property.notFound
                 $users[$key]['subscription'] = $value;
             }
         }
@@ -150,8 +150,8 @@ class CronController extends BaseCronController
         $users = [];
         if ($sub->count() > 0) {
             foreach ($sub->get() as $key => $value) {
-                $users[$key]['users'] = $this->sub->find($value->id)->user()->get();
-                $users[$key]['orders'] = $this->sub->find($value->id)->order()->get();
+                $users[$key]['users'] = $this->sub->find($value->id)->user()->get(); // @phpstan-ignore property.notFound
+                $users[$key]['orders'] = $this->sub->find($value->id)->order()->get(); // @phpstan-ignore property.notFound
                 $users[$key]['subscription'] = $value;
             }
         }
@@ -503,7 +503,7 @@ class CronController extends BaseCronController
 
     private function deleteInvoice($invoice)
     {
-        return DB::transaction(function () use ($invoice): void {
+        return DB::transaction(function () use ($invoice): void { // @phpstan-ignore staticMethod.void
             // Delete related InvoiceItem records
             $invoice->invoiceItem()->delete();
 

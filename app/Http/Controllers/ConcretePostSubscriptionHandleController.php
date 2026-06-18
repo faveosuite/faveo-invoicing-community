@@ -120,7 +120,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $currency = getCurrencyForClient($user->country);
         $paymentFailData = 'Payment for of '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
         $mail = new PhpMailController();
-        $mail->SendEmail($setting->email, $setting->company_email, $paymentFailData, 'payment-failed', Template::where('name', $template)->type()->value('name'));
+        $mail->SendEmail($setting->email, $setting->company_email, $paymentFailData, 'payment-failed', Template::where('name', $template)->type()->value('name')); // @phpstan-ignore method.notFound
         $mail->payment_log($user->email, $payment, 'failed', $order->number, $exceptionMessage, $amount, 'Product renew');
     }
 
@@ -166,7 +166,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $mail->setMailConfig($setting);
         //template
         $template = TemplateType::getSelectedTemplate('payment_failed');
-        $url = url('autopaynow/'.$invoice->invoice_id);
+        $url = url('autopaynow/'.$invoice->invoice_id); // @phpstan-ignore property.notFound
         $type = '';
         $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'product' => $product_details->name,

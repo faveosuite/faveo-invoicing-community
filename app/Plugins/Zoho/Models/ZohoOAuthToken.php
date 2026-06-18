@@ -21,7 +21,6 @@ use Override;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Plugins\Zoho\Models\ZohoIntegration $integration
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken query()
@@ -34,7 +33,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken whereRefreshToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken whereScope($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class ZohoOAuthToken extends Model
@@ -70,7 +68,7 @@ class ZohoOAuthToken extends Model
      */
     protected function accessToken(): Attribute
     {
-        return Attribute::make(
+        return Attribute::make( // @phpstan-ignore staticMethod.notFound
             get: fn ($value) => Crypt::decrypt($value),
             set: fn ($value) => Crypt::encrypt($value),
         );
@@ -81,7 +79,7 @@ class ZohoOAuthToken extends Model
      */
     protected function refreshToken(): Attribute
     {
-        return Attribute::make(
+        return Attribute::make( // @phpstan-ignore staticMethod.notFound
             get: fn ($value) => Crypt::decrypt($value),
             set: fn ($value) => Crypt::encrypt($value),
         );
@@ -121,7 +119,7 @@ class ZohoOAuthToken extends Model
 
     public function isValid(?Carbon $validAt = null): bool
     {
-        if ($this->expires_at === null) {
+        if ($this->expires_at === null) { // @phpstan-ignore identical.alwaysFalse
             return true;
         }
 

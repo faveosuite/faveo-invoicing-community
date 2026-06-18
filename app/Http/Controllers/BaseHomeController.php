@@ -100,7 +100,7 @@ class BaseHomeController extends Controller
     {
         $this->getTotalSales();
 
-        return view('themes.default1.common.dashboard');
+        return view('themes.default1.common.dashboard'); // @phpstan-ignore argument.type
     }
 
     public function getDomain(string $url): string
@@ -165,7 +165,7 @@ class BaseHomeController extends Controller
                     }
                 }
             } elseif ($licenseCode) {
-                $orderForLicense = Order::all()->filter(function ($order) use ($licenseCode) {
+                $orderForLicense = Order::all()->filter(function ($order) use ($licenseCode) { // @phpstan-ignore argument.type
                     if ($order->serial_key == $licenseCode) {
                         return $order;
                     }
@@ -215,7 +215,7 @@ class BaseHomeController extends Controller
             }
 
             $licenseCode = $request->input('licenseCode');
-            $orderForLicense = Order::all()->filter(function ($order) use ($licenseCode) {
+            $orderForLicense = Order::all()->filter(function ($order) use ($licenseCode) { // @phpstan-ignore argument.type
                 if ($order->serial_key == $licenseCode) {
                     return $order;
                 }

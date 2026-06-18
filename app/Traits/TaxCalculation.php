@@ -73,7 +73,7 @@ trait TaxCalculation
     public static function taxValue(string $rate, int|float $price, bool $round = true): int|float
     {
         try {
-            if (! $rate || ! is_numeric($price)) {
+            if (! $rate || ! is_numeric($price)) { // @phpstan-ignore function.alreadyNarrowedType
                 return 0;
             }
 

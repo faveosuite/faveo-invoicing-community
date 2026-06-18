@@ -132,14 +132,14 @@ class BaseClientController extends Controller
             $sortField = 'created_at';
             $sortOrder = 'asc';
             $paginated = $invoices->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit, ['*'], 'page', 1);
+                ->simplePaginate((int) $limit, ['*'], 'page', 1);
 
             // Map items
             $paginated->getCollection()->transform(function ($model) use ($admin): array {
                 $url = '';
                 $status = '';
                 $action = '';
-                $url = $this->getInvoiceLinkUrl($model->id, $admin);
+                $url = $this->getInvoiceLinkUrl($model->id, $admin); // @phpstan-ignore argument.type
                 if ($url !== '' && $url !== '0') {
                     $url = '<a href='.url($url).'>'.$model->number.'</a>';
                 }
@@ -189,7 +189,7 @@ class BaseClientController extends Controller
     public function subscriptions()
     {
         try {
-            return view('themes.default1.front.clients.subscription');
+            return view('themes.default1.front.clients.subscription'); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -205,7 +205,7 @@ class BaseClientController extends Controller
     public function orders(Request $request)
     {
         try {
-            return view('themes.default1.front.clients.order1', compact('request'));
+            return view('themes.default1.front.clients.order1', compact('request')); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -221,6 +221,6 @@ class BaseClientController extends Controller
      */
     public function deleteCloudPopup($orderNumber): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        return view('themes.default1.front.clients.delete-cloud-popup', compact('orderNumber'));
+        return view('themes.default1.front.clients.delete-cloud-popup', compact('orderNumber')); // @phpstan-ignore argument.type
     }
 }

@@ -26,7 +26,7 @@ class ExtendedOrderController extends Controller
     public function generateSerialKey(int $productid, $agents): string
     {
         try {
-            $len = strlen($agents);
+            $len = strlen((string) $agents);
             $lastFour = match ((string) $len) {
                 '1' => '000'.$agents,
                 '2' => '00'.$agents,
@@ -47,7 +47,7 @@ class ExtendedOrderController extends Controller
     public function generateNumber(): int
     {
         try {
-            return random_int('10000000', '99999999');
+            return random_int(10000000, 99999999);
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }

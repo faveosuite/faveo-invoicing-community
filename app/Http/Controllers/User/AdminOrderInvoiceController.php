@@ -12,6 +12,6 @@ class AdminOrderInvoiceController extends Controller
 
     public function creditActivityPopup($paymentId): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        return view('themes.default1.front.clients.credit-activity-popup', compact('paymentId'));
+        return view('themes.default1.front.clients.credit-activity-popup', compact('paymentId')); // @phpstan-ignore argument.type
     }
 }

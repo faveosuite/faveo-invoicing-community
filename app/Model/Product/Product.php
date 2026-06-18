@@ -115,7 +115,6 @@ use Override;
  * @property-read int|null $taxes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\ProductUpload> $versions
  * @property-read int|null $versions_count
- *
  * @method static \Database\Factories\Model\Product\ProductFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newQuery()
@@ -167,7 +166,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWelcomeEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWhatsappIntegration($value)
- *
  * @mixin \Eloquent
  */
 class Product extends BaseModel
@@ -371,20 +369,20 @@ class Product extends BaseModel
 
     // Plugins bundled with this product (config options / order flow)
     /**
-     * @return BelongsToMany<Product, $this, Pivot>
+     * @return BelongsToMany<Product, Product, Pivot>
      */
     public function bundledPlugins(): BelongsToMany
     {
-        return $this->belongsToMany(static::class, 'product_plugin_group', 'product_id', 'plugin_id');
+        return $this->belongsToMany(static::class, 'product_plugin_group', 'product_id', 'plugin_id'); // @phpstan-ignore return.type
     }
 
     // Plugins compatible with this product (store display / license lookup)
     /**
-     * @return BelongsToMany<Product, $this, Pivot>
+     * @return BelongsToMany<Product, Product, Pivot>
      */
     public function compatiblePlugins(): BelongsToMany
     {
-        return $this->belongsToMany(static::class, 'plugin_compatible_with_products', 'product_id', 'plugin_id');
+        return $this->belongsToMany(static::class, 'plugin_compatible_with_products', 'product_id', 'plugin_id'); // @phpstan-ignore return.type
     }
 
     /**

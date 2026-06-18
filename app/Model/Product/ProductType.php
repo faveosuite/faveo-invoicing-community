@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $description
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductType newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductType newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductType query()
@@ -21,7 +20,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductType whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductType whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductType whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class ProductType extends Model

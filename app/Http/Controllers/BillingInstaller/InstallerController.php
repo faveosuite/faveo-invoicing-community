@@ -351,7 +351,7 @@ APP_ENV='.$environment;
             }
 
             // Return success response
-            return successResponse(\Lang::get('installer_messages.setup_completed'), 201);
+            return successResponse(\Lang::get('installer_messages.setup_completed'), '201');
         } catch (Exception $exception) {
             // Return error response in case of exception
             return errorResponse($exception->getMessage(), 400);

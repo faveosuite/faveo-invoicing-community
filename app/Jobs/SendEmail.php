@@ -30,10 +30,10 @@ class SendEmail implements ShouldQueue
         if (MailLog::whereId($this->logIdentifier)->value('status') == 'sent') {
             $this->job->delete();
 
-            return null;
+            return;
         }
 
-        return $phpMailController->mailing(
+        $phpMailController->mailing(
             $this->from,
             $this->to,
             $this->template_data,

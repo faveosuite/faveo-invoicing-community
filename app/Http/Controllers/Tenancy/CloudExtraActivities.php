@@ -43,7 +43,7 @@ class CloudExtraActivities extends Controller
 
     public mixed $cloud = null;
 
-    public function __construct(Client $client, FaveoCloud $cloud)
+    public function __construct(Client $client, FaveoCloud $cloud) // @phpstan-ignore constructor.unusedParameter
     {
         $this->cloud = $cloud->first();
         $this->middleware('auth', ['except' => ['verifyThirdPartyToken', 'storeTenantTillPurchase']]);
@@ -306,7 +306,7 @@ class CloudExtraActivities extends Controller
             $invoiceCtrl->createInvoiceItemsByAdmin(
                 $invoice->id, $productNew->id, $price, $currencyNew,
                 1, $agents, $planId, $user->id,
-                $tax['name'], $tax['value'], $price
+                $tax['name'], $tax['value'], $price // @phpstan-ignore argument.type
             );
 
             return successResponse('success', ['invoice_id' => $invoice->id]);
@@ -328,7 +328,7 @@ class CloudExtraActivities extends Controller
             $currency = userCurrencyAndPrice('', $product->planRelation->find($planId));
             $ends_at = $sub->ends_at;
             $base_price = $currency['plan']?->add_price;
-            $oldAgents = substr((string) $oldLicense, 12, 16);
+            $oldAgents = (int) substr((string) $oldLicense, 12, 16);
             $planDays = (int) $plan->days;
 
             $totalAgents = 0;
@@ -394,7 +394,7 @@ class CloudExtraActivities extends Controller
             $sub = Subscription::where('order_id', $orderId)->first();
             $planIdOld = $sub->plan_id;
             $ends_at = $sub->ends_at;
-            $oldAgents = substr((string) $oldLicense, 12, 16);
+            $oldAgents = (int) substr((string) $oldLicense, 12, 16);
 
             $planOld = Plan::with('productRelation')->find($planIdOld);
             $currencyOld = userCurrencyAndPrice('', $planOld->productRelation->planRelation->find($planIdOld));
@@ -801,7 +801,7 @@ class CloudExtraActivities extends Controller
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return errorResponse('', ['data' => ['pricePerAgent' => 'NaN', 'totalPrice' => 'NaN', 'priceToPay' => 'NaN']]);
+            return errorResponse('', ['data' => ['pricePerAgent' => 'NaN', 'totalPrice' => 'NaN', 'priceToPay' => 'NaN']]); // @phpstan-ignore argument.type
         }
     }
 
@@ -811,7 +811,7 @@ class CloudExtraActivities extends Controller
 
         // @phpstan-ignore booleanNot.alwaysFalse (checkDomain returns object but may represent a falsy API response)
         if (! $this->checkDomain($request->input('domain'))) {
-            return response(['status' => false, 'message' => trans('message.domain_taken')]);
+            return response()->json(['status' => false, 'message' => trans('message.domain_taken')]);
         }
 
         app(CartService::class)->addItem($request, [

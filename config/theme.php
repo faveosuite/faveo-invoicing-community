@@ -40,7 +40,7 @@ $themes = [
 return [
     'active' => $theme,
     'use_cdn' => $useCdn,
-    'cdn_host' => $useCdn ? (parse_url($cdnBase, PHP_URL_SCHEME).'://'.parse_url($cdnBase, PHP_URL_HOST)) : null,
+    'cdn_host' => $useCdn ? (parse_url($cdnBase, PHP_URL_SCHEME).'://'.parse_url($cdnBase, PHP_URL_HOST)) : null, // @phpstan-ignore ternary.alwaysFalse
     'cdn_base' => $cdnBase,
-    'assets' => $themes[$theme] ?? [],
+    'assets' => $themes[$theme] ?? [], // @phpstan-ignore nullCoalesce.offset
 ];

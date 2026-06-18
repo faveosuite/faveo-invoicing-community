@@ -73,7 +73,7 @@ class LogWriteController
      *
      * @param  Throwable  $e  Exception or Error
      * @param  string  $category  Category to which it belongs
-     * @return void
+     * @return ?\Illuminate\Database\Eloquent\Model
      */
     public function exception(Throwable $e, string $category = 'default'): ?\Illuminate\Database\Eloquent\Model
     {
@@ -96,10 +96,6 @@ class LogWriteController
     /**
      * Logs mail send activity.
      *
-     * @param  string|int  $refereeId
-     * @param  string  $refereeType
-     * @param  string  $status
-     * @param  string  $source
      */
     public function logMailByCategory(
         string $senderMail,

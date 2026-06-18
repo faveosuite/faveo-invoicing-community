@@ -38,7 +38,7 @@ class Handler extends ExceptionHandler
         if ($this->shouldReport($exception)) {
             Log::channel('daily')->error($exception);
 
-            if (config('app.sentry_reporting') && ! app()->environment('production')) {
+            if (config('app.sentry_reporting') && app()->environment('production')) {
                 Integration::captureUnhandledException($exception);
             }
 

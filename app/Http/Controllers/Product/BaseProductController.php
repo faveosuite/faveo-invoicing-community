@@ -47,7 +47,7 @@ class BaseProductController extends ExtendedBaseProductController
 
         return [
             'can_modify' => true,
-            'quantity' => empty($value) ? 1 : (int) $value,
+            'quantity' => empty($value) ? 1 : (int) $value, // @phpstan-ignore cast.int
         ];
     }
 
@@ -83,7 +83,7 @@ class BaseProductController extends ExtendedBaseProductController
 
         return [
             'can_modify' => true,
-            'quantity' => empty($value) ? 0 : (int) $value,
+            'quantity' => empty($value) ? 0 : (int) $value, // @phpstan-ignore cast.int
         ];
     }
 
@@ -235,7 +235,7 @@ class BaseProductController extends ExtendedBaseProductController
             $result = [
                 'price' => $price,
                 'fields' => [
-                    'required_domain' => (bool) $product->required_domain,
+                    'required_domain' => (bool) $product->required_domain, // @phpstan-ignore property.notFound
                     'is_cloud_product' => in_array($productId, cloudPopupProducts())
                         ? ['domain' => cloudSubDomain()]
                         : false,
@@ -270,7 +270,7 @@ class BaseProductController extends ExtendedBaseProductController
     {
         $product = Product::find($productid);
 
-        return $product->show_agent;
+        return (bool) $product->show_agent;
     }
 
     /**

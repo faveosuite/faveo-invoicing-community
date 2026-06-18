@@ -41,7 +41,7 @@ class ExtendedBaseProductController extends Controller
             }
 
             return view(
-                'themes.default1.product.product.edit-upload-option',
+                'themes.default1.product.product.edit-upload-option', // @phpstan-ignore argument.type
                 compact('model', 'selectedProduct')
             );
         } catch (ModelNotFoundException) {
@@ -67,7 +67,7 @@ class ExtendedBaseProductController extends Controller
             $file_upload = ProductUpload::find($id);
             $file_upload->update(['title' => $request->input('title'), 'description' => $request->input('description'), 'version' => $request->input('version'), 'dependencies' => json_encode($request->input('dependencies')), 'is_private' => $request->input('is_private'), 'is_restricted' => $request->input('is_restricted'), 'release_type' => $request->input('release_type')]);
             $productSku = $file_upload->product->product_sku;
-            $updateClassObj = new AutoUpdateController();
+            $updateClassObj = new AutoUpdateController(); // @phpstan-ignore arguments.count
             $updateClassObj->editVersion($request->input('version'), $productSku);
 
             return back()->with('success', __('message.product_updated_successfully'));
@@ -213,11 +213,11 @@ class ExtendedBaseProductController extends Controller
      */
     public function saveCartValues($input, bool $can_modify_agent, bool $can_modify_quantity, $highlight, $add_to_contact): void
     {
-        $this->product->show_agent = $input['show_agent'] == 1; //if Show Agents Selected
-        $this->product->highlight = ($highlight == 1) ? 1 : 0;
-        $this->product->add_to_contact = ($add_to_contact == 1) ? 1 : 0;
-        $this->product->can_modify_agent = $can_modify_agent;
-        $this->product->can_modify_quantity = $can_modify_quantity;
+        $this->product->show_agent = $input['show_agent'] == 1; //if Show Agents Selected // @phpstan-ignore property.notFound
+        $this->product->highlight = ($highlight == 1) ? 1 : 0; // @phpstan-ignore property.notFound
+        $this->product->add_to_contact = ($add_to_contact == 1) ? 1 : 0; // @phpstan-ignore property.notFound
+        $this->product->can_modify_agent = $can_modify_agent; // @phpstan-ignore property.notFound
+        $this->product->can_modify_quantity = $can_modify_quantity; // @phpstan-ignore property.notFound
     }
 
     /**
@@ -229,7 +229,7 @@ class ExtendedBaseProductController extends Controller
      *
      * @param  Request  $input  All the Product Detais Sent from  the form
      * @param  \Illuminate\Http\Request  $request
-     * @param  array  $product  instance of the Product
+     * @param  mixed  $product  instance of the Product
      * @return void
      */
     public function saveCartDetailsWhileUpdating($input, $request, $product, $highlight, $add_to_contact): void

@@ -502,8 +502,8 @@ class PipedriveController extends Controller
                         }
                     }
 
-                    $field->selected_field = $selectedField;
-                    $field->local_field_options = $localFieldsArray;
+                    $field->selected_field = $selectedField; // @phpstan-ignore property.notFound
+                    $field->local_field_options = $localFieldsArray; // @phpstan-ignore property.notFound
 
                     return $field;
                 });

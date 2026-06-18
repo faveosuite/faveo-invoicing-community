@@ -23,7 +23,6 @@ use Override;
  * @property-read int|null $activities_as_subject_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Country> $country
  * @property-read int|null $country_count
- *
  * @method static Builder<static>|Currency newModelQuery()
  * @method static Builder<static>|Currency newQuery()
  * @method static Builder<static>|Currency query()
@@ -35,7 +34,6 @@ use Override;
  * @method static Builder<static>|Currency whereStatus($value)
  * @method static Builder<static>|Currency whereSymbol($value)
  * @method static Builder<static>|Currency whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Currency extends BaseModel

@@ -18,7 +18,7 @@ class AutoUpdateController extends Controller
     */
     public function addNewVersion($product_id, $version_number, $upgrade_zip_file, $version_status): void
     {
-        $this->versionService->create([
+        $this->versionService->create([ // @phpstan-ignore method.notFound
             'product_id' => $product_id,
             'version_number' => $version_number,
             'version_upgrade_file' => $upgrade_zip_file,

@@ -45,7 +45,7 @@ function getLocation(?string $ip = null): mixed
 
 function checkArray(string $key, array $array): mixed
 {
-    if (is_array($array) && array_key_exists($key, $array)) {
+    if (is_array($array) && array_key_exists($key, $array)) { // @phpstan-ignore function.alreadyNarrowedType
         return $array[$key];
     }
 
@@ -90,7 +90,7 @@ function errorResponse(string|array $message, int $statusCode = 400): JsonRespon
  * Format success message/data into json success response.
  *
  * @param  string  $message  Success message
- * @param  array|string  $data  Data of the response
+ * @param  mixed  $data  Data of the response
  * @param  int  $statusCode
  * @return \Illuminate\Http\JsonResponse
  */
@@ -291,7 +291,7 @@ function getTimezoneByName(string $name): string
     try {
         $timezone = Timezone::where('name', $name)->first();
         if ($timezone) {
-            return $timezone->id;
+            return (string) $timezone->id;
         }
 
         return '114';
@@ -503,7 +503,7 @@ function userCountryId(): mixed
 function getIndianCurrencyFormat(array $number): string
 {
     $explrestunits = '';
-    $number = explode('.', (string) $number);
+    $number = explode('.', (string) $number); // @phpstan-ignore cast.string
     $num = $number[0];
     if (strlen($num) > 3) {
         $lastthree = substr($num, strlen($num) - 3, strlen($num));
@@ -570,7 +570,7 @@ function bifurcate(string $taxName, string $taxValue, mixed $currency, string $s
  * sets mail config and reloads the config into the container
  * NOTE: this is getting used outside the class to set service config.
  */
-function setServiceConfig(array $emailConfig): void
+function setServiceConfig(object $emailConfig): void
 {
     $sendingProtocol = $emailConfig->driver;
     if ($sendingProtocol && $sendingProtocol != 'smtp' && $sendingProtocol != 'mail') {
@@ -1162,7 +1162,7 @@ function logActivity(
         ->event($event)
         ->withProperties($properties);
 
-    $actor ? $log->causedBy($actor) : $log->causedByAnonymous();
+    $actor ? $log->causedBy($actor) : $log->causedByAnonymous(); // @phpstan-ignore argument.type
 
     $log->log($message);
 }

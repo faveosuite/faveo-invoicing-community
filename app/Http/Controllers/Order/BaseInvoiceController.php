@@ -120,7 +120,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
             $payment_status = 'success';
             $payment_date = $request->input('payment_date');
             $amount = $request->input('amount');
-            $payment = $this->updateInvoicePayment(
+            $payment = $this->updateInvoicePayment( // @phpstan-ignore method.notFound
                 $invoiceid,
                 $payment_method,
                 $payment_status,
@@ -175,7 +175,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
                 foreach ($rates as $rate1) {
                     if ($rate1 !== '') {
                         $rateTotal = str_replace('%', '', $rate1);
-                        $total += $total * ($rateTotal / 100);
+                        $total += $total * ((float) $rateTotal / 100);
                     }
                 }
             }

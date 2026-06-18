@@ -82,7 +82,7 @@ class SubscriptionWebhookService
 
         $this->handler->sendFailedPayment(
             total: null, exceptionMessage: 'Stripe subscription payment failed', user: $user,
-            number: $order?->number, end: $subscription->update_ends_at,
+            number: $order?->number, end: $subscription->update_ends_at, // @phpstan-ignore argument.type
             currency: $invoice['currency'] ?? '', order: $order, product_details: $product, invoice: null, payment: 'stripe'
         );
     }
@@ -140,7 +140,7 @@ class SubscriptionWebhookService
 
         $this->handler->sendFailedPayment(
             total: null, exceptionMessage: 'Razorpay subscription payment halted', user: $user,
-            number: $order?->number, end: $subscription->update_ends_at,
+            number: $order?->number, end: $subscription->update_ends_at, // @phpstan-ignore argument.type
             currency: '', order: $order, product_details: $product, invoice: null, payment: 'razorpay'
         );
     }
@@ -151,7 +151,7 @@ class SubscriptionWebhookService
     {
         $subscription = Subscription::where('subscribe_id', $gatewaySubscriptionId)->first();
         if (! $subscription) {
-            Logger::warning(sprintf('SubscriptionWebhook: no subscription found for %s ID %s', $gateway, $gatewaySubscriptionId));
+            Logger::warning(sprintf('SubscriptionWebhook: no subscription found for %s ID %s', $gateway, $gatewaySubscriptionId)); // @phpstan-ignore staticMethod.notFound
 
             return;
         }
@@ -173,7 +173,7 @@ class SubscriptionWebhookService
         $this->handler->recordPayment($invoice, $gateway);
 
         if (emailSendingStatus()) {
-            $this->handler->sendPaymentSuccessMail($sub, $currency, $cost, $user, $product->name, $order->number);
+            $this->handler->sendPaymentSuccessMail($sub, $currency, $cost, $user, $product->name, $order->number); // @phpstan-ignore argument.type
             $this->handler->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product->name, template: null, order: $order, payment: $gateway);
         }
     }

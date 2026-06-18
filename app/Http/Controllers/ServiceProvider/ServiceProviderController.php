@@ -3,22 +3,16 @@
 namespace App\Http\Controllers\ServiceProvider;
 
 use App\Http\Controllers\Controller;
-/** @phpstan-ignore class.notFound */
 use App\Model\licence\Licence;
-/** @phpstan-ignore class.notFound */
 use App\Model\Licence\LicencedOrganization;
-/** @phpstan-ignore class.notFound */
 use App\Model\licence\Sla;
-/** @phpstan-ignore class.notFound */
 use App\Model\licence\SlaServiceRelation;
 use App\Model\Product\Service;
-/** @phpstan-ignore class.notFound */
 use App\Organization;
 use Exception;
 
 class ServiceProviderController extends Controller
 {
-    /** @phpstan-ignore class.notFound */
     public $slaServiceRelation;
 
     /**
@@ -26,7 +20,6 @@ class ServiceProviderController extends Controller
      */
     public $service;
 
-    /** @phpstan-ignore class.notFound */
     public $licence;
 
     public function __construct()
@@ -36,11 +29,11 @@ class ServiceProviderController extends Controller
 
         // @phpstan-ignore class.notFound
         $sla = new Sla();
-        $this->sla = $sla;
+        $this->sla = $sla; // @phpstan-ignore property.notFound
 
         // @phpstan-ignore class.notFound
         $LicencedOrg = new LicencedOrganization();
-        $this->LicencedOrg = $LicencedOrg;
+        $this->LicencedOrg = $LicencedOrg; // @phpstan-ignore property.notFound
 
         // @phpstan-ignore class.notFound
         $slaServiceRelation = new SlaServiceRelation();
@@ -51,7 +44,7 @@ class ServiceProviderController extends Controller
 
         // @phpstan-ignore class.notFound
         $organization = new Organization();
-        $this->organization = $organization;
+        $this->organization = $organization; // @phpstan-ignore property.notFound
 
         // @phpstan-ignore class.notFound
         $licence = new Licence();
@@ -61,7 +54,7 @@ class ServiceProviderController extends Controller
     public function orders()
     {
         try {
-            return view('themes.default1.serviceprovider.orders');
+            return view('themes.default1.serviceprovider.orders'); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -70,7 +63,7 @@ class ServiceProviderController extends Controller
     public function sla()
     {
         try {
-            return view('themes.default1.serviceprovider.sla');
+            return view('themes.default1.serviceprovider.sla'); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -83,7 +76,7 @@ class ServiceProviderController extends Controller
             $licence = new Licence();
             $licences = $licence->get(); // @phpstan-ignore class.notFound
 
-            return view('themes.default1.serviceprovider.pricing', compact('licences'));
+            return view('themes.default1.serviceprovider.pricing', compact('licences')); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }

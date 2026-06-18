@@ -13,7 +13,6 @@ use Override;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\Plan> $plans
  * @property-read int|null $plans_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Period newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Period newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Period query()
@@ -22,7 +21,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Period whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Period whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Period whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Period extends Model
@@ -37,8 +35,9 @@ class Period extends Model
     }
 
     #[Override]
-    public function delete(): void
+    public function delete(): bool
     {
         $this->plans()->detach();
+        return (bool) parent::delete();
     }
 }

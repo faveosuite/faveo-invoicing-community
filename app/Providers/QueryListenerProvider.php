@@ -24,7 +24,7 @@ class QueryListenerProvider extends ServiceProvider
     public function boot(): void
     {
         DB::listen(function ($query): void {
-            Clockwork::info($query->sql, [$query->time]);
+            Clockwork::info($query->sql, [$query->time]); // @phpstan-ignore staticMethod.notFound
         });
     }
 }

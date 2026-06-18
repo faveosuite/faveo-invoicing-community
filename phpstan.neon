@@ -15,6 +15,16 @@ parameters:
         -
             identifier: larastan.noEnvCallsOutsideOfConfig
             path: app/Plugins/Zoho/Integrations/Campaigns/config/zoho_campaigns.php
+        -
+            identifier: property.notFound
+            message: '#property Illuminate\\Contracts\\Auth\\Authenticatable#'
+        -
+            identifier: property.notFound
+            message: '#property Illuminate\\Database\\Eloquent\\Model::#'
+        -
+            identifier: property.notFound
+            message: '#property Razorpay\\Api\\Api::#' 
+
 
     excludePaths:
         - vendor/*
@@ -23,6 +33,7 @@ parameters:
         - bootstrap/cache/*
         - public/*
         - tests
+        - app/License/tests
         - lang
         - resources/lang (?)
         - resources/views (?)

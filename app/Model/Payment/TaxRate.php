@@ -29,7 +29,6 @@ use Override;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\TaxRateLocation> $locations
  * @property-read int|null $locations_count
  * @property-read \App\Model\Payment\TaxClass|null $taxClass
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate query()
@@ -45,7 +44,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereState($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereTaxClass($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class TaxRate extends BaseModel

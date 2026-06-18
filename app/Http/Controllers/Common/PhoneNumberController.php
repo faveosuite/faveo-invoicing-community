@@ -198,7 +198,7 @@ class PhoneNumberController
             return $type->name;
         }
 
-        return PhoneNumberType::tryFrom($type)?->name ?? 'UNKNOWN';
+        return PhoneNumberType::tryFrom($type)?->name ?? 'UNKNOWN'; // @phpstan-ignore nullsafe.neverNull
     }
 
     /**

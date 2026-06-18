@@ -437,7 +437,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
     public function tenantExports(array $selectedColumns, array $searchParams, string $email): void
     {
-        $this->cloud = FaveoCloud::first();
+        $this->cloud = FaveoCloud::first(); // @phpstan-ignore property.notFound
         $client = new Client();
 
         // Similar logic to export users but for orders
@@ -623,7 +623,7 @@ class ConcreteExportHandleController extends ExportHandleController
                         $tenantData['db_username'] = $tenats->database_user_name;
                         break;
                     default:
-                        $tenantData[$column] = $tenant->$column ?? null;
+                        $tenantData[$column] = $tenant->$column ?? null; // @phpstan-ignore nullCoalesce.variable
                         break;
                 }
             }

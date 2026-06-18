@@ -11,8 +11,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('product_bundle_relations', function (Blueprint $table): void {
-            $table->foreign('bundle_id')->references('id')->on('product_bundles')->onUpdate('RESTRICT')->onDelete('RESTRICT');
-            $table->foreign('product_id')->references('id')->on('products')->onUpdate('RESTRICT')->onDelete('RESTRICT');
+            $table->foreign('bundle_id')->references('id')->on('product_bundles')->onUpdate('restrict')->onDelete('restrict');
+            $table->foreign('product_id')->references('id')->on('products')->onUpdate('restrict')->onDelete('restrict');
         });
     }
 

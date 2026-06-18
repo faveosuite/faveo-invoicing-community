@@ -13,7 +13,6 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategory newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategory query()
@@ -21,7 +20,6 @@ use Spatie\Activitylog\Support\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategory whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategory whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategory whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class ProductCategory extends Model
@@ -42,15 +40,15 @@ class ProductCategory extends Model
     {
         // dd(Activity::where('subject_id',)->pluck('subject_id'));
         if ($eventName === 'created') {
-            return 'Product Category'.$this->name.' was created';
+            return 'Product Category'.$this->name.' was created'; // @phpstan-ignore property.notFound
         }
 
         if ($eventName === 'updated') {
-            return 'Product Category  <strong> '.$this->name.'</strong> was updated';
+            return 'Product Category  <strong> '.$this->name.'</strong> was updated'; // @phpstan-ignore property.notFound
         }
 
         if ($eventName === 'deleted') {
-            return 'Product Category <strong> '.$this->name.' </strong> was deleted';
+            return 'Product Category <strong> '.$this->name.' </strong> was deleted'; // @phpstan-ignore property.notFound
         }
 
         return '';

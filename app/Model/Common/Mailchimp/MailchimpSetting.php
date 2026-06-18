@@ -15,7 +15,6 @@ use App\BaseModel;
  * @property string $group_id_is_paid
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpSetting newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpSetting query()
@@ -27,7 +26,6 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpSetting whereListId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpSetting whereSubscribeStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpSetting whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class MailchimpSetting extends BaseModel

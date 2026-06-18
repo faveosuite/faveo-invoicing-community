@@ -30,7 +30,7 @@ class BannedHostController extends Controller
      * @param  $api_key_secret
      * @param  $banned_host_ip
      * @param  $comments
-     * @return array of details of banned host if added successfully
+     * @return \Illuminate\Http\JsonResponse
      */
     public function bannedHostAdd(BannedHostRequest $request)
     {
@@ -62,7 +62,7 @@ class BannedHostController extends Controller
      * @param  $api_key_secret
      * @param  $banned_host_ip
      * @param  $comments
-     * @return array of details of edited banned host if Updated successfully
+     * @return \Illuminate\Http\JsonResponse
      */
     public function bannedHostUpdate(Request $request)
     {
@@ -130,7 +130,7 @@ class BannedHostController extends Controller
         ->paginate($perPage, ['*'], 'page', $page);
 
         $banned->getCollection()->transform(function ($host) {
-            $host->banned_host_date = $host->created_at ? $host->created_at->format('Y-m-d') : '';
+            $host->banned_host_date = $host->created_at ? $host->created_at->format('Y-m-d') : ''; // @phpstan-ignore property.notFound
 
             return $host;
         });

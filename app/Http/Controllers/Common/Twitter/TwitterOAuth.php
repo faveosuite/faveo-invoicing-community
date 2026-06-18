@@ -266,7 +266,7 @@ class TwitterOAuth extends Config
         while (! feof($media)) {
             $this->http('POST', self::UPLOAD_HOST, 'media/upload', [
                 'command' => 'APPEND',
-                'media_id' => $init->media_id_string,
+                'media_id' => $init->media_id_string, // @phpstan-ignore property.nonObject
                 'segment_index' => $segment_index++,
                 'media_data' => base64_encode(fread($media, self::UPLOAD_CHUNK)),
             ]);
@@ -276,7 +276,7 @@ class TwitterOAuth extends Config
         // Finalize
         $finalize = $this->http('POST', self::UPLOAD_HOST, 'media/upload', [
             'command' => 'FINALIZE',
-            'media_id' => $init->media_id_string,
+            'media_id' => $init->media_id_string, // @phpstan-ignore property.nonObject
         ]);
 
         return $finalize;

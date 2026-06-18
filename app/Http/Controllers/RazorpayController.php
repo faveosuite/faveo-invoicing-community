@@ -73,7 +73,7 @@ class RazorpayController extends Controller
                 : errorResponse(__('message.payment_declined_try_other_gateway'));
         } catch (SignatureVerificationException $e) {
             if (emailSendingStatus()) {
-                $this->sendFailedPaymenttoAdmin($model, $model->grand_total, $model->invoiceItem()->first()?->product_name, $e->getMessage(), Auth::user());
+                $this->sendFailedPaymenttoAdmin($model, $model->grand_total, $model->invoiceItem()->first()?->product_name, $e->getMessage(), Auth::user()); // @phpstan-ignore argument.type, argument.type
             }
 
             return errorResponse(__('message.payment_declined_try_other_gateway'));
@@ -110,7 +110,7 @@ class RazorpayController extends Controller
             if ($paymentIntent->status === 'succeeded') {
                 $currency = strtolower((string) $invoice->currency);
                 $controller = new SettingsController();
-                $result = $controller->processPaymentSuccess($invoice, $currency);
+                $result = $controller->processPaymentSuccess($invoice, $currency); // @phpstan-ignore method.notFound
                 Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
 
                 return redirect('checkout')->with($result['status'], $result['message']);

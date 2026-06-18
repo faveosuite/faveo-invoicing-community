@@ -34,7 +34,7 @@ class CancelGatewaySubscriptionsJob implements ShouldQueue
                     try {
                         $service->cancelSubscription(ucfirst($this->gateway), $subscription->subscribe_id);
                     } catch (Exception $e) {
-                        Logger::warning(sprintf('Failed to cancel %s subscription %s: ', $this->gateway, $subscription->subscribe_id).$e->getMessage());
+                        Logger::warning(sprintf('Failed to cancel %s subscription %s: ', $this->gateway, $subscription->subscribe_id).$e->getMessage()); // @phpstan-ignore staticMethod.notFound
                     }
 
                     $subscription->update([

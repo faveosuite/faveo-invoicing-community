@@ -31,7 +31,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property-read Product|null $product
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\InvoiceTaxLine> $taxLines
  * @property-read int|null $tax_lines_count
- *
  * @method static \Database\Factories\Model\Order\InvoiceItemFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem newQuery()
@@ -55,7 +54,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereTaxPercentage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereTaxRateId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class InvoiceItem extends BaseModel

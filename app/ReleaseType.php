@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $value
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ReleaseType newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ReleaseType newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ReleaseType query()
@@ -22,7 +21,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ReleaseType whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ReleaseType whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ReleaseType whereValue($value)
- *
  * @mixin \Eloquent
  */
 class ReleaseType extends Model

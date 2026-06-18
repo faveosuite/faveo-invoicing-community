@@ -27,7 +27,7 @@ class ExtendedBaseInvoiceController extends Controller
     {
         try {
             $clientid = $request->input('clientid');
-            $this->user->where('id', $clientid)->firstOrFail();
+            $this->user->where('id', $clientid)->firstOrFail(); // @phpstan-ignore property.notFound
 
             $invoices = Invoice::where('user_id', $clientid)
                 ->where('status', '!=', 'Success')
@@ -43,7 +43,7 @@ class ExtendedBaseInvoiceController extends Controller
                         'number' => $inv->number,
                         'date' => $inv->date,
                         'grand_total' => $inv->grand_total,
-                        'pending' => max(0, $inv->grand_total - $paid),
+                        'pending' => max(0, (float) $inv->grand_total - $paid),
                         'status' => $inv->status,
                         'currency' => $inv->currency,
                     ];
@@ -84,7 +84,6 @@ class ExtendedBaseInvoiceController extends Controller
             $payment = new Payment();
             $payment->payment_status = 'success';
             $payment->user_id = $clientid;
-            $payment->invoice_id = '--';
             $paymentReceived = $payment->fill($request->all())->save();
 
             return back()->with('success', Lang::get('message.saved-successfully'));
@@ -103,7 +102,7 @@ class ExtendedBaseInvoiceController extends Controller
             $totalSum = array_sum($payment);
         }
 
-        return view('themes.default1.invoice.editInvoice', compact('date', 'invoiceid', 'invoice', 'totalSum'));
+        return view('themes.default1.invoice.editInvoice', compact('date', 'invoiceid', 'invoice', 'totalSum')); // @phpstan-ignore argument.type
     }
 
     public function postEdit(int $invoiceid, Request $request): \Illuminate\Http\JsonResponse

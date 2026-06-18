@@ -299,7 +299,7 @@ class LocalizedLicenseController extends Controller
     }
 
     //return an array with license data
-    private function getLicenseData(string $fileName, string $orderNo): array
+    private function getLicenseData(string $fileName, string $orderNo): array // @phpstan-ignore method.unused
     {
         return $this->parseLicenseFile($fileName, $orderNo);
     }
@@ -320,7 +320,7 @@ class LocalizedLicenseController extends Controller
             $file_content = file_get_contents($stored);
             preg_match_all("/<([a-z_]+)>(.*?)<\/([a-z_]+)>/", $file_content, $matches, PREG_SET_ORDER);
             foreach ($matches as $value) {
-                if (isset($value[1]) && $value[1] !== '0' && $value[1] == $value[3]) {
+                if (isset($value[1]) && $value[1] !== '0' && $value[1] == $value[3]) { // @phpstan-ignore isset.offset
                     $license_data_array[$value[1]] = $value[2];
                 }
             }

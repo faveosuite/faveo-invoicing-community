@@ -30,8 +30,8 @@ return new class extends Migration
                 $table->foreign('product_id')
                     ->references('id')
                     ->on('products')
-                    ->onUpdate('RESTRICT')
-                    ->onDelete('RESTRICT');
+                    ->onUpdate('restrict')
+                    ->onDelete('restrict');
             }
 
             // Check and add foreign key for tax_class_id
@@ -39,8 +39,8 @@ return new class extends Migration
                 $table->foreign('tax_class_id')
                     ->references('id')
                     ->on('tax_classes')
-                    ->onUpdate('RESTRICT')
-                    ->onDelete('RESTRICT');
+                    ->onUpdate('restrict')
+                    ->onDelete('restrict');
             }
         });
     }

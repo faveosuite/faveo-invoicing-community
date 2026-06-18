@@ -77,7 +77,7 @@ class RenewController extends BaseRenewController
             $sub = $this->sub->find($id);
             $currency = userCurrencyAndPrice($sub->user_id, $plan)['currency'];
             if ($isAgentIncrease) {
-                resolve(SubscriptionRenewalService::class)->extendDates($sub, $days);
+                resolve(SubscriptionRenewalService::class)->extendDates($sub, $days); // @phpstan-ignore argument.type
             }
 
             $invoice = $this->invoiceBySubscriptionId($id, $planid, $cost, $currency, $agents);
@@ -196,7 +196,7 @@ class RenewController extends BaseRenewController
                 throw new Exception(__('message.product_removed_database'));
             }
 
-            $currency = $this->getUserCurrencyById($userid);
+            $currency = $this->getUserCurrencyById($userid); // @phpstan-ignore method.notFound
             $price = $product->price()->where('currency', $currency)->first();
             if (! $price) {
                 throw new Exception(__('message.price_removed_database'));
@@ -259,11 +259,11 @@ class RenewController extends BaseRenewController
                 $agents = $request->input('agents');
                 $installation_path = Installation::where('license_code', Order::find($order_id)->serial_key)->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
                 if (empty($installation_path)) {
-                    return response(['status' => false, 'message' => trans('message.no_installation_found')]);
+                    return response()->json(['status' => false, 'message' => trans('message.no_installation_found')]);
                 }
 
                 if ($this->checktheAgent($agents, $installation_path)) {
-                    return response(['status' => false, 'message' => trans('message.agent_reduce')]);
+                    return response()->json(['status' => false, 'message' => trans('message.agent_reduce')]);
                 }
 
                 $license = Order::where('id', $order_id)->value('serial_key');

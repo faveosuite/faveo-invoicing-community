@@ -17,7 +17,7 @@ class UnsubscribeOnUserDeleted
     {
         try {
             $this->service->unsubscribe($email);
-        } catch (MailchimpApiException|Throwable $e) {
+        } catch (MailchimpApiException|Throwable $e) { // @phpstan-ignore catch.neverThrown
             Logger::exception($e);
         }
     }

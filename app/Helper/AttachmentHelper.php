@@ -53,7 +53,7 @@ class AttachmentHelper
         return $adapter->download($path, $filename);
     }
 
-    private function getStorageAdapter(?string $disk = null): FilesystemAdapter
+    private function getStorageAdapter(?string $disk = null): \Illuminate\Contracts\Filesystem\Filesystem
     {
         $disk = $disk ?: FileSystemSettings::value('disk');
 
@@ -75,7 +75,7 @@ class AttachmentHelper
         $safeName = Str::slug($filename) ?: 'file';
 
         // Add timestamp hash to name of the file
-        return $safeName.'_'.md5(time()).'.'.$extension;
+        return $safeName.'_'.md5((string) time()).'.'.$extension;
     }
 
     public function getUrlPath(string $path, ?string $disk = null): string

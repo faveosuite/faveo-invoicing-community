@@ -17,7 +17,7 @@ class ChatScriptController extends Controller
         $this->middleware('admin');
 
         $script = new ChatScript();
-        $this->script = $script;
+        $this->script = $script; // @phpstan-ignore property.notFound
     }
 
     public function getScriptList(Request $request)
@@ -28,7 +28,7 @@ class ChatScriptController extends Controller
             $sortField = $request->input('sort-field', 'created_at');
             $limit = $request->input('limit', 10);
 
-            $scripts = $this->script
+            $scripts = $this->script // @phpstan-ignore property.notFound
                 ->select('id', 'name')
                 ->when($searchString, function ($query) use ($searchString): void {
                     $query->where('name', 'like', sprintf('%%%s%%', $searchString));
@@ -66,7 +66,7 @@ class ChatScriptController extends Controller
         try {
             $request['on_every_page'] = $request->on_registration ? 0 : 1;
 
-            $this->script->fill($request->all())->save();
+            $this->script->fill($request->all())->save(); // @phpstan-ignore property.notFound
 
             return successResponse(__('message.saved-successfully'));
         } catch (Exception $exception) {
@@ -84,7 +84,7 @@ class ChatScriptController extends Controller
     public function getScript($id)
     {
         try {
-            $chat = $this->script->find($id);
+            $chat = $this->script->find($id); // @phpstan-ignore property.notFound
 
             if (! $chat) {
                 return errorResponse(__('message.no-record'), 404);
@@ -113,7 +113,7 @@ class ChatScriptController extends Controller
         ]);
 
         try {
-            $script = $this->script->find($id);
+            $script = $this->script->find($id); // @phpstan-ignore property.notFound
 
             if (! $script) {
                 return errorResponse(__('message.record_not_found'), 404);
@@ -136,7 +136,6 @@ class ChatScriptController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
      */
     public function deleteScript(Request $request)
     {
@@ -149,7 +148,7 @@ class ChatScriptController extends Controller
                 return errorResponse(__('message.select-a-row'), 400);
             }
 
-            $scriptIds = $this->script->whereIn('id', $ids)->get();
+            $scriptIds = $this->script->whereIn('id', $ids)->get(); // @phpstan-ignore property.notFound
 
             if ($scriptIds->isEmpty()) {
                 return errorResponse(__('message.no-record'), 404);
@@ -159,7 +158,7 @@ class ChatScriptController extends Controller
                 $script->delete();
             }
 
-            $this->script->whereIn('id', $ids)->delete();
+            $this->script->whereIn('id', $ids)->delete(); // @phpstan-ignore property.notFound
 
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {

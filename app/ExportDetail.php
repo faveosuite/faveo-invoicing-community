@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read \App\User|null $user
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail query()
@@ -30,7 +29,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereUserId($value)
- *
  * @mixin \Eloquent
  */
 class ExportDetail extends Model
@@ -64,7 +62,7 @@ class ExportDetail extends Model
 
     protected array $logUrl = [];
 
-    protected ?int $causerID = 'user_id';
+    protected ?string $causerID = 'user_id';
 
     protected function getMappings(): array
     {

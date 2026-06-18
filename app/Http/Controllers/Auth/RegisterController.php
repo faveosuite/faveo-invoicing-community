@@ -173,12 +173,12 @@ class RegisterController extends Controller
             $user->first_name = strip_tags((string) $request->input('first_name'));
             $user->last_name = strip_tags((string) $request->input('last_name'));
             $user->ip = $location['ip'];
-            $user->timezone_id = getTimezoneByName($location['timezone']);
+            $user->timezone_id = (int) getTimezoneByName($location['timezone']);
             $user->referrer = Referer::get();
             $user->active = 1;
             $user->role = 'user';
-            $user->account_manager = $managerSettings->get('account') ? $user->assignManagerByPosition('account_manager') : null;
-            $user->manager = $managerSettings->get('sales') ? $user->assignManagerByPosition('manager') : null;
+            $user->account_manager = $managerSettings->get('account') ? (string) $user->assignManagerByPosition('account_manager') : null;
+            $user->manager = $managerSettings->get('sales') ? User::find($user->assignManagerByPosition('manager')) : null;
             $user->save();
 
             $need_verify = ($status->emailverification_status || $status->msg91_status) ? 1 : 0;

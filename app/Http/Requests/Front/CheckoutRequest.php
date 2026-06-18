@@ -52,7 +52,7 @@ class CheckoutRequest extends Request
             ];
         }
 
-        return null;
+        return [];
     }
 
     #[Override]

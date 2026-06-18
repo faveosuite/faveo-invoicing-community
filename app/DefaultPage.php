@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DefaultPage newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DefaultPage newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DefaultPage query()
@@ -24,7 +23,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DefaultPage wherePageId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DefaultPage wherePageUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DefaultPage whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class DefaultPage extends Model

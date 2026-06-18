@@ -371,7 +371,6 @@ class BillingDependencyController extends Controller
     /**
      * Validate PHP extentions for probe page and auto-update module.
      *
-     * @param  string  $extensionCheckFrom  Whether the request is from probe page or auto-update module
      * @return array
      */
     public function validatePHPExtensions(int &$errorCount)

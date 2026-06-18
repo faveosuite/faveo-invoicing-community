@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $status_label
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Msg91Status newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Msg91Status newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Msg91Status query()
@@ -22,7 +21,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Msg91Status whereStatusCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Msg91Status whereStatusLabel($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Msg91Status whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Msg91Status extends Model

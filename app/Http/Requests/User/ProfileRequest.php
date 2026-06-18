@@ -88,7 +88,7 @@ class ProfileRequest extends Request
             ];
         }
 
-        return null;
+        return [];
     }
 
     #[Override]

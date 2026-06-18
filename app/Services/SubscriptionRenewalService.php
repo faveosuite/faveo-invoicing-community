@@ -26,9 +26,9 @@ class SubscriptionRenewalService
         $updatesExpiry = $this->computeExpiry($permissions['generateUpdatesxpiryDate'], $sub->update_ends_at, $days, $fromNowIfExpired);
         $supportExpiry = $this->computeExpiry($permissions['generateSupportExpiryDate'], $sub->support_ends_at, $days, $fromNowIfExpired);
 
-        $sub->ends_at = $licenseExpiry;
-        $sub->update_ends_at = $updatesExpiry;
-        $sub->support_ends_at = $supportExpiry;
+        $sub->ends_at = $licenseExpiry ? \Illuminate\Support\Carbon::parse($licenseExpiry) : null;
+        $sub->update_ends_at = $updatesExpiry ? \Illuminate\Support\Carbon::parse($updatesExpiry) : null;
+        $sub->support_ends_at = $supportExpiry ? \Illuminate\Support\Carbon::parse($supportExpiry) : null;
         $sub->save();
 
         $order = Order::find($sub->order_id);

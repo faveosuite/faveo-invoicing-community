@@ -89,7 +89,7 @@ class ZohoRegionTest extends DBTestCase
 
     public function test_it_returns_null_for_invalid_region_with_try_from(): void
     {
-        $this->assertNull(ZohoRegion::tryFrom('invalid'));
+        $this->assertNull(ZohoRegion::tryFrom('invalid')); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     public function test_it_has_correct_enum_values(): void

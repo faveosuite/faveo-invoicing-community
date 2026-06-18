@@ -89,7 +89,7 @@ class AuthController extends BaseAuthController
     {
         $default_type = $request->input('default_type');
 
-        return match ($default_type) {
+        return match ($default_type) { // @phpstan-ignore match.unhandled
             'email' => $this->sendEmail($request, 'GET'),
             'mobile' => $this->resendOTP($request),
         };

@@ -58,7 +58,6 @@ class ThirdPartyAppController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @return Response
      */
     public function createThirdPartyApp(Request $request)
     {
@@ -91,8 +90,6 @@ class ThirdPartyAppController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  ThirdPartyApp  $thirdPartyApp
-     * @return Response
      */
     public function updateThirdPartyApp(Request $request, $id)
     {
@@ -121,8 +118,6 @@ class ThirdPartyAppController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  ThirdPartyApp  $thirdPartyApp
-     * @return Response
      */
     public function deleteThirdPartyApp(Request $request)
     {
