@@ -221,20 +221,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         static::forceDeleted($clearCache);  // permanent delete
     }
 
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
     public $timestamps = true;
 
     protected $table = 'users';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = ['first_name', 'last_name', 'user_name', 'company', 'zip',
         'state', 'town', 'mobile', 'mobile_country_iso',
         'email', 'password', 'profile_pic',
@@ -255,11 +245,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         'segments' => ['clients', ':id'],
     ];
 
-    /**
-     * The attributes excluded from the model's JSON form.
-     *
-     * @var array
-     */
     protected $hidden = ['password', 'remember_token'];
 
     public function order(): HasMany

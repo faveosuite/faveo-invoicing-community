@@ -184,7 +184,7 @@ class PageController extends Controller
                         $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
                         $planDetails = userCurrencyAndPrice('', $plan);
 
-                        $prices[$plan->id][] = ($product->status) ? ($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
+                        $prices[$plan->id][] = $planDetails['plan']->add_price / 12;
                         $prices[$plan->id][] = $planDetails['symbol'];
                         $prices[$plan->id][] = $planDetails['currency'];
                         $prices[$plan->id][] = $plan->id;
@@ -434,7 +434,7 @@ class PageController extends Controller
     /**
      * This function returns to the contact us page.
      *
-     * @return Factory|View|Application|RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function contactUsInfo(): \Illuminate\Http\JsonResponse
     {
@@ -635,10 +635,6 @@ class PageController extends Controller
                 continue;
             }
 
-            if (! $plan->planPrice) {
-                continue;
-            }
-
             // Get offer_price directly from relation for matching currency
             $offer_price = $plan->planPrice
                 ->where('currency', $currency['currency'])
@@ -749,21 +745,19 @@ class PageController extends Controller
 
             $plans = Plan::where('product', $productid)->where('status', 1)->get();
 
-            if ($plans) {
-                foreach ($plans as $plan) {
-                    if ($plan->days == 30 || $plan->days == 31) {
-                        $description = $plan->planPrice->first();
+            foreach ($plans as $plan) {
+                if ($plan->days == 30 || $plan->days == 31) {
+                    $description = $plan->planPrice->first();
 
-                        if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) {
-                            $priceDescription = 'free';
-                        } else {
-                            $priceDescription = $description->no_of_agents ? 'per month for <strong> '.$description->no_of_agents.' '.'agent</strong>' : 'per month';
-                            //for vue
+                    if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) {
+                        $priceDescription = 'free';
+                    } else {
+                        $priceDescription = $description->no_of_agents ? 'per month for <strong> '.$description->no_of_agents.' '.'agent</strong>' : 'per month';
+                        //for vue
 //                            $priceDescription = $description->no_of_agents?$description->no_of_agents:'per month';
-                        }
-
-                        break;
                     }
+
+                    break;
                 }
             }
 

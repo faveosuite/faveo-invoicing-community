@@ -207,22 +207,6 @@ class TenantController extends Controller
         }
     }
 
-    private function postCurl(string $post_url, mixed $post_info): bool|string
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $post_url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        return $result;
-    }
-
     /**
      * Logic for creating new tenant is handled here.
      */
@@ -760,10 +744,10 @@ class TenantController extends Controller
 
         $expiry = Date::parse($subscription->ends_at)->format('d M Y');
         $cloud_days = (int) ExpiryMailDay::whereNotNull('cloud_days')->value('cloud_days');
-        $deletion_date = ($expiry && $cloud_days) ? Date::parse($expiry)->addDays($cloud_days)->format('d M Y') : null;
+        $deletion_date = $cloud_days ? Date::parse($expiry)->addDays($cloud_days)->format('d M Y') : null;
 
         return [
-            'subscription_expiry' => $expiry ?: null,
+            'subscription_expiry' => $expiry,
             'deletion_date' => $deletion_date,
             'plan' => $plan,
         ];

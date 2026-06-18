@@ -55,9 +55,8 @@ class BaseOrderController extends ExtendedOrderController
     /**
      * inserting the values to orders table.
      *
-     * @param  type  $invoiceid
-     * @param  type  $order_status
-     * @return string
+     * @param  int  $invoiceId
+     * @return \Illuminate\Support\Collection
      *
      * @throws Exception
      */

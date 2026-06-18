@@ -176,7 +176,6 @@ class HomeController extends BaseHomeController
             // Uncompress the unencrypted data.
             $output = gzuncompress($output);
             dd($output);
-            echo '<br /><br /> Unencrypted Data: '.$output;
         } catch (Exception $exception) {
             dd($exception);
         }
@@ -203,23 +202,6 @@ class HomeController extends BaseHomeController
             openssl_free_key($privateKey);
         } catch (Exception $exception) {
             dd($exception);
-        }
-    }
-
-    public function checkOrder(string $faveo_decrypted_order): ?string
-    {
-        try {
-            $order = new Order();
-//            $faveo_decrypted_order = self::decryptByFaveoPrivateKey($faveo_encrypted_order_number);
-
-            $this_order = $order->where('number', 'LIKE', $faveo_decrypted_order)->first();
-            if (! $this_order) {
-                return;
-            }
-
-            return $this_order->number;
-        } catch (Exception $exception) {
-            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -328,7 +310,7 @@ class HomeController extends BaseHomeController
         $public_key = openssl_get_publickey($key_content);
         $encrypted = null;
         $e = null;
-        openssl_seal($data, $encrypted, $e, [$public_key]);
+        openssl_seal($data, $encrypted, $e, [$public_key], 'RC4');
 
         $sealed_data = base64_encode((string) $encrypted);
         $envelope = base64_encode((string) $e[0]);

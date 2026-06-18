@@ -57,7 +57,7 @@ class MSG91Controller extends Controller
                         'request_id' => $reportGroup['requestId'],
                         'number' => $singleReport['number'],
                         'status' => $singleReport['status'],
-                        'date' => Date::parse($singleReport['date'], 'Asia/Kolkata')->timezone('UTC')->toDateTimeString() ?? now()->utc()->toDateTimeString(),
+                        'date' => Date::parse($singleReport['date'], 'Asia/Kolkata')->timezone('UTC')->toDateTimeString(),
                         'failure_reason' => $singleReport['failedReason'] ?? null,
                     ]);
                 });
@@ -247,31 +247,6 @@ class MSG91Controller extends Controller
     public function msgLogData(): \Illuminate\Database\Eloquent\Builder
     {
         return MsgDeliveryReports::with(['user:id,user_name,first_name,last_name,email', 'readableStatus']);
-    }
-
-    /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Common\MsgDeliveryReports>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Common\MsgDeliveryReports>
-     */
-    private function searchQuery(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
-    {
-        $search = $this->request->input('search-query');
-
-        if (! empty($search)) {
-            $query->where(function ($q) use ($search): void {
-                $q->where('request_id', 'like', sprintf('%%%s%%', $search))
-                    ->orWhereHas('readableStatus', function ($q) use ($search): void {
-                        $q->where('status_label', 'like', sprintf('%%%s%%', $search));
-                    })
-                    ->orWhereHas('user', function ($sub) use ($search): void {
-                        $sub->where('email', 'like', sprintf('%%%s%%', $search))
-                            ->orWhere('user_name', 'like', sprintf('%%%s%%', $search))
-                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", [sprintf('%%%s%%', $search)]);
-                    });
-            });
-        }
-
-        return $query;
     }
 
     /**

@@ -54,7 +54,7 @@ class PlanController extends ExtendedPlanController
     /**
      * Store the Plans Details While Plan Creation.
      *
-     * @param  Request  $request  Plan Form Details
+     * @param  PlanRequest  $request  Plan Form Details
      * @return mixed
      *
      * @throws ValidationException
@@ -95,7 +95,7 @@ class PlanController extends ExtendedPlanController
 
             return back()->with('success', Lang::get('message.saved-successfully'));
         } catch (Exception $exception) {
-            return back()->withj('fails', $exception->getMessage());
+            return back()->with('fails', $exception->getMessage());
         }
     }
 
@@ -190,8 +190,7 @@ class PlanController extends ExtendedPlanController
             return match ($unit) {
                 'day', 'days' => [$value, $value],            // exact day
                 'month', 'months' => [$value * 30, $value * 30 + 29], // 1 Month = 30–59, 2 Months = 60–89, etc.
-                'year', 'years' => [$value * 365, $value * 365 + 364], // 1 Year = 365–729, etc.
-                default => null,
+                default => [$value * 365, $value * 365 + 364], // year/years: 1 Year = 365–729, etc.
             };
         }
 

@@ -101,6 +101,7 @@ class LicenseService
         foreach ($licenses as $license) {
             foreach ($license->plugins as $plugin) {
                 $product = $plugin->product;
+                // @phpstan-ignore if.alwaysTrue (BelongsTo may return null for orphaned product_id)
                 if ($product) {
                     $latestVersion = $latestVersions->get($product->id);
                     $result[] = [
@@ -209,6 +210,7 @@ class LicenseService
         $addons = [];
         foreach ($license->plugins as $plugin) {
             $product = $plugin->product;
+            // @phpstan-ignore if.alwaysTrue (BelongsTo may return null for orphaned product_id)
             if ($product) {
                 $latestVersion = $latestVersions->get($product->id);
 

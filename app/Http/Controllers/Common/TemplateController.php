@@ -252,7 +252,7 @@ class TemplateController extends Controller
                 );
             }
 
-            $planClass = ($plansData && $product->status != 1) ? 'stylePlan' : 'planhide';
+            $planClass = ($product->status != 1) ? 'stylePlan' : 'planhide';
             $planForm = '<select name="subscription" class="'.$planClass.'">'.$planOptions.'</select>';
 
             return html()->form('GET', $url)->open()

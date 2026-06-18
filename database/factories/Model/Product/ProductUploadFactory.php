@@ -13,11 +13,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ProductUploadFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = ProductUpload::class;
 
     /**

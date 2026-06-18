@@ -75,7 +75,7 @@ class LogWriteController
      * @param  string  $category  Category to which it belongs
      * @return void
      */
-    public function exception(Throwable $e, string $category = 'default')
+    public function exception(Throwable $e, string $category = 'default'): ?\Illuminate\Database\Eloquent\Model
     {
         try {
             $logCategory = LogCategory::firstOrCreate(['name' => $category]);
@@ -89,6 +89,8 @@ class LogWriteController
         } catch (Throwable) {
             // ignore exception
         }
+
+        return null;
     }
 
     /**

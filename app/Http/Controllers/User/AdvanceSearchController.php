@@ -58,11 +58,9 @@ class AdvanceSearchController extends AdminOrderInvoiceController
 
     public function getClientDetail($id): array
     {
-        $client = $this->user->where('id', $id)->first();
+        $client = User::where('id', $id)->first();
         $currency = $client->currency;
-        if (array_key_exists('name', getStateByCode($client->country, $client->state))) {
-            $client->state = getStateByCode($client->country, $client->state)['name'];
-        }
+        $client->state = getStateByCode($client->country, $client->state)['name'];
 
         $client->country = ucwords(strtolower((string) getCountryByCode($client->country)));
 
@@ -75,9 +73,7 @@ class AdvanceSearchController extends AdminOrderInvoiceController
             $amounts = Payment::where('user_id', $userId)->where('invoice_id', 0)->select('amt_to_credit')->get();
             $balance = 0;
             foreach ($amounts as $amount) {
-                if ($amount) {
-                    $balance += $amount->amt_to_credit;
-                }
+                $balance += $amount->amt_to_credit;
             }
 
             return $balance;

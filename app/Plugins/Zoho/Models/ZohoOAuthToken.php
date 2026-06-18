@@ -39,9 +39,6 @@ use Override;
  */
 class ZohoOAuthToken extends Model
 {
-    /**
-     * @var mixed|null
-     */
     protected $table = 'zoho_oauth_tokens';
 
     protected $fillable = [

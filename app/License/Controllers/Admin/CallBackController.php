@@ -109,24 +109,6 @@ class CallBackController extends Controller
         return successResponse('', $updateCallbacks);
     }
 
-    //format and return callback type text
-    private function returnFormattedCallbackTypeArray($callback_type): string
-    {
-        $callback_type_formatted = '';
-
-        if ($callback_type == 1) {
-            $callback_type_formatted = 'Version Check';
-        } elseif ($callback_type == 2) {
-            $callback_type_formatted = 'Installation';
-        } elseif ($callback_type == 3) {
-            $callback_type_formatted = 'Upgrade';
-        } else {
-            $callback_type_formatted = 'Unknown';
-        }
-
-        return $callback_type_formatted;
-    }
-
     public function callbacksDelete(Request $request)
     {
         $removed_records = 0;

@@ -34,16 +34,16 @@ class ReportExport implements ShouldQueue
     {
         switch ($this->reportType) {
             case 'users':
-                $exportJob = $this->exportHandleController->userExports($this->selectedColumns, $this->searchParams, $this->email);
+                $this->exportHandleController->userExports($this->selectedColumns, $this->searchParams, $this->email);
                 break;
             case 'invoices':
-                $exportJob = $this->exportHandleController->invoiceExports($this->selectedColumns, $this->searchParams, $this->email);
+                $this->exportHandleController->invoiceExports($this->selectedColumns, $this->searchParams, $this->email);
                 break;
             case 'orders':
-                $exportJob = $this->exportHandleController->orderExports($this->selectedColumns, $this->searchParams, $this->email);
+                $this->exportHandleController->orderExports($this->selectedColumns, $this->searchParams, $this->email);
                 break;
             case 'tenats':
-                $exportJob = $this->exportHandleController->tenantExports($this->selectedColumns, $this->searchParams, $this->email);
+                $this->exportHandleController->tenantExports($this->selectedColumns, $this->searchParams, $this->email);
                 break;
             default:
                 return;

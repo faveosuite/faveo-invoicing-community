@@ -45,6 +45,7 @@ class ZohoSync
         return match ($platform) {
             'crm' => $field['api_name'],
             'campaigns' => $field['FIELD_NAME'],
+            default => throw new \UnexpectedValueException('Unhandled platform: '.$platform),
         };
     }
 
@@ -53,6 +54,7 @@ class ZohoSync
         return match ($platform) {
             'crm' => $field['field_label'],
             'campaigns' => $field['DISPLAY_NAME'],
+            default => throw new \UnexpectedValueException('Unhandled platform: '.$platform),
         };
     }
 
@@ -89,6 +91,7 @@ class ZohoSync
         return match ($platform) {
             'crm' => (bool) ($field['system_mandatory'] ?? false),
             'campaigns' => (bool) ($field['IS_MANDATORY'] ?? false),
+            default => throw new \UnexpectedValueException('Unhandled platform: '.$platform),
         };
     }
 }

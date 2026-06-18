@@ -25,9 +25,9 @@ class WebhookDispatcher
 
     // ── Pre-configured dispatchers ────────────────────────────────────────
 
-    public static function stripe(): static
+    public static function stripe(): self
     {
-        return (new static)
+        return (new self)
             ->on(
                 ['invoice.payment_succeeded', 'invoice.payment_failed', 'customer.subscription.deleted'],
                 fn (array $e) => resolve(SubscriptionWebhookService::class)->handleStripeEvent($e)
@@ -42,9 +42,9 @@ class WebhookDispatcher
             );
     }
 
-    public static function razorpay(): static
+    public static function razorpay(): self
     {
-        return (new static)
+        return (new self)
             ->on(
                 ['subscription.charged', 'subscription.halted'],
                 fn (array $e) => resolve(SubscriptionWebhookService::class)->handleRazorpayEvent($e)

@@ -274,16 +274,9 @@ class RenewController extends BaseRenewController
 
             Subscription::where('order_id', $order_id)->update(['plan_id' => $planid]);
 
-            if ($renew) {
-                return successResponse(__('message.renewed_successfully'));
-                // return redirect()->back()->with('success', __('message.renewed_successfully'));
-            }
-
-            return errorResponse(__('message.cannot_process'));
-            //  return redirect()->back()->with('fails', __('message.cannot_process'));
+            return successResponse(__('message.renewed_successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
-            // return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 

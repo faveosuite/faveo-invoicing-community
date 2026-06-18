@@ -17,8 +17,8 @@ class NotifyMail implements ShouldQueue
      *
      * @return void
      */
-    public function handle(PhpMailController $phpMailController)
+    public function handle(PhpMailController $phpMailController): void
     {
-        return $phpMailController->NotifyMailing();
+        $phpMailController->NotifyMailing();
     }
 }

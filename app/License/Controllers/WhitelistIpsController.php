@@ -57,11 +57,7 @@ class WhitelistIpsController extends Controller
     {
         $host_data = LicenseWhitelistIp::where('id', $id)->firstOrFail();
 
-        if (! empty($host_data)) {
-            return successResponse('data', ['host_data' => $host_data], 200);
-        }
-
-        return errorResponse(Lang::get('lang.invalid'), 400);
+        return successResponse('data', ['host_data' => $host_data], 200);
     }
 
     public function view(Request $request)

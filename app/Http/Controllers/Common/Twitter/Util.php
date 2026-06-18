@@ -11,7 +11,7 @@ class Util
 {
     /**
      * @param  $input
-     * @return array|mixed|string
+     * @return string|array
      */
     public static function urlencodeRfc3986($input): string|array
     {

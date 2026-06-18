@@ -33,7 +33,7 @@ class InstallerController extends Controller
      * Post configurationcheck
      * checking prerequisites.
      *
-     * @return JsonResponse view
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function configurationcheck(Request $request): \Illuminate\Http\RedirectResponse
     {

@@ -93,18 +93,18 @@ class SocialMediaController extends Controller
 
             return successResponse(__('message.social_media_fetched'), $social, 200);
         } catch (Exception $exception) {
-            return $this->errorResponse($exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
     /**
      * Update the specified social media account in storage.
      *
-     * @param  Request  $request
-     * @param  int  $id
+     * @param  SocialMediaRequest  $request
+     * @param int $id
      * @return JsonResponse
      */
-    public function updateSocial($id, SocialMediaRequest $request)
+    public function updateSocial(int $id, SocialMediaRequest $request)
     {
         try {
             $social = $this->social->find($id);
@@ -124,10 +124,10 @@ class SocialMediaController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Response
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function deleteSocialMedia(Request $request)
+    public function deleteSocialMedia(Request $request): JsonResponse
     {
         try {
             $ids = $request->input('select', []);

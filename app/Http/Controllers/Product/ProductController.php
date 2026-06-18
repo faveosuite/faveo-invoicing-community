@@ -311,7 +311,7 @@ class ProductController extends BaseProductController
 
         $products->getCollection()->transform(function ($product): array {
             $permissions = LicensePermissionsController::getPermissionsForProduct($product->id);
-            $download_url = (is_array($permissions) && ! empty($permissions['downloadPermission']))
+            $download_url = (! empty($permissions['downloadPermission']))
                 ? url('product/download/'.$product->id)
                 : null;
 

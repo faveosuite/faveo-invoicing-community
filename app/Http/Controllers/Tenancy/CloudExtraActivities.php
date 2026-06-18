@@ -231,26 +231,24 @@ class CloudExtraActivities extends Controller
             $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId, agentAction: $request->agentAction);
             $invoice = new RenewController()->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', isAgentIncrease: false, agents: $totalAgents);
 
-            if ($invoice) {
-                // Determine if subscription is expired — if so, renewal date extension is needed
-                $sub = Subscription::where('order_id', $orderId)->first();
-                $isExpired = $sub && Date::now() >= Date::parse($sub->ends_at);
+            // Determine if subscription is expired — if so, renewal date extension is needed
+            $sub = Subscription::where('order_id', $orderId)->first();
+            $isExpired = $sub && Date::now() >= Date::parse($sub->ends_at);
 
-                Invoice::find($invoice->invoice_id)->update([
-                    'metadata' => [
-                        'type' => 'agent_alteration',
-                        'sub_id' => $request->subId,
-                        'new_agents' => $totalAgents,
-                        'order_id' => $orderId,
-                        'installation_path' => $installationPath,
-                        'product_id' => $request->product_id,
-                        'old_license' => $oldLicense,
-                        'agent_increase_date' => $isExpired,
-                    ],
-                ]);
+            Invoice::find($invoice->invoice_id)->update([
+                'metadata' => [
+                    'type' => 'agent_alteration',
+                    'sub_id' => $request->subId,
+                    'new_agents' => $totalAgents,
+                    'order_id' => $orderId,
+                    'installation_path' => $installationPath,
+                    'product_id' => $request->product_id,
+                    'old_license' => $oldLicense,
+                    'agent_increase_date' => $isExpired,
+                ],
+            ]);
 
-                return successResponse('success', ['invoice_id' => $invoice->invoice_id]);
-            }
+            return successResponse('success', ['invoice_id' => $invoice->invoice_id]);
         } catch (Exception $exception) {
             Logger::exception($exception);
 
@@ -811,6 +809,7 @@ class CloudExtraActivities extends Controller
     {
         $request->validate(['domain' => ['required', 'alpha_num']]);
 
+        // @phpstan-ignore booleanNot.alwaysFalse (checkDomain returns object but may represent a falsy API response)
         if (! $this->checkDomain($request->input('domain'))) {
             return response(['status' => false, 'message' => trans('message.domain_taken')]);
         }

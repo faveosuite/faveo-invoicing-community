@@ -12,11 +12,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class FrontendPageFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = FrontendPage::class;
 
     /**

@@ -98,7 +98,7 @@ class ClientController extends AdvanceSearchController
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(ClientRequest $request): \Illuminate\Http\RedirectResponse
     {
@@ -167,7 +167,7 @@ class ClientController extends AdvanceSearchController
      * Update the specified resource in storage.
      *
      * @param  int  $id
-     * @return \Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(int $id, ClientRequest $request): \Illuminate\Http\RedirectResponse
     {
@@ -224,57 +224,6 @@ class ClientController extends AdvanceSearchController
         $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    /**
-     * Gets baseQuery for user search by appending all the allowed filters.
-     *
-     * @param  $request
-     * @return mixed
-     */
-    private function getBaseQueryForUserSearch(Request $request): \Illuminate\Database\Eloquent\Builder
-    {
-        $baseQuery = User::leftJoin('countries', 'users.country', '=', 'countries.country_code_char2')
-            ->select(
-                'users.id',
-                'users.first_name',
-                'users.last_name',
-                'users.email',
-                DB::raw("CONCAT('+', users.mobile_code, ' ', users.mobile) as mobile"),
-                DB::raw("CONCAT(users.first_name, ' ', users.last_name) as name"),
-                'countries.country_name as country',
-                'users.created_at',
-                'users.active',
-                'users.mobile_verified',
-                'users.email_verified',
-                'users.is_2fa_enabled',
-                'users.role',
-                'users.position'
-            );
-        // Apply other conditions based on the request
-        $baseQuery = $baseQuery->when($request->company, function ($query) use ($request): void {
-            $query->where('company', 'LIKE', '%'.$request->company.'%');
-        })->when($request->country, function ($query) use ($request): void {
-            $query->where('users.country', $request->country); // or 'countries.country_name'
-        })->when($request->industry, function ($query) use ($request): void {
-            $query->where('bussiness', $request->industry);
-        })->when($request->role, function ($query) use ($request): void {
-            $query->where('role', $request->role);
-        })->when($request->position, function ($query) use ($request): void {
-            $query->where('position', $request->position);
-        })->when($request->actmanager, function ($query) use ($request): void {
-            $query->where('account_manager', $request->actmanager);
-        })->when($request->salesmanager, function ($query) use ($request): void {
-            $query->where('manager', $request->salesmanager);
-        })->when($request->filled('mobile_verified'), function ($query) use ($request): void {
-            $query->where('mobile_verified', $request->mobile_verified);
-        })->when($request->filled('email_verified'), function ($query) use ($request): void {
-            $query->where('email_verified', $request->email_verified);
-        })->when($request->filled('is_2fa_enabled'), function ($query) use ($request): void {
-            $query->where('is_2fa_enabled', $request->is_2fa_enabled);
-        });
-
-        return $this->getregFromTill($baseQuery, $request->reg_from, $request->reg_till);
-    }
-
     public function exportUsers(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
@@ -282,7 +231,8 @@ class ClientController extends AdvanceSearchController
 
             $selectedColumns = $request->input('selected_columns', []);
             $searchParams = $request->input('search_params', []);
-            $email = Auth::user()->email;
+            $authUser = Auth::user();
+            $email = $authUser instanceof User ? $authUser->email : '';
 
             $driver = QueueService::where('status', '1')->first();
 
@@ -308,10 +258,6 @@ class ClientController extends AdvanceSearchController
     {
         try {
             $exportDetail = ExportDetail::findOrFail($id);
-
-            if (! $exportDetail) {
-                return errorResponse(__('message.file_not_found'));
-            }
 
             $expirationTime = $exportDetail->created_at->addHours(6);
             if (now()->gt($expirationTime)) {

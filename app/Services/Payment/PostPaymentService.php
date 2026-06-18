@@ -261,7 +261,7 @@ class PostPaymentService
      * Check and update the subscription price if necessary.
      *
      * @param  string  $orderId  The order ID associated with the subscription.
-     * @param  object  $invoice  The invoice object for the subscription.
+     * @param  Invoice  $invoice  The invoice object for the subscription.
      */
     private function updateSubscriptionPriceIfNeeded($orderId, Invoice $invoice): void
     {

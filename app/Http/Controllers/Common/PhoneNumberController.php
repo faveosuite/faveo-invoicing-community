@@ -198,20 +198,7 @@ class PhoneNumberController
             return $type->name;
         }
 
-        return match ($type) {
-            PhoneNumberType::MOBILE => 'MOBILE',
-            PhoneNumberType::FIXED_LINE => 'FIXED_LINE',
-            PhoneNumberType::FIXED_LINE_OR_MOBILE => 'FIXED_LINE_OR_MOBILE',
-            PhoneNumberType::TOLL_FREE => 'TOLL_FREE',
-            PhoneNumberType::PREMIUM_RATE => 'PREMIUM_RATE',
-            PhoneNumberType::SHARED_COST => 'SHARED_COST',
-            PhoneNumberType::VOIP => 'VOIP',
-            PhoneNumberType::PERSONAL_NUMBER => 'PERSONAL_NUMBER',
-            PhoneNumberType::PAGER => 'PAGER',
-            PhoneNumberType::UAN => 'UAN',
-            PhoneNumberType::VOICEMAIL => 'VOICEMAIL',
-            default => 'UNKNOWN',
-        };
+        return PhoneNumberType::tryFrom($type)?->name ?? 'UNKNOWN';
     }
 
     /**

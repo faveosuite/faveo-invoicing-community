@@ -29,7 +29,7 @@ class BaseHomeController extends Controller
         $key_content = file_get_contents($path);
         $private_key = openssl_get_privatekey($key_content);
         $plaintext = null;
-        openssl_open($input, $plaintext, $einput, $private_key);
+        openssl_open($input, $plaintext, $einput, $private_key, 'RC4');
 
         return $plaintext;
     }

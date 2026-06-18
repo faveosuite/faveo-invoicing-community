@@ -27,40 +27,6 @@ class LocalizedLicenseController extends Controller
         $this->middleware('admin', ['except' => ['downloadFile', 'downloadPrivate', 'storeFile']]);
     }
 
-    /** @param non-empty-string $post_url */
-    private function postCurl(string $post_url, mixed $post_info, string $token = ''): bool|string
-    {
-        if ($token !== '') {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $post_url);
-            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
-            curl_setopt($ch, CURLOPT_XOAUTH2_BEARER, $token);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-            $result = curl_exec($ch);
-            curl_close($ch);
-
-            return $result;
-        }
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $post_url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        return $result;
-    }
-
     /**
      * Downloads the license file.
      * */
@@ -161,8 +127,8 @@ class LocalizedLicenseController extends Controller
                 });
 
             if ($searchQuery) {
-                $files = $files->filter(fn ($f): bool => str_contains(strtolower($f['file_name'] ?? ''), strtolower((string) $searchQuery)) ||
-                    str_contains(strtolower($f['order_number'] ?? ''), strtolower((string) $searchQuery))
+                $files = $files->filter(fn ($f): bool => str_contains(strtolower($f['file_name']), strtolower((string) $searchQuery)) ||
+                    str_contains(strtolower((string) $f['order_number']), strtolower((string) $searchQuery))
                 )->values();
             }
 

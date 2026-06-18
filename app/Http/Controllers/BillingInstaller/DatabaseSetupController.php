@@ -142,7 +142,7 @@ class DatabaseSetupController extends Controller
      * Method attempts database connection after setting connection configurations and
      * returns mysqli connection object.
      *
-     * @return object connection object
+     * @return false|\mysqli
      */
     private function getDBConnection(): false|\mysqli
     {

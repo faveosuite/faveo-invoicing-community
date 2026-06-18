@@ -244,7 +244,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
                 $cloud_domain = $cloud_domain.'.'.cloudSubDomain();
 
-                if (! new CloudExtraActivities(new Client, new FaveoCloud())->checkDomain($cloud_domain)) {
+                if (! (bool) new CloudExtraActivities(new Client, new FaveoCloud())->checkDomain($cloud_domain)) { // @phpstan-ignore-line
                     return errorResponse([trans('message.domain_taken')]);
                 }
             }

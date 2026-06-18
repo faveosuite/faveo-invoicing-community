@@ -138,7 +138,7 @@ class OrderController extends BaseOrderController
                     $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), true);
                 }
 
-                $installedVersions = $order->installationDetail ? $order->installationDetail->pluck('version')->toArray() : [];
+                $installedVersions = $order->installationDetail->pluck('version')->toArray();
                 $latestVersion = count($installedVersions) > 0 ? max($installedVersions) : null;
 
                 $licenseAgents = substr((string) $order->serial_key, 12, 16) === '0000'
@@ -263,10 +263,10 @@ class OrderController extends BaseOrderController
 
             $installationDetails = InstallationDetail::whereIn('order_id', $orderIds)
                 ->where('installation_path', '!=', cloudCentralDomain())
-                ->pluck('installation_path');
+                ->get(['order_id', 'installation_path']);
 
-            foreach ($installationDetails as $path) {
-                event(new UserOrderDelete($path));
+            foreach ($installationDetails as $detail) {
+                event(new UserOrderDelete($detail->installation_path, $detail->order_id));
             }
 
             $this->order->whereIn('id', $orderIds)->delete();

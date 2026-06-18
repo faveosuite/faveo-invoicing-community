@@ -101,7 +101,7 @@ class SystemManagerController extends Controller
      * Validates the request, updates manager assignments, auto-assign settings,
      * and sends notification emails if enabled.
      *
-     * @param  Request  $request
+     * @param  SystemManagerSettingsRequest  $request
      * @return JsonResponse|RedirectResponse
      */
     public function updateManagerSettings(SystemManagerSettingsRequest $request)

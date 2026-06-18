@@ -226,10 +226,10 @@ class ProfileVerificationController extends BaseAuthController
                 'profile-update'
             );
 
-            if (($response['type'] ?? null) !== 'success') {
+            if ($response['type'] !== 'success') {
                 RateLimiter::hit('mobile-verify:'.auth()->id(), 600);
 
-                return errorResponse($response['message'] ?? __('message.otp_invalid'));
+                return errorResponse($response['message']);
             }
 
             $cleanMobile = preg_replace('/\D/', '', (string) $request->input('new_mobile'));

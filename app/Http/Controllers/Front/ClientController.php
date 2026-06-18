@@ -740,27 +740,6 @@ class ClientController extends BaseClientController
     }
 
     /**
-     * Get payment log for the order terminated.
-     *
-     * @param  $terminatedOrderNumber
-     * @return array
-     */
-    private function paymentLogGet(string $terminatedOrderNumber): ?\App\Payment_log
-    {
-        $payment_log = Payment_log::where('order', $terminatedOrderNumber)
-            ->where('payment_type', 'Payment method updated')
-            ->orderBy('id', 'desc')
-            ->first();
-        if (! $payment_log) {
-            return Payment_log::where('order', $terminatedOrderNumber)
-                ->orderBy('id', 'desc')
-                ->first();
-        }
-
-        return $payment_log;
-    }
-
-    /**
      * Get plan name and id ,options for upgrading or downgrading the cloud plan.
      *
      * @param  $product
@@ -906,64 +885,6 @@ class ClientController extends BaseClientController
                 ->whereHas('subscription', fn ($q) => $q->where('update_ends_at', '<', now()))
                 ->count(),
         ]);
-    }
-
-    /**
-     *  Checks if Invoice can be deleted or not.
-     *
-     * @param  $invoice
-     */
-    private function canDeleteInvoice(\App\Model\Order\Invoice $invoice): bool
-    {
-        if ($invoice->is_renewed == 0 &&
-        ! $invoice->orderRelation()->exists() &&
-        $invoice->invoiceItem()->exists()) {
-            return true;
-        }
-
-        return $invoice->is_renewed != 0 &&
-        $invoice->orderRelation()->exists() &&
-        $invoice->invoiceItem()->exists();
-    }
-
-    /**
-     *  Deletes the invoice.
-     *
-     * @param  $invoice
-     */
-    private function deleteInvoice(\App\Model\Order\Invoice $invoice): void
-    {
-        $invoice->invoiceItem()->delete();
-
-        if ($invoice->is_renewed != 0 && $invoice->orderRelation()->exists()) {
-            $invoice->orderRelation()->delete();
-        }
-
-        $invoice->delete();
-        Session::forget('invoice');
-    }
-
-    private function stripePaymentUpdateSub(\Stripe\StripeClient $stripe, \Stripe\PaymentIntent $paymentIntent, int $orderid): array
-    {
-        $stripe->refunds->create([
-            'payment_intent' => $paymentIntent->id,
-            'amount' => $paymentIntent->amount,
-        ]);
-        $invoice_id = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-        Invoice::where('id', $invoice_id)->value('number');
-        $customer_details = [
-            'user_id' => Auth::user()->id,
-            'customer_id' => $paymentIntent->customer,
-            'payment_method' => 'stripe',
-            'order_id' => $orderid,
-            'payment_intent_id' => $paymentIntent->payment_method,
-        ];
-        Auto_renewal::create($customer_details);
-        Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
-        $mail = new PhpMailController();
-        $mail->payment_log(Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), amount: $paymentIntent->amount, payment_type: 'Payment method updated');
-
-        return ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
     }
 
     public function payNow(int $invoiceid): \Illuminate\Http\JsonResponse

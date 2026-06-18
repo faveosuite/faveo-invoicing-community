@@ -17,9 +17,11 @@ use Illuminate\Support\Facades\Lang;
  */
 class BannedHostController extends Controller
 {
+    protected string $ip_address;
+
     public function __construct()
     {
-        $this->ip_address = request()->server('REMOTE_ADDR');
+        $this->ip_address = request()->server('REMOTE_ADDR') ?? '';
     }
 
     /**
@@ -140,10 +142,6 @@ class BannedHostController extends Controller
     {
         $banned_host_data = LicenseBannedHost::where('id', $id)->firstOrFail();
 
-        if (! empty($banned_host_data)) {
-            return successResponse('', ['banned_host_data' => $banned_host_data], 200);
-        }
-
-        return errorResponse(Lang::get('lang.invalid'), 400);
+        return successResponse('', ['banned_host_data' => $banned_host_data], 200);
     }
 }

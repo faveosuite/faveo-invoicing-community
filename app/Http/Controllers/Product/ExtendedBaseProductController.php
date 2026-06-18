@@ -68,7 +68,7 @@ class ExtendedBaseProductController extends Controller
             $file_upload->update(['title' => $request->input('title'), 'description' => $request->input('description'), 'version' => $request->input('version'), 'dependencies' => json_encode($request->input('dependencies')), 'is_private' => $request->input('is_private'), 'is_restricted' => $request->input('is_restricted'), 'release_type' => $request->input('release_type')]);
             $productSku = $file_upload->product->product_sku;
             $updateClassObj = new AutoUpdateController();
-            $addProductToAutoUpdate = $updateClassObj->editVersion($request->input('version'), $productSku);
+            $updateClassObj->editVersion($request->input('version'), $productSku);
 
             return back()->with('success', __('message.product_updated_successfully'));
         } catch (Exception $exception) {

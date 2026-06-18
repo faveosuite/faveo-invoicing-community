@@ -143,18 +143,16 @@ class SettingsController extends BaseSettingsController
      * PAyment Gateway that is shown on the basis of currency.
      *
      * @param  string  $currency  The currency of the Product Selected
-     * @return string Name of the Payment Gateway
+     * @return array<int,mixed>|\Illuminate\Http\RedirectResponse
      */
     public static function checkPaymentGateway($currency)
     {
         try {
             $active_plugins = Plugin::where('status', 1)->get();
             $allAcivePluginName = [];
-            if ($active_plugins) {
-                foreach ($active_plugins as $plugin) {
-                    if (isCurrencySupportedForPayments($currency, strtolower((string) $plugin->name))) {
-                        $allAcivePluginName[] = $plugin->name;
-                    }
+            foreach ($active_plugins as $plugin) {
+                if (isCurrencySupportedForPayments($currency, strtolower((string) $plugin->name))) {
+                    $allAcivePluginName[] = $plugin->name;
                 }
             }
 
@@ -403,8 +401,8 @@ class SettingsController extends BaseSettingsController
                 'total' => $total,
                 'per_page' => $perPage,
                 'current_page' => $page,
-                'from' => $total > 0 ? $offset + 1 : null,
-                'to' => $total > 0 ? min($offset + $perPage, $total) : null,
+                'from' => $total > 0 ? $offset + 1 : null, // @phpstan-ignore greater.alwaysTrue
+                'to' => $total > 0 ? min($offset + $perPage, $total) : null, // @phpstan-ignore greater.alwaysTrue
                 'next_page_url' => $page < $lastPage ? $base.'?page='.($page + 1).'&limit='.$perPage : null,
                 'prev_page_url' => $page > 1 ? $base.'?page='.($page - 1).'&limit='.$perPage : null,
             ]);

@@ -22,7 +22,7 @@ class Request implements Stringable
      *
      * @param  string  $httpMethod
      * @param  string  $httpUrl
-     * @param  array|null  $parameters
+     * @param  array  $parameters
      */
     public function __construct(protected $httpMethod, $httpUrl, array $parameters = [])
     {
