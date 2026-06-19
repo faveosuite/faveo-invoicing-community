@@ -37,7 +37,7 @@ class LicenseOption extends Model
     ];
 
     #[Scope]
-    protected function group( \Illuminate\Database\Eloquent\Builder $query, mixed $group): mixed
+    protected function group(\Illuminate\Database\Eloquent\Builder $query, mixed $group): mixed
     {
         return $query->where('option_group', $group);
     }

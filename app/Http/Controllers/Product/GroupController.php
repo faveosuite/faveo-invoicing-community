@@ -155,6 +155,7 @@ class GroupController extends Controller
                 'pricingTemplate:id,image,name',
                 'product:id,name,group',
             ])->findOrFail($groupId);
+
             return successResponse('', $group);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());

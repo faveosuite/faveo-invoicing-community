@@ -39,6 +39,7 @@ class LogViewController
             case 'mail':
                 return $this->getMailLogs($request);
         }
+
         return errorResponse(__('message.invalid_log_type'), 400);
     }
 

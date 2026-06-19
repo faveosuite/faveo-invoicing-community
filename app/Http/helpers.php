@@ -45,7 +45,7 @@ function getLocation(?string $ip = null): mixed
 
 function checkArray(string $key, array $array): mixed
 {
-    if (array_key_exists($key, $array)) { 
+    if (array_key_exists($key, $array)) {
         return $array[$key];
     }
 

@@ -8,7 +8,6 @@ use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
 use DB;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lang;
 use Session;

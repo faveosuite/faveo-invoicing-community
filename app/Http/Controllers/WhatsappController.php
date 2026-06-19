@@ -335,6 +335,7 @@ class WhatsappController extends Controller
             return response('Method Not Allowed', 405);
         } catch (Exception $exception) {
             Log::debug('whatsappWebhook', [$exception->getMessage()]);
+
             return response('Internal Server Error', 500);
         }
     }

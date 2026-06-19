@@ -63,7 +63,7 @@ class BaseRenewController extends Controller
                 throw new Exception(__('message.user_removed_database'));
             }
 
-            if (!$product instanceof \App\Model\Product\Product) {
+            if (! $product instanceof \App\Model\Product\Product) {
                 throw new Exception(__('message.product_removed_database'));
             }
 

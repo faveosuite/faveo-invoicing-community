@@ -30,7 +30,6 @@ use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Logger;
@@ -586,7 +585,7 @@ class ClientController extends BaseClientController
             $canDownload = false;
             $downloadUrl = null;
 
-            if (!$subscription instanceof \App\Model\Product\Subscription) {
+            if (! $subscription instanceof \App\Model\Product\Subscription) {
                 $canDownload = true;
             } elseif ($allowTillExpiry) {
                 $canDownload = strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at)
@@ -665,7 +664,7 @@ class ClientController extends BaseClientController
         $paginator->getCollection()->transform(function ($version) use ($allowTillExpiry, $countExpiry, $countVersions, $subscription, $order): array {
             $canDownload = false;
 
-            if (!$subscription instanceof \App\Model\Product\Subscription) {
+            if (! $subscription instanceof \App\Model\Product\Subscription) {
                 $canDownload = true;
             } elseif ($allowTillExpiry) {
                 $canDownload = $version->created_at->toDateTimeString() < $subscription->update_ends_at

@@ -174,7 +174,7 @@ class PhpMailController extends Controller
                 $product = Product::find($data->product_id);
                 $order = $cron->getOrderById($data->order_id);
 
-                if (!$order instanceof \App\Model\Order\Order) {
+                if (! $order instanceof \App\Model\Order\Order) {
                     continue;
                 }
 

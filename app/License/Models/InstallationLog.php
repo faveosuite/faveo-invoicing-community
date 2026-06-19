@@ -55,7 +55,7 @@ class InstallationLog extends Model
      * Scope: filter by license code.
      */
     #[Scope]
-    protected function forLicense( \Illuminate\Database\Eloquent\Builder $query, string $licenseCode): mixed
+    protected function forLicense(\Illuminate\Database\Eloquent\Builder $query, string $licenseCode): mixed
     {
         return $query->where('license_code', $licenseCode);
     }
