@@ -77,7 +77,7 @@ class CartApiController extends Controller
         $cart = $this->cartService->resolveCart($request)->load('items.product');
         $data = array_merge(
             new CartResource($cart)->toArray($request),
-            $this->cartService->checkoutExtras($cart, $request->user()),
+            $this->cartService->checkoutExtras($cart, $request->user()), // @phpstan-ignore argument.type
         );
 
         return successResponse('', $data);
@@ -98,7 +98,7 @@ class CartApiController extends Controller
         // entirely by this invoice id from here on (pay page → charge endpoint),
         // so no payment state is stashed in the session. The cart is left intact
         // and is only emptied once payment succeeds.
-        $invoice = $this->cartService->placeOrder($cart, $user);
+        $invoice = $this->cartService->placeOrder($cart, $user); // @phpstan-ignore argument.type
         $currency = $cart->currency ?? 'USD';
 
         return successResponse('', [

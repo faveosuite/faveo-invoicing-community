@@ -47,9 +47,9 @@ class WhitelistIpsController extends Controller
             $host_data = LicenseWhitelistIp::where('id', $request->id)->firstOrFail();
             $host_data->delete();
 
-            return successResponse(Lang::get('lang.delete'), 201);
+            return successResponse(__('lang.delete'), 201);
         } catch (ModelNotFoundException) {
-            return errorResponse(Lang::get('lang.invalid'), 404);
+            return errorResponse(__('lang.invalid'), 404);
         }
     }
 
@@ -79,6 +79,6 @@ class WhitelistIpsController extends Controller
             'whitelist_host_comments' => $record->whitelist_host_comments,
         ]);
 
-        return successResponse(Lang::get('lang.view_whitelist_ip'), $records, 201);
+        return successResponse(__('lang.view_whitelist_ip'), $records, 201);
     }
 }

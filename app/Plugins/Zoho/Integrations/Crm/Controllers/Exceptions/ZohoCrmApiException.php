@@ -8,6 +8,9 @@ class ZohoCrmApiException extends Exception
 {
     protected int $httpStatus;
 
+    /**
+     * @param array<mixed> $error
+     */
     public function __construct(
         string $message,
         protected array $error = [],
@@ -17,6 +20,9 @@ class ZohoCrmApiException extends Exception
         $this->httpStatus = $httpStatus;
     }
 
+    /**
+     * @param array<mixed> $response
+     */
     public static function fromResponse(array $response, int $httpStatus = 400): self
     {
         $code = $response['code'] ?? 'UNKNOWN_ERROR';
@@ -33,6 +39,9 @@ class ZohoCrmApiException extends Exception
         return $this->error['code'] ?? null;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getZohoDetails(): array
     {
         return $this->error['details'] ?? [];
@@ -45,6 +54,7 @@ class ZohoCrmApiException extends Exception
 
     /**
      * Convert Zoho error codes into developer-friendly messages.
+     * @param array<mixed> $error
      */
     protected static function humanMessage(string $code, array $error): string
     {

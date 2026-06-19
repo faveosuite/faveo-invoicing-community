@@ -43,6 +43,7 @@ class TaxRateResolver
     /**
      * Resolve rates for a customer model, honouring the tax_based_on setting
      * and per-customer exemption.
+     * @return array<mixed>
      */
     public function ratesForCustomer(string $taxClass, mixed $user): array
     {
@@ -77,6 +78,9 @@ class TaxRateResolver
         ];
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function matchRates(string $country, string $state, string $postcode, string $city, string $taxClass): array
     {
         $candidates = TaxRate::with('locations')

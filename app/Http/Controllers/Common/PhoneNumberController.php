@@ -22,7 +22,7 @@ class PhoneNumberController
      *
      * @param  string  $phoneNumber  The phone number to validate
      * @param  string|null  $countryCode  The two-letter country code (e.g., 'US', 'IN')
-     * @return array Contains a validation result and parsed info
+     * @return array<mixed> Contains a validation result and parsed info
      */
     public function validate(string $phoneNumber, ?string $countryCode = null): array
     {
@@ -130,6 +130,7 @@ class PhoneNumberController
 
     /**
      * Get parsed phone number details (country code, national number, region).
+     * @return array<mixed>
      */
     public function parse(string $phoneNumber, ?string $countryCode = null): ?array
     {
@@ -153,6 +154,7 @@ class PhoneNumberController
      * @param  string  $mobileCode  Country calling code (e.g., '91', '1')
      * @param  string  $mobile  The national number without country code
      * @param  string|null  $countryIso  Two-letter country code (e.g., 'IN', 'US')
+     * @return array<mixed>
      */
     public function validateWithMobileCode(string $mobileCode, string $mobile, ?string $countryIso = null): array
     {
@@ -227,6 +229,9 @@ class PhoneNumberController
         try {
             $type = $mobile ? PhoneNumberType::MOBILE : PhoneNumberType::FIXED_LINE;
             $example = $this->phoneUtil->getExampleNumberForType($countryCode, $type);
+            if ($example === null) {
+                return null;
+            }
 
             return $this->phoneUtil->format($example, PhoneNumberFormat::INTERNATIONAL);
         } catch (Exception) {

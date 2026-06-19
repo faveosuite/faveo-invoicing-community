@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Mailjob\FaveoQueue> $extraFieldRelation
  * @property-read int|null $extra_field_relation_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService query()
@@ -23,7 +22,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereShortName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QueueService whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class QueueService extends Model
@@ -32,6 +30,9 @@ class QueueService extends Model
 
     protected $fillable = ['name', 'short_name', 'status'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Model>
+     */
     public function extraFieldRelation(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         $related = FaveoQueue::class;
@@ -61,6 +62,9 @@ class QueueService extends Model
         return $check;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getQueueDetails(): array
     {
         $id = $this->attributes['id'];

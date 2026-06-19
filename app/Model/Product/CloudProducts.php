@@ -18,7 +18,6 @@ use App\Traits\SystemActivityLogsTrait;
  * @property-read int|null $activities_as_subject_count
  * @property-read Plan $plan
  * @property-read \App\Model\Product\Product $product
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts query()
@@ -29,7 +28,6 @@ use App\Traits\SystemActivityLogsTrait;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts whereTrialStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class CloudProducts extends BaseModel
@@ -44,14 +42,23 @@ class CloudProducts extends BaseModel
 
     protected string $logNameColumn = 'cloud_product';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'cloud_product', 'cloud_free_plan', 'cloud_product_key', 'trial_status',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['view/tenant'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         $product = Product::find($this->cloud_product)->name ?? 'Unknown Product';

@@ -167,7 +167,8 @@ class ClientController extends AdvanceSearchController
     public function update(int $id, ClientRequest $request): \Illuminate\Http\RedirectResponse
     {
         try {
-            $user = $this->user->where('id', $id)->first();
+            /** @var \App\User $user */
+            $user = $this->user->where('id', $id)->firstOrFail();
             $user->fill($request->input());
             $user->role = $request->input('role', $user->role);
             $user->active = $request->input('active', $user->active);
@@ -190,7 +191,8 @@ class ClientController extends AdvanceSearchController
         // Retrieve necessary data
         $contact = getContactData();
         $settings = Setting::find(1);
-        $template_type = TemplateType::where('name', 'registration_mail')->first();
+        /** @var \App\Model\Common\TemplateType $template_type */
+        $template_type = TemplateType::where('name', 'registration_mail')->firstOrFail();
         $template = Template::find($template_type->id);
 
         // Check if settings or template is missing
@@ -229,7 +231,8 @@ class ClientController extends AdvanceSearchController
             $authUser = Auth::user();
             $email = $authUser instanceof User ? $authUser->email : '';
 
-            $driver = QueueService::where('status', '1')->first();
+            /** @var \App\Model\Mailjob\QueueService $driver */
+            $driver = QueueService::where('status', '1')->firstOrFail();
 
             if ($driver->name === 'Sync') {
                 return errorResponse(__('message.cannot_sync_queue_driver'));
@@ -397,13 +400,13 @@ class ClientController extends AdvanceSearchController
 
         $query = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at', 'email_verified', 'mobile_verified', 'is_2fa_enabled');
 
-        $total = $this->cachedTotal($query, $request, [
+        $total = $this->cachedTotal($query, $request, [ // @phpstan-ignore argument.type
             'company', 'country', 'industry', 'role', 'position',
             'actmanager', 'salesmanager', 'mobile_verified', 'email_verified',
             'is_2fa_enabled', 'reg_from', 'reg_till',
         ]);
 
-        $query = $this->applyUsersFilters($query, $request);
+        $query = $this->applyUsersFilters($query, $request); // @phpstan-ignore argument.type
 
         $query = $this->applyUsersSearch($query, $searchQuery);
 
@@ -608,8 +611,11 @@ class ClientController extends AdvanceSearchController
             }
 
             $invoices = Invoice::where('user_id', $id)->get();
-            $invoiceSum = $this->getTotalInvoice($invoices);
+            $invoiceSum = $this->getTotalInvoice($invoices); // @phpstan-ignore argument.type
             $amountPaid = $this->getAmountPaid($id);
+            if ($amountPaid instanceof \Illuminate\Http\RedirectResponse) {
+                return $amountPaid;
+            }
             $balance = $invoiceSum - $amountPaid;
             $currency = getCurrencyForClient($user->country);
 
@@ -745,7 +751,7 @@ class ClientController extends AdvanceSearchController
                 'description' => $comment->description,
                 'created_at' => $comment->created_at,
                 'updated_at' => $comment->updated_at,
-                'author' => trim(auth()->user()->first_name.' '.auth()->user()->last_name),
+                'author' => trim(auth()->user() instanceof \App\User ? auth()->user()->first_name.' '.auth()->user()->last_name : ''),
             ]);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
@@ -777,6 +783,10 @@ class ClientController extends AdvanceSearchController
         }
     }
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query
+     * @return \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
+     */
     private function applyUsersFilters(\Illuminate\Database\Eloquent\Builder $query, Request $request): \Illuminate\Database\Eloquent\Builder
     {
         return $query
@@ -813,6 +823,10 @@ class ClientController extends AdvanceSearchController
             });
     }
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query
+     * @return \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
+     */
     private function applyUsersSearch(\Illuminate\Database\Eloquent\Builder $query, string $search): \Illuminate\Database\Eloquent\Builder
     {
         return $query->when($search, function ($q) use ($search): void {

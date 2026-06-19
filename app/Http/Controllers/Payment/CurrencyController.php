@@ -175,12 +175,16 @@ class CurrencyController extends Controller
             $nicename = Country::where('country_id', $request->editnicename)->value('country_name');
             $codeChar2 = Country::where('country_id', $request->editnicename)->value('country_code_char2');
             $currency = Currency::where('id', $request->currencyId)->first();
+            if (is_null($currency)) {
+                return errorResponse('Currency not found.');
+            }
+            /** @var mixed $currency */
             $currency->code = $request->editcode;
             $currency->symbol = $request->editsymbol;
             $currency->name = $request->editcurrency_name;
-            $currency->base_conversion = '1.0'; // @phpstan-ignore property.notFound
-            $currency->country_code_char2 = $codeChar2; // @phpstan-ignore property.notFound
-            $currency->nicename = $nicename; // @phpstan-ignore property.notFound
+            $currency->base_conversion = '1.0';
+            $currency->country_code_char2 = $codeChar2;
+            $currency->nicename = $nicename;
             $currency->save();
 
             return successResponse(__('message.updated-successfully'));
@@ -197,6 +201,13 @@ class CurrencyController extends Controller
         try {
             $ids = $request->input('select');
             if (! empty($ids)) {
+                $alert = is_string($t = Lang::get('message.alert')) ? $t : '';
+                $failed = is_string($t = Lang::get('message.failed')) ? $t : '';
+                $success = is_string($t = Lang::get('message.success')) ? $t : '';
+                $noRecord = is_string($t = Lang::get('message.no-record')) ? $t : '';
+                $deletedSuccess = is_string($t = Lang::get('message.deleted-successfully')) ? $t : '';
+                $cannotDeleteDefault = is_string($t = Lang::get('message.can-not-delete-default')) ? $t : '';
+
                 foreach ($ids as $id) {
                     if ($id != 1) {
                         $currency = $this->currency->where('id', $id)->first();
@@ -205,61 +216,73 @@ class CurrencyController extends Controller
                         } else {
                             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
+                    <b>".$alert.'!</b> '.
+                    $failed.'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
+                        '.$noRecord.'
                 </div>';
-                            //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                         }
 
                         echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
 
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.success').'
+                    <b>".$alert.'!</b> '.
+                    $success.'
 
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
+                        '.$deletedSuccess.'
                 </div>';
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
+                    <b>".$alert.'!</b> '.
+                    $failed.'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.can-not-delete-default').'
+                        '.$cannotDeleteDefault.'
                 </div>';
                     }
                 }
             } else {
+                $alert = is_string($t = Lang::get('message.alert')) ? $t : '';
+                $failed = is_string($t = Lang::get('message.failed')) ? $t : '';
+                $selectRow = is_string($t = Lang::get('message.select-a-row')) ? $t : '';
                 echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
+                    <b>".$alert.'!</b> '.
+                    $failed.'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
+                        '.$selectRow.'
                 </div>';
-                //echo \Lang::get('message.select-a-row');
             }
         } catch (Exception $exception) {
+            $alert = is_string($t = Lang::get('message.alert')) ? $t : '';
+            $failed = is_string($t = Lang::get('message.failed')) ? $t : '';
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */
-                    Lang::get('message.failed').'
+                    <b>".$alert.'!</b> '.
+                    $failed.'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.$exception->getMessage().'
                 </div>';
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function countryDetails(Request $request): array
     {
         $countryDetails = Country::where('country_id', $request->id)->select('currency_code', 'currency_symbol', 'currency_name')->first();
+        if (is_null($countryDetails)) {
+            return ['code' => '', 'symbol' => '', 'currency' => ''];
+        }
+        /** @var mixed $countryDetails */
 
-        return ['code' => $countryDetails->currency_code, // @phpstan-ignore property.notFound
-            'symbol' => $countryDetails->currency_symbol, 'currency' => $countryDetails->currency_name, ]; // @phpstan-ignore property.notFound, property.notFound
+        return [
+            'code' => $countryDetails->currency_code,
+            'symbol' => $countryDetails->currency_symbol,
+            'currency' => $countryDetails->currency_name,
+        ];
     }
 
     public function updatecurrency(Request $request): \Illuminate\Http\JsonResponse
@@ -267,6 +290,9 @@ class CurrencyController extends Controller
         try {
             return DB::transaction(function () use ($request): \Illuminate\Http\JsonResponse {
                 $currency = Currency::findOrFail($request->input('current_id'));
+                if (!$currency instanceof Currency) {
+                    throw new Exception('Currency not found.');
+                }
 
                 $newStatus = $request->input('current_status') == '1' ? 0 : 1;
 
@@ -287,6 +313,9 @@ class CurrencyController extends Controller
     {
         try {
             $currency = Currency::findOrFail($id);
+            if (!$currency instanceof Currency) {
+                throw new Exception('Currency not found.');
+            }
             Setting::where('id', 1)->update([
                 'default_currency' => $currency->code,
                 'default_symbol' => $currency->symbol,

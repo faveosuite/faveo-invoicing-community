@@ -75,7 +75,7 @@ class ThirdPartyAppController extends Controller
         return successResponse(__('message.saved-successfully'));
     }
 
-    public function getAppKey(): void
+    public function getAppKey()
     {
         try {
             $code = Str::random(32);
@@ -101,6 +101,7 @@ class ThirdPartyAppController extends Controller
             'app_key.size' => __('validation.thirdparty_api.app_key_size'),
         ]);
 
+        /** @var \App\ThirdPartyApp $thirdPartyApp */
         $thirdPartyApp = ThirdPartyApp::findOrFail($id);
 
         $data = $request->only(['app_name', 'app_key']);

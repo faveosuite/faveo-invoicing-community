@@ -63,6 +63,10 @@ class ZohoConnectHelper
         ->values();
     }
 
+    /**
+     * @param \Illuminate\Support\Collection<int|string, mixed> $localFields
+     * @param \Illuminate\Support\Collection<int|string, mixed> $zohoFields
+     */
     public static function mergeFields(Collection $zohoFields, Collection $localFields): mixed
     {
         $mappings = ZohoFieldMappings::with('faveoLocalField')
@@ -114,6 +118,10 @@ class ZohoConnectHelper
         })->values();
     }
 
+    /**
+     * @param array<mixed> $meta
+     * @param array<mixed> $selected
+     */
     public static function updateMapping(
         int $zohoFieldId,
         array $selected,

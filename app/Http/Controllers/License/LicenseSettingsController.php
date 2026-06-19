@@ -63,6 +63,7 @@ class LicenseSettingsController extends LicensePermissionsController
     {
         try {
             $type_name = $request->input('name');
+            /** @var \App\Model\License\LicenseType|null $type */
             $type = $this->licenseType->find($id);
 
             if ($type) {
@@ -88,6 +89,7 @@ class LicenseSettingsController extends LicensePermissionsController
                 return errorResponse(__('message.select-a-row'));
             }
 
+            /** @var \App\Model\License\LicenseType|null $type */
             foreach ($ids as $id) {
                 $type = $this->licenseType->find($id);
                 if ($type) {

@@ -56,9 +56,12 @@ class RazorpayController extends Controller
             'razorpay_signature' => ['required', 'string'],
         ]);
 
+        /** @var \App\Model\Order\Invoice $model */
         $model = Invoice::find($invoice);
         abort_if(! $model, 404, 'Invoice not found.');
-        if (Auth::user()->role != 'admin' && (int) $model->user_id !== (int) Auth::id()) {
+        /** @var \App\User $authUser */
+        $authUser = Auth::user();
+        if ($authUser->role != 'admin' && (int) $model->user_id !== (int) Auth::id()) {
             return errorResponse(__('message.invalid_modification'));
         }
 
@@ -73,7 +76,9 @@ class RazorpayController extends Controller
                 : errorResponse(__('message.payment_declined_try_other_gateway'));
         } catch (SignatureVerificationException $e) {
             if (emailSendingStatus()) {
-                $this->sendFailedPaymenttoAdmin($model, $model->grand_total, $model->invoiceItem()->first()?->product_name, $e->getMessage(), Auth::user()); // @phpstan-ignore argument.type, argument.type
+                /** @var \App\User $authUser4 */
+                $authUser4 = Auth::user();
+                $this->sendFailedPaymenttoAdmin($model, $model->grand_total, (string) $model->invoiceItem()->first()?->product_name, $e->getMessage(), $authUser4); // @phpstan-ignore argument.type
             }
 
             return errorResponse(__('message.payment_declined_try_other_gateway'));
@@ -84,16 +89,21 @@ class RazorpayController extends Controller
 
     public function getCurrency(): mixed
     {
-        return Auth::user()->currency_symbol;
+        /** @var \App\User $authUser2 */
+        $authUser2 = Auth::user();
+
+        return $authUser2->currency_symbol;
     }
 
     public function getState(mixed $country, mixed $stateCode): mixed
     {
-        if (Auth::user()->country != 'IN') {
+        /** @var \App\User $authUser3 */
+        $authUser3 = Auth::user();
+        if ($authUser3->country != 'IN') {
             return State::where('country_code', $country)->where('iso2', $stateCode)->value('state_subdivision_name');
         }
 
-        return TaxByState::where('state_code', Auth::user()->state)->value('state');
+        return TaxByState::where('state_code', $authUser3->state)->value('state');
     }
 
     public function afterPayment(Request $request): mixed
@@ -143,8 +153,8 @@ class RazorpayController extends Controller
             currency: $currency,
             intervalDays: (int) $days,
             planName: $product_name,
-            startAt: Date::parse($subscription->update_ends_at)->addDays(round((int) $days))->timestamp,
-            expireBy: Date::parse($subscription->update_ends_at)->addDays(1)->timestamp,
+            startAt: (int) Date::parse($subscription->update_ends_at)->addDays(round((int) $days))->timestamp,
+            expireBy: (int) Date::parse($subscription->update_ends_at)->addDays(1)->timestamp,
         ));
     }
 }

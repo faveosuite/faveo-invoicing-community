@@ -17,7 +17,7 @@ class PHPController extends Controller
         try {
             // make a small test
 
-            return function_exists('exec') && ! in_array('exec', array_map(trim(...), explode(', ', ini_get('disable_functions'))));
+            return function_exists('exec') && ! in_array('exec', array_map(trim(...), explode(', ', (string) ini_get('disable_functions'))));
         } catch (Exception) {
             return false;
         }
@@ -41,7 +41,7 @@ class PHPController extends Controller
 
         if ($this->execEnabled()) {
             try {
-                $paths = array_unique(array_merge($paths, explode(' ', exec('whereis php'))));
+                $paths = array_unique(array_merge($paths, explode(' ', (string) exec('whereis php'))));
             } catch (Exception $e) {
                 // @todo: system logging here
                 echo $e->getMessage();
@@ -69,17 +69,17 @@ class PHPController extends Controller
             $path = $request->get('path');
             $version = '7.2';
             if (! file_exists($path) || ! is_executable($path)) {
-                return errorResponse(Lang::get('message.invalid-php-path'));
+                return errorResponse(__('message.invalid-php-path'));
             }
 
             if ($this->execEnabled()) {
                 $execScript = $path.' '.public_path('cron-test.php');
                 $version = exec($execScript, $output); // nosemgrep: php.lang.security.exec-use.exec-use
 
-                return (version_compare($version, '7.3', '>=') == 1) ? successResponse(Lang::get('message.valid-php-path')) : errorResponse(Lang::get('message.invalid-php-version-or-path'));
+                return (version_compare((string) $version, '7.3', '>=') == 1) ? successResponse(__('message.valid-php-path')) : errorResponse(__('message.invalid-php-version-or-path'));
             }
 
-            return errorResponse(Lang::get('message.please_enable_php_exec_for_cronjob_check'));
+            return errorResponse(__('message.please_enable_php_exec_for_cronjob_check'));
         } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }

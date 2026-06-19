@@ -129,7 +129,7 @@ class Install extends LoggableCommand
     public function appEnv()
     {
         // Load extension details from billing-dependencies.json
-        $dependencies = json_decode(file_get_contents(storage_path('billing-dependencies.json')), associative: true);
+        $dependencies = json_decode((string) file_get_contents(storage_path('billing-dependencies.json')), associative: true);
         $requiredExtensions = $dependencies['extensions']['required'];
         $minPhpVersion = $dependencies['min_php_version'];
 
@@ -254,7 +254,7 @@ class Install extends LoggableCommand
             'migrate', 'dummy', 'env',
         ];
 
-        if (array_filter($options, $this->option(...))) {
+        if (array_filter($options, fn($o): bool => (bool) $this->option($o))) {
             $migrateOption = trim((string) $this->option('migrate'));
 
             $migrate = filter_var($migrateOption === '' ? $this->confirm('Do you want to migrate tables now?') : $migrateOption, FILTER_VALIDATE_BOOLEAN);

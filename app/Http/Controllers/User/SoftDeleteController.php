@@ -50,6 +50,7 @@ class SoftDeleteController extends ClientController
 
     public function restoreUser(mixed $id): \Illuminate\Http\JsonResponse
     {
+        /** @var \App\User|null $user */
         $user = User::onlyTrashed()->find($id);
 
         if (! $user) {

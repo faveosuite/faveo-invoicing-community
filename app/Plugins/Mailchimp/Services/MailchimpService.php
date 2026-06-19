@@ -135,6 +135,9 @@ class MailchimpService
 
     // ── Lists ─────────────────────────────────────────────────────────────────
 
+    /**
+     * @return array<mixed>
+     */
     public function getLists(int $count = 20, int $offset = 0): array
     {
         $result = $this->client->get('lists', [
@@ -156,6 +159,9 @@ class MailchimpService
 
     // ── Merge Fields ──────────────────────────────────────────────────────────
 
+    /**
+     * @return array<mixed>
+     */
     public function getMergeFields(): array
     {
         if ($this->listId === '' || $this->listId === '0') {
@@ -196,6 +202,9 @@ class MailchimpService
 
     // ── Interest Categories ───────────────────────────────────────────────────
 
+    /**
+     * @return array<mixed>
+     */
     public function getInterestCategories(): array
     {
         if ($this->listId === '' || $this->listId === '0') {
@@ -207,6 +216,9 @@ class MailchimpService
         return $result['categories'] ?? [];
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getInterestGroupOptions(string $categoryId): array
     {
         if ($this->listId === '' || $this->listId === '0') {

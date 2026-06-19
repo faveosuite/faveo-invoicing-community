@@ -39,13 +39,15 @@ class LogWriteController
         try {
             $cronLog = CronLog::select('id', 'created_at', 'command')->find($logId);
 
-            $exceptionLog = $this->exception($exception, 'cron');
+            $exceptionLog = $exception ? $this->exception($exception, 'cron') : null;
 
-            $cronLog->update([
-                'status' => 'failed',
-                'exception_log_id' => $exceptionLog?->id,
-                'duration' => (int) Date::now()->diffInSeconds($cronLog->created_at, absolute: true),
-            ]);
+            if ($cronLog) {
+                $cronLog->update([
+                    'status' => 'failed',
+                    'exception_log_id' => $exceptionLog?->id,
+                    'duration' => (int) Date::now()->diffInSeconds($cronLog->created_at, absolute: true),
+                ]);
+            }
         } catch (Throwable $throwable) {
             $this->exception($throwable, 'cron');
         }
@@ -59,10 +61,12 @@ class LogWriteController
         try {
             $cronLog = CronLog::select('id', 'created_at')->find($logId);
 
-            $cronLog->update([
-                'status' => 'completed',
-                'duration' => (int) Date::now()->diffInSeconds($cronLog->created_at, absolute: true),
-            ]);
+            if ($cronLog) {
+                $cronLog->update([
+                    'status' => 'completed',
+                    'duration' => (int) Date::now()->diffInSeconds($cronLog->created_at, absolute: true),
+                ]);
+            }
         } catch (Throwable $throwable) {
             $this->exception($throwable, 'cron');
         }
@@ -94,6 +98,8 @@ class LogWriteController
 
     /**
      * Logs mail send activity.
+     * @param array<mixed>|string $cc
+     * @param array<mixed>|string $bcc
      */
     public function logMailByCategory(
         string $senderMail,
@@ -125,9 +131,12 @@ class LogWriteController
 
     /**
      * Format addresses for database storage.
+     * @param array<mixed>|string $addresses
+     * @return string
      */
-    protected function formatAddresses(array $addresses): string
+    protected function formatAddresses(array|string $addresses): string
     {
+        $addresses = is_string($addresses) ? [$addresses] : $addresses;
         return collect($addresses)->map(function ($address) {
             if (is_array($address) && isset($address['address'])) {
                 return isset($address['name']) && ! empty($address['name'])
@@ -154,16 +163,18 @@ class LogWriteController
     {
         $mailLog = MailLog::select('id', 'exception_log_id')->find($logId);
 
-        if ($mailLog->exception_log_id) {
-            // if already exception exists for this, should be deleted so that latest exception can be captured
-            $mailLog->exception()->delete();
-        }
+        if ($mailLog instanceof MailLog) {
+            if ($mailLog->exception_log_id) {
+                // if already exception exists for this, should be deleted so that latest exception can be captured
+                $mailLog->exception()->delete();
+            }
 
-        $exception = $this->exception($e, 'cron');
-        $mailLog->update([
-            'status' => 'failed',
-            'exception_log_id' => $exception?->id,
-        ]);
+            $exception = $this->exception($e, 'cron');
+            $mailLog->update([
+                'status' => 'failed',
+                'exception_log_id' => $exception?->id,
+            ]);
+        }
     }
 
     public function deleteLogs(Request $request): \Illuminate\Http\JsonResponse

@@ -69,7 +69,11 @@ class SettingsController extends BaseSettingsController
 
     public function mobileVerification(ApiKey $apikeys): \Illuminate\Http\JsonResponse
     {
-        [$mobileauthkey,$msg91Sender,$msg91TemplateId,$msg91ThirdPartyId] = array_values($apikeys->select('msg91_auth_key', 'msg91_sender', 'msg91_template_id', 'msg91_third_party_id')->first()->toArray());
+        $apiKeyRecord = $apikeys->select('msg91_auth_key', 'msg91_sender', 'msg91_template_id', 'msg91_third_party_id')->first();
+        if (!$apiKeyRecord) {
+            return successResponse('', []);
+        }
+        [$mobileauthkey,$msg91Sender,$msg91TemplateId,$msg91ThirdPartyId] = array_values($apiKeyRecord->toArray());
 
         $data = [
             'mobileauthkey' => $mobileauthkey,
@@ -109,7 +113,8 @@ class SettingsController extends BaseSettingsController
         $model = new Github();
         try {
             $github = $model->firstOrFail();
-            $githubStatus = StatusSetting::first()->github_status;
+            $statusSetting = StatusSetting::first();
+            $githubStatus = $statusSetting ? $statusSetting->github_status : null;
             $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
             $data = [
                 'githubFileds' => $githubFileds,
@@ -131,9 +136,12 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $keys = $apikeys->find(1);
+            if (!$keys instanceof ApiKey) {
+                return back()->with('fails', trans('message.something_went_wrong'));
+            }
             $keys->fill($request->input())->save();
 
-            return back()->with('success', Lang::get('message.updated-successfully'));
+            return back()->with('success', $this->langStr('message.updated-successfully'));
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -206,7 +214,7 @@ class SettingsController extends BaseSettingsController
                     ->update(['selected_template_id' => $templateId ?: null]);
             }
 
-            return successResponse(Lang::get('message.updated-successfully'));
+            return successResponse($this->langStr('message.updated-successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
@@ -216,6 +224,9 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $set = $settings->find(1);
+            if (!$set instanceof Setting) {
+                return errorResponse(trans('message.something_went_wrong'));
+            }
 
             return successResponse('', [
                 'error_log' => (bool) $set->error_log,
@@ -330,7 +341,7 @@ class SettingsController extends BaseSettingsController
             $setting->content = $request->input('language');
             $setting->fill($input)->save();
 
-            return successResponse(Lang::get('message.updated-successfully'));
+            return successResponse($this->langStr('message.updated-successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
@@ -351,7 +362,7 @@ class SettingsController extends BaseSettingsController
             Cache::forget('system_datetime_format');
             Cache::forget('system_timezone');
 
-            return successResponse(Lang::get('message.updated-successfully'));
+            return successResponse($this->langStr('message.updated-successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
@@ -363,28 +374,28 @@ class SettingsController extends BaseSettingsController
             $status = StatusSetting::first();
 
             $all = [
-                ['key' => 'gcaptchastatus',        'slug' => 'recaptcha',         'name' => Lang::get('message.recaptcha_heading'),               'description' => Lang::get('message.google_description'),               'enabled' => (bool) $status?->recaptcha_status,        'route' => '/settings/api/recaptcha'],
-                ['key' => 'mstatus',               'slug' => 'msg91',             'name' => Lang::get('message.msg91_heading'),                   'description' => Lang::get('message.msg91_description'),               'enabled' => (bool) $status?->msg91_status,            'route' => '/settings/api/msg91'],
-                ['key' => 'mailchimpstatus',        'slug' => 'mailchimp',         'name' => Lang::get('message.mailchimp'),                'description' => Lang::get('message.mailchimp_description'),           'enabled' => (bool) $status?->mailchimp_status,        'route' => '/settings/api/mailchimp'],
-                ['key' => 'termsStatus',            'slug' => 'terms',             'name' => Lang::get('message.terms_heading'),                   'description' => Lang::get('message.terms_description'),               'enabled' => (bool) $status?->terms,                   'route' => '/settings/api/terms'],
-                ['key' => 'pipedrivestatus',        'slug' => 'pipedrive',         'name' => Lang::get('message.pipedrive'),               'description' => Lang::get('message.pipedrive_description'),           'enabled' => (bool) $status?->pipedrive_status,        'route' => '/settings/api/pipedrive'],
-                ['key' => 'githubstatus',           'slug' => 'github',            'name' => Lang::get('message.github_heading'),                  'description' => Lang::get('message.github_description'),              'enabled' => (bool) $status?->github_status,           'route' => '/settings/api/github'],
-                ['key' => 'email_validation_status', 'slug' => 'email-validation',  'name' => Lang::get('message.email_provider'),                  'description' => Lang::get('message.email_validation_description'),    'enabled' => (bool) $status?->email_validation_status, 'route' => '/settings/api/email-validation'],
-                ['key' => 'mobile_validation_status', 'slug' => 'mobile-validation', 'name' => Lang::get('message.mobile_provider'),                 'description' => Lang::get('message.mobile_validation_description'),   'enabled' => (bool) $status?->mobile_validation_status, 'route' => '/settings/api/mobile-validation'],
-                ['key' => 'whatsapp_status',        'slug' => 'whatsapp',          'name' => Lang::get('message.whatsapp_config'),                  'description' => Lang::get('message.whatsapp_thirdParty_explanation'), 'enabled' => (bool) $status?->whatsapp_status,         'route' => '/settings/whatsapp-integration'],
-                ['key' => 'zoho',                   'slug' => 'zoho',              'name' => Lang::get('message.zoho_integration'),                'description' => Lang::get('message.zoho_description'),                'enabled' => true,                                              'route' => '/settings/api/zoho', 'settings_only' => true],
+                ['key' => 'gcaptchastatus',        'slug' => 'recaptcha',         'name' => $this->langStr('message.recaptcha_heading'),               'description' => $this->langStr('message.google_description'),               'enabled' => (bool) $status?->recaptcha_status,        'route' => '/settings/api/recaptcha'],
+                ['key' => 'mstatus',               'slug' => 'msg91',             'name' => $this->langStr('message.msg91_heading'),                   'description' => $this->langStr('message.msg91_description'),               'enabled' => (bool) $status?->msg91_status,            'route' => '/settings/api/msg91'],
+                ['key' => 'mailchimpstatus',        'slug' => 'mailchimp',         'name' => $this->langStr('message.mailchimp'),                'description' => $this->langStr('message.mailchimp_description'),           'enabled' => (bool) $status?->mailchimp_status,        'route' => '/settings/api/mailchimp'],
+                ['key' => 'termsStatus',            'slug' => 'terms',             'name' => $this->langStr('message.terms_heading'),                   'description' => $this->langStr('message.terms_description'),               'enabled' => (bool) $status?->terms,                   'route' => '/settings/api/terms'],
+                ['key' => 'pipedrivestatus',        'slug' => 'pipedrive',         'name' => $this->langStr('message.pipedrive'),               'description' => $this->langStr('message.pipedrive_description'),           'enabled' => (bool) $status?->pipedrive_status,        'route' => '/settings/api/pipedrive'],
+                ['key' => 'githubstatus',           'slug' => 'github',            'name' => $this->langStr('message.github_heading'),                  'description' => $this->langStr('message.github_description'),              'enabled' => (bool) $status?->github_status,           'route' => '/settings/api/github'],
+                ['key' => 'email_validation_status', 'slug' => 'email-validation',  'name' => $this->langStr('message.email_provider'),                  'description' => $this->langStr('message.email_validation_description'),    'enabled' => (bool) $status?->email_validation_status, 'route' => '/settings/api/email-validation'],
+                ['key' => 'mobile_validation_status', 'slug' => 'mobile-validation', 'name' => $this->langStr('message.mobile_provider'),                 'description' => $this->langStr('message.mobile_validation_description'),   'enabled' => (bool) $status?->mobile_validation_status, 'route' => '/settings/api/mobile-validation'],
+                ['key' => 'whatsapp_status',        'slug' => 'whatsapp',          'name' => $this->langStr('message.whatsapp_config'),                  'description' => $this->langStr('message.whatsapp_thirdParty_explanation'), 'enabled' => (bool) $status?->whatsapp_status,         'route' => '/settings/whatsapp-integration'],
+                ['key' => 'zoho',                   'slug' => 'zoho',              'name' => $this->langStr('message.zoho_integration'),                'description' => $this->langStr('message.zoho_description'),                'enabled' => true,                                              'route' => '/settings/api/zoho', 'settings_only' => true],
             ];
-
+ 
             foreach ($all as $index => &$item) {
                 $item['id'] = $index + 1;
             }
-
+ 
             unset($item);
-
+ 
             $search = trim((string) $request->input('search-query', ''));
             if ($search !== '') {
-                $all = array_values(array_filter($all, fn (array $m): bool => stripos((string) $m['name'], $search) !== false ||
-                    stripos((string) $m['description'], $search) !== false
+                $all = array_values(array_filter($all, fn (array $m): bool => stripos($m['name'], $search) !== false ||
+                    stripos($m['description'], $search) !== false
                 ));
             }
 
@@ -441,7 +452,7 @@ class SettingsController extends BaseSettingsController
                 'require_pipedrive_user_verification' => $request->boolean('require_pipedrive_user_verification'),
             ]);
 
-            return successResponse(Lang::get('message.pipedrive_setting'));
+            return successResponse($this->langStr('message.pipedrive_setting'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
@@ -532,7 +543,7 @@ class SettingsController extends BaseSettingsController
                 Condition::create(['job' => $job, 'value' => $value]);
             }
 
-            return successResponse(Lang::get('message.updated-successfully'));
+            return successResponse($this->langStr('message.updated-successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
@@ -563,7 +574,7 @@ class SettingsController extends BaseSettingsController
             ]);
             ActivityLogDay::updateOrCreate(['id' => 1], ['days' => $request->input('logdelday')]);
 
-            return successResponse(Lang::get('message.updated-successfully'));
+            return successResponse($this->langStr('message.updated-successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
@@ -785,6 +796,9 @@ class SettingsController extends BaseSettingsController
         }
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
+     */
     public function mailSearch(string $from = '', string $till = ''): \Illuminate\Database\Eloquent\Builder
     {
         /** @phpstan-ignore class.notFound */
@@ -811,11 +825,14 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $setting = $settings->find(1);
+            if (!$setting instanceof Setting) {
+                return errorResponse(trans('message.something_went_wrong'));
+            }
             $setting->fill($request->only(['error_log', 'error_email']))->save();
 
-            return successResponse(Lang::get('message.updated-successfully'));
+            return successResponse($this->langStr('message.updated-successfully'));
         } catch (Exception) {
-            return errorResponse(Lang::get('message.err_msg'));
+            return errorResponse($this->langStr('message.err_msg'));
         }
     }
 
@@ -861,9 +878,12 @@ class SettingsController extends BaseSettingsController
                 ->setTracesSampleRate($tracesRate ?: null);
         }
 
-        return successResponse(Lang::get('message.updated-successfully'));
+        return successResponse($this->langStr('message.updated-successfully'));
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Payment_log>
+     */
     public function paymentSearch(string $from = '', string $till = ''): \Illuminate\Database\Eloquent\Builder
     {
         $join = Payment_log::query()->leftJoin('users', 'payment_logs.from', '=', 'users.email')
@@ -890,7 +910,8 @@ class SettingsController extends BaseSettingsController
             return date('Y-m-d H:i:s');
         }
 
-        return date('Y-m-d H:i:s', strtotime($date));
+        $timestamp = strtotime($date);
+        return date('Y-m-d H:i:s', $timestamp !== false ? $timestamp : null);
     }
 
     public function destroyPayment(Request $request): \Illuminate\Http\JsonResponse
@@ -984,6 +1005,9 @@ class SettingsController extends BaseSettingsController
         try {
             $id = $request->input('id');
             $result = EmailValidationResults::where('id', $id)->first();
+            if (!$result instanceof EmailValidationResults) {
+                return errorResponse(trans('message.something_went_wrong'));
+            }
 
             $cont1 = json_decode((string) $result->result, associative: true);
             $cont2 = ['name' => $result->first_name.' '.$result->last_name,
@@ -1007,6 +1031,9 @@ class SettingsController extends BaseSettingsController
         try {
             $id = $request->input('id');
             $result = EmailValidationResults::where('id', $id)->first();
+            if (!$result instanceof EmailValidationResults) {
+                return errorResponse(trans('message.something_went_wrong'));
+            }
             $content = ['name' => $result->first_name.' '.$result->last_name,
                 'mobile Number' => '+'.$result->mobile_code.$result->mobile,
                 'email' => $result->email,
@@ -1018,7 +1045,7 @@ class SettingsController extends BaseSettingsController
 
             return successResponse(trans('message.success'), $content);
         } catch (Exception $exception) {
-            dd($exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -1073,7 +1100,7 @@ class SettingsController extends BaseSettingsController
 
             return successResponse(trans('message.email_validation_success'));
         } catch (Exception) {
-            return errorResponse(Lang::get('message.invalid_key'));
+            return errorResponse(__('message.invalid_key'));
         }
     }
 
@@ -1098,7 +1125,7 @@ class SettingsController extends BaseSettingsController
                 'mode' => $request->input('mode'), 'api_secret' => $apisecret, 'to_use' => 1]);
             StatusSetting::where('id', 1)->update(['mobile_validation_status' => 1]);
 
-            return successResponse(Lang::get('message.mobile_validation_success'));
+            return successResponse($this->langStr('message.mobile_validation_success'));
         }
 
         if ($provider == 'abstract') {
@@ -1116,7 +1143,7 @@ class SettingsController extends BaseSettingsController
             $emailSave->where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'), 'to_use' => 1]);
             StatusSetting::where('id', 1)->update(['mobile_validation_status' => 1]);
 
-            return successResponse(Lang::get('message.mobile_validation_success_abstract'));
+            return successResponse($this->langStr('message.mobile_validation_success_abstract'));
         }
 
         return null;
@@ -1214,5 +1241,11 @@ class SettingsController extends BaseSettingsController
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
+    }
+
+    private function langStr(string $key): string
+    {
+        $msg = Lang::get($key);
+        return is_array($msg) ? '' : $msg;
     }
 }

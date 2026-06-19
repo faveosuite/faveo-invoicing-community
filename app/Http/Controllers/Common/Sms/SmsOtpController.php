@@ -55,7 +55,7 @@ class SmsOtpController extends Controller
      *
      * @param  string  $method  HTTP method (GET, POST, etc.)
      * @param  string  $url  Full MSG91 API endpoint URL
-     * @param  array  $queryParams  Query parameters for the request
+     * @param  array<mixed> $queryParams  Query parameters for the request
      * @return array{status: int, body: array} Response with status code and decoded body
      */
     public function makeRequest(string $method, string $url, array $queryParams = []): array
@@ -93,6 +93,7 @@ class SmsOtpController extends Controller
      * @param  string  $mobile  Full mobile number with country code (e.g. "919876543210")
      * @param  int|null  $userID  Optional user ID for tracking the OTP request in delivery reports
      * @return array{type: string, message: string}
+     * @param array<mixed> $mobileInfo
      */
     public function sendOtp(string $mobile, ?int $userID = null, string $source = 'register', array $mobileInfo = []): array
     {
@@ -120,6 +121,7 @@ class SmsOtpController extends Controller
      * @param  string  $mobile  Full mobile number with country code
      * @param  string  $type  Retry type: 'text' for SMS, 'voice' for voice call
      * @return array{type: string, message: string}
+     * @param array<mixed> $mobileInfo
      */
     public function sendForReOtp(string $mobile, string $type, mixed $userID = null, string $source = 'register', array $mobileInfo = []): array
     {
@@ -219,6 +221,8 @@ class SmsOtpController extends Controller
      *
      * On 'send': creates a new record with action = 'send'.
      * On 'resend': appends retry attempt to the same record (e.g. 'send, retry_1').
+     * @param array<mixed> $mobileInfo
+     * @param array<mixed> $response
      */
     protected function trackOtpRequest(array $response, mixed $userID, string $source, string $action, array $mobileInfo = []): void
     {
@@ -274,6 +278,7 @@ class SmsOtpController extends Controller
 
     /**
      * Build a standardized error response payload.
+     * @return array<mixed>
      */
     protected function errorPayload(string $message): array
     {

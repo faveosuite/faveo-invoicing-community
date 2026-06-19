@@ -38,12 +38,18 @@ class LanguageController extends Controller
         exit;
     }
 
+    /**
+     * @param array<mixed> $languageArray
+     */
     private function appendCoreLanguage(string $languageName, array &$languageArray): void
     {
         $path = base_path('lang/'.$languageName);
         $this->updateLanguageArray($path, $languageArray);
     }
 
+    /**
+     * @param array<mixed> $languageArray
+     */
     private function appendRecaptchaLanguage(string $locale, array &$languageArray): void
     {
         $path = app_path(sprintf('Plugins/Recaptcha/resources/lang/%s/recaptcha.php', $locale));
@@ -55,6 +61,9 @@ class LanguageController extends Controller
         $languageArray['recaptcha'] = array_merge($languageArray['recaptcha'] ?? [], require $path);
     }
 
+    /**
+     * @param array<mixed> $languageArray
+     */
     private function appendLicenseLanguage(string $locale, array &$languageArray): void
     {
         $path = app_path('License/Lang/'.$locale);
@@ -64,6 +73,9 @@ class LanguageController extends Controller
         }
     }
 
+    /**
+     * @param array<mixed> $languageArray
+     */
     private function appendPackageLanguage(string $package, string $locale, string $namespace, array &$languageArray): void
     {
         $path = app_path(sprintf('%s/lang/%s', $package, $locale));
@@ -73,6 +85,9 @@ class LanguageController extends Controller
         }
     }
 
+    /**
+     * @param array<mixed> $languageArray
+     */
     private function updateLanguageArray(string $path, array &$languageArray): void
     {
         $files = $this->getLanguageFileArray($path);
@@ -86,6 +101,9 @@ class LanguageController extends Controller
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getLanguageFileArray(string $path): array
     {
         if (! is_dir($path)) {
@@ -147,7 +165,8 @@ class LanguageController extends Controller
         try {
             $request->validate(['locale' => ['required', 'string', 'exists:languages,locale']]);
 
-            $setting = Setting::first();
+            /** @var \App\Model\Common\Setting $setting */
+            $setting = Setting::firstOrFail();
             $setting->content = $request->input('locale');
             $setting->save();
 

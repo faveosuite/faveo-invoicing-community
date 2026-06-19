@@ -43,6 +43,9 @@ function getLocation(?string $ip = null): mixed
     }
 }
 
+/**
+ * @param array<mixed> $array
+ */
 function checkArray(string $key, array $array): mixed
 {
     if (array_key_exists($key, $array)) { 
@@ -77,7 +80,7 @@ function isInstall(): bool
 /**
  * Format the error message into json error response.
  *
- * @param  string|array  $message  Error message
+ * @param  string|array<mixed>  $message  Error message
  * @return JsonResponse json response
  */
 function errorResponse(string|array $message, int $statusCode = 400): JsonResponse
@@ -198,6 +201,9 @@ function getDateHtmlcopy(?string $dateTimeString = null): string
     }
 }
 
+/**
+ * @return array<mixed>
+ */
 function getExpiryLabel(string $expiryDate, string $badge = 'badge'): array
 {
     $expiry = Date::parse($expiryDate);
@@ -235,6 +241,9 @@ function tooltip(string $tootipText = ''): string
              </label>';
 }
 
+/**
+ * @return array<mixed>
+ */
 function getStatusLabel(mixed $status): string|array
 {
     return match ($status) {
@@ -264,7 +273,7 @@ function findCountryByGeoip(string $iso): string
     try {
         $country = Country::where('country_code_char2', $iso)->first();
         if ($country) {
-            return $country->country_code_char2;
+            return (string) $country->country_code_char2;
         }
 
         return '';
@@ -273,6 +282,9 @@ function findCountryByGeoip(string $iso): string
     }
 }
 
+/**
+ * @return array<mixed>
+ */
 function findStateByRegionId(string $iso): array
 {
     try {
@@ -306,6 +318,9 @@ function checkPlanSession(): bool
     }
 }
 
+/**
+ * @return array<mixed>
+ */
 function getStateByCode(string $country, string $state): array
 {
     try {
@@ -328,13 +343,17 @@ function getStateByCode(string $country, string $state): array
     }
 }
 
+/**
+ * @return array<mixed>
+ */
 function userCurrencyAndPrice(mixed $userid, mixed $plan, string $productid = ''): array
 {
     try {
         $country = getCountry($userid);
 
         if (! $country) {
-            throw new Exception(Lang::get('message.country_notfound'));
+            $msg = Lang::get('message.country_notfound');
+            throw new Exception(is_array($msg) ? implode(', ', $msg) : (string) $msg);
         }
 
         $currencyAndSymbol = getCurrencySymbolAndPriceForPlans($country, $plan);
@@ -356,7 +375,8 @@ function userCurrencyAndPrice(mixed $userid, mixed $plan, string $productid = ''
 function getCountry(mixed $userid): mixed
 {
     if (Auth::check() && empty($userid)) {
-        return Auth::user()->country;
+        $user = Auth::user();
+        return $user ? $user->country : null;
     }
 
     if ($userid) {
@@ -374,7 +394,7 @@ function getCountry(mixed $userid): mixed
  *
  * @param  string  $countryCode  Code of the country
  * @param  mixed  $plan  Plan for which price is to be fetched
- * @return array Currency, symbol and plan details
+ * @return array<mixed> Currency, symbol and plan details
  */
 function getCurrencySymbolAndPriceForPlans(string $countryCode, mixed $plan): array
 {
@@ -414,6 +434,10 @@ function currencyFormat(mixed $amount = null, ?string $currency = null, bool $in
             $amount = rounding($amount);
         }
 
+        if ($currency === null) {
+            $currency = (string) Setting::value('default_currency');
+        }
+
         $locale = getLocalesByCurrency($currency);
         $precision = getCurrencyPrecision($currency);
 
@@ -435,7 +459,11 @@ function getLocalesByCurrency(string $currencyCode): string
 {
     return cache()->rememberForever('currency_locale_'.$currencyCode, function () use ($currencyCode) {
         $firstMatch = null;
-        foreach (ResourceBundle::getLocales('') as $locale) {
+        $locales = ResourceBundle::getLocales('');
+        if (!is_array($locales)) {
+            $locales = [];
+        }
+        foreach ($locales as $locale) {
             try {
                 $fmt = new NumberFormatter($locale, NumberFormatter::CURRENCY);
                 $defaultCurrency = $fmt->getTextAttribute(NumberFormatter::CURRENCY_CODE);
@@ -484,12 +512,20 @@ function rounding(mixed $price): ?float
 function userCountryId(): mixed
 {
     if (Auth::check()) {
-        return Country::where('country_code_char2', Auth::user()->country)->first()->country_id;
+        $user = Auth::user();
+        if ($user) {
+            $country = Country::where('country_code_char2', $user->country)->first();
+            return $country ? $country->country_id : null;
+        }
     }
 
     $location = getLocation();
+    if (!empty($location['iso_code'])) {
+        $country = Country::where('country_code_char2', $location['iso_code'])->first();
+        return $country ? $country->country_id : null;
+    }
 
-    return Country::where('country_code_char2', $location['iso_code'])->first()->country_id;
+    return null;
 }
 
 //function getIndianCurrencySymbol($currency)
@@ -497,6 +533,9 @@ function userCountryId(): mixed
 //    return \DB::table('format_currencies')->where('code', $currency)->value('symbol');
 //}
 
+/**
+ * @param array<mixed> $number
+ */
 function getIndianCurrencyFormat(array $number): string
 {
     $explrestunits = '';
@@ -540,6 +579,7 @@ function getIndianCurrencyFormat(array $number): string
 /**
  * Render a single tax for display. Tax is now a generic named rate (no
  * CGST/SGST/IGST split), so this simply formats name@rate and the amount.
+ * @return array<mixed>
  */
 function bifurcateTax(string $taxName, string $taxValue, mixed $currency, string $state = '', mixed $price = ''): array
 {
@@ -551,6 +591,7 @@ function bifurcateTax(string $taxName, string $taxValue, mixed $currency, string
 
 /**
  * Structured tax breakdown for display. One generic entry per tax.
+ * @return array<mixed>
  */
 function bifurcate(string $taxName, string $taxValue, mixed $currency, string $state = '', mixed $price = ''): array
 {
@@ -569,37 +610,45 @@ function bifurcate(string $taxName, string $taxValue, mixed $currency, string $s
  */
 function setServiceConfig(object $emailConfig): void
 {
-    $sendingProtocol = $emailConfig->driver;
+    $sendingProtocol = isset($emailConfig->driver) ? (string) $emailConfig->driver : null;
     if ($sendingProtocol && $sendingProtocol != 'smtp' && $sendingProtocol != 'mail') {
         $services = Config::get('services.'.$sendingProtocol);
+        if (!is_array($services)) {
+            $services = [];
+        }
         $dynamicServiceConfig = [];
 
         //loop over it and assign according to the keys given by user
         foreach ($services as $key => $value) {
-            $dynamicServiceConfig[$key] = $emailConfig[$key] ?? $value;
+            $dynamicServiceConfig[$key] = $emailConfig->$key ?? $value;
         }
 
         //setting that service configuration
         Config::set('services.'.$sendingProtocol, $dynamicServiceConfig);
     } else {
-        Config::set('mail.sendmail', '/usr/sbin/sendmail -t -i -f'.$emailConfig['email']);
+        $email = isset($emailConfig->email) ? (string) $emailConfig->email : '';
+        Config::set('mail.sendmail', '/usr/sbin/sendmail -t -i -f'.$email);
 
-        Config::set('mail.host', $emailConfig['host']);
-        Config::set('mail.port', $emailConfig['port']);
-        Config::set('mail.password', $emailConfig['password']);
-        Config::set('mail.security', $emailConfig['encryption']);
+        Config::set('mail.host', isset($emailConfig->host) ? $emailConfig->host : null);
+        Config::set('mail.port', isset($emailConfig->port) ? $emailConfig->port : null);
+        Config::set('mail.password', isset($emailConfig->password) ? $emailConfig->password : null);
+        Config::set('mail.security', isset($emailConfig->encryption) ? $emailConfig->encryption : null);
     }
 
     //setting mail driver as $sending protocol
     Config::set('mail.driver', $sendingProtocol);
-    Config::set('mail.from.address', $emailConfig['email']);
-    Config::set('mail.from.name', $emailConfig['company']);
-    Config::set('mail.username', $emailConfig['email']);
+    Config::set('mail.from.address', isset($emailConfig->email) ? (string) $emailConfig->email : '');
+    Config::set('mail.from.name', isset($emailConfig->company) ? (string) $emailConfig->company : '');
+    Config::set('mail.username', isset($emailConfig->email) ? (string) $emailConfig->email : '');
 
     //setting the config again in the service container
     new MailServiceProvider(app())->register();
 }
 
+/**
+ * @param array<mixed> $variables
+ * @param Closure(): mixed $closure
+ */
 function persistentCache(string $key, Closure $closure, int $noOfSeconds = 30, array $variables = []): mixed
 {
     $keySalt = json_encode($variables);
@@ -624,8 +673,12 @@ function getRootUrl(mixed $url, int $remove_scheme, int $remove_www, int $remove
 {
     if (filter_var($url, FILTER_VALIDATE_URL)) {
         $url_array = parse_url((string) $url); //parse URL into arrays like $url_array['scheme'], $url_array['host'], etc
+        if (!is_array($url_array)) {
+            return '';
+        }
+        $scheme = isset($url_array['scheme']) ? $url_array['scheme'] : '';
 
-        $url = str_ireplace($url_array['scheme'].'://', '', $url); //make URL without scheme, so no :// is included when searching for first or last /
+        $url = str_ireplace($scheme.'://', '', $url); //make URL without scheme, so no :// is included when searching for first or last /
 
         if ($remove_path === 1) { //remove everything after FIRST / in URL, so it becomes "real" root URL
             $first_slash_position = stripos($url, '/'); //find FIRST slash - the end of root URL
@@ -640,7 +693,7 @@ function getRootUrl(mixed $url, int $remove_scheme, int $remove_www, int $remove
         }
 
         if ($remove_scheme !== 1) { //scheme was already removed, add it again
-            $url = $url_array['scheme'].'://'.$url;
+            $url = $scheme.'://'.$url;
         }
 
         if ($remove_www === 1) { //remove www.
@@ -657,9 +710,15 @@ function getRootUrl(mixed $url, int $remove_scheme, int $remove_www, int $remove
     return trim((string) $url);
 }
 
+/**
+ * @return array<mixed>
+ */
 function getContactData(): array
 {
     $setting = Setting::first();
+    if (!$setting) {
+        return ['logo' => '', 'contact' => ''];
+    }
     $countryCode = Country::where('country_code_char2', $setting->country)->value('phonecode');
     $logo = '<img style="max-width: 20%;height: auto;" src="'.$setting->logo.'" />';
     $billingContact = '
@@ -691,7 +750,7 @@ function cloudCentralDomain(): string
 {
     $cloudSubDomain = FaveoCloud::find(1);
 
-    return str_replace('https://', '', $cloudSubDomain?->cloud_central_domain);
+    return str_replace('https://', '', (string) ($cloudSubDomain ? $cloudSubDomain->cloud_central_domain : ''));
 }
 
 function cloudPopUpDetails(): ?CloudPopUp
@@ -699,6 +758,9 @@ function cloudPopUpDetails(): ?CloudPopUp
     return CloudPopUp::find(1);
 }
 
+/**
+ * @return array<mixed>
+ */
 function cloudPopupProducts(): array
 {
     return CloudProducts::pluck('cloud_product')->toArray();
@@ -748,7 +810,7 @@ function isS3Enabled(): bool
 {
     $fileSettings = FileSystemSettings::select('disk')->first();
 
-    return $fileSettings->disk === 's3';
+    return $fileSettings?->disk === 's3';
 }
 
 /**
@@ -757,7 +819,7 @@ function isS3Enabled(): bool
  * This function reads the current environment file, updates existing keys,
  * or appends new ones if they do not exist.
  *
- * @param  array  $data  An associative array where the key is the environment
+ * @param  array<mixed> $data  An associative array where the key is the environment
  *                       variable name, and the value is the new value to set.
  *
  * @throws FileNotFoundException If the .env file is not found.
@@ -765,13 +827,16 @@ function isS3Enabled(): bool
 function setEnvValue(array $data): void
 {
     $envFile = app()->environmentFilePath();
-    $content = File::get($envFile);
+    $content = (string) File::get($envFile);
 
     foreach ($data as $key => $value) {
         // Check if the key exists in the .env file
         if (preg_match(sprintf('/^%s=.*/m', $key), $content)) {
             // Update existing key
-            $content = preg_replace(sprintf('/^%s=.*/m', $key), sprintf('%s=%s', $key, $value), $content);
+            $replaced = preg_replace(sprintf('/^%s=.*/m', $key), sprintf('%s=%s', $key, $value), $content);
+            if (is_string($replaced)) {
+                $content = $replaced;
+            }
         } else {
             // Append new key-value pair
             $content .= sprintf('%s%s=%s', PHP_EOL, $key, $value);
@@ -807,7 +872,7 @@ function downloadExternalFile(string $url, string $filename): \Symfony\Component
  * @param  int  $maxAttempts  Maximum number of allowed attempts.
  * @param  int  $decayMinutes  Time (in minutes) before the rate limit resets.
  * @param  string  $ip  The IP address of the client.
- * @return array Returns an array with rate limit status and remaining time.
+ * @return array<mixed> Returns an array with rate limit status and remaining time.
  */
 function rateLimitForKeyIp(string $key, int $maxAttempts, int $decayMinutes, string $ip): array
 {
@@ -836,7 +901,7 @@ function rateLimitForKeyIp(string $key, int $maxAttempts, int $decayMinutes, str
  * @param  string  $IpKey  The unique key for rate limiting.
  * @param  int  $maxAttempts  Maximum number of allowed attempts.
  * @param  int  $decaySeconds  Time (in seconds) before the rate limit resets.
- * @return array Returns an array with rate limit status and remaining time.
+ * @return array<mixed> Returns an array with rate limit status and remaining time.
  */
 function handleArrayStoreRateLimit(string $IpKey, int $maxAttempts, int $decaySeconds): array
 {
@@ -895,7 +960,14 @@ function getUrl(): string
 {
     $protocol = (isset($_SERVER['HTTPS']) && \Illuminate\Support\Facades\Request::server('HTTPS') === 'on') ? 'https' : 'http';
     $host = \Illuminate\Support\Facades\Request::server('HTTP_HOST');
-    $path = dirname((string) \Illuminate\Support\Facades\Request::server('SCRIPT_NAME'));
+    if (!is_string($host)) {
+        $host = '';
+    }
+    $scriptName = \Illuminate\Support\Facades\Request::server('SCRIPT_NAME');
+    if (!is_string($scriptName)) {
+        $scriptName = '';
+    }
+    $path = dirname($scriptName);
 
     return $protocol.'://'.$host.$path;
 }
@@ -970,10 +1042,16 @@ function isAgentAllowed(mixed $productId, mixed $planId): bool
         return true;
     }
 
-    return (bool) Product::find($productId)
-        ->value('can_modify_agent');
+    $product = Product::find($productId);
+    if ($product instanceof Product) {
+        return (bool) $product->can_modify_agent;
+    }
+    return false;
 }
 
+/**
+ * @param array<mixed> $paymentMethods
+ */
 function isCurrencySupportedForPayments(string $currency, array|string $paymentMethods): bool
 {
     $currency = strtoupper($currency);
@@ -1029,6 +1107,7 @@ function calculateUnitCost(string $currency, int|float $cost): int
 
 /**
  * log the actions in log files.
+ * @param array<mixed> $array
  */
 function loging(string $context, string $message, string $level = 'error', array $array = []): void
 {
@@ -1135,6 +1214,7 @@ function hyperLinkGenerator(string $href, string $value): string
 
 /**
  * Log activity in a standard format across the system.
+ * @param array<mixed> $properties
  */
 function logActivity(
     string $message,
@@ -1171,6 +1251,7 @@ function getUserStateWithCountry(?string $country = null, ?string $state = null)
 
 /**
  *Get Supported Countries for IntlInput Plugins.
+ * @return array<mixed>
  */
 function getSupportedCountriesForIntlInput(): array
 {
@@ -1211,9 +1292,11 @@ function themeAsset(string $key): string
 
 function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds = 60, bool $perSite = true): void
 {
+    $host = parse_url($url, PHP_URL_HOST);
+    $path = parse_url($url, PHP_URL_PATH);
     $identifier = $perSite
-        ? parse_url($url, PHP_URL_HOST)
-        : parse_url($url, PHP_URL_HOST).parse_url($url, PHP_URL_PATH);
+        ? (string) $host
+        : ((string) $host).((string) $path);
 
     $key = 'api_rate_next_allowed_'.md5($identifier);
 

@@ -86,7 +86,7 @@ return new class extends Migration
             ->pluck('i_gst')->map(fn ($v): float => (float) $v)->unique()->values();
 
         if ($distinct->count() === 1) {
-            $this->insertRate('GST', 'IN', '', $distinct->first());
+            $this->insertRate('GST', 'IN', '', (float) $distinct->first());
 
             return;
         }

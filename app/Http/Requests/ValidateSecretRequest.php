@@ -9,6 +9,9 @@ use Override;
 
 class ValidateSecretRequest extends Request
 {
+    /**
+     * @return array<mixed>
+     */
     public function rules(): array
     {
         return [

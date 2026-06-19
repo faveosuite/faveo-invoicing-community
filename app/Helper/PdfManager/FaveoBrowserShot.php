@@ -9,6 +9,9 @@ class FaveoBrowserShot
 {
     private static bool $initialized = false;
 
+    /**
+     * @var array<mixed>
+     */
     private static array $bins = [];
 
     private const string HOME_DIR = 'app/chrome-home';
@@ -85,6 +88,9 @@ class FaveoBrowserShot
         ];
     }
 
+    /**
+     * @return array<mixed>
+     */
     private static function chromiumArgs(): array
     {
         $profile = storage_path(self::PROFILE_DIR);

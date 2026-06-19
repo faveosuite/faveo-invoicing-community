@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp query()
@@ -26,7 +25,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ThirdPartyApp whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class ThirdPartyApp extends Model
@@ -41,14 +39,23 @@ class ThirdPartyApp extends Model
 
     protected string $logNameColumn = 'app_name';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'app_name', 'app_key', 'app_secret',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['third-party-keys'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

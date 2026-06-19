@@ -24,7 +24,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $license_crack_reports_cleanup_days
  * @property int|null $license_system_reports_cleanup_days
  * @property int|null $license_versions_cleanup_days
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpiryMailDay newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpiryMailDay newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpiryMailDay query()
@@ -45,7 +44,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpiryMailDay whereReoonLogsDays($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpiryMailDay whereSystemLogsDays($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpiryMailDay whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class ExpiryMailDay extends Model

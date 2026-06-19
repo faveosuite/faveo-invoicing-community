@@ -8,13 +8,15 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Website newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Website newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Website query()
- *
  * @mixin \Eloquent
  */
 class Website extends BaseModel
 {
     // use SubscriptionBillableTrait;
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Model>
+     */
     public function customermodel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         // Return an Eloquent relationship.

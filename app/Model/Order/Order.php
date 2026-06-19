@@ -45,7 +45,6 @@ use Override;
  * @property-read Product|null $productRelation
  * @property-read Subscription|null $subscription
  * @property-read User|null $user
- *
  * @method static \Database\Factories\Model\Order\OrderFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
@@ -64,11 +63,13 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereQty($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSerialKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Order extends BaseModel
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -81,15 +82,24 @@ class Order extends BaseModel
         'is_downloadable',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = ['client', 'order_status', 'invoice_item_id',
         'serial_key', 'product', 'domain', 'price_override', 'qty', 'number', ];
 
     protected string $logNameColumn = 'number';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['orders', ':id'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -143,6 +153,9 @@ class Order extends BaseModel
         );
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Relations\Pivot, string>
+     */
     public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->invoices();
@@ -157,6 +170,9 @@ class Order extends BaseModel
     }
 
     // The invoice item that generated this order
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<InvoiceItem, $this>
+     */
     public function invoiceItem(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(InvoiceItem::class, 'invoice_item_id');
@@ -187,6 +203,9 @@ class Order extends BaseModel
         return (bool) parent::delete();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function orderStatus(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value): string {
@@ -194,6 +213,9 @@ class Order extends BaseModel
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function serialKey(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
@@ -205,6 +227,9 @@ class Order extends BaseModel
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function domain(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {

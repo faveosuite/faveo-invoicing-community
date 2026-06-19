@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermissionPivot newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermissionPivot newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermissionPivot query()
@@ -22,7 +21,6 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermissionPivot whereLicensePermissionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermissionPivot whereLicenseTypeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermissionPivot whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class LicensePermissionPivot extends Pivot
@@ -37,14 +35,23 @@ class LicensePermissionPivot extends Pivot
 
     protected string $logNameColumn = 'license_permission_id';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'license_permission_id', 'status',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['license-permissions'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

@@ -77,13 +77,16 @@ class StoreController extends Controller
     private function resolveCurrency(): string
     {
         if (Auth::check()) {
-            return getCurrencyForClient(Auth::user()->country);
+            /** @var \App\User $authUser */
+            $authUser = Auth::user();
+
+            return getCurrencyForClient($authUser->country);
         }
 
         $ip = request()->ip();
         $iso = cache()->remember('user_location_'.$ip, 60, fn (): mixed => getLocation($ip)['iso_code'] ?? null);
 
-        return getCurrencyForClient($iso ? findCountryByGeoip($iso) : null);
+        return getCurrencyForClient($iso ? (string) findCountryByGeoip($iso) : '');
     }
 
     private function getCurrencySymbol(string $currency): string
@@ -91,6 +94,9 @@ class StoreController extends Controller
         return Currency::where('code', $currency)->value('symbol') ?? $currency;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function transformProduct(Product $product, string $currency): array
     {
         $highlighted = (bool) $product->highlight;
@@ -118,6 +124,9 @@ class StoreController extends Controller
         ];
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getProductPlans(Product $product, string $currency): array
     {
         $result = [];
@@ -138,7 +147,7 @@ class StoreController extends Controller
             $periodName = $period->name ?? '';
             $description = $planPrice->price_description ?? $periodName;
 
-            $months = max(1, (int) round(($period->days ?? 30) / 30));
+            $months = max(1, (int) round((int) ($period->days ?? 30) / 30));
             $perMonthCost = $finalCost / $months;
 
             $formattedFinal = $finalCost == 0 ? __('message.free') : currencyFormat($finalCost, $currency);
@@ -171,6 +180,9 @@ class StoreController extends Controller
         return $result;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function buildButton(Product $product, string $btnClass): array
     {
         if ($product->add_to_contact == 1) {

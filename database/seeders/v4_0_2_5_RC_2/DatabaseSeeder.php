@@ -88,9 +88,11 @@ class DatabaseSeeder extends Seeder
 
             $client = new Client();
             $cloud = new FaveoCloud();
+            /** @var \App\Model\Common\FaveoCloud $cloudRecord1 */
+            $cloudRecord1 = $cloud->first();
             $response = $client->request(
                 'GET',
-                $cloud->first()->cloud_central_domain . '/tenants',
+                $cloudRecord1->cloud_central_domain . '/tenants',
                 [
                     'query' => [
                         'key' => $keys->app_key,
@@ -138,6 +140,7 @@ class DatabaseSeeder extends Seeder
                     return null;
                 }
 
+                /** @var \App\Model\Product\Subscription $latest */
                 $latest = $subscriptions->sortByDesc('ends_at')->first();
 
                 Subscription::whereIn('order_id', $orderIds)
@@ -161,9 +164,11 @@ class DatabaseSeeder extends Seeder
 
             $client = new Client();
             $cloud = new FaveoCloud();
+            /** @var \App\Model\Common\FaveoCloud $cloudRecord2 */
+            $cloudRecord2 = $cloud->first();
             $response = $client->request(
                 'GET',
-                $cloud->first()->cloud_central_domain . '/tenants',
+                $cloudRecord2->cloud_central_domain . '/tenants',
                 [
                     'query' => [
                         'key' => $keys->app_key,

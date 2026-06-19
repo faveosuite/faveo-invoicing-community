@@ -79,7 +79,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read Currency|null $defaultCurrency
  * @property-read \App\Model\Common\Language|null $language
  * @property-read \App\Model\Common\Timezone|null $timezone
- *
  * @method static \Database\Factories\Model\Common\SettingFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting newQuery()
@@ -147,11 +146,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting whereWebsite($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting whereWelcomeMail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting whereZip($value)
- *
  * @mixin \Eloquent
  */
 class Setting extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -172,6 +173,9 @@ class Setting extends Model
 
     protected string $logNameColumn = 'Company Settings';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'company', 'website', 'phone', 'logo', 'phone_country_iso',
         'address', 'host', 'port', 'encryption', 'email', 'password',
@@ -185,10 +189,16 @@ class Setting extends Model
         'sending_status',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['settings/system'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -235,6 +245,9 @@ class Setting extends Model
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function password(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
@@ -261,6 +274,9 @@ class Setting extends Model
         }
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function logo(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
@@ -268,6 +284,9 @@ class Setting extends Model
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function adminLogo(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
@@ -275,6 +294,9 @@ class Setting extends Model
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function favIcon(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
@@ -282,21 +304,33 @@ class Setting extends Model
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Currency, $this>
+     */
     public function defaultCurrency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Currency::class, 'default_currency', 'code');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Country, $this>
+     */
     public function country(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Country::class, 'country', 'country_code_char2');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<State, $this>
+     */
     public function state(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(State::class, 'state', 'state_subdivision_code');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Language, $this>
+     */
     public function language(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Language::class, 'content', 'locale');

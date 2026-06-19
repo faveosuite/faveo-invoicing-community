@@ -51,7 +51,7 @@ class LicenseHelper
             $url = 'http://'.$url;
         }
 
-        return str_ireplace('www.', '', parse_url($url, PHP_URL_HOST) ?? '');
+        return str_ireplace('www.', '', (string) (parse_url($url, PHP_URL_HOST) ?? ''));
     }
 
     public static function logAdminReport(string $reportText, mixed $accountId, int $reportSystem, int $reportStatus): int

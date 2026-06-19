@@ -23,7 +23,6 @@ use Override;
  * @property-read \App\License\Models\License|null $license
  * @property-read Product|null $product
  * @property-read User|null $user
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseReport newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseReport newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseReport pending()
@@ -38,7 +37,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseReport whereReportText($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseReport whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseReport whereUserId($value)
- *
  * @mixin \Eloquent
  */
 class LicenseReport extends Model
@@ -79,8 +77,11 @@ class LicenseReport extends Model
         return $this->belongsTo(License::class, 'license_code', 'license_code');
     }
 
+        /**
+     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query
+     */
     #[Scope]
-    protected function pending(\Illuminate\Database\Eloquent\Builder $query): mixed
+        protected function pending(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where('report_status', 0);
     }

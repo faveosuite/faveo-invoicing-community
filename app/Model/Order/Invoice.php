@@ -45,7 +45,6 @@ use Override;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Subscription> $subscriptions
  * @property-read int|null $subscriptions_count
  * @property-read User|null $user
- *
  * @method static \Database\Factories\Model\Order\InvoiceFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice newQuery()
@@ -70,11 +69,13 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereUserId($value)
- *
  * @mixin \Eloquent
  */
 class Invoice extends BaseModel
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -89,6 +90,9 @@ class Invoice extends BaseModel
 
     protected string $logName = 'invoice';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'user_id', 'number', 'date', 'coupon_code', 'discount', 'discount_mode',
         'grand_total', 'currency', 'status', 'description', 'is_renewed', 'processing_fee', 'billing_pay', 'cloud_domain', 'credits',
@@ -96,6 +100,9 @@ class Invoice extends BaseModel
 
     protected string $logNameColumn = 'number';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['invoices', 'show'],
         'params' => [
@@ -103,6 +110,9 @@ class Invoice extends BaseModel
         ],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -163,6 +173,9 @@ class Invoice extends BaseModel
     }
 
     // Subscriptions reached through the pivot: Invoice → order_invoice_relations → subscriptions
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Model>
+     */
     public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(
@@ -191,6 +204,9 @@ class Invoice extends BaseModel
         return $this->hasMany(Payment::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function status(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value): string {

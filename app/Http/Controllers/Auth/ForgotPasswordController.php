@@ -58,7 +58,7 @@ class ForgotPasswordController extends Controller
         try {
             $email = $request->email;
 
-            $rateLimit = rateLimitForKeyIp('forgot_password'.$email, 3, 360, $request->ip());
+            $rateLimit = rateLimitForKeyIp('forgot_password'.$email, 3, 360, (string) $request->ip());
 
             if ($rateLimit['status']) {
                 return errorResponse(__('message.too_many_forgot_attempts', ['time' => $rateLimit['remainingTime']]));
@@ -79,8 +79,10 @@ class ForgotPasswordController extends Controller
             $user = $user->where('email', $email)->firstOrFail();
 
             //check in the settings
+            /** @var \App\Model\Common\Setting $setting */
             $setting = Setting::find(1);
             //template
+            /** @var \App\Model\Common\Template $template */
             $template = TemplateType::getSelectedTemplate('forgot_password_mail');
 
             $contact = getContactData();

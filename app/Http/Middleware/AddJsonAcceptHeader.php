@@ -8,6 +8,9 @@ use Symfony\Component\HttpFoundation\HeaderBag;
 
 class AddJsonAcceptHeader
 {
+    /**
+     * @var array<mixed>
+     */
     private array $allowedEndpoints = [
     ];
 

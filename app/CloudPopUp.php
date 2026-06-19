@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp query()
@@ -27,11 +26,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class CloudPopUp extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -43,16 +44,25 @@ class CloudPopUp extends Model
 
     protected string $logNameColumn = 'Settings';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'cloud_top_message',
         'cloud_label_field',
         'cloud_label_radio',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['view/tenant'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

@@ -51,7 +51,9 @@ class EmailSettingsController extends Controller
     {
         try {
             $emailSettings = $request->all();
-            $this->emailConfig = Setting::first();
+            /** @var \App\Model\Common\Setting $emailConfig */
+            $emailConfig = Setting::firstOrFail();
+            $this->emailConfig = $emailConfig;
 
             $this->emailConfig->fill($emailSettings);
             if (! $this->checkSendConnection($this->emailConfig)) {
@@ -78,7 +80,7 @@ class EmailSettingsController extends Controller
      */
     private function errorhandler()
     {
-        return method_exists($this->error, 'getMessage') ? $this->error->getMessage() : $this->error;
+        return ($this->error instanceof \Throwable) ? $this->error->getMessage() : (string) $this->error;
     }
 
     /**

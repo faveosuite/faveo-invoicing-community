@@ -56,7 +56,7 @@ trait SystemActivityLogsTrait
     {
         $properties = $activity->properties instanceof Collection
             ? $activity->properties
-            : collect($activity->properties);
+            : collect($activity->properties ?? []);
 
         foreach (['attributes', 'old'] as $key) {
             if ($properties->has($key)) {
@@ -73,13 +73,17 @@ trait SystemActivityLogsTrait
     {
         $userId = $activity->subject->{$this->causerID} ?? null;
 
-        if ($user = User::find($userId)) {
+        $user = User::find($userId);
+        if ($user instanceof User) {
             $activity->causer()->associate($user);
         }
     }
 
     /**
      * Format attributes using mappings.
+     * @param array<mixed> $attributes
+     * @param array<mixed> $mappings
+     * @return array<mixed>
      */
     private function formatLoggingAttributes(array $attributes, array $mappings): array
     {
@@ -133,6 +137,7 @@ trait SystemActivityLogsTrait
     {
         if ($eventName === 'deleted') {
             if (
+                $activity->subject &&
                 method_exists($activity->subject, 'isForceDeleting') &&
                 ! $activity->subject->isForceDeleting()
             ) {

@@ -37,7 +37,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $stripe_webhook_secret
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Database\Factories\ApiKeyFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApiKey newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApiKey newQuery()
@@ -70,11 +69,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApiKey whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApiKey whereVerificationPreference($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApiKey whereZohoApiKey($value)
- *
  * @mixin \Eloquent
  */
 class ApiKey extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -88,6 +89,9 @@ class ApiKey extends Model
 
     protected string $logNameColumn = 'Settings';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'rzp_key', 'rzp_secret', 'apilayer_key', 'bugsnag_api_key',
         'zoho_api_key', 'msg91_auth_key', 'msg91_sender', 'msg91_template_id',
@@ -99,10 +103,16 @@ class ApiKey extends Model
         'require_pipedrive_user_verification', 'verification_preference',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['/third-party-integration'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

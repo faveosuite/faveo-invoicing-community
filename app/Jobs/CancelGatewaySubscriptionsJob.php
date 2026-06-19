@@ -32,7 +32,7 @@ class CancelGatewaySubscriptionsJob implements ShouldQueue
             ->chunkById(50, function ($subscriptions) use ($service, $statusField): void {
                 foreach ($subscriptions as $subscription) {
                     try {
-                        $service->cancelSubscription(ucfirst($this->gateway), $subscription->subscribe_id);
+                        $service->cancelSubscription(ucfirst($this->gateway), (string) $subscription->subscribe_id);
                     } catch (Exception $e) {
                         Logger::warning(sprintf('Failed to cancel %s subscription %s: ', $this->gateway, $subscription->subscribe_id).$e->getMessage()); // @phpstan-ignore staticMethod.notFound
                     }

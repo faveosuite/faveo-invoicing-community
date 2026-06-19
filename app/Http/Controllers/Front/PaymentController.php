@@ -95,8 +95,8 @@ class PaymentController extends Controller
         $taxes = InvoiceTaxLine::where('invoice_id', $model->id)->get()
             ->groupBy('label')
             ->map(fn ($group): array => [
-                'label' => $group->first()->label,
-                'rate' => (float) $group->first()->rate,
+                'label' => $group->first()?->label,
+                'rate' => (float) $group->first()?->rate,
                 'amount' => round((float) $group->sum('amount'), 2),
             ])->values()->all();
 
@@ -137,7 +137,7 @@ class PaymentController extends Controller
             try {
                 $downloadable = $product
                     && ! in_array($product->id, $cloudProducts)
-                    && ($permissions->getPermissionsForProduct($order->product)['downloadPermission'] ?? 0) == 1;
+                    && ($permissions->getPermissionsForProduct((int) $order->product)['downloadPermission'] ?? 0) == 1;
             } catch (Throwable) {
                 $downloadable = false;
             }
@@ -258,7 +258,7 @@ class PaymentController extends Controller
     {
         $invoice = Invoice::find($invoiceId);
         abort_if(! $invoice, 404, 'Invoice not found.');
-        abort_if((int) $invoice->user_id !== (int) $request->user()->getAuthIdentifier(), 403, 'Forbidden');
+        abort_if((int) $invoice->user_id !== (int) $request->user()?->getAuthIdentifier(), 403, 'Forbidden');
 
         return $invoice;
     }

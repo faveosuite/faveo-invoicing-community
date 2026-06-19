@@ -25,7 +25,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $payment_type
  * @property-read Order|null $orderDetails
  * @property-read \App\User|null $user
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment_log newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment_log newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment_log query()
@@ -43,11 +42,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment_log whereSubject($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment_log whereTo($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment_log whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Payment_log extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
 
     public $timestamps = true;
@@ -56,11 +57,17 @@ class Payment_log extends Model
 
     protected $fillable = ['id', 'from', 'to', 'date', 'subject', 'body', 'status', 'amount', 'payment_type'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, $this>
+     */
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'from', 'email');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Order, $this>
+     */
     public function orderDetails(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Order::class, 'order', 'number');

@@ -20,11 +20,14 @@ class ProfileRequest extends Request
 
     /**
      * Get the validation rules that apply to the request.
+     * @return array<mixed>
      */
     public function rules(): array
     {
         if ($this->segment(1) == 'profile') {
-            $userid = Auth::user()->id;
+            /** @var \App\User $authUser */
+            $authUser = Auth::user();
+            $userid = $authUser->id;
 
             return [
                 'first_name' => ['required'],
@@ -41,7 +44,9 @@ class ProfileRequest extends Request
         }
 
         if ($this->segment(1) == 'my-profile') {
-            $userid = Auth::user()->id;
+            /** @var \App\User $authUser2 */
+            $authUser2 = Auth::user();
+            $userid = $authUser2->id;
 
             return [
                 'first_name' => ['required', 'min:3', 'max:30'],

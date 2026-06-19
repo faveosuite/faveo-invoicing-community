@@ -26,15 +26,15 @@ class GithubController extends Controller
             $token = $request->input('git_password');
 
             if (! GithubApiController::validateCredentials($username, $token)) {
-                return errorResponse(Lang::get('message.github_invalid'));
+                return errorResponse(__('message.github_invalid'));
             }
 
-            StatusSetting::find(1)->update(['github_status' => $request->input('status')]);
-            Github::find(1)->update(['username' => $username, 'password' => $token]);
+            StatusSetting::where('id', 1)->update(['github_status' => $request->input('status')]);
+            Github::where('id', 1)->update(['username' => $username, 'password' => $token]);
 
-            return successResponse(Lang::get('message.github_valid'));
+            return successResponse(__('message.github_valid'));
         } catch (Exception) {
-            return errorResponse(Lang::get('message.github_invalid'));
+            return errorResponse(__('message.github_invalid'));
         }
     }
 

@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Language newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Language newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Language query()
@@ -28,7 +27,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Language whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Language whereTranslation($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Language whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Language extends Model
@@ -48,6 +46,9 @@ class Language extends Model
 
     protected string $logNameColumn = 'name';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'name',
         'translation',
@@ -55,10 +56,16 @@ class Language extends Model
         'status',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['languages'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

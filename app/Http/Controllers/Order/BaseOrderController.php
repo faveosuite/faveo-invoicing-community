@@ -57,6 +57,7 @@ class BaseOrderController extends ExtendedOrderController
      *
      *
      * @throws Exception
+     * @return \Illuminate\Support\Collection<int|string, mixed>
      */
     public function executeOrder(int $invoiceId): Collection
     {
@@ -92,7 +93,9 @@ class BaseOrderController extends ExtendedOrderController
 
         if ($item->plan_id) {
             $this->addSubscription($order->id, $item->plan_id, $version, $product, $serialKey, $item->invoice_id);
-            $addOnIds = Product::find($product)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray();
+            /** @var \App\Model\Product\Product $productForAddons */
+            $productForAddons = Product::find($product);
+            $addOnIds = $productForAddons->productPluginGroupsAsProduct->pluck('plugin_id')->toArray();
             $options = $this->formatConfigurableOptions($product)->toArray();
             resolve(LicenseService::class)->syncAddons($serialKey, $addOnIds, $options);
         }
@@ -231,11 +234,14 @@ class BaseOrderController extends ExtendedOrderController
         //user
         $productId = Product::where('id', $product)->value('id');
         $users = new User();
+        /** @var \App\User $user */
         $user = $users->find($userid);
         //check in the settings
         $settings = new Setting();
+        /** @var \App\Model\Common\Setting $setting */
         $setting = $settings::find(1);
         $orders = new Order();
+        /** @var \App\Model\Order\Order $order */
         $order = $orders->where('id', $orderid)->first();
         $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
         $invoice = Invoice::find($invoiceId);
@@ -247,7 +253,7 @@ class BaseOrderController extends ExtendedOrderController
 
         // $downloadurl = $this->downloadUrl($userid, $orderid,$productId);
         $myaccounturl = url('my-order/'.$orderid);
-        $invoiceurl = $this->invoiceUrl($orderid); // @phpstan-ignore argument.type
+        $invoiceurl = (string) $this->invoiceUrl($orderid); // @phpstan-ignore argument.type
         //template
         $this->getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $order->serial_key);
     }
@@ -262,6 +268,7 @@ class BaseOrderController extends ExtendedOrderController
 
         $value = $product->type;
 
+        /** @var \App\Model\Common\Template $template */
         $template = TemplateType::getSelectedTemplate('order_mail');
 
         $knowledgeBaseUrl = $setting->knowledge_base_url;
@@ -275,8 +282,7 @@ class BaseOrderController extends ExtendedOrderController
         $orderHeading = ($value != '4') ? 'Download' : 'Order';
         $orderUrl = ($value != '4') ? $downloadurl : url('my-order/'.$orderid);
         $end = resolve(OrderController::class)->expiry((int) $orderid);
-        $date = date_create($end ?? '');
-        $end = date_format($date, 'M d, Y');
+        $end = $end ? Date::parse($end)->format('M d, Y') : '';
 
         $replace = [
             'orderHeading' => $orderHeading,
@@ -300,9 +306,10 @@ class BaseOrderController extends ExtendedOrderController
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 
         $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
+        /** @var \App\Model\Order\Invoice|null $orderInvoice */
         $orderInvoice = $invoiceId ? Invoice::find($invoiceId) : null;
         if ($orderInvoice?->grand_total) {
-            SettingsController::sendPaymentSuccessMailtoAdmin($orderInvoice, $orderInvoice->grand_total, $user, $product->name); // @phpstan-ignore argument.type
+            SettingsController::sendPaymentSuccessMailtoAdmin($orderInvoice, (float) $orderInvoice->grand_total, $user, $product->name);
         }
     }
 
@@ -337,6 +344,11 @@ class BaseOrderController extends ExtendedOrderController
         return url('download/'.$userid.'/'.$number);
     }
 
+    /**
+     * @return array<mixed>
+     * @return array<mixed>
+     * @return \Illuminate\Support\Collection<int|string, mixed>
+     */
     public function formatConfigurableOptions(int $productId): \Illuminate\Support\Collection|array
     {
         // Retrieve the product ID and related plugin IDs in one query

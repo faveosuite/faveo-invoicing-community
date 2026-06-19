@@ -44,6 +44,9 @@ class ReportsController extends Controller
         return response(['message' => $page_message]);
     }
 
+    /**
+     * @return array<mixed>
+     */
     protected function whichReportDeleted(mixed $whichReport, mixed $action_success, mixed $removed_records, mixed $error_details = ''): \Illuminate\Contracts\Translation\Translator|string|array
     {
         $page_message = '';
@@ -102,7 +105,7 @@ class ReportsController extends Controller
             'user_formatted' => $report->user->email ?? 'System',
         ]);
 
-        return successResponse(Lang::get('lang.SystemReport_Show'), $reportsQuery, 200);
+        return successResponse(__('lang.SystemReport_Show'), $reportsQuery, 200);
     }
 
     public function reportArrayCracking(Request $request): \Illuminate\Http\JsonResponse
@@ -146,7 +149,7 @@ class ReportsController extends Controller
             'license_id' => $licenseIdsByCode[$report->license_code] ?? null,
         ]);
 
-        return successResponse(Lang::get('lang.CrackingReport_Show'), $crakingReports, 200);
+        return successResponse(__('lang.CrackingReport_Show'), $crakingReports, 200);
     }
 
     public function reportArrayLicense(Request $request): \Illuminate\Http\JsonResponse
@@ -191,7 +194,7 @@ class ReportsController extends Controller
             'license_id' => $licenseIdsByCode[$report->license_code] ?? null,
         ]);
 
-        return successResponse(Lang::get('lang.LicenseReport_Show'), $LicenseReports, 200);
+        return successResponse(__('lang.LicenseReport_Show'), $LicenseReports, 200);
     }
 
     public function reportArrayUpdate(Request $request): \Illuminate\Http\JsonResponse
@@ -231,7 +234,7 @@ class ReportsController extends Controller
             'product_id' => $report->product_id,
         ]);
 
-        return successResponse(Lang::get('lang.report_update'), $updateReports, 200);
+        return successResponse(__('lang.report_update'), $updateReports, 200);
     }
 
     private function reportStatusFormatter(mixed $status): mixed

@@ -21,7 +21,7 @@ class DependencyController extends NonPublicDependencies
             $data = $this->handleDependencies($type);
 
             if (! $data) {
-                return errorResponse(Lang::get('lang.fails'));
+                return errorResponse(__('lang.fails'));
             }
 
             return successResponse('', $data);
@@ -46,7 +46,7 @@ class DependencyController extends NonPublicDependencies
     /**
      * gives array of time zones.
      *
-     * @return array array of time zones
+     * @return array<mixed> array of time zones
      */
     protected function timeZones()
     {
@@ -63,7 +63,7 @@ class DependencyController extends NonPublicDependencies
     /**
      * gives array of languages.
      *
-     * @return array array of languages
+     * @return array<mixed> array of languages
      */
     protected function languages()
     {
@@ -80,7 +80,7 @@ class DependencyController extends NonPublicDependencies
     /**
      * gives array of countries.
      *
-     * @return array array of countries
+     * @return array<mixed> array of countries
      */
     protected function countries()
     {
@@ -101,14 +101,16 @@ class DependencyController extends NonPublicDependencies
     /**
      * gives array of states.
      *
-     * @return array array of states
+     * @return array<mixed> array of states
      */
     protected function states()
     {
         $this->sortField = 'state_subdivision_name';
         $this->sortOrder = 'asc';
 
-        $iso = $this->request->input('country') ?: Setting::find(1)->country;
+        /** @var \App\Model\Common\Setting $settingForCountry */
+        $settingForCountry = Setting::find(1);
+        $iso = $this->request->input('country') ?: $settingForCountry->country;
 
         $baseQuery = $this->baseQuery(new State)
             ->where('state_subdivision_name', 'LIKE', '%'.$this->searchQuery.'%')

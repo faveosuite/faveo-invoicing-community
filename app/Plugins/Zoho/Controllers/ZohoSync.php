@@ -7,6 +7,9 @@ use Exception;
 
 class ZohoSync
 {
+    /**
+     * @param array<mixed> $fields
+     */
     public function sync(string $platform, string $module, array $fields): void
     {
         foreach ($fields as $field) {
@@ -31,6 +34,9 @@ class ZohoSync
      | Normalizers
      |----------------------------------------------------*/
 
+    /**
+     * @param array<mixed> $field
+     */
     protected function getFieldUid(string $platform, array $field): string
     {
         return match ($platform) {
@@ -40,6 +46,9 @@ class ZohoSync
         };
     }
 
+    /**
+     * @param array<mixed> $field
+     */
     protected function getZohoKey(string $platform, array $field): string
     {
         return match ($platform) {
@@ -49,6 +58,9 @@ class ZohoSync
         };
     }
 
+    /**
+     * @param array<mixed> $field
+     */
     protected function getDisplayName(string $platform, array $field): string
     {
         return match ($platform) {
@@ -60,6 +72,7 @@ class ZohoSync
 
     /**
      * ONE unified field type.
+     * @param array<mixed> $field
      */
     protected function getFieldType(string $platform, array $field): ?string
     {
@@ -86,6 +99,9 @@ class ZohoSync
         };
     }
 
+    /**
+     * @param array<mixed> $field
+     */
     protected function isMandatory(string $platform, array $field): bool
     {
         return match ($platform) {

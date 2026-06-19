@@ -6,6 +6,7 @@ use App\Model\Order\Payment;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Logger;
 use Response;
 
@@ -17,12 +18,12 @@ class AdvanceSearchController extends AdminOrderInvoiceController
     public function getregFromTill(mixed $join, mixed $reg_from, mixed $reg_till): mixed
     {
         if ($reg_from) {
-            $fromDateStart = date_create($reg_from)->format('Y-m-d').' 00:00:00';
+            $fromDateStart = Date::parse($reg_from)->format('Y-m-d').' 00:00:00';
             $join = $join->where('users.created_at', '>=', $fromDateStart);
         }
 
         if ($reg_till) {
-            $tillDateEnd = date_create($reg_till)->format('Y-m-d').' 23:59:59';
+            $tillDateEnd = Date::parse($reg_till)->format('Y-m-d').' 23:59:59';
             $join = $join->where('users.created_at', '<=', $tillDateEnd);
         }
 
@@ -56,11 +57,15 @@ class AdvanceSearchController extends AdminOrderInvoiceController
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getClientDetail(mixed $id): array
     {
-        $client = User::where('id', $id)->first();
+        /** @var \App\User $client */
+        $client = User::where('id', $id)->firstOrFail();
         $currency = $client->currency;
-        $client->state = getStateByCode($client->country, $client->state)['name'];
+        $client->state = getStateByCode((string) $client->country, (string) $client->state)['name'];
 
         $client->country = ucwords(strtolower((string) getCountryByCode($client->country)));
 

@@ -28,7 +28,6 @@ use Override;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\PlanPrice> $planPrice
  * @property-read int|null $plan_price_count
  * @property-read Product|null $productRelation
- *
  * @method static \Database\Factories\Model\Payment\PlanFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan newQuery()
@@ -41,11 +40,13 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereProduct($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Plan extends BaseModel
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -57,14 +58,23 @@ class Plan extends BaseModel
 
     protected string $logNameColumn = 'name';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'name', 'product', 'allow_tax', 'days', 'status',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['plans', ':id', 'edit'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -92,6 +102,9 @@ class Plan extends BaseModel
         return $this->belongsTo(Product::class, 'product', 'id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Relations\Pivot, string>
+     */
     public function periods(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongstoMany(Period::class, 'plans_periods_relation')->withTimestamps();
@@ -107,6 +120,9 @@ class Plan extends BaseModel
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ConfigOption, $this>
+     */
     public function configOptions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ConfigOption::class);

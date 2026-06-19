@@ -16,7 +16,6 @@ use App\BaseModel;
  * @property int|null $exception_log_id
  * @property int|null $duration
  * @property-read \App\BillingLog\Model\ExceptionLog|null $exception
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog query()
@@ -28,7 +27,6 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class CronLog extends BaseModel
@@ -41,6 +39,9 @@ class CronLog extends BaseModel
 
     protected $hidden = ['exception_log_id'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<ExceptionLog, $this>
+     */
     public function exception(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ExceptionLog::class, 'exception_log_id');

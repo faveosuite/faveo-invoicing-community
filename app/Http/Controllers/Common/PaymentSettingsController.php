@@ -16,6 +16,9 @@ class PaymentSettingsController extends Controller
         $this->middleware('admin');
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function fetchConfig(): array|\Illuminate\Http\JsonResponse
     {
         $configs = $this->readConfigs();
@@ -58,6 +61,9 @@ class PaymentSettingsController extends Controller
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function readConfigs(): array|string
     {
         $dir = app_path().DIRECTORY_SEPARATOR.'Plugins'.DIRECTORY_SEPARATOR;
@@ -145,7 +151,7 @@ class PaymentSettingsController extends Controller
 \'App\Plugins\\'.$slug."\\ServiceProvider',";
             $path_to_file = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
 
-            $file_contents = file_get_contents($path_to_file);
+            $file_contents = (string) file_get_contents($path_to_file);
             $file_contents = str_replace($str, '//', $file_contents);
             file_put_contents($path_to_file, $file_contents);
         }
@@ -171,7 +177,7 @@ class PaymentSettingsController extends Controller
             file_put_contents($app, implode("\n", $lines));
             $plugs->create(['name' => $name, 'path' => $name, 'status' => 1]);
 
-            return successResponse(Lang::get('message.status_change'));
+            return successResponse(__('message.status_change'));
         }
 
         if ($status) {
@@ -179,20 +185,23 @@ class PaymentSettingsController extends Controller
             file_put_contents($app, implode("\n", $lines));
         } else {
             $plug->status = 0;
-            $file_contents = file_get_contents($app);
+            $file_contents = (string) file_get_contents($app);
             $file_contents = str_replace($str, '//', $file_contents);
             file_put_contents($app, $file_contents);
         }
 
         $plug->save();
 
-        return successResponse(Lang::get('message.status_change'));
+        return successResponse(__('message.status_change'));
     }
 
     public function getPaymentGatewayList(): \Illuminate\Http\JsonResponse
     {
         try {
             $configs = $this->fetchConfig();
+            if ($configs instanceof \Illuminate\Http\JsonResponse) {
+                return $configs;
+            }
 
             return successResponse('', array_values($configs));
         } catch (Exception $exception) {
@@ -200,6 +209,9 @@ class PaymentSettingsController extends Controller
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getPaymentPluginMap(): array
     {
         static $pluginMap = null;

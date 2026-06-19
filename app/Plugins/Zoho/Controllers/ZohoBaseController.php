@@ -77,6 +77,7 @@ class ZohoBaseController extends Controller
 
     /**
      * Get options for a specific Zoho field.
+     * @return array<mixed>
      */
     public function getOptions(mixed $zohoFieldID): array
     {
@@ -84,6 +85,6 @@ class ZohoBaseController extends Controller
 
         $zohoFields = ZohoFields::find($zohoFieldID);
 
-        return resolveOptions($zohoFields, $localFields);
+        return resolveOptions($zohoFields, $localFields); // @phpstan-ignore argument.type
     }
 }

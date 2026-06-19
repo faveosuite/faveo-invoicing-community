@@ -35,7 +35,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read int|null $installations_count
  * @property-read Order|null $order
  * @property-read \App\Model\Product\Product|null $product
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload active()
  * @method static \Database\Factories\Model\Product\ProductUploadFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload newModelQuery()
@@ -57,11 +56,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereVersionExpireDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereVersionInstallCount($value)
- *
  * @mixin \Eloquent
  */
 class ProductUpload extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -73,14 +74,23 @@ class ProductUpload extends Model
 
     protected string $logNameColumn = 'Settings';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'product_id', 'title', 'version', 'file', 'is_private', 'is_restricted', 'release_type',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['edit-upload', ':id'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -102,29 +112,44 @@ class ProductUpload extends Model
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Order, $this>
+     */
     public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<VersionCallback, $this>
+     */
     public function callbacks(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(VersionCallback::class, 'version_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<VersionInstallation, $this>
+     */
     public function installations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(VersionInstallation::class, 'version_id');
     }
 
+        /**
+     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query
+     */
     #[Scope]
-    protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
+        protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where(function ($q): void {
             $q->where('status', 1);
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function dependencies(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {

@@ -121,6 +121,9 @@ class NonPublicDependencies extends BaseDependencyController
         ]);
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function orderVersions(): array
     {
         $versions = Subscription::where('version', '!=', '')
@@ -196,6 +199,9 @@ class NonPublicDependencies extends BaseDependencyController
         return $this->get('tax_classes', $baseQuery);
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function periods(): array
     {
         $items = Period::orderByRaw('CAST(days AS UNSIGNED)')->get(['id', 'name', 'days']);
@@ -206,6 +212,9 @@ class NonPublicDependencies extends BaseDependencyController
         ];
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function promotionTypes(): array
     {
         $items = PromotionType::orderBy('id')->get(['id', 'name']);

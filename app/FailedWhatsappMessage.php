@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $message
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage query()
@@ -19,7 +18,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage whereMessage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class FailedWhatsappMessage extends Model
@@ -28,6 +26,9 @@ class FailedWhatsappMessage extends Model
 
     protected $fillable = ['message'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function message(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {

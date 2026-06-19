@@ -6,6 +6,10 @@ use Illuminate\Support\Collection;
 
 /**
  * Map local data to Zoho field values using saved mappings.
+ * @param \Illuminate\Support\Collection<int|string, mixed> $mappings
+ * @param array<mixed> $source
+ * @param \Illuminate\Support\Collection<int|string, mixed> $zohoFields
+ * @return array<mixed>
  */
 function zohoMappedFields(
     Collection $zohoFields,
@@ -53,6 +57,8 @@ function zohoMappedFields(
 
 /**
  * Resolve selectable options for a Zoho field.
+ * @param \Illuminate\Support\Collection<int|string, mixed> $localFields
+ * @return array<mixed>
  */
 function resolveOptions(mixed $zohoField, Collection $localFields): array
 {
@@ -77,6 +83,7 @@ function resolveOptions(mixed $zohoField, Collection $localFields): array
 
 /**
  * Resolve selected mapping for a Zoho field.
+ * @return array<mixed>
  */
 function resolveSelected(?ZohoFieldMappings $mapping): ?array
 {

@@ -31,7 +31,6 @@ use Override;
  * @property-read int|null $states_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $users
  * @property-read int|null $users_count
- *
  * @method static Builder<static>|Country newModelQuery()
  * @method static Builder<static>|Country newQuery()
  * @method static Builder<static>|Country query()
@@ -50,7 +49,6 @@ use Override;
  * @method static Builder<static>|Country wherePhonecode($value)
  * @method static Builder<static>|Country whereStatus($value)
  * @method static Builder<static>|Country whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Country extends BaseModel
@@ -80,11 +78,17 @@ class Country extends BaseModel
         return $this->belongsTo(Currency::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<User, $this>
+     */
     public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(User::class, 'country', 'country_code_char2');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<State, $this>
+     */
     public function states(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(State::class, 'country_id', 'country_id');

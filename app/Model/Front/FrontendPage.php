@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Date;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read FrontendPage|null $parent
- *
  * @method static \Database\Factories\Model\Front\FrontendPageFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage newQuery()
@@ -38,11 +37,13 @@ use Illuminate\Support\Facades\Date;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FrontendPage whereUrl($value)
- *
  * @mixin \Eloquent
  */
 class FrontendPage extends BaseModel
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
 
     use SystemActivityLogsTrait;
@@ -55,14 +56,23 @@ class FrontendPage extends BaseModel
 
     protected string $logNameColumn = 'name';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['pages', ':id', 'edit'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -80,6 +90,9 @@ class FrontendPage extends BaseModel
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function slug(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(set: function ($value): array {

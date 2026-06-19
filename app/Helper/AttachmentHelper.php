@@ -107,6 +107,7 @@ class AttachmentHelper
      *
      *
      * @throws Exception
+     * @return array<mixed>
      */
     public function getMetadata(string $path, ?string $disk = null): array
     {

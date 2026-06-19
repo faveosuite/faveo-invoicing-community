@@ -105,6 +105,9 @@ class SetupTestEnv extends LoggableCommand
         $this->createEnvFile($duskEnv, '.env.dusk.testing');
     }
 
+    /**
+     * @param array<mixed> $settings
+     */
     private function createEnvFile(array $settings, string $envFile): void
     {
         $config = '';

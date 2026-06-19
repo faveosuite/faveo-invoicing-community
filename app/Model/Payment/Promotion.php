@@ -24,7 +24,6 @@ use Override;
  * @property-read \App\Model\Payment\PromotionType $promotionType
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\PromoProductRelation> $relation
  * @property-read int|null $relation_count
- *
  * @method static \Database\Factories\Model\Payment\PromotionFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Promotion newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Promotion newQuery()
@@ -38,11 +37,13 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Promotion whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Promotion whereUses($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Promotion whereValue($value)
- *
  * @mixin \Eloquent
  */
 class Promotion extends BaseModel
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -54,14 +55,23 @@ class Promotion extends BaseModel
 
     protected string $logNameColumn = 'code';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'code', 'type', 'uses', 'value', 'start', 'expiry',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['promotions', ':id', 'edit'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -74,6 +84,9 @@ class Promotion extends BaseModel
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<PromoProductRelation, $this>
+     */
     public function relation(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PromoProductRelation::class, 'promotion_id');

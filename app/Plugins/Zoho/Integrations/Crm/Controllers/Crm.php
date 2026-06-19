@@ -22,8 +22,11 @@ class Crm
             ->where('platform', 'crm')
             ->firstOrFail();
 
+        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $crmIntClient */
+        $crmIntClient = $crmIntegration->client;
+
         $this->zohoApi = new ZohoCrmApi(
-            getZohoRegion($crmIntegration->client->region),
+            getZohoRegion($crmIntClient->region),
             resolve(ZohoAccessToken::class),
             $crmIntegration->id
         );
@@ -36,6 +39,7 @@ class Crm
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
+     * @return \Illuminate\Support\Collection<int|string, mixed>
      */
     public function fields(string $module): Collection
     {
@@ -50,6 +54,8 @@ class Crm
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
+     * @param array<mixed> $params
+     * @return \Illuminate\Support\Collection<int|string, mixed>
      */
     public function records(string $module, array $params = []): Collection
     {
@@ -64,6 +70,7 @@ class Crm
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
+     * @param array<mixed> $data
      */
     public function create(string $module, array $data): void
     {
@@ -76,6 +83,7 @@ class Crm
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
+     * @param array<mixed> $data
      */
     public function update(string $module, string $recordId, array $data): void
     {

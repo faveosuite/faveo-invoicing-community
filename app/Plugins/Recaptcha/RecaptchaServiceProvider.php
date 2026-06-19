@@ -46,6 +46,9 @@ class RecaptchaServiceProvider extends ServiceProvider
      * Get the services provided by the provider.
      */
     #[Override]
+    /**
+     * @return array<mixed>
+     */
     public function provides(): array
     {
         return ['recaptcha'];

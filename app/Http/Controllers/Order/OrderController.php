@@ -153,14 +153,14 @@ class OrderController extends BaseOrderController
                     'product_id' => $order->product,
                     'group' => $order->productRelation?->groupRelation?->name,
                     'group_id' => $order->productRelation?->group,
-                    'plan' => $order->subscription->plan?->name,
-                    'plan_id' => $order->subscription->plan?->id,
+                    'plan' => $order->subscription?->plan?->name,
+                    'plan_id' => $order->subscription?->plan?->id,
                     'version' => $latestVersion ? getVersionAndLabel($latestVersion, $order->product) : null, // @phpstan-ignore argument.type
                     'agents' => $licenseAgents,
                     'status' => empty($order->installationDetail) ? 'Inactive' : 'Active',
                     'order_date' => $order->created_at,
-                    'update_ends_at' => strtotime((string) $order->subscription->ends_at) > 1 ? $order->subscription->ends_at : null,
-                    'subscription_updated_at' => $order->subscription->updated_at,
+                    'update_ends_at' => strtotime((string) $order->subscription?->ends_at) > 1 ? $order->subscription?->ends_at : null,
+                    'subscription_updated_at' => $order->subscription?->updated_at,
                     'user' => $user,
                 ];
             });
@@ -189,9 +189,9 @@ class OrderController extends BaseOrderController
         $subscription = $order->subscription;
 
         $expiryDates = [
-            'subscription_end' => $subscription && strtotime((string) $subscription->ends_at) > 1 ? getExpiryLabel($subscription->ends_at) : null,
-            'update_end' => $subscription && strtotime((string) $subscription->update_ends_at) > 1 ? getExpiryLabel($subscription->update_ends_at) : null,
-            'support_end' => $subscription && strtotime((string) $subscription->support_ends_at) > 1 ? getExpiryLabel($subscription->support_ends_at) : null,
+            'subscription_end' => $subscription && strtotime((string) $subscription->ends_at) > 1 ? getExpiryLabel((string) $subscription->ends_at) : null,
+            'update_end' => $subscription && strtotime((string) $subscription->update_ends_at) > 1 ? getExpiryLabel((string) $subscription->update_ends_at) : null,
+            'support_end' => $subscription && strtotime((string) $subscription->support_ends_at) > 1 ? getExpiryLabel((string) $subscription->support_ends_at) : null,
         ];
 
         $paymentLog = Payment_log::where('order', $order->number)
@@ -208,8 +208,8 @@ class OrderController extends BaseOrderController
                 'expiry_dates' => $expiryDates,
                 'installation_limit' => $license?->license_limit,
             ],
-            'autorenewal' => $order->subscription->autoRenew_status,
-            'is_subscribed' => $order->subscription->is_subscribed,
+            'autorenewal' => $order->subscription?->autoRenew_status,
+            'is_subscribed' => $order->subscription?->is_subscribed,
             'payment_log' => $paymentLog,
         ]);
     }
@@ -349,9 +349,12 @@ class OrderController extends BaseOrderController
                 'renewal', 'inact_ins', 'version',
             ]);
 
-            $email = Auth::user()->email;
+            /** @var \App\User $authUser */
+            $authUser = Auth::user();
+            $email = $authUser->email;
 
-            $driver = QueueService::where('status', '1')->first();
+            /** @var \App\Model\Mailjob\QueueService $driver */
+            $driver = QueueService::where('status', '1')->firstOrFail();
 
             if ($driver->name === 'Sync') {
                 return errorResponse(__('message.cannot_sync_queue_driver'));
@@ -402,9 +405,9 @@ class OrderController extends BaseOrderController
 
             $payments->getCollection()->transform(fn ($payment): array => [
                 'id' => $payment->id,
-                'invoice_number' => $payment->invoice->number,
+                'invoice_number' => $payment->invoice?->number,
                 'user_id' => $payment->user_id,
-                'amount' => currencyFormat($payment->amount, $payment->invoice->currency),
+                'amount' => currencyFormat($payment->amount, $payment->invoice?->currency),
                 'payment_method' => $payment->payment_method,
                 'payment_status' => $payment->payment_status,
                 'created_at' => $payment->created_at,

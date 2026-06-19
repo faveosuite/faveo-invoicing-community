@@ -110,6 +110,9 @@ class CacheSettingsController extends Controller
         return in_array($driver, ['redis', 'memcached', 'dynamodb'], strict: true);
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     private function testConnection(string $driver, array $data): ?string
     {
         try {
@@ -185,6 +188,9 @@ class CacheSettingsController extends Controller
         };
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function formFields(string $driver): array
     {
         return match ($driver) {
@@ -211,6 +217,9 @@ class CacheSettingsController extends Controller
         };
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function field(string $label, string $name, mixed $value, bool $required, string $type = 'text'): array
     {
         return compact('label', 'name', 'value', 'required', 'type');

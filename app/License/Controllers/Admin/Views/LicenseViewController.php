@@ -22,7 +22,7 @@ class LicenseViewController extends Controller
             ->find($license_id);
 
         if (! $license) {
-            return successResponse(Lang::get('lang.license_details'), data: null);
+            return successResponse(__('lang.license_details'), data: null);
         }
 
         $formatted = (object) [
@@ -40,14 +40,14 @@ class LicenseViewController extends Controller
             'license_updates_date' => $license->license_updates_date,
             'license_status' => $license->license_status,
             'product_title' => $license->product->name,
-            'client_email' => $license->user->email,
+            'client_email' => $license->user?->email,
             'license_order_url' => $license->license_order_number ?? '',
             'installation_counts' => $license->installation_counts, // @phpstan-ignore property.notFound
             'latest_call_backs' => $license->latest_call_backs, // @phpstan-ignore property.notFound
             'call_backs_count' => $license->call_backs_count,
         ];
 
-        return successResponse(Lang::get('lang.license_details'), (array) $formatted);
+        return successResponse(__('lang.license_details'), (array) $formatted);
     }
 
     public function getLicenseInstallations(Request $request, mixed $license_id): \Illuminate\Http\JsonResponse
@@ -60,7 +60,7 @@ class LicenseViewController extends Controller
 
         $license = License::query()->select('id', 'user_id as client_id', 'license_code')->find($license_id);
         if (! $license) {
-            return successResponse(Lang::get('lang.license_installations'), collect([]));
+            return successResponse(__('lang.license_installations'), collect([]));
         }
 
         $licenseInstallations = Installation::query()
@@ -77,7 +77,7 @@ class LicenseViewController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        return successResponse(Lang::get('lang.license_installations'), $licenseInstallations);
+        return successResponse(__('lang.license_installations'), $licenseInstallations);
     }
 
     public function getLicenseCallBacks(Request $request, mixed $license_id): \Illuminate\Http\JsonResponse
@@ -90,7 +90,7 @@ class LicenseViewController extends Controller
 
         $license = License::query()->select('id', 'user_id as client_id', 'license_code')->find($license_id);
         if (! $license) {
-            return successResponse(Lang::get('lang.license_callback'), collect([]));
+            return successResponse(__('lang.license_callback'), collect([]));
         }
 
         $licenseCallBacks = LicenseCallback::where('user_id', $license->client_id) // @phpstan-ignore property.notFound
@@ -113,7 +113,7 @@ class LicenseViewController extends Controller
             'callback_status' => $cb->callback_status,
         ]);
 
-        return successResponse(Lang::get('lang.license_callback'), $licenseCallBacks);
+        return successResponse(__('lang.license_callback'), $licenseCallBacks);
     }
 
     public function getLicenseInstallationLogs(Request $request, mixed $license_id): \Illuminate\Http\JsonResponse

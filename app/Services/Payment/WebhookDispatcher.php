@@ -7,8 +7,14 @@ use App\Model\Payment\OpenPaymentOrder;
 
 class WebhookDispatcher
 {
+    /**
+     * @var array<mixed>
+     */
     private array $handlers = [];
 
+    /**
+     * @param array<mixed> $events
+     */
     public function on(string|array $events, callable $handler): static
     {
         foreach ((array) $events as $event) {
@@ -18,6 +24,9 @@ class WebhookDispatcher
         return $this;
     }
 
+    /**
+     * @param array<mixed> $event
+     */
     public function dispatch(string $eventType, array $event): void
     {
         ($this->handlers[$eventType] ?? static fn (): null => null)($event);
@@ -57,10 +66,15 @@ class WebhookDispatcher
 
     // ── Stripe payment handlers ───────────────────────────────────────────
 
+    /**
+     * @param array<mixed> $object
+     */
     private static function confirmStripePayment(array $object): void
     {
         if ($invoiceId = $object['metadata']['invoice_id'] ?? null) {
-            if ($invoice = Invoice::find($invoiceId)) {
+            /** @var \App\Model\Order\Invoice|null $invoice */
+            $invoice = Invoice::find($invoiceId);
+            if ($invoice) {
                 resolve(InvoicePaymentService::class)->confirm($invoice, 'Stripe', [
                     'payment_intent' => $object['payment_intent'] ?? $object['id'] ?? null,
                 ]);
@@ -70,8 +84,10 @@ class WebhookDispatcher
         }
 
         $orderId = $object['metadata']['order_id'] ?? null;
-        if ($orderId && ($order = OpenPaymentOrder::find($orderId)) && ! $order->isPaid()) {
-            $order->update([
+        /** @var \App\Model\Payment\OpenPaymentOrder|null $stripeOrder */
+        $stripeOrder = $orderId ? OpenPaymentOrder::find($orderId) : null;
+        if ($stripeOrder && ! $stripeOrder->isPaid()) {
+            $stripeOrder->update([
                 'payment_status' => 'completed',
                 'gateway_transaction_id' => $object['payment_intent'] ?? $object['id'] ?? null,
                 'paid_at' => now(),
@@ -79,24 +95,34 @@ class WebhookDispatcher
         }
     }
 
+    /**
+     * @param array<mixed> $object
+     */
     private static function failStripePayment(array $object): void
     {
         $orderId = $object['metadata']['order_id'] ?? null;
-        if ($orderId && ($order = OpenPaymentOrder::find($orderId)) && ! $order->isPaid()) {
-            $order->update(['payment_status' => 'failed']);
+        /** @var \App\Model\Payment\OpenPaymentOrder|null $failStripeOrder */
+        $failStripeOrder = $orderId ? OpenPaymentOrder::find($orderId) : null;
+        if ($failStripeOrder && ! $failStripeOrder->isPaid()) {
+            $failStripeOrder->update(['payment_status' => 'failed']);
         }
     }
 
     // ── Razorpay payment handlers ─────────────────────────────────────────
 
+    /**
+     * @param array<mixed> $event
+     */
     private static function handleRazorpayPayment(array $event): void
     {
         $payment = $event['payload']['payment']['entity'] ?? [];
         $type = $event['event'] ?? '';
 
         if ($invoiceId = $payment['notes']['invoice_id'] ?? null) {
-            if (($invoice = Invoice::find($invoiceId)) && $type === 'payment.captured') {
-                resolve(InvoicePaymentService::class)->confirm($invoice, 'Razorpay', [
+            /** @var \App\Model\Order\Invoice|null $invoice2 */
+            $invoice2 = Invoice::find($invoiceId);
+            if ($invoice2 && $type === 'payment.captured') {
+                resolve(InvoicePaymentService::class)->confirm($invoice2, 'Razorpay', [
                     'razorpay_payment_id' => $payment['id'] ?? null,
                 ]);
             }
@@ -105,15 +131,17 @@ class WebhookDispatcher
         }
 
         $orderId = $payment['notes']['order_id'] ?? null;
-        if ($orderId && $order = OpenPaymentOrder::find($orderId)) {
-            if ($type === 'payment.captured' && ! $order->isPaid()) {
-                $order->update([
+        /** @var \App\Model\Payment\OpenPaymentOrder|null $rzpOrder */
+        $rzpOrder = $orderId ? OpenPaymentOrder::find($orderId) : null;
+        if ($rzpOrder) {
+            if ($type === 'payment.captured' && ! $rzpOrder->isPaid()) {
+                $rzpOrder->update([
                     'payment_status' => 'completed',
                     'gateway_transaction_id' => $payment['id'] ?? null,
                     'paid_at' => now(),
                 ]);
-            } elseif ($type === 'payment.failed' && ! $order->isPaid()) {
-                $order->update(['payment_status' => 'failed']);
+            } elseif ($type === 'payment.failed' && ! $rzpOrder->isPaid()) {
+                $rzpOrder->update(['payment_status' => 'failed']);
             }
         }
     }

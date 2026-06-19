@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $chrome_path
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings query()
@@ -31,11 +30,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereNodePath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereNpmPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileSystemSettings whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class FileSystemSettings extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -49,14 +50,23 @@ class FileSystemSettings extends Model
 
     protected string $logNameColumn = 'File Storage Settings';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'disk', 'local_file_storage_path', 'node_path', 'npm_path', 'chrome_path',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['file-storage'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

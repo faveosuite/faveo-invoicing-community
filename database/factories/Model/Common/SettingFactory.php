@@ -15,8 +15,7 @@ class SettingFactory extends Factory
     /**
      * Define the model's default state.
      *
-     * @return array
-     */
+     * @return array<mixed>     */
     protected $model = Setting::class;
 
     public function definition()

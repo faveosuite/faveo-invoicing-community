@@ -64,9 +64,12 @@ class ExtendedBaseProductController extends Controller
                 'dependencies.required' => __('validation.extend_product.dependencies_required'),
             ]);
         try {
+            /** @var \App\Model\Product\ProductUpload $file_upload */
             $file_upload = ProductUpload::find($id);
             $file_upload->update(['title' => $request->input('title'), 'description' => $request->input('description'), 'version' => $request->input('version'), 'dependencies' => json_encode($request->input('dependencies')), 'is_private' => $request->input('is_private'), 'is_restricted' => $request->input('is_restricted'), 'release_type' => $request->input('release_type')]);
-            $productSku = $file_upload->product->product_sku;
+            /** @var \App\Model\Product\Product $productFromUpload */
+            $productFromUpload = $file_upload->product;
+            $productSku = $productFromUpload->product_sku;
             $updateClassObj = new AutoUpdateController(); // @phpstan-ignore arguments.count
             $updateClassObj->editVersion($request->input('version'), $productSku);
 
@@ -100,11 +103,11 @@ class ExtendedBaseProductController extends Controller
     {
         try {
             $field = '';
+            /** @var \App\Model\Product\Product $product */
             $product = Product::find($productid);
             if ($product->require_domain == 1) {
                 $field .= '<div>
-                        <label>'./* @scrutinizer ignore-type */
-                         Lang::get('message.domain')."</label>
+                        <label>'.(string) __('message.domain')."</label>
                         <input type='text' name='domain' class='form-control' 
                         id='domain' placeholder='domain.com or sub.domain.com'>
                 </div>";
@@ -113,7 +116,7 @@ class ExtendedBaseProductController extends Controller
             if (in_array($product->id, cloudPopupProducts())) {
                 $field .= '<div>
     <div class="form-group">
-        <label class="required">'./* @scrutinizer ignore-type */ Lang::get('message.cloud_domain').'</label>
+        <label class="required">'.(string) __('message.cloud_domain').'</label>
         <div class="input-group">
             <input type="text" name="cloud_domain" class="form-control" id="cloud_domain" placeholder="'.__('message.admin_domain').'" required >
             <input type="text" class="form-control" value=".'.cloudSubDomain().'" disabled="true" style="background-color: #4081B5; color:white; border-color: #0088CC">
@@ -134,9 +137,10 @@ class ExtendedBaseProductController extends Controller
         try {
             $permissions = LicensePermissionsController::getPermissionsForProduct($id);
             if (($permissions['downloadPermission'] ?? 0) != 1) {
-                throw new Exception(Lang::get('message.no_permission_for_action'));
+                throw new Exception(__('message.no_permission_for_action'));
             }
 
+            /** @var \App\Model\Product\Product $product */
             $product = Product::findOrFail($id);
 
             $tag = $product->github_owner
@@ -184,7 +188,9 @@ class ExtendedBaseProductController extends Controller
     {
         $checkSubscription = false;
         if ($invoice) {
-            if ($invoice->user_id != Auth::user()->id) {
+            /** @var \App\User $authUser */
+            $authUser = Auth::user();
+            if ($invoice->user_id != $authUser->id) {
                 throw new Exception(__('message.invalid_modification_data_permission'));
             }
 

@@ -18,7 +18,6 @@ use App\Traits\SystemActivityLogsTrait;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudDataCenters newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudDataCenters newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudDataCenters query()
@@ -30,7 +29,6 @@ use App\Traits\SystemActivityLogsTrait;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudDataCenters whereLatitude($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudDataCenters whereLongitude($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudDataCenters whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class CloudDataCenters extends BaseModel
@@ -45,6 +43,9 @@ class CloudDataCenters extends BaseModel
 
     protected string $logNameColumn = 'Settings';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'cloud_countries',
         'cloud_state',
@@ -53,10 +54,16 @@ class CloudDataCenters extends BaseModel
         'longitude',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['view', 'tenant'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

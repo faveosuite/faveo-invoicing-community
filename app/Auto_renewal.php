@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $payment_method
  * @property string|null $payment_intent_id
  * @property-read \App\User|null $user
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Auto_renewal newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Auto_renewal newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Auto_renewal query()
@@ -31,17 +30,22 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Auto_renewal wherePaymentMethod($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Auto_renewal whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Auto_renewal whereUserId($value)
- *
  * @mixin \Eloquent
  */
 class Auto_renewal extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
 
     protected $table = 'auto_renewals';
 
     protected $fillable = ['user_id', 'customer_id', 'order_id', 'payment_method', 'payment_intent_id'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, $this>
+     */
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);

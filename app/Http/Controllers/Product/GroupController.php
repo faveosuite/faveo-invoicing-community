@@ -80,7 +80,8 @@ class GroupController extends Controller
     public function update($id, GroupRequest $request)
     {
         try {
-            $group = $this->group->where('id', $id)->first();
+            /** @var \App\Model\Product\ProductGroup $group */
+            $group = $this->group->where('id', $id)->firstOrFail();
             $products = Product::where('group', $id)->where('hidden', '0')->where('add_to_contact', '0')->get();
 
             // Check if all products have both monthly and yearly plans
@@ -164,6 +165,7 @@ class GroupController extends Controller
     public function updateGroup(mixed $groupId, GroupRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\ProductGroup $group */
             $group = ProductGroup::findOrFail($groupId);
 
             // Get all visible, non-contact products

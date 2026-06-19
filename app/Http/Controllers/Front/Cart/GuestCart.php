@@ -24,6 +24,9 @@ class GuestCart
 {
     private const string KEY = 'guest_cart';
 
+    /**
+     * @param array<mixed> $data
+     */
     public function add(array $data, string $currency): void
     {
         $cart = $this->read();
@@ -58,6 +61,9 @@ class GuestCart
         $this->write($cart);
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     public function update(int $id, array $data): void
     {
         $cart = $this->read();
@@ -141,11 +147,17 @@ class GuestCart
     }
 
     /** @return array{next_id: int, currency: string|null, items: array} */
+    /**
+     * @return array<mixed>
+     */
     private function read(): array
     {
         return Session::get(self::KEY, ['next_id' => 1, 'currency' => null, 'items' => []]);
     }
 
+    /**
+     * @param array<mixed> $cart
+     */
     private function write(array $cart): void
     {
         Session::put(self::KEY, $cart);

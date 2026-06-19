@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read \App\Model\Payment\Plan|null $plan
- *
  * @method static \Database\Factories\Model\Payment\PlanPriceFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice newQuery()
@@ -38,11 +37,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereProductQuantity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereRenewPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class PlanPrice extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -54,14 +55,23 @@ class PlanPrice extends Model
 
     protected string $logNameColumn = 'price';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'product_quantity', 'no_of_agents', 'country_id', 'offer_price',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['plans'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -77,6 +87,9 @@ class PlanPrice extends Model
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Plan, $this>
+     */
     public function plan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Plan::class, 'plan_id', 'id');

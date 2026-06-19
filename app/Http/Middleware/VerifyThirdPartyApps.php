@@ -30,7 +30,7 @@ class VerifyThirdPartyApps
         //get signature sent in the request
         $app_secret = ThirdPartyApp::where('app_key', $appKey)->value('app_secret');
         $keys = $app_secret;
-        $signature = hash_hmac('sha256', $requestParameters, (string) $app_secret); //hash the request parameter with the app secret
+        $signature = hash_hmac('sha256', (string) $requestParameters, (string) $app_secret); //hash the request parameter with the app secret
 
         if ($requestHeader && hash_equals($signature, $requestHeader)) {
             return $next($request);

@@ -21,6 +21,7 @@ class ContactBuilder
     /**
      * Build merge_fields array for a user.
      * Only includes fields that have been mapped in the admin UI.
+     * @return array<mixed>
      */
     public function mergeFields(User $user): array
     {
@@ -61,6 +62,7 @@ class ContactBuilder
     /**
      * Build interest flags for a purchase event.
      * Returns array of [interestId => bool] ready for the Mailchimp interests payload.
+     * @return array<mixed>
      */
     public function purchaseInterests(int $productId, bool $isPaid): array
     {

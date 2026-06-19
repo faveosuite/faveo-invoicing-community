@@ -24,6 +24,7 @@ class ProfileController extends BaseAuthController
     public function profile(): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         try {
+            /** @var \App\User $user */
             $user = Auth::user();
             $timezonesList = Timezone::get();
             $is2faEnabled = $user->is_2fa_enabled;
@@ -42,7 +43,7 @@ class ProfileController extends BaseAuthController
 
             //for display
             $timezones = array_column($display, 'name', 'id');
-            $state = getStateByCode($user->country, $user->state);
+            $state = getStateByCode((string) $user->country, (string) $user->state);
             $states = findStateByRegionId($user->country);
             $bussinesses = Bussiness::pluck('name', 'short')->toArray();
 
@@ -56,6 +57,7 @@ class ProfileController extends BaseAuthController
     public function updateProfile(ProfileRequest $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         try {
+            /** @var \App\User $user */
             $user = Auth::user();
             if ($request->hasFile('profile_pic')) {
                 $path = Attach::put('common/images/users/', $request->file('profile_pic'), null, true);
@@ -65,7 +67,7 @@ class ProfileController extends BaseAuthController
             $user->fill($request->input())->save();
 
             if ($request->expectsJson()) {
-                return successResponse(Lang::get('message.updated-successfully'));
+                return successResponse(__('message.updated-successfully'));
             }
 
             return back()->with('success', Lang::get('message.updated-successfully'));
@@ -81,6 +83,7 @@ class ProfileController extends BaseAuthController
     public function updatePassword(ProfileRequest $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         try {
+            /** @var \App\User $user */
             $user = Auth::user();
             $oldpassword = $request->input('old_password');
             $currentpassword = $user->getAuthPassword();
@@ -94,7 +97,7 @@ class ProfileController extends BaseAuthController
                 DB::table('password_resets')->where('email', $user->email)->delete();
 
                 if ($request->expectsJson()) {
-                    return successResponse(Lang::get('message.updated-successfully'));
+                    return successResponse(__('message.updated-successfully'));
                 }
 
                 return back()->with('success1', Lang::get('message.updated-successfully'));

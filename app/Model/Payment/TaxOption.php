@@ -21,7 +21,6 @@ use App\Traits\SystemActivityLogsTrait;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption query()
@@ -36,7 +35,6 @@ use App\Traits\SystemActivityLogsTrait;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereTaxBasedOn($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereTaxEnable($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class TaxOption extends BaseModel
@@ -51,12 +49,18 @@ class TaxOption extends BaseModel
 
     protected string $logNameColumn = 'Settings';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'tax_enable', 'inclusive', 'tax_based_on', 'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', 'cif_no',
     ];
 
     protected bool $requireLogUrl = false;
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

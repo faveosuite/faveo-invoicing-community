@@ -70,10 +70,8 @@ class PromotionController extends BasePromotionController
     public function store(PromotionRequest $request): mixed
     {
         try {
-            $startdate = date_create($request->input('start'));
-            $start = date_format($startdate, 'Y-m-d H:m:i');
-            $enddate = date_create($request->input('expiry'));
-            $expiry = date_format($enddate, 'Y-m-d H:m:i');
+            $start = Date::parse($request->input('start'))->format('Y-m-d H:m:i');
+            $expiry = Date::parse($request->input('expiry'))->format('Y-m-d H:m:i');
             $this->promotion->code = $request->input('code');
             $this->promotion->type = $request->input('type');
             $this->promotion->value = $request->input('type') == 1 ? intval($request->input('value')).'%' : intval($request->input('value'));
@@ -99,10 +97,8 @@ class PromotionController extends BasePromotionController
     public function update($id, PromotionRequest $request): mixed
     {
         try {
-            $startdate = date_create($request->input('start'));
-            $start = date_format($startdate, 'Y-m-d H:m:i');
-            $enddate = date_create($request->input('expiry'));
-            $expiry = date_format($enddate, 'Y-m-d H:m:i');
+            $start = Date::parse($request->input('start'))->format('Y-m-d H:m:i');
+            $expiry = Date::parse($request->input('expiry'))->format('Y-m-d H:m:i');
             $promotion = $this->promotion->where('id', $id)->first();
             $promotion->update([
                 'code' => $request->input('code'),
@@ -131,6 +127,7 @@ class PromotionController extends BasePromotionController
     public function checkNumberOfUses(mixed $code): string
     {
         try {
+            /** @var \App\Model\Payment\Promotion $promotion */
             $promotion = $this->promotion->where('code', $code)->first();
             $uses = $promotion->uses;
             if ($uses == 1) {
@@ -144,13 +141,14 @@ class PromotionController extends BasePromotionController
 
             return 'fails';
         } catch (Exception) {
-            throw new Exception(Lang::get('message.find-cost-error'));
+            throw new Exception(__('message.find-cost-error'));
         }
     }
 
     public function checkExpiry(mixed $code): ?string
     {
         try {
+            /** @var \App\Model\Payment\Promotion $promotion */
             $promotion = $this->promotion->where('code', $code)->first();
             $start = $promotion->start;
             $end = $promotion->expiry;
@@ -159,7 +157,7 @@ class PromotionController extends BasePromotionController
 
             return $inv_cont->getExpiryStatus($start, $end, $now);
         } catch (Exception) {
-            throw new Exception(Lang::get('message.check-expiry'));
+            throw new Exception(__('message.check-expiry'));
         }
     }
 
@@ -212,6 +210,7 @@ class PromotionController extends BasePromotionController
     public function updatePromotionCode(mixed $promotionId, PromotionRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\Promotion $promotion */
             $promotion = Promotion::findOrFail($promotionId);
 
             $start = Date::parse($request->input('start'))->format('Y-m-d H:i:s');

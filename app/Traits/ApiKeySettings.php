@@ -46,7 +46,7 @@ trait ApiKeySettings
             $statusEntry = $statusData->first(fn ($value, $inputKey): bool => array_key_exists($inputKey, $input));
 
             if (! $statusEntry) {
-                return errorResponse(Lang::get('message.invalid_key'));
+                return errorResponse(__('message.invalid_key'));
             }
 
             $inputKey = array_key_first(array_intersect_key($input, $statusData->all()));
@@ -58,7 +58,7 @@ trait ApiKeySettings
 
             return successResponse($statusEntry['lang']);
         } catch (Exception) {
-            return errorResponse(Lang::get('message.invalid_key'));
+            return errorResponse(__('message.invalid_key'));
         }
     }
 
@@ -68,6 +68,9 @@ trait ApiKeySettings
     }
 
     //Save Auto Update status in Database
+    /**
+     * @return array<mixed>
+     */
     public function updateDetails(Request $request): array
     {
         $status = $request->input('status');
@@ -110,33 +113,36 @@ trait ApiKeySettings
             ]);
 
             if ($response->status() === 401) {
-                return errorResponse(Lang::get('message.mobile_authkey'));
+                return errorResponse(__('message.mobile_authkey'));
             }
         } catch (Exception) {
-            return errorResponse(Lang::get('message.mobile_authkey'));
+            return errorResponse(__('message.mobile_authkey'));
         }
 
-        StatusSetting::find(1)->update(['msg91_status' => $status]);
+        StatusSetting::where('id', 1)->update(['msg91_status' => $status]);
 
-        ApiKey::find(1)->update([
+        ApiKey::where('id', 1)->update([
             'msg91_auth_key' => $authKey,
             'msg91_sender' => $sender,
             'msg91_template_id' => $templateId,
             'msg91_third_party_id' => $thirdPartyId,
         ]);
 
-        return successResponse(Lang::get('message.mobile_setting'));
+        return successResponse(__('message.mobile_setting'));
     }
 
     /*
      * Update Zoho Details In Database
      */
+    /**
+     * @return array<mixed>
+     */
     public function updatezohoDetails(Request $request): array
     {
         $status = $request->input('status');
         $key = $request->input('zoho_key');
-        StatusSetting::find(1)->update(['zoho_status' => $status]);
-        ApiKey::find(1)->update(['zoho_api_key' => $key]);
+        StatusSetting::where('id', 1)->update(['zoho_status' => $status]);
+        ApiKey::where('id', 1)->update(['zoho_api_key' => $key]);
 
         return ['message' => 'success', 'update' => Lang::get('message.zoho_status')];
     }
@@ -144,10 +150,13 @@ trait ApiKeySettings
     /*
      * Update Email Status In Database
      */
+    /**
+     * @return array<mixed>
+     */
     public function updateEmailDetails(Request $request): array
     {
         $status = $request->input('status');
-        StatusSetting::find(1)->update(['emailverification_status' => $status]);
+        StatusSetting::where('id', 1)->update(['emailverification_status' => $status]);
 
         return ['message' => 'success', 'update' => Lang::get('message.email_setting')];
     }
@@ -155,10 +164,13 @@ trait ApiKeySettings
     /*
      * Update Domain Check status In Database
      */
+    /**
+     * @return array<mixed>
+     */
     public function updatedomainCheckDetails(Request $request): array
     {
         $status = $request->input('status');
-        StatusSetting::find(1)->update(['domain_check' => $status]);
+        StatusSetting::where('id', 1)->update(['domain_check' => $status]);
 
         return ['message' => 'success', 'update' => __('message.domain_check_status_saved')];
     }
@@ -166,6 +178,9 @@ trait ApiKeySettings
     /*
     * Update Twitter Details In Database
     */
+    /**
+     * @return array<mixed>
+     */
     public function updatetwitterDetails(Request $request): array
     {
         $consumer_key = $request->input('consumer_key');
@@ -173,8 +188,8 @@ trait ApiKeySettings
         $access_token = $request->input('access_token');
         $token_secret = $request->input('token_secret');
         $status = $request->input('status');
-        StatusSetting::find(1)->update(['twitter_status' => $status]);
-        ApiKey::find(1)->update(['twitter_consumer_key' => $consumer_key, 'twitter_consumer_secret' => $consumer_secret, 'twitter_access_token' => $access_token, 'access_tooken_secret' => $token_secret]);
+        StatusSetting::where('id', 1)->update(['twitter_status' => $status]);
+        ApiKey::where('id', 1)->update(['twitter_consumer_key' => $consumer_key, 'twitter_consumer_secret' => $consumer_secret, 'twitter_access_token' => $access_token, 'access_tooken_secret' => $token_secret]);
 
         return ['message' => 'success', 'update' => Lang::get('message.twitter_setting')];
     }
@@ -190,34 +205,40 @@ trait ApiKeySettings
                 'api_token' => $pipedriveKey,
             ]);
             if (! $response->successful()) {
-                return errorResponse(Lang::get('message.pipedrive_error'));
+                return errorResponse(__('message.pipedrive_error'));
             }
 
             $result = json_decode($response, associative: true);
             if (isset($result['success']) && $result['success'] !== true) {
-                return errorResponse(Lang::get('message.pipedrive_error'));
+                return errorResponse(__('message.pipedrive_error'));
             }
 
-            StatusSetting::find(1)->update(['pipedrive_status' => $status]);
-            ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
-            ApiKey::find(1)->update(['require_pipedrive_user_verification' => $verificationStatus]);
+            StatusSetting::where('id', 1)->update(['pipedrive_status' => $status]);
+            ApiKey::where('id', 1)->update(['pipedrive_api_key' => $pipedriveKey]);
+            ApiKey::where('id', 1)->update(['require_pipedrive_user_verification' => $verificationStatus]);
 
-            return successResponse(Lang::get('message.pipedrive_setting'));
+            return successResponse(__('message.pipedrive_setting'));
         } catch (Exception) {
-            return errorResponse(Lang::get('message.pipedrive_error'));
+            return errorResponse(__('message.pipedrive_error'));
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function updateMailchimpProductStatus(Request $request): array
     {
-        StatusSetting::first()->update(['mailchimp_product_status' => $request->input('status')]);
+        StatusSetting::where('id', 1)->update(['mailchimp_product_status' => $request->input('status')]);
 
         return ['message' => 'success', 'update' => __('message.mailchimp_products_group_status_saved')];
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function updateMailchimpIsPaidStatus(Request $request): array
     {
-        StatusSetting::first()->update(['mailchimp_ispaid_status' => $request->input('status')]);
+        StatusSetting::where('id', 1)->update(['mailchimp_ispaid_status' => $request->input('status')]);
 
         return ['message' => 'success', 'update' => __('message.mailchimp_is_paid_status_saved')];
     }
@@ -234,8 +255,8 @@ trait ApiKeySettings
             $response = Http::withBasicAuth('anystring', $chimp_auth_key)->get($url);
             if ($response->successful()) {
                 $status = $request->input('status');
-                StatusSetting::find(1)->update(['mailchimp_status' => $status]);
-                MailchimpSetting::find(1)->update(['api_key' => $chimp_auth_key]);
+                StatusSetting::where('id', 1)->update(['mailchimp_status' => $status]);
+                MailchimpSetting::where('id', 1)->update(['api_key' => $chimp_auth_key]);
                 $mailchimpverifiedStatus = 1;
 
                 $mailchimp_set = new MailchimpSetting();
@@ -251,12 +272,12 @@ trait ApiKeySettings
                     'selectedList' => $selectedList,
                     'subscribe_status' => $subscribe_status, ];
 
-                return successResponse(Lang::get('message.mailchimp_setting'), $data);
+                return successResponse(__('message.mailchimp_setting'), $data);
             }
 
-            return errorResponse(Lang::get('message.mailchimp_apikey_error'));
+            return errorResponse(__('message.mailchimp_apikey_error'));
         } catch(Exception) {
-            return errorResponse(Lang::get('message.mailchimp_apikey_error'));
+            return errorResponse(__('message.mailchimp_apikey_error'));
         }
     }
 
@@ -267,16 +288,16 @@ trait ApiKeySettings
             $response = Http::get($terms_url);
 
             if ($response == false) { // @phpstan-ignore equal.alwaysFalse
-                return errorResponse(Lang::get('message.terms_error'));
+                return errorResponse(__('message.terms_error'));
             }
 
             $status = (int) $request->input('status');
-            StatusSetting::find(1)->update(['terms' => $status]);
-            ApiKey::find(1)->update(['terms_url' => $terms_url]);
+            StatusSetting::where('id', 1)->update(['terms' => $status]);
+            ApiKey::where('id', 1)->update(['terms_url' => $terms_url]);
 
-            return successResponse(Lang::get('message.terms_setting'));
+            return successResponse(__('message.terms_setting'));
         } catch (Exception) {
-            return errorResponse(Lang::get('message.terms_error'));
+            return errorResponse(__('message.terms_error'));
         }
     }
 
@@ -286,7 +307,13 @@ trait ApiKeySettings
     public function getDate(mixed $dbdate): mixed
     {
         $created = new DateTime($dbdate);
-        $tz = Auth::user()->timezone()->first()->name;
+        $user = Auth::user();
+        if (!$user instanceof \App\User) {
+            $tz = 'UTC';
+        } else {
+            $timezone = $user->timezone()->first();
+            $tz = $timezone instanceof \App\Model\Common\Timezone ? $timezone->name : 'UTC';
+        }
         $created->setTimezone(new DateTimeZone($tz));
         $date = $created->format('M j, Y, g:i a '); //5th October, 2018, 11:17PM
         $newDate = $date;
@@ -297,7 +324,13 @@ trait ApiKeySettings
     public function getDateFormat(mixed $dbdate = ''): string
     {
         $created = new DateTime($dbdate);
-        $tz = Auth::user()->timezone()->first()->name;
+        $user = Auth::user();
+        if (!$user instanceof \App\User) {
+            $tz = 'UTC';
+        } else {
+            $timezone = $user->timezone()->first();
+            $tz = $timezone instanceof \App\Model\Common\Timezone ? $timezone->name : 'UTC';
+        }
         $created->setTimezone(new DateTimeZone($tz));
 
         return $created->format('Y-m-d H:m:i');
@@ -376,6 +409,9 @@ trait ApiKeySettings
         return $command;
     }
 
+    /**
+     * @param array<mixed> $jobs
+     */
     public function storeCommand(array $jobs = []): void
     {
         $model = new Condition();
@@ -396,6 +432,9 @@ trait ApiKeySettings
     {
         try {
             $fileStorageSettings = FileSystemSettings::first();
+            if (!$fileStorageSettings instanceof FileSystemSettings) {
+                throw new Exception('File system settings not configured.');
+            }
 
             $fileStorage = [
                 'disk' => $fileStorageSettings->disk ?? '',
@@ -419,6 +458,9 @@ trait ApiKeySettings
     {
         $disk = $request->input('disk');
         $fileStorageSettings = FileSystemSettings::first();
+        if (!$fileStorageSettings instanceof FileSystemSettings) {
+            return errorResponse('File system settings not configured.');
+        }
 
         $response = match ($disk) { // @phpstan-ignore match.unhandled
             'system' => $this->updateLocalStorage($request, $fileStorageSettings),

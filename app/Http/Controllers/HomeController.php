@@ -66,44 +66,46 @@ class HomeController extends BaseHomeController
         if ($product) {
             $version = $product->version;
         } else {
-            return json_encode(['message' => 'Product not found']);
+            $res = json_encode(['message' => 'Product not found']);
+            return $res !== false ? $res : '';
         }
 
-        return str_replace('v', '', $product->version);
+        return (string) str_replace('v', '', (string) $product->version);
     }
 
     public function serialV2(Request $request, Order $order): string
     {
         try {
-            $faveo_encrypted_order_number = self::decryptByFaveoPrivateKey($request->input('order_number'));
-            $faveo_encrypted_key = self::decryptByFaveoPrivateKey($request->input('serial_key'));
-            Log::emergency(json_encode(['domain' => $request
-                    ->input('domain'), 'enc_serial' => $faveo_encrypted_key,
-                'enc_order' => $faveo_encrypted_order_number, ]));
+            $faveo_encrypted_order_number = self::decryptByFaveoPrivateKey((string) $request->input('order_number'));
+            $faveo_encrypted_key = self::decryptByFaveoPrivateKey((string) $request->input('serial_key'));
+            $logMsg = json_encode(['domain' => $request->input('domain'), 'enc_serial' => $faveo_encrypted_key, 'enc_order' => $faveo_encrypted_order_number]);
+            Log::emergency($logMsg !== false ? $logMsg : 'Failed json_encode');
             $request_type = $request->input('request_type');
-            $faveo_name = $request->input('name');
-            $faveo_version = $request->input('version');
-            $order_number = $this->checkOrder($faveo_encrypted_order_number); // @phpstan-ignore method.notFound
-            $domain = $request->input('domain');
+            $faveo_name = (string) $request->input('name');
+            $faveo_version = (string) $request->input('version');
+            $order_number = $this->checkOrder((string) $faveo_encrypted_order_number); // @phpstan-ignore method.notFound
+            $domain = (string) $request->input('domain');
             $domain = $this->checkDomain($domain);
-            $serial_key = $this->checkSerialKey($faveo_encrypted_key, $order_number);
+            $serial_key = $this->checkSerialKey((string) $faveo_encrypted_key, $order_number);
 
-            Log::emergency(json_encode(['domain' => $request->input('domain'),
-                'serial' => $serial_key, 'order' => $order_number, ]));
+            $logMsg2 = json_encode(['domain' => $request->input('domain'), 'serial' => $serial_key, 'order' => $order_number]);
+            Log::emergency($logMsg2 !== false ? $logMsg2 : 'Failed json_encode');
             $result = [];
             if ($request_type == 'install') {
-                $result = $this->verificationResult($order_number, $serial_key);
+                $result = $this->verificationResult($order_number, (string) $serial_key);
             }
 
             if ($request_type == 'check_update') {
-                $result = $this->checkUpdate($order_number, $serial_key, $domain, $faveo_name, $faveo_version);
+                $result = $this->checkUpdate($order_number, (string) $serial_key, $domain, $faveo_name, $faveo_version);
             }
 
-            return self::encryptByPublicKey(json_encode($result));
+            $jsonResult = json_encode($result);
+            return self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
         } catch (Exception $exception) {
             $result = ['status' => 'error', 'message' => $exception->getMessage()];
 
-            return self::encryptByPublicKey(json_encode($result));
+            $jsonResult = json_encode($result);
+            return self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
         }
     }
 
@@ -112,35 +114,37 @@ class HomeController extends BaseHomeController
         $url = null;
         try {
             $url = $request->input('url');
-            $faveo_encrypted_order_number = self::decryptByFaveoPrivateKey($request->input('order_number'));
-            $domain = $this->getDomain($request->input('domain'));
+            $faveo_encrypted_order_number = self::decryptByFaveoPrivateKey((string) $request->input('order_number'));
+            $domain = $this->getDomain((string) $request->input('domain'));
 
             //return $domain;
-            $faveo_encrypted_key = self::decryptByFaveoPrivateKey($request->input('serial_key'));
+            $faveo_encrypted_key = self::decryptByFaveoPrivateKey((string) $request->input('serial_key'));
             $request_type = $request->input('request_type');
-            $faveo_name = $request->input('name');
-            $faveo_version = $request->input('version');
-            $order_number = $this->checkOrder($faveo_encrypted_order_number); // @phpstan-ignore method.notFound
+            $faveo_name = (string) $request->input('name');
+            $faveo_version = (string) $request->input('version');
+            $order_number = $this->checkOrder((string) $faveo_encrypted_order_number); // @phpstan-ignore method.notFound
 
             $domain = $this->checkDomain($domain);
-            $serial_key = $this->checkSerialKey($faveo_encrypted_key, $order_number);
+            $serial_key = $this->checkSerialKey((string) $faveo_encrypted_key, $order_number);
             //dd($serial_key);
             //return $serial_key;
             $result = [];
             if ($request_type == 'install') {
-                $result = $this->verificationResult($order_number, $serial_key);
+                $result = $this->verificationResult($order_number, (string) $serial_key);
             }
 
             if ($request_type == 'check_update') {
-                $result = $this->checkUpdate($order_number, $serial_key, $domain, $faveo_name, $faveo_version);
+                $result = $this->checkUpdate($order_number, (string) $serial_key, $domain, $faveo_name, $faveo_version);
             }
 
-            $result = self::encryptByPublicKey(json_encode($result));
-            $this->submit($result, $url);
+            $jsonResult = json_encode($result);
+            $resultStr = self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
+            $this->submit($resultStr, $url);
         } catch (Exception $exception) {
             $result = ['status' => 'error', 'message' => $exception->getMessage()];
-            $result = self::encryptByPublicKey(json_encode($result));
-            $this->submit($result, $url);
+            $jsonResult = json_encode($result);
+            $resultStr = self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
+            $this->submit($resultStr, $url);
         }
     }
 
@@ -150,17 +154,23 @@ class HomeController extends BaseHomeController
             // Get the private Key
             $path = storage_path('app'.DIRECTORY_SEPARATOR.'private.key');
             $key_content = file_get_contents($path);
+            if ($key_content === false) {
+                dd('Failed to read key file');
+            }
             if (! $privateKey = openssl_pkey_get_private($key_content)) {
                 dd('Private Key failed');
             }
 
             $a_key = openssl_pkey_get_details($privateKey);
+            if ($a_key === false) {
+                dd('Failed to get key details');
+            }
 
             // Decrypt the data in the small chunks
             $chunkSize = ceil($a_key['bits'] / 8);
             $output = '';
 
-            while ("¥IM‰``ì‡Á›LVP›†>¯öóŽÌ3(¢z#¿î1¾­:±Zï©PqÊ´Â›7×:Fà¯¦   à•…Ä'öESW±ÉŸLÃvÈñÔs•ÍU)ÍL 8¬š‰A©·Å $}Œ•lA9™¡”¸èÅØv‘ÂOÈ6„_y5¤ì§—ÿíà(ow‰È&’v&T/FLƒigjÒZ eæaa”{©ªUBFÓ’Ga*ÀŒ×?£}-jÏùh¾Q/Ž“1YFq[Í‰¬òÚ‚œ½Éº5ah¶vZ#,ó@‚rOÆ±íVåèÜÖšU¦ÚmSÎ“Mý„ùP") {
+            while ("¥ IM‰``ì  ‡ Á ›LVP›† >¯öóŽÌ3(  ¢z# ¿î1¾­:± Zï©PqÊ´  Â›7×:Fà¯¦   à•…Ä'öESW±ÉŸLÃvÈñÔs•Í U )ÍL 8¬š‰A©·Å $}Œ• lA9™¡”¸èÅØv‘ ÂOÈ6„_y 5¤ì§—ÿíà (ow‰È&’v&T/FLƒigjÒZ eæa a ” {©ªUBFÓ ’Ga* ÀŒ×?£ }-jÏùh¾Q/Ž“1  Y Fq[Í‰¬òÚ‚œ ½Éº5ah¶ v Z#,ó@‚rOÆ±íVåèÜÖš  U¦ ÚmSÎ“Mý„ùP") {
                 $chunk = substr((string) $encrypted, 0, (int) $chunkSize);
                 $encrypted = substr((string) $encrypted, (int) $chunkSize);
                 $decrypted = '';
@@ -188,12 +198,18 @@ class HomeController extends BaseHomeController
                 'private_key_bits' => 2048, // Size of Key.
                 'private_key_type' => OPENSSL_KEYTYPE_RSA,
             ]);
+            if ($privateKey === false) {
+                throw new Exception('Failed to generate key');
+            }
             //dd($privateKey);
             // Save the private key to private.key file. Never share this file with anyone.
             openssl_pkey_export_to_file($privateKey, 'private.key');
 
             // Generate the public key for the private key
             $a_key = openssl_pkey_get_details($privateKey);
+            if ($a_key === false) {
+                throw new Exception('Failed to get details');
+            }
             //dd($a_key);
             // Save the public key in public.key file. Send this file to anyone who want to send you the encrypted data.
             file_put_contents('public.key', $a_key['key']);
@@ -209,46 +225,43 @@ class HomeController extends BaseHomeController
     {
         try {
             $data = $request->input('data');
-            $json = self::decryptByFaveoPrivateKey($data);
-            $data = json_decode((string) $json);
-            //return $data->url;
-
-            $domain = $data->url;
-
-            $faveo_encrypted_order_number = $data->order_number;
-
-            //$domain = $data->domain;
-
-            $faveo_encrypted_key = $data->serial_key;
-
-            $request_type = $data->request_type;
-
-            $faveo_name = $data->name;
-
-            $faveo_version = $data->version;
-
+            $json = self::decryptByFaveoPrivateKey((string) $data);
+            $decodedData = json_decode((string) $json);
+            if (!is_object($decodedData)) {
+                throw new Exception('Invalid payload');
+            }
+ 
+            $domain = isset($decodedData->url) ? (string) $decodedData->url : '';
+            $faveo_encrypted_order_number = isset($decodedData->order_number) ? (string) $decodedData->order_number : '';
+            $faveo_encrypted_key = isset($decodedData->serial_key) ? (string) $decodedData->serial_key : '';
+            $request_type = isset($decodedData->request_type) ? (string) $decodedData->request_type : '';
+            $faveo_name = isset($decodedData->name) ? (string) $decodedData->name : '';
+            $faveo_version = isset($decodedData->version) ? (string) $decodedData->version : '';
+ 
             $order_number = $this->checkOrder($faveo_encrypted_order_number); // @phpstan-ignore method.notFound
-
+ 
             $domain = $this->checkDomain($domain);
-
+ 
             $serial_key = $this->checkSerialKey($faveo_encrypted_key, $order_number);
             //dd($serial_key);
             //return $serial_key;
             $result = [];
             if ($request_type == 'install') {
-                $result = $this->verificationResult($order_number, $serial_key);
+                $result = $this->verificationResult($order_number, (string) $serial_key);
             }
-
+ 
             if ($request_type == 'check_update') {
-                $result = $this->checkUpdate($order_number, $serial_key, $domain, $faveo_name, $faveo_version);
+                $result = $this->checkUpdate($order_number, (string) $serial_key, $domain, $faveo_name, $faveo_version);
             }
-
-            return self::encryptByPublicKey(json_encode($result));
+ 
+            $jsonResult = json_encode($result);
+            return self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
         } catch (Exception $exception) {
             $result = ['status' => 'error', 'message' => $exception->getMessage().'  
             file=> '.$exception->getFile().' Line=>'.$exception->getLine()];
-
-            return self::encryptByPublicKey(json_encode($result));
+ 
+            $jsonResult = json_encode($result);
+            return self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
         }
     }
 
@@ -261,6 +274,9 @@ class HomeController extends BaseHomeController
         echo"<script language='javascript'>document.redirect.submit();</script>";
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function checkUpdate(?string $order_number, ?string $serial_key, ?string $domain, string $faveo_name, string $faveo_version): array
     {
         try {
@@ -280,6 +296,9 @@ class HomeController extends BaseHomeController
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function checkFaveoDetails(?string $order_number, string $faveo_name, string $faveo_version): array
     {
         try {
@@ -307,7 +326,13 @@ class HomeController extends BaseHomeController
         $path = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public.key';
         //dd($path);
         $key_content = file_get_contents($path);
+        if ($key_content === false) {
+            throw new Exception('Failed to read public key file');
+        }
         $public_key = openssl_get_publickey($key_content);
+        if ($public_key === false) {
+            throw new Exception('Invalid public key');
+        }
         $encrypted = null;
         $e = null;
         openssl_seal($data, $encrypted, $e, [$public_key], 'RC4');
@@ -317,7 +342,8 @@ class HomeController extends BaseHomeController
 
         $result = ['seal' => $sealed_data, 'envelope' => $envelope];
 
-        return json_encode($result);
+        $res = json_encode($result);
+        return $res !== false ? $res : '';
     }
 
     public function downloadForFaveo(Request $request): \Symfony\Component\HttpFoundation\Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
@@ -334,11 +360,11 @@ class HomeController extends BaseHomeController
         $subscription = $order->subscription;
 
         if (! $subscription) {
-            return errorResponse(Lang::get('message.no_order_exists_invoice'));
+            return errorResponse(__('message.no_order_exists_invoice'));
         }
 
         if ($subscription->update_ends_at && now()->gt($subscription->update_ends_at)) {
-            return errorResponse(Lang::get('message.renew_subscription_download'));
+            return errorResponse(__('message.renew_subscription_download'));
         }
 
         return resolve(ProductController::class)->adminDownload(
@@ -420,8 +446,8 @@ class HomeController extends BaseHomeController
                 //For older clients in which version is not sent as parameter
                 // $product = $product->where('name', $title)->first();
                 $productId = $product->id;
-                $product = ProductUpload::where('product_id', $productId)->where('is_restricted', 1)->orderBy('id', 'asc')->first();
-                $message = ['version' => str_replace('v', '', $product->version)];
+                $productUpload = ProductUpload::where('product_id', $productId)->where('is_restricted', 1)->orderBy('id', 'asc')->first();
+                $message = $productUpload ? ['version' => str_replace('v', '', $productUpload->version)] : ['error' => 'version_not_found'];
             } else {
                 $message = ['error' => 'product_not_found'];
             }
@@ -454,6 +480,10 @@ class HomeController extends BaseHomeController
             $product = ($id) ?
                 $product->where('id', $id)->select('id')->first() :
                 $product->whereRaw('LOWER(`name`) LIKE ? ', strtolower($this->mapOldBoys($title)))->orWhere('id', $id)->select('id')->first();
+ 
+            if (!$product instanceof Product) {
+                throw new Exception('Product not found');
+            }
 
             /**
              * PLEASE NOTE (documenting updates in the logic change).
@@ -522,7 +552,8 @@ class HomeController extends BaseHomeController
      */
     private function getPHPCompatibleVersionString(?string $version = null): string
     {
-        return preg_replace('#v\.|v#', '', str_replace('_', '.', $version));
+        $version = $version ?? '';
+        return (string) preg_replace('#v\.|v#', '', str_replace('_', '.', $version));
     }
 
     public function renewurl(ProductRenewalRequest $request): string|\Illuminate\Http\JsonResponse
@@ -532,24 +563,48 @@ class HomeController extends BaseHomeController
             $orderNumber = License::where('license_code', $licenseCode)->value('license_order_number');
             $orderId = Order::where('number', $orderNumber)->value('id');
             $subscription = Subscription::where('order_id', $orderId)->first();
-
+            if (!$subscription instanceof Subscription) {
+                throw new Exception('Subscription not found');
+            }
+ 
             $basecron = new CronController();
             $order = $basecron->getOrderById($subscription->order_id);
+            if (!$order instanceof Order) {
+                throw new Exception('Order not found');
+            }
             $oldinvoice = $basecron->getInvoiceByOrderId($subscription->order_id);
+            if (!$oldinvoice instanceof \App\Model\Order\Invoice) {
+                throw new Exception('Invoice not found');
+            }
             $item = $basecron->getInvoiceItemByInvoiceId($oldinvoice->id);
-
+            if (!$item instanceof \App\Model\Order\InvoiceItem) {
+                throw new Exception('Invoice item not found');
+            }
+ 
             $product_details = Product::where('id', $item->product_id)->first();
+            if (!$product_details instanceof Product) {
+                throw new Exception('Product details not found');
+            }
             $plan = Plan::where('product', $product_details->id)->first('days');
-            $oldcurrency = $oldinvoice->currency;
-
+            if (!$plan instanceof Plan) {
+                throw new Exception('Plan not found');
+            }
+            $oldcurrency = (string) $oldinvoice->currency;
+ 
             $user = User::where('id', $subscription->user_id)->first();
+            if (!$user instanceof User) {
+                throw new Exception('User not found');
+            }
             $planid = Plan::where('product', $product_details->id)->value('id');
             $cost = PlanPrice::where('plan_id', $planid)->where('currency', $oldcurrency)->value('renew_price');
-
+ 
             $renewController = new RenewController();
             $invoiceItems = $renewController->generateInvoice($product_details, $user, $order->id, $plan->id, $cost, $code = '', $item->agents, $oldcurrency);
+            if (!$invoiceItems instanceof \App\Model\Order\InvoiceItem) {
+                throw new Exception('Renewal failed');
+            }
             $invoiceid = $invoiceItems->invoice_id;
-
+ 
             return url('autopaynow/'.$invoiceid);
         } catch(Exception $exception) {
             $message = ['error' => $exception->getMessage()];
@@ -741,9 +796,13 @@ class HomeController extends BaseHomeController
             $updatedProducts[] = $real;
         }
 
-        return json_encode($updatedProducts);
+        $res = json_encode($updatedProducts);
+        return $res !== false ? $res : '';
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getProductRelease(Request $request): array
     {
         $product_id = $request->input('product_id');

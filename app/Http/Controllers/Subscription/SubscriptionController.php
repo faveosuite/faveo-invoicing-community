@@ -51,6 +51,9 @@ class SubscriptionController extends Controller
 
     // ── Subscription queries ──────────────────────────────────────────────
 
+    /**
+     * @return array<mixed>
+     */
     public function getOnDayExpiryInfoSubs(): array
     {
         $stripeEnabled = (bool) StatusSetting::value('stripe_auto_renewal');
@@ -96,6 +99,9 @@ class SubscriptionController extends Controller
         return $subscriptions->unique('id')->values()->toArray();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getCreatedSubscription(): array
     {
         $stripeEnabled = (bool) StatusSetting::value('stripe_auto_renewal');
@@ -132,6 +138,9 @@ class SubscriptionController extends Controller
         return $subscriptions->unique('id')->values()->toArray();
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getRenewalDays(): array
     {
         $raw = ExpiryMailDay::value('autorenewal_days');
@@ -149,7 +158,7 @@ class SubscriptionController extends Controller
 
     // ── Per-subscription renewal ──────────────────────────────────────────
 
-    private function processSubscriptionRenewal(object $subscriptionData): void
+    private function processSubscriptionRenewal(\stdClass $subscriptionData): void
     {
         $invoice = null;
         $cost = null;
@@ -161,6 +170,9 @@ class SubscriptionController extends Controller
 
         try {
             $subscription = Subscription::findOrFail($subscriptionData->id);
+            if (!$subscription instanceof Subscription) {
+                throw new Exception('Subscription not found.');
+            }
             $plan = Plan::findOrFail($subscription->plan_id);
             $order = Order::findOrFail($subscription->order_id);
             $user = User::findOrFail($subscription->user_id);
@@ -219,6 +231,9 @@ class SubscriptionController extends Controller
         return null;
     }
 
+    /**
+     * @param array<mixed> $planDetails
+     */
     private function calculateRenewalCost(Subscription $subscription, array $planDetails, Order $order): float
     {
         $price = (float) ($planDetails['plan']->renew_price ?? 0);
@@ -263,13 +278,16 @@ class SubscriptionController extends Controller
 
         $agents = DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents');
         $invoiceItem = new BaseRenewController()->generateInvoice($product, $user, $order->id, $plan->id, $cost, '', $agents, $currency);
+        if ($invoiceItem instanceof \Illuminate\Http\RedirectResponse) {
+            throw new Exception('Failed to generate invoice item.');
+        }
 
         return Invoice::findOrFail($invoiceItem->invoice_id);
     }
 
     // ── Gateway status checks (status=2 → awaiting auth) ─────────────────
 
-    public function checkSubscriptionStatus(object $subscription): void
+    public function checkSubscriptionStatus(\stdClass $subscription): void
     {
         try {
             $invoiceId = DB::table('order_invoice_relations')
@@ -289,11 +307,14 @@ class SubscriptionController extends Controller
             $productName = (string) Product::where('id', $subscription->product_id)->value('name');
             $cost = (float) $invoice->grand_total;
 
-            if (! $order || ! $user) {
+            if (! $order instanceof Order || ! $user instanceof User) {
                 return;
             }
 
             $sub = Subscription::find($subscription->id);
+            if (!$sub instanceof Subscription) {
+                return;
+            }
 
             if ($sub->subscribe_id && $sub->rzp_subscription == '2') {
                 $status = resolve(SubscriptionService::class)->getStatus('Razorpay', $sub->subscribe_id);
@@ -408,6 +429,9 @@ class SubscriptionController extends Controller
     private function sendPendingAuthMail(Subscription $subscription, Product $product, float|int $cost, string $currency, ?string $url, \App\User $user): void
     {
         $setting = Setting::find(1);
+        if (!$setting instanceof Setting) {
+            return;
+        }
         $contact = getContactData();
         $template = TemplateType::where('name', 'stripe_subscription_authentication')
             ->with('templates')

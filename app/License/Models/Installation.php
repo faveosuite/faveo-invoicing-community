@@ -27,7 +27,6 @@ use Override;
  * @property-read \App\License\Models\License|null $license
  * @property-read Product $product
  * @property-read User|null $user
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation active()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation newQuery()
@@ -46,7 +45,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Installation whereVersion($value)
- *
  * @mixin \Eloquent
  */
 class Installation extends Model
@@ -91,8 +89,11 @@ class Installation extends Model
         return $this->belongsTo(License::class, 'license_code', 'license_code');
     }
 
+        /**
+     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query
+     */
     #[Scope]
-    protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
+        protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where('installation_status', 1);
     }

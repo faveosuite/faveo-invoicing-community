@@ -8,6 +8,9 @@ use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 
 class CommonMailer
 {
+    /**
+     * @param array<mixed> $config
+     */
     public function setSmtpDriver(array $config): bool|string
     {
         try {

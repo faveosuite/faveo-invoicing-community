@@ -53,6 +53,7 @@ class LogViewController
             $date = $request->input('date');
             $logCategoryId = $request->input('category');
 
+            /** @var \App\BillingLog\Model\LogCategory|null $exceptionCategory */
             $exceptionCategory = LogCategory::find($logCategoryId);
 
             if (! $exceptionCategory) {
@@ -121,6 +122,7 @@ class LogViewController
             $date = $request->input('date');
             $logCategoryId = $request->input('category');
             $status = $request->input('status');
+ /** @var \App\BillingLog\Model\LogCategory|null $mailCategory */
 
             $mailCategory = LogCategory::find($logCategoryId);
 
@@ -148,6 +150,9 @@ class LogViewController
         }
     }
 
+    /**
+     * @param array<mixed> $logTypes
+     */
     public function deleteLogsByDate(array $logTypes, mixed $date = null): void
     {
         $logModels = [

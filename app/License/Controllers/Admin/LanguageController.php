@@ -23,6 +23,9 @@ class LanguageController extends Controller
         ]);
     }
 
+    /**
+     * @param array<mixed> $languageArray
+     */
     private function appendLicenseLanguage(string $languageName, array &$languageArray): void
     {
         $basePath = base_path('app/License/Lang');

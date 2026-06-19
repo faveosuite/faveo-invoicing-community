@@ -24,7 +24,8 @@ class ReportController extends Controller
         $request->validate([
             'records' => ['required', 'integer', 'min:1', 'max:3000'],
         ]);
-        $settings = ReportSetting::first();
+        /** @var \App\ReportSetting $settings */
+        $settings = ReportSetting::firstOrFail();
         $settings->records = $request->records;
         $settings->save();
 

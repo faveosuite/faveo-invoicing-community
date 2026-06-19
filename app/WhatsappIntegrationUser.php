@@ -22,7 +22,6 @@ use Illuminate\Contracts\Encryption\DecryptException;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read \App\User|null $user
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser query()
@@ -37,7 +36,6 @@ use Illuminate\Contracts\Encryption\DecryptException;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereUserCallbackUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereWabaId($value)
- *
  * @mixin \Eloquent
  */
 class WhatsappIntegrationUser extends BaseModel
@@ -50,6 +48,9 @@ class WhatsappIntegrationUser extends BaseModel
 
     protected static string $logName = 'phoneNumber';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = ['waba_id', 'phone_number', 'phone_number_id', 'user_id', 'user_callback_url', 'business_id', 'order_id'];
 
     protected string $logNameColumn = 'phone_number';
@@ -62,6 +63,9 @@ class WhatsappIntegrationUser extends BaseModel
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -75,6 +79,9 @@ class WhatsappIntegrationUser extends BaseModel
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function accessToken(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {

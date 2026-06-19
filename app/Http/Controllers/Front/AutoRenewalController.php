@@ -31,7 +31,9 @@ class AutoRenewalController extends Controller
     public function stripeSession(Request $request, int $order): \Illuminate\Http\JsonResponse
     {
         $order = $this->authorizedOrder($order);
-        $currency = getCurrencyForClient(Auth::user()->country);
+        /** @var \App\User $authUser */
+        $authUser = Auth::user();
+        $currency = getCurrencyForClient($authUser->country);
         $amount = getMinimumAmountForPayments($currency, 'stripe');
         $symbol = Currency::where('code', $currency)->value('symbol') ?? $currency;
 
@@ -162,6 +164,7 @@ class AutoRenewalController extends Controller
 
     private function buildRequest(Order $order, string $gateway, string $nonce = ''): GatewayPaymentRequest
     {
+        /** @var \App\User $user */
         $user = Auth::user();
         $currency = getCurrencyForClient($user->country);
 
@@ -190,8 +193,10 @@ class AutoRenewalController extends Controller
 
     private function saveRenewal(Order $order, string $gateway, string $paymentRef): void
     {
+        /** @var \App\User $authUser2 */
+        $authUser2 = Auth::user();
         Auto_renewal::create([
-            'user_id' => Auth::user()->id,
+            'user_id' => $authUser2->id,
             'customer_id' => $paymentRef,
             'payment_method' => $gateway,
             'order_id' => $order->id,
@@ -231,8 +236,10 @@ class AutoRenewalController extends Controller
 
     private function logPayment(Order $order, string $gateway, string $status, string $note = ''): void
     {
+        /** @var \App\User $authUser3 */
+        $authUser3 = Auth::user();
         new PhpMailController()->payment_log(
-            Auth::user()->email, $gateway, $status, $order->number, $note ?: null, 0, 'Payment method updated'
+            $authUser3->email, $gateway, $status, $order->number, $note ?: null, 0, 'Payment method updated'
         );
     }
 }

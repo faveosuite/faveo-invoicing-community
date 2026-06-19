@@ -27,12 +27,12 @@ class InstallationViewController extends Controller
                 'installation_date' => $installation->installation_date,
                 'installation_status' => $installation->installation_status,
                 'product_title' => $installation->product->name,
-                'client_email' => $installation->user->email,
-                'license_id' => $installation->license->id,
+                'client_email' => $installation->user?->email,
+                'license_id' => $installation->license?->id,
             ];
         }
 
-        return successResponse(Lang::get('lang.installation_details'), $installation);
+        return successResponse(__('lang.installation_details'), $installation);
     }
 
     public function getInstallationCallbacks(Request $request, mixed $id): \Illuminate\Http\JsonResponse
@@ -64,6 +64,6 @@ class InstallationViewController extends Controller
             'callback_status' => $cb->callback_status,
         ]);
 
-        return successResponse(Lang::get('lang.installation_callbacks'), $callbacks);
+        return successResponse(__('lang.installation_callbacks'), $callbacks);
     }
 }

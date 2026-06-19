@@ -75,7 +75,7 @@ class SettingsController extends Controller
             $stripe = new StripeClient($request->input('stripe_secret'));
             $stripe->customers->create(['description' => 'Test Customer to Validate Secret Key']);
 
-            ApiKey::find(1)->update([
+            ApiKey::where('id', 1)->update([
                 'stripe_secret' => $request->input('stripe_secret'),
                 'stripe_key' => $request->input('stripe_key'),
                 'stripe_webhook_secret' => $request->input('webhook_secret'),
@@ -85,7 +85,7 @@ class SettingsController extends Controller
 
             if ($request->has('auto_renewal')) {
                 $enabling = $request->boolean('auto_renewal');
-                StatusSetting::find(1)->update(['stripe_auto_renewal' => $enabling ? 1 : 0]);
+                StatusSetting::where('id', 1)->update(['stripe_auto_renewal' => $enabling ? 1 : 0]);
 
                 if (! $enabling) {
                     dispatch(new CancelGatewaySubscriptionsJob('stripe'));
@@ -159,6 +159,7 @@ class SettingsController extends Controller
 
     /**
      * Extract Stripe customer data from a User model, array, or object.
+     * @return array<mixed>
      */
     public function extractCustomerData(mixed $user): array
     {

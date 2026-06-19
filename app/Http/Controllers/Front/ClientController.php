@@ -106,6 +106,9 @@ class ClientController extends BaseClientController
             $id = request()->route('id');
             $order_id = DB::table('order_invoice_relations')->where('invoice_id', $id)->value('order_id');
             $sub = Subscription::where('order_id', $order_id)->first();
+            if (!$sub instanceof Subscription) {
+                throw new Exception('Subscription not found.');
+            }
             $planid = $sub->plan_id;
             $plan = Plan::find($planid);
             $planDetails = userCurrencyAndPrice($sub->user_id, $plan);
@@ -117,6 +120,9 @@ class ClientController extends BaseClientController
             $currency = $planDetails['currency'];
             $controller = new RenewController();
             $items = InvoiceItem::where('invoice_id', $id)->first();
+            if (!$items instanceof InvoiceItem) {
+                throw new Exception('Invoice item not found.');
+            }
             $invoiceid = $items->invoice_id;
             // $this->setSession($id, $planid);
 
@@ -192,6 +198,9 @@ class ClientController extends BaseClientController
 
             $latestInvoice = $order->invoices->first();
             $user = Auth::user();
+            if (!$user instanceof User) {
+                return errorResponse('Unauthorized', 401);
+            }
 
             return successResponse('', [
                 'id' => $order->id,
@@ -262,7 +271,7 @@ class ClientController extends BaseClientController
             $downloadPerms[$pid] = $perms['downloadPermission'] == 1;
         }
 
-        $paginated->getCollection()->transform(function ($order) use ($downloadPerms): array { // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
+        $paginated->getCollection()->transform(function ($order) use ($downloadPerms): array {
             $hasDownload = $downloadPerms[$order->productRelation?->id] ?? false;
             $latestInvoice = $order->invoices->first();
 
@@ -300,6 +309,9 @@ class ClientController extends BaseClientController
     {
         try {
             $user = Auth::user();
+            if (!$user instanceof User) {
+                return errorResponse('Unauthorized', 401);
+            }
             $order = $this->getClientPanelOrdersData()->where('id', $orderId)->first();
             $product = $order?->productRelation;
 
@@ -356,6 +368,9 @@ class ClientController extends BaseClientController
     {
         try {
             $user = Auth::user();
+            if (!$user instanceof User) {
+                return errorResponse('Unauthorized', 401);
+            }
             $currency = getCurrencyForClient($user->country);
 
             $plans = Plan::where('product', $productid)
@@ -368,7 +383,8 @@ class ClientController extends BaseClientController
                 ->filter(fn ($plan) => $plan->planPrice->isNotEmpty());
 
             $planOptions = $plans->map(function ($plan) use ($currency): array {
-                $renewPrice = $plan->planPrice->first()->renew_price;
+                $planPrice = $plan->planPrice->first();
+                $renewPrice = $planPrice instanceof PlanPrice ? $planPrice->renew_price : 0;
 
                 return [
                     'id' => $plan->id,
@@ -416,6 +432,9 @@ class ClientController extends BaseClientController
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function prepareInvoiceData(\App\Model\Order\Invoice $invoice, ?\App\User $user = null): array
     {
         $payments = $invoice->payment;
@@ -468,7 +487,9 @@ class ClientController extends BaseClientController
 
         foreach (InvoiceTaxLine::where('invoice_id', $invoice->id)->get()->groupBy('label') as $label => $lines) {
             $amount = (float) $lines->sum('amount');
-            $percentage = rtrim(rtrim(number_format((float) $lines->first()->rate, 2, '.', ''), '0'), '.').'%';
+            $firstLine = $lines->first();
+            $rate = $firstLine instanceof InvoiceTaxLine ? (float) $firstLine->rate : 0.0;
+            $percentage = rtrim(rtrim(number_format($rate, 2, '.', ''), '0'), '.').'%';
 
             $gstSplit[] = [
                 'name' => $label,
@@ -482,10 +503,12 @@ class ClientController extends BaseClientController
         // the pre-fee total — reverse it out (matches Order\InvoiceController).
         $processingFeeAmount = ProcessingFee::fromInclusive((float) $invoice->grand_total, $invoice->processing_fee);
         $base64 = '';
-        if ($set->logo) {
+        if ($set && $set->logo) {
             $type = pathinfo((string) $set->logo, PATHINFO_EXTENSION);
-            $data = file_get_contents($set->logo);
-            $base64 = 'data:image/'.$type.';base64,'.base64_encode($data);
+            $logoData = file_get_contents($set->logo);
+            if ($logoData !== false) {
+                $base64 = 'data:image/'.$type.';base64,'.base64_encode($logoData);
+            }
         }
 
         return compact(
@@ -523,6 +546,9 @@ class ClientController extends BaseClientController
             }
 
             $product = $order->productRelation;
+            if (!$product instanceof Product) {
+                return errorResponse('Product relation not found.', 404);
+            }
             $subscription = $order->subscription;
 
             if ($product->github_owner && $product->github_repository) {
@@ -535,11 +561,17 @@ class ClientController extends BaseClientController
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function autoRenewalGateways(string $country): array
     {
         $status = StatusSetting::first(['stripe_auto_renewal', 'razorpay_auto_renewal']);
         $currency = getCurrencyForClient($country);
         $active = SettingsController::checkPaymentGateway($currency);
+        if (!is_array($active)) {
+            $active = [];
+        }
         $active = array_map(strtolower(...), $active);
 
         $enabled = [];
@@ -668,8 +700,10 @@ class ClientController extends BaseClientController
             if (!$subscription instanceof \App\Model\Product\Subscription) {
                 $canDownload = true;
             } elseif ($allowTillExpiry) {
-                $canDownload = $version->created_at->toDateTimeString() < $subscription->update_ends_at
-                    || $subscription->update_ends_at == '0000-00-00 00:00:00';
+                $createdAt = $version->created_at;
+                $canDownload = $createdAt
+                    ? ($createdAt->toDateTimeString() < $subscription->update_ends_at || $subscription->update_ends_at == '0000-00-00 00:00:00')
+                    : ($subscription->update_ends_at == '0000-00-00 00:00:00');
             } else {
                 $canDownload = $countExpiry == $countVersions;
             }
@@ -691,6 +725,7 @@ class ClientController extends BaseClientController
 
     /**
      *  Gets all the order details for a particular user.
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>
      */
     public function getClientPanelOrdersData(): \Illuminate\Database\Eloquent\Builder
     {
@@ -712,7 +747,7 @@ class ClientController extends BaseClientController
     public function profile(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            $user = $this->user->where('id', Auth::user()->id)->first();
+            $user = $this->user->where('id', Auth::id())->first();
 
             return successResponse('', ['user' => $user]);
         } catch (Exception $exception) {
@@ -729,6 +764,7 @@ class ClientController extends BaseClientController
      * Get plan name and id ,options for upgrading or downgrading the cloud plan.
      *
      * @param  $product
+     * @return array<mixed>
      */
     private function planPriceProductRelation(\App\Model\Product\Product $product): array
     {
@@ -747,11 +783,11 @@ class ClientController extends BaseClientController
     /**
      * Get renewal price for related plans.
      *
-     * @param  $product
-     * @param  $planIds
-     * @param  $countryids
-     * @param  $userCountry
-     * @param  $plans
+     * @param  array<mixed>  $planIds
+     * @param  string  $userCountry
+     * @param  array<mixed>  $plans
+     * @param  \App\Model\Product\Product  $product
+     * @return array<mixed>
      */
     private function planDetails(array $planIds, string $userCountry, array $plans, \App\Model\Product\Product $product): array
     {
@@ -860,7 +896,10 @@ class ClientController extends BaseClientController
 
     public function clientDetails(): \Illuminate\Http\JsonResponse
     {
-        $user = auth()->user();
+        $user = Auth::user();
+        if (!$user instanceof User) {
+            return errorResponse('Unauthenticated.', 401);
+        }
 
         return successResponse('', [
             'pending_invoices_count' => $user->invoice()->where('status', 'pending')->count(),
@@ -876,7 +915,11 @@ class ClientController extends BaseClientController
         try {
             $paid = 0;
             $invoice = Invoice::find($invoiceid);
-            if ($invoice->user_id != Auth::user()->id) {
+            if (!$invoice instanceof Invoice) {
+                return errorResponse('Invoice not found.', 404);
+            }
+            $user = Auth::user();
+            if (!$user instanceof User || $invoice->user_id != $user->id) {
                 return errorResponse(__('message.invalid_payment_modification'));
             }
 
@@ -887,10 +930,10 @@ class ClientController extends BaseClientController
 
             $items = collect();
             $product = null;
-            if ($invoice) {
-                $items = $invoice->invoiceItem()->get();
-                if (count($items) > 0) {
-                    $invoiceItem = InvoiceItem::where('invoice_id', $invoiceid)->first();
+            $items = $invoice->invoiceItem()->get();
+            if (count($items) > 0) {
+                $invoiceItem = InvoiceItem::where('invoice_id', $invoiceid)->first();
+                if ($invoiceItem instanceof InvoiceItem) {
                     $product = Product::find($invoiceItem->product_id);
                 }
             }

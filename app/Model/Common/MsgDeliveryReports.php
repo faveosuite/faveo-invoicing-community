@@ -24,7 +24,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read mixed $formatted_sender_id
  * @property-read \App\Model\Common\Msg91Status|null $readableStatus
  * @property-read User|null $user
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MsgDeliveryReports newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MsgDeliveryReports newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MsgDeliveryReports query()
@@ -42,11 +41,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MsgDeliveryReports whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MsgDeliveryReports whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MsgDeliveryReports whereUserId($value)
- *
  * @mixin \Eloquent
  */
 class MsgDeliveryReports extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
 
     protected $fillable = [
@@ -73,10 +74,13 @@ class MsgDeliveryReports extends Model
         return $this->belongsTo(Msg91Status::class, 'status', 'status_code');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function formattedSenderId(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
-            return strtoupper($this->sender_id);
+            return strtoupper((string) $this->sender_id);
         });
     }
 

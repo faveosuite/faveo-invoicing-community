@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Product $pluginComp
  * @property-read Product $productComp
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PluginCompatibleWithProducts newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PluginCompatibleWithProducts newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PluginCompatibleWithProducts query()
@@ -25,11 +24,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PluginCompatibleWithProducts wherePluginId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PluginCompatibleWithProducts whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PluginCompatibleWithProducts whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class PluginCompatibleWithProducts extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
 
     protected $table = 'plugin_compatible_with_products';
@@ -37,12 +38,18 @@ class PluginCompatibleWithProducts extends Model
     protected $guarded = [];
 
     // Define the relationship with Product (as product)
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Product, $this>
+     */
     public function productComp(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
 
     // Define the relationship with Product (as plugin)
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Product, $this>
+     */
     public function pluginComp(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class, 'plugin_id');

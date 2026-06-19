@@ -23,7 +23,7 @@ class MonitoringController extends Controller
             return errorResponse('Invalid monitoring type', 400);
         }
 
-        $basePath = trim(parse_url(url('/'), PHP_URL_PATH) ?? '', '/');
+        $basePath = trim((string) (parse_url(url('/'), PHP_URL_PATH) ?? ''), '/');
         $installedInSubdirectory = $basePath !== '' && $basePath !== '0';
 
         $titleKeys = [

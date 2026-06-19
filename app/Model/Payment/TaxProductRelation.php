@@ -16,7 +16,6 @@ use App\Model\Product\Product;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $product
  * @property-read int|null $product_count
  * @property-read \App\Model\Payment\TaxClass $tax
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation query()
@@ -25,7 +24,6 @@ use App\Model\Product\Product;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation whereTaxClassId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class TaxProductRelation extends BaseModel
@@ -34,11 +32,17 @@ class TaxProductRelation extends BaseModel
 
     protected $fillable = ['product_id', 'tax_class_id'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<TaxClass, $this>
+     */
     public function tax(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(TaxClass::class, 'tax_class_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Product, $this>
+     */
     public function product(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Product::class, 'product_id');

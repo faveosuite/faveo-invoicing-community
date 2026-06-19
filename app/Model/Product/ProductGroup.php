@@ -29,7 +29,6 @@ use Override;
  * @property-read PricingTemplate|null $pricingTemplate
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\Product> $product
  * @property-read int|null $product_count
- *
  * @method static \Database\Factories\Model\Product\ProductGroupFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductGroup newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductGroup newQuery()
@@ -45,11 +44,13 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductGroup whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductGroup whereTagline($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductGroup whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class ProductGroup extends BaseModel
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -61,17 +62,29 @@ class ProductGroup extends BaseModel
 
     protected string $logNameColumn = 'name';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = ['name', 'headline', 'tagline', 'available_payment', 'hidden', 'cart_link', 'pricing_templates_id', 'status'];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['groups', ':id', 'edit'],
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ConfigurableOption, $this>
+     */
     public function config(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ConfigurableOption::class, 'group_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<GroupFeatures, $this>
+     */
     public function features(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(GroupFeatures::class, 'group_id');
@@ -102,6 +115,9 @@ class ProductGroup extends BaseModel
         return (bool) parent::delete();
     }
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

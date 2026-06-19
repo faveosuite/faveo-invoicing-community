@@ -29,6 +29,7 @@ class NotificationsController extends Controller
             array_fill_keys($fields, 'required|string|max:250')
         );
 
+        /** @var \App\License\Models\LicenseNotification|null $notification */
         $notification = LicenseNotification::find($notification_id) ?? LicenseNotification::first();
 
         if ($notification) {
@@ -37,7 +38,7 @@ class NotificationsController extends Controller
             $notification = LicenseNotification::create($validated);
         }
 
-        return successResponse(Lang::get('license::lang.notifications_updated'), $notification);
+        return successResponse(__('license::lang.notifications_updated'), $notification);
     }
 
     /**
@@ -58,6 +59,7 @@ class NotificationsController extends Controller
         $validated = $request->validate(
             array_fill_keys($fields, 'required|string|max:250')
         );
+ /** @var \App\License\Models\VersionNotification|null $notification */
 
         $notification = VersionNotification::find($notification_id) ?? VersionNotification::first();
 
@@ -67,6 +69,6 @@ class NotificationsController extends Controller
             $notification = VersionNotification::create($validated);
         }
 
-        return successResponse(Lang::get('license::lang.notifications_updated'), $notification);
+        return successResponse(__('license::lang.notifications_updated'), $notification);
     }
 }

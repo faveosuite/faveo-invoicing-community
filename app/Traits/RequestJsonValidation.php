@@ -42,7 +42,7 @@ trait RequestJsonValidation
      */
     final protected function failedAuthorization(): never
     {
-        throw new HttpResponseException(errorResponse(Lang::get('lang.permission_denied_action'), 400));
+        throw new HttpResponseException(errorResponse(__('lang.permission_denied_action'), 400));
     }
 
     /**

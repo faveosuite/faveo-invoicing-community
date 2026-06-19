@@ -26,11 +26,14 @@ class BaseProductController extends ExtendedBaseProductController
         $server = parse_url($server['path']);
         $server['path'] = dirname($server['path']);
 
-        return 'http://'.\Illuminate\Support\Facades\Request::server('HTTP_HOST').$server['path'];
+        return 'http://'. (string) \Illuminate\Support\Facades\Request::server('HTTP_HOST').$server['path'];
     }
 
     /*
     * Get Product Qty if Product can be modified
+     */
+    /**
+     * @return array<mixed>
      */
     public function getProductQtyCheck(int $productId, Plan $plan, string $currency): array
     {
@@ -68,6 +71,9 @@ class BaseProductController extends ExtendedBaseProductController
         return $product->can_modify_quantity == 1;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getAgentQtyCheck(int $productId, Plan $plan, string $currency): array
     {
         if (! self::checkMultiAgent($productId)) {
@@ -110,8 +116,12 @@ class BaseProductController extends ExtendedBaseProductController
     public function getSubscriptionCheck(int $productid, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            $useID = $request->input('user_id') ?: Auth::user()->id;
-            $userCountry = User::find($useID)->country;
+            /** @var \App\User $authUser */
+            $authUser = Auth::user();
+            $useID = $request->input('user_id') ?: $authUser->id;
+            /** @var \App\User $userForCountry */
+            $userForCountry = User::find($useID);
+            $userCountry = $userForCountry->country;
             $currency = getCurrencyForClient($userCountry);
             $plans = Plan::where('product', $productid)
                 ->whereHas('planPrice', function ($query) use ($currency): void {
@@ -153,7 +163,9 @@ class BaseProductController extends ExtendedBaseProductController
         try {
             $order = Order::with('subscription')->findOrFail($order_id);
 
-            if (Auth::user()->role !== 'admin' && Auth::user()->id !== $order->client) {
+            /** @var \App\User $authUser2 */
+            $authUser2 = Auth::user();
+            if ($authUser2->role !== 'admin' && $authUser2->id !== $order->client) {
                 throw new Exception(__('message.no_permission_for_action'));
             }
 
@@ -213,6 +225,7 @@ class BaseProductController extends ExtendedBaseProductController
             $userId = $request->input('user');
             $planId = $request->input('plan');
 
+            /** @var \App\Model\Payment\Plan $plan */
             $plan = Plan::findOrFail($planId);
 
             $currency = userCurrencyAndPrice($userId, $plan)['currency'];
@@ -249,6 +262,7 @@ class BaseProductController extends ExtendedBaseProductController
 
     public function updateVersionFromGithub(mixed $productid, string $github_owner, string $github_repository): void
     {
+        /** @var \App\Product $product */
         $product = Product::findOrFail($productid);
         $product->version = resolve(GithubApiController::class)->latestTag($github_owner, $github_repository);
         $product->save();
@@ -263,6 +277,7 @@ class BaseProductController extends ExtendedBaseProductController
      */
     public function allowQuantityOrAgent(int $productid): bool
     {
+        /** @var \App\Model\Product\Product $product */
         $product = Product::find($productid);
 
         return (bool) $product->show_agent;
@@ -273,10 +288,11 @@ class BaseProductController extends ExtendedBaseProductController
      *
      *
      * @param  int  $productid  The id of the Product added to the cart
-     * @return array The permissons for Agents and Quantity
+     * @return array<mixed> The permissons for Agents and Quantity
      */
     public function isAllowedtoEdit(int $productid): array
     {
+        /** @var \App\Model\Product\Product $product */
         $product = Product::where('id', $productid)->first();
 
         $agentModifyPermission = $product->can_modify_agent;
@@ -293,7 +309,7 @@ class BaseProductController extends ExtendedBaseProductController
         $product = $licenseRecord ? [collect($licenseRecord)->toArray()] : [];
 
         if ($product === []) {
-            return errorResponse(Lang::get('message.product_not_found'));
+            return errorResponse(__('message.product_not_found'));
         }
 
         $data = [

@@ -36,26 +36,46 @@ class MailchimpClient
         }
     }
 
+    /**
+     * @param array<mixed> $params
+     * @return array<mixed>
+     */
     public function get(string $endpoint, array $params = []): array
     {
         return $this->request('GET', $endpoint, $params);
     }
 
+    /**
+     * @param array<mixed> $body
+     * @return array<mixed>
+     */
     public function post(string $endpoint, array $body = []): array
     {
         return $this->request('POST', $endpoint, $body);
     }
 
+    /**
+     * @param array<mixed> $body
+     * @return array<mixed>
+     */
     public function patch(string $endpoint, array $body = []): array
     {
         return $this->request('PATCH', $endpoint, $body);
     }
 
+    /**
+     * @param array<mixed> $body
+     * @return array<mixed>
+     */
     public function put(string $endpoint, array $body = []): array
     {
         return $this->request('PUT', $endpoint, $body);
     }
 
+    /**
+     * @param array<mixed> $data
+     * @return array<mixed>
+     */
     private function request(string $method, string $endpoint, array $data = []): array
     {
         $url = $this->baseUrl.'/'.ltrim($endpoint, '/');

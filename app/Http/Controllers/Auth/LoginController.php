@@ -103,6 +103,7 @@ class LoginController extends BaseAuthController
             return $response;
         }
 
+        /** @var \App\User $user */
         $user = Auth::user();
 
         $userInfo = array_merge(
@@ -130,6 +131,7 @@ class LoginController extends BaseAuthController
                 return errorResponse(__('message.enter_valid_credentials'));
             }
 
+            /** @var \App\User $user */
             $user = Auth::user();
 
             // 3. Handle post-authentication checks (Verification)
@@ -156,6 +158,7 @@ class LoginController extends BaseAuthController
     /**
      * Build the credentials array for authentication.
      * Allows login with either email or username.
+     * @return array<mixed>
      */
     private function buildCredentials(Request $request): array
     {
@@ -228,7 +231,8 @@ class LoginController extends BaseAuthController
      */
     public function redirectToGithub(mixed $provider): \Illuminate\Http\JsonResponse
     {
-        $details = SocialLogin::where('type', $provider)->first();
+        /** @var \App\SocialLogin $details */
+        $details = SocialLogin::where('type', $provider)->firstOrFail();
 
         Config::set(sprintf('services.%s.redirect', $provider), $details->redirect_url);
         Config::set(sprintf('services.%s.client_id', $provider), $details->client_id);
@@ -246,7 +250,8 @@ class LoginController extends BaseAuthController
      */
     public function handler(mixed $provider)
     {
-        $details = SocialLogin::where('type', $provider)->first();
+        /** @var \App\SocialLogin $details */
+        $details = SocialLogin::where('type', $provider)->firstOrFail();
         Config::set(sprintf('services.%s.redirect', $provider), $details->redirect_url);
         Config::set(sprintf('services.%s.client_id', $provider), $details->client_id);
         Config::set(sprintf('services.%s.client_secret', $provider), $details->client_secret);
@@ -287,8 +292,10 @@ class LoginController extends BaseAuthController
 
         Auth::login($user);
 
-        if (\Auth::user()->is_2fa_enabled == 1) {
-            $userId = \Auth::user()->id;
+        /** @var \App\User $authUser */
+        $authUser = \Auth::user();
+        if ($authUser->is_2fa_enabled == 1) {
+            $userId = $authUser->id;
             Session::put([
                 '2fa:user:id' => $userId,
                 'remember:user:id' => false,
@@ -299,7 +306,7 @@ class LoginController extends BaseAuthController
         }
 
         if (Auth::check()) {
-            return redirect($this->redirectPath());
+            return redirect((string) $this->redirectPath());
         }
 
         return back();
@@ -322,6 +329,7 @@ class LoginController extends BaseAuthController
                     'address.string' => __('validation.company_validation.company_string'),
                 ]);
 
+            /** @var \App\User $user */
             $user = Auth::user();
             $user->company = $request->company;
             $user->address = $request->address;

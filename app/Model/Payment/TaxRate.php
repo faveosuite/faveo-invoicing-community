@@ -29,7 +29,6 @@ use Override;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\TaxRateLocation> $locations
  * @property-read int|null $locations_count
  * @property-read \App\Model\Payment\TaxClass|null $taxClass
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate query()
@@ -45,7 +44,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereState($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereTaxClass($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class TaxRate extends BaseModel
@@ -63,14 +61,23 @@ class TaxRate extends BaseModel
 
     protected string $logNameColumn = 'name';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'name', 'country', 'state', 'rate', 'priority', 'compound', 'tax_class', 'active',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['tax', ':id', 'edit'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -103,6 +110,9 @@ class TaxRate extends BaseModel
         return $this->hasMany(TaxRateLocation::class, 'tax_rate_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<TaxClass, $this>
+     */
     public function taxClass(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(TaxClass::class, 'tax_class', 'slug');

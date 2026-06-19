@@ -15,7 +15,6 @@ use Override;
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  * @property-read \App\User|null $user
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment query()
@@ -25,7 +24,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment whereUpdatedByUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment whereUserId($value)
- *
  * @mixin \Eloquent
  */
 class Comment extends Model

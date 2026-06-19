@@ -269,6 +269,9 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $number = random_int(11111111, 99999999);
             $date = Date::parse($request->input('date'));
             $product = Product::find($productid);
+            if (!$product instanceof Product) {
+                throw new Exception('Product not found.');
+            }
 
             $baseCost = $userCurrency['plan']->add_price;
             $offer = $userCurrency['plan']['offer_price'] ?? 0;
@@ -281,7 +284,12 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             }
 
             $user = User::where('id', $user_id)->select('state', 'country')->first();
-            $tax = $this->calculateTax($product->id, $user->state, $user->country, taxCaluculationFromAdminPanel: true);
+            if (!$user instanceof User) {
+                throw new Exception('User not found.');
+            }
+            $user_state = (string) ($user->state ?? '');
+            $user_country = (string) ($user->country ?? '');
+            $tax = $this->calculateTax($product->id, $user_state, $user_country, taxCaluculationFromAdminPanel: true);
             $grand_total = rounding($this->calculateTotal($tax['value'], $grandTotalAfterCoupon));
             $subtotal = $qty * $total;
             $coupon = $subtotal * (intval($couponTotal['value']) / 100);
@@ -289,7 +297,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'coupon_code' => $couponTotal['code'], 'discount' => $coupon, 'discount_mode' => $couponTotal['mode'], 'grand_total' => $grand_total,  'currency' => $currency, 'status' => $status, 'description' => $description, 'cloud_domain' => str_replace('.'.cloudSubDomain(), '', $cloud_domain)]);
 
             $items = $this->createInvoiceItemsByAdmin($invoice->id, $productid,
-                $total, $currency, $qty, $agents, $plan, $user_id, $tax['name'], $tax['value'], $total); // @phpstan-ignore argument.type
+                $total, $currency, $qty, $agents, $plan, $user_id, $tax['name'], (float) $tax['value'], $total);
             $result = $this->getMessage($items, $user_id);
             Session::forget('plan');
 
@@ -380,12 +388,14 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             }
 
             $invoice = $this->invoice->find($id);
-
-            if (! $invoice) {
+            if (!$invoice instanceof Invoice) {
                 return errorResponse(__('message.invalid-invoice-id'));
             }
 
             $authUser = Auth::user();
+            if (!$authUser instanceof User) {
+                return errorResponse('Unauthorized', 401);
+            }
             if ($invoice->user_id != $authUser->id && $authUser->role != 'admin') {
                 return errorResponse(__('message.invalid_user'));
             }
@@ -398,9 +408,11 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             )->first();
 
             $invoiceUser = $invoice->user;
-            if ($invoiceUser) {
-                $invoiceUser->state = array_key_exists('name', getStateByCode($invoiceUser->country, $invoiceUser->state))
-                    ? getStateByCode($invoiceUser->country, $invoiceUser->state)['name']
+            if ($invoiceUser instanceof User) {
+                $userCountry = (string) ($invoiceUser->country ?? '');
+                $userState = (string) ($invoiceUser->state ?? '');
+                $invoiceUser->state = array_key_exists('name', getStateByCode($userCountry, $userState))
+                    ? getStateByCode($userCountry, $userState)['name']
                     : $invoiceUser->state;
             }
 
@@ -428,8 +440,15 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             ini_set('memory_limit', '-1');
             $selectedColumns = $request->input('selected_columns', []);
             $searchParams = $request->input('search_params', []);
-            $email = Auth::user()->email;
+            $authUser = Auth::user();
+            if (!$authUser instanceof User) {
+                return errorResponse('Unauthorized', 401);
+            }
+            $email = $authUser->email;
             $driver = QueueService::where('status', '1')->first();
+            if (!$driver instanceof QueueService) {
+                return errorResponse('Queue driver not configured.');
+            }
 
             if ($driver->name == 'Sync') {
                 return errorResponse(__('message.cannot_sync_queue_driver'));
@@ -464,13 +483,20 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'id', 'company', 'address', 'state', 'zip', 'city', 'country',
                 'phone_code', 'phone', 'logo', 'company_email'
             )->first();
+            if (!$setting instanceof Setting) {
+                throw new Exception('Company settings not configured.');
+            }
 
-            $setting->state = array_key_exists('name', getStateByCode($setting->country, $setting->state))
-                ? getStateByCode($setting->country, $setting->state)['name']
+            $settingCountry = (string) ($setting->country ?? '');
+            $settingState = (string) ($setting->state ?? '');
+            $setting->state = array_key_exists('name', getStateByCode($settingCountry, $settingState))
+                ? getStateByCode($settingCountry, $settingState)['name']
                 : $setting->state;
 
-            $query->user->state = array_key_exists('name', getStateByCode($query->user->country, $query->user->state))
-                ? getStateByCode($query->user->country, $query->user->state)['name']
+            $userCountry = (string) ($query->user->country ?? '');
+            $userState = (string) ($query->user->state ?? '');
+            $query->user->state = array_key_exists('name', getStateByCode($userCountry, $userState))
+                ? getStateByCode($userCountry, $userState)['name']
                 : $query->user->state;
 
             $result = static::calculateInvoice($id, formatCurrency: true);
@@ -503,6 +529,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
      * Get dynamic invoice totals for a given invoice ID.
      *
      * @param  bool  $formatCurrency  - whether to format currency strings or return numeric
+     * @return array<mixed>
      */
     public static function calculateInvoice(int $invoiceId, bool $formatCurrency = false): array
     {
@@ -542,8 +569,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $credits = $credits ? currencyFormat($credits, $invoice->currency) : null;
             $discount = $discount ? currencyFormat($discount, $invoice->currency) : null;
         } else {
-            $credits = round($credits, 2);
-            $discount = round($discount, 2);
+            $credits = round((float) $credits, 2);
+            $discount = round((float) $discount, 2);
         }
 
         // Grand total (numeric)

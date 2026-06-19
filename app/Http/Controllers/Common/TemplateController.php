@@ -78,7 +78,9 @@ class TemplateController extends Controller
         try {
             $controller = new ProductController();
             $url = $controller->GetMyUrl();
-            $i = $this->template->orderBy('created_at', 'desc')->first()->id + 1;
+            /** @var \App\Model\Common\Template $latestTemplate */
+            $latestTemplate = $this->template->orderBy('created_at', 'desc')->first();
+            $i = $latestTemplate->id + 1;
             $cartUrl = $url.'/'.$i;
             $type = $this->type->pluck('name', 'id')->toArray();
 
@@ -100,7 +102,7 @@ class TemplateController extends Controller
         try {
             $this->template->fill($request->input())->save();
 
-            return back()->with('success', Lang::get('message.saved-successfully'));
+            return back()->with('success', __('message.saved-successfully'));
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -179,36 +181,36 @@ class TemplateController extends Controller
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
+                    <b>".(string) __('message.alert').'!</b> '.
+                    (string) __('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
+                        '.(string) __('message.no-record').'
                 </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
+                        //echo \__('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
 
                 echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').
-                    '!</b> './* @scrutinizer ignore-type */Lang::get('message.success').'
+                    <b>".(string) __('message.alert').
+                    '!</b> '.(string) __('message.success').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
+                        '.(string) __('message.deleted-successfully').'
                 </div>';
             } else {
                 echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
+                    <b>".(string) __('message.alert').'!</b> '.
+                    (string) __('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
+                        '.(string) __('message.select-a-row').'
                 </div>';
             }
         } catch (Exception $exception) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
+                    <b>".(string) __('message.alert').'!</b> '.
+                    (string) __('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.$exception->getMessage().'
                 </div>';
@@ -296,6 +298,10 @@ class TemplateController extends Controller
         }
     }
 
+    /**
+     * @param array<mixed> $price
+     * @return array<mixed>
+     */
     public function getPrice(string $months, array $price, string $priceDescription, \App\Model\Payment\Plan $value, float|int $cost, string $currency, float|int|null $offer, \App\Model\Product\Product $product): array
     {
         if (isset($offer)) {
@@ -362,7 +368,7 @@ class TemplateController extends Controller
                         $result,
                         $priceDescription,
                         $plan,
-                        $cost,
+                        (float) $cost,
                         $currency,
                         $offer,
                         $product
@@ -385,6 +391,9 @@ class TemplateController extends Controller
         return successResponse('');
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getPriceList(int $id): array
     {
         try {

@@ -50,6 +50,7 @@ class BaseSettingsController extends PaymentSettingsController
      * where old represents the old data and attributes represents the new data.
      *
      * @return non-falsy-string[]
+     * @param array<mixed> $properties
      */
     protected function formatProperties(array $properties, mixed $event): array
     {
@@ -92,7 +93,7 @@ class BaseSettingsController extends PaymentSettingsController
 
     public function postSchedular(StatusSetting $status, Request $request): mixed
     {
-        $allStatus = $status->whereId('1')->first();
+        $allStatus = $status->whereId('1')->firstOrFail();
         $allStatus->expiry_mail = $request->expiry_cron ? $request->expiry_cron : 0;
 
         $allStatus->activity_log_delete = $request->activity ? $request->activity : 0;

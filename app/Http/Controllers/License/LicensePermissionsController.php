@@ -77,6 +77,7 @@ class LicensePermissionsController extends Controller
     public function addPermission(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\Model\License\LicenseType|null $licenseType */
             $licenseType = LicenseType::find($request->input('licenseId'));
 
             if (! $licenseType) {
@@ -133,7 +134,7 @@ class LicensePermissionsController extends Controller
      * Get All the Permissions Allowed for a Product.
      *
      * @param  int  $productid  Id of the Product
-     * @return array Returns all the Permissions in booleam Form.
+     * @return array<mixed> Returns all the Permissions in booleam Form.
      */
     public static function getPermissionsForProduct(int $productid)
     {

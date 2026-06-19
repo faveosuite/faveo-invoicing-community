@@ -167,42 +167,61 @@ class PageController extends Controller
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getstrikePriceYear(int $id): array
     {
         $cost[0] = 'Free';
         $plans = Plan::where('product', $id)->where('status', 1)->get();
         $product = Product::find($id);
+        if (!$product instanceof Product) {
+            return $cost;
+        }
         $prices = [];
         if ($plans->count() > 0) {
             foreach ($plans as $plan) {
                 if ($product->status) {
                     if ($plan->days == 365 || $plan->days == 366) {
-                        $currency = userCurrencyAndPrice('', $plan);
-                        $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
                         $planDetails = userCurrencyAndPrice('', $plan);
-
-                        $prices[$plan->id][] = $planDetails['plan']->add_price / 12;
-                        $prices[$plan->id][] = $planDetails['symbol'];
-                        $prices[$plan->id][] = $planDetails['currency'];
+                        if ($planDetails === []) {
+                            continue;
+                        }
+                        $planObj = $planDetails['plan'] ?? null;
+                        if (!is_object($planObj)) {
+                            continue;
+                        }
+                        $addPrice = isset($planObj->add_price) ? (float) $planObj->add_price : 0.0;
+                        $prices[$plan->id][] = $addPrice / 12;
+                        $prices[$plan->id][] = $planDetails['symbol'] ?? '';
+                        $prices[$plan->id][] = $planDetails['currency'] ?? '';
                         $prices[$plan->id][] = $plan->id;
                     }
                 } else {
-                    $currency = userCurrencyAndPrice('', $plan);
-                    $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
                     $planDetails = userCurrencyAndPrice('', $plan);
-                    $prices[$plan->id][] = $planDetails['plan']->add_price;
-                    $prices[$plan->id][] = $planDetails['symbol'];
-                    $prices[$plan->id][] = $planDetails['currency'];
+                    if ($planDetails === []) {
+                        continue;
+                    }
+                    $planObj = $planDetails['plan'] ?? null;
+                    if (!is_object($planObj)) {
+                        continue;
+                    }
+                    $addPrice = isset($planObj->add_price) ? (float) $planObj->add_price : 0.0;
+                    $prices[$plan->id][] = $addPrice;
+                    $prices[$plan->id][] = $planDetails['symbol'] ?? '';
+                    $prices[$plan->id][] = $planDetails['currency'] ?? '';
                     $prices[$plan->id][] = $plan->id;
                 }
 
                 if (isset($prices[$plan->id])) {
+                    $currency = $prices[$plan->id][2];
+                    $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
                     if (isset($offerprice) && $offerprice != '' && $offerprice != null) {
-                        $prices[$plan->id][0] -= ($offerprice / 100) * $prices[$plan->id][0];
+                        $prices[$plan->id][0] -= ((float) $offerprice / 100) * $prices[$plan->id][0];
                     }
 
-                    $format = currencyFormat(min([$prices[$plan->id][0]]), $code = $prices[$plan->id][2]);
-                    $finalPrice = str_replace($prices[$plan->id][1], '', $format);
+                    $format = currencyFormat(min([$prices[$plan->id][0]]), $prices[$plan->id][2]);
+                    $finalPrice = str_replace($prices[$plan->id][1], '', (string) $format);
                     $cost[$plan->id] = '<span class="price-unit striked hide_custom" id="'.$prices[$plan->id][3].'">'.$prices[$plan->id][1].$finalPrice.'</span>';
                 }
             }
@@ -215,6 +234,9 @@ class PageController extends Controller
         return $cost;
     }
 
+    /**
+     * @param array<mixed> $trasform
+     */
     public function transformTemplate(string $type, string $data, array $trasform = []): string
     {
         $config = Config::get('transform.'.$type);
@@ -229,6 +251,9 @@ class PageController extends Controller
             // Use product ID directly instead of looking up by name
             $id = $productId;
             $product = Product::find($id);
+            if (!$product instanceof Product) {
+                continue;
+            }
             $data = $product->highlight ? PricingTemplate::findorFail(1)->data : PricingTemplate::findorFail(2)->data;
             $offerprice = $this->getOfferprice($id);
             $description = self::getPriceDescription($id);
@@ -284,6 +309,9 @@ class PageController extends Controller
         return $result;
     }
 
+    /**
+     * @param array<mixed> $trasform
+     */
     public function transform(string $type, string $data, array $trasform = []): string
     {
         $config = Config::get('transform.'.$type);
@@ -415,9 +443,9 @@ class PageController extends Controller
             $description = '';
             $status = null;
             foreach ($productsRelatedToGroup as $product) {
-                $plan = Product::find($product->id)->plan();
+                $plan = $product->plan();
                 $description = self::getPriceDescription($product->id);
-                $status = Product::find($product->id);
+                $status = $product;
             }
 
             return successResponse('', ['templates' => $templates, 'headline' => $headline, 'tagline' => $tagline, 'description' => $description, 'status' => $status]);
@@ -458,11 +486,10 @@ class PageController extends Controller
     }
 
     /**
-     * Get  Template For Products.
-     *
-     * @param  $helpdesk_products
-     * @param  $data
-     * @param  $trasform     */
+     * Get Template For Products.
+     * @param  \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\Product>  $helpdesk_products
+     * @param  array<mixed>  $trasform
+     */
     public function getTemplateOne(\Illuminate\Database\Eloquent\Collection $helpdesk_products, array &$trasform): mixed
     {
         try {
@@ -492,7 +519,7 @@ class PageController extends Controller
                     'feature' => $product->description,
                     'product_description' => $product->short_description,
                     'subscription' => $product->type == 4 ? '' : $temp_controller->plans($product->shoping_cart_link, $productId),
-                    'url' => $this->generateProductUrl($product, $orderButton), // @phpstan-ignore argument.type
+                    'url' => $this->generateProductUrl($product, $orderButton),
                 ];
             }
 
@@ -505,6 +532,9 @@ class PageController extends Controller
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function generateProductUrl(\App\Model\Product\Product $product, string $orderButton): array
     {
         if ($product->add_to_contact != 1) {
@@ -545,7 +575,10 @@ class PageController extends Controller
             $plan_form = 'Free'; //No Subscription
             $plans = $plan->where('product', '=', $id)->pluck('name', 'id')->toArray();
             $product = Product::find($id);
-            $type = Product::find($id);
+            if (!$product instanceof Product) {
+                return '';
+            }
+            $type = $product;
             $planid = Plan::where('product', $id)->where('status', 1)->value('id');
             $price = PlanPrice::where('plan_id', $planid)->value('renew_price');
 
@@ -559,12 +592,16 @@ class PageController extends Controller
             $plan_form.
             Form::hidden('id', $id); // @phpstan-ignore class.notFound
 
-            return $product['add_to_contact'] == 1 ? '' : $form;
+            return $product->add_to_contact == 1 ? '' : $form;
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
     }
 
+    /**
+     * @param array<mixed> $price
+     * @return array<mixed>
+     */
     public function getPrice(string $months, array $price, string $priceDescription, \App\Model\Payment\Plan $value, float|int $cost, string $currency, float|int|null $offer, \App\Model\Product\Product $product): array
     {
         $cost *= 12;
@@ -578,29 +615,38 @@ class PageController extends Controller
         return $price;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function prices(int $id): array|\Illuminate\Http\RedirectResponse
     {
         try {
             $plans = Plan::where('product', $id)->where('status', 1)->orderBy('id', 'desc')->get();
             $price = [];
             foreach ($plans as $value) {
-                $offer = PlanPrice::where('plan_id', $value->id)->value('offer_price');
                 $product = Product::find($value->product);
+                if (!$product instanceof Product) {
+                    continue;
+                }
+                $offerVal = PlanPrice::where('plan_id', $value->id)->value('offer_price');
+                $offer = ($offerVal !== null) ? (float) $offerVal : null;
                 $currencyAndSymbol = userCurrencyAndPrice('', $value);
-                $currency = $currencyAndSymbol['currency'];
-                $symbol = $currencyAndSymbol['symbol'];
-                $cost = $currencyAndSymbol['plan']->add_price;
+                if ($currencyAndSymbol === []) {
+                    continue;
+                }
+                $currency = (string) ($currencyAndSymbol['currency'] ?? '');
+                $symbol = (string) ($currencyAndSymbol['symbol'] ?? '');
+                $planObj = $currencyAndSymbol['plan'] ?? null;
+                $rawCost = is_object($planObj) && isset($planObj->add_price) ? $planObj->add_price : 0.0;
+                $cost = (float) (rounding($rawCost) ?? 0.0);
                 $priceDescription = 'Per Year';
-                $cost = rounding($cost);
-                $duration = $value->periods;
-                $months = count($duration) > 0 ? $duration->first()->name : '';
+                $firstDuration = $value->periods->first();
+                $months = $firstDuration ? (string) $firstDuration->name : '';
                 if (! in_array($product->id, cloudPopupProducts())) {
                     $price = $this->getPrice($months, $price, $priceDescription, $value, $cost, $currency, $offer, $product);
-                } elseif ($cost != '0' && in_array($product->id, cloudPopupProducts())) {
+                } elseif ($cost != 0.0 && in_array($product->id, cloudPopupProducts())) {
                     $price = $this->getPrice($months, $price, $priceDescription, $value, $cost, $currency, $offer, $product);
                 }
-
-                // $price = currencyFormat($cost, $code = $currency);
             }
 
             return $price;
@@ -611,6 +657,9 @@ class PageController extends Controller
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getOfferprice(int $productid): array
     {
         $plans = Plan::with(['planPrice'])->where('product', $productid)->get();
@@ -649,6 +698,9 @@ class PageController extends Controller
     public function YearlyAmount(mixed $id): string
     {
         $product = Product::find($id);
+        if (!$product instanceof Product) {
+            return 'Free';
+        }
         $plans = Plan::where('product', $id)->where('status', 1)->get();
         $cost = 'Free';
         $priceList = [];
@@ -657,26 +709,31 @@ class PageController extends Controller
             if ($planDetails === []) {
                 continue;
             }
+            $planObj = $planDetails['plan'] ?? null;
+            if (!is_object($planObj)) {
+                continue;
+            }
+            $addPrice = isset($planObj->add_price) ? (float) $planObj->add_price : 0.0;
 
-            if (($planDetails['plan']->add_price ?? 0) <= 0) {
+            if ($addPrice <= 0) {
                 continue;
             }
 
             if (in_array($plan->days, [365, 366])) {
                 $price = ($product->status)
-                    ? ($planDetails['plan']->add_price / 12)
-                    : $planDetails['plan']->add_price;
+                    ? ($addPrice / 12)
+                    : $addPrice;
 
                 $priceList[] = [
                     'price' => $price,
                     'plan_id' => $plan->id,
-                    'currency' => $planDetails['currency'],
+                    'currency' => $planDetails['currency'] ?? '',
                 ];
             } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
                 $priceList[] = [
-                    'price' => $planDetails['plan']->add_price,
+                    'price' => $addPrice,
                     'plan_id' => $plan->id,
-                    'currency' => $planDetails['currency'],
+                    'currency' => $planDetails['currency'] ?? '',
                 ];
             }
         }
@@ -690,28 +747,42 @@ class PageController extends Controller
         return $cost;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function YearlyAmountForOffer(int $id): array
     {
         $cost[] = 'Free';
         $plans = Plan::where('product', $id)->get();
         $product = Product::find($id);
+        if (!$product instanceof Product) {
+            return $cost;
+        }
         $prices = [];
         foreach ($plans as $plan) {
             if ($plan->days == 365 || $plan->days == 366) {
                 $planDetails = userCurrencyAndPrice('', $plan);
-                $prices[$plan->id][] = ($product->status) ? ($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
-                $prices[$plan->id][] = $planDetails['symbol'];
-                $prices[$plan->id][] = $planDetails['currency'];
+                if ($planDetails !== []) {
+                    $planObj = $planDetails['plan'] ?? null;
+                    $addPrice = is_object($planObj) && isset($planObj->add_price) ? (float) $planObj->add_price : 0.0;
+                    $prices[$plan->id][] = ($product->status) ? ($addPrice / 12) : $addPrice;
+                    $prices[$plan->id][] = $planDetails['symbol'] ?? '';
+                    $prices[$plan->id][] = $planDetails['currency'] ?? '';
+                }
             } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
                 $planDetails = userCurrencyAndPrice('', $plan);
-                $prices[$plan->id][] = $planDetails['plan']->add_price;
-                $prices[$plan->id][] = $planDetails['symbol'];
-                $prices[$plan->id][] = $planDetails['currency'];
+                if ($planDetails !== []) {
+                    $planObj = $planDetails['plan'] ?? null;
+                    $addPrice = is_object($planObj) && isset($planObj->add_price) ? (float) $planObj->add_price : 0.0;
+                    $prices[$plan->id][] = $addPrice;
+                    $prices[$plan->id][] = $planDetails['symbol'] ?? '';
+                    $prices[$plan->id][] = $planDetails['currency'] ?? '';
+                }
             }
 
-            if (isset($prices[$plan->id])) {
-                $format = currencyFormat(min([$prices[$plan->id][0]]), $code = $prices[$plan->id][2]);
-                $finalPrice = str_replace($prices[$plan->id][1], '', $format);
+            if (isset($prices[$plan->id]) && count($prices[$plan->id]) >= 3) {
+                $format = currencyFormat(min([$prices[$plan->id][0]]), $prices[$plan->id][2]);
+                $finalPrice = str_replace($prices[$plan->id][1], '', (string) $format);
                 $cost[$plan->id] = '<span class="price-unit strike-amount hide_custom" id="'.$plan->id.'">'.$prices[$plan->id][1].$finalPrice.'</span>';
             }
         }
@@ -727,8 +798,11 @@ class PageController extends Controller
     {
         try {
             $product = Product::find($productid);
+            if (!$product instanceof Product) {
+                return '';
+            }
 
-            if ($product['add_to_contact'] == 1) {
+            if (isset($product->add_to_contact) && $product->add_to_contact == 1) {
                 return '';
             }
 
@@ -739,13 +813,14 @@ class PageController extends Controller
             foreach ($plans as $plan) {
                 if ($plan->days == 30 || $plan->days == 31) {
                     $description = $plan->planPrice->first();
+                    if (!$description) {
+                        break;
+                    }
 
                     if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) { // @phpstan-ignore function.impossibleType
                         $priceDescription = 'free';
                     } else {
                         $priceDescription = $description->no_of_agents ? 'per month for <strong> '.$description->no_of_agents.' '.'agent</strong>' : 'per month';
-                        //for vue
-//                            $priceDescription = $description->no_of_agents?$description->no_of_agents:'per month';
                     }
 
                     break;
@@ -756,7 +831,7 @@ class PageController extends Controller
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return back()->with('fails', $exception->getMessage());
+            return '';
         }
     }
 
@@ -773,6 +848,9 @@ class PageController extends Controller
     {
         try {
             $product = Product::find($productId);
+            if (!$product instanceof Product) {
+                return '';
+            }
 
             if ($product->add_to_contact == 1) {
                 return '';
@@ -797,7 +875,7 @@ class PageController extends Controller
                                 : 'per month';
                         }
 
-                        return $description->price_description;
+                        return (string) $description->price_description;
                     }
                 }
             }
@@ -805,7 +883,7 @@ class PageController extends Controller
             if (! $product->status) {
                 $plan = $plans->first();
                 if ($plan && $plan->planPrice->isNotEmpty()) {
-                    return $plan->planPrice->first()->price_description;
+                    return (string) $plan->planPrice->first()->price_description;
                 }
             }
 
@@ -819,6 +897,7 @@ class PageController extends Controller
 
     /**
      * @return mixed[]
+     * @param array<mixed> $transform
      */
     public function checkConfigKey(mixed $config, array $transform): array
     {
@@ -875,6 +954,9 @@ class PageController extends Controller
             $set = $set->findOrFail(1);
 
             $template = TemplateType::getSelectedTemplate('contact_us');
+            if (!$template) {
+                throw new Exception('Template not found');
+            }
             $replace = [
                 'name' => $request->input('conName'),
                 'email' => $request->input('email'),
@@ -888,11 +970,11 @@ class PageController extends Controller
                 'reply_email' => $request->input('email'),
 
             ];
-            $type = $template?->type()->value('name') ?? '';
+            $type = (string) ($template->type()->value('name') ?? '');
 
             if (emailSendingStatus()) {
                 $mail = new PhpMailController();
-                $mail->SendEmail($set->email, $set->company_email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
+                $mail->SendEmail((string) $set->email, (string) $set->company_email, (string) $template->data, (string) $template->name, $type, $replace, $type);
             }
 
             return successResponse(__('message.message_sent_successfully_400'));
@@ -955,6 +1037,9 @@ class PageController extends Controller
             $set = $set->findOrFail(1);
 
             $template = TemplateType::getSelectedTemplate('demo_request');
+            if (!$template) {
+                throw new Exception('Template not found');
+            }
             $replace = [
                 'name' => $request->input('demoname'),
                 'email' => $request->input('demoemail'),
@@ -968,13 +1053,13 @@ class PageController extends Controller
                 'reply_email' => $request->input('demoemail'),
 
             ];
-            $type = $template?->type()->value('name') ?? '';
+            $type = (string) ($template->type()->value('name') ?? '');
             $product = $request->input('product') != 'online' ? $request->input('product') : 'our product ';
-            $templatename = $template->name.' '.'for'.' '.$product;
+            $templatename = (string) $template->name.' '.'for'.' '.$product;
 
             if (emailSendingStatus()) {
                 $mail = new PhpMailController();
-                $mail->SendEmail($set->email, $set->company_email, $template->data, $templatename, $template->type()->value('name'), $replace, $type);
+                $mail->SendEmail((string) $set->email, (string) $set->company_email, (string) $template->data, $templatename, $type, $replace, $type);
             }
 
             return successResponse(__('message.message_sent_successfully_400'));

@@ -36,8 +36,8 @@ class DashboardController extends Controller
      */
     public function index(Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        $allowedCurrencies1 = Setting::find(1)->value('default_currency');
-        $currency1Symbol = Setting::find(1)->value('default_symbol');
+        $allowedCurrencies1 = Setting::where('id', 1)->value('default_currency');
+        $currency1Symbol = Setting::where('id', 1)->value('default_symbol');
         $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->value('code');
         $currency2Symbol = Currency::where('dashboard_currency', 1)->value('symbol');
         $totalSalesCurrency1 = $this->getTotalSales($allowedCurrencies1);
@@ -75,6 +75,7 @@ class DashboardController extends Controller
 
     /**
      * Get all the orders that got converted into paid orders in last 30 days.
+     * @return array<mixed>
      */
     private function getConversionRate(): array
     {
@@ -92,6 +93,7 @@ class DashboardController extends Controller
 
     /**
      * Get all the installations and their percentage that got active in the last 30 days with respect to inactive installation.
+     * @return array<mixed>
      */
     public function getLast30DaysInstallation(): array
     {
@@ -179,8 +181,8 @@ class DashboardController extends Controller
         $dateBefore = Date::now()->subDays(31)->startOfDay()->setTime(12, 0, 0);
 
         $today = Date::now()->endOfDay();
-        $fromDateStart = date_create($dateBefore)->format('Y-m-d').' 00:00:00';
-        $tillDateEnd = date_create($today)->format('Y-m-d').' 23:59:59';
+        $fromDateStart = $dateBefore->format('Y-m-d').' 00:00:00';
+        $tillDateEnd = $today->format('Y-m-d').' 23:59:59';
 
         Date::now()->endOfDay()->second(59);
 
@@ -236,7 +238,7 @@ class DashboardController extends Controller
             ->get()->map(function ($element) {
                 $element->order_created_at = getDateHtml($element->order_created_at); // @phpstan-ignore property.notFound, property.notFound
 
-                $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->client)->first_name.' '.User::onlyTrashed()->find($element->client)->last_name; // @phpstan-ignore property.notFound
+                $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->client)?->first_name.' '.User::onlyTrashed()->find($element->client)?->last_name; // @phpstan-ignore property.notFound
 
                 $element->client_profile_link = \Config('app.url').'/clients/'.$element->client; // @phpstan-ignore property.notFound
                 unset($element->user);
@@ -273,7 +275,7 @@ class DashboardController extends Controller
             ->groupBy('subscriptions.id');
 
         return $baseQuery->get()->map(function ($element) {
-            $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)->first_name.' '.User::onlyTrashed()->find($element->user_id)->last_name; // @phpstan-ignore property.notFound
+            $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)?->first_name.' '.User::onlyTrashed()->find($element->user_id)?->last_name; // @phpstan-ignore property.notFound
             $element->client_profile_link = config('app.url').'/clients/'.$element->user_id; // @phpstan-ignore property.notFound
             $element->order_link = config('app.url').'/orders/'.$element->order_id; // @phpstan-ignore property.notFound
             $element->days_difference = date_diff(now(), new DateTime($element->subscription_ends_at))->format('%a days'); // @phpstan-ignore property.notFound, property.notFound
@@ -292,8 +294,8 @@ class DashboardController extends Controller
         $dateBefore = Date::now()->subDays(31)->startOfDay()->setTime(12, 0, 0);
 
         $today = Date::now()->endOfDay();
-        $fromDateStart = date_create($dateBefore)->format('Y-m-d').' 00:00:00';
-        $tillDateEnd = date_create($today)->format('Y-m-d').' 23:59:59';
+        $fromDateStart = $dateBefore->format('Y-m-d').' 00:00:00';
+        $tillDateEnd = $today->format('Y-m-d').' 23:59:59';
 
         Date::now()->endOfDay()->second(59);
 
@@ -312,7 +314,7 @@ class DashboardController extends Controller
                 $element->grand_total = currencyFormat((int) $element->grand_total, $element->currency_code); // @phpstan-ignore property.notFound
                 $element->paid = currencyFormat((int) $element->paid, $element->currency_code); // @phpstan-ignore property.notFound, property.notFound, property.notFound
                 $element->balance = currencyFormat((int) $element->balance, $element->currency_code); // @phpstan-ignore property.notFound
-                $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)->first_name.' '.User::onlyTrashed()->find($element->user_id)->last_name; // @phpstan-ignore property.notFound
+                $element->client_name = $element->user ? $element->user->first_name.' '.$element->user->last_name : User::onlyTrashed()->find($element->user_id)?->first_name.' '.User::onlyTrashed()->find($element->user_id)?->last_name; // @phpstan-ignore property.notFound
                 $element->client_profile_link = \Config('app.url').'/clients/'.$element->user_id; // @phpstan-ignore property.notFound
                 unset($element->user);
 
@@ -348,9 +350,13 @@ class DashboardController extends Controller
             )->groupBy('orders.number');
     }
 
+    /**
+     * @param array<mixed> $totals
+     * @return array<mixed>
+     */
     private function formatCurrencyTotals(array $totals): array
     {
-        $allowedCurrencies1 = Setting::find(1)->value('default_currency');
+        $allowedCurrencies1 = Setting::where('id', 1)->value('default_currency');
         $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->value('code');
 
         if ($allowedCurrencies1 && ! isset($totals[$allowedCurrencies1])) {
@@ -364,6 +370,9 @@ class DashboardController extends Controller
         return $totals;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function dashboard(): array
     {
         return [
@@ -547,6 +556,9 @@ class DashboardController extends Controller
         return $totals;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getLastNoOfDaysInstallation(int $days): array
     {
         $startDate = Date::now()->subDays($days)->startOfDay();
@@ -570,6 +582,9 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getConversionRateByDays(int $days): array
     {
         $startDate = Date::now()->subDays($days)->startOfDay();

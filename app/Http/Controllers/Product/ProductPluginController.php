@@ -20,6 +20,7 @@ class ProductPluginController extends Controller
     public function index(mixed $productId): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\Product $product */
             $product = Product::findOrFail($productId);
 
             $pluginTypeId = LicenseType::where('name', 'plugin')->value('id');
@@ -53,6 +54,7 @@ class ProductPluginController extends Controller
         ]);
 
         try {
+            /** @var \App\Product $product */
             $product = Product::findOrFail($productId);
 
             $pluginTypeId = LicenseType::where('name', 'plugin')->value('id');

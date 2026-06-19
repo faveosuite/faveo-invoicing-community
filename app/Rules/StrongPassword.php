@@ -18,7 +18,7 @@ class StrongPassword implements ValidationRule
     {
         // Regular expression for a strong password
         if (! preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[~*!@$#%_+.?:,{ }])[A-Za-z\d~*!@$#%_+.?:,{ }]{8,16}$/', (string) $value)) {
-            $fail(Lang::get('message.strong_password'));
+            $fail(__('message.strong_password'));
         }
     }
 }

@@ -81,7 +81,7 @@ class SettingsController extends Controller
 
         try {
             MailchimpSetting::firstOrNew(['id' => 1])->fill(['api_key' => $apiKey])->save();
-            StatusSetting::find(1)->update(['mailchimp_status' => $status]);
+            StatusSetting::where('id', 1)->update(['mailchimp_status' => $status]);
 
             app()->forgetInstance(MailchimpService::class);
             $listsData = resolve(MailchimpService::class)->getLists(20, 0);
@@ -258,14 +258,14 @@ class SettingsController extends Controller
 
     public function updateProductStatus(Request $request): JsonResponse
     {
-        StatusSetting::find(1)->update(['mailchimp_product_status' => $request->boolean('status')]);
+        StatusSetting::where('id', 1)->update(['mailchimp_product_status' => $request->boolean('status')]);
 
         return successResponse(__('message.updated-successfully'));
     }
 
     public function updateIsPaidStatus(Request $request): JsonResponse
     {
-        StatusSetting::find(1)->update(['mailchimp_ispaid_status' => $request->boolean('status')]);
+        StatusSetting::where('id', 1)->update(['mailchimp_ispaid_status' => $request->boolean('status')]);
 
         return successResponse(__('message.updated-successfully'));
     }

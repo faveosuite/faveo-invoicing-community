@@ -61,7 +61,7 @@ class BasePromotionController extends Controller
         $relation = $promo->relation()->get();
         //check the relation between code and product
         if (count($relation) === 0) {
-            throw new Exception(Lang::get('message.no-product-related-to-this-code'));
+            throw new Exception(__('message.no-product-related-to-this-code'));
         }
 
         //check the usess
@@ -69,13 +69,13 @@ class BasePromotionController extends Controller
         $uses = $cont->checkNumberOfUses($code);
 
         if ($uses !== 'success') {
-            throw new Exception(Lang::get('message.usage-of-code-completed'));
+            throw new Exception(__('message.usage-of-code-completed'));
         }
 
         //check for the expiry date
         $expiry = $this->checkExpiry($code); // @phpstan-ignore method.notFound
         if ($expiry != 'success') {
-            throw new Exception(Lang::get('message.usage-of-code-expired'));
+            throw new Exception(__('message.usage-of-code-expired'));
         }
 
         return $promo;
@@ -90,6 +90,7 @@ class BasePromotionController extends Controller
                 $planid = Session::get('plan');
             }
 
+            /** @var \App\Model\Product\Product $product */
             $product = Product::findOrFail($productid);
             $planId = $planid ?: Plan::where('product', $product->id)->where('status', 1)->value('id');
             $userPlan = userCurrencyAndPrice($userid, $product->planRelation()->findOrFail($planId));

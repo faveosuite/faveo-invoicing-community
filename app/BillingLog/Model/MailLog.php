@@ -22,7 +22,6 @@ use Crypt;
  * @property-read \App\BillingLog\Model\LogCategory|null $category
  * @property-read \App\BillingLog\Model\ExceptionLog|null $exception
  * @property-read bool $is_retry
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog query()
@@ -39,7 +38,6 @@ use Crypt;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereSubject($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class MailLog extends BaseModel
@@ -101,18 +99,30 @@ class MailLog extends BaseModel
 
     protected $hidden = ['job_payload'];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $htmlAble = ['body'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<ExceptionLog, $this>
+     */
     public function exception(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ExceptionLog::class, 'exception_log_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<LogCategory, $this>
+     */
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(LogCategory::class, 'log_category_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function isRetry(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (): bool {
@@ -120,6 +130,9 @@ class MailLog extends BaseModel
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function jobPayload(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {

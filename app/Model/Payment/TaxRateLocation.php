@@ -17,7 +17,6 @@ use App\BaseModel;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Model\Payment\TaxRate $taxRate
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRateLocation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRateLocation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRateLocation query()
@@ -27,7 +26,6 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRateLocation whereLocationType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRateLocation whereTaxRateId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRateLocation whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class TaxRateLocation extends BaseModel
@@ -36,6 +34,9 @@ class TaxRateLocation extends BaseModel
 
     protected $fillable = ['tax_rate_id', 'location_code', 'location_type'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<TaxRate, $this>
+     */
     public function taxRate(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(TaxRate::class, 'tax_rate_id');

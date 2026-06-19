@@ -39,8 +39,7 @@ class Kernel extends ConsoleKernel
     /**
      * The Artisan commands provided by your application.
      *
-     * @var array
-     */
+     * @var array<mixed>     */
     protected $commands = [
         //
         Inspire::class,
@@ -243,6 +242,9 @@ class Kernel extends ConsoleKernel
         }
     }
 
+    /**
+     * @param array<mixed> $command
+     */
     public function getCondition(mixed $schedule, array $command): mixed
     {
         $condition = $command['condition'];
@@ -286,6 +288,7 @@ class Kernel extends ConsoleKernel
     {
         try {
             $contact = getContactData();
+            /** @var \App\Model\Common\Setting $setting */
             $setting = Setting::find(1);
             $mail = new PhpMailController();
             $clouds = cloudemailsend::cursor();

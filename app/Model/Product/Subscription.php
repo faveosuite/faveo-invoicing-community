@@ -36,7 +36,6 @@ use Override;
  * @property-read Plan|null $plan
  * @property-read \App\Model\Product\Product|null $product
  * @property-read User|null $user
- *
  * @method static \Database\Factories\Model\Product\SubscriptionFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription newQuery()
@@ -60,11 +59,13 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereVersionUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Subscription extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -75,11 +76,17 @@ class Subscription extends Model
 
     protected string $logName = 'subscriptions';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'name', 'description', 'days', 'ends_at', 'update_ends_at',
         'user_id', 'plan_id', 'order_id', 'deny_after_subscription', 'version', 'product_id', 'support_ends_at', 'version_updated_at', 'is_subscribed', 'is_deleted',
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

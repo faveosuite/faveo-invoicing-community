@@ -71,7 +71,9 @@ class PlanController extends ExtendedPlanController
             $offer_prices = $request->offer_price;
             $this->plan->fill($request->input())->save(); // @phpstan-ignore property.notFound
             if ($request->input('days') != '') {
-                $period = Period::where('days', $request->input('days'))->first()->id;
+                /** @var \App\Model\Payment\Period $periodObj */
+                $periodObj = Period::where('days', $request->input('days'))->first();
+                $period = $periodObj->id;
                 $this->plan->periods()->attach($period); // @phpstan-ignore property.notFound
             }
 
@@ -111,7 +113,9 @@ class PlanController extends ExtendedPlanController
         $plan->fill($request->input())->save();
         //To change the plan days,whenever we update plan
         if ($request->input('days') != '') {
-            $period = Period::where('days', $request->input('days'))->first()->id;
+            /** @var \App\Model\Payment\Period $periodObj2 */
+            $periodObj2 = Period::where('days', $request->input('days'))->first();
+            $period = $periodObj2->id;
             $plan->periods()->sync($period);
         }
 
@@ -151,7 +155,7 @@ class PlanController extends ExtendedPlanController
                     $daysRange = $this->parsePeriodToDaysRange($searchQuery);
 
                     $q->where('name', 'like', sprintf('%%%s%%', $searchQuery))
-                        ->when($daysRange, fn ($q2) => $q2->orWhereBetween('days', $daysRange))
+                        ->when($daysRange, fn ($q2) => $q2->orWhereBetween('days', $daysRange)) // @phpstan-ignore argument.type
                         ->orWhereHas('productRelation', fn (Builder $q3) => $q3->where('name', 'like', sprintf('%%%s%%', $searchQuery))
                         )
                         ->orWhereHas('planPrice', fn (Builder $q4) => $q4->where('currency', 'like', sprintf('%%%s%%', $searchQuery))
@@ -242,6 +246,7 @@ class PlanController extends ExtendedPlanController
     public function getPlan(mixed $planId): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\Model\Payment\Plan $plan */
             $plan = Plan::with([
                 'planPrice',
                 'productRelation:id,name',
@@ -265,6 +270,7 @@ class PlanController extends ExtendedPlanController
     public function updatePlan(mixed $planID, PlanRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\Model\Payment\Plan $plan */
             $plan = Plan::findOrFail($planID);
 
             $plan->fill($request->validated())->save();

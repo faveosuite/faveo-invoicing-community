@@ -36,7 +36,7 @@ class LicenseController extends Controller
         $clientId = $request->get('client_id') ?: null;
 
         if (! LicenseHelper::validateIntegerValue($productId) || ! LicenseHelper::validateIntegerValue($request->get('license_require_domain'), 0, 1) || ! LicenseHelper::validateIntegerValue($request->get('license_status'), 0, 2)) {
-            return errorResponse(Lang::get('license::lang.invalid'), 400);
+            return errorResponse(__('license::lang.invalid'), 400);
         }
 
         $checks = $this->licenseChecks(
@@ -85,14 +85,15 @@ class LicenseController extends Controller
 
         $clientFormatted = LicenseHelper::formatClient($license->license_code, $license->user?->email);
 
-        return successResponse(Lang::get('license::lang.adddd'), $clientFormatted, 201);
+        return successResponse(__('license::lang.adddd'), $clientFormatted, 201);
     }
 
     public function licenseUpdate(Request $request): \Illuminate\Http\JsonResponse
     {
+        /** @var \App\License\Models\License|null $license */
         $license = License::with('user:id,email')->find($request->get('id'));
         if (! $license) {
-            return errorResponse(Lang::get('license::lang.license_id'), 400);
+            return errorResponse(__('license::lang.license_id'), 400);
         }
 
         $checks = $this->licenseChecks(
@@ -129,14 +130,15 @@ class LicenseController extends Controller
 
         $clientFormatted = LicenseHelper::formatClient($license->license_code, $license->user?->email);
 
-        return successResponse(Lang::get('license::lang.license_Update'), $clientFormatted, 200);
+        return successResponse(__('license::lang.license_Update'), $clientFormatted, 200);
     }
 
     public function deleteLicense(Request $request): \Illuminate\Http\JsonResponse
+    /** @var \App\License\Models\License|null $license */
     {
         $license = License::find($request->get('id'));
         if (! $license) {
-            return successResponse(Lang::get('license::lang.delete'), 0, 200);
+            return successResponse(__('license::lang.delete'), 0, 200);
         }
 
         DB::transaction(function () use ($license): void {
@@ -147,7 +149,7 @@ class LicenseController extends Controller
             $license->delete();
         });
 
-        return successResponse(Lang::get('license::lang.delete'), 1, 200);
+        return successResponse(__('license::lang.delete'), 1, 200);
     }
 
     public function show(Request $request): \Illuminate\Http\JsonResponse
@@ -196,21 +198,21 @@ class LicenseController extends Controller
             'license_updates_date' => $license->license_updates_date,
             'license_status' => $license->license_status,
             'product_title' => $license->product->name,
-            'client_email' => $license->user->email,
+            'client_email' => $license->user?->email,
             'license_order_url' => $license->license_order_number ?? '',
             'installation_counts' => $license->installation_counts, // @phpstan-ignore property.notFound
             'latest_call_backs' => $license->latest_call_backs, // @phpstan-ignore property.notFound
             'call_backs_count' => $license->call_backs_count,
         ]);
 
-        return successResponse(Lang::get('license::lang.License_show'), $licenses, 200);
+        return successResponse(__('license::lang.License_show'), $licenses, 200);
     }
 
     public function edit(int $license_id): \Illuminate\Http\JsonResponse
     {
         $license = License::with(['product:id,name', 'user:id,first_name,last_name,email'])->findOrFail($license_id);
         $productName = collect([(object) ['name' => $license->product->name, 'id' => $license->id]]);
-        $clientName = collect([(object) ['full_name' => trim($license->user->first_name.' '.$license->user->last_name).' <'.$license->user->email.'>', 'id' => $license->user_id]]);
+        $clientName = collect([(object) ['full_name' => trim($license->user?->first_name.' '.$license->user?->last_name).' <'.$license->user?->email.'>', 'id' => $license->user_id]]);
 
         return successResponse('', ['license' => $license, 'product_name' => $productName, 'client_name' => $clientName], 200);
     }
@@ -227,17 +229,17 @@ class LicenseController extends Controller
     protected function licenseChecks(mixed $client_id, ?string $license_code, ?string $license_ip, ?string $license_domain, mixed $license_limit, ?string $license_expire_date, ?string $license_updates_date, ?string $license_support_date): ?\Illuminate\Http\JsonResponse
     {
         if (! LicenseHelper::validateIntegerValue($client_id) && in_array($license_code, [null, '', '0'], strict: true)) {
-            return errorResponse(Lang::get('license::lang.error_client_or_license_code'), 400);
+            return errorResponse(__('license::lang.error_client_or_license_code'), 400);
         }
 
         if (LicenseHelper::validateIntegerValue($client_id) && !in_array($license_code, [null, '', '0'], strict: true)) {
-            return errorResponse(Lang::get('license::lang.invalid_licnese'), 400);
+            return errorResponse(__('license::lang.invalid_licnese'), 400);
         }
 
         if (!in_array($license_ip, [null, '', '0'], strict: true)) {
             foreach (explode(',', $license_ip) as $ipToValidate) {
                 if (! filter_var($ipToValidate, FILTER_VALIDATE_IP)) {
-                    return errorResponse(Lang::get('license::lang.invalid_license_ip'), 400);
+                    return errorResponse(__('license::lang.invalid_license_ip'), 400);
                 }
             }
         }
@@ -245,25 +247,25 @@ class LicenseController extends Controller
         if (!in_array($license_domain, [null, '', '0'], strict: true)) {
             foreach (explode(',', $license_domain) as $domain) {
                 if (! LicenseHelper::validateRawDomain(LicenseHelper::getRawDomain($domain)) || ! ctype_alnum(substr($domain, -1))) {
-                    return errorResponse(Lang::get('license::lang.invalid_domain'), 400);
+                    return errorResponse(__('license::lang.invalid_domain'), 400);
                 }
             }
         }
 
         if (! empty($license_limit) && ! LicenseHelper::validateIntegerValue($license_limit)) {
-            return errorResponse(Lang::get('license::lang.invalid_license_limit'), 400);
+            return errorResponse(__('license::lang.invalid_license_limit'), 400);
         }
 
         if (!in_array($license_expire_date, [null, '', '0'], strict: true) && ! LicenseHelper::verifyDateTime($license_expire_date, 'Y-m-d')) {
-            return errorResponse(Lang::get('license::lang.invalid_license_expiry'), 400);
+            return errorResponse(__('license::lang.invalid_license_expiry'), 400);
         }
 
         if (!in_array($license_updates_date, [null, '', '0'], strict: true) && ! LicenseHelper::verifyDateTime($license_updates_date, 'Y-m-d')) {
-            return errorResponse(Lang::get('license::lang.invalid_license_update_date'), 400);
+            return errorResponse(__('license::lang.invalid_license_update_date'), 400);
         }
 
         if (!in_array($license_support_date, [null, '', '0'], strict: true) && ! LicenseHelper::verifyDateTime($license_support_date, 'Y-m-d')) {
-            return errorResponse(Lang::get('license::lang.invalid_license_support_date'), 400);
+            return errorResponse(__('license::lang.invalid_license_support_date'), 400);
         }
 
         return null;
@@ -339,7 +341,7 @@ class LicenseController extends Controller
             'latest_version_file' => $product->latestVersion?->file,
         ]);
 
-        return successResponse(Lang::get('license::lang.license_info'), ['license' => $license, 'product' => $product, 'addons' => $addons], 200);
+        return successResponse(__('license::lang.license_info'), ['license' => $license, 'product' => $product, 'addons' => $addons], 200);
     }
 
     public function individualLicenseInfo(Request $request): JsonResponse

@@ -85,7 +85,13 @@ class ZohoCampaignsController extends ZohoBaseController
 
         $mappings = ZohoFieldMappings::with('faveoLocalField')->get();
 
-        $contactInfo = zohoMappedFields($zohoFields, $mappings, User::where('email', $email)->first());
+        /** @var \App\User $zohoUser */
+        $zohoUser = User::where('email', $email)->first();
+        $contactInfo = zohoMappedFields(
+            $zohoFields, // @phpstan-ignore argument.type
+            $mappings, // @phpstan-ignore argument.type
+            $zohoUser
+        );
 
         ZohoCampaigns::subscribe(
             $email,

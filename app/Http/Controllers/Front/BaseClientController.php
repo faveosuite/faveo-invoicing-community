@@ -25,6 +25,7 @@ class BaseClientController extends Controller
     public function postProfile(ProfileRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\User $user */
             $user = Auth::user();
             if ($request->hasFile('profile_pic')) {
                 $path = Attach::put('common/images/users/', $request->file('profile_pic'), null, true);
@@ -60,6 +61,7 @@ class BaseClientController extends Controller
     public function postPassword(ProfileRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\User $user */
             $user = Auth::user();
             $oldPassword = $request->input('old_password');
             $newPassword = $request->input('new_password');
@@ -77,7 +79,7 @@ class BaseClientController extends Controller
             // Remove password reset records
             DB::table('password_resets')->where('email', $user->email)->delete();
 
-            return successResponse(Lang::get('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
             Logger::exception($exception);
 
@@ -144,7 +146,9 @@ class BaseClientController extends Controller
                     $url = '<a href='.url($url).'>'.$model->number.'</a>';
                 }
 
-                $status = Auth::user()->role == 'admin' ? getStatusLabel($model->status) : getStatusLabel($model->status);
+                /** @var \App\User $authUser */
+                $authUser = Auth::user();
+                $status = $authUser->role == 'admin' ? getStatusLabel($model->status) : getStatusLabel($model->status);
 
                 if ($status != 'Success' && $model->grand_total > 0) {
                     $payment = '  <a href='.url('autopaynow/'.$model->id).

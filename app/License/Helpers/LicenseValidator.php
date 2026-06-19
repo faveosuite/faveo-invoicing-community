@@ -88,6 +88,7 @@ class LicenseValidator
      *   0 = inactive, 1 = active, 2 = suspended.
      *
      * Supports comma-separated IPs and domains (same as original).
+     * @return array<mixed>
      */
     public function validateLicense(
         ?License $license,
@@ -208,7 +209,7 @@ class LicenseValidator
             $url = 'http://'.$url;
         }
 
-        return str_ireplace('www.', '', parse_url($url, PHP_URL_HOST) ?? '');
+        return str_ireplace('www.', '', (string) (parse_url($url, PHP_URL_HOST) ?? ''));
     }
 
     /**

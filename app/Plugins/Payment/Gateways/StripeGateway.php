@@ -70,7 +70,7 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
     public function createPayment(PaymentRequest $request): PaymentSession
     {
         try {
-            $session = $this->client()->checkout->sessions->create([
+            $session = $this->client()->checkout->sessions->create([ // @phpstan-ignore argument.type
                 'mode' => 'payment',
                 'ui_mode' => 'embedded',
                 // Completion is handled by the embedded checkout onComplete
@@ -141,7 +141,7 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
                 $params['shipping'] = $shipping;
             }
 
-            $intent = $this->client()->paymentIntents->create($params, [
+            $intent = $this->client()->paymentIntents->create($params, [ // @phpstan-ignore argument.type
                 // Stable across retries for the same reference + amount, so a double
                 // submit reuses one intent instead of creating duplicates.
                 'idempotency_key' => 'pi_'.$request->reference.'_'.md5($request->currency.'|'.$request->amount),
@@ -277,7 +277,7 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
                 'product' => $product->id,
             ]);
 
-            $subscription = $client->subscriptions->create([
+            $subscription = $client->subscriptions->create([ // @phpstan-ignore argument.type
                 'customer' => $paymentMethod->customer,
                 'items' => [['price' => $price->id]],
                 'default_payment_method' => $paymentMethod->id,

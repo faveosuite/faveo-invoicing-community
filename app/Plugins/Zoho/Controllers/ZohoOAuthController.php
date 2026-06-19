@@ -77,6 +77,7 @@ class ZohoOAuthController extends Controller
             ->where('platform', $platform)
             ->firstOrFail();
 
+        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $client */
         $client = $integration->client;
 
         if (! $client) {
@@ -127,6 +128,7 @@ class ZohoOAuthController extends Controller
             ->where('platform', $platform)
             ->firstOrFail();
 
+        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $client */
         $client = $integration->client;
 
         // A Zoho authorization code is data-center-specific: it must be redeemed
@@ -168,6 +170,7 @@ class ZohoOAuthController extends Controller
 
     /**
      * Store tokens per platform.
+     * @param array<mixed> $data
      */
     protected function storeTokenForPlatform(
         ZohoIntegration $integration,
@@ -198,7 +201,7 @@ class ZohoOAuthController extends Controller
         ?string $message = null
     ): RedirectResponse {
         $path = config(sprintf('zoho.platforms.%s.settings_url', $platform));
-        $url = url($path);
+        $url = (string) url($path);
 
         return redirect()->to(
             $url.'?'.http_build_query([
@@ -217,6 +220,9 @@ class ZohoOAuthController extends Controller
         return sprintf('https://%s', getZohoRegion($region)->accountsDomain());
     }
 
+    /**
+     * @param array<mixed> $queryParams
+     */
     public function authorizationUrl(
         string $region,
         array $queryParams

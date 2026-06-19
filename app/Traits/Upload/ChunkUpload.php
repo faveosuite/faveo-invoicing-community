@@ -27,6 +27,10 @@ trait ChunkUpload
             $save = $receiver->receive();
             // check if the upload has finished (in chunk mode it will send smaller files)
 
+            if ($save === false || ! ($save instanceof \Pion\Laravel\ChunkUpload\Save\AbstractSave)) {
+                return response()->json(__('message.file_invalid'), 500);
+            }
+
             if ($save->isFinished()) {
                 $file = $save->getFile();
                 $filePath = $file->getPathname();

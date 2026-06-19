@@ -48,14 +48,19 @@ class BaseRenewController extends Controller
     public function getInvoiceByOrderId(int $orderid, int $planid, float|int $cost, string $currency, int|string|null $agents = null): \App\Model\Order\InvoiceItem|\Illuminate\Http\RedirectResponse
     {
         try {
+            /** @var \App\Model\Order\Order $order */
             $order = Order::find($orderid);
             $invoice_item_id = $order->invoice_item_id;
             $invoice_id = $order->invoice_id; // @phpstan-ignore property.notFound
+            /** @var \App\Model\Order\Invoice $invoice */
             $invoice = Invoice::find($invoice_id);
             if ($invoice_item_id == 0) {
-                $invoice_item_id = $invoice->invoiceItem()->first()->id;
+                /** @var \App\Model\Order\InvoiceItem $firstInvoiceItem */
+                $firstInvoiceItem = $invoice->invoiceItem()->first();
+                $invoice_item_id = $firstInvoiceItem->id;
             }
 
+            /** @var \App\Model\Order\InvoiceItem $item */
             $item = InvoiceItem::find($invoice_item_id);
             $product = $this->getProductByProductId($item->product_id, $order);
             $user = $this->getUserById($order->client); // @phpstan-ignore method.notFound
@@ -97,14 +102,16 @@ class BaseRenewController extends Controller
             $planId = $request->input('plan');
             $orderId = $request->input('order');
 
+            /** @var \App\User $authUser */
+            $authUser = Auth::user();
             if (! $planId) {
-                $currency = getCurrencyForClient(Auth::user()->country);
+                $currency = getCurrencyForClient($authUser->country);
 
                 return successResponse('', ['formatted_price' => currencyFormat(0, $currency)]);
             }
 
             $plan = Plan::find($planId);
-            $planDetails = userCurrencyAndPrice(Auth::user()->id, $plan);
+            $planDetails = userCurrencyAndPrice($authUser->id, $plan);
             $price = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
 

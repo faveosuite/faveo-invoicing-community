@@ -20,7 +20,6 @@ use Override;
  * @property-read int|null $permissions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read int|null $products_count
- *
  * @method static \Database\Factories\Model\License\LicenseTypeFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseType newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseType newQuery()
@@ -29,11 +28,13 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseType whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseType whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseType whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class LicenseType extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -45,14 +46,23 @@ class LicenseType extends Model
 
     protected string $logNameColumn = 'name';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'id', 'name',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['license-type'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -70,6 +80,9 @@ class LicenseType extends Model
             ->withTimestamps();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Product, $this>
+     */
     public function products(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Product::class, 'type');

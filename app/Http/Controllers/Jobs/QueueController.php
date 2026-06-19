@@ -224,6 +224,9 @@ class QueueController extends Controller
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function buildField(string $short, string $label, string $name, string $placeholder = ''): array
     {
         $queueId = $this->getIdByShortName($short);

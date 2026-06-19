@@ -42,9 +42,11 @@ class BaseAuthController extends Controller
             }
 
             // Check the settings
+            /** @var \App\Model\Common\Setting $settings */
             $settings = Setting::find(1);
 
             // Retrieve the template
+            /** @var \App\Model\Common\Template $template */
             $template = TemplateType::getSelectedTemplate('welcome_mail');
             $website_url = url('/');
             $replace = [
@@ -69,6 +71,7 @@ class BaseAuthController extends Controller
 
     protected function userNeedVerified(User $user): bool
     {
+        /** @var \App\Model\Common\StatusSetting $setting */
         $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);
 
         if ($setting->emailverification_status == 1 && $user->email_verified != 1) {

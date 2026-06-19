@@ -18,8 +18,10 @@ class PlanPriceSeeder extends Seeder
 
     private function mapCountriesToCurrency(): void
     {
+        /** @var \App\Model\Common\Setting $settingForCurrency */
+        $settingForCurrency = new Setting()->first();
         $nonDefaultCurrencies = PlanPrice::where(
-            'currency', '=', new Setting()->first()->default_currency
+            'currency', '=', $settingForCurrency->default_currency
         )->get(['id', 'currency']);
         if ($nonDefaultCurrencies) { // @phpstan-ignore if.alwaysTrue
             foreach ($nonDefaultCurrencies as $currency) {

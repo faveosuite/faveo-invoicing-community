@@ -88,6 +88,7 @@ class SubscriptionRenewalService
     public function updateInstallationLimit(Subscription $sub, int $limit): void
     {
         $licenseService = resolve(LicenseService::class);
+        /** @var \App\Model\Order\Order $order */
         $order = Order::find($sub->order_id);
         $ipAndDomain = LicenseService::parseIpAndDomain($order->domain);
         $existingLicense = $licenseService->findByCode($order->serial_key);
@@ -123,9 +124,11 @@ class SubscriptionRenewalService
         $installService = resolve(InstallationService::class);
         $licenseService = resolve(LicenseService::class);
 
-        $licenseCode = $sub->order->serial_key;
-        $domain = $sub->order->domain;
-        $orderNo = $sub->order->number;
+        /** @var \App\Model\Order\Order $subOrder */
+        $subOrder = $sub->order;
+        $licenseCode = $subOrder->serial_key;
+        $domain = $subOrder->domain;
+        $orderNo = $subOrder->number;
         $ipAndDomain = LicenseService::parseIpAndDomain($domain);
         $existingLicense = $licenseService->findByCode($licenseCode);
 

@@ -57,7 +57,7 @@ class SettingsController extends Controller
             $api = new Api($request->input('rzp_key'), $request->input('rzp_secret'));
             $api->order->create(['receipt' => 'key-validation', 'amount' => 2000 * 100, 'currency' => 'INR', 'payment_capture' => 1]);
 
-            ApiKey::find(1)->update([
+            ApiKey::where('id', 1)->update([
                 'rzp_key' => $request->input('rzp_key'),
                 'rzp_secret' => $request->input('rzp_secret'),
                 'apilayer_key' => $request->input('apilayer_key'),
@@ -67,12 +67,12 @@ class SettingsController extends Controller
             ProcessingFee::store('razorpay', (float) $request->input('processing_fee', 0));
 
             if ($request->filled('status')) {
-                StatusSetting::find(1)->update(['rzp_status' => $request->input('status')]);
+                StatusSetting::where('id', 1)->update(['rzp_status' => $request->input('status')]);
             }
 
             if ($request->has('auto_renewal')) {
                 $enabling = $request->boolean('auto_renewal');
-                StatusSetting::find(1)->update(['razorpay_auto_renewal' => $enabling ? 1 : 0]);
+                StatusSetting::where('id', 1)->update(['razorpay_auto_renewal' => $enabling ? 1 : 0]);
 
                 if (! $enabling) {
                     dispatch(new CancelGatewaySubscriptionsJob('razorpay'));

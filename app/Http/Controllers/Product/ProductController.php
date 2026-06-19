@@ -150,6 +150,7 @@ class ProductController extends BaseProductController
         );
 
         try {
+            /** @var \App\Model\Product\Product $product_id */
             $product_id = Product::find($request->input('product_id'));
 
             $this->product_upload->product_id = $product_id->id;
@@ -188,6 +189,7 @@ class ProductController extends BaseProductController
             }
 
             foreach ($ids as $id) {
+                /** @var \App\Model\Product\ProductUpload|null $product */
                 $product = $this->product_upload->find($id);
                 if ($product) {
                     $filePath = $storagePath.'/'.$product->file;
@@ -232,7 +234,7 @@ class ProductController extends BaseProductController
                 ]);
                 $contents = $response->getBody()->getContents();
 
-                $ext = pathinfo(parse_url((string) $url, PHP_URL_PATH), PATHINFO_EXTENSION);
+                $ext = pathinfo((string) parse_url((string) $url, PHP_URL_PATH), PATHINFO_EXTENSION);
                 $filename = 'tinymce/'.uniqid().'.'.($ext ?: 'jpg');
                 Storage::put('public/uploads/'.$filename, $contents);
                 $path = Storage::url('public/uploads/'.$filename);

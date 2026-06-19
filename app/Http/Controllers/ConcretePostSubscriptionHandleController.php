@@ -68,6 +68,9 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
     {
         $sub = $this->sub->find($subscription->id);
         $plan = $this->plan->find($subscription->plan_id);
+        if (!$sub instanceof Subscription || !$plan instanceof Plan) {
+            throw new Exception('Subscription or Plan not found');
+        }
 
         // Extend dates first — if this fails, invoice remains pending (safe to retry)
         resolve(SubscriptionRenewalService::class)->extendDates($sub, (int) $plan->days, fromNowIfExpired: true);
@@ -105,11 +108,17 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
     {
         $amount = currencyFormat($total, getCurrencyForClient($user->country));
         $setting = Setting::find(1);
+        if (!$setting instanceof Setting) {
+            throw new Exception('Settings not found');
+        }
+        if (!$template instanceof Template) {
+            throw new Exception('Template not found');
+        }
         $currency = getCurrencyForClient($user->country);
         $paymentSuccessdata = 'Payment for '.$productName.' of '.$currency.' '.$total.' successful by '.$user->first_name.' '.$user->last_name.' Email: '.$user->email;
 
         $mail = new PhpMailController();
-        $mail->SendEmail($setting->email, $setting->company_email, $paymentSuccessdata, 'payment-success', $template->type()->value('name'));
+        $mail->SendEmail((string) $setting->email, (string) $setting->company_email, $paymentSuccessdata, 'payment-success', $template->type()->value('name'));
         $mail->payment_log($user->email, $payment, 'success', $order->number, amount: $amount, payment_type: 'Product renew');
     }
 
@@ -117,25 +126,43 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
     {
         $amount = currencyFormat($total, getCurrencyForClient($user->country));
         $setting = Setting::find(1);
+        if (!$setting instanceof Setting) {
+            throw new Exception('Settings not found');
+        }
         $currency = getCurrencyForClient($user->country);
         $paymentFailData = 'Payment for of '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
         $mail = new PhpMailController();
-        $mail->SendEmail($setting->email, $setting->company_email, $paymentFailData, 'payment-failed', Template::where('name', $template)->type()->value('name')); // @phpstan-ignore method.notFound
+        $dbTemplate = Template::where('name', $template)->first();
+        if (!$dbTemplate instanceof Template) {
+            throw new Exception('Template not found');
+        }
+        $mail->SendEmail((string) $setting->email, (string) $setting->company_email, $paymentFailData, 'payment-failed', $dbTemplate->type()->value('name'));
         $mail->payment_log($user->email, $payment, 'failed', $order->number, $exceptionMessage, $amount, 'Product renew');
     }
 
     public function sendPaymentSuccessMail(int $sub, string $currency, float|int $total, User $user, string $product, string $number): void
     {
         $future_expiry = Subscription::find($sub);
+        if (!$future_expiry instanceof Subscription) {
+            return;
+        }
         $contact = getContactData();
         //check in the settings
-        $settings = new Setting();
-        $setting = $settings::find(1);
+        $setting = Setting::find(1);
+        if (!$setting instanceof Setting) {
+            return;
+        }
 
         $mail = new PhpMailController();
         //template
         $template = TemplateType::getSelectedTemplate('payment_successfull');
-        $date = date_create($future_expiry->update_ends_at);
+        if (!$template instanceof Template) {
+            return;
+        }
+        $date = date_create((string) $future_expiry->update_ends_at);
+        if ($date === false) {
+            return;
+        }
         $end = date_format($date, 'l, F j, Y ');
 
         $replace = [
@@ -149,16 +176,21 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             'reply_email' => $setting->company_email,
         ];
 
-        $type = $template?->type()->value('name') ?? '';
+        $type = $template->type()->value('name') ?? '';
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
     public function sendFailedPayment(float|int|null $total, string $exceptionMessage, ?User $user, ?string $number, string $end, ?string $currency, ?Order $order, ?Product $product_details, ?Invoice $invoice, Payment|string|null $payment): void
     {
+        if (!$order instanceof Order || !$product_details instanceof Product || !$invoice instanceof Invoice || !$user instanceof User) {
+            return;
+        }
         $contact = getContactData();
         //check in the settings
-        $settings = new Setting();
-        $setting = $settings::find(1);
+        $setting = Setting::find(1);
+        if (!$setting instanceof Setting) {
+            return;
+        }
 
         $this->disableAutorenewalStatusByOrderId($order->id);
 
@@ -166,22 +198,25 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $mail->setMailConfig($setting);
         //template
         $template = TemplateType::getSelectedTemplate('payment_failed');
+        if (!$template instanceof Template) {
+            return;
+        }
         $url = url('autopaynow/'.$invoice->invoice_id); // @phpstan-ignore property.notFound
-        $type = '';
+        $expiryTime = strtotime($end);
         $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'product' => $product_details->name,
             'total' => $total ? currencyFormat($total, $code = $currency) : 'N/A',
             'number' => $number,
-            'expiry' => date('d-m-Y', strtotime($end)),
+            'expiry' => ($expiryTime !== false) ? date('d-m-Y', $expiryTime) : '',
             'exception' => $exceptionMessage,
             'url' => $url,
             'contact' => $contact['contact'],
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email, ];
-        $type = $template?->type()->value('name') ?? '';
+        $type = $template->type()->value('name') ?? '';
 
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
-        $this->FailedPaymenttoAdmin($invoice, $total, $product_details->name, $exceptionMessage, $user, $template->name, $order, $payment);
+        $this->FailedPaymenttoAdmin($invoice, $total ?? 0, $product_details->name, $exceptionMessage, $user, $template->name, $order, $payment instanceof Payment ? $payment : new Payment());
     }
 
     public function calculateUnitCost(string $currency, float|int $cost): float
@@ -211,6 +246,9 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
     {
         try {
             $subscription = Subscription::where('order_id', $orderId)->first();
+            if (!$subscription instanceof Subscription) {
+                return;
+            }
 
             $cancellationHandlers = collect([
                 'rzp_subscription' => fn (string $subscribeId) => resolve(SubscriptionService::class)->cancelSubscription('Razorpay', $subscribeId),
@@ -218,9 +256,13 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             ]);
 
             if ($subscription->is_subscribed && $subscription->subscribe_id) {
-                $cancellationHandlers
+                $subscribeId = (string) $subscription->subscribe_id;
+                $handler = $cancellationHandlers
                     ->filter(fn ($handler, $field) => $subscription->$field)
-                    ->first()($subscription->subscribe_id);
+                    ->first();
+                if (is_callable($handler)) {
+                    $handler($subscribeId);
+                }
             }
 
             $subscription->update([

@@ -32,14 +32,29 @@ class LicenseDataMigration extends Command
 
     private const int INSERT_BATCH_SIZE = 50;
 
+    /**
+     * @var array<mixed>
+     */
     private array $productMap = [];
 
+    /**
+     * @var array<mixed>
+     */
     private array $licenseMap = [];
 
+    /**
+     * @var array<mixed>
+     */
     private array $versionMap = [];
 
+    /**
+     * @var array<mixed>
+     */
     private array $licenseCodeUserMap = [];
 
+    /**
+     * @var array<mixed>
+     */
     private array $includedCodes = [];
 
     private int $skippedUsers = 0;
@@ -177,7 +192,7 @@ class LicenseDataMigration extends Command
 
         $this->licenseDb()->table($sourceTable)
             ->lazyById(self::CHUNK_SIZE, $primaryKey)
-            ->filter(fn (object $row): bool => ! $productKey || isset($this->productMap[$row->{$productKey}]))
+            ->filter(fn (\stdClass $row): bool => ! $productKey || isset($this->productMap[$row->{$productKey}]))
             ->map($transformer)
             ->filter()
             ->chunk(self::INSERT_BATCH_SIZE)
@@ -199,7 +214,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_installations', 'installations', 'installation_id',
-            fn (object $r): array => [
+            fn (\stdClass $r): array => [
                 'product_id' => $this->productMap[$r->product_id],
                 'user_id' => $this->resolveUserIdForLicense($r->license_code),
                 'license_code' => $r->license_code,
@@ -219,7 +234,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_callbacks', 'license_callbacks', 'callback_id',
-            fn (object $r): array => [
+            fn (\stdClass $r): array => [
                 'product_id' => $this->productMap[$r->product_id],
                 'user_id' => $this->resolveUserIdForLicense($r->license_code),
                 'license_code' => $r->license_code,
@@ -237,7 +252,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_license_schemes', 'license_schemes', 'scheme_id',
-            fn (object $r): array => [
+            fn (\stdClass $r): array => [
                 'scheme_query' => $r->scheme_query,
                 'scheme_status' => $r->scheme_status ?? 1,
                 ...$this->timestamps($r),
@@ -249,7 +264,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_banned_hosts', 'license_banned_hosts', 'banned_host_id',
-            fn (object $r): array => [
+            fn (\stdClass $r): array => [
                 'banned_host_ip' => $r->banned_host_ip,
                 'banned_host_comments' => $r->banned_host_comments ?? null,
                 'banned_host_date' => $this->cleanDate($r->banned_host_date ?? null),
@@ -264,7 +279,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_whitelist_ips', 'license_whitelist_ips', 'whitelist_host_id',
-            fn (object $r): array => [
+            fn (\stdClass $r): array => [
                 'whitelist_host_ip' => $r->whitelist_host_ip,
                 'whitelist_host_comments' => $r->whitelist_host_comments ?? null,
                 ...$this->timestamps($r),
@@ -276,7 +291,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_reports', 'license_reports', 'report_id',
-            function (object $r): ?array {
+            function (\stdClass $r): ?array {
                 if ($r->product_id > 0 && ! isset($this->productMap[$r->product_id])) {
                     return null;
                 }
@@ -299,7 +314,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afu_callbacks', 'version_callbacks', 'callback_id',
-            fn (object $r): array => [
+            fn (\stdClass $r): array => [
                 'product_id' => $this->productMap[$r->product_id],
                 'version_id' => $this->versionMap[$r->version_id] ?? null,
                 'callback_type' => $r->callback_type,
@@ -317,7 +332,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afu_installations', 'version_installations', 'installation_id',
-            function (object $r): ?array {
+            function (\stdClass $r): ?array {
                 $newVersionId = $this->versionMap[$r->version_id] ?? null;
                 if (! $newVersionId) {
                     return null;
@@ -340,7 +355,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'license_plugins', 'license_plugins', 'id',
-            function (object $r): ?array {
+            function (\stdClass $r): ?array {
                 $newLicenseId = $this->licenseMap[$r->license_id] ?? null;
                 $newProductId = $this->productMap[$r->product_id] ?? null;
                 if (! $newLicenseId || ! $newProductId) {
@@ -361,7 +376,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'license_options', 'license_options', 'id',
-            function (object $r): ?array {
+            function (\stdClass $r): ?array {
                 $newLicenseId = $this->licenseMap[$r->license_id] ?? null;
                 $newProductId = $this->productMap[$r->product_id] ?? null;
                 if (! $newLicenseId || ! $newProductId) {
@@ -385,7 +400,7 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'installation_logs', 'installation_logs', 'id',
-            fn (object $r): array => [
+            fn (\stdClass $r): array => [
                 'license_code' => $r->license_code,
                 'version_number' => $r->version_number ?? null,
                 'installation_ip' => $r->installation_ip,
@@ -802,7 +817,10 @@ class LicenseDataMigration extends Command
         return $parsed?->year > 0 ? $parsed->toDateTimeString() : null;
     }
 
-    private function timestamps(object $row): array
+    /**
+     * @return array<mixed>
+     */
+    private function timestamps(\stdClass $row): array
     {
         return [
             'created_at' => $row->created_at ?? $this->now,

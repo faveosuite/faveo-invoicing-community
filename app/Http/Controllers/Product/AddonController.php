@@ -73,7 +73,7 @@ class AddonController extends Controller
                 }
             }
 
-            return back()->with('success', Lang::get('message.saved-successfully'));
+            return back()->with('success', __('message.saved-successfully'));
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -136,7 +136,7 @@ class AddonController extends Controller
                 }
             }
 
-            return back()->with('success', Lang::get('message.updated-successfully'));
+            return back()->with('success', __('message.updated-successfully'));
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -157,37 +157,37 @@ class AddonController extends Controller
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
+                    <b>".(string) __('message.alert').'!</b> '.
+                    (string) __('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.no-record').'
+                        '.(string) __('message.no-record').'
                 </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
+                        //echo \__('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
 
                 echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.success').'
+                    <b>".(string) __('message.alert').'!</b> '.
+                    (string) __('message.success').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.deleted-successfully').'
+                        '.(string) __('message.deleted-successfully').'
                 </div>';
             } else {
                 echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
+                    <b>".(string) __('message.alert').'!</b> '.
+                    (string) __('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */Lang::get('message.select-a-row').'
+                        '.(string) __('message.select-a-row').'
                 </div>';
-                //echo \Lang::get('message.select-a-row');
+                //echo \__('message.select-a-row');
             }
         } catch (Exception $exception) {
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */Lang::get('message.failed').'
+                    <b>".(string) __('message.alert').'!</b> '.
+                    (string) __('message.failed').'
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.$exception->getMessage().'
                 </div>';

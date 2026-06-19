@@ -29,8 +29,14 @@ use Throwable;
 
 class PipedriveController extends Controller
 {
+    /**
+     * @var array<mixed>
+     */
     protected array $apiClients = [];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $groups = [];
 
     protected Client $client;
@@ -68,6 +74,7 @@ class PipedriveController extends Controller
 
     /**
      * Get Pipedrive group IDs.
+     * @return array<mixed>
      */
     protected function getGroups(): array
     {
@@ -80,6 +87,7 @@ class PipedriveController extends Controller
 
     /**
      * Generic method to fetch API data with error handling.
+     * @return array<mixed>
      */
     private function fetchApiData(string $apiClient, string $method, mixed ...$args): array
     {
@@ -88,7 +96,7 @@ class PipedriveController extends Controller
 
             return is_array($result) ? $result : (array) $result;
         } catch (ApiException $e) {
-            throw new Exception(json_decode($e->getResponseBody())->error, $e->getCode(), $e);
+            throw new Exception((string) (json_decode((string) $e->getResponseBody())->error ?? ''), $e->getCode(), $e);
         } catch (Exception $e) {
             Logger::exception($e);
 
@@ -104,7 +112,7 @@ class PipedriveController extends Controller
         try {
             $response = $this->apiClients[$apiClient]->$method(...$args);
 
-            if (method_exists($response, 'getRawData')) {
+            if (is_object($response) && method_exists($response, 'getRawData')) {
                 $rawData = (array) $response->getRawData();
 
                 return $rawData['id'] ?? $response;
@@ -112,7 +120,7 @@ class PipedriveController extends Controller
 
             return $response;
         } catch (ApiException $e) {
-            return json_decode($e->getResponseBody());
+            return json_decode((string) $e->getResponseBody());
         } catch (Exception $e) {
             Logger::exception($e);
 
@@ -122,6 +130,7 @@ class PipedriveController extends Controller
 
     /**
      * Retrieve person fields from Pipedrive.
+     * @return array<mixed>
      */
     public function getPipedriveFields(): array
     {
@@ -130,6 +139,7 @@ class PipedriveController extends Controller
 
     /**
      * Retrieve organization fields from Pipedrive.
+     * @return array<mixed>
      */
     public function getOrganizationFields(): array
     {
@@ -138,6 +148,7 @@ class PipedriveController extends Controller
 
     /**
      * Retrieve deal fields from Pipedrive.
+     * @return array<mixed>
      */
     public function getDealFields(): array
     {
@@ -178,6 +189,7 @@ class PipedriveController extends Controller
 
     /**
      * Add organization to Pipedrive or get existing one.
+     * @param array<mixed> $organization
      */
     public function addOrGetOrganization(array $organization): mixed
     {
@@ -191,7 +203,7 @@ class PipedriveController extends Controller
 
             // Search for existing organization
             $orgSearchResult = $this->fetchApiData('organizations', 'searchOrganization', $organization['name'], 'name');
-            $orgSearchResult = json_decode(json_encode($orgSearchResult), associative: true);
+            $orgSearchResult = json_decode((string) json_encode($orgSearchResult), associative: true);
             $orgId = $orgSearchResult['items'][0]['item']['id'] ?? null;
 
             // Create new organization if not found
@@ -230,6 +242,7 @@ class PipedriveController extends Controller
 
     /**
      * Sync fields for a specific group.
+     * @param array<mixed> $fields
      */
     private function syncFieldGroup(array $fields, int $groupId): void
     {
@@ -288,6 +301,9 @@ class PipedriveController extends Controller
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function excludeKeysFromPipedrive(int $groupID): array
     {
         return match ($groupID) {
@@ -394,7 +410,7 @@ class PipedriveController extends Controller
                 $response = resolve(self::class)->testPipedriveMapping($groupID);
                 if ($response !== true) {
                     // Throwing exception will trigger rollback
-                    throw new Exception($response);
+                    throw new Exception((string) $response);
                 }
             });
         } catch (Exception $exception) {
@@ -430,9 +446,9 @@ class PipedriveController extends Controller
             // Clean up if successful
             if (is_numeric($response)) {
                 match ($groupId) {
-                    $this->groups['personId'] => $this->deletePerson($response),
-                    $this->groups['organizationId'] => $this->deleteOrganization($response),
-                    $this->groups['dealId'] => $this->deleteDeal($response),
+                    $this->groups['personId'] => $this->deletePerson((int) $response),
+                    $this->groups['organizationId'] => $this->deleteOrganization((int) $response),
+                    $this->groups['dealId'] => $this->deleteDeal((int) $response),
                     default => null,
                 };
 
@@ -554,6 +570,8 @@ class PipedriveController extends Controller
 
     /**
      * Transform user data for Pipedrive.
+     * @param array<mixed> $customFields
+     * @return array<mixed>
      */
     private function transformPipedriveData(User $user, int $groupId, array $customFields = []): array
     {

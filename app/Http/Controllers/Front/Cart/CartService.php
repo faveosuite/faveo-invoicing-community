@@ -41,6 +41,9 @@ class CartService
 
     // --- Item operations ---
 
+    /**
+     * @param array<mixed> $data
+     */
     public function addItem(Request $request, array $data): void
     {
         if ($user = $request->user()) {
@@ -57,9 +60,12 @@ class CartService
         $ip = $request->ip();
         $iso = cache()->remember('user_location_'.$ip, 60, fn () => getLocation($ip)['iso_code'] ?? null);
 
-        return getCurrencyForClient($iso ? findCountryByGeoip($iso) : null);
+        return getCurrencyForClient($iso ? (string) findCountryByGeoip($iso) : '');
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     public function updateItem(Request $request, int|string $itemId, array $data): void
     {
         if ($request->user()) {
@@ -119,7 +125,7 @@ class CartService
 
     public function applyCoupon(Request $request, string $code): void
     {
-        $cart = $this->dbCart($request->user());
+        $cart = $this->dbCart($request->user()); // @phpstan-ignore argument.type
         $promo = $this->validatedPromotion($code);
 
         $cart->update([
@@ -130,7 +136,7 @@ class CartService
 
     public function removeCoupon(Request $request): void
     {
-        $this->dbCart($request->user())->update(['coupon_code' => null, 'coupon_discount' => 0]);
+        $this->dbCart($request->user())->update(['coupon_code' => null, 'coupon_discount' => 0]); // @phpstan-ignore argument.type
     }
 
     // --- Checkout summary ---
@@ -139,6 +145,7 @@ class CartService
      * Money summary for the checkout page. Uses the exact same per-line tax and
      * `rounding()` rules as invoice creation so the "Total" shown here always
      * equals the invoice's grand_total (and therefore the pay page's amount due).
+     * @return array<mixed>
      */
     public function checkoutExtras(Cart $cart, Authenticatable $user): array
     {
@@ -283,6 +290,9 @@ class CartService
         return $cart;
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     private function addToDbCart(Cart $cart, array $data): void
     {
         $existing = $cart->items()
@@ -420,6 +430,9 @@ class CartService
         return rtrim(rtrim(number_format($percent, 4, '.', ''), '0'), '.').'%';
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function activeGateways(string $currency): array
     {
         try {

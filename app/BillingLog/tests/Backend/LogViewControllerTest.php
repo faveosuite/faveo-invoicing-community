@@ -220,6 +220,10 @@ class LogViewControllerTest extends DBTestCase
     }
 
     /** ----------------------- Helpers ----------------------- */
+    /**
+     * @param array<mixed> $overrides
+     * @return array<mixed>
+     */
     private function defaultExceptionPayload(array $overrides = []): array
     {
         return array_merge([
@@ -235,6 +239,10 @@ class LogViewControllerTest extends DBTestCase
         ], $overrides);
     }
 
+    /**
+     * @param array<mixed> $overrides
+     * @return array<mixed>
+     */
     private function defaultCronPayload(array $overrides = []): array
     {
         return array_merge([
@@ -246,6 +254,10 @@ class LogViewControllerTest extends DBTestCase
         ], $overrides);
     }
 
+    /**
+     * @param array<mixed> $overrides
+     * @return array<mixed>
+     */
     private function defaultMailPayload(array $overrides = []): array
     {
         return array_merge([
@@ -262,6 +274,10 @@ class LogViewControllerTest extends DBTestCase
         ], $overrides);
     }
 
+    /**
+     * @param array<mixed> $fields
+     * @return array<mixed>
+     */
     private function defaultColumns(array $fields): array
     {
         return collect($fields)->map(fn ($f): array => [
@@ -272,6 +288,10 @@ class LogViewControllerTest extends DBTestCase
         ])->all();
     }
 
+    /**
+     * @param array<mixed> $bcc
+     * @param array<mixed> $cc
+     */
     private function logMailByCategory(
         string $senderMail = 'test@sender.com',
         string $receiverMail = 'receiver@example.com',
@@ -425,6 +445,7 @@ class LogViewControllerTest extends DBTestCase
 
     /**
      * Create activity record with ability to override any field.
+     * @param array<mixed> $overrides
      */
     protected function createActivity(array $overrides = []): mixed
     {
@@ -641,6 +662,9 @@ class LogViewControllerTest extends DBTestCase
      * Test Cases for Payment Logs
     */
 
+    /**
+     * @param array<mixed> $overrides
+     */
     protected function createPaymentLog(array $overrides = []): \App\Payment_log
     {
         $defaults = [

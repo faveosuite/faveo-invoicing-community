@@ -237,6 +237,7 @@ class WhatsappController extends Controller
      */
     public function getWebhookUrl(Request $request): \Illuminate\Http\JsonResponse
     {
+        /** @var \App\WhatsappIntegrationUser $record */
         $record = WhatsappIntegrationUser::findOrFail($request->input('id'));
 
         if (! $this->canManage($record)) {
@@ -256,6 +257,7 @@ class WhatsappController extends Controller
             'url' => ['required', 'string'],
         ]);
 
+        /** @var \App\WhatsappIntegrationUser $record */
         $record = WhatsappIntegrationUser::findOrFail($request->input('id'));
 
         if (! $this->canManage($record)) {
@@ -277,6 +279,7 @@ class WhatsappController extends Controller
      */
     public function deregister(Request $request): \Illuminate\Http\JsonResponse
     {
+        /** @var \App\WhatsappIntegrationUser $record */
         $record = WhatsappIntegrationUser::findOrFail($request->input('id'));
 
         if (! $this->canManage($record)) {
@@ -346,6 +349,7 @@ class WhatsappController extends Controller
      */
     private function canManage(WhatsappIntegrationUser $record): bool
     {
+        /** @var \App\User $user */
         $user = Auth::user();
 
         return $user->role === 'admin' || (int) $record->user_id === (int) $user->id;

@@ -48,6 +48,9 @@ class AutoUpdateController extends Controller
     /*
     *  Search Version
     */
+    /**
+     * @return array<mixed>
+     */
     public function searchVersion(string $version_number, mixed $product_sku): array
     {
         $product = Product::where('product_sku', $product_sku)->first();

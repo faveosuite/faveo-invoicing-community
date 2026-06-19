@@ -13,6 +13,9 @@ class UpdateSettingsRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function rules(): array
     {
         $isV3 = $this->input('captcha_version') === 'v3_invisible';
@@ -95,7 +98,7 @@ class UpdateSettingsRequest extends FormRequest
                         $this->input('v3_g_recaptcha_response'),
                         $this->input('v3_secret_key'),
                         'v3',
-                        $this->ip(),
+                        (string) $this->ip(),
                         $this->getHost(),
                         (float) $this->input('score_threshold', 0.5)
                     );
@@ -114,7 +117,7 @@ class UpdateSettingsRequest extends FormRequest
                         $this->input('v2_g_recaptcha_response'),
                         $this->input('v2_secret_key'),
                         'v2',
-                        $this->ip(),
+                        (string) $this->ip(),
                         $this->getHost()
                     );
 

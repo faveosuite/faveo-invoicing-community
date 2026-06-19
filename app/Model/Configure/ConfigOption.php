@@ -23,7 +23,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read int|null $config_option_values_count
  * @property-read Plan $plan
  * @property-read Product|null $product
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOption newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOption newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOption query()
@@ -35,11 +34,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOption wherePlanId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOption whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOption whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class ConfigOption extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
 
     protected $table = 'config_option';
@@ -47,12 +48,18 @@ class ConfigOption extends Model
     protected $guarded = [];
 
     // Define the relationship with ConfigGroup
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<ConfigGroup, $this>
+     */
     public function configGroup(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ConfigGroup::class, 'group_id');
     }
 
     // Define the relationship with Plan
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Plan, $this>
+     */
     public function plan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Plan::class);
@@ -67,6 +74,9 @@ class ConfigOption extends Model
         return $this->hasMany(ConfigOptionValue::class, 'option_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Product, $this>
+     */
     public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class);

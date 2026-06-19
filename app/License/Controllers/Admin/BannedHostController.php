@@ -37,12 +37,12 @@ class BannedHostController extends Controller
         $comments = $request->input('comments', '');
 
         if (empty($banned_host_ip)) {
-            return errorResponse(Lang::get('lang.banned_empty'), 400);
+            return errorResponse(__('lang.banned_empty'), 400);
         }
 
         $whitelistIpExists = LicenseWhitelistIp::where('whitelist_host_ip', $banned_host_ip)->exists();
         if ($whitelistIpExists) {
-            return errorResponse(Lang::get('lang.banned_ip_in_whitelist'), 400);
+            return errorResponse(__('lang.banned_ip_in_whitelist'), 400);
         }
 
         $banned = new LicenseBannedHost([
@@ -51,7 +51,7 @@ class BannedHostController extends Controller
         ]);
         $banned->save();
 
-        return successResponse(Lang::get('lang.banned_add'), $banned, 201);
+        return successResponse(__('lang.banned_add'), $banned, 201);
     }
 
     /**
@@ -70,16 +70,16 @@ class BannedHostController extends Controller
 
         if (empty($id) || ! LicenseHelper::validateIntegerValue($id) ||
         empty($rows_array = LicenseBannedHost::where('id', $id)->get()->toArray())) { //invalid record
-            return errorResponse(Lang::get('lang.banned_host_not_found'), 404);
+            return errorResponse(__('lang.banned_host_not_found'), 404);
         }
 
         if (empty($banned_host_ip)) {
-            return errorResponse(Lang::get('lang.banned_empty'), 400);
+            return errorResponse(__('lang.banned_empty'), 400);
         }
 
         $whitelistIpExists = LicenseWhitelistIp::where('whitelist_host_ip', $banned_host_ip)->exists();
         if ($whitelistIpExists) {
-            return errorResponse(Lang::get('lang.banned_ip_in_whitelist'), 400);
+            return errorResponse(__('lang.banned_ip_in_whitelist'), 400);
         }
 
         $banned = LicenseBannedHost::where('id', $id)->update([
@@ -87,7 +87,7 @@ class BannedHostController extends Controller
             'comments' => $comments,
         ]);
 
-        return successResponse(Lang::get('lang.banned_edit'), $banned, 201);
+        return successResponse(__('lang.banned_edit'), $banned, 201);
     }
 
     /**
@@ -100,12 +100,12 @@ class BannedHostController extends Controller
         $removed_records = 0;
         $id = $request->get('id');
         if (! LicenseHelper::validateIntegerValue($id)) {
-            return errorResponse(Lang::get('lang.banned_empty'), 400);
+            return errorResponse(__('lang.banned_empty'), 400);
         }
 
         $removed_records += LicenseBannedHost::where('id', $id)->delete();
 
-        return successResponse(Lang::get('lang.delete'), $removed_records, 201);
+        return successResponse(__('lang.delete'), $removed_records, 201);
     }
 
     /**
@@ -132,7 +132,7 @@ class BannedHostController extends Controller
             return $host;
         });
 
-        return successResponse(Lang::get('lang.Banned_Show'), $banned, 200);
+        return successResponse(__('lang.Banned_Show'), $banned, 200);
     }
 
     public function view(mixed $id): \Illuminate\Http\JsonResponse

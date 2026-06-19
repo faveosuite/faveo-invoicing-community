@@ -17,6 +17,7 @@ class ProductGroupFactory extends Factory
 
     public function definition()
     {
+        /** @var \App\Model\Common\PricingTemplate $template */
         $template = PricingTemplate::query()->first();
 
         return [

@@ -11,6 +11,7 @@ class Util
 {
     /**
      * @param  $input
+     * @return array<mixed>
      */
     public static function urlencodeRfc3986(mixed $input): string|array
     {
@@ -18,7 +19,7 @@ class Util
         if (is_array($input)) {
             $output = array_map([__NAMESPACE__.'\Util', 'urlencodeRfc3986'], $input);
         } elseif (is_scalar($input)) {
-            $output = rawurlencode($input);
+            $output = rawurlencode((string) $input);
         }
 
         return $output;
@@ -38,6 +39,7 @@ class Util
      * array('a' => array('b','c'), 'd' => 'e').
      *
      * @param  mixed  $input
+     * @return array<mixed>
      */
     public static function parseParameters($input): array
     {
@@ -84,7 +86,7 @@ class Util
         // Urlencode both keys and values
         $keys = self::urlencodeRfc3986(array_keys($params));
         $values = self::urlencodeRfc3986(array_values($params));
-        $params = array_combine($keys, $values);
+        $params = array_combine((array) $keys, (array) $values);
 
         // Parameters are sorted by name, using lexicographical byte value ordering.
         // Ref: Spec: 9.1.1 (1)

@@ -10,6 +10,7 @@ trait AfuCallbackHelpers
     /**
      * Build notification response with headers (same format as license callbacks).
      * Original only sends notification_data when notification_case is 'notification_operation_ok'.
+     * @param array<mixed> $data
      */
     protected function notificationResponse(string $notificationCase, array $data = []): \Illuminate\Http\JsonResponse
     {
@@ -39,7 +40,7 @@ trait AfuCallbackHelpers
     protected function generateSignature(?int $productId = null, ?string $productKey = null): string
     {
         $rootUrl = url('/');
-        $rootIps = @gethostbynamel(str_ireplace('www.', '', parse_url($rootUrl, PHP_URL_HOST) ?? ''));
+        $rootIps = @gethostbynamel(str_ireplace('www.', '', (string) (parse_url($rootUrl, PHP_URL_HOST) ?? '')));
 
         if (! is_array($rootIps)) {
             $rootIps = [];
@@ -69,6 +70,9 @@ trait AfuCallbackHelpers
     /**
      * Filter sensitive elements from response data.
      * Original removes: product_key, version files/queries, counts, comments.
+     * @param array<mixed> $data
+     * @param array<mixed> $extraKeysToRemove
+     * @return array<mixed>
      */
     protected function filterSensitiveData(array $data, array $extraKeysToRemove = []): array
     {

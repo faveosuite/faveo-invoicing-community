@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Model\License\LicensePermissionPivot|null $pivot
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\License\LicenseType> $licenseTypes
  * @property-read int|null $license_types_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermission newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermission newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermission query()
@@ -22,7 +21,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermission whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermission wherePermissions($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermission whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class LicensePermission extends Model
@@ -31,6 +29,9 @@ class LicensePermission extends Model
 
     protected $fillable = ['id', 'permissions'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<LicenseType, $this, LicensePermissionPivot>
+     */
     public function licenseTypes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(LicenseType::class, 'license_license_permissions')

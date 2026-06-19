@@ -17,8 +17,8 @@ class PreferredDomain
      */
     public function handle($request, Closure $next)
     {
-        if (Str::startsWith($request->header('host'), 'www.')) {
-            $host = str_replace('www.', '', $request->header('host'));
+        if (Str::startsWith((string) $request->header('host'), 'www.')) {
+            $host = str_replace('www.', '', (string) $request->header('host'));
             $request->headers->set('host', $host);
 
             return Redirect::to($request->fullUrl(), 301);

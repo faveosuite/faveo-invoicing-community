@@ -27,6 +27,8 @@ class BillingDependencyController extends Controller
 
     /**
      * Validate storage directory.
+     * @param array<mixed> $error
+     * @return array<mixed>
      */
     private function validateStorageDirectory(string $basePath, int &$errorCount, array &$error): array
     {
@@ -53,6 +55,8 @@ class BillingDependencyController extends Controller
 
     /**
      * Validate bootstrap directory.
+     * @param array<mixed> $error
+     * @return array<mixed>
      */
     private function validateBootstrapDirectory(string $basePath, int &$errorCount, array &$error): array
     {
@@ -108,7 +112,7 @@ class BillingDependencyController extends Controller
     /**
      * Extension that are required for Faveo to run.
      *
-     * @param  array  $requiredExtensions  Array of required extensions
+     * @param  array<mixed> $requiredExtensions  Array of required extensions
      * @param  array  &$error  Array of errors
      */
     private function validateRequiredExtensions(array $requiredExtensions, array &$error, int &$errorCount): void
@@ -136,7 +140,7 @@ class BillingDependencyController extends Controller
     /**
      * Extension that are optional for Faveo to run.
      *
-     * @param  array  $requiredExtensions  Array of required extensions
+     * @param  array<mixed> $requiredExtensions  Array of required extensions
      * @param  array  &$error  Array of errors
      */
     private function validateOptionalExtensions(array $requiredExtensions, array &$error): void
@@ -161,6 +165,7 @@ class BillingDependencyController extends Controller
      *
      * @param  array  &$arrayOfRequisites  Array with name and status
      * @param  string  $requisite  The name of the requisite to be checked
+     * @return array<mixed>
      */
     private function requisitesWithTheirStatus(array &$arrayOfRequisites, $requisite, int &$errorCount): array
     {
@@ -220,8 +225,9 @@ class BillingDependencyController extends Controller
     /**
      * Check the current PHP version is compatible or not for running Faveo.
      *
-     * @param  array  $arrayOfRequisites  Requisite details
+     * @param  array<mixed> $arrayOfRequisites  Requisite details
      * @param  int  $errorCount  The count of errors occured
+     * @return array<mixed>
      */
     private function PhpVersionCheck(array &$arrayOfRequisites, int &$errorCount, string $minPhpVersionRequired): array
     {
@@ -248,8 +254,9 @@ class BillingDependencyController extends Controller
     /**
      * Check PHP exec function is enabled or not.
      *
-     * @param  array  $arrayOfRequisites  Requisite details
+     * @param  array<mixed> $arrayOfRequisites  Requisite details
      * @param  int  $errorCount  The count of errors occured
+     * @return array<mixed>
      */
     private function execFunctionCheck(array &$arrayOfRequisites, int &$errorCount): array
     {
@@ -275,7 +282,7 @@ class BillingDependencyController extends Controller
     {
         try {
             // make a small test
-            return function_exists('exec') && ! in_array('exec', array_map(trim(...), explode(', ', ini_get('disable_functions'))));
+            return function_exists('exec') && ! in_array('exec', array_map(trim(...), explode(', ', (string) ini_get('disable_functions'))));
         } catch (Exception) {
             return false;
         }
@@ -284,8 +291,9 @@ class BillingDependencyController extends Controller
     /**
      * Check .env exists or not.
      *
-     * @param  array  $arrayOfRequisites  Requisite details
+     * @param  array<mixed> $arrayOfRequisites  Requisite details
      * @param  int  $errorCount  The count of errors occured
+     * @return array<mixed>
      */
     private function dotEnvFileCheck(array &$arrayOfRequisites, int &$errorCount): array
     {
@@ -307,8 +315,9 @@ class BillingDependencyController extends Controller
     /**
      * Check maximum execution time.
      *
-     * @param  array  $arrayOfRequisites  Requisite details
+     * @param  array<mixed> $arrayOfRequisites  Requisite details
      * @param  int  $errorCount  The count of errors occured
+     * @return array<mixed>
      */
     private function maxExecutionTimeCheck(array &$arrayOfRequisites, int &$errorCount): array
     {
@@ -327,8 +336,9 @@ class BillingDependencyController extends Controller
     /**
      * Checks allow_url_enabled directive is enabled or not.
      *
-     * @param  array  $arrayOfRequisites  Requisite details
+     * @param  array<mixed> $arrayOfRequisites  Requisite details
      * @param  int  $errorCount  The count of errors occured
+     * @return array<mixed>
      */
     private function allowUrlFopen(array &$arrayOfRequisites, int &$errorCount): array
     {
@@ -347,14 +357,15 @@ class BillingDependencyController extends Controller
     /**
      * Checks URL is valid or invalid.
      *
-     * @param  array  $arrayOfRequisites  Requisite details
+     * @param  array<mixed> $arrayOfRequisites  Requisite details
      * @param  int  $errorCount  The count of errors occured
+     * @return array<mixed>
      */
     private function appUrlcheck(array &$arrayOfRequisites, int &$errorCount): array
     {
         $color = 'green';
         $infoString = 'Valid';
-        if (! filter_var('https://'.Request::server('HTTP_HOST').Request::server('REQUEST_URI'), FILTER_VALIDATE_URL)) {
+        if (! filter_var('https://'. (string) Request::server('HTTP_HOST'). (string) Request::server('REQUEST_URI'), FILTER_VALIDATE_URL)) {
             $errorCount += 1;
             $color = 'red';
             $infoString = "Invalid URL found <p>Make sure your domain/IP doesn't contain any special character other than dash( '-' ) and dot ( '.' )<p>";
@@ -371,8 +382,7 @@ class BillingDependencyController extends Controller
     /**
      * Validate PHP extentions for probe page and auto-update module.
      *
-     * @return array
-     */
+     * @return array<mixed>     */
     public function validatePHPExtensions(int &$errorCount)
     {
         try {
@@ -387,6 +397,10 @@ class BillingDependencyController extends Controller
         }
     }
 
+    /**
+     * @param array<mixed> $arrayOfRequisites
+     * @return array<mixed>
+     */
     public function checkSSLCertificateOnDomain(array &$arrayOfRequisites, int &$errorCount, mixed $cliAppUrl = null): array
     {
         $name = 'Domain SSL Certificate';
@@ -397,7 +411,7 @@ class BillingDependencyController extends Controller
             $sslHost = $cliAppUrl.'/cron-test.php';
             if (! $cliAppUrl) {
                 $url = preg_replace('#probe.php|api/check-updates#', 'cron-test.php', (string) Request::server('REQUEST_URI'));
-                $sslHost = 'https://'.Request::server('HTTP_HOST').$url;
+                $sslHost = 'https://'. (string) Request::server('HTTP_HOST').$url;
             }
 
             $oldError = error_reporting();
@@ -428,6 +442,10 @@ class BillingDependencyController extends Controller
         }
     }
 
+    /**
+     * @param array<mixed> $arrayOfRequisites
+     * @return array<mixed>
+     */
     private function handleRequisiteErrors(array &$arrayOfRequisites, int &$errorCount, string $infoString): array
     {
         $errorCount += 1;

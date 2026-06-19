@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page query()
@@ -23,11 +22,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Demo_page whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Demo_page extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -39,14 +40,23 @@ class Demo_page extends Model
 
     protected string $logNameColumn = 'Demo page';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'id', 'link', 'email', 'status',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['demo', 'page'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

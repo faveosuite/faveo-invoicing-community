@@ -20,6 +20,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
 {
     /**
      * Get Grandtotal.
+     * @return array<mixed>
      **/
     public function getGrandTotal(?string $code, float|int $total, float|int $cost, int $productid, string $currency, string $user_id = ''): array
     {
@@ -40,6 +41,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
 
     /**
      * Get Message on Invoice Generation.
+     * @return array<mixed>
      **/
     public function getMessage(mixed $items, int $user_id): array
     {
@@ -126,9 +128,11 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         $user = $users->find($userid);
         //check in the settings
         $settings = new Setting();
+        /** @var \App\Model\Common\Setting $setting */
         $setting = $settings::find(1);
         $invoiceurl = $this->invoiceUrl($invoiceid);
         //template
+        /** @var \App\Model\Common\Template $template */
         $template = TemplateType::getSelectedTemplate('invoice_mail');
         $type = '';
         $replace = [

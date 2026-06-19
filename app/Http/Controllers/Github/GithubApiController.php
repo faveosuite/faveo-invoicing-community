@@ -18,7 +18,7 @@ class GithubApiController
         $github = Github::firstOrFail();
 
         $this->http = Http::baseUrl(self::API_BASE)
-            ->withBasicAuth($github->username, $github->password)
+            ->withBasicAuth((string) $github->username, (string) $github->password)
             ->withHeaders([
                 'Accept' => 'application/vnd.github+json',
                 'User-Agent' => $github->username ?: 'FaveoBilling',
@@ -29,6 +29,7 @@ class GithubApiController
 
     /**
      * All releases for a repository, newest first.
+     * @return array<mixed>
      */
     public function releases(string $owner, string $repo): array
     {
@@ -37,6 +38,7 @@ class GithubApiController
 
     /**
      * The latest stable release metadata for a repository.
+     * @return array<mixed>
      */
     public function latestRelease(string $owner, string $repo): array
     {

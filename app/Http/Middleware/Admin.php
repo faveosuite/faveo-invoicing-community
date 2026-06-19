@@ -34,11 +34,13 @@ class Admin
     public function handle($request, Closure $next)
     {
         $defaulturl = DefaultPage::value('page_url');
-        if (Auth::user()->role == 'admin') {
+        /** @var \App\User $authUser */
+        $authUser = Auth::user();
+        if ($authUser->role == 'admin') {
             return $next($request);
         }
 
-        if (Auth::user()->role == 'user') {
+        if ($authUser->role == 'user') {
             $url = Session::get('session-url');
             if ($url) {
                 return redirect($url);

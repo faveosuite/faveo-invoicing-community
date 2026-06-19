@@ -25,8 +25,8 @@ class ZohoCampaignsApi extends ZohoBaseApi
      *
      * @param  string  $listKey  The list key.
      * @param  string  $email  The email address to subscribe.
-     * @param  array  $contactInfo  Additional contact information to subscribe.
-     * @param  array  $additionalParams  Additional parameters to pass to the API.
+     * @param  array<mixed> $contactInfo  Additional contact information to subscribe.
+     * @param  array<mixed> $additionalParams  Additional parameters to pass to the API.
      *
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
@@ -58,7 +58,7 @@ class ZohoCampaignsApi extends ZohoBaseApi
      *
      * @param  string  $listKey  The list key.
      * @param  string  $email  The email address to unsubscribe.
-     * @param  array  $additionalParams  Additional parameters to pass to the API.
+     * @param  array<mixed> $additionalParams  Additional parameters to pass to the API.
      *
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
@@ -96,6 +96,7 @@ class ZohoCampaignsApi extends ZohoBaseApi
      *
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
+     * @param array<mixed> $additionalParams
      */
     public function listSubscribers(
         string $listKey,
@@ -141,6 +142,7 @@ class ZohoCampaignsApi extends ZohoBaseApi
      *
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
+     * @param array<mixed> $additionalParams
      */
     public function listSubscribersCount(
         string $listKey,

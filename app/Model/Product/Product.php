@@ -115,7 +115,6 @@ use Override;
  * @property-read int|null $taxes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\ProductUpload> $versions
  * @property-read int|null $versions_count
- *
  * @method static \Database\Factories\Model\Product\ProductFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newQuery()
@@ -167,11 +166,13 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWelcomeEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWhatsappIntegration($value)
- *
  * @mixin \Eloquent
  */
 class Product extends BaseModel
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -203,6 +204,9 @@ class Product extends BaseModel
 
     protected string $logNameColumn = 'name';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'name', 'type', 'group', 'file', 'image', 'require_domain', 'category',
         'can_modify_agent',  'can_modify_quantity', 'show_agent', 'tax_apply', 'show_product_quantity', 'hidden',  'auto_terminate',
@@ -212,10 +216,16 @@ class Product extends BaseModel
         'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'invoice_hidden',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['products', ':id', 'edit'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -251,11 +261,17 @@ class Product extends BaseModel
 
     // protected static $recordEvents = ['deleted'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Order, $this>
+     */
     public function order(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Order::class, 'product');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Subscription, $this>
+     */
     public function subscription(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Subscription::class);
@@ -269,16 +285,25 @@ class Product extends BaseModel
         return $this->belongsTo(LicenseType::class, 'type');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Price, $this>
+     */
     public function price(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Price::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<PromoProductRelation, $this>
+     */
     public function PromoRelation(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PromoProductRelation::class, 'product_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<TaxProductRelation, $this>
+     */
     public function tax(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(TaxProductRelation::class, 'product_id');
@@ -297,6 +322,9 @@ class Product extends BaseModel
         );
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ProductUpload, $this>
+     */
     public function productUpload(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProductUpload::class, 'product_id');
@@ -312,6 +340,9 @@ class Product extends BaseModel
         return parent::delete();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function image(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
@@ -323,6 +354,9 @@ class Product extends BaseModel
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function parent(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value): array {
@@ -358,12 +392,18 @@ class Product extends BaseModel
     }
 
     // Define the relationship with ProductPluginGroup (as product)
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ProductPluginGroup, $this>
+     */
     public function productPluginGroupsAsProduct(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProductPluginGroup::class, 'product_id');
     }
 
     // Define the relationship with ProductPluginGroup (as plugin)
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ProductPluginGroup, $this>
+     */
     public function productPluginGroupsAsPlugin(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProductPluginGroup::class, 'plugin_id');
@@ -395,17 +435,26 @@ class Product extends BaseModel
         return $this->hasMany(ConfigOption::class, 'product_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<PluginCompatibleWithProducts, $this>
+     */
     public function productCompWith(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PluginCompatibleWithProducts::class, 'product_id');
     }
 
     // Define the relationship with Product (as plugin)
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<PluginCompatibleWithProducts, $this>
+     */
     public function pluginCompWith(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PluginCompatibleWithProducts::class, 'plugin_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ProductUpload, $this>
+     */
     public function versions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProductUpload::class, 'product_id');
@@ -419,21 +468,33 @@ class Product extends BaseModel
         return $this->hasOne(ProductUpload::class, 'product_id')->latest();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<License, $this>
+     */
     public function licenses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(License::class, 'product_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Installation, $this>
+     */
     public function installations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Installation::class, 'product_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<LicenseReport, $this>
+     */
     public function licenseReports(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(LicenseReport::class, 'product_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<LicenseCallback, $this>
+     */
     public function licenseCallbacks(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(LicenseCallback::class, 'product_id');

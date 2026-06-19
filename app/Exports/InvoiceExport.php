@@ -15,11 +15,17 @@ class InvoiceExport implements FromCollection, WithHeadings, WithTitle
     {
     }
 
+    /**
+     * @return \Illuminate\Support\Collection<int|string, mixed>
+     */
     public function collection()
     {
         return collect($this->invoicesData);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function headings(): array
     {
         $headingsMap = [

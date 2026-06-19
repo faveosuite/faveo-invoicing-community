@@ -58,7 +58,7 @@ class CallBackController extends Controller
             'license_id' => $licenseIdsByCode[$callback->license_code] ?? null,
         ]);
 
-        return successResponse(Lang::get('lang.Callback_Show'), $paginatedCallbacks, 200);
+        return successResponse(__('lang.Callback_Show'), $paginatedCallbacks, 200);
     }
 
     public function updateCallbacks(Request $request): \Illuminate\Http\JsonResponse

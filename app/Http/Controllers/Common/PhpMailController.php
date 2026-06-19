@@ -44,6 +44,9 @@ class PhpMailController extends Controller
 
     /**
      * Send email using queue.
+     * @param array<mixed> $attach
+     * @param array<mixed> $bcc
+     * @param array<mixed> $replace
      */
     public function sendEmail(
         string $from,
@@ -61,6 +64,7 @@ class PhpMailController extends Controller
         bool $autoReply = false
     ): void {
         // Step 1: Log email entry
+        /** @var \Illuminate\Database\Eloquent\Model $logIdentifier */
         $logIdentifier = Logger::logMailByCategory(
             $from,
             $to,
@@ -171,6 +175,7 @@ class PhpMailController extends Controller
             foreach ($sub as $data) {
                 $cron = new CronController();
                 $user = DB::table('users')->find($data->user_id);
+                /** @var \App\Model\Product\Product $product */
                 $product = Product::find($data->product_id);
                 $order = $cron->getOrderById($data->order_id);
 
@@ -197,9 +202,11 @@ class PhpMailController extends Controller
                     $data->save();
                     //check in the settings
                     $settings = new Setting();
+                    /** @var \App\Model\Common\Setting $setting */
                     $setting = $settings::find(1);
 
                     //template
+                    /** @var \App\Model\Common\Template $template */
                     $template = TemplateType::getSelectedTemplate('cloud_deleted');
 
                     $mail = new PhpMailController();
@@ -207,7 +214,7 @@ class PhpMailController extends Controller
                     $replace = ['name' => $user->first_name.' '.$user->last_name, // @phpstan-ignore property.nonObject, property.nonObject
                         'product' => $product->name,
                         'number' => $order->number,
-                        'expiry' => date('j M Y', strtotime((string) $data->update_ends_at)),
+                        'expiry' => date('j M Y', (int) strtotime((string) $data->update_ends_at)),
                         'contact' => $contact['contact'],
                         'logo' => $contact['logo'],
                         'reply_email' => $setting->company_email,
@@ -221,6 +228,12 @@ class PhpMailController extends Controller
         }
     }
 
+    /**
+     * @param array<mixed> $attach
+     * @param array<mixed> $bcc
+     * @param array<mixed> $cc
+     * @param array<mixed> $replace
+     */
     public function mailing(
         string $from,
         string $to,
@@ -244,7 +257,9 @@ class PhpMailController extends Controller
             $emailConfig = $this->prepareEmailConfig($replace, $type, $subject, $fromname, $autoReply);
 
             // Configure mail settings
-            $this->setMailConfig(Setting::first());
+            /** @var \App\Model\Common\Setting $mailSetting */
+            $mailSetting = Setting::first();
+            $this->setMailConfig($mailSetting);
 
             // Send email
             $this->sendMailMessage($from, $to, $subject, $transformedData, $emailConfig, $toname, $cc, $bcc, $attach);
@@ -320,11 +335,13 @@ class PhpMailController extends Controller
 
     /**
      * Prepare email configuration.
+     * @param array<mixed> $replace
+     * @return array<mixed>
      */
     protected function prepareEmailConfig(array $replace, string $type, string $subject, string $fromname, bool $autoReply): array
     {
         $config = [
-            'fromname' => $fromname === '' || $fromname === '0' ? Setting::first()->from_name : $fromname,
+            'fromname' => $fromname === '' || $fromname === '0' ? Setting::firstOrFail()->from_name : $fromname,
             'reply_to' => null,
             'auto_reply' => $autoReply,
         ];
@@ -342,6 +359,7 @@ class PhpMailController extends Controller
 
     /**
      * Determine reply-to address.
+     * @param array<mixed> $replace
      */
     protected function determineReplyTo(string $type, array $replace): ?string
     {
@@ -361,6 +379,7 @@ class PhpMailController extends Controller
 
     /**
      * Transform email data.
+     * @param array<mixed> $replace
      */
     protected function transformEmailData(string $data, array $replace, string $type): string
     {
@@ -372,6 +391,9 @@ class PhpMailController extends Controller
 
     /**
      * Send mail message.
+     * @param array<mixed> $attach
+     * @param array<mixed> $bcc
+     * @param array<mixed> $config
      */
     protected function sendMailMessage(
         string $from,
@@ -401,6 +423,9 @@ class PhpMailController extends Controller
         });
     }
 
+    /**
+     * @param array<mixed> $config
+     */
     protected function autoReplyHeader(mixed $message, array $config): void
     {
         if (isset($config['auto_reply']) && $config['auto_reply']) {
@@ -411,6 +436,7 @@ class PhpMailController extends Controller
 
     /**
      * Add CC recipients to message.
+     * @param array<mixed> $cc
      */
     protected function addCcRecipients(mixed $message, array $cc): void
     {
@@ -425,6 +451,7 @@ class PhpMailController extends Controller
 
     /**
      * Add BCC recipients to message.
+     * @param array<mixed> $bcc
      */
     protected function addBccRecipients(mixed $message, array $bcc): void
     {
@@ -439,6 +466,7 @@ class PhpMailController extends Controller
 
     /**
      * Add attachments to message.
+     * @param array<mixed> $attach
      */
     protected function addAttachments(mixed $message, array $attach): void
     {

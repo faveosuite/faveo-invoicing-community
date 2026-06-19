@@ -77,6 +77,7 @@ class OpenPaymentController extends Controller
     public function getOrderDetails(mixed $id): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\Model\Payment\OpenPaymentOrder $order */
             $order = OpenPaymentOrder::findOrFail($id);
             $apiKeys = ApiKey::first();
 
@@ -109,6 +110,7 @@ class OpenPaymentController extends Controller
         ]);
 
         try {
+            /** @var \App\Model\Payment\OpenPaymentOrder $order */
             $order = OpenPaymentOrder::findOrFail($request->order_id);
 
             if ($order->isPaid()) {
@@ -133,6 +135,7 @@ class OpenPaymentController extends Controller
         $request->validate(['order_id' => ['required', 'exists:open_payment_orders,id']]);
 
         try {
+            /** @var \App\Model\Payment\OpenPaymentOrder $order */
             $order = OpenPaymentOrder::findOrFail($request->order_id);
 
             if ($order->isPaid()) {
@@ -162,6 +165,7 @@ class OpenPaymentController extends Controller
         ]);
 
         try {
+            /** @var \App\Model\Payment\OpenPaymentOrder $order */
             $order = OpenPaymentOrder::findOrFail($request->order_id);
 
             $paid = $this->payments->confirm($order, $request->only([
@@ -189,6 +193,7 @@ class OpenPaymentController extends Controller
         ]);
 
         try {
+            /** @var \App\Model\Payment\OpenPaymentOrder $order */
             $order = OpenPaymentOrder::findOrFail($request->order_id);
 
             $paid = $this->payments->confirm($order, ['payment_intent' => $request->payment_intent_id]);
@@ -362,7 +367,9 @@ class OpenPaymentController extends Controller
     {
         $orderId = $request->query('order_id');
 
-        if (! $orderId || ! $order = OpenPaymentOrder::find($orderId)) {
+        /** @var \App\Model\Payment\OpenPaymentOrder|null $order */
+        $order = $orderId ? OpenPaymentOrder::find($orderId) : null;
+        if (! $orderId || ! $order) {
             return redirect('/open-payment?status=error&message=Order not found');
         }
 

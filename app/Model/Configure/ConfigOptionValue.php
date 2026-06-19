@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Model\Configure\ConfigOption $configOption
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue query()
@@ -25,11 +24,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue whereOptionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue whereValue($value)
- *
  * @mixin \Eloquent
  */
 class ConfigOptionValue extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
 
     protected $table = 'config_option_values';
@@ -37,6 +38,9 @@ class ConfigOptionValue extends Model
     protected $guarded = [];
 
     // Define the relationship with ConfigOption
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<ConfigOption, $this>
+     */
     public function configOption(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ConfigOption::class, 'option_id');

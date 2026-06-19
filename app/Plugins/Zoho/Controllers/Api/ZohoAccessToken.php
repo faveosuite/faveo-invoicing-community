@@ -8,8 +8,14 @@ use Illuminate\Support\Arr;
 
 class ZohoAccessToken
 {
+    /**
+     * @var array<mixed>
+     */
     protected array $accessToken = [];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $refreshToken = [];
 
     public function get(int $integrationId): string
@@ -39,9 +45,12 @@ class ZohoAccessToken
             return null;
         }
 
+        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $zohoIntegration */
         $zohoIntegration = ZohoOAuthClient::whereIntegrationId($integrationId)->first();
 
-        $refreshToken = ZohoOAuthToken::findRefreshToken($integrationId)->refresh_token;
+        /** @var \App\Plugins\Zoho\Models\ZohoOAuthToken $zohoToken */
+        $zohoToken = ZohoOAuthToken::findRefreshToken($integrationId);
+        $refreshToken = $zohoToken->refresh_token;
 
         $response = new ZohoAccountsApi(
             $zohoIntegration->client_id,

@@ -63,15 +63,14 @@ class BaseDependencyController extends Controller
     protected $config;
 
     /**
-     * @var array When we need to call the methods avaible in EnhancedDependency trait to update or modify list data based on specail conditions
+     * @var array<mixed> When we need to call the methods avaible in EnhancedDependency trait to update or modify list data based on specail conditions
      */
     protected $supplements;
 
     /**
      * the ids the dependencies that we need to fetch.
      *
-     * @var array
-     */
+     * @var array<mixed>     */
     protected $ids = [];
 
     /**
@@ -106,7 +105,7 @@ class BaseDependencyController extends Controller
      * Populates class variables to handle addition params in the request . For eg. search-query, limit, meta, config, so that
      * it can be used throughout the class to give user relevant information according to the parameters passed and userType.
      *
-     * @param  object  $request
+     * @param  \Illuminate\Http\Request  $request
      */
     public function initializeParameterValues($request): void
     {
@@ -122,7 +121,9 @@ class BaseDependencyController extends Controller
             $this->limit = 10000;
         }
 
-        $this->userRole = Auth::check() ? Auth::user()->role : 'user';
+        /** @var \App\User $authUserForRole */
+        $authUserForRole = Auth::user();
+        $this->userRole = Auth::check() ? $authUserForRole->role : 'user';
 
         $this->ids = $request->input('ids') ?: [];
 
@@ -184,8 +185,7 @@ class BaseDependencyController extends Controller
     /**
      * Gets dependency record in required format.
      *
-     * @return array
-     */
+     * @return array<mixed>     */
     protected function get(mixed $dependencyName, mixed $baseQuery, ?Closure $callback = null)
     {
         if ($this->config) {

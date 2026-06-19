@@ -16,7 +16,6 @@ use Override;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Model\Order\Order|null $order
- *
  * @method static \Database\Factories\Model\Order\InstallationDetailFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationDetail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationDetail newQuery()
@@ -29,17 +28,22 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationDetail whereOrderId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationDetail whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationDetail whereVersion($value)
- *
  * @mixin \Eloquent
  */
 class InstallationDetail extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
 
     protected $table = 'installation_details';
 
     protected $fillable = ['installation_path', 'installation_ip', 'version', 'last_active', 'order_id'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Order, $this>
+     */
     public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Order::class);

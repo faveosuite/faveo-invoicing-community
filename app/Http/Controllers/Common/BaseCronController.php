@@ -29,19 +29,25 @@ class BaseCronController extends Controller
     public function getInvoiceByOrderId(int $orderid): ?\App\Model\Order\Invoice
     {
         $order = Order::find($orderid);
+        if (!$order) {
+            return null;
+        }
+        /** @var mixed $invoice */
+        $invoice = $order->invoice()->first();
 
-        return $order->invoice()->first(); // @phpstan-ignore return.type
+        return $invoice instanceof Invoice ? $invoice : null;
     }
 
     public function getInvoiceItemByInvoiceId(int $invoiceid): ?\App\Model\Order\InvoiceItem
     {
         $invoice = Invoice::find($invoiceid);
 
-        return $invoice->invoiceItem()->first();
+        return $invoice ? $invoice->invoiceItem()->first() : null;
     }
 
     /**
      * @return mixed[]
+     * @param array<mixed> $allDays
      */
     public function getSubscriptions(array $allDays): array
     {
@@ -134,6 +140,9 @@ class BaseCronController extends Controller
         return $users;
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Product\Subscription>
+     */
     public function getExpiredInfo(): \Illuminate\Database\Eloquent\Builder
     {
         $yesterday = new Carbon('today');
@@ -144,6 +153,9 @@ class BaseCronController extends Controller
                 ->whereBetween('update_ends_at', [$yesterday, $tomorrow]);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Product\Subscription>
+     */
     public function getOnDayExpiryInfo(): \Illuminate\Database\Eloquent\Builder
     {
         $yesterday = new Carbon('yesterday');
@@ -154,6 +166,9 @@ class BaseCronController extends Controller
             ->whereBetween('update_ends_at', [$yesterday, $tomorrow]);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Product\Subscription>
+     */
     public function getOneDayExpiryInfo(): \Illuminate\Database\Eloquent\Builder
     {
         $yesterday = new Carbon('-2 days');
@@ -164,6 +179,9 @@ class BaseCronController extends Controller
                 ->whereBetween('update_ends_at', [$yesterday, $today]);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Product\Subscription>
+     */
     public function get15DaysExpiryInfo(): \Illuminate\Database\Eloquent\Builder
     {
         $plus14days = new Carbon('+14 days');
@@ -174,6 +192,9 @@ class BaseCronController extends Controller
             ->whereBetween('update_ends_at', [$plus14days, $plus16days]);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Product\Subscription>
+     */
     public function getAllDaysExpiryInfo(int $day): \Illuminate\Database\Eloquent\Builder
     {
         $minus1day = new Carbon('+'.($day - 1).' days');
@@ -188,117 +209,170 @@ class BaseCronController extends Controller
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
+        if (!$product) {
+            return;
+        }
         $product_type = $product->type;
-        $expiryDays = ExpiryMailDay::first()->cloud_days;
-        //check in the settings
+        $expiryMailDay = ExpiryMailDay::first();
+        $expiryDays = $expiryMailDay ? $expiryMailDay->cloud_days : 0;
+        
         $setting = Setting::find(1);
-        //template
+        if (!$setting) {
+            return;
+        }
+        
         $template = TemplateType::getSelectedTemplate('subscription_going_to_end_mail');
+        if (!$template) {
+            return;
+        }
+        
         $date = date_create($end);
-        $end = date_format($date, 'l, F j, Y');
+        if ($date === false) {
+            return;
+        }
+        $formattedEnd = date_format($date, 'l, F j, Y');
 
-        $delDate = strtotime($end.' +'.$expiryDays.' days');
+        $delDate = strtotime($formattedEnd.' +'.$expiryDays.' days');
+        if ($delDate === false) {
+            return;
+        }
         $deletionDate = date('l, F j, Y', $delDate);
 
-        $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
+        $replace = [
+            'name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'deletionDate' => ($product_type == '4') ? $deletionDate : '',
             'product_type' => ($product_type == '4') ? 'Deletion Date' : '',
-            'expiry' => $end,
-            'product' => $product->name,
-            'number' => $order->number,
+            'expiry' => $formattedEnd,
+            'product' => (string) $product->name,
+            'number' => (string) $order->number,
             'url' => url('my-orders'),
             'contact' => $contact['contact'],
             'logo' => $contact['logo'],
-            'reply_email' => $setting->company_email,
-
+            'reply_email' => (string) $setting->company_email,
         ];
-        $type = $template?->type()->value('name') ?? '';
+
+        $type = (string) ($template->type()->value('name') ?? '');
         $mail = new PhpMailController();
-        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
+        $mail->SendEmail((string) $setting->email, (string) $user->email, (string) $template->data, (string) $template->name, $type, $replace, $type);
     }
 
     public function Auto_renewalMail(\App\User $user, string $end, int $productId, \App\Model\Order\Order $order, int $sub): void
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
+        if (!$product) {
+            return;
+        }
         $product_type = $product->type;
         $plan_id = Subscription::find($sub);
-        $currency = getCurrencyForClient($user->country);
+        if (!$plan_id) {
+            return;
+        }
+        $currency = getCurrencyForClient((string) $user->country);
 
         $renewPrice = PlanPrice::where('plan_id', $plan_id->plan_id)->where('currency', $currency)->value('renew_price');
-        $expiryDays = ExpiryMailDay::first()->cloud_days;
-        //check in the settings
-        $settings = new Setting();
-        $setting = $settings->where('id', 1)->first();
+        $expiryMailDay = ExpiryMailDay::first();
+        $expiryDays = $expiryMailDay ? $expiryMailDay->cloud_days : 0;
+        
+        $setting = Setting::where('id', 1)->first();
+        if (!$setting) {
+            return;
+        }
 
         $mail = new PhpMailController();
 
         //template
         $template = TemplateType::getSelectedTemplate('auto_subscription_going_to_end');
-        $data = $template->data;
+        if (!$template) {
+            return;
+        }
 
         $date = date_create($end);
-        $end = date_format($date, 'l, F j, Y ');
-        $delDate = strtotime($end.' +'.$expiryDays.' days');
+        if ($date === false) {
+            return;
+        }
+        $formattedEnd = date_format($date, 'l, F j, Y ');
+        $delDate = strtotime($formattedEnd.' +'.$expiryDays.' days');
+        if ($delDate === false) {
+            return;
+        }
         $deletionDate = date('l, F j, Y', $delDate);
 
-        $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
-            'renewPrice' => currencyFormat($renewPrice, $code = $currency),
+        $replace = [
+            'name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
+            'renewPrice' => currencyFormat($renewPrice, $currency),
             'deletionDate' => ($product_type == '4') ? $deletionDate : '',
             'product_type' => ($product_type == '4') ? 'Deletion Date' : '',
-            'expiry' => $end,
-            'product' => $product->name,
-            'number' => $order->number, 'contact' => $contact['contact'],
+            'expiry' => $formattedEnd,
+            'product' => (string) $product->name,
+            'number' => (string) $order->number,
+            'contact' => $contact['contact'],
             'logo' => $contact['logo'],
-            'reply_email' => $setting->company_email,
+            'reply_email' => (string) $setting->company_email,
         ];
 
-        $type = $template?->type()->value('name') ?? '';
-        $from = $setting->email;
-        $to = $user->email;
-        $subject = $template->name;
-        $data = $template->data;
-        $mail->SendEmail($from, $to, $data, $subject, $template->type()->value('name'), $replace, $type);
+        $type = (string) ($template->type()->value('name') ?? '');
+        $from = (string) $setting->email;
+        $to = (string) $user->email;
+        $subject = (string) $template->name;
+        $data = (string) $template->data;
+        $mail->SendEmail($from, $to, $data, $subject, $type, $replace, $type);
     }
 
     public function Expiredsub_Mail(\App\User $user, string $end, int $productId, \App\Model\Order\Order $order, mixed $sub): void
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
+        if (!$product) {
+            return;
+        }
         $product_type = $product->type;
-        $expiryDays = ExpiryMailDay::first()->cloud_days;
+        $expiryMailDay = ExpiryMailDay::first();
+        $expiryDays = $expiryMailDay ? $expiryMailDay->cloud_days : 0;
 
         //check in the settings
-        $settings = new Setting();
-        $setting = $settings->where('id', 1)->first();
+        $setting = Setting::where('id', 1)->first();
+        if (!$setting) {
+            return;
+        }
 
         $mail = new PhpMailController();
 
         //template
         $template = TemplateType::getSelectedTemplate('subscription_over_mail');
-        $data = $template->data;
+        if (!$template) {
+            return;
+        }
 
         $date = date_create($end);
-        $end = date_format($date, 'l, F j, Y ');
-        $delDate = strtotime($end.' +'.$expiryDays.' days');
+        if ($date === false) {
+            return;
+        }
+        $formattedEnd = date_format($date, 'l, F j, Y ');
+        $delDate = strtotime($formattedEnd.' +'.$expiryDays.' days');
+        if ($delDate === false) {
+            return;
+        }
         $deletionDate = date('l, F j, Y', $delDate);
 
-        $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
+        $replace = [
+            'name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'deletionDate' => ($product_type == '4') ? $deletionDate : '',
             'product_type' => ($product_type == '4') ? 'Deletion Date' : '',
-            'expiry' => $end,
-            'product' => $product->name,
-            'number' => $order->number,
+            'expiry' => $formattedEnd,
+            'product' => (string) $product->name,
+            'number' => (string) $order->number,
             'contact' => $contact['contact'],
             'logo' => $contact['logo'],
             'url' => url('my-orders'),
-            'reply_email' => $setting->company_email,
+            'reply_email' => (string) $setting->company_email,
         ];
-        $type = $template?->type()->value('name') ?? '';
-        $from = $setting->email;
-        $to = $user->email;
-        $subject = $template->name;
-        $data = $template->data;
-        $mail->SendEmail($from, $to, $data, $subject, $template->type()->value('name'), $replace, $type);
+        
+        $type = (string) ($template->type()->value('name') ?? '');
+        $from = (string) $setting->email;
+        $to = (string) $user->email;
+        $subject = (string) $template->name;
+        $data = (string) $template->data;
+        $mail->SendEmail($from, $to, $data, $subject, $type, $replace, $type);
     }
 }

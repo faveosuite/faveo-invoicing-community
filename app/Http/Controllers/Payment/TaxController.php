@@ -133,6 +133,7 @@ class TaxController extends Controller
     public function updateTaxApi(mixed $id, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\Model\Payment\TaxRate|null $rate */
             $rate = TaxRate::find($id);
             if (! $rate) {
                 return errorResponse(__('message.tax_not_found'), 404);
@@ -212,6 +213,9 @@ class TaxController extends Controller
 
     // --- helpers ---
 
+    /**
+     * @return array<mixed>
+     */
     private function taxClassList(): array
     {
         return TaxClass::orderBy('name')->get(['name', 'slug'])
@@ -226,8 +230,8 @@ class TaxController extends Controller
      */
     private function syncAdditionalClasses(string $raw): void
     {
-        $desired = collect(preg_split('/\r\n|\r|\n/', $raw))
-            ->map(fn ($n): string => trim($n))
+        $desired = collect(preg_split('/\r\n|\r|\n/', $raw) ?: [])
+            ->map(fn ($n): string => trim((string) $n))
             ->filter()
             ->mapWithKeys(fn ($n): array => [Str::slug($n) => $n])
             ->forget('');
@@ -261,6 +265,9 @@ class TaxController extends Controller
         return $validator->fails() ? $validator->errors()->first() : null;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function rateAttributes(Request $request): array
     {
         return [

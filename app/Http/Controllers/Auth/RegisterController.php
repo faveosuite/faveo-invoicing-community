@@ -33,6 +33,9 @@ class RegisterController extends Controller
         $this->middleware('recaptcha:register')->only('postRegister');
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function emailVerification(mixed $email): array
     {
         try {
@@ -48,10 +51,11 @@ class RegisterController extends Controller
                 'spamtrap' => 256,
             ];
 
-            ['api_key' => $apikey, 'mode' => $mode, 'accepted_output' => $accepted_output] = EmailMobileValidationProviders::where('provider', 'reoon')
+            /** @var \App\Model\Common\EmailMobileValidationProviders $reoonProvider */
+            $reoonProvider = EmailMobileValidationProviders::where('provider', 'reoon')
                 ->select('api_key', 'mode', 'accepted_output')
-                ->first()
-                ->toArray();
+                ->firstOrFail();
+            ['api_key' => $apikey, 'mode' => $mode, 'accepted_output' => $accepted_output] = $reoonProvider->toArray();
 
             $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
                 'email' => $email,
@@ -125,6 +129,7 @@ class RegisterController extends Controller
             'registerForm' => [new Honeypot()],
         ]);
         try {
+            /** @var \App\Model\Common\StatusSetting $status */
             $status = StatusSetting::select(
                 'email_validation_status',
                 'mobile_validation_status',
@@ -138,14 +143,14 @@ class RegisterController extends Controller
                     $user = $this->getUserDetails($request);
                     EmailValidationResults::where('id', $emailVerifier['id'])->update($user);
 
-                    return errorResponse(Lang::get('message.email_provided_wrong'));
+                    return errorResponse(__('message.email_provided_wrong'));
                 }
             }
 
             if ($status->mobile_validation_status) {
                 $mobileVerifier = $this->phoneVerification($request->input('mobile_code').$request->input('mobile'));
                 if (! $mobileVerifier) {
-                    return errorResponse(Lang::get('message.mobile_provided_wrong'));
+                    return errorResponse(__('message.mobile_provided_wrong'));
                 }
             }
 
@@ -202,6 +207,9 @@ class RegisterController extends Controller
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getUserDetails(mixed $request): array
     {
         $location = getLocation();

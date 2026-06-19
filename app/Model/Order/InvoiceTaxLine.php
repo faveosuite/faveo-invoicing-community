@@ -23,7 +23,6 @@ use Override;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Model\Order\Invoice|null $invoice
  * @property-read \App\Model\Order\InvoiceItem|null $item
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceTaxLine newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceTaxLine newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceTaxLine query()
@@ -37,7 +36,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceTaxLine whereRate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceTaxLine whereTaxRateId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceTaxLine whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class InvoiceTaxLine extends BaseModel
@@ -49,11 +47,17 @@ class InvoiceTaxLine extends BaseModel
         'label', 'rate', 'compound', 'amount',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Invoice, $this>
+     */
     public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class, 'invoice_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<InvoiceItem, $this>
+     */
     public function item(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(InvoiceItem::class, 'invoice_item_id');

@@ -18,6 +18,9 @@ class AttachmentHelperServiceProvider extends ServiceProvider
     }
 
     #[Override]
+    /**
+     * @return array<mixed>
+     */
     public function provides()
     {
         return ['attachment-helper'];

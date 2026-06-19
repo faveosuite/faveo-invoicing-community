@@ -48,6 +48,7 @@ class Google2FAController extends Controller
 
     public function enableTwoFactor(Request $request): \Illuminate\Http\JsonResponse
     {
+        /** @var \App\User $user */
         $user = $request->user();
         $google2fa = new Google2FA();
         $secret = $this->generateSecret();
@@ -76,10 +77,11 @@ class Google2FAController extends Controller
         try {
             $session = $request->session();
             $userId = $session->get('2fa:user:id');
+            /** @var \App\User $user */
             $user = User::findOrFail($userId);
 
             return $this->handleTwoFactorLogin($request, $user, '2fa-code', function ($user, $request): void {
-                $secret = Crypt::decrypt($user->google2fa_secret);
+                $secret = Crypt::decrypt((string) $user->google2fa_secret);
                 $isValid = new Google2FA()->verifyKey($secret, $request->totp);
 
                 if (! $isValid) {
@@ -106,6 +108,7 @@ class Google2FAController extends Controller
             return successResponse('password_verified');
         }
 
+        /** @var \App\User $user */
         $user = Auth::user();
         if (Hash::check($request->input('user_password'), $user->getAuthPassword())) {
             Session::put('auth.password_confirmed_at', time());
@@ -118,9 +121,10 @@ class Google2FAController extends Controller
 
     public function postSetupValidateToken(Request $request): \Illuminate\Http\JsonResponse
     {
+        /** @var \App\User $user */
         $user = $request->user();
         $google2fa = new Google2FA();
-        $secret = Crypt::decrypt($user->google2fa_secret);
+        $secret = Crypt::decrypt((string) $user->google2fa_secret);
 
         $valid = $google2fa->verifyKey($secret, $request->totp);
 
@@ -129,10 +133,10 @@ class Google2FAController extends Controller
             $user->google2fa_activation_date = Date::now();
             $user->save();
 
-            return successResponse(Lang::get('message.valid_passcode'));
+            return successResponse(__('message.valid_passcode'));
         }
 
-        return errorResponse(Lang::get('message.invalid_code_2fa'));
+        return errorResponse(__('message.invalid_code_2fa'));
     }
 
     /**
@@ -140,8 +144,11 @@ class Google2FAController extends Controller
      */
     public function disableTwoFactor(Request $request): \Illuminate\Http\JsonResponse
     {
-        $user = $request->userId ? User::where('id', $request->userId)->first() : $request->user();
-        if (Auth::user()->role != 'admin' && $user->id != Auth::user()->id) {
+        /** @var \App\User $user */
+        $user = $request->userId ? User::where('id', $request->userId)->firstOrFail() : $request->user();
+        /** @var \App\User $authUser */
+        $authUser = Auth::user();
+        if ($authUser->role != 'admin' && $user->id != $authUser->id) {
             return errorResponse(__('message.cannot_disable_2fa'));
         }
 
@@ -152,13 +159,15 @@ class Google2FAController extends Controller
 
         UserBackupCodes::where('user_id', $user->id)->delete();
 
-        return successResponse(Lang::get('message.2fa_disabled'));
+        return successResponse(__('message.2fa_disabled'));
     }
 
     public function generateRecoveryCode(): \Illuminate\Http\JsonResponse
     {
         $codes = $this->createCodes();
-        $userId = Auth::user()->id;
+        /** @var \App\User $authUser */
+        $authUser = Auth::user();
+        $userId = $authUser->id;
 
         UserBackupCodes::where('user_id', $userId)->delete();
         foreach ($codes as $code) {
@@ -170,7 +179,9 @@ class Google2FAController extends Controller
 
     public function getRecoveryCode(): \Illuminate\Http\JsonResponse
     {
-        $userId = Auth::user()->id;
+        /** @var \App\User $authUser */
+        $authUser = Auth::user();
+        $userId = $authUser->id;
         $codes = UserBackupCodes::where('user_id', $userId)->pluck('backup_codes')->toArray();
 
         if (empty($codes)) {
@@ -183,6 +194,9 @@ class Google2FAController extends Controller
         return successResponse('', ['code' => $codes]);
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function createCodes(): array
     {
         $codes = [];
@@ -215,6 +229,7 @@ class Google2FAController extends Controller
         try {
             $session = $request->session();
             $userId = $session->get('2fa:user:id');
+            /** @var \App\User $user */
             $user = User::findOrFail($userId);
 
             return $this->handleTwoFactorLogin($request, $user, 'recovery-code', function ($user, $request): void {

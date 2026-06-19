@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read \App\User|null $user
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail query()
@@ -30,11 +29,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExportDetail whereUserId($value)
- *
  * @mixin \Eloquent
  */
 class ExportDetail extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -54,6 +55,9 @@ class ExportDetail extends Model
 
     protected string $logName = 'reports';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'user_id', 'file', 'file_path', 'name',
     ];
@@ -62,10 +66,20 @@ class ExportDetail extends Model
 
     protected bool $requireLogUrl = false;
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [];
 
-    protected ?string $causerID = 'user_id';
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->causerID = 'user_id';
+    }
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

@@ -27,9 +27,11 @@ class BaseHomeController extends Controller
         $einput = base64_decode((string) $envelope);
         $path = storage_path('app'.DIRECTORY_SEPARATOR.'private.key');
         $key_content = file_get_contents($path);
-        $private_key = openssl_get_privatekey($key_content);
+        $private_key = openssl_get_privatekey((string) $key_content);
         $plaintext = null;
-        openssl_open($input, $plaintext, $einput, $private_key, 'RC4');
+        if ($private_key !== false) {
+            openssl_open($input, $plaintext, $einput, $private_key, 'RC4');
+        }
 
         return $plaintext;
     }
@@ -114,6 +116,9 @@ class BaseHomeController extends Controller
         return $domain;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function verificationResult(string $order_number, string $serial_key): array
     {
         try {
@@ -141,6 +146,9 @@ class BaseHomeController extends Controller
         return response()->json($result);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function checkUpdatesExpiry(Request $request): array
     {
         // $v = \Validator::make($request->all(), [
@@ -158,6 +166,7 @@ class BaseHomeController extends Controller
                 $orderId = Order::where('number', 'LIKE', $order_number)->value('id');
                 if ($orderId) {
                     $expiryDate = Subscription::where('order_id', $orderId)->value('update_ends_at');
+                    /** @var \App\Model\Product\Subscription $subscription */
                     $subscription = Subscription::where('order_id', $orderId)->select('id', 'support_ends_at', 'version', 'update_ends_at', 'product_id', 'plan_id', 'ends_at')->first();
                     $data = $this->getData($subscription);
                     if (Date::now()->toDateTimeString() < $expiryDate) {
@@ -171,8 +180,11 @@ class BaseHomeController extends Controller
                     }
                 });
                 if (count($orderForLicense) > 0) {
-                    $expiryDate = Subscription::where('order_id', $orderForLicense->first()->id)->value('update_ends_at');
-                    $subscription = Subscription::where('order_id', $orderForLicense->first()->id)->select('id', 'support_ends_at', 'version', 'update_ends_at', 'product_id', 'plan_id', 'ends_at')->first();
+                    /** @var \App\Model\Order\Order $firstOrderForLicense */
+                    $firstOrderForLicense = $orderForLicense->first();
+                    $expiryDate = Subscription::where('order_id', $firstOrderForLicense->id)->value('update_ends_at');
+                    /** @var \App\Model\Product\Subscription $subscription */
+                    $subscription = Subscription::where('order_id', $firstOrderForLicense->id)->select('id', 'support_ends_at', 'version', 'update_ends_at', 'product_id', 'plan_id', 'ends_at')->first();
                     $data = $this->getData($subscription);
                     if (Date::now()->toDateTimeString() < $expiryDate) {
                         return ['status' => 'success', 'message' => 'New version available', 'data' => $data];
@@ -186,6 +198,9 @@ class BaseHomeController extends Controller
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getData(\App\Model\Product\Subscription $subscription): ?array
     {
         $productName = Product::where('id', $subscription->product_id)->value('name');
@@ -204,6 +219,9 @@ class BaseHomeController extends Controller
         return null;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function updateLatestVersion(Request $request): array
     {
         try {
@@ -221,6 +239,7 @@ class BaseHomeController extends Controller
                 }
             });
             if (count($orderForLicense) > 0) {
+                /** @var \App\Model\Order\Order $order */
                 $order = $orderForLicense->first();
                 if ($url) {
                     Installation::where('license_code', $licenseCode)
@@ -305,9 +324,9 @@ class BaseHomeController extends Controller
                     'license_ip' => $ipAndDomain['ip'],
                     'license_require_domain' => $ipAndDomain['requireDomain'],
                     'license_limit' => 1,
-                    'license_expire_date' => ($licExpiry != '') ? $licExpiry->toDateString() : null,
-                    'license_updates_date' => ($updExpiry != '') ? $updExpiry->toDateString() : null,
-                    'license_support_date' => ($supExpiry != '') ? $supExpiry->toDateString() : null,
+                    'license_expire_date' => ($licExpiry != '') ? Date::parse($licExpiry)->toDateString() : null,
+                    'license_updates_date' => ($updExpiry != '') ? Date::parse($updExpiry)->toDateString() : null,
+                    'license_support_date' => ($supExpiry != '') ? Date::parse($supExpiry)->toDateString() : null,
                     'license_status' => 1,
                 ]);
                 //Update the old license code with new one in billing.
@@ -334,7 +353,7 @@ class BaseHomeController extends Controller
             strpos($productName, 'Freelancer') > 0 => '0002',
             strpos($productName, 'Startup') > 0 => '0005',
             strpos($productName, 'SME') > 0 => '0010',
-            default => throw new Exception(Lang::get('message.product_not_found')),
+            default => throw new Exception(__('message.product_not_found')),
         };
     }
 

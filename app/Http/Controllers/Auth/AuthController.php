@@ -147,8 +147,8 @@ class AuthController extends BaseAuthController
             $user = User::where('email', $email)->firstOrFail();
 
             $existingToken = AccountActivate::where('email', $email)->latest()->first();
-            if ($existingToken && $method !== 'GET' && ! $existingToken->updated_at->addMinutes(10)->isPast()) {
-                return successResponse(Lang::get('message.email_verification.already_sent'));
+            if ($existingToken && $method !== 'GET' && ! $existingToken->updated_at?->addMinutes(10)->isPast()) {
+                return successResponse(__('message.email_verification.already_sent'));
             }
 
             RateLimiter::hit('email-otp:'.$user->id, 600);
@@ -238,7 +238,7 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
+            $account = AccountActivate::where('email', $email)->latest()->firstOrFail(['token', 'updated_at']);
 
             if (! hash_equals((string) $account->token, (string) $otp)) {
                 RateLimiter::hit('email-verify:'.$user->id, 600);
@@ -246,7 +246,7 @@ class AuthController extends BaseAuthController
                 return errorResponse(__('message.email_verification.invalid_token'));
             }
 
-            if ($account->updated_at->addMinutes(10) < Date::now()) {
+            if ($account->updated_at?->addMinutes(10) < Date::now()) {
                 RateLimiter::hit('email-verify:'.$user->id, 600);
 
                 return errorResponse(__('message.email_verification.token_expired'));
@@ -270,6 +270,9 @@ class AuthController extends BaseAuthController
         }
     }
 
+    /**
+     * @param array<mixed> $bcc
+     */
     public function salesManagerMail(mixed $user, array $bcc = []): void
     {
         $contact = getContactData();
@@ -279,10 +282,12 @@ class AuthController extends BaseAuthController
             ->select('first_name', 'last_name', 'email', 'mobile_code', 'mobile', 'skype')
             ->first();
         $settings = new Setting();
+        /** @var \App\Model\Common\Setting $setting */
         $setting = $settings->first();
         $from = $setting->email;
         $to = $user->email;
         $templates = new Template();
+        /** @var \App\Model\Common\Template $template */
         $template = $templates
                 ->join('template_types', 'templates.type', '=', 'template_types.id')
                 ->where('template_types.name', '=', 'sales_manager_email')
@@ -307,6 +312,9 @@ class AuthController extends BaseAuthController
         $mail->SendEmail($from, $to, $template_data, $template_name, 'sales-manager-mail', $replace, TemplateType::where('id', $template->type)->value('name'), $bcc);
     }
 
+    /**
+     * @param array<mixed> $bcc
+     */
     public function accountManagerMail(mixed $user, array $bcc = []): void
     {
         $contact = getContactData();
@@ -316,10 +324,12 @@ class AuthController extends BaseAuthController
             ->select('first_name', 'last_name', 'email', 'mobile_code', 'mobile', 'skype')
             ->first();
         $settings = new Setting();
+        /** @var \App\Model\Common\Setting $setting */
         $setting = $settings->first();
         $from = $setting->email;
         $to = $user->email;
         $templates = new Template();
+        /** @var \App\Model\Common\Template $template */
         $template = $templates
                 ->join('template_types', 'templates.type', '=', 'template_types.id')
                 ->where('template_types.name', '=', 'account_manager_email')
@@ -362,6 +372,7 @@ class AuthController extends BaseAuthController
 
         $eid = Crypt::encrypt($user->email);
 
+        /** @var \App\Model\Common\StatusSetting $setting */
         $setting = StatusSetting::select('emailverification_status', 'msg91_status')->first();
 
         $isMobileVerified = ! ($setting->msg91_status == 1 && $user->mobile_verified != 1);

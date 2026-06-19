@@ -38,7 +38,9 @@ class Authenticate
             return redirect()->guest('auth/login');
         }
 
-        if (Auth::user()->active == 1) {
+        /** @var \App\User $authUser */
+        $authUser = Auth::user();
+        if ($authUser->active == 1) {
             return $next($request);
         }
 

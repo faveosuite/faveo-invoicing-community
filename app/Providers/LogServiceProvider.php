@@ -20,6 +20,9 @@ class LogServiceProvider extends ServiceProvider implements DeferrableProvider
     }
 
     #[Override]
+    /**
+     * @return array<mixed>
+     */
     public function provides(): array
     {
         return ['Log'];

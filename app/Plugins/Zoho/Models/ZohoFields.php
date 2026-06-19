@@ -19,7 +19,6 @@ use Override;
  * @property array<array-key, mixed> $raw_metadata
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFields newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFields newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFields query()
@@ -34,7 +33,6 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFields whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFields whereZohoFieldUid($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFields whereZohoKey($value)
- *
  * @mixin \Eloquent
  */
 class ZohoFields extends Model

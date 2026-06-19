@@ -26,6 +26,7 @@ class ZohoServiceProvider extends ServiceProvider
 {
     /**
      * Cache integrations per request.
+     * @var array<mixed>
      */
     protected array $integrations = [];
 
@@ -76,9 +77,11 @@ class ZohoServiceProvider extends ServiceProvider
 
         $this->app->singleton(function ($app): ZohoCampaignsApi {
             $integration = $this->getIntegration('campaigns');
+            /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $campaignsClient */
+            $campaignsClient = $integration->client;
 
             return new ZohoCampaignsApi(
-                getZohoRegion($integration->client->region),
+                getZohoRegion($campaignsClient->region),
                 $app->make(ZohoAccessToken::class),
                 $integration->id
             );
@@ -86,9 +89,11 @@ class ZohoServiceProvider extends ServiceProvider
 
         $this->app->singleton(function ($app): ZohoCrmApi {
             $integration = $this->getIntegration('crm');
+            /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $crmClient */
+            $crmClient = $integration->client;
 
             return new ZohoCrmApi(
-                getZohoRegion($integration->client->region),
+                getZohoRegion($crmClient->region),
                 $app->make(ZohoAccessToken::class),
                 $integration->id
             );
@@ -151,10 +156,13 @@ class ZohoServiceProvider extends ServiceProvider
     {
         $integration = $this->getIntegration($platform);
 
+        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $accountsClient */
+        $accountsClient = $integration->client;
+
         return new ZohoAccountsApi(
-            $integration->client->client_id,
-            $integration->client->client_secret,
-            getZohoRegion($integration->client->region)
+            $accountsClient->client_id,
+            $accountsClient->client_secret,
+            getZohoRegion($accountsClient->region)
         );
     }
 }

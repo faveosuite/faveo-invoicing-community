@@ -14,6 +14,7 @@ trait AflCallbackHelpers
      * Matches returnServerNotification() from original:
      * - Fetches notification text from DB and replaces placeholders
      * - Only sends notification_data when notification_case is 'notification_license_ok'.
+     * @param array<mixed> $data
      */
     protected function notificationResponse(
         string $notificationCase,
@@ -29,8 +30,8 @@ trait AflCallbackHelpers
         // Replace placeholders in notification text (matching original)
         $ip = request()->ip();
         $placeholders = ['%ROOT_URL%', '%IP_ADDRESS%', '%CLIENT_EMAIL%', '%LICENSE_CODE%', '%PRODUCT_ID%'];
-        $replacements = [$root_url ?? '', $ip, $client_email ?? '', $license_code ?? '', $product_id ?? ''];
-        $notificationText = str_ireplace($placeholders, $replacements, $notificationText);
+        $replacements = [(string) ($root_url ?? ''), (string) $ip, (string) ($client_email ?? ''), (string) ($license_code ?? ''), (string) ($product_id ?? '')];
+        $notificationText = str_ireplace($placeholders, $replacements, (string) $notificationText);
 
         $signature = $this->generateServerSignature($product_id, $root_url, $client_email, $license_code);
 
@@ -41,7 +42,7 @@ trait AflCallbackHelpers
             ->header('notification_case', $notificationCase)
             ->header('notification_text', $notificationText)
             ->header('notification_server_signature', $signature)
-            ->header('notification_data', json_encode($responseData));
+            ->header('notification_data', (string) json_encode($responseData));
     }
 
     /**
@@ -83,7 +84,7 @@ trait AflCallbackHelpers
             $url = 'http://'.$url;
         }
 
-        return str_ireplace('www.', '', parse_url($url, PHP_URL_HOST) ?? '');
+        return str_ireplace('www.', '', (string) (parse_url($url, PHP_URL_HOST) ?? ''));
     }
 
     /**

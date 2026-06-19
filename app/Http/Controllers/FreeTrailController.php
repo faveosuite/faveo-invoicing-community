@@ -34,6 +34,7 @@ class FreeTrailController extends Controller
             return errorResponse(__('message.cannot_find_product'));
         }
 
+        /** @var \App\User $user */
         $user = auth()->user();
 
         try {

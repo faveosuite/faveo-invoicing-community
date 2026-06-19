@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoCloud newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoCloud newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoCloud query()
@@ -24,7 +23,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoCloud whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoCloud whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoCloud whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class FaveoCloud extends Model
@@ -39,14 +37,23 @@ class FaveoCloud extends Model
 
     protected string $logNameColumn = 'Faveo Cloud';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'cloud_central_domain', 'cloud_cname',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['view/tenant'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

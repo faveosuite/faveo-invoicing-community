@@ -15,7 +15,6 @@ use App\BaseModel;
  * @property string $sales_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Price newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Price newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Price query()
@@ -27,7 +26,6 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Price whereSalesPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Price whereSubscription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Price whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Price extends BaseModel

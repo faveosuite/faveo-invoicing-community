@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Model\Common\PipedriveGroups|null $pipedriveGroups
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Common\PipedriveFieldOption> $pipedriveOptions
  * @property-read int|null $pipedrive_options_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField query()
@@ -34,11 +33,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField whereLocalFieldId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField wherePipedriveGroupId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class PipedriveField extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use SystemActivityLogsTrait;
 
@@ -56,6 +57,9 @@ class PipedriveField extends Model
 
     protected string $logNameColumn = 'Settings';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'field_name',
         'field_key',
@@ -64,10 +68,16 @@ class PipedriveField extends Model
         'local_field_id',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['pipedrive/mapping/1'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [

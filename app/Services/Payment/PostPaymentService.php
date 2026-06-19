@@ -36,6 +36,9 @@ class PostPaymentService
     use TaxCalculation;
     use PostPaymentHandle;
 
+    /**
+     * @return array<mixed>
+     */
     public function handle(Invoice $invoice, string $gateway): array
     {
         $this->clearCart($invoice);
@@ -53,9 +56,10 @@ class PostPaymentService
         };
 
         if ($invoice->grand_total && emailSendingStatus()) {
+            /** @var \App\User $user */
             $user = User::find($invoice->user_id);
             $productNames = $invoice->invoiceItem()->pluck('product_name')->implode(', ');
-            self::sendPaymentSuccessMailtoAdmin($invoice, $invoice->grand_total, $user, $productNames); // @phpstan-ignore argument.type
+            self::sendPaymentSuccessMailtoAdmin($invoice, (float) $invoice->grand_total, $user, $productNames);
         }
 
         return $result;
@@ -70,6 +74,9 @@ class PostPaymentService
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function handlePurchase(Invoice $invoice): array
     {
         $this->executeOrders($invoice);
@@ -91,6 +98,9 @@ class PostPaymentService
         return ['status' => 'success'];
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function handleRenewal(Invoice $invoice): array
     {
         new RenewController()->successRenew($invoice);
@@ -100,6 +110,10 @@ class PostPaymentService
         return ['status' => 'success'];
     }
 
+    /**
+     * @param array<mixed> $metadata
+     * @return array<mixed>
+     */
     private function handleAgentAlteration(Invoice $invoice, array $metadata): array
     {
         $cloud = new CloudExtraActivities(new Client(), new FaveoCloud());
@@ -123,6 +137,10 @@ class PostPaymentService
         return ['status' => 'success'];
     }
 
+    /**
+     * @param array<mixed> $metadata
+     * @return array<mixed>
+     */
     private function handleUpgradeDowngrade(Invoice $invoice, array $metadata): array
     {
         $terminatedOrderId = (int) $metadata['old_order_id'];
@@ -214,21 +232,23 @@ class PostPaymentService
 
     private function doTheDeed(Invoice $invoice): void
     {
-        $amt_to_credit = Payment::where('user_id', Auth::user()->id)
+        /** @var \App\User $authUser */
+        $authUser = Auth::user();
+        $amt_to_credit = Payment::where('user_id', $authUser->id)
             ->where('payment_status', 'success')
             ->where('payment_method', 'Credit Balance')
             ->value('amt_to_credit');
 
         if ($amt_to_credit) {
             $amt_to_credit = (int) $amt_to_credit - (int) $invoice->billing_pay;
-            Payment::where('user_id', Auth::user()->id)
+            Payment::where('user_id', $authUser->id)
                 ->where('payment_method', 'Credit Balance')
                 ->where('payment_status', 'success')
                 ->update(['amt_to_credit' => $amt_to_credit]);
-            User::where('id', Auth::user()->id)->update(['billing_pay_balance' => 0]);
+            User::where('id', $authUser->id)->update(['billing_pay_balance' => 0]);
 
             $payment_id = DB::table('payments')
-                ->where('user_id', Auth::user()->id)
+                ->where('user_id', $authUser->id)
                 ->where('payment_status', 'success')
                 ->where('payment_method', 'Credit Balance')
                 ->value('id');
@@ -271,7 +291,9 @@ class PostPaymentService
             return; // No subscription found
         }
 
+        /** @var \App\Model\Order\Order $order */
         $order = Order::find($orderId);
+        /** @var \App\Model\Product\Product $product */
         $product = Product::find($subscription->product_id);
 
         if ($subscription->is_subscribed != '1') {
@@ -282,15 +304,19 @@ class PostPaymentService
             return; // Subscription not eligible for price check/update
         }
 
+        /** @var \App\Model\Payment\Plan $plan */
         $plan = Plan::find($subscription->plan_id);
-        $countryids = Country::where('country_code_char2', Auth::user()->country)->first();
+        /** @var \App\User $authUser2 */
+        $authUser2 = Auth::user();
+        /** @var \App\Model\Common\Country $countryids */
+        $countryids = Country::where('country_code_char2', $authUser2->country)->first();
         $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $invoice->currency)->where('country_id', $countryids->country_id)->value('renew_price');
         if (empty($price)) {
             $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $invoice->currency)->where('country_id', 0)->value('renew_price');
         }
 
         $amount = $this->getPriceForCloud($order, $price, $subscription->product_id);
-        $renewPrice = intval(calculateUnitCost($invoice->currency, $amount));
+        $renewPrice = intval(calculateUnitCost($invoice->currency, (float) $amount));
 
         if (! $subscription->subscribe_id) {
             return;
@@ -326,7 +352,9 @@ class PostPaymentService
         $numberofAgents = (int) ltrim(substr((string) $order->serial_key, -4), '0');
         $finalPrice = $numberofAgents * $price;
         $controller = new InvoiceController();
-        $tax = $this->calculateTax($product, Auth::user()->state, Auth::user()->country);
+        /** @var \App\User $authUser3 */
+        $authUser3 = Auth::user();
+        $tax = $this->calculateTax($product, (string) $authUser3->state, (string) $authUser3->country);
         $tax_rate = $tax['value'];
 
         return rounding($controller->calculateTotal($tax_rate, $finalPrice));

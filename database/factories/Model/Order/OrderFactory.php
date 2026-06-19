@@ -20,8 +20,7 @@ class OrderFactory extends Factory
     /**
      * Define the model's default state.
      *
-     * @return array
-     */
+     * @return array<mixed>     */
     protected $model = Order::class;
 
     public function definition()
@@ -39,6 +38,9 @@ class OrderFactory extends Factory
         ];
     }
 
+    /**
+     * @param array<mixed> $overrides
+     */
     public function withRelations(array $overrides = []): mixed
     {
         return $this->state(fn (): array => $overrides)

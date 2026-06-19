@@ -31,12 +31,16 @@ class Campaigns
 
     public function __construct()
     {
+        /** @var \App\Plugins\Zoho\Models\ZohoIntegration $campaignsIntegration */
         $campaignsIntegration = ZohoIntegration::with(['client', 'token'])
             ->where('platform', 'campaigns')
             ->first();
 
+        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $campaignsClient */
+        $campaignsClient = $campaignsIntegration->client;
+
         $this->zohoApi = new ZohoCampaignsApi(
-            getZohoRegion($campaignsIntegration->client->region),
+            getZohoRegion($campaignsClient->region),
             resolve(ZohoAccessToken::class),
             $campaignsIntegration->id
         );
@@ -48,6 +52,7 @@ class Campaigns
     /**
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
+     * @param array<mixed> $contactInfo
      */
     public function subscribe(string $email, array $contactInfo = [], ?string $list = null, ?string $topic = null): void
     {
@@ -61,6 +66,7 @@ class Campaigns
     /**
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
+     * @param array<mixed> $contactInfo
      */
     public function resubscribe(string $email, array $contactInfo = [], ?string $list = null, ?string $topic = null): void
     {
@@ -205,6 +211,9 @@ class Campaigns
         return $listKey ?? $list;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection<int|string, mixed>
+     */
     protected function loadLists(): Collection
     {
         return collect($this->zohoApi->lists())

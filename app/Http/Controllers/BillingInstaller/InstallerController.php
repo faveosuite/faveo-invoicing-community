@@ -60,7 +60,7 @@ class InstallerController extends Controller
         $db_install_method = '';
         try {
             if (Cache::get('databasename') != config('database.connections.mysql.database')) {
-                throw new Exception(\Lang::get('installer_messages.db_connection_error'), 500);
+                throw new Exception(__('installer_messages.db_connection_error'), 500);
             }
 
             $tableNames = Schema::getTableListing(
@@ -75,7 +75,7 @@ class InstallerController extends Controller
 
                 if (Cache::get('dummy_data_installation')) {
                     $path = base_path().DIRECTORY_SEPARATOR.'DB'.DIRECTORY_SEPARATOR.'dummy-data.sql';
-                    DB::unprepared(file_get_contents($path));
+                    DB::unprepared((string) file_get_contents($path));
                 }
             }
         } catch (Exception $exception) {
@@ -206,6 +206,9 @@ class InstallerController extends Controller
         rename($exampleEnvPath, $envPath);
     }
 
+    /**
+     * @param array<mixed> $redisConfig
+     */
     public function updateInstallEnv(string $environment, ?string $driver = null, array $redisConfig = []): ?\Illuminate\Http\JsonResponse
     {
         $env = base_path().DIRECTORY_SEPARATOR.'.env';
@@ -215,7 +218,7 @@ class InstallerController extends Controller
 
         $txt1 = '
 APP_ENV='.$environment;
-        file_put_contents($env, str_replace('DB_INSTALL='. 0, 'DB_INSTALL='. 1, file_get_contents($env)));
+        file_put_contents($env, str_replace('DB_INSTALL='. 0, 'DB_INSTALL='. 1, (string) file_get_contents($env)));
         file_put_contents($env, $txt1.PHP_EOL, FILE_APPEND | LOCK_EX);
 
         foreach ($redisConfig as $key => $value) {
@@ -226,13 +229,14 @@ APP_ENV='.$environment;
         // If Redis is used as cache driver, update .env and relevant database records
         if ($driver === 'redis') {
             // Update .env file to set CACHE_DRIVER to 'redis'
-            file_put_contents($env, str_replace('CACHE_DRIVER='.getenv('CACHE_DRIVER'), 'CACHE_DRIVER=redis', file_get_contents($env)));
+            file_put_contents($env, str_replace('CACHE_DRIVER='.getenv('CACHE_DRIVER'), 'CACHE_DRIVER=redis', (string) file_get_contents($env)));
 
             // Disable all active QueueServices
             QueueService::where('status', 1)->update(['status' => 0]);
 
             // Enable the Redis QueueService
-            $queue = QueueService::where('short_name', 'redis')->first();
+            /** @var \App\Model\Mailjob\QueueService $queue */
+            $queue = QueueService::where('short_name', 'redis')->firstOrFail();
             $queue->status = 1;
             $queue->save();
 
@@ -349,7 +353,7 @@ APP_ENV='.$environment;
             }
 
             // Return success response
-            return successResponse(\Lang::get('installer_messages.setup_completed'), '201');
+            return successResponse(__('installer_messages.setup_completed'), '201');
         } catch (Exception $exception) {
             // Return error response in case of exception
             return errorResponse($exception->getMessage(), 400);
@@ -424,6 +428,7 @@ APP_ENV='.$environment;
                 return successResponse('Language set successfully');
             }
 
+            /** @var \App\User $user */
             $user = Auth::user();
             $user->language = $language;
             $user->save();
@@ -522,6 +527,7 @@ APP_ENV='.$environment;
                 return successResponse('Language set successfully');
             }
 
+            /** @var \App\User $user */
             $user = Auth::user();
             $user->language = $language;
 

@@ -16,7 +16,6 @@ use Crypt;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Github newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Github newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Github query()
@@ -27,7 +26,6 @@ use Crypt;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Github wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Github whereUsername($value)
- *
  * @mixin \Eloquent
  */
 class Github extends BaseModel
@@ -42,14 +40,23 @@ class Github extends BaseModel
 
     protected string $logNameColumn = 'Settings';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = [
         'client_id', 'client_secret', 'username', 'password',
     ];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['third-party-integration'],
     ];
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -60,6 +67,9 @@ class Github extends BaseModel
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function password(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {

@@ -14,7 +14,7 @@ class EncryptDecryptController extends Controller
     public function encrypt(mixed $data, string $orderNumber): string
     {
         $pubkey = Storage::disk('public')->get('publicKey-'.$orderNumber.'.txt');
-        if (openssl_public_encrypt($data, $encrypted, $pubkey, OPENSSL_PKCS1_PADDING)) {
+        if (openssl_public_encrypt($data, $encrypted, (string) $pubkey, OPENSSL_PKCS1_PADDING)) {
             $data = base64_encode((string) $encrypted);
         } else {
             throw new Exception(__('message.unable_to_encrypt'));
@@ -30,7 +30,7 @@ class EncryptDecryptController extends Controller
     {
         $privkey = Storage::disk('public')->get('privateKey-'.$orderNo.'.txt');
         $data = Storage::disk('public')->get('faveo-license-{'.$orderNo.'}.txt');
-        if (openssl_private_decrypt(base64_decode((string) $data), $decrypted, $privkey, OPENSSL_PKCS1_PADDING)) {
+        if (openssl_private_decrypt(base64_decode((string) $data), $decrypted, (string) $privkey, OPENSSL_PKCS1_PADDING)) {
             return $decrypted;
         }
 
@@ -50,9 +50,10 @@ class EncryptDecryptController extends Controller
         // Create the keypair
         $pair = openssl_pkey_new($config);
         // Get private key
-        openssl_pkey_export($pair, $privatekey);
+        openssl_pkey_export($pair ?: '', $privatekey); // @phpstan-ignore argument.type
         // Get public key
-        $publickey = openssl_pkey_get_details($pair)['key'];
+        $details = $pair !== false ? openssl_pkey_get_details($pair) : false;
+        $publickey = $details !== false ? ($details['key'] ?? '') : '';
 
         Storage::disk('public')->put('publicKey-'.$orderNo.'.txt', $publickey);
         Storage::disk('public')->put('privateKey-'.$orderNo.'.txt', $privatekey);

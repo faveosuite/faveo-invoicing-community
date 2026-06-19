@@ -101,6 +101,7 @@ class TaxService
      * Backward-compatible condition matching the old TaxCalculation trait
      * shape: ['name' => 'GST', 'type' => 'tax', 'value' => '18%'] (or a 'null'
      * sentinel when no tax applies).
+     * @return array<mixed>
      */
     public function legacyCondition(int $productId, mixed $user, bool $fromAdminPanel = false): array
     {

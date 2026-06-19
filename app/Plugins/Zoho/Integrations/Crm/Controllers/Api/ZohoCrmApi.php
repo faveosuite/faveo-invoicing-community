@@ -17,6 +17,7 @@ class ZohoCrmApi extends ZohoBaseApi
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
+     * @return array<mixed>
      */
     public function fields(string $module): array
     {
@@ -37,6 +38,8 @@ class ZohoCrmApi extends ZohoBaseApi
      * Get records from a CRM module.
      *
      * @link https://www.zoho.com/crm/developer/docs/api/v8/get-records.html
+     * @param array<mixed> $params
+     * @return array<mixed>
      */
     public function records(string $module, array $params = []): array
     {
@@ -55,6 +58,7 @@ class ZohoCrmApi extends ZohoBaseApi
      * Create a CRM record.
      *
      * @link https://www.zoho.com/crm/developer/docs/api/v8/insert-records.html
+     * @param array<mixed> $data
      */
     public function create(string $module, array $data): void
     {
@@ -75,6 +79,7 @@ class ZohoCrmApi extends ZohoBaseApi
      * Update a CRM record.
      *
      * @link https://www.zoho.com/crm/developer/docs/api/v8/update-records.html
+     * @param array<mixed> $data
      */
     public function update(string $module, string $recordId, array $data): void
     {

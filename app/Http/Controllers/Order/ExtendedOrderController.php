@@ -58,9 +58,12 @@ class ExtendedOrderController extends Controller
         $request->validate(['id' => ['required']]);
 
         try {
+            /** @var \App\Model\Order\Order $order */
             $order = Order::with('subscription')->findOrFail($request->input('id'));
 
-            if (Auth::user()->role !== 'admin' && $order->client != Auth::id()) {
+            /** @var \App\User $authUser */
+            $authUser = Auth::user();
+            if ($authUser->role !== 'admin' && $order->client != Auth::id()) {
                 return errorResponse(__('message.reissue_license_invalid_modification_data'), 403);
             }
 
@@ -109,6 +112,6 @@ class ExtendedOrderController extends Controller
      */
     private function toLicenseDate(mixed $date): string
     {
-        return $date && strtotime((string) $date) > 1 ? date('Y-m-d', strtotime((string) $date)) : '';
+        return $date && strtotime((string) $date) > 1 ? date('Y-m-d', (int) strtotime((string) $date)) : '';
     }
 }

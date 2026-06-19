@@ -18,6 +18,7 @@ class LanguageMiddleware
     public function handle(mixed $request, Closure $next): mixed
     {
         if (Auth::check()) {
+            /** @var \App\User $user */
             $user = Auth::user();
 
             $lang = match (true) {
@@ -52,7 +53,7 @@ class LanguageMiddleware
         return match (true) {
             Session::has('language') => Session::get('language'),
             Cache::has('language') => Cache::get('language'),
-            ! Cache::has('language') && isInstall() => Setting::select('content')->where('id', 1)->first()->content, // @phpstan-ignore booleanNot.alwaysTrue
+            ! Cache::has('language') && isInstall() => Setting::select('content')->where('id', 1)->firstOrFail()->content, // @phpstan-ignore booleanNot.alwaysTrue
             default => 'en',
         };
     }

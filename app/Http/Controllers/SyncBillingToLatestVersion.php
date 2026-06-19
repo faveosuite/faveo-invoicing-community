@@ -77,7 +77,7 @@ class SyncBillingToLatestVersion
             file_put_contents($path, preg_replace(
                 sprintf('/^%s%s/m', $key, $escaped),
                 sprintf('%s=%s', $key, $value),
-                file_get_contents($path)
+                (string) file_get_contents($path)
             ));
             Artisan::call('config:clear');
             return successResponse(__("message.updated-successfully"));

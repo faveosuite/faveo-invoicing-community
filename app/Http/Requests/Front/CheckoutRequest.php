@@ -19,6 +19,7 @@ class CheckoutRequest extends Request
 
     /**
      * Get the validation rules that apply to the request.
+     * @return array<mixed>
      */
     public function rules(): array
     {

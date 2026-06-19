@@ -116,11 +116,17 @@ class OpenPaymentService
         return true;
     }
 
+    /**
+     * @param array<mixed> $event
+     */
     private function handleStripeEvent(array $event): void
     {
         WebhookDispatcher::stripe()->dispatch($event['type'] ?? '', $event);
     }
 
+    /**
+     * @param array<mixed> $event
+     */
     private function handleRazorpayEvent(array $event): void
     {
         WebhookDispatcher::razorpay()->dispatch($event['event'] ?? '', $event);
@@ -135,7 +141,9 @@ class OpenPaymentService
             'paid_at' => now(),
         ]);
 
-        $this->sendSuccessEmails($order->fresh());
+        /** @var \App\Model\Payment\OpenPaymentOrder $freshOrder */
+        $freshOrder = $order->fresh() ?? $order;
+        $this->sendSuccessEmails($freshOrder);
     }
 
     /** Send payment failure notification to client. */

@@ -41,7 +41,7 @@ class UpdateSubscriberOnPurchase implements ShouldQueue
 
         foreach ($invoice->invoiceItem()->get() as $item) {
             try {
-                $this->service->updatePurchaseInterests($user, $item->product_id, $item->subtotal > 0);
+                $this->service->updatePurchaseInterests($user, (int) $item->product_id, $item->subtotal > 0);
             } catch (MailchimpApiException $e) {
                 if ($e->getHttpStatus() !== 404) {
                     Logger::exception($e);

@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $currencies
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Razorpay newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Razorpay newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Razorpay query()
@@ -29,7 +28,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Razorpay whereKeySecret($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Razorpay whereRedirectUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Razorpay whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Razorpay extends Model

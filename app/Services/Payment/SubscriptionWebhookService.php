@@ -32,6 +32,9 @@ class SubscriptionWebhookService
 
     // ── Stripe ────────────────────────────────────────────────────────────
 
+    /**
+     * @param array<mixed> $event
+     */
     public function handleStripeEvent(array $event): void
     {
         $type = $event['type'] ?? null;
@@ -45,6 +48,9 @@ class SubscriptionWebhookService
         };
     }
 
+    /**
+     * @param array<mixed> $invoice
+     */
     private function onStripeInvoicePaid(array $invoice): void
     {
         // Only handle subscription renewal cycles, not the initial charge
@@ -62,6 +68,9 @@ class SubscriptionWebhookService
         $this->fulfillRenewal('stripe', $gatewaySubscriptionId, $amountPaid);
     }
 
+    /**
+     * @param array<mixed> $invoice
+     */
     private function onStripeInvoiceFailed(array $invoice): void
     {
         $gatewaySubscriptionId = $invoice['subscription'] ?? null;
@@ -76,17 +85,22 @@ class SubscriptionWebhookService
 
         $this->handler->disableAutorenewalStatusByOrderId($subscription->order_id);
 
+        /** @var \App\Model\Order\Order|null $order */
         $order = Order::find($subscription->order_id);
+        /** @var \App\User|null $user */
         $user = User::find($subscription->user_id);
         $product = Product::find($subscription->product_id);
 
         $this->handler->sendFailedPayment(
-            total: null, exceptionMessage: 'Stripe subscription payment failed', user: $user,
-            number: $order?->number, end: $subscription->update_ends_at, // @phpstan-ignore argument.type
+            total: null, exceptionMessage: 'Stripe subscription payment failed', user: $user, // @phpstan-ignore argument.type
+            number: (string) $order?->number, end: (string) $subscription->update_ends_at,
             currency: $invoice['currency'] ?? '', order: $order, product_details: $product, invoice: null, payment: 'stripe'
         );
     }
 
+    /**
+     * @param array<mixed> $stripeSubscription
+     */
     private function onStripeSubscriptionDeleted(array $stripeSubscription): void
     {
         $subscription = Subscription::where('subscribe_id', $stripeSubscription['id'] ?? '')->first();
@@ -97,6 +111,9 @@ class SubscriptionWebhookService
 
     // ── Razorpay ──────────────────────────────────────────────────────────
 
+    /**
+     * @param array<mixed> $event
+     */
     public function handleRazorpayEvent(array $event): void
     {
         $type = $event['event'] ?? null;
@@ -108,6 +125,9 @@ class SubscriptionWebhookService
         };
     }
 
+    /**
+     * @param array<mixed> $payload
+     */
     private function onRazorpayCharged(array $payload): void
     {
         $gatewaySubscriptionId = $payload['subscription']['entity']['id'] ?? null;
@@ -120,6 +140,9 @@ class SubscriptionWebhookService
         $this->fulfillRenewal('razorpay', $gatewaySubscriptionId, $amountPaid);
     }
 
+    /**
+     * @param array<mixed> $payload
+     */
     private function onRazorpayHalted(array $payload): void
     {
         $gatewaySubscriptionId = $payload['subscription']['entity']['id'] ?? null;
@@ -140,7 +163,7 @@ class SubscriptionWebhookService
 
         $this->handler->sendFailedPayment(
             total: null, exceptionMessage: 'Razorpay subscription payment halted', user: $user,
-            number: $order?->number, end: $subscription->update_ends_at, // @phpstan-ignore argument.type
+            number: (string) $order?->number, end: (string) $subscription->update_ends_at,
             currency: '', order: $order, product_details: $product, invoice: null, payment: 'razorpay'
         );
     }

@@ -77,7 +77,7 @@ class InstallDB extends LoggableCommand
             $this->info('Database setup completed successfully.');
 
             $this->createAdmin();
-            $environment = $envOption ?? $this->choice('Select application environment', ['production', 'development', 'testing']);
+            $environment = (string) ($envOption ?? $this->choice('Select application environment', ['production', 'development', 'testing']));
             $this->install->updateInstallEnv($environment);
             $this->showAdminInfo();
             $this->info('');
@@ -98,14 +98,15 @@ class InstallDB extends LoggableCommand
     {
         try {
             $pdo = DB::connection()->getPdo();
-            $version = $pdo->query('select version()')->fetchColumn();
+            $stmt = $pdo->query('select version()');
+            $version = $stmt ? $stmt->fetchColumn() : false;
             if (! str_contains((string) $version, 'Maria')) {
-                $this->checkMySQLVersion($version);
+                $this->checkMySQLVersion((string) $version);
 
                 return;
             }
 
-            $this->checkMariaDBVersion($version);
+            $this->checkMariaDBVersion((string) $version);
         } catch (Exception $exception) {
             if ($exception->getCode() != 1049) {
                 throw $exception;

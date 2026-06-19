@@ -132,7 +132,6 @@ use Override;
  * @property-read int|null $verification_attempts_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\WhatsappIntegrationUser> $whatsappUsers
  * @property-read int|null $whatsapp_users_count
- *
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
@@ -187,11 +186,13 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereZip($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract // @phpstan-ignore class.missingImplements
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
     use Authenticatable;
     use CanResetPassword;
@@ -235,12 +236,18 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     protected string $logNameColumn = 'user_name';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logAttributes = ['first_name', 'last_name', 'user_name', 'company', 'zip',
         'state', 'town', 'mobile', 'mobile_country_iso',
         'email', 'role', 'active', 'profile_pic',
         'address', 'country', 'currency', 'timezone_id', 'mobile_code', 'bussiness',
         'company_type', 'company_size', 'ip', 'mobile_verified', 'email_verified', 'position', 'skype', 'google2fa_activation_date', 'backup_code', 'code_usage_count', 'gstin', 'language'];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $logUrl = [
         'segments' => ['clients', ':id'],
     ];
@@ -320,6 +327,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasMany(ExportDetail::class, 'user_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function profilePic(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
@@ -339,6 +349,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasMany(Payment::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function country(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(set: function ($value): array {
@@ -348,6 +361,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function bussiness(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
@@ -362,6 +378,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function companyType(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
@@ -429,6 +448,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $result;
     }
 
+    /**
+     * @return array<mixed>
+     */
     protected function getMappings(): array
     {
         return [
@@ -490,6 +512,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasMany(UserLinkReport::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function fullName(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (): string {

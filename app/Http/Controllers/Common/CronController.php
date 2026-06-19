@@ -352,12 +352,16 @@ class CronController extends BaseCronController
             foreach ($sub as $value) {
                 $value = (object) $value;
                 $userid = $value->user_id;
+                /** @var \App\User $user */
                 $user = $this->getUserById($userid);
                 $end = $value->update_ends_at;
+                /** @var \App\Model\Order\Order $order */
                 $order = $this->getOrderById($value->order_id);
+                /** @var \App\Model\Order\Invoice $invoice */
                 $invoice = $this->getInvoiceByOrderId($value->order_id);
+                /** @var \App\Model\Order\InvoiceItem $item */
                 $item = $this->getInvoiceItemByInvoiceId($invoice->id);
-                $product = $item->product_id;
+                $product = (int) $item->product_id;
                 if (emailSendingStatus()) {
                     $this->mail($user, $end, $product, $order, $value->id);
                 }
@@ -374,12 +378,16 @@ class CronController extends BaseCronController
             foreach ($Autosub as $value) {
                 $value = (object) $value;
                 $userid = $value->user_id;
+                /** @var \App\User $user */
                 $user = $this->getUserById($userid);
                 $end = $value->update_ends_at;
+                /** @var \App\Model\Order\Order $order */
                 $order = $this->getOrderById($value->order_id);
+                /** @var \App\Model\Order\Invoice $invoice */
                 $invoice = $this->getInvoiceByOrderId($value->order_id);
+                /** @var \App\Model\Order\InvoiceItem $item */
                 $item = $this->getInvoiceItemByInvoiceId($invoice->id);
-                $product = $item->product_id;
+                $product = (int) $item->product_id;
                 if (emailSendingStatus()) {
                     $this->Auto_renewalMail($user, $end, $product, $order, $value->id);
                 }
@@ -400,12 +408,17 @@ class CronController extends BaseCronController
                 $end = $value->update_ends_at;
                 $order = Order::find($value->order_id);
                 if ($order) {
-                    $order = $this->getOrderById($value->order_id);
+                    /** @var \App\User $user */
+                    $user = $this->getUserById($userid);
+                    /** @var \App\Model\Order\Order $postOrder */
+                    $postOrder = $this->getOrderById($value->order_id);
+                    /** @var \App\Model\Order\Invoice $invoice */
                     $invoice = $this->getInvoiceByOrderId($value->order_id);
+                    /** @var \App\Model\Order\InvoiceItem $item */
                     $item = $this->getInvoiceItemByInvoiceId($invoice->id);
-                    $product = $item->product_id;
+                    $product = (int) $item->product_id;
                     if (emailSendingStatus()) {
-                        $this->Expiredsub_Mail($user, $end, $product, $order, $value->id);
+                        $this->Expiredsub_Mail($user, $end, $product, $postOrder, $value->id);
                     }
                 }
             }

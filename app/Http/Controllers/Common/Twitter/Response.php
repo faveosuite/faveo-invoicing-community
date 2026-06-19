@@ -17,13 +17,22 @@ class Response
     /** @var int HTTP status code from the most recent request */
     private $httpCode = 0;
 
-    /** @var array HTTP headers from the most recent request */
+    /** @var array<mixed> HTTP headers from the most recent request */
+    /**
+     * @var array<mixed>
+     */
     private $headers = [];
 
     /** @var array|object Response body from the most recent request */
+    /**
+     * @var array<mixed>
+     */
     private $body = [];
 
-    /** @var array HTTP headers from the most recent request that start with X */
+    /** @var array<mixed> HTTP headers from the most recent request that start with X */
+    /**
+     * @var array<mixed>
+     */
     private $xHeaders = [];
 
     /**
@@ -75,7 +84,7 @@ class Response
     }
 
     /**
-     * @param  array  $headers
+     * @param  array<mixed> $headers
      */
     public function setHeaders($headers): void
     {
@@ -89,15 +98,14 @@ class Response
     }
 
     /**
-     * @return array
-     */
+     * @return array<mixed>     */
     public function getsHeaders()
     {
         return $this->headers;
     }
 
     /**
-     * @param  array  $xHeaders
+     * @param  array<mixed> $xHeaders
      */
     public function setXHeaders($xHeaders): void
     {
@@ -105,8 +113,7 @@ class Response
     }
 
     /**
-     * @return array
-     */
+     * @return array<mixed>     */
     public function getXHeaders()
     {
         return $this->xHeaders;

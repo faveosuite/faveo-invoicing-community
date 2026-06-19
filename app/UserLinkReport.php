@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\ReportColumn|null $reportColumn
  * @property-read \App\User|null $user
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserLinkReport newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserLinkReport newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserLinkReport query()
@@ -28,11 +27,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserLinkReport whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserLinkReport whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserLinkReport whereUserId($value)
- *
  * @mixin \Eloquent
  */
 class UserLinkReport extends Model
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
 
     protected $table = 'users_link_reports';
@@ -44,11 +45,17 @@ class UserLinkReport extends Model
         'order',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, $this>
+     */
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<ReportColumn, $this>
+     */
     public function reportColumn(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ReportColumn::class, 'column_id');

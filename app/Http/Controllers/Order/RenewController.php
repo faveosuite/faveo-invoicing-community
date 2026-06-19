@@ -72,8 +72,10 @@ class RenewController extends BaseRenewController
     public function renewBySubId(int $id, int $planid, string $payment_method, float|int $cost, string $code, bool $isAgentIncrease = true, ?int $agents = null): \App\Model\Product\Subscription|\App\Model\Order\InvoiceItem
     {
         try {
+            /** @var \App\Model\Payment\Plan $plan */
             $plan = $this->plan->find($planid);
             $days = $plan->days;
+            /** @var \App\Model\Product\Subscription $sub */
             $sub = $this->sub->find($id);
             $currency = userCurrencyAndPrice($sub->user_id, $plan)['currency'];
             if ($isAgentIncrease) {
@@ -120,9 +122,11 @@ class RenewController extends BaseRenewController
 
     public function editDateInAPL(\App\Model\Product\Subscription $sub, ?string $updatesExpiry, ?string $licenseExpiry, ?string $supportExpiry): void
     {
-        $domain = $sub->order->domain;
-        $orderNo = $sub->order->number;
-        $licenseCode = $sub->order->serial_key;
+        /** @var \App\Model\Order\Order $subOrder */
+        $subOrder = $sub->order;
+        $domain = $subOrder->domain;
+        $orderNo = $subOrder->number;
+        $licenseCode = $subOrder->serial_key;
         $expiryDate = $updatesExpiry ? Date::parse($updatesExpiry)->format('Y-m-d') : '';
         $licenseExpiry = $licenseExpiry ? Date::parse($licenseExpiry)->format('Y-m-d') : '';
         $supportExpiry = $supportExpiry ? Date::parse($supportExpiry)->format('Y-m-d') : '';
@@ -217,7 +221,7 @@ class RenewController extends BaseRenewController
     {
         try {
             $controller = new InvoiceController();
-            $tax = $this->calculateTax($product->id, $user->state, $user->country);
+            $tax = $this->calculateTax($product->id, (string) $user->state, (string) $user->country);
             $tax_name = $tax['name'];
             $tax_rate = $tax['value'];
 
@@ -253,11 +257,14 @@ class RenewController extends BaseRenewController
             $payment_method = $request->input('payment_method');
             $code = $request->input('code');
             $cost = $request->input('cost');
+            /** @var \App\Model\Product\Subscription $sub */
             $sub = Subscription::find($id);
             $order_id = $sub->order_id;
             if ($request->has('agents')) {
                 $agents = $request->input('agents');
-                $installation_path = Installation::where('license_code', Order::find($order_id)->serial_key)->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
+                /** @var \App\Model\Order\Order $orderForInstall */
+                $orderForInstall = Order::find($order_id);
+                $installation_path = Installation::where('license_code', $orderForInstall->serial_key)->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
                 if (empty($installation_path)) {
                     return response()->json(['status' => false, 'message' => trans('message.no_installation_found')]);
                 }
@@ -288,6 +295,7 @@ class RenewController extends BaseRenewController
     public function renewForm(int $id, ?int $agents = null): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\Model\Product\Subscription $sub */
             $sub = $this->sub->find($id);
             $userid = $sub->user_id;
             if (User::onlyTrashed()->find($userid)) {//If User is soft deleted for this order
@@ -327,7 +335,9 @@ class RenewController extends BaseRenewController
                 return successResponse(trans('message.existings_invoice'), ['invoice_id' => $existingUnpaidInvoice->invoice_id]);
             }
 
-            $planDetails = userCurrencyAndPrice(Auth::user()->id, $plan);
+            /** @var \App\User $authUser */
+            $authUser = Auth::user();
+            $planDetails = userCurrencyAndPrice($authUser->id, $plan);
             $price = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
             $noOfAgentsPerPlan = (int) $planDetails['plan']->no_of_agents;

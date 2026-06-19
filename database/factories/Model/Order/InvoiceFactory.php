@@ -16,8 +16,7 @@ class InvoiceFactory extends Factory
     /**
      * Define the model's default state.
      *
-     * @return array
-     */
+     * @return array<mixed>     */
     protected $model = Invoice::class;
 
     public function definition()

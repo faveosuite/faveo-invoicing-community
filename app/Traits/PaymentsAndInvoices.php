@@ -37,7 +37,7 @@ trait PaymentsAndInvoices
               ->where('invoice_id', '=', 0)->value('amt_to_credit');
             $invoices = $invoice->where('user_id', $creditAmtUserId)->orderBy('created_at', 'desc')->get();
             $cltCont = new ClientController();
-            $invoiceSum = $cltCont->getTotalInvoice($invoices);
+            $invoiceSum = $cltCont->getTotalInvoice($invoices); // @phpstan-ignore argument.type
             if ($total > $invoiceSum) {
                 $diff = $total - $invoiceSum;
                 $creditAmt += $diff;
@@ -46,11 +46,13 @@ trait PaymentsAndInvoices
 
             $payment = $this->payment->where('id', $paymentid)->update(['amount' => $total]); // @phpstan-ignore property.notFound
 
+            /** @var \App\Model\Order\Payment $creditAmtInvoiceId */
             $creditAmtInvoiceId = $this->payment->where('user_id', $creditAmtUserId) // @phpstan-ignore property.notFound
         ->where('invoice_id', '!=', 0)->first();
             $invoiceId = $creditAmtInvoiceId->invoice_id;
-            $invoice = $invoice->where('id', $invoiceId)->first();
-            $grand_total = $invoice->grand_total;
+            /** @var \App\Model\Order\Invoice $invoiceRecord */
+            $invoiceRecord = $invoice->where('id', $invoiceId)->first();
+            $grand_total = $invoiceRecord->grand_total;
             $diffSum = $grand_total - $total;
 
             $finalAmt = $creditAmt + $diffSum;
@@ -76,7 +78,9 @@ trait PaymentsAndInvoices
         try {
             if ($amount > 0) {
                 if ($userid == '') {
-                    $userid = Auth::user()->id;
+                    /** @var \App\User $authUser */
+                    $authUser = Auth::user();
+                    $userid = $authUser->id;
                 }
 
                 if ($amount == 0) {
@@ -102,9 +106,13 @@ trait PaymentsAndInvoices
     {
         if (! $agents) {//If agents is not received in the request in the case when
             // 'modify agent' is not allowed for the Product,get the no of Agents from the Plan Table.
-            $planForAgent = Product::find($productid)->planRelation->find($plan);
+            /** @var \App\Model\Product\Product $productForAgent */
+            $productForAgent = Product::find($productid);
+            $planForAgent = $productForAgent->planRelation->find($plan);
             if ($planForAgent) {//If Plan Exists For the Product ie not a Product without Plan
-                $noOfAgents = $planForAgent->planPrice->first()->no_of_agents;
+                /** @var \App\Model\Payment\PlanPrice $planPriceAgent */
+                $planPriceAgent = $planForAgent->planPrice->first();
+                $noOfAgents = $planPriceAgent->no_of_agents;
                 $agents = $noOfAgents ?: 0; //If no. of Agents is specified then that,else 0(Unlimited Agents)
             } else {
                 $agents = 0;
@@ -117,9 +125,15 @@ trait PaymentsAndInvoices
     public function getQuantity(mixed $qty, int $productid, int $plan): int
     {
         if (! $qty) {//If quantity is not received in the request in the case when 'modify quantity' is not allowed for the Product,get the Product qUANTITY from the Plan Table.
-            $planForQty = Product::find($productid)->planRelation->find($plan);
+            /** @var \App\Model\Product\Product $productForQty */
+            $productForQty = Product::find($productid);
+            $planForQty = $productForQty->planRelation->find($plan);
             if ($planForQty) {
-                $quantity = Product::find($productid)->planRelation->find($plan)->planPrice->first()->product_quantity;
+                /** @var \App\Model\Payment\Plan $planForQtyObj */
+                $planForQtyObj = $productForQty->planRelation->find($plan);
+                /** @var \App\Model\Payment\PlanPrice $planPriceQty */
+                $planPriceQty = $planForQtyObj->planPrice->first();
+                $quantity = $planPriceQty->product_quantity;
                 $qty = $quantity ?: 1; //If no. of Agents is specified then that,else 0(Unlimited Agents)
             } else {
                 $qty = 1;
@@ -146,6 +160,7 @@ trait PaymentsAndInvoices
             }
 
             if ($total > $invoice->grand_total) {
+                /** @var \App\User $user */
                 $user = $invoice->user()->first();
                 $balance = $total - (float) $invoice->grand_total;
                 $user->debit = $balance;
@@ -183,7 +198,9 @@ trait PaymentsAndInvoices
             $agent = Input::get('agent');
             $client = Input::get('client');
             if ($agent == 1) {
-                $id = Auth::user()->id;
+                /** @var \App\User $authUser */
+                $authUser = Auth::user();
+                $id = $authUser->id;
                 $this->sendMail($id, $invoiceid); // @phpstan-ignore method.notFound
             }
 
@@ -201,6 +218,7 @@ trait PaymentsAndInvoices
         try {
             if ($request->has('invoiceid')) {
                 $invoice_id = $request->input('invoiceid');
+                /** @var \App\Model\Order\Invoice $invoice */
                 $invoice = $this->invoice->find($invoice_id); // @phpstan-ignore property.notFound
                 $userid = $invoice->user_id;
                 //dd($invoice);
@@ -263,6 +281,7 @@ trait PaymentsAndInvoices
 
     /**
      * Get total of the Invoices for a User.
+     * @param \Illuminate\Support\Collection<int|string, mixed> $invoices
      */
     public function getTotalInvoice(\Illuminate\Support\Collection $invoices): int|float
     {

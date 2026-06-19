@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $badge_position
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RecaptchaSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RecaptchaSetting newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RecaptchaSetting query()
@@ -36,7 +35,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RecaptchaSetting whereV2SiteKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RecaptchaSetting whereV3SecretKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RecaptchaSetting whereV3SiteKey($value)
- *
  * @mixin \Eloquent
  */
 class RecaptchaSetting extends Model
@@ -71,6 +69,7 @@ class RecaptchaSetting extends Model
      *
      * Never includes secret keys — token verification stays server-side in the
      * RecaptchaMiddleware.
+     * @return array<mixed>
      */
     public static function publicConfig(): array
     {

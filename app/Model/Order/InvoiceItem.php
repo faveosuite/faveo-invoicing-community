@@ -31,7 +31,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property-read Product|null $product
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\InvoiceTaxLine> $taxLines
  * @property-read int|null $tax_lines_count
- *
  * @method static \Database\Factories\Model\Order\InvoiceItemFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem newQuery()
@@ -55,11 +54,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereTaxPercentage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereTaxRateId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceItem whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class InvoiceItem extends BaseModel
 {
+    /**
+     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     */
     use HasFactory;
 
     protected $table = 'invoice_items';
@@ -68,11 +69,17 @@ class InvoiceItem extends BaseModel
         'regular_price', 'quantity', 'discount', 'tax_name',
         'tax_percentage', 'tax_code', 'tax_rate_id', 'discount_mode', 'subtotal', 'domain', 'plan_id', 'agents', 'billing_pay', 'product_id'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<InvoiceTaxLine, $this>
+     */
     public function taxLines(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(InvoiceTaxLine::class, 'invoice_item_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     */
     protected function domain(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(set: function ($value): array {
@@ -111,6 +118,9 @@ class InvoiceItem extends BaseModel
         return $this->belongsTo(Invoice::class, 'invoice_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Product, $this>
+     */
     public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class);

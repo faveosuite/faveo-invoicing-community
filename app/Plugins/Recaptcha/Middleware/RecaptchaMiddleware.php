@@ -53,9 +53,9 @@ class RecaptchaMiddleware
 
         // Primary V3 verification
         $verification = $this->verify(
-            $settings->v3_secret_key,
+            (string) $settings->v3_secret_key,
             $recaptchaResponse,
-            $request->ip(),
+            (string) $request->ip(),
             $request->getHost()
         );
 
@@ -99,9 +99,9 @@ class RecaptchaMiddleware
     private function verifyV2(string $response, RecaptchaSetting $settings, Closure $next): mixed
     {
         $verification = $this->verify(
-            $settings->v2_secret_key,
+            (string) $settings->v2_secret_key,
             $response,
-            request()->ip()
+            (string) request()->ip()
         );
 
         return $verification['success']
@@ -109,6 +109,9 @@ class RecaptchaMiddleware
             : errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function verify(string $secretKey, string $response, string $ip, ?string $hostname = null): array
     {
         return Http::asForm()->post(

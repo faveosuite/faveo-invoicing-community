@@ -95,8 +95,9 @@ class ExtendedBaseInvoiceController extends Controller
     public function edit(int $invoiceid, Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $totalSum = '0';
+        /** @var \App\Model\Order\Invoice $invoice */
         $invoice = Invoice::where('id', $invoiceid)->first();
-        $date = date('m/d/Y', strtotime((string) $invoice->date));
+        $date = date('m/d/Y', (int) strtotime((string) $invoice->date));
         $payment = Payment::where('invoice_id', $invoiceid)->pluck('amount')->toArray();
         if ($payment) {
             $totalSum = array_sum($payment);
@@ -164,6 +165,10 @@ class ExtendedBaseInvoiceController extends Controller
         }
     }
 
+    /**
+     * @param array<mixed> $invoicAmount
+     * @param array<mixed> $invoiceChecked
+     */
     public function multiplePayment(int $clientid, array $invoiceChecked, string $payment_method,
              \Illuminate\Support\Carbon $payment_date, float|int $totalAmt, array $invoicAmount, float $amtToCredit, string $payment_status, ?string $currency = null): void
     {
@@ -176,6 +181,7 @@ class ExtendedBaseInvoiceController extends Controller
                 }
 
                 $amount = (isset($invoicAmount[$key]) && $invoicAmount[$key] !== '') ? $invoicAmount[$key] : 0;
+                /** @var \App\Model\Order\Invoice|null $invoice */
                 $invoice = Invoice::find($value);
 
                 Payment::create([
@@ -307,6 +313,8 @@ class ExtendedBaseInvoiceController extends Controller
      * The credit balance is the SUM of the client's invoice_id = 0 rows
      * (see AdvanceSearchController::getExtraAmt). Once spent, those rows are
      * consolidated into a single remaining-balance row so the sum stays exact.
+     * @param array<mixed> $invoicAmount
+     * @param array<mixed> $invoiceChecked
      */
     public function updatePaymentByInvoice(int $clientid, array $invoiceChecked, string $payment_method,
              \Illuminate\Support\Carbon $payment_date, array $invoicAmount, string $payment_status): void
@@ -330,6 +338,7 @@ class ExtendedBaseInvoiceController extends Controller
                     continue;
                 }
 
+                /** @var \App\Model\Order\Invoice|null $invoice */
                 $invoice = Invoice::find($value);
 
                 Payment::create([

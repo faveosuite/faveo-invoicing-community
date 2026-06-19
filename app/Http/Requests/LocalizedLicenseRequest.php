@@ -19,6 +19,7 @@ class LocalizedLicenseRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
+     * @return array<mixed>
      */
     public function rules(): array
     {

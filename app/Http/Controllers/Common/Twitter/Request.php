@@ -11,6 +11,9 @@ use Stringable;
 
 class Request implements Stringable
 {
+    /**
+     * @var array<mixed>
+     */
     protected array $parameters;
 
     protected string $httpUrl = '';
@@ -22,6 +25,7 @@ class Request implements Stringable
      *
      * @param  string  $httpMethod
      * @param  string  $httpUrl
+     * @param array<mixed> $parameters
      */
     public function __construct(protected $httpMethod, $httpUrl, array $parameters = [])
     {
@@ -37,6 +41,7 @@ class Request implements Stringable
      * @param  Token  $token
      * @param  string  $httpMethod
      * @param  string  $httpUrl
+     * @param array<mixed> $parameters
      */
     public static function fromConsumerAndToken(
         Consumer $consumer,
@@ -57,7 +62,7 @@ class Request implements Stringable
 
         $parameters = array_merge($defaults, $parameters);
 
-        return new self($httpMethod, $httpUrl, $parameters);
+        return new self((string) $httpMethod, (string) $httpUrl, $parameters);
     }
 
     /**
@@ -78,6 +83,9 @@ class Request implements Stringable
         return $this->parameters[$name] ?? null;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getParameters(): array
     {
         return $this->parameters;
@@ -125,7 +133,7 @@ class Request implements Stringable
 
         $parts = Util::urlencodeRfc3986($parts);
 
-        return implode('&', $parts);
+        return implode('&', (array) $parts);
     }
 
     /**
@@ -193,8 +201,8 @@ class Request implements Stringable
             }
 
             $out .= ($first) ? ' ' : ', ';
-            $out .= /* @scrutinizer ignore-type */Util::urlencodeRfc3986($k).'="'.
-            /* @scrutinizer ignore-type */Util::urlencodeRfc3986($v).'"';
+            $out .= (string) Util::urlencodeRfc3986($k).'="'.
+            (string) Util::urlencodeRfc3986($v).'"';
             $first = false;
         }
 
