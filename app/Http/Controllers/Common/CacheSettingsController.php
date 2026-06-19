@@ -111,7 +111,7 @@ class CacheSettingsController extends Controller
     }
 
     /**
-     * @param array<mixed> $data
+     * @param  array<mixed>  $data
      */
     private function testConnection(string $driver, array $data): ?string
     {

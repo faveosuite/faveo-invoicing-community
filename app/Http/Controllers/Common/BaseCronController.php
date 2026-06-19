@@ -29,7 +29,7 @@ class BaseCronController extends Controller
     public function getInvoiceByOrderId(int $orderid): ?\App\Model\Order\Invoice
     {
         $order = Order::find($orderid);
-        if (!$order) {
+        if (! $order) {
             return null;
         }
         /** @var mixed $invoice */
@@ -46,8 +46,8 @@ class BaseCronController extends Controller
     }
 
     /**
+     * @param  array<mixed>  $allDays
      * @return mixed[]
-     * @param array<mixed> $allDays
      */
     public function getSubscriptions(array $allDays): array
     {
@@ -209,23 +209,23 @@ class BaseCronController extends Controller
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
-        if (!$product) {
+        if (! $product) {
             return;
         }
         $product_type = $product->type;
         $expiryMailDay = ExpiryMailDay::first();
         $expiryDays = $expiryMailDay ? $expiryMailDay->cloud_days : 0;
-        
+
         $setting = Setting::find(1);
-        if (!$setting) {
+        if (! $setting) {
             return;
         }
-        
+
         $template = TemplateType::getSelectedTemplate('subscription_going_to_end_mail');
-        if (!$template) {
+        if (! $template) {
             return;
         }
-        
+
         $date = date_create($end);
         if ($date === false) {
             return;
@@ -260,12 +260,12 @@ class BaseCronController extends Controller
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
-        if (!$product) {
+        if (! $product) {
             return;
         }
         $product_type = $product->type;
         $plan_id = Subscription::find($sub);
-        if (!$plan_id) {
+        if (! $plan_id) {
             return;
         }
         $currency = getCurrencyForClient((string) $user->country);
@@ -273,9 +273,9 @@ class BaseCronController extends Controller
         $renewPrice = PlanPrice::where('plan_id', $plan_id->plan_id)->where('currency', $currency)->value('renew_price');
         $expiryMailDay = ExpiryMailDay::first();
         $expiryDays = $expiryMailDay ? $expiryMailDay->cloud_days : 0;
-        
+
         $setting = Setting::where('id', 1)->first();
-        if (!$setting) {
+        if (! $setting) {
             return;
         }
 
@@ -283,7 +283,7 @@ class BaseCronController extends Controller
 
         //template
         $template = TemplateType::getSelectedTemplate('auto_subscription_going_to_end');
-        if (!$template) {
+        if (! $template) {
             return;
         }
 
@@ -323,7 +323,7 @@ class BaseCronController extends Controller
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
-        if (!$product) {
+        if (! $product) {
             return;
         }
         $product_type = $product->type;
@@ -332,7 +332,7 @@ class BaseCronController extends Controller
 
         //check in the settings
         $setting = Setting::where('id', 1)->first();
-        if (!$setting) {
+        if (! $setting) {
             return;
         }
 
@@ -340,7 +340,7 @@ class BaseCronController extends Controller
 
         //template
         $template = TemplateType::getSelectedTemplate('subscription_over_mail');
-        if (!$template) {
+        if (! $template) {
             return;
         }
 
@@ -367,7 +367,7 @@ class BaseCronController extends Controller
             'url' => url('my-orders'),
             'reply_email' => (string) $setting->company_email,
         ];
-        
+
         $type = (string) ($template->type()->value('name') ?? '');
         $from = (string) $setting->email;
         $to = (string) $user->email;

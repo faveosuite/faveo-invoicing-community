@@ -198,7 +198,8 @@ class LogWriteControllerTest extends TestCase
 
     /**
      * Helper to call protected/private methods.
-     * @param array<mixed> $parameters
+     *
+     * @param  array<mixed>  $parameters
      */
     protected function invokeMethod(mixed $object, mixed $methodName, array $parameters = []): mixed
     {

@@ -26,6 +26,7 @@ class ZohoServiceProvider extends ServiceProvider
 {
     /**
      * Cache integrations per request.
+     *
      * @var array<mixed>
      */
     protected array $integrations = [];

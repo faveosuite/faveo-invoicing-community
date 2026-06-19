@@ -14,7 +14,6 @@ use Crypt;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
-use Lang;
 
 class BaseHomeController extends Controller
 {

@@ -8,7 +8,6 @@ use App\Model\Payment\Promotion;
 use App\Model\Product\Product;
 use Exception;
 use Illuminate\Support\Str;
-use Lang;
 use Session;
 
 class BasePromotionController extends Controller

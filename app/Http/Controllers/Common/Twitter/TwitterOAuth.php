@@ -114,7 +114,7 @@ class TwitterOAuth extends Config
      * Make URLs for user browser navigation.
      *
      * @param  string  $path
-     * @param array<mixed> $parameters
+     * @param  array<mixed>  $parameters
      */
     public function url($path, array $parameters): string
     {
@@ -129,10 +129,10 @@ class TwitterOAuth extends Config
      * Make /oauth/* requests to the API.
      *
      * @param  string  $path
+     * @param  array<mixed>  $parameters
+     * @return array<mixed>
      *
      * @throws TwitterOAuthException
-     * @param array<mixed> $parameters
-     * @return array<mixed>
      */
     public function oauth($path, array $parameters = []): array
     {
@@ -156,8 +156,8 @@ class TwitterOAuth extends Config
      * Make /oauth2/* requests to the API.
      *
      * @param  string  $path
+     * @param  array<mixed>  $parameters
      * @return array|object
-     * @param array<mixed> $parameters
      */
     public function oauth2($path, array $parameters = [])
     {
@@ -178,8 +178,8 @@ class TwitterOAuth extends Config
      * Make GET requests to the API.
      *
      * @param  string  $path
+     * @param  array<mixed>  $parameters
      * @return array|object
-     * @param array<mixed> $parameters
      */
     public function get($path, array $parameters = [])
     {
@@ -190,8 +190,8 @@ class TwitterOAuth extends Config
      * Make POST requests to the API.
      *
      * @param  string  $path
+     * @param  array<mixed>  $parameters
      * @return array|object
-     * @param array<mixed> $parameters
      */
     public function post($path, array $parameters = [])
     {
@@ -202,8 +202,8 @@ class TwitterOAuth extends Config
      * Make DELETE requests to the API.
      *
      * @param  string  $path
+     * @param  array<mixed>  $parameters
      * @return array|object
-     * @param array<mixed> $parameters
      */
     public function delete($path, array $parameters = [])
     {
@@ -214,8 +214,8 @@ class TwitterOAuth extends Config
      * Make PUT requests to the API.
      *
      * @param  string  $path
+     * @param  array<mixed>  $parameters
      * @return array|object
-     * @param array<mixed> $parameters
      */
     public function put($path, array $parameters = [])
     {
@@ -227,8 +227,8 @@ class TwitterOAuth extends Config
      *
      * @param  string  $path
      * @param  bool  $chunked
+     * @param  array<mixed>  $parameters
      * @return array|object
-     * @param array<mixed> $parameters
      */
     public function upload($path, array $parameters = [], $chunked = false)
     {
@@ -243,8 +243,8 @@ class TwitterOAuth extends Config
      * Private method to upload media (not chunked) to upload.twitter.com.
      *
      * @param  string  $path
+     * @param  array<mixed>  $parameters
      * @return array|object
-     * @param array<mixed> $parameters
      */
     private function uploadMediaNotChunked($path, array $parameters)
     {
@@ -259,8 +259,8 @@ class TwitterOAuth extends Config
      * Private method to upload media (chunked) to upload.twitter.com.
      *
      * @param  string  $path
+     * @param  array<mixed>  $parameters
      * @return array|object
-     * @param array<mixed> $parameters
      */
     private function uploadMediaChunked($path, array $parameters)
     {
@@ -296,8 +296,8 @@ class TwitterOAuth extends Config
 
     /**
      * @param  string  $path
+     * @param  array<mixed>  $parameters
      * @return array|object
-     * @param array<mixed> $parameters
      */
     private function http(string $method, string $host, $path, array $parameters)
     {
@@ -314,10 +314,11 @@ class TwitterOAuth extends Config
     /**
      * Format and sign an OAuth / API request.
      *
+     *
+     * @param  array<mixed>  $parameters
      * @return string
      *
      * @throws TwitterOAuthException
-     * @param array<mixed> $parameters
      */
     private function oAuthRequest(string $url, string $method, array $parameters)
     {
@@ -340,10 +341,11 @@ class TwitterOAuth extends Config
     /**
      * Make an HTTP request.
      *
+     *
+     * @param  array<mixed>  $postfields
      * @return string
      *
      * @throws TwitterOAuthException
-     * @param array<mixed> $postfields
      */
     private function request(string $url, string $method, string $authorization, array $postfields)
     {

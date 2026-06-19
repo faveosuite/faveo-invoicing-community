@@ -88,6 +88,7 @@ class LicenseValidator
      *   0 = inactive, 1 = active, 2 = suspended.
      *
      * Supports comma-separated IPs and domains (same as original).
+     *
      * @return array<mixed>
      */
     public function validateLicense(

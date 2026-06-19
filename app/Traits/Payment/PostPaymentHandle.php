@@ -7,7 +7,6 @@ use App\Model\Common\Setting;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
-use Auth;
 
 trait PostPaymentHandle
 {

@@ -50,9 +50,10 @@ class Campaigns
     }
 
     /**
+     * @param  array<mixed>  $contactInfo
+     *
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
-     * @param array<mixed> $contactInfo
      */
     public function subscribe(string $email, array $contactInfo = [], ?string $list = null, ?string $topic = null): void
     {
@@ -64,9 +65,10 @@ class Campaigns
     }
 
     /**
+     * @param  array<mixed>  $contactInfo
+     *
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
-     * @param array<mixed> $contactInfo
      */
     public function resubscribe(string $email, array $contactInfo = [], ?string $list = null, ?string $topic = null): void
     {

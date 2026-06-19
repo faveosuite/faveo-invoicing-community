@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Model\Plugin;
 use Exception;
 use Illuminate\Http\Request;
-use Lang;
 
 class PaymentSettingsController extends Controller
 {

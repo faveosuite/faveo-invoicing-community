@@ -56,8 +56,9 @@ class BaseOrderController extends ExtendedOrderController
      * inserting the values to orders table.
      *
      *
-     * @throws Exception
      * @return \Illuminate\Support\Collection<int|string, mixed>
+     *
+     * @throws Exception
      */
     public function executeOrder(int $invoiceId): Collection
     {

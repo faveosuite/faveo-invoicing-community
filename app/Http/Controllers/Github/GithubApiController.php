@@ -29,6 +29,7 @@ class GithubApiController
 
     /**
      * All releases for a repository, newest first.
+     *
      * @return array<mixed>
      */
     public function releases(string $owner, string $repo): array
@@ -38,6 +39,7 @@ class GithubApiController
 
     /**
      * The latest stable release metadata for a repository.
+     *
      * @return array<mixed>
      */
     public function latestRelease(string $owner, string $repo): array

@@ -64,8 +64,8 @@ class ZohoConnectHelper
     }
 
     /**
-     * @param \Illuminate\Support\Collection<int|string, mixed> $localFields
-     * @param \Illuminate\Support\Collection<int|string, mixed> $zohoFields
+     * @param  \Illuminate\Support\Collection<int|string, mixed>  $localFields
+     * @param  \Illuminate\Support\Collection<int|string, mixed>  $zohoFields
      */
     public static function mergeFields(Collection $zohoFields, Collection $localFields): mixed
     {
@@ -119,8 +119,8 @@ class ZohoConnectHelper
     }
 
     /**
-     * @param array<mixed> $meta
-     * @param array<mixed> $selected
+     * @param  array<mixed>  $meta
+     * @param  array<mixed>  $selected
      */
     public static function updateMapping(
         int $zohoFieldId,

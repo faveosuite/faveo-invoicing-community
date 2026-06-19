@@ -62,6 +62,7 @@ class SyncBillingToLatestVersion
                     }
                 }
             }
+
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
@@ -80,7 +81,8 @@ class SyncBillingToLatestVersion
                 (string) file_get_contents($path)
             ));
             Artisan::call('config:clear');
-            return successResponse(__("message.updated-successfully"));
+
+            return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }

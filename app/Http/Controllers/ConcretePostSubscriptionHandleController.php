@@ -68,7 +68,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
     {
         $sub = $this->sub->find($subscription->id);
         $plan = $this->plan->find($subscription->plan_id);
-        if (!$sub instanceof Subscription || !$plan instanceof Plan) {
+        if (! $sub instanceof Subscription || ! $plan instanceof Plan) {
             throw new Exception('Subscription or Plan not found');
         }
 
@@ -108,10 +108,10 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
     {
         $amount = currencyFormat($total, getCurrencyForClient($user->country));
         $setting = Setting::find(1);
-        if (!$setting instanceof Setting) {
+        if (! $setting instanceof Setting) {
             throw new Exception('Settings not found');
         }
-        if (!$template instanceof Template) {
+        if (! $template instanceof Template) {
             throw new Exception('Template not found');
         }
         $currency = getCurrencyForClient($user->country);
@@ -126,14 +126,14 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
     {
         $amount = currencyFormat($total, getCurrencyForClient($user->country));
         $setting = Setting::find(1);
-        if (!$setting instanceof Setting) {
+        if (! $setting instanceof Setting) {
             throw new Exception('Settings not found');
         }
         $currency = getCurrencyForClient($user->country);
         $paymentFailData = 'Payment for of '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
         $mail = new PhpMailController();
         $dbTemplate = Template::where('name', $template)->first();
-        if (!$dbTemplate instanceof Template) {
+        if (! $dbTemplate instanceof Template) {
             throw new Exception('Template not found');
         }
         $mail->SendEmail((string) $setting->email, (string) $setting->company_email, $paymentFailData, 'payment-failed', $dbTemplate->type()->value('name'));
@@ -143,20 +143,20 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
     public function sendPaymentSuccessMail(int $sub, string $currency, float|int $total, User $user, string $product, string $number): void
     {
         $future_expiry = Subscription::find($sub);
-        if (!$future_expiry instanceof Subscription) {
+        if (! $future_expiry instanceof Subscription) {
             return;
         }
         $contact = getContactData();
         //check in the settings
         $setting = Setting::find(1);
-        if (!$setting instanceof Setting) {
+        if (! $setting instanceof Setting) {
             return;
         }
 
         $mail = new PhpMailController();
         //template
         $template = TemplateType::getSelectedTemplate('payment_successfull');
-        if (!$template instanceof Template) {
+        if (! $template instanceof Template) {
             return;
         }
         $date = date_create((string) $future_expiry->update_ends_at);
@@ -182,13 +182,13 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
 
     public function sendFailedPayment(float|int|null $total, string $exceptionMessage, ?User $user, ?string $number, string $end, ?string $currency, ?Order $order, ?Product $product_details, ?Invoice $invoice, Payment|string|null $payment): void
     {
-        if (!$order instanceof Order || !$product_details instanceof Product || !$invoice instanceof Invoice || !$user instanceof User) {
+        if (! $order instanceof Order || ! $product_details instanceof Product || ! $invoice instanceof Invoice || ! $user instanceof User) {
             return;
         }
         $contact = getContactData();
         //check in the settings
         $setting = Setting::find(1);
-        if (!$setting instanceof Setting) {
+        if (! $setting instanceof Setting) {
             return;
         }
 
@@ -198,7 +198,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $mail->setMailConfig($setting);
         //template
         $template = TemplateType::getSelectedTemplate('payment_failed');
-        if (!$template instanceof Template) {
+        if (! $template instanceof Template) {
             return;
         }
         $url = url('autopaynow/'.$invoice->invoice_id); // @phpstan-ignore property.notFound
@@ -246,7 +246,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
     {
         try {
             $subscription = Subscription::where('order_id', $orderId)->first();
-            if (!$subscription instanceof Subscription) {
+            if (! $subscription instanceof Subscription) {
                 return;
             }
 

@@ -42,7 +42,7 @@ class CartService
     // --- Item operations ---
 
     /**
-     * @param array<mixed> $data
+     * @param  array<mixed>  $data
      */
     public function addItem(Request $request, array $data): void
     {
@@ -64,7 +64,7 @@ class CartService
     }
 
     /**
-     * @param array<mixed> $data
+     * @param  array<mixed>  $data
      */
     public function updateItem(Request $request, int|string $itemId, array $data): void
     {
@@ -145,6 +145,7 @@ class CartService
      * Money summary for the checkout page. Uses the exact same per-line tax and
      * `rounding()` rules as invoice creation so the "Total" shown here always
      * equals the invoice's grand_total (and therefore the pay page's amount due).
+     *
      * @return array<mixed>
      */
     public function checkoutExtras(Cart $cart, Authenticatable $user): array
@@ -291,7 +292,7 @@ class CartService
     }
 
     /**
-     * @param array<mixed> $data
+     * @param  array<mixed>  $data
      */
     private function addToDbCart(Cart $cart, array $data): void
     {

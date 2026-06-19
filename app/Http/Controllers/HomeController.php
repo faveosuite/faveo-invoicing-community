@@ -26,7 +26,6 @@ use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Lang;
 use Log;
 use Logger;
 use NumberFormatter;
@@ -67,6 +66,7 @@ class HomeController extends BaseHomeController
             $version = $product->version;
         } else {
             $res = json_encode(['message' => 'Product not found']);
+
             return $res !== false ? $res : '';
         }
 
@@ -100,11 +100,13 @@ class HomeController extends BaseHomeController
             }
 
             $jsonResult = json_encode($result);
+
             return self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
         } catch (Exception $exception) {
             $result = ['status' => 'error', 'message' => $exception->getMessage()];
 
             $jsonResult = json_encode($result);
+
             return self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
         }
     }
@@ -227,21 +229,21 @@ class HomeController extends BaseHomeController
             $data = $request->input('data');
             $json = self::decryptByFaveoPrivateKey((string) $data);
             $decodedData = json_decode((string) $json);
-            if (!is_object($decodedData)) {
+            if (! is_object($decodedData)) {
                 throw new Exception('Invalid payload');
             }
- 
+
             $domain = isset($decodedData->url) ? (string) $decodedData->url : '';
             $faveo_encrypted_order_number = isset($decodedData->order_number) ? (string) $decodedData->order_number : '';
             $faveo_encrypted_key = isset($decodedData->serial_key) ? (string) $decodedData->serial_key : '';
             $request_type = isset($decodedData->request_type) ? (string) $decodedData->request_type : '';
             $faveo_name = isset($decodedData->name) ? (string) $decodedData->name : '';
             $faveo_version = isset($decodedData->version) ? (string) $decodedData->version : '';
- 
+
             $order_number = $this->checkOrder($faveo_encrypted_order_number); // @phpstan-ignore method.notFound
- 
+
             $domain = $this->checkDomain($domain);
- 
+
             $serial_key = $this->checkSerialKey($faveo_encrypted_key, $order_number);
             //dd($serial_key);
             //return $serial_key;
@@ -249,18 +251,20 @@ class HomeController extends BaseHomeController
             if ($request_type == 'install') {
                 $result = $this->verificationResult($order_number, (string) $serial_key);
             }
- 
+
             if ($request_type == 'check_update') {
                 $result = $this->checkUpdate($order_number, (string) $serial_key, $domain, $faveo_name, $faveo_version);
             }
- 
+
             $jsonResult = json_encode($result);
+
             return self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
         } catch (Exception $exception) {
             $result = ['status' => 'error', 'message' => $exception->getMessage().'  
             file=> '.$exception->getFile().' Line=>'.$exception->getLine()];
- 
+
             $jsonResult = json_encode($result);
+
             return self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
         }
     }
@@ -343,6 +347,7 @@ class HomeController extends BaseHomeController
         $result = ['seal' => $sealed_data, 'envelope' => $envelope];
 
         $res = json_encode($result);
+
         return $res !== false ? $res : '';
     }
 
@@ -480,8 +485,8 @@ class HomeController extends BaseHomeController
             $product = ($id) ?
                 $product->where('id', $id)->select('id')->first() :
                 $product->whereRaw('LOWER(`name`) LIKE ? ', strtolower($this->mapOldBoys($title)))->orWhere('id', $id)->select('id')->first();
- 
-            if (!$product instanceof Product) {
+
+            if (! $product instanceof Product) {
                 throw new Exception('Product not found');
             }
 
@@ -553,6 +558,7 @@ class HomeController extends BaseHomeController
     private function getPHPCompatibleVersionString(?string $version = null): string
     {
         $version = $version ?? '';
+
         return (string) preg_replace('#v\.|v#', '', str_replace('_', '.', $version));
     }
 
@@ -563,48 +569,48 @@ class HomeController extends BaseHomeController
             $orderNumber = License::where('license_code', $licenseCode)->value('license_order_number');
             $orderId = Order::where('number', $orderNumber)->value('id');
             $subscription = Subscription::where('order_id', $orderId)->first();
-            if (!$subscription instanceof Subscription) {
+            if (! $subscription instanceof Subscription) {
                 throw new Exception('Subscription not found');
             }
- 
+
             $basecron = new CronController();
             $order = $basecron->getOrderById($subscription->order_id);
-            if (!$order instanceof Order) {
+            if (! $order instanceof Order) {
                 throw new Exception('Order not found');
             }
             $oldinvoice = $basecron->getInvoiceByOrderId($subscription->order_id);
-            if (!$oldinvoice instanceof \App\Model\Order\Invoice) {
+            if (! $oldinvoice instanceof \App\Model\Order\Invoice) {
                 throw new Exception('Invoice not found');
             }
             $item = $basecron->getInvoiceItemByInvoiceId($oldinvoice->id);
-            if (!$item instanceof \App\Model\Order\InvoiceItem) {
+            if (! $item instanceof \App\Model\Order\InvoiceItem) {
                 throw new Exception('Invoice item not found');
             }
- 
+
             $product_details = Product::where('id', $item->product_id)->first();
-            if (!$product_details instanceof Product) {
+            if (! $product_details instanceof Product) {
                 throw new Exception('Product details not found');
             }
             $plan = Plan::where('product', $product_details->id)->first('days');
-            if (!$plan instanceof Plan) {
+            if (! $plan instanceof Plan) {
                 throw new Exception('Plan not found');
             }
             $oldcurrency = (string) $oldinvoice->currency;
- 
+
             $user = User::where('id', $subscription->user_id)->first();
-            if (!$user instanceof User) {
+            if (! $user instanceof User) {
                 throw new Exception('User not found');
             }
             $planid = Plan::where('product', $product_details->id)->value('id');
             $cost = PlanPrice::where('plan_id', $planid)->where('currency', $oldcurrency)->value('renew_price');
- 
+
             $renewController = new RenewController();
             $invoiceItems = $renewController->generateInvoice($product_details, $user, $order->id, $plan->id, $cost, $code = '', $item->agents, $oldcurrency);
-            if (!$invoiceItems instanceof \App\Model\Order\InvoiceItem) {
+            if (! $invoiceItems instanceof \App\Model\Order\InvoiceItem) {
                 throw new Exception('Renewal failed');
             }
             $invoiceid = $invoiceItems->invoice_id;
- 
+
             return url('autopaynow/'.$invoiceid);
         } catch(Exception $exception) {
             $message = ['error' => $exception->getMessage()];
@@ -797,6 +803,7 @@ class HomeController extends BaseHomeController
         }
 
         $res = json_encode($updatedProducts);
+
         return $res !== false ? $res : '';
     }
 

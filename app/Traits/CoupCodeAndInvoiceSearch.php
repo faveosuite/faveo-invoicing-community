@@ -7,7 +7,6 @@ use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
-use Lang;
 
 //////////////////////////////////////////////////////////////////////////////
 // ADVANCE SEARCH FOR INVOICE AND COUPON CODE CALCULATION

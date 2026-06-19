@@ -12,7 +12,6 @@ use App\User;
 use Auth;
 use Exception;
 use Illuminate\Http\Request;
-use Lang;
 use Logger;
 
 class BaseProductController extends ExtendedBaseProductController
@@ -26,7 +25,7 @@ class BaseProductController extends ExtendedBaseProductController
         $server = parse_url($server['path']);
         $server['path'] = dirname($server['path']);
 
-        return 'http://'. (string) \Illuminate\Support\Facades\Request::server('HTTP_HOST').$server['path'];
+        return 'http://'.(string) \Illuminate\Support\Facades\Request::server('HTTP_HOST').$server['path'];
     }
 
     /*

@@ -21,6 +21,7 @@ use Override;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Product $product
  * @property-read ProductUpload|null $version
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionCallback newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionCallback newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionCallback query()
@@ -34,6 +35,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionCallback whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionCallback whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionCallback whereVersionId($value)
+ *
  * @mixin \Eloquent
  */
 class VersionCallback extends Model

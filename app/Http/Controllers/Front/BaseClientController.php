@@ -14,7 +14,6 @@ use Hash;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Lang;
 use Logger;
 
 class BaseClientController extends Controller

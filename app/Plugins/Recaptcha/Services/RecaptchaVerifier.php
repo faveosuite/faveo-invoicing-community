@@ -8,6 +8,7 @@ class RecaptchaVerifier
 {
     /**
      * Returns true if successful, otherwise returns an error message.
+     *
      * @return array<mixed>
      */
     public function verify(

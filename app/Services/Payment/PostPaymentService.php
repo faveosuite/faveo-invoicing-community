@@ -111,7 +111,7 @@ class PostPaymentService
     }
 
     /**
-     * @param array<mixed> $metadata
+     * @param  array<mixed>  $metadata
      * @return array<mixed>
      */
     private function handleAgentAlteration(Invoice $invoice, array $metadata): array
@@ -138,7 +138,7 @@ class PostPaymentService
     }
 
     /**
-     * @param array<mixed> $metadata
+     * @param  array<mixed>  $metadata
      * @return array<mixed>
      */
     private function handleUpgradeDowngrade(Invoice $invoice, array $metadata): array

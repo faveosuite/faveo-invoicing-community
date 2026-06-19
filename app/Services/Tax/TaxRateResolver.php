@@ -43,6 +43,7 @@ class TaxRateResolver
     /**
      * Resolve rates for a customer model, honouring the tax_based_on setting
      * and per-customer exemption.
+     *
      * @return array<mixed>
      */
     public function ratesForCustomer(string $taxClass, mixed $user): array

@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read int|null $installations_count
  * @property-read Order|null $order
  * @property-read \App\Model\Product\Product|null $product
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload active()
  * @method static \Database\Factories\Model\Product\ProductUploadFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload newModelQuery()
@@ -56,6 +57,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereVersionExpireDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload whereVersionInstallCount($value)
+ *
  * @mixin \Eloquent
  */
 class ProductUpload extends Model
@@ -136,11 +138,11 @@ class ProductUpload extends Model
         return $this->hasMany(VersionInstallation::class, 'version_id');
     }
 
-        /**
-     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
      */
     #[Scope]
-        protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where(function ($q): void {
             $q->where('status', 1);

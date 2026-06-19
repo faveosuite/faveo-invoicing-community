@@ -10,7 +10,6 @@ use App\Model\Product\Product;
 use App\Model\Product\ProductAddonRelation;
 use Exception;
 use Illuminate\Http\Request;
-use Lang;
 
 class AddonController extends Controller
 {

@@ -14,7 +14,8 @@ trait AflCallbackHelpers
      * Matches returnServerNotification() from original:
      * - Fetches notification text from DB and replaces placeholders
      * - Only sends notification_data when notification_case is 'notification_license_ok'.
-     * @param array<mixed> $data
+     *
+     * @param  array<mixed>  $data
      */
     protected function notificationResponse(
         string $notificationCase,

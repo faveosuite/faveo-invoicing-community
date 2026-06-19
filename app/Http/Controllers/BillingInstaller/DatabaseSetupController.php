@@ -5,7 +5,6 @@ namespace App\Http\Controllers\BillingInstaller;
 use App\Http\Controllers\Controller;
 use Config;
 use Exception;
-use Lang;
 use PDO;
 use Session;
 
@@ -80,7 +79,7 @@ class DatabaseSetupController extends Controller
      * - Checks if database version is compatible
      * - Checks if given database is empty or not.
      *
-     * @param  array<mixed> $results  variable linked for errors or success messages
+     * @param  array<mixed>  $results  variable linked for errors or success messages
      * @param  bool  $mysqli_ok  variable linked for mysql status
      *
      * @author Manish Verma <manish.verma@ladybirdweb.com>
@@ -118,7 +117,7 @@ class DatabaseSetupController extends Controller
      *
      * @param  string  $dbUsername  mysql username
      * @param  string  $dbPassword  mysql password
-     * @param array<mixed> $customOptions
+     * @param  array<mixed>  $customOptions
      */
     private function setupConfig(mixed $host, $dbUsername, $dbPassword, mixed $port = '', array $customOptions = [], mixed $dbengine = ''): void
     {

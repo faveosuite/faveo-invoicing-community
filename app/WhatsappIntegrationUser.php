@@ -22,6 +22,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read \App\User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser query()
@@ -36,6 +37,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereUserCallbackUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser whereWabaId($value)
+ *
  * @mixin \Eloquent
  */
 class WhatsappIntegrationUser extends BaseModel

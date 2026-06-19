@@ -108,7 +108,8 @@ class Kernel extends ConsoleKernel
             $condition = new Condition();
             $command = $condition->getConditionValue($task = 'cloud');
             $this->getCondition($schedule->job(new NotifyMail), $command);
-                        return;
+
+            return;
         }
     }
 
@@ -169,73 +170,87 @@ class Kernel extends ConsoleKernel
                 case 'expiryMail':
                     if ($expiryMailStatus == 1) {
                         $this->getCondition($schedule->command('expiry:notification'), $command);
+
                         return;
                     }
 
                 case 'deleteLogs':
                     if ($logDeleteStatus == 1) {
                         $this->getCondition($schedule->command('activitylog:clean --force'), $command);
+
                         return;
                     }
 
                 case 'subsExpirymail':
                     if ($RenewalexpiryMailStatus) {
                         $this->getCondition($schedule->command('renewal:notification'), $command);
+
                         return;
                     }
                 case 'postExpirymail':
                     if ($postExpirystatus) {
                         $this->getCondition($schedule->command('postexpiry:notification'), $command);
+
                         return;
                     }
                 case 'invoice':
                     if ($invoiceDeletionstatus) {
                         $this->getCondition($schedule->command('invoices:delete'), $command);
+
                         return;
                     }
                 case 'msg91Reports':
                     if (isset($msgDeletionStatus) && $msgDeletionStatus) {
                         $this->getCondition($schedule->command('cleanup:msg-reports'), $command);
+
                         return;
                     }
                 case 'reoon':
                     if (isset($reoonStatus) && $reoonStatus) {
                         $this->getCondition($schedule->command('reoon:logs-deletion'), $command);
+
                         return;
                     }
                 case 'systemLogs':
                     if (isset($systemLogsStatus) && $systemLogsStatus) {
                         $this->getCondition($schedule->command('logs:delete'), $command);
+
                         return;
                     }
                 case 'installationLogs':
                     if (isset($installationLogsStatus) && $installationLogsStatus) {
                         $this->getCondition($schedule->command('installation:logs'), $command);
+
                         return;
                     }
                 case 'licenseReportsCleanup':
                     if (isset($licenseReportsStatus) && $licenseReportsStatus) {
                         $this->getCondition($schedule->command('app:license-reports-cleanup'), $command);
+
                         return;
                     }
                 case 'licenseCallbacksCleanup':
                     if (isset($licenseCallbacksStatus) && $licenseCallbacksStatus) {
                         $this->getCondition($schedule->command('app:crack-callback-cleanup'), $command);
+
                         return;
                     }
                 case 'licenseCrackReportsCleanup':
                     if (isset($licenseCrackStatus) && $licenseCrackStatus) {
                         $this->getCondition($schedule->command('app:crack-reports-cleanup'), $command);
+
                         return;
                     }
                 case 'licenseSystemReportsCleanup':
                     if (isset($licenseSystemStatus) && $licenseSystemStatus) {
                         $this->getCondition($schedule->command('app:system-reports-cleanup'), $command);
+
                         return;
                     }
                 case 'licenseVersionsCleanup':
                     if (isset($licenseVersionsStatus) && $licenseVersionsStatus) {
                         $this->getCondition($schedule->command('app:versions-cleanup'), $command);
+
                         return;
                     }
             }
@@ -243,7 +258,7 @@ class Kernel extends ConsoleKernel
     }
 
     /**
-     * @param array<mixed> $command
+     * @param  array<mixed>  $command
      */
     public function getCondition(mixed $schedule, array $command): mixed
     {
@@ -268,7 +283,9 @@ class Kernel extends ConsoleKernel
     public function getConditionWithOption(mixed $schedule, mixed $command, mixed $at): void
     {
         if ($command === 'dailyAt') {
-            $schedule->dailyAt($at); return;
+            $schedule->dailyAt($at);
+
+            return;
         }
     }
 

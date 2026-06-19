@@ -9,8 +9,6 @@ use App\Model\Common\ManagerSetting;
 use App\User;
 use Closure;
 use Exception;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class SystemManagerController extends Controller
@@ -100,7 +98,6 @@ class SystemManagerController extends Controller
      *
      * Validates the request, updates manager assignments, auto-assign settings,
      * and sends notification emails if enabled.
-     *
      */
     public function updateManagerSettings(SystemManagerSettingsRequest $request): \Illuminate\Http\JsonResponse
     {

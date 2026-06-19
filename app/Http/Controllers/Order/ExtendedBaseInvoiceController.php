@@ -166,8 +166,8 @@ class ExtendedBaseInvoiceController extends Controller
     }
 
     /**
-     * @param array<mixed> $invoicAmount
-     * @param array<mixed> $invoiceChecked
+     * @param  array<mixed>  $invoicAmount
+     * @param  array<mixed>  $invoiceChecked
      */
     public function multiplePayment(int $clientid, array $invoiceChecked, string $payment_method,
              \Illuminate\Support\Carbon $payment_date, float|int $totalAmt, array $invoicAmount, float $amtToCredit, string $payment_status, ?string $currency = null): void
@@ -313,8 +313,9 @@ class ExtendedBaseInvoiceController extends Controller
      * The credit balance is the SUM of the client's invoice_id = 0 rows
      * (see AdvanceSearchController::getExtraAmt). Once spent, those rows are
      * consolidated into a single remaining-balance row so the sum stays exact.
-     * @param array<mixed> $invoicAmount
-     * @param array<mixed> $invoiceChecked
+     *
+     * @param  array<mixed>  $invoicAmount
+     * @param  array<mixed>  $invoiceChecked
      */
     public function updatePaymentByInvoice(int $clientid, array $invoiceChecked, string $payment_method,
              \Illuminate\Support\Carbon $payment_date, array $invoicAmount, string $payment_status): void

@@ -9,7 +9,6 @@ use App\License\Models\LicenseWhitelistIp;
 use App\License\Requests\BannedHostRequest;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Lang;
 
 /**
  * Consist of functionalities for the Banned Host page in Auto Faveo licenser

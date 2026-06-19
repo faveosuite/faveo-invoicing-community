@@ -19,7 +19,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Date;
-use Lang;
 use RateLimiter;
 use Session;
 
@@ -271,7 +270,7 @@ class AuthController extends BaseAuthController
     }
 
     /**
-     * @param array<mixed> $bcc
+     * @param  array<mixed>  $bcc
      */
     public function salesManagerMail(mixed $user, array $bcc = []): void
     {
@@ -313,7 +312,7 @@ class AuthController extends BaseAuthController
     }
 
     /**
-     * @param array<mixed> $bcc
+     * @param  array<mixed>  $bcc
      */
     public function accountManagerMail(mixed $user, array $bcc = []): void
     {

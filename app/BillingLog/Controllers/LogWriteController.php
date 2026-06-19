@@ -98,8 +98,9 @@ class LogWriteController
 
     /**
      * Logs mail send activity.
-     * @param array<mixed>|string $cc
-     * @param array<mixed>|string $bcc
+     *
+     * @param  array<mixed>|string  $cc
+     * @param  array<mixed>|string  $bcc
      */
     public function logMailByCategory(
         string $senderMail,
@@ -131,12 +132,14 @@ class LogWriteController
 
     /**
      * Format addresses for database storage.
-     * @param array<mixed>|string $addresses
+     *
+     * @param  array<mixed>|string  $addresses
      * @return string
      */
     protected function formatAddresses(array|string $addresses): string
     {
         $addresses = is_string($addresses) ? [$addresses] : $addresses;
+
         return collect($addresses)->map(function ($address) {
             if (is_array($address) && isset($address['address'])) {
                 return isset($address['name']) && ! empty($address['name'])

@@ -9,7 +9,6 @@ use App\Model\Common\State;
 use App\Model\Common\Timezone;
 use Exception;
 use Illuminate\Http\Request;
-use Lang;
 
 class DependencyController extends NonPublicDependencies
 {

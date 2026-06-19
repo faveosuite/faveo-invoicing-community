@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $payment_type
  * @property-read Order|null $orderDetails
  * @property-read \App\User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment_log newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment_log newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment_log query()
@@ -42,6 +43,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment_log whereSubject($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment_log whereTo($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment_log whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Payment_log extends Model

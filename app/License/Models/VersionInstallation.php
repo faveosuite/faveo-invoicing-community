@@ -20,6 +20,7 @@ use Override;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Product $product
  * @property-read ProductUpload $version
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionInstallation active()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionInstallation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionInstallation newQuery()
@@ -32,6 +33,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionInstallation whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionInstallation whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VersionInstallation whereVersionId($value)
+ *
  * @mixin \Eloquent
  */
 class VersionInstallation extends Model
@@ -62,11 +64,11 @@ class VersionInstallation extends Model
         return $this->belongsTo(ProductUpload::class, 'version_id');
     }
 
-        /**
-     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
      */
     #[Scope]
-        protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where('installation_status', 1);
     }

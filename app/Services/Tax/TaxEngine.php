@@ -31,8 +31,8 @@ class TaxEngine
     /**
      * Price is net (tax added on top). e.g. 100 @ 20% -> tax 20.
      *
+     * @param  array<mixed>  $rates
      * @return array<int|string, float>
-     * @param array<mixed> $rates
      */
     public function calcExclusive(float $price, array $rates): array
     {
@@ -66,8 +66,8 @@ class TaxEngine
      * Compound rates are unwound first (in reverse), then regular rates split
      * proportionally — matching WooCommerce exactly.
      *
+     * @param  array<mixed>  $rates
      * @return array<int|string, float>
-     * @param array<mixed> $rates
      */
     public function calcInclusive(float $price, array $rates): array
     {

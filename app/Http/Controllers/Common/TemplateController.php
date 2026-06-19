@@ -12,7 +12,6 @@ use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use Exception;
 use Illuminate\Http\Request;
-use Lang;
 use Logger;
 use Session;
 
@@ -299,7 +298,7 @@ class TemplateController extends Controller
     }
 
     /**
-     * @param array<mixed> $price
+     * @param  array<mixed>  $price
      * @return array<mixed>
      */
     public function getPrice(string $months, array $price, string $priceDescription, \App\Model\Payment\Plan $value, float|int $cost, string $currency, float|int|null $offer, \App\Model\Product\Product $product): array

@@ -39,6 +39,7 @@ class LogViewController
             case 'mail':
                 return $this->getMailLogs($request);
         }
+
         return errorResponse(__('message.invalid_log_type'), 400);
     }
 
@@ -122,8 +123,7 @@ class LogViewController
             $date = $request->input('date');
             $logCategoryId = $request->input('category');
             $status = $request->input('status');
- /** @var \App\BillingLog\Model\LogCategory|null $mailCategory */
-
+            /** @var \App\BillingLog\Model\LogCategory|null $mailCategory */
             $mailCategory = LogCategory::find($logCategoryId);
 
             if (! $mailCategory) {
@@ -151,7 +151,7 @@ class LogViewController
     }
 
     /**
-     * @param array<mixed> $logTypes
+     * @param  array<mixed>  $logTypes
      */
     public function deleteLogsByDate(array $logTypes, mixed $date = null): void
     {

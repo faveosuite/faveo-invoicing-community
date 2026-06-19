@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read \App\Model\Payment\Plan|null $plan
+ *
  * @method static \Database\Factories\Model\Payment\PlanPriceFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice newQuery()
@@ -37,6 +38,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereProductQuantity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereRenewPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PlanPrice whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class PlanPrice extends Model

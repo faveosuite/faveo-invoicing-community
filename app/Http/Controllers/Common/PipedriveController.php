@@ -74,6 +74,7 @@ class PipedriveController extends Controller
 
     /**
      * Get Pipedrive group IDs.
+     *
      * @return array<mixed>
      */
     protected function getGroups(): array
@@ -87,6 +88,7 @@ class PipedriveController extends Controller
 
     /**
      * Generic method to fetch API data with error handling.
+     *
      * @return array<mixed>
      */
     private function fetchApiData(string $apiClient, string $method, mixed ...$args): array
@@ -130,6 +132,7 @@ class PipedriveController extends Controller
 
     /**
      * Retrieve person fields from Pipedrive.
+     *
      * @return array<mixed>
      */
     public function getPipedriveFields(): array
@@ -139,6 +142,7 @@ class PipedriveController extends Controller
 
     /**
      * Retrieve organization fields from Pipedrive.
+     *
      * @return array<mixed>
      */
     public function getOrganizationFields(): array
@@ -148,6 +152,7 @@ class PipedriveController extends Controller
 
     /**
      * Retrieve deal fields from Pipedrive.
+     *
      * @return array<mixed>
      */
     public function getDealFields(): array
@@ -189,7 +194,8 @@ class PipedriveController extends Controller
 
     /**
      * Add organization to Pipedrive or get existing one.
-     * @param array<mixed> $organization
+     *
+     * @param  array<mixed>  $organization
      */
     public function addOrGetOrganization(array $organization): mixed
     {
@@ -242,7 +248,8 @@ class PipedriveController extends Controller
 
     /**
      * Sync fields for a specific group.
-     * @param array<mixed> $fields
+     *
+     * @param  array<mixed>  $fields
      */
     private function syncFieldGroup(array $fields, int $groupId): void
     {
@@ -570,7 +577,8 @@ class PipedriveController extends Controller
 
     /**
      * Transform user data for Pipedrive.
-     * @param array<mixed> $customFields
+     *
+     * @param  array<mixed>  $customFields
      * @return array<mixed>
      */
     private function transformPipedriveData(User $user, int $groupId, array $customFields = []): array

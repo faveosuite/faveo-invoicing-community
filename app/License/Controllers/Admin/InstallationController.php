@@ -9,7 +9,6 @@ use App\License\Models\License;
 use App\License\Models\LicensePlugin;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Lang;
 
 class InstallationController extends Controller
 {

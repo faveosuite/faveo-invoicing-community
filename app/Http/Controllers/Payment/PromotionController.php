@@ -201,6 +201,7 @@ class PromotionController extends BasePromotionController
                 },
             ])
             ->findOrFail($promotionId);
+
             return successResponse('', $promotion);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());

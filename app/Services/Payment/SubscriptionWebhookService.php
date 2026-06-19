@@ -33,7 +33,7 @@ class SubscriptionWebhookService
     // ── Stripe ────────────────────────────────────────────────────────────
 
     /**
-     * @param array<mixed> $event
+     * @param  array<mixed>  $event
      */
     public function handleStripeEvent(array $event): void
     {
@@ -49,7 +49,7 @@ class SubscriptionWebhookService
     }
 
     /**
-     * @param array<mixed> $invoice
+     * @param  array<mixed>  $invoice
      */
     private function onStripeInvoicePaid(array $invoice): void
     {
@@ -69,7 +69,7 @@ class SubscriptionWebhookService
     }
 
     /**
-     * @param array<mixed> $invoice
+     * @param  array<mixed>  $invoice
      */
     private function onStripeInvoiceFailed(array $invoice): void
     {
@@ -99,7 +99,7 @@ class SubscriptionWebhookService
     }
 
     /**
-     * @param array<mixed> $stripeSubscription
+     * @param  array<mixed>  $stripeSubscription
      */
     private function onStripeSubscriptionDeleted(array $stripeSubscription): void
     {
@@ -112,7 +112,7 @@ class SubscriptionWebhookService
     // ── Razorpay ──────────────────────────────────────────────────────────
 
     /**
-     * @param array<mixed> $event
+     * @param  array<mixed>  $event
      */
     public function handleRazorpayEvent(array $event): void
     {
@@ -126,7 +126,7 @@ class SubscriptionWebhookService
     }
 
     /**
-     * @param array<mixed> $payload
+     * @param  array<mixed>  $payload
      */
     private function onRazorpayCharged(array $payload): void
     {
@@ -141,7 +141,7 @@ class SubscriptionWebhookService
     }
 
     /**
-     * @param array<mixed> $payload
+     * @param  array<mixed>  $payload
      */
     private function onRazorpayHalted(array $payload): void
     {

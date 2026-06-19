@@ -159,6 +159,7 @@ class SettingsController extends Controller
 
     /**
      * Extract Stripe customer data from a User model, array, or object.
+     *
      * @return array<mixed>
      */
     public function extractCustomerData(mixed $user): array
@@ -205,6 +206,7 @@ class SettingsController extends Controller
             ));
         } catch (Exception $exception) {
             Logger::exception($exception);
+
             return null;
         }
     }

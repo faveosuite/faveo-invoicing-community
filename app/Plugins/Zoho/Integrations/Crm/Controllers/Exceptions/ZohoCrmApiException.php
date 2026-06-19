@@ -9,7 +9,7 @@ class ZohoCrmApiException extends Exception
     protected int $httpStatus;
 
     /**
-     * @param array<mixed> $error
+     * @param  array<mixed>  $error
      */
     public function __construct(
         string $message,
@@ -21,7 +21,7 @@ class ZohoCrmApiException extends Exception
     }
 
     /**
-     * @param array<mixed> $response
+     * @param  array<mixed>  $response
      */
     public static function fromResponse(array $response, int $httpStatus = 400): self
     {
@@ -54,7 +54,8 @@ class ZohoCrmApiException extends Exception
 
     /**
      * Convert Zoho error codes into developer-friendly messages.
-     * @param array<mixed> $error
+     *
+     * @param  array<mixed>  $error
      */
     protected static function humanMessage(string $code, array $error): string
     {

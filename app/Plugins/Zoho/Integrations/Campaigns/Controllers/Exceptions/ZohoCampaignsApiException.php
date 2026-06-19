@@ -7,7 +7,7 @@ use App\Plugins\Zoho\Controllers\Exceptions\ZohoApiException;
 class ZohoCampaignsApiException extends ZohoApiException
 {
     /**
-     * @param array<mixed> $response
+     * @param  array<mixed>  $response
      */
     public static function fromResponse(array $response): static
     {

@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailMobileValidationProviders newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailMobileValidationProviders newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailMobileValidationProviders query()
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailMobileValidationProviders whereToUse($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailMobileValidationProviders whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailMobileValidationProviders whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class EmailMobileValidationProviders extends Model

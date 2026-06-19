@@ -15,7 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Date;
-use Lang;
 use ParagonIE\ConstantTime\Base32;
 use PragmaRX\Google2FAQRCode\Google2FA;
 use RateLimiter;

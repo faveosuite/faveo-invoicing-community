@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $country_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatesSubdivisions newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatesSubdivisions newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatesSubdivisions query()
@@ -30,6 +31,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatesSubdivisions whereStateSubdivisionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatesSubdivisions whereStateSubdivisionName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatesSubdivisions whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class StatesSubdivisions extends Model

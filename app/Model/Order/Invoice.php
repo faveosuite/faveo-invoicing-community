@@ -45,6 +45,7 @@ use Override;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Subscription> $subscriptions
  * @property-read int|null $subscriptions_count
  * @property-read User|null $user
+ *
  * @method static \Database\Factories\Model\Order\InvoiceFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice newQuery()
@@ -69,6 +70,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class Invoice extends BaseModel

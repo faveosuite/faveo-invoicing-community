@@ -13,7 +13,8 @@ class InstallationService
      * Original matches on product_id + license_code/client_id + IP + domain + hash.
      * Uses product_id + installation_ip + installation_domain as the unique key
      * so the same license can have multiple installations on different domains.
-     * @param array<mixed> $data
+     *
+     * @param  array<mixed>  $data
      */
     public function register(array $data): Installation
     {
@@ -37,7 +38,8 @@ class InstallationService
      * Update installation logs
      * Mirrors: POST /api/admin/updateInstallationLogs
      * Returns same format as original.
-     * @param array<mixed> $data
+     *
+     * @param  array<mixed>  $data
      * @return array<mixed>
      */
     public function updateLogs(array $data): array
@@ -110,6 +112,7 @@ class InstallationService
 
     /**
      * Get installation details for a license filtered by product, formatted as arrays.
+     *
      * @return array<mixed>
      */
     public function getInstallationsByProduct(string $licenseCode, int $productId): array

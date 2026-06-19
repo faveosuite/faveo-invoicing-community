@@ -175,7 +175,7 @@ class PageController extends Controller
         $cost[0] = 'Free';
         $plans = Plan::where('product', $id)->where('status', 1)->get();
         $product = Product::find($id);
-        if (!$product instanceof Product) {
+        if (! $product instanceof Product) {
             return $cost;
         }
         $prices = [];
@@ -188,7 +188,7 @@ class PageController extends Controller
                             continue;
                         }
                         $planObj = $planDetails['plan'] ?? null;
-                        if (!is_object($planObj)) {
+                        if (! is_object($planObj)) {
                             continue;
                         }
                         $addPrice = isset($planObj->add_price) ? (float) $planObj->add_price : 0.0;
@@ -203,7 +203,7 @@ class PageController extends Controller
                         continue;
                     }
                     $planObj = $planDetails['plan'] ?? null;
-                    if (!is_object($planObj)) {
+                    if (! is_object($planObj)) {
                         continue;
                     }
                     $addPrice = isset($planObj->add_price) ? (float) $planObj->add_price : 0.0;
@@ -235,7 +235,7 @@ class PageController extends Controller
     }
 
     /**
-     * @param array<mixed> $trasform
+     * @param  array<mixed>  $trasform
      */
     public function transformTemplate(string $type, string $data, array $trasform = []): string
     {
@@ -251,7 +251,7 @@ class PageController extends Controller
             // Use product ID directly instead of looking up by name
             $id = $productId;
             $product = Product::find($id);
-            if (!$product instanceof Product) {
+            if (! $product instanceof Product) {
                 continue;
             }
             $data = $product->highlight ? PricingTemplate::findorFail(1)->data : PricingTemplate::findorFail(2)->data;
@@ -310,7 +310,7 @@ class PageController extends Controller
     }
 
     /**
-     * @param array<mixed> $trasform
+     * @param  array<mixed>  $trasform
      */
     public function transform(string $type, string $data, array $trasform = []): string
     {
@@ -487,6 +487,7 @@ class PageController extends Controller
 
     /**
      * Get Template For Products.
+     *
      * @param  \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\Product>  $helpdesk_products
      * @param  array<mixed>  $trasform
      */
@@ -575,7 +576,7 @@ class PageController extends Controller
             $plan_form = 'Free'; //No Subscription
             $plans = $plan->where('product', '=', $id)->pluck('name', 'id')->toArray();
             $product = Product::find($id);
-            if (!$product instanceof Product) {
+            if (! $product instanceof Product) {
                 return '';
             }
             $type = $product;
@@ -599,7 +600,7 @@ class PageController extends Controller
     }
 
     /**
-     * @param array<mixed> $price
+     * @param  array<mixed>  $price
      * @return array<mixed>
      */
     public function getPrice(string $months, array $price, string $priceDescription, \App\Model\Payment\Plan $value, float|int $cost, string $currency, float|int|null $offer, \App\Model\Product\Product $product): array
@@ -625,7 +626,7 @@ class PageController extends Controller
             $price = [];
             foreach ($plans as $value) {
                 $product = Product::find($value->product);
-                if (!$product instanceof Product) {
+                if (! $product instanceof Product) {
                     continue;
                 }
                 $offerVal = PlanPrice::where('plan_id', $value->id)->value('offer_price');
@@ -698,7 +699,7 @@ class PageController extends Controller
     public function YearlyAmount(mixed $id): string
     {
         $product = Product::find($id);
-        if (!$product instanceof Product) {
+        if (! $product instanceof Product) {
             return 'Free';
         }
         $plans = Plan::where('product', $id)->where('status', 1)->get();
@@ -710,7 +711,7 @@ class PageController extends Controller
                 continue;
             }
             $planObj = $planDetails['plan'] ?? null;
-            if (!is_object($planObj)) {
+            if (! is_object($planObj)) {
                 continue;
             }
             $addPrice = isset($planObj->add_price) ? (float) $planObj->add_price : 0.0;
@@ -755,7 +756,7 @@ class PageController extends Controller
         $cost[] = 'Free';
         $plans = Plan::where('product', $id)->get();
         $product = Product::find($id);
-        if (!$product instanceof Product) {
+        if (! $product instanceof Product) {
             return $cost;
         }
         $prices = [];
@@ -798,7 +799,7 @@ class PageController extends Controller
     {
         try {
             $product = Product::find($productid);
-            if (!$product instanceof Product) {
+            if (! $product instanceof Product) {
                 return '';
             }
 
@@ -813,7 +814,7 @@ class PageController extends Controller
             foreach ($plans as $plan) {
                 if ($plan->days == 30 || $plan->days == 31) {
                     $description = $plan->planPrice->first();
-                    if (!$description) {
+                    if (! $description) {
                         break;
                     }
 
@@ -848,7 +849,7 @@ class PageController extends Controller
     {
         try {
             $product = Product::find($productId);
-            if (!$product instanceof Product) {
+            if (! $product instanceof Product) {
                 return '';
             }
 
@@ -896,8 +897,8 @@ class PageController extends Controller
     }
 
     /**
+     * @param  array<mixed>  $transform
      * @return mixed[]
-     * @param array<mixed> $transform
      */
     public function checkConfigKey(mixed $config, array $transform): array
     {
@@ -954,7 +955,7 @@ class PageController extends Controller
             $set = $set->findOrFail(1);
 
             $template = TemplateType::getSelectedTemplate('contact_us');
-            if (!$template) {
+            if (! $template) {
                 throw new Exception('Template not found');
             }
             $replace = [
@@ -1037,7 +1038,7 @@ class PageController extends Controller
             $set = $set->findOrFail(1);
 
             $template = TemplateType::getSelectedTemplate('demo_request');
-            if (!$template) {
+            if (! $template) {
                 throw new Exception('Template not found');
             }
             $replace = [

@@ -21,6 +21,7 @@ use Override;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Plugins\Zoho\Models\ZohoIntegration $integration
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken query()
@@ -33,6 +34,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken whereRefreshToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken whereScope($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class ZohoOAuthToken extends Model

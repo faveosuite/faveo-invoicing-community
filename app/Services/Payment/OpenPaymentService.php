@@ -117,7 +117,7 @@ class OpenPaymentService
     }
 
     /**
-     * @param array<mixed> $event
+     * @param  array<mixed>  $event
      */
     private function handleStripeEvent(array $event): void
     {
@@ -125,7 +125,7 @@ class OpenPaymentService
     }
 
     /**
-     * @param array<mixed> $event
+     * @param  array<mixed>  $event
      */
     private function handleRazorpayEvent(array $event): void
     {
