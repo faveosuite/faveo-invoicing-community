@@ -2,8 +2,8 @@
 
 namespace Database\Seeders\v3_0_2;
 
-use Illuminate\Database\Seeder;
 use App\Model\Common\Setting;
+use Illuminate\Database\Seeder;
 
 class SettingsSeeder extends Seeder
 {
@@ -12,9 +12,9 @@ class SettingsSeeder extends Seeder
      */
     public function run(): void
     {
-        Setting::where('id',1)->update([
+        Setting::where('id', 1)->update([
             'free_trail_expired' => 17,
-            'Free_trail_gonna_expired' => 18
-     ]);
+            'Free_trail_gonna_expired' => 18,
+        ]);
     }
 }

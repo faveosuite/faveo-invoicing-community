@@ -11,6 +11,7 @@ use App\Model\Payment\TaxRate;
 use App\Model\Payment\TaxRateLocation;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Validator;
@@ -28,7 +29,7 @@ class TaxController extends Controller
     }
 
     /** Options + tax classes + countries for the settings/forms screens. */
-    public function getTaxOptionsApi(): \Illuminate\Http\JsonResponse
+    public function getTaxOptionsApi(): JsonResponse
     {
         try {
             return successResponse('', [
@@ -44,7 +45,7 @@ class TaxController extends Controller
     }
 
     /** Paginated list of tax rates (TaxIndex table). */
-    public function getTax(Request $request): \Illuminate\Http\JsonResponse
+    public function getTax(Request $request): JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -87,10 +88,10 @@ class TaxController extends Controller
     }
 
     /** Single rate for the edit form (with its postcode/city locations). */
-    public function editTaxApi(mixed $id): \Illuminate\Http\JsonResponse
+    public function editTaxApi(mixed $id): JsonResponse
     {
         try {
-            /** @var \App\Model\Payment\TaxRate|null $rate */
+            /** @var TaxRate|null $rate */
             $rate = TaxRate::with('locations')->find($id);
             if (! $rate) {
                 return errorResponse(__('message.tax_record_not_found'), 404);
@@ -114,7 +115,7 @@ class TaxController extends Controller
     }
 
     /** Create a tax rate. */
-    public function saveTaxClassSettingApi(Request $request): \Illuminate\Http\JsonResponse
+    public function saveTaxClassSettingApi(Request $request): JsonResponse
     {
         try {
             if ($error = $this->validateRate($request)) {
@@ -131,10 +132,10 @@ class TaxController extends Controller
     }
 
     /** Update a tax rate. */
-    public function updateTaxApi(mixed $id, Request $request): \Illuminate\Http\JsonResponse
+    public function updateTaxApi(mixed $id, Request $request): JsonResponse
     {
         try {
-            /** @var \App\Model\Payment\TaxRate|null $rate */
+            /** @var TaxRate|null $rate */
             $rate = TaxRate::find($id);
             if (! $rate) {
                 return errorResponse(__('message.tax_not_found'), 404);
@@ -154,7 +155,7 @@ class TaxController extends Controller
     }
 
     /** Bulk-delete tax rates (locations cascade via FK). */
-    public function deleteTax(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteTax(Request $request): JsonResponse
     {
         try {
             $ids = array_filter(array_unique(array_map(intval(...), (array) $request->input('select', []))));
@@ -176,7 +177,7 @@ class TaxController extends Controller
     }
 
     /** States for a country (used by the rate form). */
-    public function getState(Request $request, mixed $stateid): \Illuminate\Http\JsonResponse
+    public function getState(Request $request, mixed $stateid): JsonResponse
     {
         try {
             $states = State::where('country_code', $stateid)
@@ -190,7 +191,7 @@ class TaxController extends Controller
     }
 
     /** Save global tax settings. */
-    public function saveTaxOptionSetting(Request $request): \Illuminate\Http\JsonResponse
+    public function saveTaxOptionSetting(Request $request): JsonResponse
     {
         try {
             $taxOption = TaxOption::find(1);

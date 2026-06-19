@@ -8,6 +8,7 @@ use App\Jobs\CancelGatewaySubscriptionsJob;
 use App\Model\Common\StatusSetting;
 use App\Services\Payment\ProcessingFee;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors\BadRequestError;
@@ -20,7 +21,7 @@ class SettingsController extends Controller
         $this->middleware('admin');
     }
 
-    public function getSettings(): \Illuminate\Http\JsonResponse
+    public function getSettings(): JsonResponse
     {
         try {
             $keys = ApiKey::select('rzp_key', 'rzp_secret', 'apilayer_key', 'razorpay_webhook_secret')->first();
@@ -40,7 +41,7 @@ class SettingsController extends Controller
         }
     }
 
-    public function updateApiKey(Request $request): \Illuminate\Http\JsonResponse
+    public function updateApiKey(Request $request): JsonResponse
     {
         $request->validate([
             'rzp_key' => ['required', 'string'],

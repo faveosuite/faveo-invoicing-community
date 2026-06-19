@@ -106,7 +106,7 @@ class SettingsControllerTest extends DBTestCase
     }
 
     // Test case for handling 3DS authentication
-    public function test_handlePayment_3DS_authentication(): void
+    public function test_handle_payment_3_d_s_authentication(): void
     {
         $stripeToken = $this->stripeTokenGenerate('4000003560000008');
         $requestData = ['stripeToken' => $stripeToken['id']];
@@ -122,7 +122,7 @@ class SettingsControllerTest extends DBTestCase
     }
 
     // Test case for handling Non 3DS card
-    public function test_handlePayment_return_non_3ds_values(): void
+    public function test_handle_payment_return_non_3ds_values(): void
     {
         $stripeToken = $this->stripeTokenGenerate();
         $requestData = ['stripeToken' => $stripeToken['id']];
@@ -137,7 +137,7 @@ class SettingsControllerTest extends DBTestCase
     }
 
     // Test case for handling incorrect stripe token
-    public function test_handlePayment_return_exception_incorrect_values(): void
+    public function test_handle_payment_return_exception_incorrect_values(): void
     {
         try {
             $requestData = ['stripeToken' => '12345678904567890'];
@@ -154,7 +154,7 @@ class SettingsControllerTest extends DBTestCase
     }
 
     // Test case for handling autopay for 3ds with incomplete status
-    public function test_handle_autoPayment_non_3ds_card(): void
+    public function test_handle_auto_payment_non_3ds_card(): void
     {
         $stripePaymentDetails = (object) ['payment_intent_id' => 'pm_1OyUW0I0SyY30M2QqJqeC5hx'];
 
@@ -172,8 +172,8 @@ class SettingsControllerTest extends DBTestCase
         $this->assertEquals($status, $response->status);
     }
 
-//     Test case for handling autopay for non 3ds with active status
-    public function test_handle_autoPayment_3ds_card(): void
+    //     Test case for handling autopay for non 3ds with active status
+    public function test_handle_auto_payment_3ds_card(): void
     {
         $stripePaymentDetails = (object) ['payment_intent_id' => 'pm_1OyTcJI0SyY30M2QznXTOvZH'];
 
@@ -191,8 +191,8 @@ class SettingsControllerTest extends DBTestCase
         $this->assertEquals($status, $response->status);
     }
 
-    //Testcase for handle razorpay api for subscription
-    public function test_handleRzpAutoPay_correctly(): void
+    // Testcase for handle razorpay api for subscription
+    public function test_handle_rzp_auto_pay_correctly(): void
     {
         $user = User::factory()->create(['id' => mt_rand(1, 999), 'role' => 'user', 'country' => 'IN']);
         $product = Product::create(['name' => 'Helpdesk']);
@@ -219,7 +219,7 @@ class SettingsControllerTest extends DBTestCase
                 'status' => 'created',
             ], 200),
         ]);
-        $controller = new RazorpayController();
+        $controller = new RazorpayController;
         $result = $controller->handleRzpAutoPay($cost, $days, $product_name, $invoice, $currency, $subscription, $user, $order, $endDate, $product);
         $this->assertEquals('created', $result['status']);
     }
@@ -349,17 +349,17 @@ class SettingsControllerTest extends DBTestCase
      */
     public function test_show_file_storage_returns_settings_for_local_storage(): void
     {
-        //Show file storage
+        // Show file storage
         $response = $this->getJson('/file-storage');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'success',
-                     'data' => [
-                         'disk',
-                         'local_file_storage_path',
-                     ],
-                 ]);
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'disk',
+                    'local_file_storage_path',
+                ],
+            ]);
     }
 
     public function test_update_storage_path_for_system_disk(): void
@@ -373,9 +373,9 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->postJson('/file-storage-path', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment([
-                     'message' => __('message.setting_updated'),
-                 ]);
+            ->assertJsonFragment([
+                'message' => __('message.setting_updated'),
+            ]);
 
         $this->assertDatabaseHas('settings_filesystem', [
             'disk' => 'system',
@@ -385,7 +385,7 @@ class SettingsControllerTest extends DBTestCase
 
     public function test_update_storage_path_for_s3_disk(): void
     {
-        //Update S3 disk storage
+        // Update S3 disk storage
         $fs = FileSystemSettings::updateOrCreate([], [
             'disk' => 'system',
             'local_file_storage_path' => '/old/path',
@@ -423,7 +423,7 @@ class SettingsControllerTest extends DBTestCase
 
     public function test_update_storage_path_for_s3_disk_with_invalid_credentials(): void
     {
-        //Update S3 disk storage with invalid credentials
+        // Update S3 disk storage with invalid credentials
         FileSystemSettings::updateOrCreate([], [
             'disk' => 'system',
             'local_file_storage_path' => '/old/path',
@@ -451,7 +451,7 @@ class SettingsControllerTest extends DBTestCase
 
     public function test_show_file_storage_returns_settings_for_s3_disk(): void
     {
-        //Show file storage for s3 disk
+        // Show file storage for s3 disk
         $response = $this->getJson('/file-storage');
 
         $response->assertStatus(200)
@@ -482,9 +482,9 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->getJson('/debugg');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment([
-                     'debug' => true,
-                 ]);
+            ->assertJsonFragment([
+                'debug' => true,
+            ]);
     }
 
     public function test_returns_debug_false_when_disabled(): void
@@ -503,7 +503,7 @@ class SettingsControllerTest extends DBTestCase
 
     public function test_updates_debug_status_to_true(): void
     {
-        //Update debug to enable
+        // Update debug to enable
         Config::set('app.debug', false);
 
         $response = $this->postJson('/save/debugg', [
@@ -525,7 +525,7 @@ class SettingsControllerTest extends DBTestCase
 
     public function test_updates_debug_status_to_false(): void
     {
-        //Update debug to disable
+        // Update debug to disable
         Config::set('app.debug', true);
 
         $response = $this->postJson('/save/debugg', [
@@ -533,9 +533,9 @@ class SettingsControllerTest extends DBTestCase
         ]);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment([
-                     'message' => __('message.updated-successfully'),
-                 ]);
+            ->assertJsonFragment([
+                'message' => __('message.updated-successfully'),
+            ]);
 
         // The config won't change — validate ENV(testing) instead
         $env = file_get_contents(base_path('.env.testing'));
@@ -572,23 +572,23 @@ class SettingsControllerTest extends DBTestCase
 
     public function test_returns_contact_option_settings(): void
     {
-        //To test without updating the contact options
+        // To test without updating the contact options
         Setting::factory()->create(['sending_status' => 1]);
 
         $response = $this->getJson('/contact-option');
 
         $response->assertStatus(200)
-             ->assertJsonFragment([
-                 'mailSendingStatus' => 0,
-                 'emailStatus' => 0,
-                 'mobileStatus' => 0,
-                 'preferred_verification' => 'email',
-             ]);
+            ->assertJsonFragment([
+                'mailSendingStatus' => 0,
+                'emailStatus' => 0,
+                'mobileStatus' => 0,
+                'preferred_verification' => 'email',
+            ]);
     }
 
     public function test_updates_contact_option_for_mobile_only(): void
     {
-        //To test updating contact options for mobile only
+        // To test updating contact options for mobile only
         $payload = [
             'email_enabled' => 0,
             'mobile_enabled' => 1,

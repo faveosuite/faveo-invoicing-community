@@ -5,6 +5,10 @@ namespace App\Model\Product;
 use App\BaseModel;
 use App\Model\Payment\Plan;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -12,12 +16,12 @@ use App\Traits\SystemActivityLogsTrait;
  * @property int $cloud_free_plan
  * @property string $cloud_product_key
  * @property int $trial_status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read Plan $plan
- * @property-read \App\Model\Product\Product $product
+ * @property-read Product $product
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudProducts newQuery()
@@ -84,17 +88,17 @@ class CloudProducts extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Product\Product, $this>
+     * @return BelongsTo<Product, $this>
      */
-    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'cloud_product');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Payment\Plan, $this>
+     * @return BelongsTo<Plan, $this>
      */
-    public function plan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class, 'cloud_free_plan');
     }

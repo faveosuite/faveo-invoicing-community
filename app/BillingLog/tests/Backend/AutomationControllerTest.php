@@ -79,7 +79,7 @@ class AutomationControllerTest extends TestCase
 
         $category = LogCategory::create(['name' => 'test_category']);
 
-        $type = new TemplateType();
+        $type = new TemplateType;
         $type->name = $category->name;
         $type->save();
 
@@ -135,7 +135,7 @@ class AutomationControllerTest extends TestCase
     {
         Mail::fake();
 
-        $controller = new PhpMailController();
+        $controller = new PhpMailController;
         $controller->sendEmail(
             from: 'test@example.com',
             to: 'user@example.com',
@@ -180,7 +180,7 @@ class AutomationControllerTest extends TestCase
     #[Group('controller-methods')]
     public function test_attempts_returns_default_value(): void
     {
-        $controller = new AutomationController();
+        $controller = new AutomationController;
         $this->assertEquals(5, $controller->attempts());
     }
 
@@ -188,7 +188,7 @@ class AutomationControllerTest extends TestCase
     #[Group('controller-methods')]
     public function test_get_job_id_returns_null(): void
     {
-        $controller = new AutomationController();
+        $controller = new AutomationController;
         $this->assertNull($controller->getJobId());
     }
 
@@ -196,7 +196,7 @@ class AutomationControllerTest extends TestCase
     #[Group('controller-methods')]
     public function test_get_raw_body_returns_set_value(): void
     {
-        $controller = new AutomationController();
+        $controller = new AutomationController;
         $controller->rawBody = 'test raw body';
         $this->assertEquals('test raw body', $controller->getRawBody());
     }

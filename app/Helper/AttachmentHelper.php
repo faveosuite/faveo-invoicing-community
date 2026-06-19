@@ -4,13 +4,16 @@ namespace App\Helper;
 
 use App\FileSystemSettings;
 use Exception;
+use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttachmentHelper
 {
-    public function put(string $directory, \Illuminate\Http\UploadedFile $contents, ?string $disk = null, mixed $uniqueFilename = null, string $visibility = 'private'): string|false
+    public function put(string $directory, UploadedFile $contents, ?string $disk = null, mixed $uniqueFilename = null, string $visibility = 'private'): string|false
     {
         $adapter = $this->getStorageAdapter($disk);
 
@@ -39,7 +42,7 @@ class AttachmentHelper
         return $this->getStorageAdapter($disk)->deleteDirectory($path);
     }
 
-    public function download(string $path, ?string $disk = null): \Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\StreamedResponse
+    public function download(string $path, ?string $disk = null): RedirectResponse|StreamedResponse
     {
         $adapter = $this->getStorageAdapter($disk);
 
@@ -52,7 +55,7 @@ class AttachmentHelper
         return $adapter->download($path, $filename);
     }
 
-    private function getStorageAdapter(?string $disk = null): \Illuminate\Contracts\Filesystem\Filesystem
+    private function getStorageAdapter(?string $disk = null): Filesystem
     {
         $disk = $disk ?: FileSystemSettings::value('disk');
 

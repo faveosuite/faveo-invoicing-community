@@ -22,6 +22,9 @@ use App\Payment_log;
 use App\User;
 use Auth;
 use Exception;
+use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Lang;
 use Logger;
@@ -31,47 +34,47 @@ class OrderController extends BaseOrderController
     // NOTE FROM AVINASH: utha le re deva
     // NOTE: don't lose hope.
     /**
-     * @var \App\Model\Order\Order
+     * @var Order
      */
     public $order;
 
     /**
-     * @var \App\User
+     * @var User
      */
     public $user;
 
     /**
-     * @var \App\Model\Payment\Promotion
+     * @var Promotion
      */
     public $promotion;
 
     /**
-     * @var \App\Model\Product\Product
+     * @var Product
      */
     public $product;
 
     /**
-     * @var \App\Model\Product\Subscription
+     * @var Subscription
      */
     public $subscription;
 
     /**
-     * @var \App\Model\Order\Invoice
+     * @var Invoice
      */
     public $invoice;
 
     /**
-     * @var \App\Model\Order\InvoiceItem
+     * @var InvoiceItem
      */
     public $invoice_items;
 
     /**
-     * @var \App\Model\Product\Price
+     * @var Price
      */
     public $price;
 
     /**
-     * @var \App\Model\Payment\Plan
+     * @var Plan
      */
     public $plan;
 
@@ -80,38 +83,38 @@ class OrderController extends BaseOrderController
         $this->middleware('auth');
         $this->middleware('admin', ['except' => ['getInstallationDetails']]);
 
-        $order = new Order();
+        $order = new Order;
         $this->order = $order;
 
-        $user = new User();
+        $user = new User;
         $this->user = $user;
 
-        $promotion = new Promotion();
+        $promotion = new Promotion;
         $this->promotion = $promotion;
 
-        $product = new Product();
+        $product = new Product;
         $this->product = $product;
 
-        $subscription = new Subscription();
+        $subscription = new Subscription;
         $this->subscription = $subscription;
 
-        $invoice = new Invoice();
+        $invoice = new Invoice;
         $this->invoice = $invoice;
 
-        $invoice_items = new InvoiceItem();
+        $invoice_items = new InvoiceItem;
         $this->invoice_items = $invoice_items;
 
-        $plan = new Plan();
+        $plan = new Plan;
         $this->plan = $plan;
 
-        $price = new Price();
+        $price = new Price;
         $this->price = $price;
 
-        $product_upload = new ProductUpload();
+        $product_upload = new ProductUpload;
         $this->product_upload = $product_upload; // @phpstan-ignore property.notFound
     }
 
-    public function getOrders(Request $request): \Illuminate\Http\JsonResponse
+    public function getOrders(Request $request): JsonResponse
     {
         try {
             $searchQuery = $request->input('search-query', '');
@@ -124,7 +127,7 @@ class OrderController extends BaseOrderController
                 $sortField = 'created_at';
             }
 
-            $orderSearch = new OrderSearchController();
+            $orderSearch = new OrderSearchController;
             $query = $orderSearch->advanceOrderSearch($request);
             $query = $orderSearch->applyOrdersSearch($query, $searchQuery);
 
@@ -171,7 +174,7 @@ class OrderController extends BaseOrderController
         }
     }
 
-    public function getOrder(int $id): \Illuminate\Http\JsonResponse
+    public function getOrder(int $id): JsonResponse
     {
         $order = $this->order
             ->with([
@@ -214,7 +217,7 @@ class OrderController extends BaseOrderController
         ]);
     }
 
-    public function getInstallationDetails(int $orderId): \Illuminate\Http\JsonResponse
+    public function getInstallationDetails(int $orderId): JsonResponse
     {
         try {
             $rows = InstallationDetail::where('order_id', $orderId)->get();
@@ -236,7 +239,7 @@ class OrderController extends BaseOrderController
     /**
      * Update the specified resource in storage.
      */
-    public function update(int $id, OrderRequest $request): \Illuminate\Http\RedirectResponse
+    public function update(int $id, OrderRequest $request): RedirectResponse
     {
         try {
             $order = $this->order->where('id', $id)->firstOrFail();
@@ -248,7 +251,7 @@ class OrderController extends BaseOrderController
         }
     }
 
-    public function deleteBulkOrders(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteBulkOrders(Request $request): JsonResponse
     {
         try {
             $ids = $request->input('order_ids', []);
@@ -310,13 +313,13 @@ class OrderController extends BaseOrderController
 
     public function product(int $itemid): string
     {
-        $invoice_items = new InvoiceItem();
+        $invoice_items = new InvoiceItem;
         $invoice_item = $invoice_items->find($itemid);
 
         return $invoice_item->product_name ?? '';
     }
 
-    public function subscription(int $orderid): ?\App\Model\Product\Subscription
+    public function subscription(int $orderid): ?Subscription
     {
         return $this->subscription->where('order_id', $orderid)->first();
     }
@@ -324,19 +327,19 @@ class OrderController extends BaseOrderController
     public function expiry(int $orderid): ?string
     {
         $sub = $this->subscription($orderid);
-        if ($sub instanceof \App\Model\Product\Subscription) {
+        if ($sub instanceof Subscription) {
             return $sub->update_ends_at;
         }
 
         return '';
     }
 
-    public function renew(int $orderid): \Illuminate\Contracts\Routing\UrlGenerator|string
+    public function renew(int $orderid): UrlGenerator|string
     {
         return url('my-orders');
     }
 
-    public function exportOrders(Request $request): \Illuminate\Http\JsonResponse
+    public function exportOrders(Request $request): JsonResponse
     {
         try {
             ini_set('memory_limit', '-1');
@@ -349,11 +352,11 @@ class OrderController extends BaseOrderController
                 'renewal', 'inact_ins', 'version',
             ]);
 
-            /** @var \App\User $authUser */
+            /** @var User $authUser */
             $authUser = Auth::user();
             $email = $authUser->email;
 
-            /** @var \App\Model\Mailjob\QueueService $driver */
+            /** @var QueueService $driver */
             $driver = QueueService::where('status', '1')->firstOrFail();
 
             if ($driver->name === 'Sync') {
@@ -373,7 +376,7 @@ class OrderController extends BaseOrderController
         }
     }
 
-    public function getPaymentByOrderId(Request $request, int $orderId): \Illuminate\Http\JsonResponse
+    public function getPaymentByOrderId(Request $request, int $orderId): JsonResponse
     {
         try {
             $searchQuery = $request->input('search-query', '');
@@ -419,7 +422,7 @@ class OrderController extends BaseOrderController
         }
     }
 
-    public function getOrderInvoices(Request $request, int $orderId): \Illuminate\Http\JsonResponse
+    public function getOrderInvoices(Request $request, int $orderId): JsonResponse
     {
         $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');

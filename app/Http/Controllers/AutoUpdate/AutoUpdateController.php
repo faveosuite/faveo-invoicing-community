@@ -5,13 +5,12 @@ namespace App\Http\Controllers\AutoUpdate;
 use App\Http\Controllers\Controller;
 use App\License\Services\VersionService;
 use App\Model\Product\Product;
+use App\Model\Product\ProductUpload;
 use Exception;
 
 class AutoUpdateController extends Controller
 {
-    public function __construct(protected VersionService $versionService)
-    {
-    }
+    public function __construct(protected VersionService $versionService) {}
 
     /*
     *  Add New Version
@@ -37,7 +36,7 @@ class AutoUpdateController extends Controller
         }
 
         $version = $this->versionService->getVersionByNumber($product->id, $version_number);
-        if (! $version instanceof \App\Model\Product\ProductUpload) {
+        if (! $version instanceof ProductUpload) {
             throw new Exception(__('message.version_not_found'));
         }
 
@@ -61,7 +60,7 @@ class AutoUpdateController extends Controller
         $version = $this->versionService->getVersionByNumber($product->id, $version_number);
 
         return [
-            'version_id' => $version instanceof \App\Model\Product\ProductUpload ? $version->id : '',
+            'version_id' => $version instanceof ProductUpload ? $version->id : '',
             'product_id' => $product->id,
         ];
     }

@@ -26,7 +26,6 @@ abstract class SignatureMethod
      * the encoding is handled in OAuthRequest when the final
      * request is serialized.
      *
-     * @param  Token  $token
      * @return string
      */
     abstract public function buildSignature(Request $request, Consumer $consumer, ?Token $token = null);

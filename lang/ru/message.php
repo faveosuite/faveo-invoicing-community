@@ -706,10 +706,10 @@ return [
     'cloud_field_label' => 'Введите желаемое имя домена облака',
     'cloud_price' => 'Цена за агента',
 
-    //Сообщение удаления
+    // Сообщение удаления
     'confirm' => 'Вы уверены, что хотите удалить это?',
 
-    //Сообщение удаления
+    // Сообщение удаления
     'cloud_domain_change' => 'Отличные новости! Ваш домен облака был успешно изменен. Пожалуйста, обратите внимание, что для применения этих изменений будет небольшой перерыв на примерно 5 минут. Благодарим за ваше терпение!',
     'limit_is_up' => 'Мы заметили, что вы превысили лимит бесплатной пробной версии, пожалуйста, удалите существующие экземпляры, чтобы продолжить.',
     'too_long' => 'Похоже, что домен слишком длинный, попробуйте создать его с меньшим количеством символов.',
@@ -874,7 +874,7 @@ return [
     'required_stripe_secret' => 'Пожалуйста, введите Stripe Secret',
     'max_stripe_secret' => 'Stripe Secret не может превышать 200 символов',
 
-    //email templates
+    // email templates
 
     'choose_password' => 'Нажмите здесь, чтобы сбросить ваш пароль: ',
     'email_username' => 'Имя пользователя: ',
@@ -882,7 +882,7 @@ return [
     'email_click_here' => 'Нажмите здесь',
     'activate_account' => 'Чтобы активировать вашу учетную запись:',
 
-    //error template
+    // error template
     'page_not_found' => 'Страница не найдена',
     'sorry' => 'Извините, но страница, которую вы ищете, не существует.',
     'useful_links' => 'Вот несколько полезных ссылок',
@@ -891,7 +891,7 @@ return [
     'my_profile' => 'Мой профиль',
     'contact_us' => 'Свяжитесь с нами',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Войти | Зарегистрироваться',
     'sign_lr' => 'Войти или зарегистрироваться',
     'or' => 'Или',
@@ -925,7 +925,7 @@ return [
     'error_occurred' => 'Произошла ошибка. Пожалуйста, попробуйте снова.',
     'error_one_country' => 'Пожалуйста, выберите одну страну',
 
-    //contact template
+    // contact template
     'feel_free' => 'Не стесняйтесь задавать вопросы, не оставляйте их без ответа!',
     'contact_name' => 'Имя',
     'contact_error_name' => 'Пожалуйста, введите ваше имя.',
@@ -938,7 +938,7 @@ return [
     'contact_send_msg' => 'Отправить сообщение',
     'our_office' => 'Наш офис',
 
-    //password template
+    // password template
     'forgot_password' => 'Забыли пароль? Сбросьте его сейчас!',
     'lost_password' => 'Забыли свой пароль?',
     'know_password' => 'Я знаю свой пароль',
@@ -948,7 +948,7 @@ return [
     'error_occurs' => 'Произошла ошибка.',
     'reset_password' => 'Сбросить пароль',
 
-    //front-client template
+    // front-client template
     'change_faveo' => 'Хотите изменить свой текущий домен Faveo?',
     'current_domain' => 'Введите текущий домен',
     'enter_domain' => 'Введите новый домен',
@@ -1110,7 +1110,7 @@ return [
     'subscriptions_table' => 'Таблица подписок',
     'invalid_format' => 'Неверный формат.',
 
-    //front-page template
+    // front-page template
     'all_pages' => 'Все страницы',
     'create_new_page' => 'Создать новую страницу',
     'edit_page' => 'Редактировать страницу',
@@ -1120,14 +1120,14 @@ return [
     'select_checkbox' => 'Пожалуйста, выберите хотя бы один флажок',
     'search_result' => 'Результат поиска',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'Все виджеты',
     'create_widget' => 'Создать виджет',
     'configure_mailchimp' => 'Настройте Mailchimp в настройках для доступа',
     'configure_tweet' => 'Настройте твиты в настройках для доступа',
     'edit_widget' => 'Редактировать виджет',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Удалить товар',
     'cart_totals' => 'Итого в корзине',
     'clear_cart' => 'Очистить корзину',
@@ -1184,11 +1184,11 @@ return [
     'go_back' => 'Вернуться назад',
     'be_right_back' => 'Скоро вернемся.',
 
-    //category template
+    // category template
     'all_categories' => 'Все категории',
     'category_name' => 'Название',
 
-    //common template
+    // common template
     'create_script_code' => 'Создать код сценария',
     'create_script' => 'Создать сценарий',
     'edit_script_code' => 'Редактировать код сценария',
@@ -1351,14 +1351,14 @@ return [
     'deactivate' => 'Деактивировать',
     'provider' => 'Поставщик',
 
-    //github template
+    // github template
     'github_setting' => 'Настройки Github',
     'enter_github_username' => 'Введите имя пользователя Github',
     'enter_github_password' => 'Введите пароль Github',
     'enter_github_clientid' => 'Введите ID клиента',
     'enter_github_client_secret_key' => 'Введите секретный ключ клиента',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => 'Редактировать счет',
     'view_user' => 'Просмотреть пользователя',
     'pending' => 'Ожидает',
@@ -1399,7 +1399,7 @@ return [
     'no_tax_rates' => 'Нет налоговых ставок',
     'store' => 'Магазин',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Административная панель',
     'my_account' => 'Мой аккаунт',
     'start_free_trial' => 'НАЧАТЬ БЕСПЛАТНЫЙ ПРОБНЫЙ ПЕРИОД',
@@ -1440,7 +1440,7 @@ return [
     'enter_domain_license' => 'Введите домен и загрузите файл лицензии',
     'installation_details' => 'Детали установки',
 
-    //payement panel
+    // payement panel
     'payment_date' => 'Дата платежа',
     'auto_renewal_subscription' => 'Автопродление для будущих подписок',
     'subscription_start_date' => 'Дата начала подписки',
@@ -1466,7 +1466,7 @@ return [
     'coupon' => 'Купон',
     'actions' => 'Действия',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Создать налог',
     'caps_others' => 'ДРУГИЕ',
     'others' => 'Другие',
@@ -1504,7 +1504,7 @@ return [
     'show_cart_page' => 'Показать на странице корзины',
     'select_taxes' => 'Выберите налоги',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Добавить детали продукта',
     'enter_json_format' => 'Введите формат JSON.',
     'upload' => 'Загрузить',
@@ -1533,21 +1533,21 @@ return [
     'all_types' => 'Все типы',
     'configure_queue' => 'Настроить очередь',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Убедитесь, что корзина пуста для продления вашего продукта',
     'click_renew' => 'Нажмите здесь, чтобы продлить',
     'renew_your_order' => 'Продлить ваш заказ',
     'renew_order' => 'Продлить заказ',
     'renewal_price_per_agent' => 'Цена продления за агента:',
 
-    //report panel
+    // report panel
     'file_name' => 'Имя файла',
     'format' => 'Формат',
     'contact' => 'Контакт',
     'report_settings' => 'Настройки отчета',
     'report_limit' => 'Добавьте записи на лист. Максимальный лимит — 3000.',
 
-    //tenant panel
+    // tenant panel
     'cloud_server' => 'Облачный сервер',
     'customise_cloud_popup' => 'Настроить всплывающее окно облака',
     'cloud_product_configuration' => 'Конфигурация облачного продукта',
@@ -1574,7 +1574,7 @@ return [
     'app_key' => 'Ключ приложения',
     'app_secret' => 'Секрет приложения',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Создать нового пользователя',
     'create_user' => 'Создать пользователя',
     'position' => 'Должность',
@@ -1689,7 +1689,7 @@ return [
     'error_logs' => 'Логи ошибок',
     'view_logs' => 'Просмотр логов',
 
-    //visitstats
+    // visitstats
     'request' => 'Запрос',
     'visitor' => 'Посетитель',
     'browser' => 'Браузер',

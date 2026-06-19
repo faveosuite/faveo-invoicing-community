@@ -22,12 +22,12 @@ class PromotionControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->classObject = new PromotionController();
+        $this->classObject = new PromotionController;
         Currency::where('code', 'INR')->update(['status' => 1]);
     }
 
     #[Group('promotion')]
-    public function test_getPromotionDetails_whenRandomCodePassed_throwsException(): void
+    public function test_get_promotion_details_when_random_code_passed_throws_exception(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Invalid Coupon code');
@@ -35,7 +35,7 @@ class PromotionControllerTest extends DBTestCase
     }
 
     #[Group('promotion')]
-    public function test_getPromotionDetails_whenCodeHasExpired_throwsException(): void
+    public function test_get_promotion_details_when_code_has_expired_throws_exception(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Usage of Code Expired');
@@ -46,7 +46,7 @@ class PromotionControllerTest extends DBTestCase
     }
 
     #[Group('promotion')]
-    public function test_getPromotionDetails_whenProductIsNotLinkedToCode_throwsException(): void
+    public function test_get_promotion_details_when_product_is_not_linked_to_code_throws_exception(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('There is  no product related to this code');
@@ -64,7 +64,7 @@ class PromotionControllerTest extends DBTestCase
     }
 
     #[Group('promotion')]
-    public function test_getPromotionDetails_whenUsageCountHasExpired_throwsException(): void
+    public function test_get_promotion_details_when_usage_count_has_expired_throws_exception(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Usage of code Completed');
@@ -78,7 +78,7 @@ class PromotionControllerTest extends DBTestCase
     }
 
     #[Group('promotion')]
-    public function test_getPromotionDetails_whenValidCodePassed_returnsSuccess(): void
+    public function test_get_promotion_details_when_valid_code_passed_returns_success(): void
     {
         $this->withoutMiddleware();
         $product = Product::factory()->create();
@@ -88,7 +88,7 @@ class PromotionControllerTest extends DBTestCase
     }
 
     #[Group('promotion')]
-    public function test_findCostAfterDiscount_whenCodeTypeIsInPercents_returnsDiscountedPrice(): void
+    public function test_find_cost_after_discount_when_code_type_is_in_percents_returns_discounted_price(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser();
@@ -100,11 +100,11 @@ class PromotionControllerTest extends DBTestCase
         $this->call('POST', 'promotions', ['code' => 'FAVEOCOUPON', 'type' => 1, 'value' => 10, 'uses' => 10, 'applied' => $product->id, 'start' => '08/01/2020', 'expiry' => '08/15/2050']);
         $promotion = Promotion::orderBy('id', 'desc')->first();
         $promotion = $this->classObject->findCostAfterDiscount($promotion->id, $product->id, $this->user->id);
-        $this->assertEquals($promotion, 900); //10% dicount on 1000
+        $this->assertEquals($promotion, 900); // 10% dicount on 1000
     }
 
     #[Group('promotion')]
-    public function test_findCostAfterDiscount_whenCodeTypeIsFixedAmount_returnsDiscountedPrice(): void
+    public function test_find_cost_after_discount_when_code_type_is_fixed_amount_returns_discounted_price(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser();
@@ -116,11 +116,11 @@ class PromotionControllerTest extends DBTestCase
         $this->call('POST', 'promotions', ['code' => 'FAVEOCOUPON', 'type' => 2, 'value' => 10, 'uses' => 10, 'applied' => $product->id, 'start' => '08/01/2020', 'expiry' => '08/15/2050']);
         $promotion = Promotion::orderBy('id', 'desc')->first();
         $promotion = $this->classObject->findCostAfterDiscount($promotion->id, $product->id, $this->user->id);
-        $this->assertEquals($promotion, 990); //Rs 10 dicount on 1000
+        $this->assertEquals($promotion, 990); // Rs 10 dicount on 1000
     }
 
     #[Group('promotion')]
-    public function test_checkCode_whenFixedAmtCouponCodeEnteredWithCartConditions_returnsUpdatedCartPrice(): void
+    public function test_check_code_when_fixed_amt_coupon_code_entered_with_cart_conditions_returns_updated_cart_price(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser();
@@ -141,12 +141,12 @@ class PromotionControllerTest extends DBTestCase
         ]);
         $this->classObject->checkCode('FAVEOCOUPON');
         foreach (Cart::getContent() as $cart) {
-            $this->assertEquals($cart->getPriceSum(), 990); //Rs 10 dicount on Cart subtotal
+            $this->assertEquals($cart->getPriceSum(), 990); // Rs 10 dicount on Cart subtotal
         }
     }
 
     #[Group('promotion')]
-    public function test_checkCode_whenPercentCouponCodeEnteredWithCartConditions_returnsUpdatedCartPrice(): void
+    public function test_check_code_when_percent_coupon_code_entered_with_cart_conditions_returns_updated_cart_price(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser();
@@ -172,7 +172,7 @@ class PromotionControllerTest extends DBTestCase
     }
 
     #[Group('promotion')]
-    public function test_checkCode_whenCouponCodeIsEneteredForNonDiscountedProduct_throwsException(): void
+    public function test_check_code_when_coupon_code_is_enetered_for_non_discounted_product_throws_exception(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Invalid Coupon code');
@@ -198,7 +198,7 @@ class PromotionControllerTest extends DBTestCase
     }
 
     #[Group('promotion')]
-    public function test_checkCode_whenCouponCodeIsEneteredTwiceInSameSession_throwsException(): void
+    public function test_check_code_when_coupon_code_is_enetered_twice_in_same_session_throws_exception(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Coupon code has already been applied');
@@ -226,7 +226,7 @@ class PromotionControllerTest extends DBTestCase
     }
 
     #[Group('promotion')]
-    public function test_store_saveNewPromotionCode_returnsSuccessMessage(): void
+    public function test_store_save_new_promotion_code_returns_success_message(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();

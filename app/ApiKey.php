@@ -3,8 +3,12 @@
 namespace App;
 
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -14,8 +18,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $apilayer_key
  * @property string|null $bugsnag_api_key
  * @property string|null $zoho_api_key
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $msg91_auth_key
  * @property string|null $msg91_sender
  * @property string|null $msg91_template_id
@@ -35,7 +39,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $stripe_key
  * @property string|null $stripe_secret
  * @property string|null $stripe_webhook_secret
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  *
  * @method static \Database\Factories\ApiKeyFactory factory($count = null, $state = [])
@@ -76,9 +80,10 @@ use Illuminate\Database\Eloquent\Model;
 class ApiKey extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'api_keys';

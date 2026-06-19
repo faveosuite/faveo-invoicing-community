@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\SocialLogin;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SocialLoginsController extends Controller
@@ -14,7 +15,7 @@ class SocialLoginsController extends Controller
         $this->middleware('admin');
     }
 
-    public function getSocialLogin(Request $request): \Illuminate\Http\JsonResponse
+    public function getSocialLogin(Request $request): JsonResponse
     {
         $search = $request->input('search-query', '');
         $sortField = $request->input('sort-field', 'created_at');
@@ -22,25 +23,25 @@ class SocialLoginsController extends Controller
         $limit = $request->input('limit', 10);
 
         $query = SocialLogin::select('id', 'type', 'client_id', 'client_secret', 'redirect_url', 'status')
-                 ->when($search, function ($q) use ($search): void {
-                     $q->where('type', 'like', sprintf('%%%s%%', $search))
-                       ->orWhere('client_id', 'like', sprintf('%%%s%%', $search));
-                 });
+            ->when($search, function ($q) use ($search): void {
+                $q->where('type', 'like', sprintf('%%%s%%', $search))
+                    ->orWhere('client_id', 'like', sprintf('%%%s%%', $search));
+            });
 
         $socialLogins = $query->orderBy($sortField, $sortOrder)
-                              ->simplePaginate($limit);
+            ->simplePaginate($limit);
 
         return successResponse('', $socialLogins);
     }
 
-    public function editSocialLogin(mixed $id): \Illuminate\Http\JsonResponse
+    public function editSocialLogin(mixed $id): JsonResponse
     {
         $socialLogins = SocialLogin::where('id', $id)->first();
 
         return successResponse('', $socialLogins);
     }
 
-    public function updateSocialLogin(Request $request): \Illuminate\Http\JsonResponse
+    public function updateSocialLogin(Request $request): JsonResponse
     {
         $request->validate([
             'client_id' => ['required_if:type,Google,Github,Linkedin'],

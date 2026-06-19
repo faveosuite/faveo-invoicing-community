@@ -7,6 +7,7 @@ use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Api\ZohoCampaignsApi;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Exceptions\TagNotFoundException;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Exceptions\ZohoCampaignsApiException;
 use App\Plugins\Zoho\Models\ZohoIntegration;
+use App\Plugins\Zoho\Models\ZohoOAuthClient;
 use Illuminate\Http\Client\HttpClientException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -31,12 +32,12 @@ class Campaigns
 
     public function __construct()
     {
-        /** @var \App\Plugins\Zoho\Models\ZohoIntegration $campaignsIntegration */
+        /** @var ZohoIntegration $campaignsIntegration */
         $campaignsIntegration = ZohoIntegration::with(['client', 'token'])
             ->where('platform', 'campaigns')
             ->first();
 
-        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $campaignsClient */
+        /** @var ZohoOAuthClient $campaignsClient */
         $campaignsClient = $campaignsIntegration->client;
 
         $this->zohoApi = new ZohoCampaignsApi(
@@ -214,7 +215,7 @@ class Campaigns
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int|string, mixed>
+     * @return Collection<int|string, mixed>
      */
     protected function loadLists(): Collection
     {

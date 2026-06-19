@@ -4,6 +4,7 @@ namespace App\License\Controllers\Traits;
 
 use App\License\Models\VersionCallback;
 use App\License\Models\VersionNotification;
+use Illuminate\Http\JsonResponse;
 
 trait AfuCallbackHelpers
 {
@@ -13,7 +14,7 @@ trait AfuCallbackHelpers
      *
      * @param  array<mixed>  $data
      */
-    protected function notificationResponse(string $notificationCase, array $data = []): \Illuminate\Http\JsonResponse
+    protected function notificationResponse(string $notificationCase, array $data = []): JsonResponse
     {
         // Only returns notification_data when everything is OK
         $responseData = ($notificationCase === 'notification_operation_ok') ? $data : [];

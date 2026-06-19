@@ -762,7 +762,7 @@ return [
     'password_required' => 'Wachtwoord is vereist.',
     'new_password_different' => 'Het nieuwe wachtwoord moet anders zijn dan het oude wachtwoord.',
     'reset_link_expired' => 'De link voor het opnieuw instellen van uw wachtwoord is verlopen of niet gevonden. Probeer het opnieuw.',
-    //file storage
+    // file storage
 
     'file_storage' => 'Bestandopslag',
     'set_file_storage' => 'Stel bestandopslag pad in',
@@ -854,7 +854,7 @@ return [
     'required_stripe_secret' => 'Voer Stripe-geheime sleutel in',
     'max_stripe_secret' => 'Stripe-geheime sleutel mag niet meer dan 200 tekens bevatten',
 
-    //email templates
+    // email templates
 
     'choose_password' => 'Klik hier om je wachtwoord opnieuw in te stellen: ',
     'email_username' => 'Gebruikersnaam: ',
@@ -862,7 +862,7 @@ return [
     'email_click_here' => 'Klik Hier',
     'activate_account' => 'Om je account te activeren:',
 
-    //error template
+    // error template
     'page_not_found' => 'Pagina niet gevonden',
     'sorry' => 'Het spijt ons, maar de pagina die je zocht bestaat niet.',
     'useful_links' => 'Hier zijn enkele nuttige links',
@@ -870,7 +870,7 @@ return [
     'my_orders' => 'Mijn bestellingen',
     'my_profile' => 'Mijn profiel',
     'contact_us' => 'Neem contact op',
-    //login-register template
+    // login-register template
     'login_lr' => 'Inloggen | Registreren',
     'sign_lr' => 'Log in of registreer',
     'or' => 'Of',
@@ -904,7 +904,7 @@ return [
     'error_occurred' => 'Er is een fout opgetreden. Probeer het opnieuw.',
     'error_one_country' => 'Selecteer één land',
 
-    //contact template
+    // contact template
     'feel_free' => 'Voel je vrij om om details te vragen, bewaar geen vragen!',
     'contact_name' => 'Naam',
     'contact_error_name' => 'Voer je naam in.',
@@ -917,7 +917,7 @@ return [
     'contact_send_msg' => 'Verstuur bericht',
     'our_office' => 'Ons kantoor',
 
-    //password template
+    // password template
     'forgot_password' => 'Wachtwoord vergeten? Stel het nu opnieuw in!',
     'lost_password' => 'Je wachtwoord verloren?',
     'know_password' => 'Ik weet mijn wachtwoord',
@@ -927,7 +927,7 @@ return [
     'error_occurs' => 'Er is een fout opgetreden.',
     'reset_password' => 'Wachtwoord opnieuw instellen',
 
-    //front-client template
+    // front-client template
     'change_faveo' => 'Wil je je bestaande Faveo cloud-domein wijzigen?',
     'current_domain' => 'Voer het huidige domein in',
     'enter_domain' => 'Voer een nieuw domein in',
@@ -1106,7 +1106,7 @@ return [
     'configure_mailchimp' => 'Configureer je Mailchimp in instellingen om toegang te krijgen',
     'configure_tweet' => 'Configureer je tweets in instellingen om toegang te krijgen',
     'edit_widget' => 'Bewerk Widget',
-    //front outer template
+    // front outer template
     'remove_product' => 'Verwijder product',
     'cart_totals' => 'Winkelwagen totalen',
     'clear_cart' => 'Winkelwagen leegmaken',
@@ -1163,11 +1163,11 @@ return [
     'go_back' => 'Teruggaan',
     'be_right_back' => 'We zijn zo terug.',
 
-    //category template
+    // category template
     'all_categories' => 'Alle categorieën',
     'category_name' => 'Naam',
 
-    //common template
+    // common template
     'create_script_code' => 'Maak scriptcode',
     'create_script' => 'Maak script',
     'edit_script_code' => 'Bewerk scriptcode',
@@ -1330,14 +1330,14 @@ return [
     'deactivate' => 'Deactiveer',
     'provider' => 'Provider',
 
-    //github template
+    // github template
     'github_setting' => 'Github instellingen',
     'enter_github_username' => 'Voer github gebruikersnaam in',
     'enter_github_password' => 'Voer github wachtwoord in',
     'enter_github_clientid' => 'Voer client-ID in',
     'enter_github_client_secret_key' => 'Voer client geheime sleutel in',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => 'Bewerk factuur',
     'view_user' => 'Bekijk gebruiker',
     'pending' => 'In afwachting',
@@ -1378,7 +1378,7 @@ return [
     'no_tax_rates' => 'Geen belastingtarieven',
     'store' => 'Winkel',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Beheerdersdashboard',
     'my_account' => 'Mijn account',
     'start_free_trial' => 'START GRATIS PROEF',
@@ -1419,7 +1419,7 @@ return [
     'enter_domain_license' => 'Voer domein in & download licentiebestand',
     'installation_details' => 'Installatiegegevens',
 
-    //payment panel
+    // payment panel
     'payment_date_error' => 'Betaaldatum',
     'auto_renewal_subscription' => 'Automatisch verlengen voor toekomstige abonnementen',
     'subscription_start_date' => 'Startdatum abonnement',
@@ -1445,7 +1445,7 @@ return [
     'coupon' => 'Coupon',
     'actions' => 'Acties',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Maak belasting aan',
     'caps_others' => 'ANDEREN',
     'others' => 'Anderen',
@@ -1483,7 +1483,7 @@ return [
     'show_cart_page' => 'Toon op winkelwagenpagina',
     'select_taxes' => 'Selecteer belastingen',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Voeg productdetails toe',
     'enter_json_format' => 'Voer JSON-formaat in.',
     'upload' => 'Uploaden',
@@ -1512,21 +1512,21 @@ return [
     'all_types' => 'Alle Typen',
     'configure_queue' => 'Configureer Wachtrij',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Zorg ervoor dat het winkelwagentje leeg is om je product te vernieuwen',
     'click_renew' => 'Klik hier om te vernieuwen',
     'renew_your_order' => 'Vernieuw je bestelling',
     'renew_order' => 'Vernieuw Bestelling',
     'renewal_price_per_agent' => 'Vernieuwing prijs per agent: ',
 
-    //report panel
+    // report panel
     'file_name' => 'Bestandsnaam',
     'format' => 'Formaat',
     'contact' => 'Contact',
     'report_settings' => 'Rapportinstellingen',
     'report_limit' => 'Voeg records per sheet toe. De maximale limiet is 3000.',
 
-    //tenant panel
+    // tenant panel
     'cloud_server' => 'Cloud server',
     'customise_cloud_popup' => 'Pas Cloud Pop-up aan',
     'cloud_product_configuration' => 'Cloud Product Configuratie',
@@ -1553,7 +1553,7 @@ return [
     'app_key' => 'App sleutel',
     'app_secret' => 'App geheim',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Maak Nieuwe Gebruiker',
     'create_user' => 'Maak Gebruiker',
     'position' => 'Positie',
@@ -1667,7 +1667,7 @@ return [
     'error_logs' => 'Foutlogboeken',
     'view_logs' => 'Bekijk logboeken',
 
-    //visitstats
+    // visitstats
     'request' => 'Verzoek',
     'visitor' => 'Bezoeker',
     'browser' => 'Browser',
@@ -2025,7 +2025,7 @@ return [
     'no_tax' => 'Geen belasting',
     'null' => 'Null',
     'choose_one_payment_gateway' => 'Kies een betalingsgateway',
-    //Controller keys and values
+    // Controller keys and values
     'product_uploaded_successfully' => 'Product succesvol geüpload',
     'token_mismatch_account_not_activated' => 'Token komt niet overeen. Account kan niet geactiveerd worden.',
     'email_verification_success' => 'E-mailverificatie succesvol. Log in om toegang te krijgen tot je account!!',

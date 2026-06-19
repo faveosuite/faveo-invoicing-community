@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Model\Payment;
 
 use App\BaseModel;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Postcode/city narrowing for a tax rate. location_type is 'postcode' or
@@ -14,9 +16,9 @@ use App\BaseModel;
  * @property int $tax_rate_id
  * @property string $location_code
  * @property string $location_type
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Model\Payment\TaxRate $taxRate
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read TaxRate $taxRate
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRateLocation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRateLocation newQuery()
@@ -37,9 +39,9 @@ class TaxRateLocation extends BaseModel
     protected $fillable = ['tax_rate_id', 'location_code', 'location_type'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<TaxRate, $this>
+     * @return BelongsTo<TaxRate, $this>
      */
-    public function taxRate(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function taxRate(): BelongsTo
     {
         return $this->belongsTo(TaxRate::class, 'tax_rate_id');
     }

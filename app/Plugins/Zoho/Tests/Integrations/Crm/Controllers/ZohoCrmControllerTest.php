@@ -39,7 +39,7 @@ class ZohoCrmControllerTest extends DBTestCase
             ]
         );
 
-        $this->controller = new ZohoCrmController();
+        $this->controller = new ZohoCrmController;
     }
 
     public function test_it_syncs_crm_fields_successfully(): void

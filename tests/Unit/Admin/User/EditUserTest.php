@@ -11,7 +11,7 @@ class EditUserTest extends TestCase
     use DatabaseTransactions;
 
     #[Group('clientController')]
-    public function test_clientController_whenUserUpdatesDetails(): void
+    public function test_client_controller_when_user_updates_details(): void
     {
         $user = User::factory()->create();
         $this->withoutMiddleware();

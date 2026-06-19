@@ -2,10 +2,9 @@
 
 namespace Database\Seeders\v3_0_2;
 
-use Illuminate\Database\Seeder;
-use App\Model\Common\TemplateType;
 use App\Model\Common\Template;
-
+use App\Model\Common\TemplateType;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,8 +12,8 @@ class DatabaseSeeder extends Seeder
      * Run the database seeds.
      */
     public function run(): void
-    {	    
- 
+    {
+
         $this->call([TemplateTypeTableSeeder::class]);
         $this->command->info('Template Type table seeded!');
 
@@ -22,13 +21,12 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Template table seeded!');
 
         $this->call(SettingsSeeder::class);
-       
-    }	
-   
-   }
-    
-    class TemplateTypeTableSeeder extends Seeder
-   {
+
+    }
+}
+
+class TemplateTypeTableSeeder extends Seeder
+{
     public function run(): void
     {
 
@@ -36,16 +34,15 @@ class DatabaseSeeder extends Seeder
         TemplateType::create(['id' => 18, 'name' => 'Free_trail_gonna_expired']);
         TemplateType::create(['id' => 19, 'name' => 'cloud_deleted']);
 
-
     }
-  }
+}
 
-    class TemplateTableSeeder extends Seeder
-   {
-     public function run(): void
+class TemplateTableSeeder extends Seeder
+{
+    public function run(): void
     {
 
-                Template::create(['id' => 16, 'name' => '[Faveo Helpdesk] Purchase confirmation', 'type' => 7, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::create(['id' => 16, 'name' => '[Faveo Helpdesk] Purchase confirmation', 'type' => 7, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
                 <tbody>
                 <tr>
                 <td style="width: 30px;">&nbsp;</td>
@@ -133,7 +130,7 @@ class DatabaseSeeder extends Seeder
                 </table>
                 <p>&nbsp;</p>']);
 
-          Template::create(['id' => 17, 'name' => '[Faveo Cloud] Cloud has Expired', 'type' => 17, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::create(['id' => 17, 'name' => '[Faveo Cloud] Cloud has Expired', 'type' => 17, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
             <tbody>
             <tr>
             <td style="width: 30px;">&nbsp;</td>
@@ -220,10 +217,7 @@ class DatabaseSeeder extends Seeder
             </table>
             <p>&nbsp;</p>']);
 
-
-
-
-          Template::create(['id' => 18, 'name' => '[Faveo Cloud] Cloud Gonna Expire', 'type' => 18, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::create(['id' => 18, 'name' => '[Faveo Cloud] Cloud Gonna Expire', 'type' => 18, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
                                 <tbody>
                                 <tr>
                                 <td style="width: 30px;">&nbsp;</td>
@@ -311,8 +305,7 @@ class DatabaseSeeder extends Seeder
                                 </table>
                                 <p>&nbsp;</p>']);
 
-
-                     Template::create(['id' => 19, 'name' => '[Faveo Cloud] Faveo cloud deleted', 'type' => 19, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::create(['id' => 19, 'name' => '[Faveo Cloud] Faveo cloud deleted', 'type' => 19, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
                         <tbody>
                         <tr>
                         <td style="width: 30px;">&nbsp;</td>
@@ -398,7 +391,5 @@ class DatabaseSeeder extends Seeder
                         </table>
                         <p>&nbsp;</p>']);
 
-
     }
-
-   }
+}

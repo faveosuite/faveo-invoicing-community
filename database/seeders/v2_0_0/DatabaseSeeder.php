@@ -2,7 +2,6 @@
 
 namespace Database\Seeders\v2_0_0;
 
-use App\User;
 use App\ApiKey;
 use App\Model\Common\Mailchimp\MailchimpFieldAgoraRelation;
 use App\Model\Common\Mailchimp\MailchimpSetting;
@@ -18,6 +17,7 @@ use App\Model\Payment\Period;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Payment\TaxOption;
+use App\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        //Model::unguard();
+        // Model::unguard();
 
         $this->call([TemplateTypeTableSeeder::class]);
         $this->command->info('Template Type table seeded!');
@@ -80,10 +80,8 @@ class DatabaseSeeder extends Seeder
         $this->call([PricingTemplateSeeder::class]);
         $this->command->info('Pricing Template Table Seeded!');
 
-
         $this->call([UserTableSeeder::class]);
         $this->command->info('User table seeded!');
-
 
         $this->call([ConditionSeeder::class]);
         $this->command->info('Condition table seeded!');
@@ -91,8 +89,8 @@ class DatabaseSeeder extends Seeder
         $this->call([ActivityLogDelSeeder::class]);
         $this->command->info('Activity Log Days table seeded!');
 
-//        $this->call([FormatCurrenciesSeeder::class]);
-//        $this->command->info('Format Currencies table seeded!');
+        //        $this->call([FormatCurrenciesSeeder::class]);
+        //        $this->command->info('Format Currencies table seeded!');
 
         // $this->call([FaveoCloudSeeder::class]);
         // $this->command->info('Format faveocloud table seeded!');
@@ -105,12 +103,12 @@ class DatabaseSeeder extends Seeder
         $this->call(SettingsSeeder::class);
         $this->call(FrontPageSeeder::class);
         $this->call(BussinessSeeder::class);
-//        $this->call(CurrencySeeder::class);
-//        $this->call(CountrySeeder::class);
-//        $this->call(StateSubdivision::class);
-//        $this->call(BaseStateSubdivisionSeeder::class);
-//        $this->call(ExtendedStateSubdivisionSeeder::class);
-//        $this->call(StatesSeeder::class);
+        //        $this->call(CurrencySeeder::class);
+        //        $this->call(CountrySeeder::class);
+        //        $this->call(StateSubdivision::class);
+        //        $this->call(BaseStateSubdivisionSeeder::class);
+        //        $this->call(ExtendedStateSubdivisionSeeder::class);
+        //        $this->call(StatesSeeder::class);
         $this->call(TaxByStatesSeeder::class);
         $this->call(TimezoneSeeder::class);
         $this->call(QueueServiceSeeder::class);
@@ -950,8 +948,8 @@ class ActivityLogDelSeeder extends Seeder
     }
 }
 
-//class FormatCurrenciesSeeder extends Seeder
-//{
+// class FormatCurrenciesSeeder extends Seeder
+// {
 //    public function run()
 //    {
 //        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
@@ -960,7 +958,7 @@ class ActivityLogDelSeeder extends Seeder
 //        DB::table('format_currencies')->insert(['id' => 1, 'name' => 'US Dollar', 'code' => 'USD', 'symbol' => '$', 'format' => '$1,0.00', 'exchange_rate' => 0, 'active' => 0]);
 //        DB::table('format_currencies')->insert(['id' => 2, 'name' => 'Indian Rupee', 'code' => 'INR', 'symbol' => '₹', 'format' => '₹1,0.00', 'exchange_rate' => 0, 'active' => 0]);
 //    }
-//}
+// }
 
 // class FaveoCloudSeeder extends Seeder
 // {
@@ -993,7 +991,7 @@ class UserTableSeeder extends Seeder
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         // DB::table('users')->truncate();
-        DB::table('users')->where('email','demo@admin.com')->delete();
+        DB::table('users')->where('email', 'demo@admin.com')->delete();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         return User::create([

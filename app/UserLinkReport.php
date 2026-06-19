@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -13,10 +16,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $type
  * @property string $column_id
  * @property int $order
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\ReportColumn|null $reportColumn
- * @property-read \App\User|null $user
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read ReportColumn|null $reportColumn
+ * @property-read User|null $user
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserLinkReport newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserLinkReport newQuery()
@@ -34,7 +37,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserLinkReport extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -48,17 +51,17 @@ class UserLinkReport extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<ReportColumn, $this>
+     * @return BelongsTo<ReportColumn, $this>
      */
-    public function reportColumn(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function reportColumn(): BelongsTo
     {
         return $this->belongsTo(ReportColumn::class, 'column_id');
     }

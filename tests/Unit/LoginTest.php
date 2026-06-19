@@ -16,7 +16,7 @@ class LoginTest extends DBTestCase
     use DatabaseTransactions;
 
     #[Group('postLogin')]
-    public function test_postLogin_forVerifiedUsers(): void
+    public function test_post_login_for_verified_users(): void
     {
         $user = User::factory()->create(['password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
@@ -45,7 +45,7 @@ class LoginTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
-    public function test_postLogin_forAdmin(): void
+    public function test_post_login_for_admin(): void
     {
         $user = User::factory()->create(['role' => 'admin', 'password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
@@ -74,7 +74,7 @@ class LoginTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
-    public function test_postLogin_when_mobile_is_Unverified(): void
+    public function test_post_login_when_mobile_is_unverified(): void
     {
         $user = User::factory()->create(['mobile_verified' => 0, 'password' => Hash::make('password')]);
         StatusSetting::updateOrCreate(
@@ -97,7 +97,7 @@ class LoginTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
-    public function test_postLogin_when_email_is_Unverified(): void
+    public function test_post_login_when_email_is_unverified(): void
     {
         $user = User::factory()->create(['email_verified' => 0, 'password' => Hash::make('password')]);
         StatusSetting::updateOrCreate(
@@ -120,7 +120,7 @@ class LoginTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
-    public function test_postLogin_when_email_and_mobile_are_Unverified(): void
+    public function test_post_login_when_email_and_mobile_are_unverified(): void
     {
         $user = User::factory()->create(['password' => Hash::make('password'), 'email_verified' => 0, 'mobile_verified' => 0]);
         $this->withoutMiddleware();
@@ -237,7 +237,7 @@ class LoginTest extends DBTestCase
         $response = $this->postJson('/login', [
             'email_username' => 'user@example.com',
             'password1' => 'password',
-            //this is a honeypot field, it should be empty
+            // this is a honeypot field, it should be empty
             'login' => [
                 'pot_field' => '',     // valid
                 'time_field' => encrypt(time() - 10), // valid

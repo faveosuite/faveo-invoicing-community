@@ -18,15 +18,15 @@ use Tests\DBTestCase;
 
 class StoreTest extends DBTestCase
 {
-    private \App\Http\Controllers\Common\TemplateController $con;
+    private TemplateController $con;
 
-    private \App\Http\Controllers\Front\PageController $con1;
+    private PageController $con1;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->con = new TemplateController();
-        $this->con1 = new PageController();
+        $this->con = new TemplateController;
+        $this->con1 = new PageController;
         $this->request = resolve(Request::class);
         $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
         $this->html->shouldReceive('token')->andReturn('mocked-token');
@@ -59,7 +59,7 @@ class StoreTest extends DBTestCase
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => 200, 'currency' => 'USD']);
         $response = $this->con->leastAmount($product->id);
-//        $response = $this->getPrivateMethod($this->con, 'leastAmount', [$product->id]);
+        //        $response = $this->getPrivateMethod($this->con, 'leastAmount', [$product->id]);
         $this->assertEquals($response, '<span class="price-unit">$</span>200.00');
     }
 

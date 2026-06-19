@@ -714,10 +714,10 @@ return [
     'cloud_field_label' => 'Enter your desired cloud domain name',
     'cloud_price' => 'Price per agent',
 
-    //Delete message
+    // Delete message
     'confirm' => 'Are you sure you want to delete this?',
 
-    //Delete message
+    // Delete message
     'cloud_domain_change' => 'Great news! Your Cloud Domain has been successfully changed. Please be aware that there will be a brief downtime of approximately 5 minutes to apply these changes. Thank you for your patience!',
     'limit_is_up' => 'It has come to our notice that you have crossed the free trial limit, please delete your existing instances to proceed further.',
     'too_long' => 'That seems to be a large domain, Please try creating with lesser number of characters.',
@@ -769,7 +769,7 @@ return [
     'user_suspend' => 'This user is suspended from system. Restore the user to view details',
     'country_notfound' => 'Country could not be determined',
 
-    //Strong Password
+    // Strong Password
     'strong_password' => 'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.',
 
     'password_requirements' => 'Your password must have:',
@@ -789,7 +789,7 @@ return [
     'new_password_different' => 'The new password must be different from the old password.',
     'reset_link_expired' => 'Your reset password link has been expired or not found. Please try reset password again.',
 
-    //file storage
+    // file storage
 
     'file_system' => 'File System',
     'file_storage' => 'File Storage',
@@ -814,7 +814,7 @@ return [
     's3_endpoint_url_required' => 'S3 Endpoint URL is required',
     'setting_updated' => 'Storage settings updated successfully.',
 
-    //pdf settings
+    // pdf settings
     'pdf_settings' => 'PDF Settings',
     'node_path' => 'Node Path',
     'npm_path' => 'NPM Path',
@@ -1363,7 +1363,7 @@ return [
     'mobile_validation_description' => 'The mobile validator integration uses Abstract and Vonage APIs to verify phone numbers in real time by checking their format, validity, carrier details, and reachability—ensuring only accurate and deliverable mobile numbers are accepted within the platform.',
     'mobileApi_provider' => 'Please select a mobile validation provider.',
     'tick-to-hide-from-invoice' => 'Check to hide from administrative area product dropdown menus(does not apply to services already associated with this product)',
-    //email templates
+    // email templates
 
     'choose_password' => 'Click here to reset your password: ',
     'email_username' => 'User Name: ',
@@ -1371,7 +1371,7 @@ return [
     'email_click_here' => 'Click Here',
     'activate_account' => 'To activate your account:',
 
-    //error template
+    // error template
     'page_not_found' => ' Page Not Found',
     'sorry' => 'We\'re sorry, but the page you were looking for doesn\'t exist.',
     'useful_links' => 'Here are some useful links',
@@ -1380,7 +1380,7 @@ return [
     'my_profile' => 'My Profile',
     'contact_us' => 'Contact Us',
 
-    //login-register template
+    // login-register template
     'sign_lr' => 'Sign in or Register',
     'or' => 'Or',
     'username_register' => 'Username or E-mail Address ',
@@ -1411,7 +1411,7 @@ return [
     'error_valid_number' => 'Please enter a valid phone number',
     'error_occurred' => 'An error occurred. Please try again.',
 
-    //contact template
+    // contact template
     'feel_free' => 'Feel free to ask for details, don\'t save any questions!',
     'contact_error_name' => 'Please enter your name.',
     'contact_error_firstname' => 'Please enter your first name.',
@@ -1423,7 +1423,7 @@ return [
     'contact_send_msg' => 'Send Message',
     'our_office' => 'Our Office',
 
-    //password template
+    // password template
     'forgot_password' => 'Forgot Password? Reset it Now!',
     'lost_password' => 'Lost your password?',
     'know_password' => 'I know my password',
@@ -1433,7 +1433,7 @@ return [
     'error_occurs' => 'An error occurred.',
     'reset_password' => 'Reset Password',
 
-    //front-client template
+    // front-client template
     'change_faveo' => 'Do you want to change your existing faveo cloud domain?',
     'current_domain' => 'Enter current domain',
     'enter_domain' => 'Enter new domain',
@@ -1591,7 +1591,7 @@ return [
     'subscriptions_table' => 'Subscriptions Table',
     'invalid_format' => 'Invalid format.',
 
-    //front-page template
+    // front-page template
     'all_pages' => 'All Pages',
     'create_new_page' => 'Create New Page',
     'edit_page' => 'Edit Page',
@@ -1599,14 +1599,14 @@ return [
     'select_checkbox' => 'Please select at least one checkbox',
     'search_result' => 'Search Result',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'All Widgets',
     'create_widget' => 'Create Widget',
     'configure_mailchimp' => 'Cofigure your mailchimp in settings to access',
     'configure_tweet' => 'Configure your tweets in settings to access',
     'edit_widget' => 'Edit Widget',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Remove Product',
     'cart_totals' => 'Cart Totals',
     'clear_cart' => 'Clear Cart',
@@ -1661,10 +1661,10 @@ return [
     'go_back' => 'Go Back',
     'be_right_back' => 'Be right back.',
 
-    //category template
+    // category template
     'all_categories' => 'All Categories',
 
-    //common template
+    // common template
     'create_script_code' => 'Create Script Code',
     'create_script' => 'Create Script',
     'edit_script_code' => 'Edit Script Code',
@@ -1836,14 +1836,14 @@ return [
     'deactivate' => 'Deactivate',
     'provider' => 'Provider',
 
-    //github template
+    // github template
     'github_setting' => 'Github Setting',
     'enter_github_username' => 'Please Enter github Username',
     'enter_github_password' => 'Please Enter Github Password',
     'enter_github_clientid' => 'Please Enter Client Id',
     'enter_github_client_secret_key' => 'Please Enter Client Secret Key',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => ' Edit Invoice',
     'view_user' => ' View User',
     'pending' => 'Pending',
@@ -1883,7 +1883,7 @@ return [
     'no_tax_rates' => 'No Tax Rates',
     'store' => 'Store',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Admin Dashboard',
     'my_account' => 'My Account',
     'start_free_trial' => 'START FREE TRIAL',
@@ -1924,7 +1924,7 @@ return [
     'enter_domain_license' => 'Enter Domain & Download License File',
     'installation_details' => 'Installation Details',
 
-    //payement panel
+    // payement panel
     'payment_date' => 'Payment Date',
     'auto_renewal_subscription' => 'Auto Renewal for Future Subscription',
     'subscription_start_date' => 'Subscription Start Date',
@@ -1950,7 +1950,7 @@ return [
     'coupon' => 'Coupon',
     'actions' => 'Actions',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Create Tax',
     'caps_others' => 'OTHERS',
     'others' => 'Others',
@@ -1989,7 +1989,7 @@ return [
     'show_cart_page' => 'Show on Cart Page',
     'select_taxes' => 'Select Taxes',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Add Product Details',
     'enter_json_format' => 'Enter valid JSON format.',
     'upload' => 'Upload',
@@ -2017,21 +2017,21 @@ return [
     'all_types' => 'All Types',
     'configure_queue' => 'Configure Queue',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Make sure the cart is empty to Renew your product',
     'click_renew' => 'Click here to renew',
     'renew_your_order' => 'Renew your order',
     'renew_order' => 'Renew Order',
     'renewal_price_per_agent' => 'Renewal price-per agent: ',
 
-    //report panel
+    // report panel
     'file_name' => 'File name',
     'format' => 'Format',
     'contact' => 'Contact',
     'report_settings' => 'Report settings',
     'report_limit' => 'Add records per sheet. The maximum limit is 3000.',
 
-    //tenanat panel
+    // tenanat panel
     'cloud_details' => 'Cloud Details',
     'cloud_server' => 'Cloud server',
     'customise_cloud_popup' => 'Customise Cloud Popup',
@@ -2059,7 +2059,7 @@ return [
     'app_key' => 'App key',
     'app_secret' => 'App secret',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Create New User',
     'create_user' => 'Create User',
     'position' => 'Position',
@@ -2152,7 +2152,7 @@ return [
     'by_arcanedev' => 'by ARCANEDEV',
     'toggle_navigation' => 'Toggle navigation',
 
-    //boostrap-4
+    // boostrap-4
     'logs' => 'Logs',
     'caps_delete_log_file' => 'DELETE LOG FILE',
     'caps_delete_file' => 'DELETE FILE',
@@ -2173,7 +2173,7 @@ return [
     'error_logs' => 'Error Logs',
     'view_logs' => 'View Logs',
 
-    //visitstats
+    // visitstats
     'request' => 'Request',
     'visitor' => 'Visitor',
     'browser' => 'Browser',
@@ -2200,7 +2200,7 @@ return [
     'product_quantity' => 'Product Quantity',
     'table_search' => 'Search:',
 
-    //validation message
+    // validation message
     'enter_valid_otp' => 'Please Enter A Valid OTP',
     'verifying' => 'Verifying',
     'resending' => 'Resending',
@@ -2357,7 +2357,7 @@ return [
     'null' => 'Null',
     'choose_one_payment_gateway' => 'Choose one payment gateway',
 
-    //Controller keys and values
+    // Controller keys and values
     'product_uploaded_successfully' => 'Product Uploaded Successfully',
     'token_mismatch_account_not_activated' => 'Token mismatch. Account cannot be activated.',
     'email_verification_success' => 'Email verification successful.Please login to access your account !!',

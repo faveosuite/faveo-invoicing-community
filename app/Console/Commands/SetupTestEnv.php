@@ -41,16 +41,16 @@ class SetupTestEnv extends LoggableCommand
 
         echo "\nDatabase Created Successfully!\n";
 
-        //setting up new database name
+        // setting up new database name
         Config::set('database.connections.mysql.database', $dbName);
 
-        //setting up app env to testing
+        // setting up app env to testing
         Config::set('app.env', 'testing');
 
-        //add default app key for testing
+        // add default app key for testing
         Config::set('app.key', 'base64:G4WSQduFNvk9rYtoLS1ozg==');
 
-        //opening a database connection
+        // opening a database connection
         DB::purge('mysql');
 
         echo "\nRunning migrations!\n";
@@ -70,7 +70,7 @@ class SetupTestEnv extends LoggableCommand
 
         echo "\nSeeders ran successfully!\n";
 
-        //closing the database connection
+        // closing the database connection
         DB::disconnect('mysql');
 
         $this->createEnv($dbUsername, $dbPassword, $dbName);
@@ -149,7 +149,7 @@ class SetupTestEnv extends LoggableCommand
 
         // Creating testing_db
         DB::connection('mysql')->getPdo()->exec(sprintf('CREATE DATABASE `%s`', $dbName));
-        //disconnecting it will remove database config from the memory so that new database name can be
+        // disconnecting it will remove database config from the memory so that new database name can be
         // populated
         DB::disconnect('mysql');
     }

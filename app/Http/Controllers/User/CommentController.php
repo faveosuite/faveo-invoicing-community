@@ -17,10 +17,10 @@ class CommentController extends Controller
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $user = new User();
+        $user = new User;
         $this->user = $user; // @phpstan-ignore property.notFound
 
-        $comment = new Comment();
+        $comment = new Comment;
         $this->comment = $comment; // @phpstan-ignore property.notFound
     }
 

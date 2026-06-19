@@ -4,25 +4,26 @@ namespace App\Http\Controllers\License;
 
 use App\Model\License\LicenseType;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class LicenseSettingsController extends LicensePermissionsController
 {
-    private \App\Model\License\LicenseType $licenseType;
+    private LicenseType $licenseType;
 
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $licenseType = new LicenseType();
+        $licenseType = new LicenseType;
         $this->licenseType = $licenseType;
     }
 
     /*
     * Get All the categories
     */
-    public function getLicenseTypes(Request $request): \Illuminate\Http\JsonResponse
+    public function getLicenseTypes(Request $request): JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -31,10 +32,10 @@ class LicenseSettingsController extends LicensePermissionsController
             $limit = $request->input('limit', 10);
 
             $query = $this->licenseType
-                          ->select('id', 'name')
-                          ->when($searchString, function ($q) use ($searchString): void {
-                              $q->where('name', 'LIKE', sprintf('%%%s%%', $searchString));
-                          });
+                ->select('id', 'name')
+                ->when($searchString, function ($q) use ($searchString): void {
+                    $q->where('name', 'LIKE', sprintf('%%%s%%', $searchString));
+                });
 
             $licenseTypes = $query->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
@@ -48,7 +49,7 @@ class LicenseSettingsController extends LicensePermissionsController
     /**
      * Store a newly created resource in storage.
      */
-    public function createLicense(Request $request): \Illuminate\Http\JsonResponse
+    public function createLicense(Request $request): JsonResponse
     {
         try {
             $productType = $this->licenseType->fill($request->input())->save();
@@ -59,11 +60,11 @@ class LicenseSettingsController extends LicensePermissionsController
         }
     }
 
-    public function updateLicense(Request $request, mixed $id): \Illuminate\Http\JsonResponse
+    public function updateLicense(Request $request, mixed $id): JsonResponse
     {
         try {
             $type_name = $request->input('name');
-            /** @var \App\Model\License\LicenseType|null $type */
+            /** @var LicenseType|null $type */
             $type = $this->licenseType->find($id);
 
             if ($type) {
@@ -80,7 +81,7 @@ class LicenseSettingsController extends LicensePermissionsController
     /**
      * Remove the specified resource from storage.
      */
-    public function deleteLicense(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteLicense(Request $request): JsonResponse
     {
         try {
             $ids = $request->input('select');
@@ -90,7 +91,7 @@ class LicenseSettingsController extends LicensePermissionsController
             }
 
             foreach ($ids as $id) {
-                /** @var \App\Model\License\LicenseType|null $type */
+                /** @var LicenseType|null $type */
                 $type = $this->licenseType->find($id);
                 if ($type) {
                     $type->delete();
@@ -103,7 +104,7 @@ class LicenseSettingsController extends LicensePermissionsController
         }
     }
 
-    public function getLicenseTypeById(mixed $id): \Illuminate\Http\JsonResponse
+    public function getLicenseTypeById(mixed $id): JsonResponse
     {
         try {
             $type = $this->licenseType->select('id', 'name')->findOrFail($id);

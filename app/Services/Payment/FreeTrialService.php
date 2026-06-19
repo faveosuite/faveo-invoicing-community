@@ -14,6 +14,7 @@ use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\User;
 use GuzzleHttp\Client;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -47,7 +48,7 @@ class FreeTrialService
         $plan = $this->resolveFreePlan($cloudProduct);
         $product = Product::findOrFail($cloudProduct->cloud_product);
 
-        return DB::transaction(function () use ($user, $domain, $cloudProduct, $plan, $product, $currency): \Illuminate\Http\JsonResponse { // @phpstan-ignore return.type
+        return DB::transaction(function () use ($user, $domain, $cloudProduct, $plan, $product, $currency): JsonResponse { // @phpstan-ignore return.type
             $invoice = $this->createInvoice($user, $plan, $currency);
             $this->createInvoiceItem($invoice, $product, $plan, $currency);
 
@@ -55,7 +56,7 @@ class FreeTrialService
                 ->firstWhere('product', $product->id)
                 ?? throw new RuntimeException(__('message.cannot_generate_freetrial_cloud_instance'));
 
-            $result = new TenantController(new Client(), new FaveoCloud())
+            $result = new TenantController(new Client, new FaveoCloud)
                 ->createTenant(new Request(['orderNo' => $order->number, 'domain' => $domain]));
 
             if (($result['status'] ?? '') === 'false') { // @phpstan-ignore offsetAccess.nonOffsetAccessible

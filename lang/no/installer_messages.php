@@ -114,7 +114,7 @@ return [
     'user_name' => 'Brukernavn',
     'user_email' => 'Brukerens e-post',
     'password_not_match' => 'Passordene stemmer ikke overens',
-    //new
+    // new
     'installation_check' => 'Denne testen vil sjekke nødvendige forutsetninger for å installere Agora Invoice Community',
     'db_setup_error_1' => 'Dette betyr enten at brukernavn og passordinformasjon er feil eller at verten din ikke er tilgjengelig.',
     'db_setup_error_2' => 'Er du sikker på at du har en database som allerede eksisterer med det oppgitte databasenavnet?',

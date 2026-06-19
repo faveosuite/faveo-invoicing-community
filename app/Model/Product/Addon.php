@@ -3,10 +3,12 @@
 namespace App\Model\Product;
 
 use App\BaseModel;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
 /**
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\ProductAddonRelation> $relation
+ * @property-read Collection<int, ProductAddonRelation> $relation
  * @property-read int|null $relation_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Addon newModelQuery()
@@ -24,9 +26,9 @@ class Addon extends BaseModel
         'show_on_order', 'auto_active_payment', 'suspend_parent', ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ProductAddonRelation, $this>
+     * @return HasMany<ProductAddonRelation, $this>
      */
-    public function relation(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function relation(): HasMany
     {
         return $this->hasMany(ProductAddonRelation::class);
     }

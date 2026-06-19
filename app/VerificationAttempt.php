@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $user_id
  * @property string $mobile_attempt
  * @property int $email_attempt
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\User|null $user
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $user
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VerificationAttempt newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VerificationAttempt newQuery()
@@ -31,7 +34,7 @@ use Illuminate\Database\Eloquent\Model;
 class VerificationAttempt extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -42,9 +45,9 @@ class VerificationAttempt extends Model
     protected $fillable = ['user_id', 'mobile_attempt', 'email_attempt'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

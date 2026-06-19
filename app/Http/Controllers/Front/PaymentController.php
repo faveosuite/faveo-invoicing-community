@@ -14,6 +14,7 @@ use App\Model\Product\Product;
 use App\Services\Payment\InvoicePaymentService;
 use App\Services\Payment\OpenPaymentService;
 use App\Services\Payment\ProcessingFee;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Throwable;
 
@@ -40,10 +41,9 @@ class PaymentController extends Controller
     public function __construct(
         private readonly InvoicePaymentService $invoices,
         private readonly OpenPaymentService $webhooks,
-    ) {
-    }
+    ) {}
 
-    public function payInit(Request $request, int $invoice): \Illuminate\Http\JsonResponse
+    public function payInit(Request $request, int $invoice): JsonResponse
     {
         $model = $this->authorizedInvoice($request, $invoice);
 
@@ -121,7 +121,7 @@ class PaymentController extends Controller
      * for the SPA success page. Stateless + refreshable; derived from the paid
      * invoice, not the session.
      */
-    public function paySuccess(Request $request, int $invoice): \Illuminate\Http\JsonResponse
+    public function paySuccess(Request $request, int $invoice): JsonResponse
     {
         $model = $this->authorizedInvoice($request, $invoice);
 
@@ -174,7 +174,7 @@ class PaymentController extends Controller
      * mounts Stripe's embedded checkout with the client secret and, in the
      * checkout's onComplete callback, calls stripeConfirm with the session id.
      */
-    public function stripeSession(Request $request, int $invoice): \Illuminate\Http\JsonResponse
+    public function stripeSession(Request $request, int $invoice): JsonResponse
     {
         $model = $this->authorizedInvoice($request, $invoice);
 
@@ -190,7 +190,7 @@ class PaymentController extends Controller
      * The session is re-fetched from Stripe server-side; the client-supplied
      * session id is only a pointer, never the source of truth.
      */
-    public function stripeConfirm(Request $request, int $invoice): \Illuminate\Http\JsonResponse
+    public function stripeConfirm(Request $request, int $invoice): JsonResponse
     {
         $model = $this->authorizedInvoice($request, $invoice);
 
@@ -209,7 +209,7 @@ class PaymentController extends Controller
      * Create a Razorpay Order for an invoice and return the Checkout config the
      * SPA passes to `new Razorpay(options)`.
      */
-    public function razorpayOrder(Request $request, int $invoice): \Illuminate\Http\JsonResponse
+    public function razorpayOrder(Request $request, int $invoice): JsonResponse
     {
         $model = $this->authorizedInvoice($request, $invoice);
 
@@ -225,7 +225,7 @@ class PaymentController extends Controller
      * Handles purchases, renewals, agent alterations, upgrade/downgrades,
      * open payments, and subscription auto-renewals.
      */
-    public function stripeWebhook(Request $request): \Illuminate\Http\JsonResponse
+    public function stripeWebhook(Request $request): JsonResponse
     {
         $processed = $this->webhooks->handleWebhook(
             'Stripe',
@@ -241,7 +241,7 @@ class PaymentController extends Controller
     /**
      * Razorpay webhook — entry point for all Razorpay payment events.
      */
-    public function razorpayWebhook(Request $request): \Illuminate\Http\JsonResponse
+    public function razorpayWebhook(Request $request): JsonResponse
     {
         $processed = $this->webhooks->handleWebhook(
             'Razorpay',

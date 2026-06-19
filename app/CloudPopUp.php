@@ -5,17 +5,21 @@ declare(strict_types=1);
 namespace App;
 
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
  * @property string $cloud_top_message
  * @property string $cloud_label_field
  * @property string $cloud_label_radio
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudPopUp newModelQuery()
@@ -33,9 +37,10 @@ use Illuminate\Database\Eloquent\Model;
 class CloudPopUp extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'cloud_pop_up';

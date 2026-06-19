@@ -81,8 +81,8 @@ class MailchimpClient
         $url = $this->baseUrl.'/'.ltrim($endpoint, '/');
 
         $pending = Http::withBasicAuth('anystring', $this->apiKey)
-                       ->acceptJson()
-                       ->contentType('application/json');
+            ->acceptJson()
+            ->contentType('application/json');
 
         $response = match (strtoupper($method)) {
             'GET' => $pending->get($url, $data),
@@ -93,7 +93,7 @@ class MailchimpClient
         };
 
         if ($response->status() === 429) {
-            throw new MailchimpRateLimitException();
+            throw new MailchimpRateLimitException;
         }
 
         if ($response->failed()) {

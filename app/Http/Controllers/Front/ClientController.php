@@ -30,6 +30,7 @@ use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Logger;
@@ -38,58 +39,58 @@ use Override;
 class ClientController extends BaseClientController
 {
     /**
-     * @var \App\User
+     * @var User
      */
     public $user;
 
     /**
-     * @var \App\Model\Order\Invoice
+     * @var Invoice
      */
     public $invoice;
 
     /**
-     * @var \App\Model\Order\Order
+     * @var Order
      */
     public $order;
 
     /**
-     * @var \App\Model\Product\Subscription
+     * @var Subscription
      */
     public $subscription;
 
     /**
-     * @var \App\Model\Order\Payment
+     * @var Payment
      */
     public $payment;
 
     public function __construct()
     {
         $this->middleware('auth');
-        $user = new User();
+        $user = new User;
         $this->user = $user;
 
-        $invoice = new Invoice();
+        $invoice = new Invoice;
         $this->invoice = $invoice;
 
-        $order = new Order();
+        $order = new Order;
         $this->order = $order;
 
-        $subscription = new Subscription();
+        $subscription = new Subscription;
         $this->subscription = $subscription;
 
-        $payment = new Payment();
+        $payment = new Payment;
         $this->payment = $payment;
 
-        $product_upload = new ProductUpload();
+        $product_upload = new ProductUpload;
         $this->product_upload = $product_upload; // @phpstan-ignore property.notFound
 
-        $product = new Product();
+        $product = new Product;
         $this->product = $product; // @phpstan-ignore property.notFound
 
-        $github_controller = new GithubApiController();
+        $github_controller = new GithubApiController;
         $this->github_api = $github_controller; // @phpstan-ignore property.notFound
 
-        $model = new Github();
+        $model = new Github;
         $this->github = $model->firstOrFail(); // @phpstan-ignore property.notFound
 
         $this->client_id = $this->github->client_id; // @phpstan-ignore property.notFound
@@ -99,7 +100,7 @@ class ClientController extends BaseClientController
     /**
      *  Auto-renew by id and redirect to paynow page.
      */
-    public function autoRenewbyid(): \Illuminate\Http\RedirectResponse
+    public function autoRenewbyid(): RedirectResponse
     {
         try {
             $id = request()->route('id');
@@ -117,7 +118,7 @@ class ClientController extends BaseClientController
 
             $cost = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
-            $controller = new RenewController();
+            $controller = new RenewController;
             $items = InvoiceItem::where('invoice_id', $id)->first();
             if (! $items instanceof InvoiceItem) {
                 throw new Exception('Invoice item not found.');
@@ -126,7 +127,7 @@ class ClientController extends BaseClientController
             // $this->setSession($id, $planid);
 
             return redirect('paynow/'.$id);
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             return redirect('my-orders')->with('fails', $exception->getMessage());
         }
     }
@@ -134,11 +135,10 @@ class ClientController extends BaseClientController
     /**
      *  Get all the invoices in data table.
      *
-     * @param  request  $request
      *
      * @throws Exception
      */
-    public function getInvoices(Request $request): \Illuminate\Http\JsonResponse
+    public function getInvoices(Request $request): JsonResponse
     {
         $query = Invoice::with([
             'orders:id,number',
@@ -151,7 +151,7 @@ class ClientController extends BaseClientController
         if ($search !== '' && $search !== '0') {
             $query->where(function (Builder $q) use ($search): void {
                 $q->where('number', 'like', sprintf('%%%s%%', $search))
-                  ->orWhere('status', 'like', sprintf('%%%s%%', $search));
+                    ->orWhere('status', 'like', sprintf('%%%s%%', $search));
             });
         }
 
@@ -185,7 +185,7 @@ class ClientController extends BaseClientController
         return successResponse('', $paginated);
     }
 
-    public function getClientOrder(Request $request): \Illuminate\Http\JsonResponse
+    public function getClientOrder(Request $request): JsonResponse
     {
         $query = $this->getClientPanelOrdersData();
 
@@ -245,7 +245,7 @@ class ClientController extends BaseClientController
         if ($search !== '' && $search !== '0') {
             $query->where(function (Builder $q) use ($search): void {
                 $q->where('number', 'like', sprintf('%%%s%%', $search))
-                  ->orWhereHas('productRelation', fn (Builder $pq) => $pq->where('name', 'like', sprintf('%%%s%%', $search)));
+                    ->orWhereHas('productRelation', fn (Builder $pq) => $pq->where('name', 'like', sprintf('%%%s%%', $search)));
             });
         }
 
@@ -301,8 +301,6 @@ class ClientController extends BaseClientController
      * Cloud settings data for the client order view (Vue cloud-settings tab).
      * Returns the current domain, agent count, plan, expiry and the plan list
      * used by the change-domain / change-agents / upgrade-downgrade modals.
-     *
-     * @param  $orderId
      */
     public function getCloudSettings(int $orderId): JsonResponse
     {
@@ -363,7 +361,7 @@ class ClientController extends BaseClientController
         }
     }
 
-    public function renewPopupVue(Request $request, int $productid): \Illuminate\Http\JsonResponse
+    public function renewPopupVue(Request $request, int $productid): JsonResponse
     {
         try {
             $user = Auth::user();
@@ -401,7 +399,7 @@ class ClientController extends BaseClientController
     }
 
     #[Override]
-    public function getInvoicesByOrderId(mixed $orderid, mixed $userid, mixed $admin = null): \Illuminate\Http\JsonResponse
+    public function getInvoicesByOrderId(mixed $orderid, mixed $userid, mixed $admin = null): JsonResponse
     {
         try {
             if (! authorizeOwnership((int) $userid, allowAdmin: true)) {
@@ -434,7 +432,7 @@ class ClientController extends BaseClientController
     /**
      * @return array<mixed>
      */
-    public function prepareInvoiceData(\App\Model\Order\Invoice $invoice, ?\App\User $user = null): array
+    public function prepareInvoiceData(Invoice $invoice, ?User $user = null): array
     {
         $payments = $invoice->payment;
         $user ??= Auth::user();
@@ -531,7 +529,7 @@ class ClientController extends BaseClientController
     /**
      * Get list of all the versions from Filesystem.
      */
-    public function getVersionList(Request $request, int $orderid): \Illuminate\Http\JsonResponse
+    public function getVersionList(Request $request, int $orderid): JsonResponse
     {
         try {
             $order = Order::with([
@@ -585,7 +583,7 @@ class ClientController extends BaseClientController
         return $enabled;
     }
 
-    private function githubVersions(Request $request, \App\Model\Product\Product $product, ?\App\Model\Product\Subscription $subscription): \Illuminate\Http\JsonResponse
+    private function githubVersions(Request $request, Product $product, ?Subscription $subscription): JsonResponse
     {
         $allReleases = array_slice(
             $this->github_api->releases($product->github_owner, $product->github_repository), // @phpstan-ignore property.notFound
@@ -597,7 +595,7 @@ class ClientController extends BaseClientController
         $countVersions = count($allReleases);
         $countExpiry = 0;
 
-        if ($subscription instanceof \App\Model\Product\Subscription) {
+        if ($subscription instanceof Subscription) {
             foreach ($allReleases as $release) {
                 if (strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at)
                     || $subscription->update_ends_at == '0000-00-00 00:00:00') {
@@ -617,7 +615,7 @@ class ClientController extends BaseClientController
             $canDownload = false;
             $downloadUrl = null;
 
-            if (! $subscription instanceof \App\Model\Product\Subscription) {
+            if (! $subscription instanceof Subscription) {
                 $canDownload = true;
             } elseif ($allowTillExpiry) {
                 $canDownload = strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at)
@@ -657,7 +655,7 @@ class ClientController extends BaseClientController
         return successResponse('', $paginator);
     }
 
-    private function uploadVersions(Request $request, \App\Model\Order\Order $order, \App\Model\Product\Product $product, ?\App\Model\Product\Subscription $subscription): \Illuminate\Http\JsonResponse
+    private function uploadVersions(Request $request, Order $order, Product $product, ?Subscription $subscription): JsonResponse
     {
         $search = trim((string) $request->input('search-query', ''));
         $order->invoices->first()?->number;
@@ -669,8 +667,8 @@ class ClientController extends BaseClientController
         if ($search !== '' && $search !== '0') {
             $base->where(function ($q) use ($search): void {
                 $q->where('version', 'LIKE', sprintf('%%%s%%', $search))
-                  ->orWhere('title', 'LIKE', sprintf('%%%s%%', $search))
-                  ->orWhere('description', 'LIKE', sprintf('%%%s%%', $search));
+                    ->orWhere('title', 'LIKE', sprintf('%%%s%%', $search))
+                    ->orWhere('description', 'LIKE', sprintf('%%%s%%', $search));
             });
         }
 
@@ -696,7 +694,7 @@ class ClientController extends BaseClientController
         $paginator->getCollection()->transform(function ($version) use ($allowTillExpiry, $countExpiry, $countVersions, $subscription, $order): array {
             $canDownload = false;
 
-            if (! $subscription instanceof \App\Model\Product\Subscription) {
+            if (! $subscription instanceof Subscription) {
                 $canDownload = true;
             } elseif ($allowTillExpiry) {
                 $createdAt = $version->created_at;
@@ -725,7 +723,7 @@ class ClientController extends BaseClientController
     /**
      *  Gets all the order details for a particular user.
      *
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>
+     * @return \Illuminate\Database\Eloquent\Builder<Order>
      */
     public function getClientPanelOrdersData(): \Illuminate\Database\Eloquent\Builder
     {
@@ -736,7 +734,7 @@ class ClientController extends BaseClientController
             'invoiceItem:id,agents',
             'invoices' => fn ($q) => $q->select('invoices.id', 'invoices.number')->latest('invoices.id'),
         ])
-        ->where('client', Auth::id());
+            ->where('client', Auth::id());
     }
 
     /**
@@ -744,7 +742,7 @@ class ClientController extends BaseClientController
      *
      * @throws Exception
      */
-    public function profile(Request $request): \Illuminate\Http\JsonResponse
+    public function profile(Request $request): JsonResponse
     {
         try {
             $user = $this->user->where('id', Auth::id())->first();
@@ -763,15 +761,14 @@ class ClientController extends BaseClientController
     /**
      * Get plan name and id ,options for upgrading or downgrading the cloud plan.
      *
-     * @param  $product
      * @return array<mixed>
      */
-    private function planPriceProductRelation(\App\Model\Product\Product $product): array
+    private function planPriceProductRelation(Product $product): array
     {
         return Plan::where('product', '!=', $product->id)
             ->whereHas('productRelation', function ($query): void {
                 $query->where('type', 4)
-                      ->where('can_modify_agent', 1);
+                    ->where('can_modify_agent', 1);
             })
             ->whereHas('planPrice', function ($query): void {
                 $query->where('renew_price', '!=', 0);
@@ -784,12 +781,10 @@ class ClientController extends BaseClientController
      * Get renewal price for related plans.
      *
      * @param  array<mixed>  $planIds
-     * @param  string  $userCountry
      * @param  array<mixed>  $plans
-     * @param  \App\Model\Product\Product  $product
      * @return array<mixed>
      */
-    private function planDetails(array $planIds, string $userCountry, array $plans, \App\Model\Product\Product $product): array
+    private function planDetails(array $planIds, string $userCountry, array $plans, Product $product): array
     {
         $currency = getCurrencyForClient($userCountry);
 
@@ -822,12 +817,10 @@ class ClientController extends BaseClientController
     /**
      *  Returns to client individual orders with payment details as datatable.
      *
-     * @param  $orderid
-     * @param  $userid
      *
      * @throws Exception
      */
-    public function getPaymentByOrderIdClient(int $orderid, int $userid): \Illuminate\Http\JsonResponse
+    public function getPaymentByOrderIdClient(int $orderid, int $userid): JsonResponse
     {
         try {
             if (! authorizeOwnership($userid, allowAdmin: true)) {
@@ -858,7 +851,7 @@ class ClientController extends BaseClientController
         }
     }
 
-    public function getOrderInstallations(Request $request, int $orderid): \Illuminate\Http\JsonResponse
+    public function getOrderInstallations(Request $request, int $orderid): JsonResponse
     {
         try {
             $order = Order::where('id', $orderid)->where('client', Auth::id())->firstOrFail();
@@ -870,7 +863,7 @@ class ClientController extends BaseClientController
             if ($search !== '' && $search !== '0') {
                 $query->where(function ($q) use ($search): void {
                     $q->where('installation_domain', 'like', sprintf('%%%s%%', $search))
-                      ->orWhere('installation_ip', 'like', sprintf('%%%s%%', $search));
+                        ->orWhere('installation_ip', 'like', sprintf('%%%s%%', $search));
                 });
             }
 
@@ -894,7 +887,7 @@ class ClientController extends BaseClientController
         }
     }
 
-    public function clientDetails(): \Illuminate\Http\JsonResponse
+    public function clientDetails(): JsonResponse
     {
         $user = Auth::user();
         if (! $user instanceof User) {
@@ -910,7 +903,7 @@ class ClientController extends BaseClientController
         ]);
     }
 
-    public function payNow(int $invoiceid): \Illuminate\Http\JsonResponse
+    public function payNow(int $invoiceid): JsonResponse
     {
         try {
             $paid = 0;

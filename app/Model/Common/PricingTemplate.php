@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace App\Model\Common;
 
 use App\Model\Product\ProductGroup;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $data
  * @property string $image
  * @property string $name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductGroup> $productGroups
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, ProductGroup> $productGroups
  * @property-read int|null $product_groups_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PricingTemplate newModelQuery()
@@ -36,9 +39,9 @@ class PricingTemplate extends Model
     protected $fillable = ['data', 'image', 'name'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ProductGroup, $this>
+     * @return HasMany<ProductGroup, $this>
      */
-    public function productGroups(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function productGroups(): HasMany
     {
         return $this->hasMany(ProductGroup::class);
     }

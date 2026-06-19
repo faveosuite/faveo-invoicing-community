@@ -23,7 +23,7 @@ trait RequestJsonValidation
      */
     final protected function failedValidation(Validator $validator)
     {
-        //sending only the first error as object
+        // sending only the first error as object
         $errors = $validator->errors()->messages();
         $formattedErrors = [];
         foreach ($errors as $key => $message) {

@@ -16,7 +16,7 @@ class ServiceProviderController extends Controller
     public mixed $slaServiceRelation = null;
 
     /**
-     * @var \App\Model\Product\Service
+     * @var Service
      */
     public $service;
 
@@ -28,26 +28,26 @@ class ServiceProviderController extends Controller
         $this->middleware('service.provider');
 
         // @phpstan-ignore class.notFound
-        $sla = new Sla();
+        $sla = new Sla;
         $this->sla = $sla; // @phpstan-ignore property.notFound
 
         // @phpstan-ignore class.notFound
-        $LicencedOrg = new LicencedOrganization();
+        $LicencedOrg = new LicencedOrganization;
         $this->LicencedOrg = $LicencedOrg; // @phpstan-ignore property.notFound
 
         // @phpstan-ignore class.notFound
-        $slaServiceRelation = new SlaServiceRelation();
+        $slaServiceRelation = new SlaServiceRelation;
         $this->slaServiceRelation = $slaServiceRelation;
 
-        $service = new Service();
+        $service = new Service;
         $this->service = $service;
 
         // @phpstan-ignore class.notFound
-        $organization = new Organization();
+        $organization = new Organization;
         $this->organization = $organization; // @phpstan-ignore property.notFound
 
         // @phpstan-ignore class.notFound
-        $licence = new Licence();
+        $licence = new Licence;
         $this->licence = $licence;
     }
 
@@ -73,7 +73,7 @@ class ServiceProviderController extends Controller
     {
         try {
             // @phpstan-ignore class.notFound
-            $licence = new Licence();
+            $licence = new Licence;
             $licences = $licence->get(); // @phpstan-ignore class.notFound
 
             return view('themes.default1.serviceprovider.pricing', compact('licences')); // @phpstan-ignore argument.type

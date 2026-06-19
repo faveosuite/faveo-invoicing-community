@@ -16,10 +16,10 @@ class WhatsappControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->class = new WhatsappController();
+        $this->class = new WhatsappController;
     }
 
-    public function testWhatsappIndex(): void
+    public function test_whatsapp_index(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -32,7 +32,7 @@ class WhatsappControllerTest extends DBTestCase
         $response->assertViewHas('app_id');
     }
 
-    public function testUrlSave(): void
+    public function test_url_save(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -44,7 +44,7 @@ class WhatsappControllerTest extends DBTestCase
         $this->assertEquals('success', $content['message']);
     }
 
-    public function testWhatsappTable(): void
+    public function test_whatsapp_table(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -68,7 +68,7 @@ class WhatsappControllerTest extends DBTestCase
         );
     }
 
-    public function testWhatsappClientTable(): void
+    public function test_whatsapp_client_table(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -92,7 +92,7 @@ class WhatsappControllerTest extends DBTestCase
         );
     }
 
-    public function testWhatsappIntegrationInfo(): void
+    public function test_whatsapp_integration_info(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -108,7 +108,7 @@ class WhatsappControllerTest extends DBTestCase
         $this->assertEquals($cont->verify_token, $content['verify_token']);
     }
 
-    public function testWhatsappIntegrationSave(): void
+    public function test_whatsapp_integration_save(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -120,7 +120,7 @@ class WhatsappControllerTest extends DBTestCase
         $this->assertEquals('Updated Successfully', $content['message']);
     }
 
-    public function testGetWhatsappWebhook(): void
+    public function test_get_whatsapp_webhook(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -131,7 +131,7 @@ class WhatsappControllerTest extends DBTestCase
         $this->assertEquals('fsfdsf', $response->getContent());
     }
 
-    public function testGetWebhookFail(): void
+    public function test_get_webhook_fail(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -142,63 +142,63 @@ class WhatsappControllerTest extends DBTestCase
         $this->assertEquals('Forbidden', $response->getContent());
     }
 
-//    public function testPostWhatsappWebhook()
-//    {
-//        $payload = [
-//            "object" => "whatsapp_business_account",
-//            "entry" => [
-//                [
-//                    "id" => "102290129340398",
-//                    "changes" => [
-//                        [
-//                            "value" => [
-//                                "messaging_product" => "whatsapp",
-//                                "metadata" => [
-//                                    "display_phone_number" => "917013925435",
-//                                    "phone_number_id" => "106540352242922"
-//                                ],
-//                                "contacts" => [
-//                                    [
-//                                        "profile" => [
-//                                            "name" => "Sheena Nelson"
-//                                        ],
-//                                        "wa_id" => "16505551234"
-//                                    ]
-//                                ],
-//                                "messages" => [
-//                                    [
-//                                        "from" => "16505551234",
-//                                        "id" => "wamid.HBgLMTY1MDM4Nzk0MzkVAgASGBQzQTRBNjU5OUFFRTAzODEwMTQ0RgA=",
-//                                        "timestamp" => "1749416383",
-//                                        "type" => "text",
-//                                        "text" => [
-//                                            "body" => "Does it come in another color?"
-//                                        ]
-//                                    ]
-//                                ]
-//                            ],
-//                            "field" => "messages"
-//                        ]
-//                    ]
-//                ]
-//            ]
-//        ];
-//
-//
-//        $user = User::factory()->create();
-//        $this->actingAs($user);
-//        $this->withoutMiddleware();
-//        $response = $this->call(
-//            'POST',
-//            'faveo-whatsapp',
-//            [],
-//            [],
-//            [],
-//            ['CONTENT_TYPE' => 'application/json'],
-//            json_encode($payload)
-//        );
-//        dd(FailedWhatsappMessage::all());
-    ////        $response->assertStatus(200);
-//        $this->assertEquals('EVENT_RECEIVED', $response->getContent());
-//    }
+    //    public function testPostWhatsappWebhook()
+    //    {
+    //        $payload = [
+    //            "object" => "whatsapp_business_account",
+    //            "entry" => [
+    //                [
+    //                    "id" => "102290129340398",
+    //                    "changes" => [
+    //                        [
+    //                            "value" => [
+    //                                "messaging_product" => "whatsapp",
+    //                                "metadata" => [
+    //                                    "display_phone_number" => "917013925435",
+    //                                    "phone_number_id" => "106540352242922"
+    //                                ],
+    //                                "contacts" => [
+    //                                    [
+    //                                        "profile" => [
+    //                                            "name" => "Sheena Nelson"
+    //                                        ],
+    //                                        "wa_id" => "16505551234"
+    //                                    ]
+    //                                ],
+    //                                "messages" => [
+    //                                    [
+    //                                        "from" => "16505551234",
+    //                                        "id" => "wamid.HBgLMTY1MDM4Nzk0MzkVAgASGBQzQTRBNjU5OUFFRTAzODEwMTQ0RgA=",
+    //                                        "timestamp" => "1749416383",
+    //                                        "type" => "text",
+    //                                        "text" => [
+    //                                            "body" => "Does it come in another color?"
+    //                                        ]
+    //                                    ]
+    //                                ]
+    //                            ],
+    //                            "field" => "messages"
+    //                        ]
+    //                    ]
+    //                ]
+    //            ]
+    //        ];
+    //
+    //
+    //        $user = User::factory()->create();
+    //        $this->actingAs($user);
+    //        $this->withoutMiddleware();
+    //        $response = $this->call(
+    //            'POST',
+    //            'faveo-whatsapp',
+    //            [],
+    //            [],
+    //            [],
+    //            ['CONTENT_TYPE' => 'application/json'],
+    //            json_encode($payload)
+    //        );
+    //        dd(FailedWhatsappMessage::all());
+    // //        $response->assertStatus(200);
+    //        $this->assertEquals('EVENT_RECEIVED', $response->getContent());
+    //    }
 }

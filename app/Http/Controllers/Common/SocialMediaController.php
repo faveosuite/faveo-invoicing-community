@@ -11,21 +11,21 @@ use Illuminate\Http\Request;
 
 class SocialMediaController extends Controller
 {
-    protected \App\Model\Common\SocialMedia $social;
+    protected SocialMedia $social;
 
     public function __construct()
     {
         $this->middleware('auth', ['except' => 'getTweets']);
         $this->middleware('admin', ['except' => 'getTweets']);
 
-        $social = new SocialMedia();
+        $social = new SocialMedia;
         $this->social = $social;
     }
 
     /**
      * Get Social Media List.
      */
-    public function getSocialList(Request $request): \Illuminate\Http\JsonResponse
+    public function getSocialList(Request $request): JsonResponse
     {
         try {
             // Filters & pagination inputs
@@ -60,7 +60,7 @@ class SocialMediaController extends Controller
     /**
      * Store a newly created social media account in storage.
      */
-    public function createSocialMedia(SocialMediaRequest $request): \Illuminate\Http\JsonResponse
+    public function createSocialMedia(SocialMediaRequest $request): JsonResponse
     {
         try {
             $social = $this->social->fill($request->validated());
@@ -77,7 +77,7 @@ class SocialMediaController extends Controller
      *
      * @param  int  $id
      */
-    public function getSocialMedia($id): \Illuminate\Http\JsonResponse
+    public function getSocialMedia($id): JsonResponse
     {
         try {
             $social = $this->social->find($id);
@@ -95,7 +95,7 @@ class SocialMediaController extends Controller
     /**
      * Update the specified social media account in storage.
      */
-    public function updateSocial(int $id, SocialMediaRequest $request): \Illuminate\Http\JsonResponse
+    public function updateSocial(int $id, SocialMediaRequest $request): JsonResponse
     {
         try {
             $social = $this->social->find($id);

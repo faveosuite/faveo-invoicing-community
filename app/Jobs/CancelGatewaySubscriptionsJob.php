@@ -17,9 +17,7 @@ class CancelGatewaySubscriptionsJob implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(private readonly string $gateway)
-    {
-    }
+    public function __construct(private readonly string $gateway) {}
 
     public function handle(SubscriptionService $service): void
     {

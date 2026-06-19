@@ -28,7 +28,7 @@ class ReoonLogsDeletion extends Command
      */
     public function handle(): void
     {
-        $controller = new CronController();
+        $controller = new CronController;
         $controller->reoonLogsDeletion();
         $this->info('reoon:logs-deletion Command Run successfully!');
     }

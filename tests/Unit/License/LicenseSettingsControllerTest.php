@@ -27,8 +27,8 @@ class LicenseSettingsControllerTest extends DBTestCase
         $response = $this->getJson('get-license-type');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['name' => 'Starter'])
-                 ->assertJsonFragment(['name' => 'Premium']);
+            ->assertJsonFragment(['name' => 'Starter'])
+            ->assertJsonFragment(['name' => 'Premium']);
     }
 
     public function test_get_license_types_search_filter(): void
@@ -39,8 +39,8 @@ class LicenseSettingsControllerTest extends DBTestCase
         $response = $this->getJson('get-license-type?search-query=Start');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['name' => 'Starter'])
-                 ->assertJsonMissing(['name' => 'Business']);
+            ->assertJsonFragment(['name' => 'Starter'])
+            ->assertJsonMissing(['name' => 'Business']);
     }
 
     public function test_create_license_saves_successfully(): void
@@ -50,7 +50,7 @@ class LicenseSettingsControllerTest extends DBTestCase
         $response = $this->postJson('create-license-type', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.saved-successfully')]);
+            ->assertJsonFragment(['message' => __('message.saved-successfully')]);
 
         $this->assertDatabaseHas('license_types', ['name' => 'Enterprise']);
     }
@@ -64,7 +64,7 @@ class LicenseSettingsControllerTest extends DBTestCase
         $response = $this->putJson('/update-license-type/'.$type->id, $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.updated-successfully')]);
+            ->assertJsonFragment(['message' => __('message.updated-successfully')]);
 
         $this->assertDatabaseHas('license_types', ['id' => $type->id, 'name' => 'Updated Basic']);
     }
@@ -74,7 +74,7 @@ class LicenseSettingsControllerTest extends DBTestCase
         $response = $this->deleteJson('/delete-license-type', ['select' => []]);
 
         $response->assertStatus(400)
-                 ->assertJsonFragment(['message' => __('message.select-a-row')]);
+            ->assertJsonFragment(['message' => __('message.select-a-row')]);
     }
 
     public function test_delete_license_deletes_selected_records(): void
@@ -88,7 +88,7 @@ class LicenseSettingsControllerTest extends DBTestCase
         $response = $this->deleteJson('/delete-license-type', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.deleted-successfully')]);
+            ->assertJsonFragment(['message' => __('message.deleted-successfully')]);
 
         $this->assertDatabaseMissing('license_types', ['id' => $type1->id]);
         $this->assertDatabaseMissing('license_types', ['id' => $type2->id]);

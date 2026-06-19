@@ -4,6 +4,9 @@ namespace App\BillingLog\Model;
 
 use App\BaseModel;
 use Crypt;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -17,10 +20,10 @@ use Crypt;
  * @property string $job_payload
  * @property string|null $status
  * @property int|null $exception_log_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\BillingLog\Model\LogCategory|null $category
- * @property-read \App\BillingLog\Model\ExceptionLog|null $exception
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read LogCategory|null $category
+ * @property-read ExceptionLog|null $exception
  * @property-read bool $is_retry
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailLog newModelQuery()
@@ -107,37 +110,37 @@ class MailLog extends BaseModel
     protected array $htmlAble = ['body'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<ExceptionLog, $this>
+     * @return BelongsTo<ExceptionLog, $this>
      */
-    public function exception(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function exception(): BelongsTo
     {
         return $this->belongsTo(ExceptionLog::class, 'exception_log_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<LogCategory, $this>
+     * @return BelongsTo<LogCategory, $this>
      */
-    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function category(): BelongsTo
     {
         return $this->belongsTo(LogCategory::class, 'log_category_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function isRetry(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function isRetry(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (): bool {
+        return Attribute::make(get: function (): bool {
             return in_array($this->status, ['failed', 'queued']) && (bool) $this->job_payload;
         });
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function jobPayload(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function jobPayload(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+        return Attribute::make(get: function ($value) {
             return $value ? Crypt::decrypt($value) : null;
         });
     }

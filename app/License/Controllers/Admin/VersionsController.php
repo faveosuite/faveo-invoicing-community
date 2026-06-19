@@ -5,11 +5,12 @@ namespace App\License\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Model\Product\ProductUpload;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class VersionsController extends Controller
 {
-    public function show(Request $request): \Illuminate\Http\JsonResponse
+    public function show(Request $request): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);

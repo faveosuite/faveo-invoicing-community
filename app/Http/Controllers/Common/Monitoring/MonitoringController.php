@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Common\Monitoring;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MonitoringController extends Controller
@@ -15,7 +16,7 @@ class MonitoringController extends Controller
     /**
      * API endpoint: returns JSON indicating whether Pulse/Horizon is accessible.
      */
-    public function checkPulseHorizon(Request $request): \Illuminate\Http\JsonResponse
+    public function checkPulseHorizon(Request $request): JsonResponse
     {
         $type = strtolower((string) $request->get('type', ''));
 

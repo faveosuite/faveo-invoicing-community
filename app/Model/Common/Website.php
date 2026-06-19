@@ -3,6 +3,8 @@
 namespace App\Model\Common;
 
 use App\BaseModel;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Website newModelQuery()
@@ -16,9 +18,9 @@ class Website extends BaseModel
     // use SubscriptionBillableTrait;
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Model>
+     * @return BelongsTo<Model, Model>
      */
-    public function customermodel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function customermodel(): BelongsTo
     {
         // Return an Eloquent relationship.
         return $this->belongsTo('User', 'user_id'); // @phpstan-ignore argument.type, argument.templateType, return.type

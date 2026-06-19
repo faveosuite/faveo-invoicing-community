@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
@@ -113,7 +114,7 @@ class LanguageController extends Controller
         return glob($path.DIRECTORY_SEPARATOR.'*.php') ?: [];
     }
 
-    public function viewLanguage(Request $request): \Illuminate\Http\JsonResponse
+    public function viewLanguage(Request $request): JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -142,7 +143,7 @@ class LanguageController extends Controller
         }
     }
 
-    public function toggleLanguageStatus(Request $request): \Illuminate\Http\JsonResponse
+    public function toggleLanguageStatus(Request $request): JsonResponse
     {
         try {
             $request->validate([
@@ -160,12 +161,12 @@ class LanguageController extends Controller
         }
     }
 
-    public function setDefaultLanguage(Request $request): \Illuminate\Http\JsonResponse
+    public function setDefaultLanguage(Request $request): JsonResponse
     {
         try {
             $request->validate(['locale' => ['required', 'string', 'exists:languages,locale']]);
 
-            /** @var \App\Model\Common\Setting $setting */
+            /** @var Setting $setting */
             $setting = Setting::firstOrFail();
             $setting->content = $request->input('locale');
             $setting->save();

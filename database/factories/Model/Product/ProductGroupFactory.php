@@ -9,7 +9,7 @@ use App\Model\Product\ProductGroup;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Product\ProductGroup>
+ * @extends Factory<ProductGroup>
  */
 class ProductGroupFactory extends Factory
 {
@@ -17,7 +17,7 @@ class ProductGroupFactory extends Factory
 
     public function definition()
     {
-        /** @var \App\Model\Common\PricingTemplate $template */
+        /** @var PricingTemplate $template */
         $template = PricingTemplate::query()->first();
 
         return [

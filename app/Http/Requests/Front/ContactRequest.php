@@ -33,7 +33,7 @@ class ContactRequest extends FormRequest
                 'conmessage' => ['required'],
                 'Mobile' => ['required'],
                 'country_code' => ['required'],
-                'contact' => [new Honeypot()],
+                'contact' => [new Honeypot],
             ];
         }
 
@@ -44,7 +44,7 @@ class ContactRequest extends FormRequest
                 'country_code' => ['required'],
                 'Mobile' => ['required'],
                 'demomessage' => ['required'],
-                'demo' => [new Honeypot()],
+                'demo' => [new Honeypot],
             ];
         }
 

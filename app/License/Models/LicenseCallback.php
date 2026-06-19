@@ -6,6 +6,7 @@ use App\Model\Product\Product;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -15,11 +16,11 @@ use Override;
  * @property string $license_code
  * @property string|null $callback_ip
  * @property string|null $callback_domain
- * @property \Illuminate\Support\Carbon $callback_date_time
+ * @property Carbon $callback_date_time
  * @property int|null $callback_status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\License\Models\License|null $license
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read License|null $license
  * @property-read Product|null $product
  * @property-read User|null $user
  *

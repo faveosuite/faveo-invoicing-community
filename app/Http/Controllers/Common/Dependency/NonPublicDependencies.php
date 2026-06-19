@@ -78,13 +78,13 @@ class NonPublicDependencies extends BaseDependencyController
 
         $baseQuery = $this->baseQuery(new User)
             ->select('id', 'first_name', 'last_name', 'email')
-                ->where('position', $role)
-                ->when($this->searchQuery, function ($query, $search): void {
-                    $query->where(function ($q) use ($search): void {
-                        $q->where('email', 'like', sprintf('%%%s%%', $search))
-                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", [sprintf('%%%s%%', $search)]);
-                    });
+            ->where('position', $role)
+            ->when($this->searchQuery, function ($query, $search): void {
+                $query->where(function ($q) use ($search): void {
+                    $q->where('email', 'like', sprintf('%%%s%%', $search))
+                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", [sprintf('%%%s%%', $search)]);
                 });
+            });
 
         return $this->get('managers', $baseQuery, fn ($u): array => [
             'id' => $u->id,
@@ -100,9 +100,9 @@ class NonPublicDependencies extends BaseDependencyController
 
         $baseQuery = $this->baseQuery(new Product)
             ->where('invoice_hidden', 0)
-                ->when($this->searchQuery, function ($query, string $searchQuery): void {
-                    $query->where('name', 'like', sprintf('%%%s%%', $searchQuery));
-                });
+            ->when($this->searchQuery, function ($query, string $searchQuery): void {
+                $query->where('name', 'like', sprintf('%%%s%%', $searchQuery));
+            });
 
         return $this->get('products', $baseQuery, fn ($item): array => ['id' => $item->id, 'name' => $item->name]);
     }
@@ -247,7 +247,7 @@ class NonPublicDependencies extends BaseDependencyController
             ->when($this->searchQuery, function ($query, $search): void {
                 $query->where(function ($q) use ($search): void {
                     $q->where('email', 'like', sprintf('%%%s%%', $search))
-                      ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", [sprintf('%%%s%%', $search)]);
+                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", [sprintf('%%%s%%', $search)]);
                 });
             });
 

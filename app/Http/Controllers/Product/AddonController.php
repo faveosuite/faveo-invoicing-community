@@ -17,13 +17,13 @@ class AddonController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('admin');
-        $product = new Product();
+        $product = new Product;
         $this->product = $product; // @phpstan-ignore property.notFound
 
-        $plan = new plan();
+        $plan = new Plan;
         $this->plan = $plan; // @phpstan-ignore property.notFound
 
-        $addon = new Addon();
+        $addon = new Addon;
         $this->addon = $addon; // @phpstan-ignore property.notFound
     }
 
@@ -48,7 +48,7 @@ class AddonController extends Controller
             $product = $this->product->pluck('name', 'id')->toArray(); // @phpstan-ignore property.notFound
             $subscription = $this->plan->pluck('name', 'id')->toArray(); // @phpstan-ignore property.notFound
 
-            //dd($subscription);
+            // dd($subscription);
             return view('themes.default1.product.addon.create', compact('product', 'subscription')); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
@@ -63,7 +63,7 @@ class AddonController extends Controller
         try {
             $this->addon->fill($request->input())->save(); // @phpstan-ignore property.notFound
             $products = $request->input('products');
-            $relation = new ProductAddonRelation();
+            $relation = new ProductAddonRelation;
             if (is_array($products)) {
                 foreach ($products as $product) {
                     if ($product) {
@@ -98,7 +98,7 @@ class AddonController extends Controller
         try {
             $product = $this->product->pluck('name', 'id')->toArray(); // @phpstan-ignore property.notFound
             $subscription = $this->plan->pluck('name', 'id')->toArray(); // @phpstan-ignore property.notFound
-            $relation = new ProductAddonRelation();
+            $relation = new ProductAddonRelation;
             $relation = $relation->where('addon_id', $id)->pluck('product_id')->toArray();
             $addon = $this->addon->where('id', $id)->first(); // @phpstan-ignore property.notFound
 
@@ -120,7 +120,7 @@ class AddonController extends Controller
             $addon->fill($request->input())->save();
 
             $products = $request->input('products');
-            $relation = new ProductAddonRelation();
+            $relation = new ProductAddonRelation;
             if (is_array($products)) {
                 $delete = $relation->where('addon_id', $id)->get();
 
@@ -161,7 +161,7 @@ class AddonController extends Controller
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.(string) __('message.no-record').'
                 </div>';
-                        //echo \__('message.no-record') . '  [id=>' . $id . ']';
+                        // echo \__('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
 
@@ -180,7 +180,7 @@ class AddonController extends Controller
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.(string) __('message.select-a-row').'
                 </div>';
-                //echo \__('message.select-a-row');
+                // echo \__('message.select-a-row');
             }
         } catch (Exception $exception) {
             echo "<div class='alert alert-danger alert-dismissable'>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Model\Common;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $state_subdivision_id
@@ -15,8 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property numeric|null $latitude
  * @property numeric|null $longitude
  * @property int $country_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatesSubdivisions newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StatesSubdivisions newQuery()

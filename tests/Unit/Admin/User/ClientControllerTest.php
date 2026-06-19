@@ -17,16 +17,16 @@ use Tests\DBTestCase;
 
 class ClientControllerTest extends DBTestCase
 {
-    private \App\Http\Controllers\User\ClientController $classObject;
+    private ClientController $classObject;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->classObject = new ClientController();
+        $this->classObject = new ClientController;
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenCountryIsPresentInTheRequest_filtersResultByThatCountry(): void
+    public function test_get_base_query_for_user_search_when_country_is_present_in_the_request_filters_result_by_that_country(): void
     {
         $request = new Request(['country' => 'US']);
         User::factory()->create(['country' => 'US']);
@@ -38,7 +38,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenIndustryIsPresentInTheRequest_filtersResultByThatIndustry(): void
+    public function test_get_base_query_for_user_search_when_industry_is_present_in_the_request_filters_result_by_that_industry(): void
     {
         $request = new Request(['industry' => 'testOne']);
         $userOne = User::factory()->create(['bussiness' => 'testOne']);
@@ -50,7 +50,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenRoleIsPresentInTheRequest_filtersResultByThatRole(): void
+    public function test_get_base_query_for_user_search_when_role_is_present_in_the_request_filters_result_by_that_role(): void
     {
         $request = new Request(['role' => 'user']);
         $userOne = User::factory()->create(['role' => 'user']);
@@ -62,7 +62,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenPositionIsPresentInTheRequest_filtersResultByThatPosition(): void
+    public function test_get_base_query_for_user_search_when_position_is_present_in_the_request_filters_result_by_that_position(): void
     {
         $request = new Request(['position' => 'positionOne']);
         $userOne = User::factory()->create(['position' => 'positionOne']);
@@ -74,7 +74,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenAccountManagerIsPresentInTheRequest_filtersResultByThatAccountManager(): void
+    public function test_get_base_query_for_user_search_when_account_manager_is_present_in_the_request_filters_result_by_that_account_manager(): void
     {
         $managerOneId = User::factory()->create()->id;
         $request = new Request(['actmanager' => $managerOneId]);
@@ -88,7 +88,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenSalesManagerIsPresentInTheRequest_filtersResultByThatSalesManager(): void
+    public function test_get_base_query_for_user_search_when_sales_manager_is_present_in_the_request_filters_result_by_that_sales_manager(): void
     {
         $managerOneId = User::factory()->create()->id;
         $request = new Request(['salesmanager' => $managerOneId]);
@@ -102,7 +102,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_GivesPhoneNumberFormattedWithCountryCode(): void
+    public function test_get_base_query_for_user_search_gives_phone_number_formatted_with_country_code(): void
     {
         $request = new Request(['country' => 'US']);
         User::factory()->create(['country' => 'US', 'mobile_code' => '1', 'mobile' => '9087654321']);
@@ -112,7 +112,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_whenMobilestatusIsPresentInTheRequest_filtersResultByThatMobilestatus(): void
+    public function test_get_base_query_for_user_search_when_mobilestatus_is_present_in_the_request_filters_result_by_that_mobilestatus(): void
     {
         $request = new Request(['mobile_verified' => 1]);
         $methodResponse = $this->getPrivateMethod($this->classObject, 'getBaseQueryForUserSearch', [$request]);
@@ -122,7 +122,7 @@ class ClientControllerTest extends DBTestCase
         $this->assertTrue($firstUser->mobile_verified == 1);
     }
 
-    public function test_getBaseQueryForUserSearch_whenEmailstatusIsPresentInTheRequest_filtersResultByThatEmailstatus(): void
+    public function test_get_base_query_for_user_search_when_emailstatus_is_present_in_the_request_filters_result_by_that_emailstatus(): void
     {
         $request = new Request(['active' => 1]);
         $methodResponse = $this->getPrivateMethod($this->classObject, 'getBaseQueryForUserSearch', [$request]);
@@ -133,7 +133,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_getBaseQueryForUserSearch_when2FAstatusIsPresentInTheRequest_filtersResultByThat2FAstatus(): void
+    public function test_get_base_query_for_user_search_when2_f_astatus_is_present_in_the_request_filters_result_by_that2_f_astatus(): void
     {
         $request = new Request(['is_2fa_enabled' => 0]);
         $methodResponse = $this->getPrivateMethod($this->classObject, 'getBaseQueryForUserSearch', [$request]);
@@ -144,7 +144,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_Admin_error_when_address_is_not_present(): void
+    public function test_admin_error_when_address_is_not_present(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
@@ -177,7 +177,7 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_when_admin_user_creation_successFull(): void
+    public function test_when_admin_user_creation_success_full(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);

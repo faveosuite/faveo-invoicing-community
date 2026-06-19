@@ -20,23 +20,23 @@ class TaxCalculationTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->classObject = new InvoiceController();
+        $this->classObject = new InvoiceController;
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenNoTaxIsAppliedOnProduct(): void
+    public function test_calculate_tax_when_no_tax_is_applied_on_product(): void
     {
         $user = User::factory()->create();
         Setting::factory()->create(['state' => 'Tamilnadu']);
         $product = Product::factory()->create();
-        new InvoiceController();
+        new InvoiceController;
         $tax = $this->classObject->calculateTax($product->id, $user->state, $user->country, true);
         $this->assertEquals($tax['name'], 'null');
         $this->assertEquals($tax['value'], '0%');
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenIntraStateGstAppliedOnProductWhenGstIsDisabled_taxValueIsNull(): void
+    public function test_calculate_tax_when_intra_state_gst_applied_on_product_when_gst_is_disabled_tax_value_is_null(): void
     {
         $user = User::factory()->create();
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -53,7 +53,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenIntraStateGstAppliedOnProduct_taxValueAndNameIsReturned(): void
+    public function test_calculate_tax_when_intra_state_gst_applied_on_product_tax_value_and_name_is_returned(): void
     {
         $user = User::factory()->create(['state' => 'KA', 'country' => 'IN']);
         Setting::factory()->create(['state' => 'KA', 'country' => 'IN']);
@@ -71,7 +71,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenInterStateGstAppliedButUserStateEqualsOriginState_taxValueIsNull(): void
+    public function test_calculate_tax_when_inter_state_gst_applied_but_user_state_equals_origin_state_tax_value_is_null(): void
     {
         $user = User::factory()->create(['state' => 'IN-KA', 'country' => 'IN']);
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -89,7 +89,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenInterStateGstApplied_taxValueAndNameIsReturned(): void
+    public function test_calculate_tax_when_inter_state_gst_applied_tax_value_and_name_is_returned(): void
     {
         $user = User::factory()->create(['state' => 'DL', 'country' => 'IN']);
         Setting::factory()->create(['state' => 'KA', 'country' => 'IN']);
@@ -108,7 +108,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenInterStateGstAppliedWhenStatusIsInactive_taxValueIsNull(): void
+    public function test_calculate_tax_when_inter_state_gst_applied_when_status_is_inactive_tax_value_is_null(): void
     {
         $user = User::factory()->create(['state' => 'DL', 'country' => 'IN']);
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -126,7 +126,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenUnionTerritoryGstAppliedWhenUserStateIsNotUT_taxValueIsNull(): void
+    public function test_calculate_tax_when_union_territory_gst_applied_when_user_state_is_not_u_t_tax_value_is_null(): void
     {
         $user = User::factory()->create(['state' => 'DL', 'country' => 'IN']);
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -144,7 +144,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenUnionTerritoryGstApplied_taxValueAndNameIsReturned(): void
+    public function test_calculate_tax_when_union_territory_gst_applied_tax_value_and_name_is_returned(): void
     {
         $user = User::factory()->create(['state' => 'AN', 'country' => 'IN']);
         Setting::factory()->create(['state' => 'KA', 'country' => 'IN']);
@@ -162,7 +162,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenOtherTaxAppliedWhenUserStateIsIndian_taxValueIsNull(): void
+    public function test_calculate_tax_when_other_tax_applied_when_user_state_is_indian_tax_value_is_null(): void
     {
         $user = User::factory()->create(['state' => 'DL', 'country' => 'IN']);
         Setting::factory()->create(['state' => 'KA', 'country' => 'IN']);
@@ -180,7 +180,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenOtherTaxApplied_taxValueAndNameIsReturned(): void
+    public function test_calculate_tax_when_other_tax_applied_tax_value_and_name_is_returned(): void
     {
         $user = User::factory()->create(['state' => 'NT', 'country' => 'AU']);
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -198,7 +198,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenOtherTaxAppliedwhenTaxIsInactive_taxValueIsNull(): void
+    public function test_calculate_tax_when_other_tax_appliedwhen_tax_is_inactive_tax_value_is_null(): void
     {
         $user = User::factory()->create(['state' => 'NT', 'country' => 'AU']);
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -216,7 +216,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenOtherTaxAppliedwhenWhenUserIsFromOtherState_taxValueIsNull(): void
+    public function test_calculate_tax_when_other_tax_appliedwhen_when_user_is_from_other_state_tax_value_is_null(): void
     {
         $user = User::factory()->create(['state' => 'NT', 'country' => 'AU']);
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -234,7 +234,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenOtherTaxAppliedwhenWhenUserIsFromOtherState_taxValueAndNameIsReturned(): void
+    public function test_calculate_tax_when_other_tax_appliedwhen_when_user_is_from_other_state_tax_value_and_name_is_returned(): void
     {
         $user = User::factory()->create(['state' => 'NT', 'country' => 'AU']);
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -252,7 +252,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenOtherTaxAppliedWhenUserIsFromSameCountryOtherState_taxValueIsNull(): void
+    public function test_calculate_tax_when_other_tax_applied_when_user_is_from_same_country_other_state_tax_value_is_null(): void
     {
         $user = User::factory()->create(['state' => 'NT', 'country' => 'AU']);
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -270,7 +270,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenOtherTaxAppliedForAllStatesofUsersCountry_taxValueAndNameIsReturned(): void
+    public function test_calculate_tax_when_other_tax_applied_for_all_statesof_users_country_tax_value_and_name_is_returned(): void
     {
         $user = User::factory()->create(['state' => 'NT', 'country' => 'AU']);
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -288,7 +288,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenOtherTaxAppliedForAllStatesWhenTaxInactive_taxValueIsNull(): void
+    public function test_calculate_tax_when_other_tax_applied_for_all_states_when_tax_inactive_tax_value_is_null(): void
     {
         $user = User::factory()->create(['state' => 'NT', 'country' => 'AU']);
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -306,7 +306,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenTaxIsCreatedButNotLinkedToAProduct_taxValueIsNull(): void
+    public function test_calculate_tax_when_tax_is_created_but_not_linked_to_a_product_tax_value_is_null(): void
     {
         Setting::factory()->create(['state' => 'Tamilnadu']);
         $user = User::factory()->create(['state' => 'NT', 'country' => 'AU']);
@@ -323,7 +323,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenTaxIsAppliedToAllCountriesAllStates_taxValueAndNameIsReturned(): void
+    public function test_calculate_tax_when_tax_is_applied_to_all_countries_all_states_tax_value_and_name_is_returned(): void
     {
         Setting::factory()->create(['state' => 'Tamilnadu']);
         $user = User::factory()->create(['state' => 'NT', 'country' => 'AU']);
@@ -341,7 +341,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenTaxIsAppliedToAllCountriesAllStateUserStateIsNull_taxValueAndNameIsReturned(): void
+    public function test_calculate_tax_when_tax_is_applied_to_all_countries_all_state_user_state_is_null_tax_value_and_name_is_returned(): void
     {
         $user = User::factory()->create(['state' => '', 'country' => 'AU']);
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -359,7 +359,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenTaxIsAppliedToAllCountriesAllStateWhenGstDisabled_taxValueAndNameIsReturned(): void
+    public function test_calculate_tax_when_tax_is_applied_to_all_countries_all_state_when_gst_disabled_tax_value_and_name_is_returned(): void
     {
         $user = User::factory()->create(['state' => 'KA', 'country' => 'IN']);
         Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -376,7 +376,7 @@ class TaxCalculationTest extends DBTestCase
     }
 
     #[Group('tax')]
-    public function test_calculateTax_whenOtherTaxAppliedUserIsIndianGstDisabled_taxValueIsNull(): void
+    public function test_calculate_tax_when_other_tax_applied_user_is_indian_gst_disabled_tax_value_is_null(): void
     {
         $user = User::factory()->create(['state' => 'KA', 'country' => 'IN']);
         Setting::factory()->create(['state' => 'Tamilnadu']);

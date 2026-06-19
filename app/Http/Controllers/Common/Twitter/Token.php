@@ -15,9 +15,7 @@ class Token implements Stringable
      * @param  string  $key  The OAuth Token
      * @param  string  $secret  The OAuth Token Secret
      */
-    public function __construct(public $key, public $secret)
-    {
-    }
+    public function __construct(public $key, public $secret) {}
 
     /**
      * Generates the basic string serialization of a token that a server

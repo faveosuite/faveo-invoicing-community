@@ -14,6 +14,8 @@ use Carbon\CarbonImmutable;
 use DateTime;
 use DB;
 use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 
@@ -34,7 +36,7 @@ class DashboardController extends Controller
      * Only two currencies are allowed to be displayed on the dashboard. One is system deafult currency. Other is the activated
      * currency from the system.
      */
-    public function index(Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function index(Request $request): Factory|View
     {
         $allowedCurrencies1 = Setting::where('id', 1)->value('default_currency');
         $currency1Symbol = Setting::where('id', 1)->value('default_symbol');
@@ -119,9 +121,9 @@ class DashboardController extends Controller
     public function getTotalSales(mixed $allowedCurrencies): float|int
     {
         $total = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
-                 ->where('invoices.currency', $allowedCurrencies)
-                 ->where('invoices.status', '!=', 'pending')
-                 ->pluck('payments.amount')->all();
+            ->where('invoices.currency', $allowedCurrencies)
+            ->where('invoices.status', '!=', 'pending')
+            ->pluck('payments.amount')->all();
 
         return array_sum($total);
     }
@@ -135,10 +137,10 @@ class DashboardController extends Controller
     {
         $currentYear = date('Y');
         $yearlytotal = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
-                ->whereYear('invoices.date', '=', $currentYear)
-                ->where('invoices.currency', $allowedCurrencies)
-                 ->where('invoices.status', '!=', 'pending')
-                 ->pluck('payments.amount')->all();
+            ->whereYear('invoices.date', '=', $currentYear)
+            ->where('invoices.currency', $allowedCurrencies)
+            ->where('invoices.status', '!=', 'pending')
+            ->pluck('payments.amount')->all();
 
         return array_sum($yearlytotal);
     }
@@ -153,10 +155,10 @@ class DashboardController extends Controller
         $currentMonth = date('m');
         $currentYear = date('Y');
         $total = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
-                ->whereYear('invoices.date', '=', $currentYear)->whereMonth('invoices.date', '=', $currentMonth)
-                ->where('invoices.currency', $allowedCurrencies)
-                 ->where('invoices.status', '!=', 'pending')
-                 ->pluck('payments.amount')->all();
+            ->whereYear('invoices.date', '=', $currentYear)->whereMonth('invoices.date', '=', $currentMonth)
+            ->where('invoices.currency', $allowedCurrencies)
+            ->where('invoices.status', '!=', 'pending')
+            ->pluck('payments.amount')->all();
 
         return array_sum($total);
     }
@@ -169,8 +171,8 @@ class DashboardController extends Controller
     public function getPendingPayments(mixed $allowedCurrencies): float|int
     {
         $total = Invoice::where('currency', $allowedCurrencies)
-        ->where('status', '=', 'pending')
-        ->pluck('grand_total')->all();
+            ->where('status', '=', 'pending')
+            ->pluck('grand_total')->all();
 
         return array_sum($total);
     }
@@ -199,7 +201,6 @@ class DashboardController extends Controller
     /**
      * List of products sold in past $noOfDays days. If no parameter is passed, it will give all products.
      *
-     * @param  int  $noOfDays
      *
      * @throws Exception
      */
@@ -336,9 +337,9 @@ class DashboardController extends Controller
         $latestVersion = (string) Subscription::orderBy('version', 'desc')->value('version');
 
         return $this->getBaseQueryForOrders()->where('price_override', '>', 0)
-        ->where('subscriptions.version', '<', $latestVersion)->
+            ->where('subscriptions.version', '<', $latestVersion)->
         orderBy('subscriptions.created_at', 'desc')
-        ->get();
+            ->get();
     }
 
     private function getBaseQueryForOrders(): mixed
@@ -545,7 +546,7 @@ class DashboardController extends Controller
     {
         // Fetch invoices that are partially paid or unpaid
         $invoices = Invoice::where('status', '!=', 'paid')
-        ->with('payment')
+            ->with('payment')
             ->get();
 
         // Group by currency and sum pending amounts

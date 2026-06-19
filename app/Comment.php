@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -12,9 +14,9 @@ use Override;
  * @property int $user_id
  * @property int $updated_by_user_id
  * @property string|null $description
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
- * @property-read \App\User|null $user
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property-read User|null $user
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment newQuery()
@@ -35,9 +37,9 @@ class Comment extends Model
     protected $fillable = ['user_id', 'updated_by_user_id', 'description'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

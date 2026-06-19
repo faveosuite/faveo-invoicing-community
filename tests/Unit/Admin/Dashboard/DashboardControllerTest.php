@@ -21,30 +21,30 @@ class DashboardControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    private \App\Http\Controllers\DashboardController $classObject;
+    private DashboardController $classObject;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->classObject = new DashboardController();
+        $this->classObject = new DashboardController;
     }
 
     #[Group('Dashboard')]
-    public function test_getTotalSalesInInr_gettingTotalSalesInr(): void
+    public function test_get_total_sales_in_inr_getting_total_sales_inr(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser();
         $user = $this->user;
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '10000']);
-        $controller = new DashboardController();
+        $controller = new DashboardController;
         $allowedCurrencies2 = 'INR';
         $response = $controller->getTotalSales($allowedCurrencies2);
         $this->assertEquals($response, '10000');
     }
 
     #[Group('Dashboard')]
-    public function test_getYearlySalesInInr_gettingYearlySalesInr(): void
+    public function test_get_yearly_sales_in_inr_getting_yearly_sales_inr(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser();
@@ -52,7 +52,7 @@ class DashboardControllerTest extends DBTestCase
         $date = date('Y-m-d H:m:i');
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'date' => $date]);
         Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '10000']);
-        $controller = new DashboardController();
+        $controller = new DashboardController;
         $allowedCurrencies2 = 'INR';
         $response = $controller->getYearlySales($allowedCurrencies2);
         $this->assertEquals($response, '10000');
@@ -61,30 +61,30 @@ class DashboardControllerTest extends DBTestCase
     }
 
     #[Group('Dashboard')]
-    public function test_getYearlySalesInInr_whenInvoiceTotalIsFromPreviousYear(): void
+    public function test_get_yearly_sales_in_inr_when_invoice_total_is_from_previous_year(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser();
         $user = $this->user;
         $date = date('Y-m-d H:m:i');
         Invoice::factory()->count(3)->create(['created_at' => 2017, 'user_id' => $user->id, 'date' => $date]);
-        $controller = new DashboardController();
+        $controller = new DashboardController;
         $allowedCurrencies2 = 'INR';
         $response = $controller->getYearlySales($allowedCurrencies2);
         $this->assertEquals($response, '0');
     }
 
     #[Group('Dashboard')]
-    public function test_getAllUsers_getListOfRecentUsers(): void
+    public function test_get_all_users_get_list_of_recent_users(): void
     {
         $user = User::factory()->count(3)->create();
-        $controller = new DashboardController();
+        $controller = new DashboardController;
         $controller->getAllUsers();
         $this->assertCount(1, [$user]);
     }
 
     #[Group('Dashboard')]
-    public function test_getRecentOrders_getsRecentlySoldProductInLast30DaysWithCorrespondingCount(): void
+    public function test_get_recent_orders_gets_recently_sold_product_in_last30_days_with_corresponding_count(): void
     {
         $this->getLoggedInUser('admin');
         $productOne = Product::create(['name' => 'one']);
@@ -113,7 +113,7 @@ class DashboardControllerTest extends DBTestCase
     }
 
     #[Group('Dashboard')]
-    public function test_getSoldProducts_whenNumberOfDaysIsPassed_shouldGetOrdersForPassedNumberOfDays(): void
+    public function test_get_sold_products_when_number_of_days_is_passed_should_get_orders_for_passed_number_of_days(): void
     {
         $this->getLoggedInUser('admin');
         $productOne = Product::create(['name' => 'one']);
@@ -136,7 +136,7 @@ class DashboardControllerTest extends DBTestCase
     }
 
     #[Group('Dashboard')]
-    public function test_getSoldProducts_whenNumberOfDaysIsNotPassed_shouldGiveAllRecords(): void
+    public function test_get_sold_products_when_number_of_days_is_not_passed_should_give_all_records(): void
     {
         $this->getLoggedInUser('admin');
         $productOne = Product::create(['name' => 'one']);
@@ -160,7 +160,7 @@ class DashboardControllerTest extends DBTestCase
     }
 
     #[Group('Dashboard')]
-    public function test_getExpiringSubscriptions_whenLast30DaysIsFalse_shouldGiveSubscriptionsWhichAreExpiringIn30Days(): void
+    public function test_get_expiring_subscriptions_when_last30_days_is_false_should_give_subscriptions_which_are_expiring_in30_days(): void
     {
         $this->getLoggedInUser('admin');
         $product = Product::create(['name' => 'one']);
@@ -188,7 +188,7 @@ class DashboardControllerTest extends DBTestCase
     }
 
     #[Group('Dashboard')]
-    public function test_getExpiringSubscriptions_whenLast30DaysIsTrue_shouldGiveSubscriptionsWhichHasExpiredInLast30Days(): void
+    public function test_get_expiring_subscriptions_when_last30_days_is_true_should_give_subscriptions_which_has_expired_in_last30_days(): void
     {
         $this->getLoggedInUser('admin');
         $product = Product::create(['name' => 'one']);
@@ -217,7 +217,7 @@ class DashboardControllerTest extends DBTestCase
     }
 
     #[Group('Dashboard')]
-    public function test_getRecentOrders_shouldGiveOrdersInLast30DaysOrderedByDescCreatedAt(): void
+    public function test_get_recent_orders_should_give_orders_in_last30_days_ordered_by_desc_created_at(): void
     {
         $this->getLoggedInUser('admin');
         $product = Product::create(['name' => 'one']);
@@ -236,7 +236,7 @@ class DashboardControllerTest extends DBTestCase
     }
 
     #[Group('Dashboard')]
-    public function test_getClientsUsingOldVersions_whenNoSubscriptionIsPresentInTheDB_shouldGiveEmptyArray(): void
+    public function test_get_clients_using_old_versions_when_no_subscription_is_present_in_the_d_b_should_give_empty_array(): void
     {
         $this->getLoggedInUser('admin');
 
@@ -246,7 +246,7 @@ class DashboardControllerTest extends DBTestCase
     }
 
     #[Group('Dashboard')]
-    public function test_getClientsUsingOldVersions_shouldShowClientsWhichAreUsingOlderVersionInOrderOfTheirVersion(): void
+    public function test_get_clients_using_old_versions_should_show_clients_which_are_using_older_version_in_order_of_their_version(): void
     {
         $this->getLoggedInUser('admin');
         $this->createOrder('v3.2.0');
@@ -269,7 +269,7 @@ class DashboardControllerTest extends DBTestCase
     }
 
     #[Group('Dashboard')]
-    public function test_getClientsUsingOldVersions_whenUnpaidOrderArePresent_shouldExcludeThoseOrders(): void
+    public function test_get_clients_using_old_versions_when_unpaid_order_are_present_should_exclude_those_orders(): void
     {
         $this->getLoggedInUser('admin');
         $this->createOrder('v3.2.0');
@@ -283,7 +283,7 @@ class DashboardControllerTest extends DBTestCase
     }
 
     #[Group('Dashboard')]
-    public function test_getClientsUsingOldVersions_whenSubscriptionUpdateOlderThan30DaysArePresent_shouldExcludeThoseOrders(): void
+    public function test_get_clients_using_old_versions_when_subscription_update_older_than30_days_are_present_should_exclude_those_orders(): void
     {
         $this->getLoggedInUser('admin');
         $this->createOrder('v3.2.0');
@@ -312,7 +312,7 @@ class DashboardControllerTest extends DBTestCase
     }
 
     #[Group('Dashboard')]
-    public function testGetConversionRateBasedOnOrders(): void
+    public function test_get_conversion_rate_based_on_orders(): void
     {
         $product = Product::create(['name' => "Helpdesk v3.0.0'"]);
         $this->withoutMiddleware();

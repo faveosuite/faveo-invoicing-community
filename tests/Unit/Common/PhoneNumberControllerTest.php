@@ -15,7 +15,7 @@ class PhoneNumberControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->controller = new PhoneNumberController();
+        $this->controller = new PhoneNumberController;
     }
 
     /* ==================== validate() Method Tests ==================== */
@@ -791,7 +791,7 @@ class PhoneNumberControllerTest extends DBTestCase
 
     public function test_constructor_initializes_phone_util(): void
     {
-        $controller = new PhoneNumberController();
+        $controller = new PhoneNumberController;
         $phoneUtil = $this->getPrivateProperty($controller, 'phoneUtil');
 
         $this->assertInstanceOf(PhoneNumberUtil::class, $phoneUtil);

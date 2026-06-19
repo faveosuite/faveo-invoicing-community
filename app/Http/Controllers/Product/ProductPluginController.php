@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Model\License\LicenseType;
 use App\Model\Product\Product;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -17,10 +18,10 @@ class ProductPluginController extends Controller
         $this->middleware('admin');
     }
 
-    public function index(mixed $productId): \Illuminate\Http\JsonResponse
+    public function index(mixed $productId): JsonResponse
     {
         try {
-            /** @var \App\Model\Product\Product $product */
+            /** @var Product $product */
             $product = Product::findOrFail($productId);
 
             $pluginTypeId = LicenseType::where('name', 'plugin')->value('id');
@@ -44,7 +45,7 @@ class ProductPluginController extends Controller
         }
     }
 
-    public function sync(Request $request, mixed $productId): \Illuminate\Http\JsonResponse
+    public function sync(Request $request, mixed $productId): JsonResponse
     {
         $request->validate([
             'bundled' => ['array'],
@@ -54,7 +55,7 @@ class ProductPluginController extends Controller
         ]);
 
         try {
-            /** @var \App\Model\Product\Product $product */
+            /** @var Product $product */
             $product = Product::findOrFail($productId);
 
             $pluginTypeId = LicenseType::where('name', 'plugin')->value('id');

@@ -5,20 +5,23 @@ declare(strict_types=1);
 namespace App\Model\Common;
 
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
  * @property string|null $name
  * @property string|null $script
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int $on_registration
  * @property int $on_every_page
  * @property int $google_analytics
  * @property string|null $google_analytics_tag
  * @property int $non_authenticated
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ChatScript newModelQuery()

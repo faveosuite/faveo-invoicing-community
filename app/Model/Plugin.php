@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Model;
 
 use App\BaseModel;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -12,8 +13,8 @@ use App\BaseModel;
  * @property string $path
  * @property int $status
  * @property string $type
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plugin newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plugin newQuery()

@@ -36,6 +36,7 @@ class LinkLicenseToPlugin extends Command
 
             if ($licenses->isEmpty()) {
                 $this->warn('No licenses found for product ID: '.$product);
+
                 continue;
             }
 

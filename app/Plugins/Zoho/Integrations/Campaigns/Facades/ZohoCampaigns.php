@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Plugins\Zoho\Integrations\Campaigns\Facades;
 
+use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\LazyCollection;
@@ -18,7 +19,7 @@ use Illuminate\Support\LazyCollection;
  * @method static void attachTag(string $email, string $tag)
  * @method static void detachTag(string $email, string $tag)
  *
- * @see \App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns
+ * @see Campaigns
  */
 class ZohoCampaigns extends Facade
 {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Common;
 use App\Http\Controllers\Controller;
 use App\Model\Common\ChatScript;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Log;
 use Logger;
@@ -16,11 +17,11 @@ class ChatScriptController extends Controller
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $script = new ChatScript();
+        $script = new ChatScript;
         $this->script = $script; // @phpstan-ignore property.notFound
     }
 
-    public function getScriptList(Request $request): \Illuminate\Http\JsonResponse
+    public function getScriptList(Request $request): JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -52,7 +53,7 @@ class ChatScriptController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function createScript(Request $request): \Illuminate\Http\JsonResponse
+    public function createScript(Request $request): JsonResponse
     {
         $request->validate([
             'name' => ['required', 'max:50'],
@@ -81,7 +82,7 @@ class ChatScriptController extends Controller
      *
      * @param  int  $id
      */
-    public function getScript($id): \Illuminate\Http\JsonResponse
+    public function getScript($id): JsonResponse
     {
         try {
             $chat = $this->script->find($id); // @phpstan-ignore property.notFound
@@ -101,7 +102,7 @@ class ChatScriptController extends Controller
      *
      * @param  int  $id
      */
-    public function updateScript(Request $request, $id): \Illuminate\Http\JsonResponse
+    public function updateScript(Request $request, $id): JsonResponse
     {
         $request->validate([
             'name' => ['required', 'max:50'],
@@ -136,7 +137,7 @@ class ChatScriptController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function deleteScript(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteScript(Request $request): JsonResponse
     {
         try {
             $ids = $request->input('select', []);

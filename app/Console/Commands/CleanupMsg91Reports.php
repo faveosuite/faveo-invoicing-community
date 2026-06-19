@@ -28,7 +28,7 @@ class CleanupMsg91Reports extends LoggableCommand
      */
     public function handleAndLog(): void
     {
-        $controller = new CronController();
+        $controller = new CronController;
         $controller->msgDeletions();
         $this->info('MSG91 reports have been deleted.');
     }

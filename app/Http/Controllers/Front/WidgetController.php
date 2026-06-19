@@ -9,12 +9,13 @@ use App\Model\Common\SocialMedia;
 use App\Model\Common\StatusSetting;
 use App\Model\Front\Widgets;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class WidgetController extends Controller
 {
     /**
-     * @var \App\Model\Front\Widgets
+     * @var Widgets
      */
     public $widget;
 
@@ -23,11 +24,11 @@ class WidgetController extends Controller
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $widget = new Widgets();
+        $widget = new Widgets;
         $this->widget = $widget;
     }
 
-    public function getWidgetList(Request $request): \Illuminate\Http\JsonResponse
+    public function getWidgetList(Request $request): JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -65,7 +66,7 @@ class WidgetController extends Controller
         }
     }
 
-    public function getWidget(mixed $id): \Illuminate\Http\JsonResponse
+    public function getWidget(mixed $id): JsonResponse
     {
         try {
             $widget = $this->widget
@@ -92,7 +93,7 @@ class WidgetController extends Controller
         }
     }
 
-    public function createWidget(Request $request): \Illuminate\Http\JsonResponse
+    public function createWidget(Request $request): JsonResponse
     {
         $this->validate($request, [
             'name' => 'required|max:50',
@@ -127,7 +128,7 @@ class WidgetController extends Controller
         }
     }
 
-    public function updateWidget(string $id, Request $request): \Illuminate\Http\JsonResponse
+    public function updateWidget(string $id, Request $request): JsonResponse
     {
         $this->validate($request, [
             'name' => 'required|max:50',
@@ -185,7 +186,7 @@ class WidgetController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function deleteWidget(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteWidget(Request $request): JsonResponse
     {
         try {
             $ids = $request->input('select', []);
@@ -220,9 +221,9 @@ class WidgetController extends Controller
     /**
      * This function returns the rendered widget.
      */
-    public function footer1(): \Illuminate\Http\JsonResponse
+    public function footer1(): JsonResponse
     {
-        $set = new Setting();
+        $set = new Setting;
         $set = $set->findOrFail(1);
 
         $social = SocialMedia::get();
@@ -243,11 +244,6 @@ class WidgetController extends Controller
 
     /**
      * This function renders the footer widget.
-     *
-     * @param  $widget
-     * @param  $set
-     * @param  $social
-     * @param  $mailchimpKey
      */
     public function renderWidget(mixed $widget, mixed $set, mixed $social, mixed $mailchimpKey): string
     {
@@ -326,7 +322,7 @@ class WidgetController extends Controller
 
         $socialMedia1['tweetDetails'] = $tweetDetails;
 
-//        return $socialMedia1;
+        //        return $socialMedia1;
         return '<div class="col-lg-4">
                     <div class="widget-container">
                         <h4 class="text-color-dark font-weight-bold mb-3">'.$widget->name.'</h4>

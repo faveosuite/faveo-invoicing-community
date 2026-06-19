@@ -19,7 +19,7 @@ class ZohoAccessTokenTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->accessToken = new ZohoAccessToken();
+        $this->accessToken = new ZohoAccessToken;
     }
 
     public function test_it_returns_valid_access_token(): void

@@ -7,7 +7,9 @@ use App\FileSystemSettings;
 use App\Http\Requests\UpdateStoragePathRequest;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\Timezone;
 use App\Model\Mailjob\Condition;
+use App\User;
 use Auth;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
@@ -15,17 +17,18 @@ use DateTime;
 use DateTimeZone;
 use DrewM\MailChimp\MailChimp;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Lang;
 
-//////////////////////////////////////////////////////////////
-//TRAIT FOR SAVING API STATUS AND API KEYS //
-////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////
+// TRAIT FOR SAVING API STATUS AND API KEYS //
+// //////////////////////////////////////////////////////////////
 
 trait ApiKeySettings
 {
-    public function licenseStatus(Request $request): \Illuminate\Http\JsonResponse
+    public function licenseStatus(Request $request): JsonResponse
     {
         $statusData = collect([
             'mstatus' => ['key' => 'msg91_status',         'lang' => __('message.mobile_status')],
@@ -67,7 +70,7 @@ trait ApiKeySettings
         $request->input('status');
     }
 
-    //Save Auto Update status in Database
+    // Save Auto Update status in Database
     /**
      * @return array<mixed>
      */
@@ -85,7 +88,7 @@ trait ApiKeySettings
     /*
      * Update Msg91 Details In Database
      */
-    public function updatemobileDetails(Request $request): \Illuminate\Http\JsonResponse
+    public function updatemobileDetails(Request $request): JsonResponse
     {
         $request->validate([
             'msg91_auth_key' => ['required', 'string'],
@@ -194,7 +197,7 @@ trait ApiKeySettings
         return ['message' => 'success', 'update' => Lang::get('message.twitter_setting')];
     }
 
-    public function updatepipedriveDetails(Request $request): \Illuminate\Http\JsonResponse
+    public function updatepipedriveDetails(Request $request): JsonResponse
     {
         try {
             $pipedriveKey = $request->input('pipedrive_key');
@@ -243,7 +246,7 @@ trait ApiKeySettings
         return ['message' => 'success', 'update' => __('message.mailchimp_is_paid_status_saved')];
     }
 
-    public function updateMailchimpDetails(Request $request): \Illuminate\Http\JsonResponse
+    public function updateMailchimpDetails(Request $request): JsonResponse
     {
         try {
             $chimp_auth_key = $request->input('mailchimp_auth_key');
@@ -259,7 +262,7 @@ trait ApiKeySettings
                 MailchimpSetting::where('id', 1)->update(['api_key' => $chimp_auth_key]);
                 $mailchimpverifiedStatus = 1;
 
-                $mailchimp_set = new MailchimpSetting();
+                $mailchimp_set = new MailchimpSetting;
                 $set = $mailchimp_set->firstOrFail();
                 $mail_api_key = $set->api_key;
                 $mailchimp = new \Mailchimp\Mailchimp($mail_api_key); // @phpstan-ignore class.notFound
@@ -276,12 +279,12 @@ trait ApiKeySettings
             }
 
             return errorResponse(__('message.mailchimp_apikey_error'));
-        } catch(Exception) {
+        } catch (Exception) {
             return errorResponse(__('message.mailchimp_apikey_error'));
         }
     }
 
-    public function updateTermsDetails(Request $request): \Illuminate\Http\JsonResponse
+    public function updateTermsDetails(Request $request): JsonResponse
     {
         $terms_url = $request->input('terms_url');
         try {
@@ -308,14 +311,14 @@ trait ApiKeySettings
     {
         $created = new DateTime($dbdate);
         $user = Auth::user();
-        if (! $user instanceof \App\User) {
+        if (! $user instanceof User) {
             $tz = 'UTC';
         } else {
             $timezone = $user->timezone()->first();
-            $tz = $timezone instanceof \App\Model\Common\Timezone ? $timezone->name : 'UTC';
+            $tz = $timezone instanceof Timezone ? $timezone->name : 'UTC';
         }
         $created->setTimezone(new DateTimeZone($tz));
-        $date = $created->format('M j, Y, g:i a '); //5th October, 2018, 11:17PM
+        $date = $created->format('M j, Y, g:i a '); // 5th October, 2018, 11:17PM
         $newDate = $date;
 
         return $newDate;
@@ -325,11 +328,11 @@ trait ApiKeySettings
     {
         $created = new DateTime($dbdate);
         $user = Auth::user();
-        if (! $user instanceof \App\User) {
+        if (! $user instanceof User) {
             $tz = 'UTC';
         } else {
             $timezone = $user->timezone()->first();
-            $tz = $timezone instanceof \App\Model\Common\Timezone ? $timezone->name : 'UTC';
+            $tz = $timezone instanceof Timezone ? $timezone->name : 'UTC';
         }
         $created->setTimezone(new DateTimeZone($tz));
 
@@ -414,7 +417,7 @@ trait ApiKeySettings
      */
     public function storeCommand(array $jobs = []): void
     {
-        $model = new Condition();
+        $model = new Condition;
 
         // Clear all previous commands
         Condition::truncate();
@@ -428,7 +431,7 @@ trait ApiKeySettings
         }
     }
 
-    public function showFileStorage(): \Illuminate\Http\JsonResponse
+    public function showFileStorage(): JsonResponse
     {
         try {
             $fileStorageSettings = FileSystemSettings::first();
@@ -454,7 +457,7 @@ trait ApiKeySettings
         }
     }
 
-    public function updateStoragePath(UpdateStoragePathRequest $request): \Illuminate\Http\JsonResponse
+    public function updateStoragePath(UpdateStoragePathRequest $request): JsonResponse
     {
         $disk = $request->input('disk');
         $fileStorageSettings = FileSystemSettings::first();
@@ -476,7 +479,7 @@ trait ApiKeySettings
         return successResponse(trans('message.setting_updated'));
     }
 
-    protected function updateLocalStorage(mixed $request, mixed $fileStorageSettings): \Illuminate\Http\JsonResponse
+    protected function updateLocalStorage(mixed $request, mixed $fileStorageSettings): JsonResponse
     {
         $path = $request->input('path');
 
@@ -490,7 +493,7 @@ trait ApiKeySettings
         return successResponse();
     }
 
-    protected function updateS3Storage(mixed $request, mixed $fileStorageSettings): \Illuminate\Http\JsonResponse
+    protected function updateS3Storage(mixed $request, mixed $fileStorageSettings): JsonResponse
     {
         $fileStorageSettings->disk = 's3';
 
@@ -559,7 +562,7 @@ trait ApiKeySettings
         }
     }
 
-    public function showPdfSettings(): \Illuminate\Http\JsonResponse
+    public function showPdfSettings(): JsonResponse
     {
         try {
             $settings = FileSystemSettings::first();
@@ -574,7 +577,7 @@ trait ApiKeySettings
         }
     }
 
-    public function updatePdfSettings(Request $request): \Illuminate\Http\JsonResponse
+    public function updatePdfSettings(Request $request): JsonResponse
     {
         try {
             $settings = FileSystemSettings::firstOrNew([]);

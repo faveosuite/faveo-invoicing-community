@@ -3,6 +3,9 @@
 namespace App\Model\Product;
 
 use App\BaseModel;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -14,9 +17,9 @@ use Override;
  * @property int $maximum_uses
  * @property int $allow-promotion
  * @property int $show
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\ProductBundleRelation> $relation
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, ProductBundleRelation> $relation
  * @property-read int|null $relation_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundle newModelQuery()
@@ -42,9 +45,9 @@ class ProductBundle extends BaseModel
     protected $fillable = ['name', 'valid_from', 'valid_till', 'uses', 'maximum_uses', 'allow-promotion', 'show'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ProductBundleRelation, $this>
+     * @return HasMany<ProductBundleRelation, $this>
      */
-    public function relation(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function relation(): HasMany
     {
         return $this->hasMany(ProductBundleRelation::class, 'bundle_id');
     }

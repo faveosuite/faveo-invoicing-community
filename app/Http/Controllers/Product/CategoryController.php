@@ -11,7 +11,7 @@ use Lang;
 class CategoryController extends Controller
 {
     /**
-     * @var \App\Model\Product\ProductCategory
+     * @var ProductCategory
      */
     public $productCategory;
 
@@ -20,7 +20,7 @@ class CategoryController extends Controller
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $productCategory = new ProductCategory();
+        $productCategory = new ProductCategory;
         $this->productCategory = $productCategory;
     }
 

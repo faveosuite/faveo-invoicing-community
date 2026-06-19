@@ -30,8 +30,8 @@ class ThirdPartyAppControllerTest extends DBTestCase
         $response = $this->getJson('/get-third-party-app');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['app_secret' => '*****'])
-                 ->assertJsonFragment(['app_name' => $app->app_name]);
+            ->assertJsonFragment(['app_secret' => '*****'])
+            ->assertJsonFragment(['app_name' => $app->app_name]);
     }
 
     public function test_applies_search_filter(): void
@@ -51,8 +51,8 @@ class ThirdPartyAppControllerTest extends DBTestCase
         $response = $this->getJson('/get-third-party-app?search-query=Mail');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['app_name' => 'MailGun'])
-                 ->assertJsonMissing(['app_name' => 'StripeAPI']);
+            ->assertJsonFragment(['app_name' => 'MailGun'])
+            ->assertJsonMissing(['app_name' => 'StripeAPI']);
     }
 
     public function test_creates_third_party_app_successfully(): void
@@ -66,7 +66,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
         $response = $this->postJson('/third-party-app-create', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.saved-successfully')]);
+            ->assertJsonFragment(['message' => __('message.saved-successfully')]);
 
         $this->assertDatabaseHas('third_party_apps', [
             'app_name' => 'TestApp',
@@ -84,7 +84,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
         $response = $this->postJson('/third-party-app-create', $payload);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['app_name', 'app_key', 'app_secret']);
+            ->assertJsonValidationErrors(['app_name', 'app_key', 'app_secret']);
     }
 
     public function test_updates_third_party_app_successfully(): void
@@ -103,7 +103,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
 
         $response = $this->putJson('/third-party-app-update/'.$app->id, $payload);
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.updated-successfully')]);
+            ->assertJsonFragment(['message' => __('message.updated-successfully')]);
 
         $this->assertDatabaseHas('third_party_apps', [
             'id' => $app->id,
@@ -116,7 +116,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
         $response = $this->deleteJson('/third-party-delete', ['select' => []]);
 
         $response->assertStatus(400)
-                 ->assertJsonFragment(['message' => __('message.select-a-row')]);
+            ->assertJsonFragment(['message' => __('message.select-a-row')]);
     }
 
     public function test_deletes_selected_third_party_apps(): void
@@ -138,7 +138,7 @@ class ThirdPartyAppControllerTest extends DBTestCase
         $response = $this->deleteJson('/third-party-delete', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.deleted-successfully')]);
+            ->assertJsonFragment(['message' => __('message.deleted-successfully')]);
 
         $this->assertDatabaseMissing('third_party_apps', ['id' => $app1->id]);
         $this->assertDatabaseMissing('third_party_apps', ['id' => $app2->id]);
@@ -149,6 +149,6 @@ class ThirdPartyAppControllerTest extends DBTestCase
         $response = $this->deleteJson('/third-party-delete', ['select' => [999]]);
 
         $response->assertStatus(400)
-                 ->assertJsonFragment(['message' => __('message.no-record')]);
+            ->assertJsonFragment(['message' => __('message.no-record')]);
     }
 }

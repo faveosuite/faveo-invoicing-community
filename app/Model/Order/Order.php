@@ -10,9 +10,19 @@ use App\Traits\SystemActivityLogsTrait;
 use App\User;
 use Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Override;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -25,22 +35,22 @@ use Override;
  * @property string $domain
  * @property string $price_override
  * @property string $qty
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string $license_mode
  * @property int $is_downloadable
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Installation> $installation
+ * @property-read Collection<int, Installation> $installation
  * @property-read int|null $installation_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Installation> $installationDetail
+ * @property-read Collection<int, Installation> $installationDetail
  * @property-read int|null $installation_detail_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\Invoice> $invoice
+ * @property-read Collection<int, Invoice> $invoice
  * @property-read int|null $invoice_count
- * @property-read \App\Model\Order\InvoiceItem|null $invoiceItem
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\OrderInvoiceRelation> $invoiceRelation
+ * @property-read InvoiceItem|null $invoiceItem
+ * @property-read Collection<int, OrderInvoiceRelation> $invoiceRelation
  * @property-read int|null $invoice_relation_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\Invoice> $invoices
+ * @property-read Collection<int, Invoice> $invoices
  * @property-read int|null $invoices_count
  * @property-read Product|null $productRelation
  * @property-read Subscription|null $subscription
@@ -70,9 +80,10 @@ use Override;
 class Order extends BaseModel
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'orders';
@@ -118,34 +129,34 @@ class Order extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'client');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Model\Product\Subscription, $this>
+     * @return HasOne<Subscription, $this>
      */
-    public function subscription(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function subscription(): HasOne
     {
         return $this->hasOne(Subscription::class, 'order_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Product\Product, $this>
+     * @return BelongsTo<Product, $this>
      */
-    public function productRelation(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function productRelation(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product');
     }
 
     // Many-to-many: one order can appear on multiple invoices (original + renewals)
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Model\Order\Invoice, $this, \Illuminate\Database\Eloquent\Relations\Pivot>
+     * @return BelongsToMany<Invoice, $this, Pivot>
      */
-    public function invoices(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function invoices(): BelongsToMany
     {
         return $this->belongsToMany(
             Invoice::class,
@@ -155,40 +166,40 @@ class Order extends BaseModel
         );
     }
 
-    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsToMany // @phpstan-ignore missingType.generics
+    public function invoice(): BelongsToMany // @phpstan-ignore missingType.generics
     {
         return $this->invoices();
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\OrderInvoiceRelation, $this>
+     * @return HasMany<OrderInvoiceRelation, $this>
      */
-    public function invoiceRelation(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function invoiceRelation(): HasMany
     {
-        return $this->hasMany(\App\Model\Order\OrderInvoiceRelation::class, 'order_id');
+        return $this->hasMany(OrderInvoiceRelation::class, 'order_id');
     }
 
     // The invoice item that generated this order
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<InvoiceItem, $this>
+     * @return BelongsTo<InvoiceItem, $this>
      */
-    public function invoiceItem(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function invoiceItem(): BelongsTo
     {
         return $this->belongsTo(InvoiceItem::class, 'invoice_item_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\License\Models\Installation, $this>
+     * @return HasMany<Installation, $this>
      */
-    public function installationDetail(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function installationDetail(): HasMany
     {
         return $this->hasMany(Installation::class, 'license_code', 'serial_key');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\License\Models\Installation, $this>
+     * @return HasMany<Installation, $this>
      */
-    public function installation(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function installation(): HasMany
     {
         return $this->hasMany(Installation::class, 'order_id');
     }
@@ -203,21 +214,21 @@ class Order extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function orderStatus(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function orderStatus(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value): string {
+        return Attribute::make(get: function ($value): string {
             return ucfirst((string) $value);
         });
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function serialKey(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function serialKey(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+        return Attribute::make(get: function ($value) {
             try {
                 return Crypt::decrypt($value);
             } catch (DecryptException) {
@@ -227,11 +238,11 @@ class Order extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function domain(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function domain(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+        return Attribute::make(get: function ($value) {
             if (Str::endsWith($value, '/')) {
                 return substr_replace($value, '', -1, 0);
             }

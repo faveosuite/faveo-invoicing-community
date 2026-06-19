@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Model\Common\Mailchimp;
 
 use App\BaseModel;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -15,8 +16,8 @@ use App\BaseModel;
  * @property string $type
  * @property string $options
  * @property string $required
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpField newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpField newQuery()

@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
 
         Validator::extend('no_http', fn ($attribute, $value, $parameters, $validator): bool => ! str_contains((string) $value, 'http://') && ! str_contains((string) $value, 'https://'));
 
-        Collection::macro('paginate', function ($perPage, $total = null, $page = null, $pageName = 'page'): \Illuminate\Pagination\LengthAwarePaginator {
+        Collection::macro('paginate', function ($perPage, $total = null, $page = null, $pageName = 'page'): LengthAwarePaginator {
             $page = $page ?: LengthAwarePaginator::resolveCurrentPage($pageName);
 
             return new LengthAwarePaginator(

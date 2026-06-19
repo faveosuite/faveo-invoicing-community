@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace App\Model\Product;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property int $id
  * @property string|null $category_name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategory newModelQuery()
@@ -66,6 +69,6 @@ class ProductCategory extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return \Spatie\Activitylog\Support\LogOptions::defaults();
+        return LogOptions::defaults();
     }
 }

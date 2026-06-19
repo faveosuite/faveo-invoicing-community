@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\BillingLog\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -13,9 +15,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $line
  * @property string $trace
  * @property string $message
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\BillingLog\Model\LogCategory|null $category
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read LogCategory|null $category
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExceptionLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExceptionLog newQuery()
@@ -40,9 +42,9 @@ class ExceptionLog extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<LogCategory, $this>
+     * @return BelongsTo<LogCategory, $this>
      */
-    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function category(): BelongsTo
     {
         return $this->belongsTo(LogCategory::class, 'log_category_id');
     }

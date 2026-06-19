@@ -7,6 +7,7 @@ use App\Plugins\Zoho\Models\ZohoOAuthClient;
 use App\Plugins\Zoho\Models\ZohoOAuthToken;
 use DB;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -18,7 +19,7 @@ class ZohoOAuthController extends Controller
     /**
      * Return the list of Zoho integrations as JSON for the Vue settings page.
      */
-    public function getIntegrations(): \Illuminate\Http\JsonResponse
+    public function getIntegrations(): JsonResponse
     {
         $integrations = ZohoIntegration::with('token')
             ->select('id', 'platform', 'description', 'is_active')
@@ -34,14 +35,14 @@ class ZohoOAuthController extends Controller
         return successResponse('', $integrations);
     }
 
-    public function getOauthClientKeys(mixed $integration): \Illuminate\Http\JsonResponse
+    public function getOauthClientKeys(mixed $integration): JsonResponse
     {
         $client = ZohoOAuthClient::where('integration_id', $integration)->first();
 
         return successResponse('', $client);
     }
 
-    public function saveOAuthClientKeys(Request $request): \Illuminate\Http\JsonResponse
+    public function saveOAuthClientKeys(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'integration_id' => ['required', 'exists:zoho_integrations,id'],
@@ -50,7 +51,7 @@ class ZohoOAuthController extends Controller
             'region' => ['required', 'in:in,us,eu,au,jp,cn'],
         ]);
 
-        /** @var \App\Plugins\Zoho\Models\ZohoIntegration $integration */
+        /** @var ZohoIntegration $integration */
         $integration = ZohoIntegration::findOrFail($validated['integration_id']);
 
         // There is exactly one callback route, so the redirect URI is fixed —
@@ -78,7 +79,7 @@ class ZohoOAuthController extends Controller
             ->where('platform', $platform)
             ->firstOrFail();
 
-        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient|null $client */
+        /** @var ZohoOAuthClient|null $client */
         $client = $integration->client;
 
         if (! $client) {
@@ -129,7 +130,7 @@ class ZohoOAuthController extends Controller
             ->where('platform', $platform)
             ->firstOrFail();
 
-        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $client */
+        /** @var ZohoOAuthClient $client */
         $client = $integration->client;
 
         // A Zoho authorization code is data-center-specific: it must be redeemed
@@ -244,7 +245,7 @@ class ZohoOAuthController extends Controller
         );
     }
 
-    public function toggleIntegration(Request $request, mixed $id): \Illuminate\Http\JsonResponse
+    public function toggleIntegration(Request $request, mixed $id): JsonResponse
     {
         $newValue = $request->boolean('is_active') ? 1 : 0;
 

@@ -56,8 +56,7 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
         private string $keySecret,
         private string $checkoutName = 'Payment',
         private string $webhookSecret = '',
-    ) {
-    }
+    ) {}
 
     public function name(): string
     {

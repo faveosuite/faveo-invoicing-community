@@ -160,7 +160,7 @@ class ClientOrderControllerTest extends DBTestCase
     }
 
     #[Group('order')]
-    public function test_to_payNow_exception(): void
+    public function test_to_pay_now_exception(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -182,7 +182,7 @@ class ClientOrderControllerTest extends DBTestCase
     }
 
     #[Group('order')]
-    public function test_to_payNow_redirection(): void
+    public function test_to_pay_now_redirection(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -227,7 +227,7 @@ class ClientOrderControllerTest extends DBTestCase
         $licensetype->permissions()->attach($permissionid);
 
         $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
-        Product::find($product->id)->licenseType->permissions->pluck('permissions'); //Get All the permissions related to patrticular Product
+        Product::find($product->id)->licenseType->permissions->pluck('permissions'); // Get All the permissions related to patrticular Product
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',

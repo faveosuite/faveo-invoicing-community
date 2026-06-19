@@ -6,6 +6,7 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -17,9 +18,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $domain
  * @property int|null $data_center_id
  * @property string $billing_cycle
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Model\Cart\Cart $cart
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Cart $cart
  * @property-read Plan|null $plan
  * @property-read Product|null $product
  *

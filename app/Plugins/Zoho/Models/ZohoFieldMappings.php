@@ -4,6 +4,7 @@ namespace App\Plugins\Zoho\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -14,10 +15,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $use_default_if_empty
  * @property string|null $option_mapping
  * @property string|null $selected_option
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Plugins\Zoho\Models\FaveoLocalFields|null $faveoLocalField
- * @property-read \App\Plugins\Zoho\Models\ZohoFields $zohoField
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read FaveoLocalFields|null $faveoLocalField
+ * @property-read ZohoFields $zohoField
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFieldMappings newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFieldMappings newQuery()

@@ -52,7 +52,7 @@ class PageRequest extends FormRequest
     #[Override]
     public function messages()
     {
-        return[
+        return [
             'created_at.required' => __('validation.publish_date_required'),
             'name.required' => __('validation.frontend_pages.name.required'),
             'name.unique' => __('validation.frontend_pages.name.unique'),

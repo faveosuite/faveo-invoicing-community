@@ -7,12 +7,13 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\Promotion;
 use App\Model\Product\Product;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 use Session;
 
 class BasePromotionController extends Controller
 {
-    public function getCode(): \Illuminate\Http\JsonResponse
+    public function getCode(): JsonResponse
     {
         try {
             return successResponse('', strtoupper(Str::random(6)));
@@ -26,12 +27,12 @@ class BasePromotionController extends Controller
         try {
             $price = intval($price);
             switch ($type) {
-                case 1://Percentage
+                case 1:// Percentage
                     $percentage = $price * (intval($value) / 100);
 
-                    return  $price - $percentage;
+                    return $price - $percentage;
                 case 2:
-                    //Fixed amount
+                    // Fixed amount
                     if ($value > $price) {
                         throw new Exception(__('message.invalid_coupon_code'));
                     }
@@ -52,26 +53,26 @@ class BasePromotionController extends Controller
         }
 
         $promo = Promotion::where('code', $code)->first();
-        //check promotion code is valid
+        // check promotion code is valid
         if (! $promo) {
             throw new Exception(__('message.invalid_coupon_code'));
         }
 
         $relation = $promo->relation()->get();
-        //check the relation between code and product
+        // check the relation between code and product
         if (count($relation) === 0) {
             throw new Exception(__('message.no-product-related-to-this-code'));
         }
 
-        //check the usess
-        $cont = new PromotionController();
+        // check the usess
+        $cont = new PromotionController;
         $uses = $cont->checkNumberOfUses($code);
 
         if ($uses !== 'success') {
             throw new Exception(__('message.usage-of-code-completed'));
         }
 
-        //check for the expiry date
+        // check for the expiry date
         $expiry = $this->checkExpiry($code); // @phpstan-ignore method.notFound
         if ($expiry != 'success') {
             throw new Exception(__('message.usage-of-code-expired'));
@@ -84,13 +85,13 @@ class BasePromotionController extends Controller
     {
         try {
             $planid = '';
-            /** @var \App\Model\Payment\Promotion $promotion */
+            /** @var Promotion $promotion */
             $promotion = Promotion::findOrFail($promoid);
             if (checkPlanSession()) {
                 $planid = Session::get('plan');
             }
 
-            /** @var \App\Model\Product\Product $product */
+            /** @var Product $product */
             $product = Product::findOrFail($productid);
             $planId = $planid ?: Plan::where('product', $product->id)->where('status', 1)->value('id');
             $userPlan = userCurrencyAndPrice($userid, $product->planRelation()->findOrFail($planId));

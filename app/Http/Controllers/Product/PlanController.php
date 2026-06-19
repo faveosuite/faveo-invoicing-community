@@ -12,6 +12,7 @@ use App\Model\Product\Subscription;
 use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -20,34 +21,34 @@ use Throwable;
 
 class PlanController extends ExtendedPlanController
 {
-    protected \App\Model\Payment\Currency $currency;
+    protected Currency $currency;
 
-    protected \App\Model\Payment\PlanPrice $price;
+    protected PlanPrice $price;
 
-    protected \App\Model\Payment\Period $period;
+    protected Period $period;
 
-    protected \App\Model\Product\Product $product;
+    protected Product $product;
 
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('admin');
-        $plan = new Plan();
+        $plan = new Plan;
         $this->plan = $plan; // @phpstan-ignore property.notFound
 
-        $subscription = new Subscription();
+        $subscription = new Subscription;
         $this->subscription = $subscription; // @phpstan-ignore property.notFound
 
-        $currency = new Currency();
+        $currency = new Currency;
         $this->currency = $currency;
 
-        $price = new PlanPrice();
+        $price = new PlanPrice;
         $this->price = $price;
 
-        $period = new Period();
+        $period = new Period;
         $this->period = $period;
 
-        $product = new Product();
+        $product = new Product;
         $this->product = $product;
     }
 
@@ -71,7 +72,7 @@ class PlanController extends ExtendedPlanController
             $offer_prices = $request->offer_price;
             $this->plan->fill($request->input())->save(); // @phpstan-ignore property.notFound
             if ($request->input('days') != '') {
-                /** @var \App\Model\Payment\Period $periodObj */
+                /** @var Period $periodObj */
                 $periodObj = Period::where('days', $request->input('days'))->first();
                 $period = $periodObj->id;
                 $this->plan->periods()->attach($period); // @phpstan-ignore property.notFound
@@ -111,9 +112,9 @@ class PlanController extends ExtendedPlanController
         $add_prices = $request->add_price;
         $renew_prices = $request->renew_price;
         $plan->fill($request->input())->save();
-        //To change the plan days,whenever we update plan
+        // To change the plan days,whenever we update plan
         if ($request->input('days') != '') {
-            /** @var \App\Model\Payment\Period $periodObj2 */
+            /** @var Period $periodObj2 */
             $periodObj2 = Period::where('days', $request->input('days'))->first();
             $period = $periodObj2->id;
             $plan->periods()->sync($period);
@@ -139,7 +140,7 @@ class PlanController extends ExtendedPlanController
         return back()->with('success', trans('message.updated-successfully'));
     }
 
-    public function getAllPlans(Request $request): \Illuminate\Http\JsonResponse
+    public function getAllPlans(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');
@@ -201,7 +202,7 @@ class PlanController extends ExtendedPlanController
         return null;
     }
 
-    public function planCreate(PlanRequest $request): \Illuminate\Http\JsonResponse
+    public function planCreate(PlanRequest $request): JsonResponse
     {
         try {
             // prevent creating duplicate plans for certain products
@@ -243,10 +244,10 @@ class PlanController extends ExtendedPlanController
         }
     }
 
-    public function getPlan(mixed $planId): \Illuminate\Http\JsonResponse
+    public function getPlan(mixed $planId): JsonResponse
     {
         try {
-            /** @var \App\Model\Payment\Plan $plan */
+            /** @var Plan $plan */
             $plan = Plan::with([
                 'planPrice',
                 'productRelation:id,name',
@@ -267,10 +268,10 @@ class PlanController extends ExtendedPlanController
         }
     }
 
-    public function updatePlan(mixed $planID, PlanRequest $request): \Illuminate\Http\JsonResponse
+    public function updatePlan(mixed $planID, PlanRequest $request): JsonResponse
     {
         try {
-            /** @var \App\Model\Payment\Plan $plan */
+            /** @var Plan $plan */
             $plan = Plan::findOrFail($planID);
 
             $plan->fill($request->validated())->save();
@@ -305,7 +306,7 @@ class PlanController extends ExtendedPlanController
         }
     }
 
-    public function deleteBulkPlans(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteBulkPlans(Request $request): JsonResponse
     {
         $ids = $request->input('select', []);
 

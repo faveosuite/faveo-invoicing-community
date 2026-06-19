@@ -15,7 +15,7 @@ class ContactBuilder
 
     private function relation(): MailchimpFieldAgoraRelation
     {
-        return $this->relation ??= MailchimpFieldAgoraRelation::first() ?? new MailchimpFieldAgoraRelation();
+        return $this->relation ??= MailchimpFieldAgoraRelation::first() ?? new MailchimpFieldAgoraRelation;
     }
 
     /**

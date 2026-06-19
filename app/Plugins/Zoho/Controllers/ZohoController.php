@@ -10,6 +10,8 @@ use App\Model\Order\InvoiceItem;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\ZohoCampaignsController;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\ZohoCrmController;
 use App\User;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Logger;
 use Throwable;
@@ -19,8 +21,7 @@ class ZohoController extends Controller
     public function __construct(
         private readonly ZohoCampaignsController $campaignsController,
         private readonly ZohoCrmController $crmController
-    ) {
-    }
+    ) {}
 
     public function addUserToZoho(User $user): void
     {
@@ -39,7 +40,7 @@ class ZohoController extends Controller
         }
     }
 
-    public function testEvent(Request $request): \Illuminate\Http\JsonResponse
+    public function testEvent(Request $request): JsonResponse
     {
         $event = $request->get('event');
 
@@ -70,7 +71,7 @@ class ZohoController extends Controller
                 ])),
 
             'purchase' => event(new OrderPlacedEvent(
-                Invoice::whereHas('invoiceItem', fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->where('product_id', $productId))->latest()->firstOrFail()
+                Invoice::whereHas('invoiceItem', fn (Builder $q) => $q->where('product_id', $productId))->latest()->firstOrFail()
             )),
 
             default => abort(400, 'Invalid event type'),

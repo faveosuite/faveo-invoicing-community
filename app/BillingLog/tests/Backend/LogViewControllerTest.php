@@ -12,6 +12,7 @@ use App\Payment_log;
 use App\User;
 use DB;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Logger;
 use PHPUnit\Framework\Attributes\Group;
@@ -35,7 +36,7 @@ class LogViewControllerTest extends DBTestCase
     /** ----------------------- Exception Logs ----------------------- */
     #[Test]
     #[Group('exception-logs')]
-    public function test_exceptionLogs_withoutFilters(): void
+    public function test_exception_logs_without_filters(): void
     {
         Logger::exception(new Exception('test_exception_1'));
         Logger::exception(new Exception('test_exception_2'));
@@ -50,7 +51,7 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('exception-logs')]
-    public function test_exceptionLogs_withSearchQuery(): void
+    public function test_exception_logs_with_search_query(): void
     {
         Logger::exception(new Exception('test_exception_1'));
         Logger::exception(new Exception('test_exception_2'));
@@ -66,7 +67,7 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('exception-logs')]
-    public function test_exceptionLogs_withLimit(): void
+    public function test_exception_logs_with_limit(): void
     {
         foreach (range(1, 5) as $i) {
             Logger::exception(new Exception('test_exception_'.$i));
@@ -81,7 +82,7 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('exception-logs')]
-    public function test_exceptionLogs_withFutureDateSearch(): void
+    public function test_exception_logs_with_future_date_search(): void
     {
         Logger::exception(new Exception('test_exception_1'));
 
@@ -94,7 +95,7 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('exception-logs')]
-    public function test_exceptionLogs_withCategoryFilter(): void
+    public function test_exception_logs_with_category_filter(): void
     {
         $cat1 = LogCategory::create(['name' => 'test_category_1']);
         $cat2 = LogCategory::create(['name' => 'test_category_2']);
@@ -116,7 +117,7 @@ class LogViewControllerTest extends DBTestCase
     /** ----------------------- Cron Logs ----------------------- */
     #[Test]
     #[Group('cron-logs')]
-    public function test_cronLogs_withCategoryAndStatus(): void
+    public function test_cron_logs_with_category_and_status(): void
     {
         LogCategory::create(['name' => 'database:sync']);
         $cronLog = Logger::cron('database:sync', 'Update DB to latest version');
@@ -133,7 +134,7 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('cron-logs')]
-    public function test_cronLogs_withLimit(): void
+    public function test_cron_logs_with_limit(): void
     {
         $log1 = Logger::cron('database:sync', 'Update DB to latest version');
         $log2 = Logger::cron('database:sync', 'Update DB to latest version');
@@ -152,7 +153,7 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('cron-logs')]
-    public function test_cronLogs_withCreatedAtFilter(): void
+    public function test_cron_logs_with_created_at_filter(): void
     {
         $log1 = Logger::cron('database:sync', 'Update DB to latest version');
         $log2 = Logger::cron('database:sync', 'Update DB to latest version');
@@ -172,7 +173,7 @@ class LogViewControllerTest extends DBTestCase
     /** ----------------------- Mail Logs ----------------------- */
     #[Test]
     #[Group('mail-logs')]
-    public function test_mailLogs_withoutFilters(): void
+    public function test_mail_logs_without_filters(): void
     {
         $log = $this->logMailByCategory();
         assert($log !== null);
@@ -186,11 +187,11 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('mail-logs')]
-    public function test_mailLogs_withSearchQuery(): void
+    public function test_mail_logs_with_search_query(): void
     {
         $log = $this->logMailByCategory('', '', [], [], 'First Subject');
         assert($log !== null);
-        /** @var \App\BillingLog\Model\LogCategory $logCat */
+        /** @var LogCategory $logCat */
         $logCat = LogCategory::findOrFail($log->log_category_id);
         $categoryName = $logCat->name;
 
@@ -209,11 +210,11 @@ class LogViewControllerTest extends DBTestCase
 
     #[Test]
     #[Group('mail-logs')]
-    public function test_mailLogs_withLimit(): void
+    public function test_mail_logs_with_limit(): void
     {
         $log = $this->logMailByCategory('', '', [], [], 'First Subject');
         assert($log !== null);
-        /** @var \App\BillingLog\Model\LogCategory $logCat */
+        /** @var LogCategory $logCat */
         $logCat = LogCategory::findOrFail($log->log_category_id);
         $categoryName = $logCat->name;
 
@@ -311,7 +312,7 @@ class LogViewControllerTest extends DBTestCase
         array $bcc = [],
         string $subject = 'Test Subject',
         ?string $categoryName = 'test_category'
-    ): ?\Illuminate\Database\Eloquent\Model {
+    ): ?Model {
         return new LogWriteController()->logMailByCategory(
             $senderMail,
             $receiverMail,
@@ -357,7 +358,7 @@ class LogViewControllerTest extends DBTestCase
         $response = $this->deleteJson('/logs/delete', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => 'Logs deleted successfully']);
+            ->assertJsonFragment(['message' => 'Logs deleted successfully']);
     }
 
     /*
@@ -397,7 +398,7 @@ class LogViewControllerTest extends DBTestCase
         $response = $this->deleteJson('/logs/delete', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => 'Logs deleted successfully']);
+            ->assertJsonFragment(['message' => 'Logs deleted successfully']);
     }
 
     /*
@@ -435,24 +436,24 @@ class LogViewControllerTest extends DBTestCase
 
         // Search by log name
         $this->getJson('/get-activity?search-query='.$activity->log_name)
-             ->assertStatus(200)
-             ->assertJsonFragment(['module' => 'Billing']);
+            ->assertStatus(200)
+            ->assertJsonFragment(['module' => 'Billing']);
 
         // Search by description
         $this->getJson('/get-activity?search-query='.$activity->description)
-             ->assertStatus(200)
-             ->assertJsonFragment(['description' => 'Invoice created']);
+            ->assertStatus(200)
+            ->assertJsonFragment(['description' => 'Invoice created']);
 
         // Search by first name
         $this->getJson('/get-activity?search-query='.$user->first_name)
-             ->assertStatus(200);
+            ->assertStatus(200);
         // Search by user_name
         $this->getJson('/get-activity?search-query='.$user->user_name)
-             ->assertStatus(200);
+            ->assertStatus(200);
 
         // Search by email
         $this->getJson('/get-activity?search-query='.$user->email)
-             ->assertStatus(200);
+            ->assertStatus(200);
     }
 
     /**
@@ -484,8 +485,8 @@ class LogViewControllerTest extends DBTestCase
         $response = $this->getJson('/get-activity?module[]=Billing');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['module' => 'Billing'])
-                 ->assertJsonMissing(['module' => 'Support']);
+            ->assertJsonFragment(['module' => 'Billing'])
+            ->assertJsonMissing(['module' => 'Support']);
 
         // Filter by Event
         $this->createActivity(['event' => 'created']);
@@ -494,8 +495,8 @@ class LogViewControllerTest extends DBTestCase
         $response = $this->getJson('/get-activity?event[]=deleted');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['event' => 'Deleted'])
-                 ->assertJsonMissing(['event' => 'Created']);
+            ->assertJsonFragment(['event' => 'Deleted'])
+            ->assertJsonMissing(['event' => 'Created']);
 
         // Filter by Performed By User
         $user1 = User::factory()->create();
@@ -552,14 +553,14 @@ class LogViewControllerTest extends DBTestCase
         $response = $this->getJson('/get-activity?'.$queryString);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment([
-                     'module' => 'Billing',
-                     'event' => 'Created',
-                     'description' => 'Invoice created successfully',
-                 ])
-                ->assertJsonMissing(['module' => 'Support'])
-                ->assertJsonMissing(['event' => 'Deleted'])
-                ->assertJsonMissing(['description' => 'Ticket deleted']);
+            ->assertJsonFragment([
+                'module' => 'Billing',
+                'event' => 'Created',
+                'description' => 'Invoice created successfully',
+            ])
+            ->assertJsonMissing(['module' => 'Support'])
+            ->assertJsonMissing(['event' => 'Deleted'])
+            ->assertJsonMissing(['description' => 'Ticket deleted']);
     }
 
     /*
@@ -587,7 +588,7 @@ class LogViewControllerTest extends DBTestCase
         $response = $this->deleteJson('/logs/delete', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.logs_deleted_successfully')]);
+            ->assertJsonFragment(['message' => __('message.logs_deleted_successfully')]);
     }
 
     /*
@@ -597,7 +598,7 @@ class LogViewControllerTest extends DBTestCase
     {
         LogCategory::create(['name' => 'database:sync']);
 
-        //Create OLD cron log — should be deleted
+        // Create OLD cron log — should be deleted
         $oldCronLog = Logger::cron('database:sync', 'Old cron execution');
         assert($oldCronLog !== null);
         DB::table('cron_logs')->where('id', $oldCronLog->id)->update([
@@ -619,7 +620,7 @@ class LogViewControllerTest extends DBTestCase
         $response = $this->deleteJson('/logs/delete', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.logs_deleted_successfully')]);
+            ->assertJsonFragment(['message' => __('message.logs_deleted_successfully')]);
     }
 
     /*
@@ -655,7 +656,7 @@ class LogViewControllerTest extends DBTestCase
         $response = $this->deleteJson('/logs/delete', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.logs_deleted_successfully')]);
+            ->assertJsonFragment(['message' => __('message.logs_deleted_successfully')]);
 
         // Ensure only one record remains — the new failed job
         $this->assertDatabaseCount('failed_jobs', 1);
@@ -680,7 +681,7 @@ class LogViewControllerTest extends DBTestCase
     /**
      * @param  array<mixed>  $overrides
      */
-    protected function createPaymentLog(array $overrides = []): \App\Payment_log
+    protected function createPaymentLog(array $overrides = []): Payment_log
     {
         $defaults = [
             'status' => 'success',
@@ -690,7 +691,7 @@ class LogViewControllerTest extends DBTestCase
             'date' => now(),
         ];
 
-        $log = new Payment_log();
+        $log = new Payment_log;
         $log->forceFill(array_merge($defaults, $overrides));
         $log->save();
 
@@ -710,8 +711,8 @@ class LogViewControllerTest extends DBTestCase
         $response = $this->getJson('/get-paymentlog');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.payment_logs_retrieved')])
-                 ->assertJsonFragment(['status' => 'Success']);
+            ->assertJsonFragment(['message' => __('message.payment_logs_retrieved')])
+            ->assertJsonFragment(['status' => 'Success']);
     }
 
     public function test_get_payment_logs_search_filter(): void
@@ -727,18 +728,18 @@ class LogViewControllerTest extends DBTestCase
         // Search by email
         $response1 = $this->getJson('/get-paymentlog?search-query='.$user->email);
         $response1->assertStatus(200)
-                  ->assertJsonFragment(['payment_email' => $user->email]);
+            ->assertJsonFragment(['payment_email' => $user->email]);
 
         // Search by user name (first_name + last_name)
         $fullName = sprintf('%s %s', $user->first_name, $user->last_name);
         $response2 = $this->getJson('/get-paymentlog?search-query='.$fullName);
         $response2->assertStatus(200)
-                  ->assertJsonFragment(['user_name' => $fullName]);
+            ->assertJsonFragment(['user_name' => $fullName]);
 
         // Search by status
         $response3 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->status);
         $response3->assertStatus(200)
-                  ->assertJsonFragment(['status' => ucfirst((string) $paymentLog->status)]);
+            ->assertJsonFragment(['status' => ucfirst((string) $paymentLog->status)]);
 
         // Search by order number
         $response4 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->order);
@@ -747,17 +748,17 @@ class LogViewControllerTest extends DBTestCase
         // Search by from email
         $response5 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->from);
         $response5->assertStatus(200)
-                  ->assertJsonFragment(['payment_email' => $paymentLog->from]);
+            ->assertJsonFragment(['payment_email' => $paymentLog->from]);
 
         // Search by payment type
         $response6 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->payment_type);
         $response6->assertStatus(200)
-                  ->assertJsonFragment(['description' => ucfirst((string) $paymentLog->payment_type)]);
+            ->assertJsonFragment(['description' => ucfirst((string) $paymentLog->payment_type)]);
 
         // Search by payment method
         $response7 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->payment_method);
         $response7->assertStatus(200)
-                  ->assertJsonFragment(['payment_method' => ucfirst((string) $paymentLog->payment_method)]);
+            ->assertJsonFragment(['payment_method' => ucfirst((string) $paymentLog->payment_method)]);
     }
 
     public function test_payment_log_applies_all_filters_together(): void
@@ -811,7 +812,7 @@ class LogViewControllerTest extends DBTestCase
         $response2->assertStatus(200)
             ->assertJsonCount(3, 'data.logs.data');
 
-        //filter by without till date
+        // filter by without till date
         $response3 = $this->getJson('/get-paymentlog?from=2025-09-12');
         $response3->assertStatus(200)
             ->assertJsonCount(2, 'data.logs.data');
@@ -827,7 +828,7 @@ class LogViewControllerTest extends DBTestCase
         $response = $this->deleteJson('paymentlog-delete', $payload);
 
         $response->assertStatus(400)
-                 ->assertJsonFragment(['message' => __('message.select-a-row')]);
+            ->assertJsonFragment(['message' => __('message.select-a-row')]);
     }
 
     /*
@@ -858,7 +859,7 @@ class LogViewControllerTest extends DBTestCase
         $response = $this->deleteJson('paymentlog-delete', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.deleted-successfully')]);
+            ->assertJsonFragment(['message' => __('message.deleted-successfully')]);
 
         $this->assertDatabaseMissing('payment_logs', ['id' => $log1->id]);
         $this->assertDatabaseMissing('payment_logs', ['id' => $log2->id]);

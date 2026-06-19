@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $user_id
  * @property string $customer_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $invoice_number
  * @property int $order_id
  * @property string|null $payment_method
  * @property string|null $payment_intent_id
- * @property-read \App\User|null $user
+ * @property-read User|null $user
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Auto_renewal newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Auto_renewal newQuery()
@@ -37,7 +40,7 @@ use Illuminate\Database\Eloquent\Model;
 class Auto_renewal extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -46,9 +49,9 @@ class Auto_renewal extends Model
     protected $fillable = ['user_id', 'customer_id', 'order_id', 'payment_method', 'payment_intent_id'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

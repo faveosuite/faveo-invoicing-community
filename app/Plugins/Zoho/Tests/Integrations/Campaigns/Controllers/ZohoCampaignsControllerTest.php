@@ -90,7 +90,7 @@ class ZohoCampaignsControllerTest extends DBTestCase
 
         $this->fakeZohoHttpCalls();
 
-        $this->controller = new ZohoCampaignsController();
+        $this->controller = new ZohoCampaignsController;
     }
 
     public function test_it_syncs_campaigns_fields_and_topics_successfully(): void

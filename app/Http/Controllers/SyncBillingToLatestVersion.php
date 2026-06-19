@@ -9,6 +9,7 @@ use Cache;
 use Config;
 use DB;
 use Exception;
+use Illuminate\Http\JsonResponse;
 
 class SyncBillingToLatestVersion
 {
@@ -40,7 +41,7 @@ class SyncBillingToLatestVersion
             $this->storageLink();
         } catch (Exception $exception) {
             if (! isInstall()) {
-                //if system is not installed chances are logs tables are not present
+                // if system is not installed chances are logs tables are not present
                 throw $exception;
             }
 
@@ -50,7 +51,7 @@ class SyncBillingToLatestVersion
         return $this->log;
     }
 
-    private function forceInnodbOnUpdate(): \Illuminate\Http\JsonResponse
+    private function forceInnodbOnUpdate(): JsonResponse
     {
         try {
             if (isInstall()) {
@@ -69,7 +70,7 @@ class SyncBillingToLatestVersion
         }
     }
 
-    private function writeToEnvAndRunConfigClear(string $key, string $value): \Illuminate\Http\JsonResponse
+    private function writeToEnvAndRunConfigClear(string $key, string $value): JsonResponse
     {
         try {
             $path = app()->environmentFilePath();
@@ -93,7 +94,7 @@ class SyncBillingToLatestVersion
         $filesystemVersion = Config::get('app.version');
         Cache::forget($filesystemVersion);
         Cache::remember($filesystemVersion, 3600,
-            //Caching version for 1 hr
+            // Caching version for 1 hr
             fn () => Setting::firstOrFail()->value('version'));
     }
 

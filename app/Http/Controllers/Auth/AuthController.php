@@ -16,6 +16,7 @@ use App\User;
 use App\VerificationAttempt;
 use Auth;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Date;
@@ -35,7 +36,7 @@ class AuthController extends BaseAuthController
       |
      */
 
-    //protected $loginPath = 'login';
+    // protected $loginPath = 'login';
 
     protected mixed $pipedrive = null;
 
@@ -47,7 +48,7 @@ class AuthController extends BaseAuthController
         $this->middleware('recaptcha:email_verify')->only('verifyEmail');
     }
 
-    public function requestOtp(Request $request): \Illuminate\Http\JsonResponse
+    public function requestOtp(Request $request): JsonResponse
     {
         $request->validate([
             'eid' => ['required', 'string'],
@@ -94,7 +95,7 @@ class AuthController extends BaseAuthController
         };
     }
 
-    public function resendOTP(mixed $request): \Illuminate\Http\JsonResponse
+    public function resendOTP(mixed $request): JsonResponse
     {
         $request->validate([
             'eid' => 'required|string',
@@ -132,7 +133,7 @@ class AuthController extends BaseAuthController
         }
     }
 
-    public function sendEmail(Request $request, mixed $method = 'POST'): \Illuminate\Http\JsonResponse
+    public function sendEmail(Request $request, mixed $method = 'POST'): JsonResponse
     {
         $request->validate([
             'eid' => ['required', 'string'],
@@ -166,7 +167,7 @@ class AuthController extends BaseAuthController
         }
     }
 
-    public function verifyOtp(Request $request): \Illuminate\Http\JsonResponse
+    public function verifyOtp(Request $request): JsonResponse
     {
         $request->validate([
             'eid' => ['required', 'string'],
@@ -205,7 +206,7 @@ class AuthController extends BaseAuthController
             $user->save();
 
             if (! Auth::check() && $this->userNeedVerified($user)) {
-                //dispatch the job to add user to external services
+                // dispatch the job to add user to external services
                 event(new UserRegisteredEvent($user, 'verify'));
 
                 Session::flash('success', __('message.registration_complete'));
@@ -217,7 +218,7 @@ class AuthController extends BaseAuthController
         }
     }
 
-    public function verifyEmail(Request $request): \Illuminate\Http\JsonResponse
+    public function verifyEmail(Request $request): JsonResponse
     {
         $request->validate([
             'eid' => ['required', 'string'],
@@ -257,7 +258,7 @@ class AuthController extends BaseAuthController
             $user->save();
 
             if (! Auth::check() && $this->userNeedVerified($user)) {
-                //dispatch the job to add user to external services
+                // dispatch the job to add user to external services
                 event(new UserRegisteredEvent($user, 'verify'));
 
                 Session::flash('success', __('message.registration_complete'));
@@ -280,21 +281,21 @@ class AuthController extends BaseAuthController
             ->where('position', 'manager')
             ->select('first_name', 'last_name', 'email', 'mobile_code', 'mobile', 'skype')
             ->first();
-        $settings = new Setting();
-        /** @var \App\Model\Common\Setting $setting */
+        $settings = new Setting;
+        /** @var Setting $setting */
         $setting = $settings->first();
         $from = $setting->email;
         $to = $user->email;
-        $templates = new Template();
-        /** @var \App\Model\Common\Template $template */
+        $templates = new Template;
+        /** @var Template $template */
         $template = $templates
-                ->join('template_types', 'templates.type', '=', 'template_types.id')
-                ->where('template_types.name', '=', 'sales_manager_email')
-                ->select('templates.data', 'templates.name', 'type')
-                ->first();
+            ->join('template_types', 'templates.type', '=', 'template_types.id')
+            ->where('template_types.name', '=', 'sales_manager_email')
+            ->select('templates.data', 'templates.name', 'type')
+            ->first();
         $template_data = $template->data;
         $template_name = $template->name;
-        new TemplateController();
+        new TemplateController;
         $replace = [
             'name' => $user->first_name.' '.$user->last_name,
             'manager_first_name' => $manager->first_name,
@@ -307,7 +308,7 @@ class AuthController extends BaseAuthController
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email,
         ];
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
         $mail->SendEmail($from, $to, $template_data, $template_name, 'sales-manager-mail', $replace, TemplateType::where('id', $template->type)->value('name'), $bcc);
     }
 
@@ -322,21 +323,21 @@ class AuthController extends BaseAuthController
             ->where('position', 'account_manager')
             ->select('first_name', 'last_name', 'email', 'mobile_code', 'mobile', 'skype')
             ->first();
-        $settings = new Setting();
-        /** @var \App\Model\Common\Setting $setting */
+        $settings = new Setting;
+        /** @var Setting $setting */
         $setting = $settings->first();
         $from = $setting->email;
         $to = $user->email;
-        $templates = new Template();
-        /** @var \App\Model\Common\Template $template */
+        $templates = new Template;
+        /** @var Template $template */
         $template = $templates
-                ->join('template_types', 'templates.type', '=', 'template_types.id')
-                ->where('template_types.name', '=', 'account_manager_email')
-                ->select('templates.data', 'templates.name', 'type')
-                ->first();
+            ->join('template_types', 'templates.type', '=', 'template_types.id')
+            ->where('template_types.name', '=', 'account_manager_email')
+            ->select('templates.data', 'templates.name', 'type')
+            ->first();
         $template_data = $template->data;
         $template_name = $template->name;
-        new TemplateController();
+        new TemplateController;
         $replace = [
             'name' => $user->first_name.' '.$user->last_name,
             'manager_first_name' => $manager->first_name,
@@ -349,7 +350,7 @@ class AuthController extends BaseAuthController
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email,
         ];
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
         $mail->SendEmail($from, $to, $template_data, $template_name, 'account-manager-mail', $replace, TemplateType::where('id', $template->type)->value('name'), $bcc);
     }
 
@@ -357,7 +358,7 @@ class AuthController extends BaseAuthController
      * JSON config consumed by the Vue guest OTP-verify SPA page.
      * Mirrors the data that verify() passed to the blade view.
      */
-    public function verifyConfig(): \Illuminate\Http\JsonResponse
+    public function verifyConfig(): JsonResponse
     {
         $userId = Session::get('verification_user_id') ?? Session::get('user')?->id;
         if (! $userId) {
@@ -369,10 +370,10 @@ class AuthController extends BaseAuthController
             return successResponse('', ['redirect' => url('login')]);
         }
 
-        /** @var \App\User $user */
+        /** @var User $user */
         $eid = Crypt::encrypt($user->email);
 
-        /** @var \App\Model\Common\StatusSetting $setting */
+        /** @var StatusSetting $setting */
         $setting = StatusSetting::select('emailverification_status', 'msg91_status')->first();
 
         $isMobileVerified = ! ($setting->msg91_status == 1 && $user->mobile_verified != 1);

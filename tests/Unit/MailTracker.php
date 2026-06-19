@@ -20,7 +20,7 @@ trait MailTracker
     {
         parent::setUp();
         Mail::getSymfonyTransport()
-                ->registerPlugin(new TestingMailEventListener($this));
+            ->registerPlugin(new TestingMailEventListener($this));
     }
 
     protected function assertEmailWasSent()
@@ -48,9 +48,7 @@ trait MailTracker
 
 class TestingMailEventListener implements Swift_Events_EventListener
 {
-    public function __construct(protected $test)
-    {
-    }
+    public function __construct(protected $test) {}
 
     public function beforeSendPerformed($event): void
     {

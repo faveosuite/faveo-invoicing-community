@@ -114,7 +114,7 @@ return [
     'user_name' => 'Nama Pengguna',
     'user_email' => 'Email Pengguna',
     'password_not_match' => 'Kata sandi tidak cocok',
-    //new
+    // new
     'installation_check' => 'Tes ini akan memeriksa prasyarat yang diperlukan untuk menginstal Agora Invoice Community',
     'db_setup_error_1' => 'Ini berarti bahwa informasi nama pengguna dan kata sandi salah atau host Anda tidak dapat dijangkau',
     'db_setup_error_2' => 'Apakah Anda yakin sudah memiliki database yang ada dengan nama database yang diberikan?',

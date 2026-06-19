@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 // use Illuminate\Contracts\Routing\Middleware;
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
+use App\User;
 use Closure;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,7 @@ class LanguageMiddleware
     public function handle(mixed $request, Closure $next): mixed
     {
         if (Auth::check()) {
-            /** @var \App\User $user */
+            /** @var User $user */
             $user = Auth::user();
 
             $lang = match (true) {

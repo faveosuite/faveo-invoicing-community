@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Handles all security related headers.
@@ -27,7 +28,7 @@ class SecurityEnforcer
 
         $response = $next($request);
 
-        if (method_exists($response, 'header') && $response instanceof \Illuminate\Http\Response) {
+        if (method_exists($response, 'header') && $response instanceof Response) {
             // tells browser that faveo cannot be used within in i-frame. ( XFS vulnerability )
             $response->header('X-Frame-Options', 'SAMEORIGIN');
             $response->header('X-Content-Type-Options', 'nosniff');

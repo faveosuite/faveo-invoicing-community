@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Model\Product;
 
 use App\BaseModel;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -13,8 +14,8 @@ use App\BaseModel;
  * @property string $title
  * @property string $options
  * @property int $price
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigurableOption newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigurableOption newQuery()

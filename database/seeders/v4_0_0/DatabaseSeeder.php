@@ -1,12 +1,14 @@
 <?php
 
 namespace Database\Seeders\v4_0_0;
+
+use App\Model\Common\PricingTemplate;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
+use App\Model\Front\Widgets;
 use DB;
 use Illuminate\Database\Seeder;
-use App\Model\Common\TemplateType;
-use App\Model\Common\Template;
-use App\Model\Common\PricingTemplate;
-use App\Model\Front\Widgets;
+
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -14,8 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Widgets::where('type','footer4')->delete();
-
+        Widgets::where('type', 'footer4')->delete();
 
         $this->call([TemplateTypeTableSeeder::class]);
         $this->command->info('Template Type table seeded!');
@@ -29,10 +30,8 @@ class DatabaseSeeder extends Seeder
         $this->call([PricingTemplateSeeder::class]);
         $this->command->info('Pricing Template Table Seeded!');
 
-
     }
-
-    }
+}
 
 class TemplateTypeTableSeeder extends Seeder
 {
@@ -41,7 +40,6 @@ class TemplateTypeTableSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         TemplateType::whereIn('id', [21, 22])->delete();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
 
         TemplateType::create(['id' => 21, 'name' => 'contact_us']);
         TemplateType::create(['id' => 22, 'name' => 'demo_request']);
@@ -53,8 +51,7 @@ class TemplateTableSeeder extends Seeder
     public function run(): void
     {
 
-
-      Template::where('id',2)->update(['reply_to' => '{{reply_email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 2)->update(['reply_to' => '{{reply_email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -102,7 +99,7 @@ class TemplateTableSeeder extends Seeder
         </table>
         <p>&nbsp;</p>']);
 
-    Template::where('id',4)->update(['reply_to' => '{{reply_email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 4)->update(['reply_to' => '{{reply_email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -169,8 +166,7 @@ class TemplateTableSeeder extends Seeder
         </table>
         <p>&nbsp;</p>']);
 
-
-    Template::where('id',5)->update(['reply_to' => '{{reply_email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 5)->update(['reply_to' => '{{reply_email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
     <tbody>
     <tr>
     <td style="width: 30px;">&nbsp;</td>
@@ -210,7 +206,7 @@ class TemplateTableSeeder extends Seeder
     </table>
     <p>&nbsp;</p>']);
 
-          Template::where('id',6)->update(['reply_to' => '{{reply_email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 6)->update(['reply_to' => '{{reply_email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
           <tbody>
           <tr>
           <td style="width: 28px;">&nbsp;</td>
@@ -282,11 +278,9 @@ class TemplateTableSeeder extends Seeder
         </tr>
         </tbody>
         </table>
-        <p>&nbsp;</p>']); 
+        <p>&nbsp;</p>']);
 
-
-
-        Template::where('id',7)->update(['reply_to' => '{{reply_email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 7)->update(['reply_to' => '{{reply_email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -358,9 +352,9 @@ class TemplateTableSeeder extends Seeder
         </tr>
         </tbody>
         </table>
-        <p>&nbsp;</p>']); 
+        <p>&nbsp;</p>']);
 
-        Template::where('id',8)->update(['reply_to' => '{{reply_email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 8)->update(['reply_to' => '{{reply_email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -422,11 +416,9 @@ class TemplateTableSeeder extends Seeder
         </tr>
         </tbody>
         </table>
-        <p>&nbsp;</p>']); 
+        <p>&nbsp;</p>']);
 
-
-
-        Template::where('id',12)->update(['reply_to' => '{{reply_email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 12)->update(['reply_to' => '{{reply_email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -496,9 +488,9 @@ class TemplateTableSeeder extends Seeder
         </tr>
         </tbody>
         </table>
-        <p>&nbsp;</p>']); 
+        <p>&nbsp;</p>']);
 
-        Template::where('id',13)->update(['reply_to' => '{{reply_email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 13)->update(['reply_to' => '{{reply_email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -559,9 +551,9 @@ class TemplateTableSeeder extends Seeder
         </tr>
         </tbody>
         </table>
-        <p>&nbsp;</p>']); 
+        <p>&nbsp;</p>']);
 
-        Template::where('id',14)->update(['reply_to' => '{{reply_email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 14)->update(['reply_to' => '{{reply_email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -636,10 +628,9 @@ class TemplateTableSeeder extends Seeder
         </tr>
         </tbody>
         </table>
-        <p>&nbsp;</p>']); 
+        <p>&nbsp;</p>']);
 
-
-        Template::where('id',19)->update(['reply_to' => '{{reply_email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 19)->update(['reply_to' => '{{reply_email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -700,8 +691,8 @@ class TemplateTableSeeder extends Seeder
         </tr>
         </tbody>
         </table>
-        <p>&nbsp;</p>']); 
-        Template::where('id',20)->update(['reply_to' => '{{reply_email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        <p>&nbsp;</p>']);
+        Template::where('id', 20)->update(['reply_to' => '{{reply_email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
           <tbody>
           <tr>
           <td style="width: 30px;">&nbsp;</td>
@@ -757,7 +748,7 @@ class TemplateTableSeeder extends Seeder
 
         Template::whereIn('id', [21, 22])->delete();
 
-        Template::create(['id' => 21, 'name' => 'Contact us', 'type' => 21, 'url' => 'null', 'reply_to' => '{{email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::create(['id' => 21, 'name' => 'Contact us', 'type' => 21, 'url' => 'null', 'reply_to' => '{{email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -792,7 +783,7 @@ class TemplateTableSeeder extends Seeder
         </table>
         <p>&nbsp;</p>']);
 
-        Template::create(['id' => 22, 'name' => 'Requesting a demo', 'type' => 22, 'url' => 'null', 'reply_to' => '{{email}}','data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::create(['id' => 22, 'name' => 'Requesting a demo', 'type' => 22, 'url' => 'null', 'reply_to' => '{{email}}', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -828,9 +819,6 @@ class TemplateTableSeeder extends Seeder
         <p>&nbsp;</p>']);
 
     }
-
-
-
 }
 
 class PricingTemplateSeeder extends Seeder
@@ -838,11 +826,10 @@ class PricingTemplateSeeder extends Seeder
     public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-       PricingTemplate::truncate();
+        PricingTemplate::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-
-        PricingTemplate::create(['id' => 1,'data' => '<div class="">
+        PricingTemplate::create(['id' => 1, 'data' => '<div class="">
         <div class="card border-radius-0 bg-color-light box-shadow-6 anim-hover-translate-top-10px transition-3ms">
             <div class="card-body py-5">
 
@@ -945,4 +932,3 @@ class PricingTemplateSeeder extends Seeder
     </div>']);
     }
 }
-

@@ -25,13 +25,13 @@ class LicenseServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
-        $this->app->singleton(fn ($app): LicenseValidator => new LicenseValidator());
+        $this->app->singleton(fn ($app): LicenseValidator => new LicenseValidator);
 
-        $this->app->singleton(fn ($app): LicenseService => new LicenseService());
+        $this->app->singleton(fn ($app): LicenseService => new LicenseService);
 
-        $this->app->singleton(fn ($app): InstallationService => new InstallationService());
+        $this->app->singleton(fn ($app): InstallationService => new InstallationService);
 
-        $this->app->singleton(fn ($app): VersionService => new VersionService());
+        $this->app->singleton(fn ($app): VersionService => new VersionService);
     }
 
     /**

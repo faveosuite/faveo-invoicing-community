@@ -13,6 +13,7 @@ use App\Model\Common\Country;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\State;
 use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
@@ -29,8 +30,10 @@ use DB;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 use Lang;
@@ -89,7 +92,7 @@ class CloudExtraActivities extends Controller
         return json_decode((string) Arr::first($response));
     }
 
-    public function domainCloudAutofill(): \Illuminate\Http\JsonResponse
+    public function domainCloudAutofill(): JsonResponse
     {
         $company = User::where('id', $this->authUser()->id)->value('company');
         $company = substr(strtolower(str_replace(' ', '', $company)), 0, 28);
@@ -97,7 +100,7 @@ class CloudExtraActivities extends Controller
         return response()->json(['data' => $company]);
     }
 
-    public function orderDomainCloudAutofill(Request $request): \Illuminate\Http\JsonResponse
+    public function orderDomainCloudAutofill(Request $request): JsonResponse
     {
         $order = Order::find($request->orderId);
         if (! $order instanceof Order) {
@@ -136,7 +139,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function changeDomain(Request $request): \Illuminate\Http\JsonResponse
+    public function changeDomain(Request $request): JsonResponse
     {
         try {
             $this->validate($request, [
@@ -203,7 +206,7 @@ class CloudExtraActivities extends Controller
         ]);
     }
 
-    public function agentAlteration(Request $request): \Illuminate\Http\JsonResponse
+    public function agentAlteration(Request $request): JsonResponse
     {
         try {
             $newAgents = $request->newAgents;
@@ -248,7 +251,7 @@ class CloudExtraActivities extends Controller
             $oldLicense = $order->serial_key;
             $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId, agentAction: $request->agentAction);
             $invoice = new RenewController()->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', isAgentIncrease: false, agents: $totalAgents);
-            if (! $invoice instanceof \App\Model\Order\InvoiceItem) {
+            if (! $invoice instanceof InvoiceItem) {
                 return errorResponse(trans('message.something_went_wrong'));
             }
 
@@ -280,7 +283,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function upgradeDowngradeCloud(Request $request): \Illuminate\Http\JsonResponse
+    public function upgradeDowngradeCloud(Request $request): JsonResponse
     {
         try {
             $planId = $request->id;
@@ -309,7 +312,7 @@ class CloudExtraActivities extends Controller
 
             $user = $this->authUser();
             $tax = $this->calculateTax($productNew->id, (string) $user->state, $user->country);
-            $invoiceCtrl = new InvoiceCtrl();
+            $invoiceCtrl = new InvoiceCtrl;
             $finalCost = rounding($invoiceCtrl->calculateTotal($tax['value'], $price));
 
             $invoice = Invoice::create([
@@ -613,7 +616,7 @@ class CloudExtraActivities extends Controller
         return ['price' => 0, 'priceRemaining' => 0, 'priceToBePaid' => 0, 'discount' => null];
     }
 
-    public function doTheAgentAltering(string $newAgents, string $oldLicense, int $orderId, string $installation_path, int $product_id): \Illuminate\Http\JsonResponse
+    public function doTheAgentAltering(string $newAgents, string $oldLicense, int $orderId, string $installation_path, int $product_id): JsonResponse
     {
         try {
             $len = strlen($newAgents);
@@ -863,7 +866,7 @@ class CloudExtraActivities extends Controller
     /**
      * @return array<mixed>
      */
-    public function getThePaymentCalculationDisplay(Request $request): array|\Illuminate\Http\JsonResponse
+    public function getThePaymentCalculationDisplay(Request $request): array|JsonResponse
     {
         try {
             $newAgents = $request->get('number');
@@ -914,7 +917,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function storeTenantTillPurchase(Request $request): \Illuminate\Http\JsonResponse
+    public function storeTenantTillPurchase(Request $request): JsonResponse
     {
         $request->validate(['domain' => ['required', 'alpha_num']]);
 
@@ -943,7 +946,7 @@ class CloudExtraActivities extends Controller
         return $this->cloudApiPost('/checkDomain', ['domain' => $domain, 'key' => $keys->app_key]);
     }
 
-    public function fetchData(Request $request): \Illuminate\Http\JsonResponse
+    public function fetchData(Request $request): JsonResponse
     {
         try {
             $productPlanData = CloudProducts::with(['product', 'plan'])
@@ -967,7 +970,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function updateTrialStatus(Request $request): \Illuminate\Http\JsonResponse
+    public function updateTrialStatus(Request $request): JsonResponse
     {
         try {
             $cloudProduct = CloudProducts::findOrFail($request->input('id'));
@@ -985,7 +988,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function trialCloudProducts(): \Illuminate\Http\JsonResponse
+    public function trialCloudProducts(): JsonResponse
     {
         $cloud = CloudProducts::where('trial_status', '1')->with('product')->get();
         $product = $cloud->pluck('product.name', 'cloud_product_key')->filter()->all();
@@ -993,7 +996,7 @@ class CloudExtraActivities extends Controller
         return successResponse('Products', $product);
     }
 
-    public function DeleteProductConfig(Request $request): \Illuminate\Http\JsonResponse
+    public function DeleteProductConfig(Request $request): JsonResponse
     {
         try {
             $cloudProduct = CloudProducts::findOrFail($request->input('id'));
@@ -1007,7 +1010,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function storeCloudDataCenter(Request $request): \Illuminate\Http\JsonResponse
+    public function storeCloudDataCenter(Request $request): JsonResponse
     {
         $request->validate(['cloud_countries' => ['required'], 'cloud_state' => ['required']]);
 
@@ -1051,7 +1054,7 @@ class CloudExtraActivities extends Controller
         return ['latitude' => $data[0]['lat'], 'longitude' => $data[0]['lon']];
     }
 
-    public function removeLocation(Request $request): \Illuminate\Http\JsonResponse
+    public function removeLocation(Request $request): JsonResponse
     {
         try {
             $location = Arr::first(explode(', ', $request->location_id));
@@ -1063,11 +1066,11 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    private function authUser(): \App\User
+    private function authUser(): User
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        if (! $user instanceof \App\User) {
-            throw new \Exception('Unauthorized');
+        $user = Auth::user();
+        if (! $user instanceof User) {
+            throw new Exception('Unauthorized');
         }
 
         return $user;

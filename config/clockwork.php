@@ -376,7 +376,7 @@ return [
     'serialization_blackbox' => [
         Container::class,
         Application::class,
-        \Laravel\Lumen\Application::class, // @phpstan-ignore class.notFound
+        Laravel\Lumen\Application::class, // @phpstan-ignore class.notFound
     ],
 
     /*

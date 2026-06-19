@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\User;
 use Auth;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
@@ -12,7 +13,7 @@ class Authenticate
     /**
      * The Guard implementation.
      */
-    protected \Illuminate\Contracts\Auth\Guard $auth;
+    protected Guard $auth;
 
     /**
      * Create a new filter instance.
@@ -38,7 +39,7 @@ class Authenticate
             return redirect()->guest('auth/login');
         }
 
-        /** @var \App\User $authUser */
+        /** @var User $authUser */
         $authUser = Auth::user();
         if ($authUser->active == 1) {
             return $next($request);

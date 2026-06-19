@@ -8,6 +8,10 @@ use App\BaseModel;
 use App\Model\Payment\Currency;
 use App\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -24,12 +28,12 @@ use Override;
  * @property string|null $emojiU
  * @property int $currency_id
  * @property int $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Currency $currency
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Common\State> $states
+ * @property-read Collection<int, State> $states
  * @property-read int|null $states_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $users
+ * @property-read Collection<int, User> $users
  * @property-read int|null $users_count
  *
  * @method static Builder<static>|Country newModelQuery()
@@ -73,25 +77,25 @@ class Country extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Payment\Currency, $this>
+     * @return BelongsTo<Currency, $this>
      */
-    public function currency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<User, $this>
+     * @return HasMany<User, $this>
      */
-    public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function users(): HasMany
     {
         return $this->hasMany(User::class, 'country', 'country_code_char2');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<State, $this>
+     * @return HasMany<State, $this>
      */
-    public function states(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function states(): HasMany
     {
         return $this->hasMany(State::class, 'country_id', 'country_id');
     }

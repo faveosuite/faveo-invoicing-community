@@ -50,10 +50,10 @@ class SystemManagerControllerTest extends DBTestCase
         $response = $this->getJson('/system-managers');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['account_managers_auto_assign' => true])
-                 ->assertJsonFragment(['sales_managers_auto_assign' => true])
-                 ->assertJsonFragment(['email' => $acc1->email])
-                 ->assertJsonFragment(['email' => $sales1->email]);
+            ->assertJsonFragment(['account_managers_auto_assign' => true])
+            ->assertJsonFragment(['sales_managers_auto_assign' => true])
+            ->assertJsonFragment(['email' => $acc1->email])
+            ->assertJsonFragment(['email' => $sales1->email]);
     }
 
     public function test_it_shows_system_managers(): void
@@ -76,15 +76,15 @@ class SystemManagerControllerTest extends DBTestCase
 
         $response = $this->getJson('/system-managers');
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'success',
-                     'data' => [
-                         'account_managers',
-                         'sales_managers',
-                         'account_managers_auto_assign',
-                         'sales_managers_auto_assign',
-                     ],
-                 ]);
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'account_managers',
+                    'sales_managers',
+                    'account_managers_auto_assign',
+                    'sales_managers_auto_assign',
+                ],
+            ]);
     }
 
     public function test_it_returns_filtered_admin_users(): void
@@ -205,10 +205,10 @@ class SystemManagerControllerTest extends DBTestCase
         $response = $this->getJson('/search-admins?q=');
 
         $response->assertStatus(400)
-                 ->assertJsonFragment([
-                     'success' => false,
-                     'message' => __('message.search_term_required'),
-                 ]);
+            ->assertJsonFragment([
+                'success' => false,
+                'message' => __('message.search_term_required'),
+            ]);
     }
 
     public function test_search_admin_returns_no_admins_found(): void
@@ -239,7 +239,7 @@ class SystemManagerControllerTest extends DBTestCase
         $response = $this->getJson('/search-admins?q=john');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['email' => 'john@example.com'])
-                 ->assertJsonFragment(['first_name' => 'John']);
+            ->assertJsonFragment(['email' => 'john@example.com'])
+            ->assertJsonFragment(['first_name' => 'John']);
     }
 }

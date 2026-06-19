@@ -8,7 +8,7 @@ use App\Model\License\LicenseType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\License\LicenseType>
+ * @extends Factory<LicenseType>
  */
 class LicenseTypeFactory extends Factory
 {

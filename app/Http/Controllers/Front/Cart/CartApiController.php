@@ -12,9 +12,7 @@ use Illuminate\Http\Request;
 
 class CartApiController extends Controller
 {
-    public function __construct(private readonly CartService $cartService)
-    {
-    }
+    public function __construct(private readonly CartService $cartService) {}
 
     public function show(Request $request): JsonResponse
     {

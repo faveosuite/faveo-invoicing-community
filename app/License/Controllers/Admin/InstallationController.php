@@ -8,6 +8,7 @@ use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\LicensePlugin;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class InstallationController extends Controller
@@ -17,10 +18,10 @@ class InstallationController extends Controller
         $this->ip_address = request()->server('REMOTE_ADDR'); // @phpstan-ignore property.notFound
     }
 
-    public function installationUpdate(Request $request): \Illuminate\Http\JsonResponse
+    public function installationUpdate(Request $request): JsonResponse
     {
         $id = $request->get('id');
-        /** @var \App\License\Models\Installation|null $installation */
+        /** @var Installation|null $installation */
         $installation = Installation::with('product:id,name')->find($id);
 
         if (! $installation || ! LicenseHelper::validateIntegerValue($id)) {
@@ -70,7 +71,7 @@ class InstallationController extends Controller
 
     private function deleteInstallation(mixed $id): mixed
     {
-        /** @var \App\License\Models\Installation|null $installation */
+        /** @var Installation|null $installation */
         $installation = Installation::find($id);
         if (! $installation) {
             return 0;
@@ -86,7 +87,7 @@ class InstallationController extends Controller
             ->delete();
     }
 
-    public function show(Request $request): \Illuminate\Http\JsonResponse
+    public function show(Request $request): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -126,7 +127,7 @@ class InstallationController extends Controller
         return successResponse(__('license::lang.Install_show'), $installations);
     }
 
-    public function installationAdd(Request $request): \Illuminate\Http\JsonResponse
+    public function installationAdd(Request $request): JsonResponse
     {
         $license = License::where('license_code', $request->get('license_code'))->first();
         if (! $license) {
@@ -147,7 +148,7 @@ class InstallationController extends Controller
         return successResponse(__('license::lang.install_added'), $installation, 200);
     }
 
-    public function edit(mixed $id): \Illuminate\Http\JsonResponse
+    public function edit(mixed $id): JsonResponse
     {
         $installation = Installation::findOrFail($id);
 
@@ -164,7 +165,7 @@ class InstallationController extends Controller
         return Installation::where('license_code', $request->old_license_code)->delete();
     }
 
-    public function deleteInstallations(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteInstallations(Request $request): JsonResponse
     {
         $id = $request->input('id');
         $removed = LicenseHelper::validateIntegerValue($id) ? Installation::where('id', $id)->delete() : 0;

@@ -6,9 +6,14 @@ use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Traits\SystemActivityLogsTrait;
 use App\User;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Override;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -18,23 +23,23 @@ use Override;
  * @property int $product_id
  * @property int $quantity
  * @property string|null $update_ends_at
- * @property \Illuminate\Support\Carbon|null $ends_at
+ * @property Carbon|null $ends_at
  * @property string|null $support_ends_at
  * @property int $deny_after_subscription
  * @property string|null $version
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $version_updated_at
  * @property int|null $is_subscribed
  * @property string|null $subscribe_id
  * @property string|null $autoRenew_status
  * @property string $rzp_subscription
  * @property int $is_deleted
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read Order|null $order
  * @property-read Plan|null $plan
- * @property-read \App\Model\Product\Product|null $product
+ * @property-read Product|null $product
  * @property-read User|null $user
  *
  * @method static \Database\Factories\Model\Product\SubscriptionFactory factory($count = null, $state = [])
@@ -66,9 +71,10 @@ use Override;
 class Subscription extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'subscriptions';
@@ -111,33 +117,33 @@ class Subscription extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Payment\Plan, $this>
+     * @return BelongsTo<Plan, $this>
      */
-    public function plan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class, 'plan_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Product\Product, $this>
+     * @return BelongsTo<Product, $this>
      */
-    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Order\Order, $this>
+     * @return BelongsTo<Order, $this>
      */
-    public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
@@ -158,13 +164,13 @@ class Subscription extends Model
     // }
 
     //    public function delete() {
-//
-//
-//        $this->Plan()->delete();
-//
-//
-//        return parent::delete();
-//    }
+    //
+    //
+    //        $this->Plan()->delete();
+    //
+    //
+    //        return parent::delete();
+    //    }
     #[Override]
     protected function casts(): array
     {

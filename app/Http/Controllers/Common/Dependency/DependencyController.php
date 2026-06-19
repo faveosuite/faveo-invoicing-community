@@ -8,11 +8,12 @@ use App\Model\Common\Setting;
 use App\Model\Common\State;
 use App\Model\Common\Timezone;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class DependencyController extends NonPublicDependencies
 {
-    public function handle(mixed $type, Request $request): \Illuminate\Http\JsonResponse
+    public function handle(mixed $type, Request $request): JsonResponse
     {
         try {
             $this->initializeParameterValues($request);
@@ -107,7 +108,7 @@ class DependencyController extends NonPublicDependencies
         $this->sortField = 'state_subdivision_name';
         $this->sortOrder = 'asc';
 
-        /** @var \App\Model\Common\Setting $settingForCountry */
+        /** @var Setting $settingForCountry */
         $settingForCountry = Setting::find(1);
         $iso = $this->request->input('country') ?: $settingForCountry->country;
 

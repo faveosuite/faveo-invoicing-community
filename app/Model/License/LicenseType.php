@@ -4,21 +4,27 @@ namespace App\Model\License;
 
 use App\Model\Product\Product;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Override;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
  * @property string|null $name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \App\Model\License\LicensePermissionPivot|null $pivot
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\License\LicensePermission> $permissions
+ * @property-read LicensePermissionPivot|null $pivot
+ * @property-read Collection<int, LicensePermission> $permissions
  * @property-read int|null $permissions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
+ * @property-read Collection<int, Product> $products
  * @property-read int|null $products_count
  *
  * @method static \Database\Factories\Model\License\LicenseTypeFactory factory($count = null, $state = [])
@@ -35,9 +41,10 @@ use Override;
 class LicenseType extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'license_types';
@@ -73,9 +80,9 @@ class LicenseType extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Model\License\LicensePermission, $this, \App\Model\License\LicensePermissionPivot>
+     * @return BelongsToMany<LicensePermission, $this, LicensePermissionPivot>
      */
-    public function permissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(LicensePermission::class, 'license_license_permissions')
             ->using(LicensePermissionPivot::class)
@@ -83,9 +90,9 @@ class LicenseType extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Product, $this>
+     * @return HasMany<Product, $this>
      */
-    public function products(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'type');
     }

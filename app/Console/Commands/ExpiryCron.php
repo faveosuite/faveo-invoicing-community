@@ -28,7 +28,7 @@ class ExpiryCron extends LoggableCommand
      */
     public function handleAndLog(): void
     {
-        $controller = new CronController();
+        $controller = new CronController;
         $controller->eachSubscription();
         $this->info('expiry:notification Command Run successfully!');
     }

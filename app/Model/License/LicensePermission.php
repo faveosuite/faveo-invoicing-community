@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace App\Model\License;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string|null $permissions
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Model\License\LicensePermissionPivot|null $pivot
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\License\LicenseType> $licenseTypes
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read LicensePermissionPivot|null $pivot
+ * @property-read Collection<int, LicenseType> $licenseTypes
  * @property-read int|null $license_types_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicensePermission newModelQuery()
@@ -32,9 +35,9 @@ class LicensePermission extends Model
     protected $fillable = ['id', 'permissions'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<LicenseType, $this, LicensePermissionPivot>
+     * @return BelongsToMany<LicenseType, $this, LicensePermissionPivot>
      */
-    public function licenseTypes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function licenseTypes(): BelongsToMany
     {
         return $this->belongsToMany(LicenseType::class, 'license_license_permissions')
             ->using(LicensePermissionPivot::class)

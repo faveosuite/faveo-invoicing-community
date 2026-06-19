@@ -8,7 +8,7 @@ use App\Model\Order\InstallationDetail;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Order\InstallationDetail>
+ * @extends Factory<InstallationDetail>
  */
 class InstallationDetailFactory extends Factory
 {

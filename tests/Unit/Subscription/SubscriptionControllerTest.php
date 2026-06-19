@@ -24,15 +24,15 @@ use Tests\DBTestCase;
 
 class SubscriptionControllerTest extends DBTestCase
 {
-    protected function instantiateDependencies(): \App\Http\Controllers\ConcretePostSubscriptionHandleController
+    protected function instantiateDependencies(): ConcretePostSubscriptionHandleController
     {
         // Instantiate dependencies
-        $invoiceModel = new Invoice();
-        $orderModel = new Order();
-        $statusSettingModel = new StatusSetting();
-        $plan = new Plan();
-        $subscription = new Subscription();
-        $payment = new Payment();
+        $invoiceModel = new Invoice;
+        $orderModel = new Order;
+        $statusSettingModel = new StatusSetting;
+        $plan = new Plan;
+        $subscription = new Subscription;
+        $payment = new Payment;
 
         $dependencies = [
             'invoiceModel' => $invoiceModel,
@@ -53,8 +53,8 @@ class SubscriptionControllerTest extends DBTestCase
         );
     }
 
-    //return empty when zero expired subscription
-    public function test_autoRenewal_return_null_when_empty_expired_subscription(): void
+    // return empty when zero expired subscription
+    public function test_auto_renewal_return_null_when_empty_expired_subscription(): void
     {
         ApiKey::create(['stripe_secret' => 'sk_test_FIPEe0BihQ4Rn2exN1BhOotg', 'rzp_key' => 'rzp_test_fNDuvutBRXJLkQ', 'rzp_secret' => 'ObVJAj8L2e7V9RLOQkcdLtSw']);
         $date = '2025-03-02 18:15:02';
@@ -72,8 +72,8 @@ class SubscriptionControllerTest extends DBTestCase
         $this->assertEmpty($response);
     }
 
-    //return onday expired data in autorenewal
-    public function test_autoRenewal_return_onday_expired_subscription(): void
+    // return onday expired data in autorenewal
+    public function test_auto_renewal_return_onday_expired_subscription(): void
     {
         ApiKey::create(['stripe_secret' => 'sk_test_FIPEe0BihQ4Rn2exN1BhOotg', 'rzp_key' => 'rzp_test_fNDuvutBRXJLkQ', 'rzp_secret' => 'ObVJAj8L2e7V9RLOQkcdLtSw']);
         $date = date('Y-m-d H:m:i');
@@ -91,7 +91,7 @@ class SubscriptionControllerTest extends DBTestCase
         $this->assertEmpty($response);
     }
 
-    public function test_autoRenewal_return_payment_status_suucess(): void
+    public function test_auto_renewal_return_payment_status_suucess(): void
     {
         date('Y-m-d H:m:i');
         $product = Product::create(['name' => 'Helpdesk Advance']);
@@ -105,7 +105,7 @@ class SubscriptionControllerTest extends DBTestCase
         $this->assertEquals('success', $response->payment_status);
     }
 
-    public function test_calculateUnitCost_withTwodecimal_currency(): void
+    public function test_calculate_unit_cost_with_twodecimal_currency(): void
     {
         $currency = 'INR';
         $cost = '100';
@@ -114,7 +114,7 @@ class SubscriptionControllerTest extends DBTestCase
         $this->assertEquals(10000, $response);
     }
 
-    public function test_calculateUnitCost_withThreedecimal_currency(): void
+    public function test_calculate_unit_cost_with_threedecimal_currency(): void
     {
         $currency = 'BHD';
         $cost = '100';
@@ -123,7 +123,7 @@ class SubscriptionControllerTest extends DBTestCase
         $this->assertEquals(100000, $response);
     }
 
-    public function test_calculateUnitCost_withZerodecimal_currency(): void
+    public function test_calculate_unit_cost_with_zerodecimal_currency(): void
     {
         $currency = 'JPY';
         $cost = '100';

@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\License\Services\InstallationService;
 use App\License\Services\LicenseService;
 use App\Model\Order\Order;
+use App\User;
 use Auth;
 use DB;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Logger;
@@ -53,15 +55,15 @@ class ExtendedOrderController extends Controller
         }
     }
 
-    public function reissueLicense(Request $request): \Illuminate\Http\JsonResponse
+    public function reissueLicense(Request $request): JsonResponse
     {
         $request->validate(['id' => ['required']]);
 
         try {
-            /** @var \App\Model\Order\Order $order */
+            /** @var Order $order */
             $order = Order::with('subscription')->findOrFail($request->input('id'));
 
-            /** @var \App\User $authUser */
+            /** @var User $authUser */
             $authUser = Auth::user();
             if ($authUser->role !== 'admin' && $order->client != Auth::id()) {
                 return errorResponse(__('message.reissue_license_invalid_modification_data'), 403);

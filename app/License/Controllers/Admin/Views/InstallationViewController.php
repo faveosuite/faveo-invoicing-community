@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
 use App\License\Models\LicenseCallback;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class InstallationViewController extends Controller
 {
-    public function getInstallation(mixed $id): \Illuminate\Http\JsonResponse
+    public function getInstallation(mixed $id): JsonResponse
     {
-        /** @var \App\License\Models\Installation|null $installation */
+        /** @var Installation|null $installation */
         $installation = Installation::with(['product:id,name', 'user:id,email', 'license:id,license_code'])
             ->find($id);
 
@@ -35,7 +36,7 @@ class InstallationViewController extends Controller
         return successResponse(__('lang.installation_details'), $installation);
     }
 
-    public function getInstallationCallbacks(Request $request, mixed $id): \Illuminate\Http\JsonResponse
+    public function getInstallationCallbacks(Request $request, mixed $id): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);

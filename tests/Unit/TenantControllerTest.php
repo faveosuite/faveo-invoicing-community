@@ -68,7 +68,7 @@ class TenantControllerTest extends TestCase
 
         // Instantiate controller and call method
         $controller = new TenantController($client, $cloud);
-        $request = new Request();
+        $request = new Request;
         $response = $controller->getTenants($request);
 
         // Assert response
@@ -100,7 +100,7 @@ class TenantControllerTest extends TestCase
 
         // Instantiate controller and call method
         $controller = new TenantController($client, $cloud);
-        $request = new Request();
+        $request = new Request;
         $controller->getTenants($request);
 
         // Assert redirect and error message
@@ -130,7 +130,7 @@ class TenantControllerTest extends TestCase
 
         // Instantiate controller and call method
         $controller = new TenantController($client, $cloud);
-        $request = new Request();
+        $request = new Request;
         $controller->getTenants($request);
 
         // Assert redirect and error message

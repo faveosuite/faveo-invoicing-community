@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Model\User;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $email
  * @property string $token
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AccountActivate newQuery()

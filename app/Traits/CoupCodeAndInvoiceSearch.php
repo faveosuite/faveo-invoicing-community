@@ -3,20 +3,23 @@
 namespace App\Traits;
 
 use App\Model\Order\Invoice;
+use App\Model\Order\Payment;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 
-//////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////
 // ADVANCE SEARCH FOR INVOICE AND COUPON CODE CALCULATION
-//////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////
 
 trait CoupCodeAndInvoiceSearch
 {
     /**
-     * @return \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
-     * @return \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
+     * @return \Illuminate\Database\Eloquent\Builder<Model>
+     * @return \Illuminate\Database\Eloquent\Builder<Model>
      */
     public function advanceSearch(Request $request): \Illuminate\Database\Eloquent\Builder
     {
@@ -39,10 +42,10 @@ trait CoupCodeAndInvoiceSearch
             });
     }
 
-    public function updateInvoicePayment(int $invoiceid, string $payment_method, string $payment_status, string $payment_date, float $amount): \App\Model\Order\Payment
+    public function updateInvoicePayment(int $invoiceid, string $payment_method, string $payment_status, string $payment_date, float $amount): Payment
     {
         try {
-            /** @var \App\Model\Order\Invoice $invoice */
+            /** @var Invoice $invoice */
             $invoice = Invoice::find($invoiceid);
             $processingFee = '';
 
@@ -57,9 +60,9 @@ trait CoupCodeAndInvoiceSearch
                 'created_at' => $payment_date,
             ]);
             $all_payments = $this->payment // @phpstan-ignore property.notFound
-            ->where('invoice_id', $invoiceid)
-            ->where('payment_status', 'success')
-            ->pluck('amount')->toArray();
+                ->where('invoice_id', $invoiceid)
+                ->where('payment_status', 'success')
+                ->pluck('amount')->toArray();
 
             $total_paid = array_sum($all_payments);
             if ($total_paid >= $invoice->grand_total) {
@@ -85,7 +88,7 @@ trait CoupCodeAndInvoiceSearch
     /**
      * Remove the specified resource from storage.
      */
-    public function deleteBulkInvoices(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteBulkInvoices(Request $request): JsonResponse
     {
         try {
             $ids = $request->input('invoice_ids', []);
@@ -125,7 +128,7 @@ trait CoupCodeAndInvoiceSearch
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.(string) __('message.no-record').'
                 </div>';
-                        //echo \__('message.no-record') . '  [id=>' . $id . ']';
+                        // echo \__('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
 
@@ -144,7 +147,7 @@ trait CoupCodeAndInvoiceSearch
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.(string) __('message.select-a-row').'
                 </div>';
-                //echo \__('message.select-a-row');
+                // echo \__('message.select-a-row');
             }
         } catch (Exception $exception) {
             echo "<div class='alert alert-danger alert-dismissable'>
@@ -161,7 +164,7 @@ trait CoupCodeAndInvoiceSearch
      * JSON bulk-delete for payments (SPA). Deletes the given payment rows and
      * recomputes the status of any invoice they were linked to.
      */
-    public function deleteBulkPayments(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteBulkPayments(Request $request): JsonResponse
     {
         try {
             $ids = $request->input('payment_ids', []);

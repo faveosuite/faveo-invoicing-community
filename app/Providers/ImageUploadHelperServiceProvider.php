@@ -14,7 +14,7 @@ class ImageUploadHelperServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
-        $this->app->bind('ImageUpload-helper', fn (): \App\Helper\ImageUploadHelper => new ImageUploadHelper());
+        $this->app->bind('ImageUpload-helper', fn (): ImageUploadHelper => new ImageUploadHelper);
     }
 
     /**

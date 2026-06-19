@@ -8,7 +8,7 @@ use App\Model\Common\Setting;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Common\Setting>
+ * @extends Factory<Setting>
  */
 class SettingFactory extends Factory
 {

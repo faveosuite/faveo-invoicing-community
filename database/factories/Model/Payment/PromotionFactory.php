@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Payment\Promotion>
+ * @extends Factory<Promotion>
  */
 class PromotionFactory extends Factory
 {

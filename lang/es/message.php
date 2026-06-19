@@ -699,10 +699,10 @@ return [
     'cloud_heading' => '¡Vamos a crear juntos su instancia de nube Faveo!',
     'cloud_field_label' => 'Ingrese el nombre de dominio deseado para su nube',
     'cloud_price' => 'Precio por agente',
-    //Delete message
+    // Delete message
     'confirm' => '¿Está seguro de que desea eliminar esto?',
 
-    //Delete message
+    // Delete message
     'cloud_domain_change' => '¡Buenas noticias! Su dominio en la nube ha sido cambiado con éxito. Tenga en cuenta que habrá un breve tiempo de inactividad de aproximadamente 5 minutos para aplicar estos cambios. ¡Gracias por su paciencia!',
     'limit_is_up' => 'Nos hemos dado cuenta de que ha superado el límite de prueba gratuita, por favor elimine sus instancias existentes para continuar.',
     'too_long' => 'Parece ser un dominio largo, intente crear uno con un menor número de caracteres.',
@@ -758,7 +758,7 @@ return [
     'user_suspend' => 'Este usuario está suspendido en el sistema. Restaure el usuario para ver los detalles.',
     'country_notfound' => 'No se pudo determinar el país.',
 
-    //Strong Password
+    // Strong Password
     'strong_password' => 'La contraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial.',
 
     'password_requirements' => 'Su contraseña debe tener:',
@@ -778,7 +778,7 @@ return [
     'new_password_different' => 'La nueva contraseña debe ser diferente de la contraseña anterior.',
     'reset_link_expired' => 'El enlace de restablecimiento de la contraseña ha expirado o no se encontró. Por favor, intente restablecer la contraseña nuevamente.',
 
-    //file storage
+    // file storage
 
     'file_storage' => 'Almacenamiento de archivos',
     'set_file_storage' => 'Establecer la ruta de almacenamiento de archivos',
@@ -870,7 +870,7 @@ return [
     'required_stripe_secret' => 'Por favor, ingresa el secreto de Stripe',
     'max_stripe_secret' => 'El secreto de Stripe no puede exceder los 200 caracteres',
 
-    //email templates
+    // email templates
 
     'choose_password' => 'Haz clic aquí para restablecer tu contraseña: ',
     'email_username' => 'Nombre de usuario: ',
@@ -878,7 +878,7 @@ return [
     'email_click_here' => 'Haz clic aquí',
     'activate_account' => 'Para activar tu cuenta:',
 
-    //error template
+    // error template
     'page_not_found' => 'Página no encontrada',
     'sorry' => 'Lo sentimos, pero la página que buscas no existe.',
     'useful_links' => 'Aquí hay algunos enlaces útiles',
@@ -887,7 +887,7 @@ return [
     'my_profile' => 'Mi perfil',
     'contact_us' => 'Contáctanos',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Iniciar sesión | Registrarse',
     'sign_lr' => 'Iniciar sesión o Registrarse',
     'or' => 'O',
@@ -921,7 +921,7 @@ return [
     'error_occurred' => 'Ocurrió un error. Por favor, intenta de nuevo.',
     'error_one_country' => 'Por favor selecciona un país',
 
-    //contact template
+    // contact template
     'feel_free' => '¡No dudes en pedir detalles, no guardes preguntas!',
     'contact_name' => 'Nombre',
     'contact_error_name' => 'Por favor ingresa tu nombre.',
@@ -933,7 +933,7 @@ return [
     'contact_leave' => 'Deja este campo vacío',
     'contact_send_msg' => 'Enviar mensaje',
     'our_office' => 'Nuestra oficina',
-    //password template
+    // password template
     'forgot_password' => '¿Olvidaste tu contraseña? ¡Restablécela ahora!',
     'lost_password' => '¿Perdiste tu contraseña?',
     'know_password' => 'Sé mi contraseña',
@@ -943,7 +943,7 @@ return [
     'error_occurs' => 'Ocurrió un error.',
     'reset_password' => 'Restablecer la contraseña',
 
-    //front-client template
+    // front-client template
     'change_faveo' => '¿Quieres cambiar tu dominio actual de Faveo Cloud?',
     'current_domain' => 'Ingresa el dominio actual',
     'enter_domain' => 'Ingresa el nuevo dominio',
@@ -1395,7 +1395,7 @@ return [
     'no_tax_rates' => 'No hay tasas de impuestos',
     'store' => 'Tienda',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Panel de administración',
     'my_account' => 'Mi cuenta',
     'start_free_trial' => 'INICIAR PRUEBA GRATUITA',
@@ -1436,7 +1436,7 @@ return [
     'enter_domain_license' => 'Ingrese dominio y descargue el archivo de licencia',
     'installation_details' => 'Detalles de instalación',
 
-    //payement panel
+    // payement panel
     'payment_date' => 'Fecha de pago',
     'auto_renewal_subscription' => 'Renovación automática para suscripción futura',
     'subscription_start_date' => 'Fecha de inicio de suscripción',
@@ -1462,7 +1462,7 @@ return [
     'coupon' => 'Cupón',
     'actions' => 'Acciones',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Crear impuesto',
     'caps_others' => 'OTROS',
     'others' => 'Otros',
@@ -1500,7 +1500,7 @@ return [
     'show_cart_page' => 'Mostrar en la página de carrito',
     'select_taxes' => 'Seleccionar impuestos',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Agregar detalles del producto',
     'enter_json_format' => 'Ingrese en formato JSON.',
     'upload' => 'Subir',
@@ -1529,21 +1529,21 @@ return [
     'all_types' => 'Todos los Tipos',
     'configure_queue' => 'Configurar Cola',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Asegúrate de que el carrito esté vacío para renovar tu producto',
     'click_renew' => 'Haz clic aquí para renovar',
     'renew_your_order' => 'Renueva tu pedido',
     'renew_order' => 'Renovar Pedido',
     'renewal_price_per_agent' => 'Precio de renovación por agente: ',
 
-    //report panel
+    // report panel
     'file_name' => 'Nombre del archivo',
     'format' => 'Formato',
     'contact' => 'Contacto',
     'report_settings' => 'Configuración de informe',
     'report_limit' => 'Añadir registros por hoja. El límite máximo es 3000.',
 
-    //tenanat panel
+    // tenanat panel
     'cloud_server' => 'Servidor en la Nube',
     'customise_cloud_popup' => 'Personalizar ventana emergente de la Nube',
     'cloud_product_configuration' => 'Configuración de Producto en la Nube',
@@ -1570,7 +1570,7 @@ return [
     'app_key' => 'Clave de la aplicación',
     'app_secret' => 'Secreto de la aplicación',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Crear nuevo usuario',
     'create_user' => 'Crear usuario',
     'position' => 'Posición',
@@ -1684,7 +1684,7 @@ return [
     'error_logs' => 'Registros de errores',
     'view_logs' => 'Ver registros',
 
-    //visitstats
+    // visitstats
     'request' => 'Solicitud',
     'visitor' => 'Visitante',
     'browser' => 'Navegador',

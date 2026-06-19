@@ -14,7 +14,7 @@ class VersionsControllerTest extends LicenseTestCase
     #[Group('license-admin')]
     public function show_filters_sorts_and_formats_versions(): void
     {
-        $controller = new VersionsController();
+        $controller = new VersionsController;
         $product = $this->createProduct(['name' => 'Versioned Product']);
         $version = $this->createVersion($product, ['version' => '7.7.7', 'status' => 1]);
         VersionCallback::create([

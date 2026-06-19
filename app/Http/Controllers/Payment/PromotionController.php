@@ -12,6 +12,7 @@ use App\Model\Product\Product;
 use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Lang;
@@ -19,27 +20,27 @@ use Lang;
 class PromotionController extends BasePromotionController
 {
     /**
-     * @var \App\Model\Payment\Promotion
+     * @var Promotion
      */
     public $promotion;
 
     /**
-     * @var \App\Model\Product\Product
+     * @var Product
      */
     public $product;
 
     /**
-     * @var \App\Model\Payment\PromoProductRelation
+     * @var PromoProductRelation
      */
     public $promoRelation;
 
     /**
-     * @var \App\Model\Payment\PromotionType
+     * @var PromotionType
      */
     public $type;
 
     /**
-     * @var \App\Model\Order\Invoice
+     * @var Invoice
      */
     public $invoice;
 
@@ -48,19 +49,19 @@ class PromotionController extends BasePromotionController
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $promotion = new Promotion();
+        $promotion = new Promotion;
         $this->promotion = $promotion;
 
-        $product = new Product();
+        $product = new Product;
         $this->product = $product;
 
-        $promoRelation = new PromoProductRelation();
+        $promoRelation = new PromoProductRelation;
         $this->promoRelation = $promoRelation;
 
-        $type = new PromotionType();
+        $type = new PromotionType;
         $this->type = $type;
 
-        $invoice = new Invoice();
+        $invoice = new Invoice;
         $this->invoice = $invoice;
     }
 
@@ -127,7 +128,7 @@ class PromotionController extends BasePromotionController
     public function checkNumberOfUses(mixed $code): string
     {
         try {
-            /** @var \App\Model\Payment\Promotion $promotion */
+            /** @var Promotion $promotion */
             $promotion = $this->promotion->where('code', $code)->first();
             $uses = $promotion->uses;
             if ($uses == 1) {
@@ -148,12 +149,12 @@ class PromotionController extends BasePromotionController
     public function checkExpiry(mixed $code): ?string
     {
         try {
-            /** @var \App\Model\Payment\Promotion $promotion */
+            /** @var Promotion $promotion */
             $promotion = $this->promotion->where('code', $code)->first();
             $start = $promotion->start;
             $end = $promotion->expiry;
             $now = Date::now()->format('Y-m-d H:m:i');
-            $inv_cont = new InvoiceController();
+            $inv_cont = new InvoiceController;
 
             return $inv_cont->getExpiryStatus($start, $end, $now);
         } catch (Exception) {
@@ -161,7 +162,7 @@ class PromotionController extends BasePromotionController
         }
     }
 
-    public function getAllPromotions(Request $request): \Illuminate\Http\JsonResponse
+    public function getAllPromotions(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');
@@ -191,7 +192,7 @@ class PromotionController extends BasePromotionController
         return successResponse('', $promotions);
     }
 
-    public function getPromotion(mixed $promotionId, Request $request): \Illuminate\Http\JsonResponse
+    public function getPromotion(mixed $promotionId, Request $request): JsonResponse
     {
         try {
             $promotion = Promotion::with([
@@ -200,7 +201,7 @@ class PromotionController extends BasePromotionController
                     $q->select('products.id', 'products.name');
                 },
             ])
-            ->findOrFail($promotionId);
+                ->findOrFail($promotionId);
 
             return successResponse('', $promotion);
         } catch (Exception $exception) {
@@ -208,10 +209,10 @@ class PromotionController extends BasePromotionController
         }
     }
 
-    public function updatePromotionCode(mixed $promotionId, PromotionRequest $request): \Illuminate\Http\JsonResponse
+    public function updatePromotionCode(mixed $promotionId, PromotionRequest $request): JsonResponse
     {
         try {
-            /** @var \App\Model\Payment\Promotion $promotion */
+            /** @var Promotion $promotion */
             $promotion = Promotion::findOrFail($promotionId);
 
             $start = Date::parse($request->input('start'))->format('Y-m-d H:i:s');
@@ -244,7 +245,7 @@ class PromotionController extends BasePromotionController
         }
     }
 
-    public function promotionCodeCreate(PromotionRequest $request): \Illuminate\Http\JsonResponse
+    public function promotionCodeCreate(PromotionRequest $request): JsonResponse
     {
         try {
             // Format start and expiry dates
@@ -275,7 +276,7 @@ class PromotionController extends BasePromotionController
         }
     }
 
-    public function deleteBulkPromotions(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteBulkPromotions(Request $request): JsonResponse
     {
         $ids = $request->input('select', []);
 

@@ -7,6 +7,7 @@ use App\Model\Product\Subscription;
 use App\User;
 use DB;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SoftDeleteController extends ClientController
@@ -17,7 +18,7 @@ class SoftDeleteController extends ClientController
         $this->middleware('admin');
     }
 
-    public function softDeletedUsers(Request $request): \Illuminate\Http\JsonResponse
+    public function softDeletedUsers(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');
@@ -48,9 +49,9 @@ class SoftDeleteController extends ClientController
         return successResponse('', $users);
     }
 
-    public function restoreUser(mixed $id): \Illuminate\Http\JsonResponse
+    public function restoreUser(mixed $id): JsonResponse
     {
-        /** @var \App\User|null $user */
+        /** @var User|null $user */
         $user = User::onlyTrashed()->find($id);
 
         if (! $user) {
@@ -62,7 +63,7 @@ class SoftDeleteController extends ClientController
         return successResponse(__('message.user_restored_successfully'));
     }
 
-    public function permanentDeleteUser(Request $request): \Illuminate\Http\JsonResponse
+    public function permanentDeleteUser(Request $request): JsonResponse
     {
         $ids = $request->input('user_ids', []);
 

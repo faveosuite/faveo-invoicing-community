@@ -11,23 +11,24 @@ use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Pion\Laravel\ChunkUpload\Handler\AbstractHandler;
 use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
+use Pion\Laravel\ChunkUpload\Save\AbstractSave;
 use ZipArchive;
 
 trait ChunkUpload
 {
-    public function uploadFile(Request $request): \Illuminate\Http\JsonResponse
+    public function uploadFile(Request $request): JsonResponse
     {
         try {
             $receiver = new FileReceiver('file', $request, HandlerFactory::classFromRequest($request));
 
             if ($receiver->isUploaded() === false) {
-                throw new UploadMissingFileException();
+                throw new UploadMissingFileException;
             }
 
             $save = $receiver->receive();
             // check if the upload has finished (in chunk mode it will send smaller files)
 
-            if ($save === false || ! ($save instanceof \Pion\Laravel\ChunkUpload\Save\AbstractSave)) {
+            if ($save === false || ! ($save instanceof AbstractSave)) {
                 return response()->json(__('message.file_invalid'), 500);
             }
 

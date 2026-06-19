@@ -29,6 +29,9 @@ use Exception;
 use Form;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
@@ -39,7 +42,7 @@ use Throwable;
 class PageController extends Controller
 {
     /**
-     * @var \App\Model\Front\FrontendPage
+     * @var FrontendPage
      */
     public $page;
 
@@ -48,11 +51,11 @@ class PageController extends Controller
         $this->middleware(['auth', 'admin'], ['except' => ['pageTemplates', 'postDemoReq', 'postContactUs', 'pageBySlug', 'contactUsInfo']]);
         $this->middleware('recaptcha:contact')->only('postContactUs');
         $this->middleware('recaptcha:demo')->only('postDemoReq');
-        $page = new FrontendPage();
+        $page = new FrontendPage;
         $this->page = $page;
     }
 
-    public function store(PageRequest $request): \Illuminate\Http\RedirectResponse
+    public function store(PageRequest $request): RedirectResponse
     {
         try {
             $pages_count = count($this->page->all());
@@ -82,7 +85,7 @@ class PageController extends Controller
         }
     }
 
-    public function update(int $id, PageRequest $request): \Illuminate\Http\RedirectResponse
+    public function update(int $id, PageRequest $request): RedirectResponse
     {
         try {
             $page = $this->page->findOrFail($id);
@@ -153,7 +156,7 @@ class PageController extends Controller
      * Returns null data (200) when not found so the client can show a
      * "page not found" state instead of being redirected.
      */
-    public function pageBySlug(string $slug): \Illuminate\Http\JsonResponse
+    public function pageBySlug(string $slug): JsonResponse
     {
         try {
             $page = FrontendPage::where('slug', $slug)
@@ -375,7 +378,7 @@ class PageController extends Controller
      *
      * @param  int  $templateid  Id of the Template
      */
-    public function pageTemplates(?int $templateid = null, int $group = 0): \Illuminate\Http\JsonResponse
+    public function pageTemplates(?int $templateid = null, int $group = 0): JsonResponse
     {
         $group = ProductGroup::findOrFail($group);
         try {
@@ -396,33 +399,33 @@ class PageController extends Controller
             $productsRelatedToGroup = Product::with([
                 'planRelation' => function ($query) use ($currencyAndSymbol): void {
                     $query->where('days', '!=', 14)
-                    ->with(['planPrice' => function ($priceQuery) use ($currencyAndSymbol): void {
-                        $priceQuery->where('currency', $currencyAndSymbol);
-                    }]);
+                        ->with(['planPrice' => function ($priceQuery) use ($currencyAndSymbol): void {
+                            $priceQuery->where('currency', $currencyAndSymbol);
+                        }]);
                 },
             ])
                 ->where('group', $group->id)
                 ->where('hidden', '!=', 1)
                 ->whereHas('planRelation', function (Builder $query) use ($currencyAndSymbol): void {
                     $query->where('days', '!=', 14)
-                    ->whereHas('planPrice', function (Builder $priceQuery) use ($currencyAndSymbol): void {
-                        $priceQuery->where('currency', $currencyAndSymbol);
-                    });
+                        ->whereHas('planPrice', function (Builder $priceQuery) use ($currencyAndSymbol): void {
+                            $priceQuery->where('currency', $currencyAndSymbol);
+                        });
                 })
-            ->where(function (Builder $query) use ($currencyAndSymbol): void {
-                $query->where('status', '!=', 1)
-                    ->orWhere(function (Builder $activeQuery) use ($currencyAndSymbol): void {
-                        $activeQuery->where('status', 1)
-                            ->whereHas('planRelation', function (Builder $q) use ($currencyAndSymbol): void {
-                                $q->whereIn('days', [30, 31])
-                                    ->whereHas('planPrice', fn (Builder $pq) => $pq->where('currency', $currencyAndSymbol));
-                            })
-                            ->whereHas('planRelation', function (Builder $q) use ($currencyAndSymbol): void {
-                                $q->whereIn('days', [365, 366])
-                                    ->whereHas('planPrice', fn (Builder $pq) => $pq->where('currency', $currencyAndSymbol));
-                            });
-                    });
-            })
+                ->where(function (Builder $query) use ($currencyAndSymbol): void {
+                    $query->where('status', '!=', 1)
+                        ->orWhere(function (Builder $activeQuery) use ($currencyAndSymbol): void {
+                            $activeQuery->where('status', 1)
+                                ->whereHas('planRelation', function (Builder $q) use ($currencyAndSymbol): void {
+                                    $q->whereIn('days', [30, 31])
+                                        ->whereHas('planPrice', fn (Builder $pq) => $pq->where('currency', $currencyAndSymbol));
+                                })
+                                ->whereHas('planRelation', function (Builder $q) use ($currencyAndSymbol): void {
+                                    $q->whereIn('days', [365, 366])
+                                        ->whereHas('planPrice', fn (Builder $pq) => $pq->where('currency', $currencyAndSymbol));
+                                });
+                        });
+                })
                 ->orderBy('id')
                 ->get();
 
@@ -449,7 +452,7 @@ class PageController extends Controller
             }
 
             return successResponse('', ['templates' => $templates, 'headline' => $headline, 'tagline' => $tagline, 'description' => $description, 'status' => $status]);
-//            return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
+            //            return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
@@ -458,7 +461,7 @@ class PageController extends Controller
     /**
      * This function returns to the contact us page.
      */
-    public function contactUsInfo(): \Illuminate\Http\JsonResponse
+    public function contactUsInfo(): JsonResponse
     {
         try {
             $set = Setting::findOrFail(1);
@@ -488,17 +491,17 @@ class PageController extends Controller
     /**
      * Get Template For Products.
      *
-     * @param  \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\Product>  $helpdesk_products
+     * @param  Collection<int, Product>  $helpdesk_products
      * @param  array<mixed>  $trasform
      */
-    public function getTemplateOne(\Illuminate\Database\Eloquent\Collection $helpdesk_products, array &$trasform): mixed
+    public function getTemplateOne(Collection $helpdesk_products, array &$trasform): mixed
     {
         try {
             if ($helpdesk_products->isEmpty()) {
                 return '';
             }
 
-            $temp_controller = new TemplateController();
+            $temp_controller = new TemplateController;
             $highlightedProducts = Product::whereIn('id', $helpdesk_products->pluck('id'))
                 ->pluck('highlight', 'id')
                 ->toArray();
@@ -527,7 +530,7 @@ class PageController extends Controller
             $data = PricingTemplate::findOrFail(1)->data;
 
             return $trasform;
-//            return $this->transformTemplate('cart', $data, $trasform);
+            //            return $this->transformTemplate('cart', $data, $trasform);
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
@@ -536,15 +539,15 @@ class PageController extends Controller
     /**
      * @return array<mixed>
      */
-    private function generateProductUrl(\App\Model\Product\Product $product, string $orderButton): array
+    private function generateProductUrl(Product $product, string $orderButton): array
     {
         if ($product->add_to_contact != 1) {
             if (in_array($product->id, cloudPopupProducts())) {
                 //                return '<button class="btn '.$orderButton.' btn-modern buttonsale" data-toggle="modal" data-target="#tenancy" data-mydata="'.$product->id.'">
                 //                                <span style="white-space: nowrap;">'.__('message.order_now').'</span>
                 //                            </button>';
-                //for vue
-                return['class' => $orderButton, 'product_id' => $product->id, 'type' => 'cloud', 'button' => __('message.order_now')];
+                // for vue
+                return ['class' => $orderButton, 'product_id' => $product->id, 'type' => 'cloud', 'button' => __('message.order_now')];
             }
 
             if ($product->status) {
@@ -554,26 +557,26 @@ class PageController extends Controller
                 //        data-product="'.$product->id.'">
                 //        '.__('message.order_now').'
                 //    </button>
-                //';
-                //For vue when product status is one different process takes place in store
-                return['class' => $orderButton, 'product_id' => $product->id, 'type' => 'cloud', 'button' => __('message.order_now')];
+                // ';
+                // For vue when product status is one different process takes place in store
+                return ['class' => $orderButton, 'product_id' => $product->id, 'type' => 'cloud', 'button' => __('message.order_now')];
             }
 
-            //for vue
+            // for vue
             return ['class' => $orderButton, 'type' => 'multioption', 'button' => __('message.order_now')];
             //                return '<input type="submit" value="Order Now" class="btn '.$orderButton.' btn-modern buttonsale"></form>';
         } else {
-            //for vue
+            // for vue
             return ['url' => 'https://www.faveohelpdesk.com/contact-us/', 'button' => __('message.contact_sales'), 'class' => $orderButton, 'type' => 'normal'];
-//            return '<a class="btn '.$orderButton.' btn-modern sales buttonsale" href="https://www.faveohelpdesk.com/contact-us/">'.__('message.contact_sales').'</a>';
+            //            return '<a class="btn '.$orderButton.' btn-modern sales buttonsale" href="https://www.faveohelpdesk.com/contact-us/">'.__('message.contact_sales').'</a>';
         }
     }
 
-    public function plansYear(string $url, int $id): string|\Illuminate\Http\RedirectResponse
+    public function plansYear(string $url, int $id): string|RedirectResponse
     {
         try {
-            $plan = new Plan();
-            $plan_form = 'Free'; //No Subscription
+            $plan = new Plan;
+            $plan_form = 'Free'; // No Subscription
             $plans = $plan->where('product', '=', $id)->pluck('name', 'id')->toArray();
             $product = Product::find($id);
             if (! $product instanceof Product) {
@@ -603,7 +606,7 @@ class PageController extends Controller
      * @param  array<mixed>  $price
      * @return array<mixed>
      */
-    public function getPrice(string $months, array $price, string $priceDescription, \App\Model\Payment\Plan $value, float|int $cost, string $currency, float|int|null $offer, \App\Model\Product\Product $product): array
+    public function getPrice(string $months, array $price, string $priceDescription, Plan $value, float|int $cost, string $currency, float|int|null $offer, Product $product): array
     {
         $cost *= 12;
         if (isset($offer)) {
@@ -619,7 +622,7 @@ class PageController extends Controller
     /**
      * @return array<mixed>
      */
-    public function prices(int $id): array|\Illuminate\Http\RedirectResponse
+    public function prices(int $id): array|RedirectResponse
     {
         try {
             $plans = Plan::where('product', $id)->where('status', 1)->orderBy('id', 'desc')->get();
@@ -858,9 +861,9 @@ class PageController extends Controller
             }
 
             $plans = Plan::where('product', $productId)
-                        ->where('status', 1)
-                        ->with('planPrice')
-                        ->cursor();
+                ->where('status', 1)
+                ->with('planPrice')
+                ->cursor();
 
             foreach ($plans as $plan) {
                 if (in_array($plan->days, [365, 366])) {
@@ -940,7 +943,7 @@ class PageController extends Controller
         return $result;
     }
 
-    public function postContactUs(ContactRequest $request): \Illuminate\Http\JsonResponse
+    public function postContactUs(ContactRequest $request): JsonResponse
     {
         try {
             $contact = getContactData();
@@ -951,7 +954,7 @@ class PageController extends Controller
                 return errorResponse(__('message.spam_detected'));
             }
 
-            $set = new Setting();
+            $set = new Setting;
             $set = $set->findOrFail(1);
 
             $template = TemplateType::getSelectedTemplate('contact_us');
@@ -974,7 +977,7 @@ class PageController extends Controller
             $type = (string) ($template->type()->value('name') ?? '');
 
             if (emailSendingStatus()) {
-                $mail = new PhpMailController();
+                $mail = new PhpMailController;
                 $mail->SendEmail((string) $set->email, (string) $set->company_email, (string) $template->data, (string) $template->name, $type, $replace, $type);
             }
 
@@ -1024,7 +1027,7 @@ class PageController extends Controller
         return array_any($spamKeywords, fn ($keyword): bool => stripos($text, (string) $keyword) !== false);
     }
 
-    public function postDemoReq(ContactRequest $request): \Illuminate\Http\JsonResponse
+    public function postDemoReq(ContactRequest $request): JsonResponse
     {
         try {
             $contact = getContactData();
@@ -1034,7 +1037,7 @@ class PageController extends Controller
                 return errorResponse(__('message.spam_detected'));
             }
 
-            $set = new Setting();
+            $set = new Setting;
             $set = $set->findOrFail(1);
 
             $template = TemplateType::getSelectedTemplate('demo_request');
@@ -1059,7 +1062,7 @@ class PageController extends Controller
             $templatename = (string) $template->name.' '.'for'.' '.$product;
 
             if (emailSendingStatus()) {
-                $mail = new PhpMailController();
+                $mail = new PhpMailController;
                 $mail->SendEmail((string) $set->email, (string) $set->company_email, (string) $template->data, $templatename, $type, $replace, $type);
             }
 
@@ -1069,7 +1072,7 @@ class PageController extends Controller
         }
     }
 
-    public function getDemoStatus(): \Illuminate\Http\JsonResponse
+    public function getDemoStatus(): JsonResponse
     {
         $demo = Demo_page::first();
 
@@ -1078,7 +1081,7 @@ class PageController extends Controller
         ]);
     }
 
-    public function saveDemoPage(Request $request): \Illuminate\Http\JsonResponse
+    public function saveDemoPage(Request $request): JsonResponse
     {
         $request->validate([
             'status' => ['required', 'boolean'],
@@ -1091,7 +1094,7 @@ class PageController extends Controller
         return successResponse(__('message.data_updated_successfully'));
     }
 
-    public function getAllPages(Request $request): \Illuminate\Http\JsonResponse
+    public function getAllPages(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');
@@ -1111,7 +1114,7 @@ class PageController extends Controller
         return successResponse('', $pages);
     }
 
-    public function deleteBulkPages(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteBulkPages(Request $request): JsonResponse
     {
         $ids = $request->input('page_ids', []);
 
@@ -1154,7 +1157,7 @@ class PageController extends Controller
         return $formatted.$span;
     }
 
-    public function createPage(Request $request): \Illuminate\Http\JsonResponse
+    public function createPage(Request $request): JsonResponse
     {
         try {
             $pagesCount = FrontendPage::count();
@@ -1183,7 +1186,7 @@ class PageController extends Controller
         }
     }
 
-    public function getPage(Request $request, int $pageId): \Illuminate\Http\JsonResponse
+    public function getPage(Request $request, int $pageId): JsonResponse
     {
         try {
             $page = FrontendPage::with('parent:id,name')->findOrFail($pageId);
@@ -1197,7 +1200,7 @@ class PageController extends Controller
         }
     }
 
-    public function updatePage(Request $request, int $pageId): \Illuminate\Http\JsonResponse
+    public function updatePage(Request $request, int $pageId): JsonResponse
     {
         try {
             $page = FrontendPage::findOrFail($pageId);
@@ -1214,7 +1217,7 @@ class PageController extends Controller
             if ($request->filled('created_at')) {
                 $date = DateTime::createFromFormat('m/d/Y', $request->input('created_at'));
                 if ($date) {
-                    $page->created_at = \Illuminate\Support\Facades\Date::instance($date);
+                    $page->created_at = Date::instance($date);
                 }
             }
 

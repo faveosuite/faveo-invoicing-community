@@ -9,6 +9,7 @@ use App\Model\Common\ManagerSetting;
 use App\User;
 use Closure;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SystemManagerController extends Controller
@@ -19,7 +20,7 @@ class SystemManagerController extends Controller
         $this->middleware('admin');
     }
 
-    public function getSystemManagers(): \Illuminate\Http\JsonResponse
+    public function getSystemManagers(): JsonResponse
     {
         try {
             $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
@@ -65,7 +66,7 @@ class SystemManagerController extends Controller
         }
     }
 
-    public function searchAdmin(Request $request): \Illuminate\Http\JsonResponse
+    public function searchAdmin(Request $request): JsonResponse
     {
         try {
             $term = trim($request->input('search-query') ?? '');
@@ -99,7 +100,7 @@ class SystemManagerController extends Controller
      * Validates the request, updates manager assignments, auto-assign settings,
      * and sends notification emails if enabled.
      */
-    public function updateManagerSettings(SystemManagerSettingsRequest $request): \Illuminate\Http\JsonResponse
+    public function updateManagerSettings(SystemManagerSettingsRequest $request): JsonResponse
     {
         try {
             $mailer = new AuthController;

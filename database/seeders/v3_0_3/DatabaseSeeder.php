@@ -1,13 +1,15 @@
 <?php
 
 namespace Database\Seeders\v3_0_3;
-use Illuminate\Database\Seeder;
-use App\Model\Common\TemplateType;
-use App\Model\Common\Template;
+
 use App\Demo_page;
-use Illuminate\Support\Facades\DB;
-use App\SocialLogin;
 use App\Model\Common\PricingTemplate;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
+use App\SocialLogin;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -24,7 +26,6 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Template table seeded!');
         $this->SocialLoginSeeder();
 
-
         $this->call([PricingTemplateSeeder::class]);
         $this->command->info('Pricing Template Table Seeded!');
     }
@@ -33,49 +34,47 @@ class DatabaseSeeder extends Seeder
     {
         DB::table('social_logins')->truncate();
         $social_logins = [
-           [
-               'type' => 'Google',
-               'client_id' => '',
-               'client_secret' => '',
-               'redirect_url' => '',
-               'status' => 0,
-           ],
-           [
-               'type' => 'Github',
-               'client_id' => '',
-               'client_secret' => '',
-               'redirect_url' => '',
-               'status' => 0,
-           ],
-           [
-               'type' => 'Twitter',
-               'client_id' => '',
-               'client_secret' => '',
-               'redirect_url' => '',
-               'status' => 0,
-           ],
-           [
-               'type' => 'Linkedin',
-               'client_id' => '',
-               'client_secret' => '',
-               'redirect_url' => '',
-               'status' => 0,
-           ],
-       ];
-      foreach ($social_logins as $data) {
-           SocialLogin::insertOrIgnore($data);
-       }
-   }
-
+            [
+                'type' => 'Google',
+                'client_id' => '',
+                'client_secret' => '',
+                'redirect_url' => '',
+                'status' => 0,
+            ],
+            [
+                'type' => 'Github',
+                'client_id' => '',
+                'client_secret' => '',
+                'redirect_url' => '',
+                'status' => 0,
+            ],
+            [
+                'type' => 'Twitter',
+                'client_id' => '',
+                'client_secret' => '',
+                'redirect_url' => '',
+                'status' => 0,
+            ],
+            [
+                'type' => 'Linkedin',
+                'client_id' => '',
+                'client_secret' => '',
+                'redirect_url' => '',
+                'status' => 0,
+            ],
+        ];
+        foreach ($social_logins as $data) {
+            SocialLogin::insertOrIgnore($data);
+        }
     }
-
+}
 
 class Demo_pageTableSeeder extends Seeder
 {
     public function run(): void
     {
-      DB::table('demo_pages')->truncate();
-      Demo_page::create(['id' => 1, 'status' => 0]);
+        DB::table('demo_pages')->truncate();
+        Demo_page::create(['id' => 1, 'status' => 0]);
     }
 }
 
@@ -84,8 +83,8 @@ class TemplateTypeTableSeeder extends Seeder
     public function run(): void
     {
 
-        DB::table('template_types')->where('id',20)->delete();
-        TemplateType::where('id',12)->update(['name' => 'auto_subscription_going_to_end']);
+        DB::table('template_types')->where('id', 20)->delete();
+        TemplateType::where('id', 12)->update(['name' => 'auto_subscription_going_to_end']);
         TemplateType::create(['id' => 20, 'name' => 'cloud_created']);
     }
 }
@@ -94,7 +93,7 @@ class TemplateTableSeeder extends Seeder
 {
     public function run(): void
     {
-      Template::where('id',2)->update(['name' => 'Verify your email address', 'type' => 1, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 2)->update(['name' => 'Verify your email address', 'type' => 1, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
       <tbody>
       <tr>
       <td style="width: 30px;">&nbsp;</td>
@@ -150,7 +149,7 @@ class TemplateTableSeeder extends Seeder
     </table>
     <p>&nbsp;</p>']);
 
-    Template::where('id',4)->update(['name' => 'Purchase confirmation', 'type' => 7, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 4)->update(['name' => 'Purchase confirmation', 'type' => 7, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
     <tbody>
     <tr>
     <td style="width: 30px;">&nbsp;</td>
@@ -228,8 +227,7 @@ class TemplateTableSeeder extends Seeder
     </table>
     <p>&nbsp;</p>']);
 
-
-    Template::where('id',5)->update(['name' => 'Reset your password', 'type' => 2, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 5)->update(['name' => 'Reset your password', 'type' => 2, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
     <tbody>
     <tr>
     <td style="width: 30px;">&nbsp;</td>
@@ -279,7 +277,7 @@ class TemplateTableSeeder extends Seeder
   </table>
   <p>&nbsp;</p>']);
 
-  Template::where('id',6)->update(['name' => 'Consolidated renewal reminder', 'type' => 4, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 6)->update(['name' => 'Consolidated renewal reminder', 'type' => 4, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
   <tbody>
   <tr>
   <td style="width: 28px;">&nbsp;</td>
@@ -354,11 +352,9 @@ class TemplateTableSeeder extends Seeder
 </tr>
 </tbody>
 </table>
-<p>&nbsp;</p>']); 
+<p>&nbsp;</p>']);
 
-
-
-Template::where('id',7)->update(['name' => 'URGENT: Order has expired', 'type' => 5, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 7)->update(['name' => 'URGENT: Order has expired', 'type' => 5, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
 <td style="width: 30px;">&nbsp;</td>
@@ -433,9 +429,9 @@ Template::where('id',7)->update(['name' => 'URGENT: Order has expired', 'type' =
 </tr>
 </tbody>
 </table>
-<p>&nbsp;</p>']); 
+<p>&nbsp;</p>']);
 
-Template::where('id',8)->update(['name' => 'Invoice', 'type' => 6, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 8)->update(['name' => 'Invoice', 'type' => 6, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
 <td style="width: 30px;">&nbsp;</td>
@@ -505,26 +501,25 @@ Template::where('id',8)->update(['name' => 'Invoice', 'type' => 6, 'url' => 'nul
 </tr>
 </tbody>
 </table>
-<p>&nbsp;</p>']); 
+<p>&nbsp;</p>']);
 
-Template::where('id',9)->update(['name' => 'Your New Sales Manager', 'type' => 9, 'url' => 'null', 'data' => '<p>Dear {{name}},</p>
+        Template::where('id', 9)->update(['name' => 'Your New Sales Manager', 'type' => 9, 'url' => 'null', 'data' => '<p>Dear {{name}},</p>
 <p>This is {{manager_first_name}} {{manager_last_name}}.</p>
 <p>From now onwards I will be your one point of contact. I will follow up with you as well as with our team. Please feel free to get in touch with me anytime if you have any issues with regard to your account. You can also add me on Skype. My ID is mentioned in my signature. It is a pleasure to have you on board and I look forward to effective conversations with you in future.</p>
 <p>Hope you have a great day.</p>
 <p>Regards,</p>
 <p>{{manager_first_name}} {{manager_last_name}}</p>
-<p>Sales Manager,<br />Mobile: {{manager_code}} {{manager_mobile}}<br />Skype ID: {{manager_skype}}<br />Email: {{manager_email}}</p>']);        
+<p>Sales Manager,<br />Mobile: {{manager_code}} {{manager_mobile}}<br />Skype ID: {{manager_skype}}<br />Email: {{manager_email}}</p>']);
 
-Template::where('id',10)->update(['name' => 'Your New Sales Manager', 'type' => 10, 'url' => 'null', 'data' => '<p>Dear {{name}},</p>
+        Template::where('id', 10)->update(['name' => 'Your New Sales Manager', 'type' => 10, 'url' => 'null', 'data' => '<p>Dear {{name}},</p>
 <p>This is {{manager_first_name}} {{manager_last_name}}.</p>
 <p>From now onwards I will be your one point of contact. I will follow up with you as well as with our team. Please feel free to get in touch with me anytime if you have any issues with regard to your account. You can also add me on Skype. My ID is mentioned in my signature. It is a pleasure to have you on board and I look forward to effective conversations with you in future.</p>
 <p>Hope you have a great day.</p>
 <p>Regards,</p>
 <p>{{manager_first_name}} {{manager_last_name}}</p>
-<p>Account Manager,<br />Mobile: {{manager_code}} {{manager_mobile}}<br />Skype ID: {{manager_skype}}<br />Email: {{manager_email}}</p>']);                
+<p>Account Manager,<br />Mobile: {{manager_code}} {{manager_mobile}}<br />Skype ID: {{manager_skype}}<br />Email: {{manager_email}}</p>']);
 
-
-Template::where('id',12)->update(['name' => 'Consolidated renewal reminder', 'type' => 12, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 12)->update(['name' => 'Consolidated renewal reminder', 'type' => 12, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
 <td style="width: 30px;">&nbsp;</td>
@@ -597,9 +592,9 @@ Template::where('id',12)->update(['name' => 'Consolidated renewal reminder', 'ty
 </tr>
 </tbody>
 </table>
-<p>&nbsp;</p>']); 
+<p>&nbsp;</p>']);
 
-Template::where('id',13)->update(['name' => 'Auto payment successfull', 'type' => 13, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 13)->update(['name' => 'Auto payment successfull', 'type' => 13, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
 <td style="width: 30px;">&nbsp;</td>
@@ -668,9 +663,9 @@ Template::where('id',13)->update(['name' => 'Auto payment successfull', 'type' =
 </tr>
 </tbody>
 </table>
-<p>&nbsp;</p>']); 
+<p>&nbsp;</p>']);
 
-Template::where('id',14)->update(['name' => 'Auto payment failed', 'type' => 14, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 14)->update(['name' => 'Auto payment failed', 'type' => 14, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
 <td style="width: 30px;">&nbsp;</td>
@@ -748,16 +743,14 @@ Template::where('id',14)->update(['name' => 'Auto payment failed', 'type' => 14,
 </tr>
 </tbody>
 </table>
-<p>&nbsp;</p>']); 
+<p>&nbsp;</p>']);
 
+        Template::where('id', 15)->delete();
+        Template::where('id', 16)->delete();
+        Template::where('id', 17)->delete();
+        Template::where('id', 18)->delete();
 
-Template::where('id',15)->delete();
-Template::where('id',16)->delete();
-Template::where('id',17)->delete();
-Template::where('id',18)->delete();
-
-
-Template::where('id',19)->update(['name' => 'URGENT: Order has been deleted', 'type' => 19, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 19)->update(['name' => 'URGENT: Order has been deleted', 'type' => 19, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
 <td style="width: 30px;">&nbsp;</td>
@@ -824,9 +817,9 @@ Template::where('id',19)->update(['name' => 'URGENT: Order has been deleted', 't
 </tr>
 </tbody>
 </table>
-<p>&nbsp;</p>']); 
-DB::table('templates')->where('id',20)->delete();
-Template::create(['id' => 20, 'name' => 'New instance created', 'type' => 20, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+<p>&nbsp;</p>']);
+        DB::table('templates')->where('id', 20)->delete();
+        Template::create(['id' => 20, 'name' => 'New instance created', 'type' => 20, 'url' => 'null', 'data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
           <tbody>
           <tr>
           <td style="width: 30px;">&nbsp;</td>
@@ -884,16 +877,13 @@ Template::create(['id' => 20, 'name' => 'New instance created', 'type' => 20, 'u
         <p>&nbsp;</p>']);
 
     }
-
-
-
 }
 
 class PricingTemplateSeeder extends Seeder
 {
     public function run(): void
     {
-        PricingTemplate::where('id',1)->update(['data' => '<div class="col-md-3 col-sm-6">
+        PricingTemplate::where('id', 1)->update(['data' => '<div class="col-md-3 col-sm-6">
                             <div class="plan">
                                 <div class="plan-header">
                                     <h3>{{name}}</h3>
@@ -940,7 +930,7 @@ class PricingTemplateSeeder extends Seeder
 
                             </div>
                         </div>']);
-         DB::table('pricing_templates')->where('id',2)->delete();
+        DB::table('pricing_templates')->where('id', 2)->delete();
 
         PricingTemplate::create(['id' => 2, 'data' => '<div class="col-md-3 col-sm-6">
                  <div class="plan plan-featured transform-none">
@@ -987,4 +977,3 @@ class PricingTemplateSeeder extends Seeder
                  </div>']);
     }
 }
-

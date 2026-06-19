@@ -1421,7 +1421,7 @@ return [
     'no_tax_rates' => '세율 없음',
     'store' => '상점',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => '관리자 대시보드',
     'my_account' => '내 계정',
     'start_free_trial' => '무료 체험 시작',
@@ -1462,7 +1462,7 @@ return [
     'enter_domain_license' => '도메인 입력 & 라이센스 파일 다운로드',
     'installation_details' => '설치 세부사항',
 
-    //payment panel
+    // payment panel
     'payment_date' => '결제 날짜',
     'auto_renewal_subscription' => '향후 구독을 위한 자동 갱신',
     'subscription_start_date' => '구독 시작 날짜',
@@ -1488,7 +1488,7 @@ return [
     'coupon' => '쿠폰',
     'actions' => '작업',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => '세금 생성',
     'caps_others' => '기타',
     'others' => '기타',
@@ -1526,7 +1526,7 @@ return [
     'show_cart_page' => '장바구니 페이지에 표시',
     'select_taxes' => '세금 선택',
 
-    //Product panel
+    // Product panel
     'all_product_details' => '제품 세부 정보 추가',
     'enter_json_format' => 'JSON 형식 입력',
     'upload' => '업로드',
@@ -1555,21 +1555,21 @@ return [
     'all_types' => '모든 유형',
     'configure_queue' => '대기열 구성',
 
-    //renew panel
+    // renew panel
     'renew_product' => '제품을 갱신하려면 장바구니가 비어 있어야 합니다',
     'click_renew' => '여기를 클릭하여 갱신',
     'renew_your_order' => '주문 갱신',
     'renew_order' => '주문 갱신',
     'renewal_price_per_agent' => '에이전트당 갱신 가격:',
 
-    //report panel
+    // report panel
     'file_name' => '파일 이름',
     'format' => '형식',
     'contact' => '연락처',
     'report_settings' => '보고서 설정',
     'report_limit' => '시트당 기록 추가. 최대 한도는 3000입니다.',
 
-    //tenant panel
+    // tenant panel
     'cloud_server' => '클라우드 서버',
     'customise_cloud_popup' => '클라우드 팝업 사용자화',
     'cloud_product_configuration' => '클라우드 제품 구성',
@@ -1596,7 +1596,7 @@ return [
     'app_key' => '앱 키',
     'app_secret' => '앱 비밀',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => '새 사용자 생성',
     'create_user' => '사용자 생성',
     'position' => '직위',
@@ -1710,7 +1710,7 @@ return [
     'error_logs' => '오류 로그',
     'view_logs' => '로그 보기',
 
-    //visitstats
+    // visitstats
     'request' => '요청',
     'visitor' => '방문자',
     'browser' => '브라우저',
@@ -2068,7 +2068,7 @@ return [
     'no_tax' => '세금 없음',
     'null' => '없음',
     'choose_one_payment_gateway' => '하나의 결제 게이트웨이를 선택하세요',
-    //Controller keys and values
+    // Controller keys and values
     'product_uploaded_successfully' => '제품이 성공적으로 업로드되었습니다.',
     'token_mismatch_account_not_activated' => '토큰 불일치. 계정을 활성화할 수 없습니다.',
     'email_verification_success' => '이메일 인증이 성공적으로 완료되었습니다. 로그인하여 계정에 접근하세요!',

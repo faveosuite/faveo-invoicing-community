@@ -5,8 +5,15 @@ namespace App\Model\Payment;
 use App\BaseModel;
 use App\Model\Product\Product;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Support\Carbon;
 use Override;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -16,13 +23,13 @@ use Override;
  * @property string $value
  * @property string|null $start
  * @property string|null $expiry
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read Product|null $products
- * @property-read \App\Model\Payment\PromotionType $promotionType
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\PromoProductRelation> $relation
+ * @property-read PromotionType $promotionType
+ * @property-read Collection<int, PromoProductRelation> $relation
  * @property-read int|null $relation_count
  *
  * @method static \Database\Factories\Model\Payment\PromotionFactory factory($count = null, $state = [])
@@ -44,9 +51,10 @@ use Override;
 class Promotion extends BaseModel
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'promotions';
@@ -87,9 +95,9 @@ class Promotion extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<PromoProductRelation, $this>
+     * @return HasMany<PromoProductRelation, $this>
      */
-    public function relation(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function relation(): HasMany
     {
         return $this->hasMany(PromoProductRelation::class, 'promotion_id');
     }
@@ -105,17 +113,17 @@ class Promotion extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Payment\PromotionType, $this>
+     * @return BelongsTo<PromotionType, $this>
      */
-    public function promotionType(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function promotionType(): BelongsTo
     {
         return $this->belongsTo(PromotionType::class, 'type', 'id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough<\App\Model\Product\Product, \App\Model\Payment\PromoProductRelation, $this>
+     * @return HasOneThrough<Product, PromoProductRelation, $this>
      */
-    public function products(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
+    public function products(): HasOneThrough
     {
         return $this->hasOneThrough(
             Product::class,

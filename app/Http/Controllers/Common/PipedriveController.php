@@ -14,6 +14,7 @@ use App\User;
 use DB;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 use Logger;
@@ -54,10 +55,10 @@ class PipedriveController extends Controller
 
         $token = ApiKey::value('pipedrive_api_key');
 
-        $config = new PipedriveConfiguration();
+        $config = new PipedriveConfiguration;
         $config->setApiKey('x-api-token', $token);
 
-        $this->client = new Client();
+        $this->client = new Client;
 
         // Initialize API clients
         $this->apiClients = [
@@ -237,7 +238,7 @@ class PipedriveController extends Controller
     /**
      * Sync all Pipedrive fields.
      */
-    public function syncFields(): \Illuminate\Http\JsonResponse
+    public function syncFields(): JsonResponse
     {
         $this->syncFieldGroup($this->getPipedriveFields(), $this->groups['personId']);
         $this->syncFieldGroup($this->getOrganizationFields(), $this->groups['organizationId']);
@@ -354,7 +355,7 @@ class PipedriveController extends Controller
     /**
      * Get local fields for a group.
      */
-    public function getLocalFields(int $group_id): \Illuminate\Http\JsonResponse
+    public function getLocalFields(int $group_id): JsonResponse
     {
         $pipedriveFields = PipedriveField::with('pipedriveOptions')
             ->where('pipedrive_group_id', $group_id)
@@ -369,7 +370,7 @@ class PipedriveController extends Controller
     /**
      * Map fields between Pipedrive and local system.
      */
-    public function mappingFields(Request $request): \Illuminate\Http\JsonResponse
+    public function mappingFields(Request $request): JsonResponse
     {
         $groupID = $request->input('group_id');
         $group_name = PipedriveGroups::where('id', $groupID)->value('group_name');
@@ -379,8 +380,8 @@ class PipedriveController extends Controller
 
         // Validate title field for deals
         if ($group_name === 'Deal' && ! PipedriveField::whereIn('id', $select1)
-                ->where('field_key', 'title')
-                ->exists()) {
+            ->where('field_key', 'title')
+            ->exists()) {
             return errorResponse(__('message.title_field_deals'));
         }
 
@@ -479,7 +480,7 @@ class PipedriveController extends Controller
     /**
      * Get field mapping for a group.
      */
-    public function getMapFields(int $group_id): \Illuminate\Http\JsonResponse
+    public function getMapFields(int $group_id): JsonResponse
     {
         try {
             $group_name = PipedriveGroups::where('id', $group_id)->value('group_name');
@@ -551,7 +552,7 @@ class PipedriveController extends Controller
     /**
      * Get dropdown options for a field.
      */
-    public function getDropdown(Request $request): \Illuminate\Http\JsonResponse
+    public function getDropdown(Request $request): JsonResponse
     {
         $id = $request->input('pipedrive_field_id');
 

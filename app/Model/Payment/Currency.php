@@ -8,7 +8,11 @@ use App\BaseModel;
 use App\Model\Common\Country;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Override;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -16,12 +20,12 @@ use Override;
  * @property string|null $symbol
  * @property string|null $name
  * @property string|null $dashboard_currency
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int|null $status
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Country> $country
+ * @property-read Collection<int, Country> $country
  * @property-read int|null $country_count
  *
  * @method static Builder<static>|Currency newModelQuery()
@@ -88,9 +92,9 @@ class Currency extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Common\Country, $this>
+     * @return HasMany<Country, $this>
      */
-    public function country(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function country(): HasMany
     {
         return $this->hasMany(Country::class, 'currency_id');
     }

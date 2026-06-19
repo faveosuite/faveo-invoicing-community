@@ -873,7 +873,7 @@ return [
     'required_stripe_secret' => 'Vui lòng nhập bí mật Stripe',
     'max_stripe_secret' => 'Bí mật Stripe không thể dài hơn 200 ký tự',
 
-    //email templates
+    // email templates
 
     'choose_password' => 'Nhấp vào đây để đặt lại mật khẩu của bạn: ',
     'email_username' => 'Tên người dùng: ',
@@ -881,7 +881,7 @@ return [
     'email_click_here' => 'Nhấp vào đây',
     'activate_account' => 'Để kích hoạt tài khoản của bạn:',
 
-    //error template
+    // error template
     'page_not_found' => 'Trang không tìm thấy',
     'sorry' => 'Xin lỗi, nhưng trang bạn tìm không tồn tại.',
     'useful_links' => 'Dưới đây là một số liên kết hữu ích',
@@ -890,7 +890,7 @@ return [
     'my_profile' => 'Hồ sơ của tôi',
     'contact_us' => 'Liên hệ với chúng tôi',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Đăng nhập | Đăng ký',
     'sign_lr' => 'Đăng nhập hoặc Đăng ký',
     'or' => 'Hoặc',
@@ -924,7 +924,7 @@ return [
     'error_occurred' => 'Đã xảy ra lỗi. Vui lòng thử lại.',
     'error_one_country' => 'Vui lòng chọn một quốc gia',
 
-    //contact template
+    // contact template
     'feel_free' => 'Cảm ơn bạn đã liên hệ, đừng ngần ngại hỏi bất kỳ câu hỏi nào!',
     'contact_name' => 'Tên',
     'contact_error_name' => 'Vui lòng nhập tên của bạn.',
@@ -937,7 +937,7 @@ return [
     'contact_send_msg' => 'Gửi tin nhắn',
     'our_office' => 'Văn phòng của chúng tôi',
 
-    //password template
+    // password template
     'forgot_password' => 'Quên mật khẩu? Đặt lại ngay!',
     'lost_password' => 'Quên mật khẩu?',
     'know_password' => 'Tôi biết mật khẩu của mình',
@@ -947,7 +947,7 @@ return [
     'error_occurs' => 'Đã xảy ra lỗi.',
     'reset_password' => 'Đặt lại mật khẩu',
 
-    //front-client template
+    // front-client template
     'change_faveo' => 'Bạn có muốn thay đổi tên miền Faveo hiện tại không?',
     'current_domain' => 'Nhập tên miền hiện tại',
     'enter_domain' => 'Nhập tên miền mới',
@@ -1109,7 +1109,7 @@ return [
     'subscriptions_table' => 'Bảng đăng ký',
     'invalid_format' => 'Định dạng không hợp lệ.',
 
-    //front-page template
+    // front-page template
     'all_pages' => 'Tất cả các trang',
     'create_new_page' => 'Tạo trang mới',
     'edit_page' => 'Chỉnh sửa trang',
@@ -1119,14 +1119,14 @@ return [
     'select_checkbox' => 'Vui lòng chọn ít nhất một ô kiểm',
     'search_result' => 'Kết quả tìm kiếm',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'Tất cả các tiện ích',
     'create_widget' => 'Tạo tiện ích',
     'configure_mailchimp' => 'Cấu hình Mailchimp của bạn trong cài đặt để truy cập',
     'configure_tweet' => 'Cấu hình tweet của bạn trong cài đặt để truy cập',
     'edit_widget' => 'Chỉnh sửa tiện ích',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Xóa sản phẩm',
     'cart_totals' => 'Tổng giỏ hàng',
     'clear_cart' => 'Xóa giỏ hàng',
@@ -1183,11 +1183,11 @@ return [
     'go_back' => 'Quay lại',
     'be_right_back' => 'Sẽ quay lại ngay.',
 
-    //category template
+    // category template
     'all_categories' => 'Tất cả các danh mục',
     'category_name' => 'Tên',
 
-    //common template
+    // common template
     'create_script_code' => 'Tạo mã script',
     'create_script' => 'Tạo script',
     'edit_script_code' => 'Chỉnh sửa mã script',
@@ -1350,14 +1350,14 @@ return [
     'deactivate' => 'Vô Hiệu Hóa',
     'provider' => 'Nhà Cung Cấp',
 
-    //github template
+    // github template
     'github_setting' => 'Cài Đặt Github',
     'enter_github_username' => 'Vui Lòng Nhập Tên Người Dùng Github',
     'enter_github_password' => 'Vui Lòng Nhập Mật Khẩu Github',
     'enter_github_clientid' => 'Vui Lòng Nhập Client Id',
     'enter_github_client_secret_key' => 'Vui Lòng Nhập Client Secret Key',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => 'Chỉnh Sửa Hóa Đơn',
     'view_user' => 'Xem Người Dùng',
     'pending' => 'Đang Chờ',
@@ -1398,7 +1398,7 @@ return [
     'no_tax_rates' => 'Không có mức thuế',
     'store' => 'Cửa hàng',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Bảng điều khiển quản trị',
     'my_account' => 'Tài khoản của tôi',
     'start_free_trial' => 'BẮT ĐẦU DÙNG THỬ MIỄN PHÍ',
@@ -1439,7 +1439,7 @@ return [
     'enter_domain_license' => 'Nhập tên miền & tải tệp giấy phép',
     'installation_details' => 'Chi tiết cài đặt',
 
-    //payement panel
+    // payement panel
     'payment_date' => 'Ngày thanh toán',
     'auto_renewal_subscription' => 'Gia hạn tự động cho đăng ký tương lai',
     'subscription_start_date' => 'Ngày bắt đầu đăng ký',
@@ -1465,7 +1465,7 @@ return [
     'coupon' => 'Mã giảm giá',
     'actions' => 'Hành động',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Tạo thuế',
     'caps_others' => 'KHÁC',
     'others' => 'Khác',
@@ -1503,7 +1503,7 @@ return [
     'show_cart_page' => 'Hiển thị trên trang giỏ hàng',
     'select_taxes' => 'Chọn thuế',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Thêm chi tiết sản phẩm',
     'enter_json_format' => 'Nhập định dạng JSON.',
     'upload' => 'Tải lên',
@@ -1532,21 +1532,21 @@ return [
     'all_types' => 'Tất cả Loại',
     'configure_queue' => 'Cấu hình Hàng đợi',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Hãy chắc chắn rằng giỏ hàng trống để gia hạn sản phẩm của bạn',
     'click_renew' => 'Nhấp vào đây để gia hạn',
     'renew_your_order' => 'Gia hạn đơn hàng của bạn',
     'renew_order' => 'Gia hạn Đơn hàng',
     'renewal_price_per_agent' => 'Giá gia hạn cho mỗi đại lý: ',
 
-    //report panel
+    // report panel
     'file_name' => 'Tên tệp',
     'format' => 'Định dạng',
     'contact' => 'Liên hệ',
     'report_settings' => 'Cài đặt báo cáo',
     'report_limit' => 'Thêm bản ghi cho mỗi trang tính. Giới hạn tối đa là 3000.',
 
-    //tenant panel
+    // tenant panel
     'cloud_server' => 'Máy chủ Đám mây',
     'customise_cloud_popup' => 'Tùy chỉnh Cửa sổ pop-up Dịch vụ Đám mây',
     'cloud_product_configuration' => 'Cấu hình Sản phẩm Đám mây',
@@ -1573,7 +1573,7 @@ return [
     'app_key' => 'Khóa ứng dụng',
     'app_secret' => 'Mã bí mật ứng dụng',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Tạo Người dùng Mới',
     'create_user' => 'Tạo Người dùng',
     'position' => 'Vị trí',
@@ -1688,7 +1688,7 @@ return [
     'error_logs' => 'Nhật ký lỗi',
     'view_logs' => 'Xem nhật ký',
 
-    //visitstats
+    // visitstats
     'request' => 'Yêu cầu',
     'visitor' => 'Khách truy cập',
     'browser' => 'Trình duyệt',
@@ -2046,7 +2046,7 @@ return [
     'no_tax' => 'Không có thuế',
     'null' => 'Không có',
     'choose_one_payment_gateway' => 'Chọn một cổng thanh toán',
-    //Controller keys and values
+    // Controller keys and values
     'product_uploaded_successfully' => 'Sản phẩm đã được tải lên thành công',
     'token_mismatch_account_not_activated' => 'Mã token không khớp. Tài khoản không thể được kích hoạt.',
     'email_verification_success' => 'Xác minh email thành công. Vui lòng đăng nhập để truy cập tài khoản của bạn !!',

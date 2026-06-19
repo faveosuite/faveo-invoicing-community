@@ -9,11 +9,12 @@ use App\License\Models\InstallationLog;
 use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class LicenseViewController extends Controller
 {
-    public function getLicenseDetails(mixed $license_id): \Illuminate\Http\JsonResponse
+    public function getLicenseDetails(mixed $license_id): JsonResponse
     {
         $license = License::with(['product:id,name', 'user:id,email'])
             ->withCount(['installations as installation_counts', 'callbacks as call_backs_count'])
@@ -24,7 +25,7 @@ class LicenseViewController extends Controller
             return successResponse(__('lang.license_details'), data: null);
         }
 
-        /** @var \App\License\Models\License $license */
+        /** @var License $license */
         $formatted = (object) [
             'id' => $license->id,
             'product_id' => $license->product_id,
@@ -50,7 +51,7 @@ class LicenseViewController extends Controller
         return successResponse(__('lang.license_details'), (array) $formatted);
     }
 
-    public function getLicenseInstallations(Request $request, mixed $license_id): \Illuminate\Http\JsonResponse
+    public function getLicenseInstallations(Request $request, mixed $license_id): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -63,7 +64,7 @@ class LicenseViewController extends Controller
             return successResponse(__('lang.license_installations'), collect([]));
         }
 
-        /** @var \App\License\Models\License $license */
+        /** @var License $license */
         $licenseInstallations = Installation::query()
             ->select('id', 'user_id as client_id', 'installation_domain', 'installation_ip', 'installation_date', 'installation_status')
             ->where('license_code', $license->license_code)
@@ -81,7 +82,7 @@ class LicenseViewController extends Controller
         return successResponse(__('lang.license_installations'), $licenseInstallations);
     }
 
-    public function getLicenseCallBacks(Request $request, mixed $license_id): \Illuminate\Http\JsonResponse
+    public function getLicenseCallBacks(Request $request, mixed $license_id): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -94,7 +95,7 @@ class LicenseViewController extends Controller
             return successResponse(__('lang.license_callback'), collect([]));
         }
 
-        /** @var \App\License\Models\License $license */
+        /** @var License $license */
         $licenseCallBacks = LicenseCallback::where('user_id', $license->client_id) // @phpstan-ignore property.notFound
             ->where('license_code', $license->license_code)
             ->when($searchQuery, function ($query) use ($searchQuery): void {
@@ -118,7 +119,7 @@ class LicenseViewController extends Controller
         return successResponse(__('lang.license_callback'), $licenseCallBacks);
     }
 
-    public function getLicenseInstallationLogs(Request $request, mixed $license_id): \Illuminate\Http\JsonResponse
+    public function getLicenseInstallationLogs(Request $request, mixed $license_id): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -131,7 +132,7 @@ class LicenseViewController extends Controller
             return successResponse('', collect([]));
         }
 
-        /** @var \App\License\Models\License $license */
+        /** @var License $license */
         $installationLogs = InstallationLog::where('license_code', $license->license_code)
             ->when($searchQuery, function ($query) use ($searchQuery): void {
                 $query->where('installation_domain', 'LIKE', '%'.$searchQuery.'%')

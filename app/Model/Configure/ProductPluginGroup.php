@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace App\Model\Configure;
 
 use App\Model\Product\Product;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $product_id
  * @property int $plugin_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Product $plugin
  * @property-read Product $product
  *
@@ -31,7 +34,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProductPluginGroup extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -41,18 +44,18 @@ class ProductPluginGroup extends Model
 
     // Define the relationship with Product (as product)
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Product, $this>
+     * @return BelongsTo<Product, $this>
      */
-    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
 
     // Define the relationship with Product (as plugin)
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Product, $this>
+     * @return BelongsTo<Product, $this>
      */
-    public function plugin(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function plugin(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'plugin_id');
     }

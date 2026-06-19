@@ -7,12 +7,14 @@ use App\Model\CloudDataCenters;
 use App\Model\Payment\Currency;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
+use App\User;
 use Auth;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 
 class StoreController extends Controller
 {
-    public function getGroups(): \Illuminate\Http\JsonResponse
+    public function getGroups(): JsonResponse
     {
         $groups = ProductGroup::where('hidden', '0')
             ->select('id', 'name', 'headline', 'tagline', 'status')
@@ -26,7 +28,7 @@ class StoreController extends Controller
         return successResponse('', $groups);
     }
 
-    public function getProducts(int $groupId): \Illuminate\Http\JsonResponse
+    public function getProducts(int $groupId): JsonResponse
     {
         $group = ProductGroup::findOrFail($groupId);
 
@@ -70,14 +72,14 @@ class StoreController extends Controller
                     'id' => $dc->id,
                     'name' => trim($dc->cloud_countries.($dc->cloud_state ? ', '.$dc->cloud_state : '')),
                 ])->values(),
-            'products' => $products->map(fn (\App\Model\Product\Product $p): array => $this->transformProduct($p, $currency))->values(),
+            'products' => $products->map(fn (Product $p): array => $this->transformProduct($p, $currency))->values(),
         ]);
     }
 
     private function resolveCurrency(): string
     {
         if (Auth::check()) {
-            /** @var \App\User $authUser */
+            /** @var User $authUser */
             $authUser = Auth::user();
 
             return getCurrencyForClient($authUser->country);

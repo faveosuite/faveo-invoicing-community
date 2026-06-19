@@ -38,7 +38,7 @@ use Throwable;
  *   $result  = $stripe->capturePayment(['session_id' => $session->id]);
  *   if ($result->paid) { ... }
  */
-final readonly class StripeGateway implements PaymentGateway, SubscriptionGateway, CardPaymentGateway
+final readonly class StripeGateway implements CardPaymentGateway, PaymentGateway, SubscriptionGateway
 {
     /** @var array<int, string> */
     private const array SUPPORTED = [
@@ -59,8 +59,7 @@ final readonly class StripeGateway implements PaymentGateway, SubscriptionGatewa
         private string $secretKey,
         private string $publishableKey = '',
         private string $webhookSecret = '',
-    ) {
-    }
+    ) {}
 
     public function name(): string
     {

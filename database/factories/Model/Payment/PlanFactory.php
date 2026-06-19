@@ -9,7 +9,7 @@ use App\Model\Product\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Payment\Plan>
+ * @extends Factory<Plan>
  */
 class PlanFactory extends Factory
 {

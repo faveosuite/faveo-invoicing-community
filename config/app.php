@@ -16,6 +16,7 @@ use App\Providers\HorizonServiceProvider;
 use App\Providers\ImageUploadHelperServiceProvider;
 use App\Providers\LogServiceProvider;
 use App\Providers\RouteServiceProvider;
+use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use Creativeorange\Gravatar\Facades\Gravatar;
 use Creativeorange\Gravatar\GravatarServiceProvider;
 use Illuminate\Auth\AuthServiceProvider;
@@ -39,6 +40,7 @@ use Illuminate\Redis\RedisServiceProvider;
 use Illuminate\Session\SessionServiceProvider;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Translation\TranslationServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
 use Illuminate\View\ViewServiceProvider;
@@ -245,7 +247,7 @@ return [
          * Package Service Providers...
          */
         TinkerServiceProvider::class,
-        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
+        IdeHelperServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -296,7 +298,7 @@ return [
         'GeoIP' => GeoIP::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
         'Html' => Html::class,
-        'Input' => \Illuminate\Support\Facades\Request::class,
+        'Input' => Request::class,
         'Redis' => Redis::class,
         'Gravatar' => Gravatar::class,
         'Socialite' => Socialite::class,

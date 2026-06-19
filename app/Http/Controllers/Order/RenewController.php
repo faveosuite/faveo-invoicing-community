@@ -18,9 +18,11 @@ use App\Services\SubscriptionRenewalService;
 use App\Traits\TaxCalculation;
 use App\User;
 use Auth;
+use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Date;
@@ -30,52 +32,52 @@ class RenewController extends BaseRenewController
 {
     use TaxCalculation;
 
-    protected \App\Model\Product\Subscription $sub;
+    protected Subscription $sub;
 
-    protected \App\Model\Payment\Plan $plan;
+    protected Plan $plan;
 
-    protected \App\Model\Order\Order $order;
+    protected Order $order;
 
-    protected \App\Model\Order\Invoice $invoice;
+    protected Invoice $invoice;
 
-    protected \App\Model\Order\InvoiceItem $item;
+    protected InvoiceItem $item;
 
-    protected \App\Model\Product\Product $product;
+    protected Product $product;
 
-    protected \App\User $user;
+    protected User $user;
 
     public function __construct()
     {
-        $sub = new Subscription();
+        $sub = new Subscription;
         $this->sub = $sub;
 
-        $plan = new Plan();
+        $plan = new Plan;
         $this->plan = $plan;
 
-        $order = new Order();
+        $order = new Order;
         $this->order = $order;
 
-        $invoice = new Invoice();
+        $invoice = new Invoice;
         $this->invoice = $invoice;
 
-        $item = new InvoiceItem();
+        $item = new InvoiceItem;
         $this->item = $item;
 
-        $product = new Product();
+        $product = new Product;
         $this->product = $product;
 
-        $user = new User();
+        $user = new User;
         $this->user = $user;
     }
 
-    //Renew From admin panel
-    public function renewBySubId(int $id, int $planid, string $payment_method, float|int $cost, string $code, bool $isAgentIncrease = true, ?int $agents = null): \App\Model\Product\Subscription|\App\Model\Order\InvoiceItem
+    // Renew From admin panel
+    public function renewBySubId(int $id, int $planid, string $payment_method, float|int $cost, string $code, bool $isAgentIncrease = true, ?int $agents = null): Subscription|InvoiceItem
     {
         try {
-            /** @var \App\Model\Payment\Plan $plan */
+            /** @var Plan $plan */
             $plan = $this->plan->find($planid);
             $days = $plan->days;
-            /** @var \App\Model\Product\Subscription $sub */
+            /** @var Subscription $sub */
             $sub = $this->sub->find($id);
             $currency = userCurrencyAndPrice($sub->user_id, $plan)['currency'];
             if ($isAgentIncrease) {
@@ -94,7 +96,7 @@ class RenewController extends BaseRenewController
         }
     }
 
-    //Renewal from ClienT Panel
+    // Renewal from ClienT Panel
     public function successRenew(Invoice $invoice): void
     {
         try {
@@ -120,9 +122,9 @@ class RenewController extends BaseRenewController
         }
     }
 
-    public function editDateInAPL(\App\Model\Product\Subscription $sub, ?string $updatesExpiry, ?string $licenseExpiry, ?string $supportExpiry): void
+    public function editDateInAPL(Subscription $sub, ?string $updatesExpiry, ?string $licenseExpiry, ?string $supportExpiry): void
     {
-        /** @var \App\Model\Order\Order $subOrder */
+        /** @var Order $subOrder */
         $subOrder = $sub->order;
         $domain = $subOrder->domain;
         $orderNo = $subOrder->number;
@@ -149,9 +151,9 @@ class RenewController extends BaseRenewController
         }
     }
 
-    //Tuesday, June 13, 2017 08:06 AM
+    // Tuesday, June 13, 2017 08:06 AM
 
-    public function getProductById(int $id): ?\App\Model\Product\Product
+    public function getProductById(int $id): ?Product
     {
         try {
             $product = $this->product->where('id', $id)->first();
@@ -165,7 +167,7 @@ class RenewController extends BaseRenewController
         return null;
     }
 
-    public function getUserById(int $id): ?\App\User
+    public function getUserById(int $id): ?User
     {
         try {
             $user = $this->user->where('id', $id)->first();
@@ -182,7 +184,7 @@ class RenewController extends BaseRenewController
     public function createOrderInvoiceRelation(int $orderid, int $invoiceid): void
     {
         try {
-            $relation = new OrderInvoiceRelation();
+            $relation = new OrderInvoiceRelation;
             $relation->create([
                 'order_id' => $orderid,
                 'invoice_id' => $invoiceid,
@@ -196,7 +198,7 @@ class RenewController extends BaseRenewController
     {
         try {
             $product = $this->getProductById($productid);
-            if (! $product instanceof \App\Model\Product\Product) {
+            if (! $product instanceof Product) {
                 throw new Exception(__('message.product_removed_database'));
             }
 
@@ -217,10 +219,10 @@ class RenewController extends BaseRenewController
         }
     }
 
-    public function tax(\App\Model\Product\Product $product, float|int $cost, \App\User $user): float|int|null
+    public function tax(Product $product, float|int $cost, User $user): float|int|null
     {
         try {
-            $controller = new InvoiceController();
+            $controller = new InvoiceController;
             $tax = $this->calculateTax($product->id, (string) $user->state, (string) $user->country);
             $tax_name = $tax['name'];
             $tax_rate = $tax['value'];
@@ -236,7 +238,7 @@ class RenewController extends BaseRenewController
     /*
         Renew From Admin Panel
      */
-    public function renew(int $id, Request $request): \Illuminate\Http\JsonResponse
+    public function renew(int $id, Request $request): JsonResponse
     {
         $this->validate($request, [
             'plan' => 'required',
@@ -257,12 +259,12 @@ class RenewController extends BaseRenewController
             $payment_method = $request->input('payment_method');
             $code = $request->input('code');
             $cost = $request->input('cost');
-            /** @var \App\Model\Product\Subscription $sub */
+            /** @var Subscription $sub */
             $sub = Subscription::find($id);
             $order_id = $sub->order_id;
             if ($request->has('agents')) {
                 $agents = $request->input('agents');
-                /** @var \App\Model\Order\Order $orderForInstall */
+                /** @var Order $orderForInstall */
                 $orderForInstall = Order::find($order_id);
                 $installation_path = Installation::where('license_code', $orderForInstall->serial_key)->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
                 if (empty($installation_path)) {
@@ -274,7 +276,7 @@ class RenewController extends BaseRenewController
                 }
 
                 $license = Order::where('id', $order_id)->value('serial_key');
-                new CloudExtraActivities(new Client, new FaveoCloud())->doTheAgentAltering($agents, $license, $order_id, $installation_path, $sub->product_id);
+                new CloudExtraActivities(new Client, new FaveoCloud)->doTheAgentAltering($agents, $license, $order_id, $installation_path, $sub->product_id);
             }
 
             $renew = $this->renewBySubId($id, $planid, $payment_method, $cost, $code = '', isAgentIncrease: true, agents: $agents);
@@ -292,13 +294,13 @@ class RenewController extends BaseRenewController
      *
      * @param  int  $id  Subscription id for the order
      */
-    public function renewForm(int $id, ?int $agents = null): \Illuminate\Http\JsonResponse
+    public function renewForm(int $id, ?int $agents = null): JsonResponse
     {
         try {
-            /** @var \App\Model\Product\Subscription $sub */
+            /** @var Subscription $sub */
             $sub = $this->sub->find($id);
             $userid = $sub->user_id;
-            if (User::onlyTrashed()->find($userid)) {//If User is soft deleted for this order
+            if (User::onlyTrashed()->find($userid)) {// If User is soft deleted for this order
                 throw new Exception(__('message.user_order_suspended'));
             }
 
@@ -311,14 +313,14 @@ class RenewController extends BaseRenewController
                 'agents' => $agents];
 
             return successResponse('', $data);
-//            return view('themes.default1.renew.renew', compact('id', 'productid', 'plans', 'userid', 'agents'));
+            //            return view('themes.default1.renew.renew', compact('id', 'productid', 'plans', 'userid', 'agents'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
-            //return redirect()->back()->with('fails', $ex->getMessage());
+            // return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
-    public function renewByClient(int $id, Request $request): \Illuminate\Http\JsonResponse
+    public function renewByClient(int $id, Request $request): JsonResponse
     {
         try {
             $request->validate(
@@ -331,11 +333,11 @@ class RenewController extends BaseRenewController
             $plan = Plan::findOrFail($planId);
 
             $existingUnpaidInvoice = $this->checkExistingUnpaidInvoice($sub, $planId);
-            if ($existingUnpaidInvoice instanceof \App\Model\Order\InvoiceItem) {
+            if ($existingUnpaidInvoice instanceof InvoiceItem) {
                 return successResponse(trans('message.existings_invoice'), ['invoice_id' => $existingUnpaidInvoice->invoice_id]);
             }
 
-            /** @var \App\User $authUser */
+            /** @var User $authUser */
             $authUser = Auth::user();
             $planDetails = userCurrencyAndPrice($authUser->id, $plan);
             $price = $planDetails['plan']->renew_price;
@@ -360,7 +362,7 @@ class RenewController extends BaseRenewController
         }
     }
 
-    private function checkExistingUnpaidInvoice(\App\Model\Product\Subscription $subscription, int $planId): ?\App\Model\Order\InvoiceItem
+    private function checkExistingUnpaidInvoice(Subscription $subscription, int $planId): ?InvoiceItem
     {
         $invoice_id = OrderInvoiceRelation::where('order_id', $subscription->order_id)->latest()->value('invoice_id');
 
@@ -392,8 +394,8 @@ class RenewController extends BaseRenewController
         return Session::has('subscription_id') && Session::has('plan_id') && $flag;
     }
 
-    //Update License Expiry Date
-    public function getExpiryDate(mixed $permissions, \App\Model\Product\Subscription $sub, int $days): string|\Carbon\Carbon
+    // Update License Expiry Date
+    public function getExpiryDate(mixed $permissions, Subscription $sub, int $days): string|Carbon
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
@@ -404,8 +406,8 @@ class RenewController extends BaseRenewController
         return $expiry_date;
     }
 
-    //Update Updates Expiry Date
-    public function getUpdatesExpiryDate(mixed $permissions, \App\Model\Product\Subscription $sub, int $days): string|\Carbon\Carbon
+    // Update Updates Expiry Date
+    public function getUpdatesExpiryDate(mixed $permissions, Subscription $sub, int $days): string|Carbon
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
@@ -416,8 +418,8 @@ class RenewController extends BaseRenewController
         return $expiry_date;
     }
 
-    //Update Support Expiry Date
-    public function getSupportExpiryDate(mixed $permissions, \App\Model\Product\Subscription $sub, int $days): string|\Carbon\Carbon
+    // Update Support Expiry Date
+    public function getSupportExpiryDate(mixed $permissions, Subscription $sub, int $days): string|Carbon
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {

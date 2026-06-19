@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-//Iso codes for languages
+// Iso codes for languages
 return [
     'aa' => ['Afar', 'ʿAfár af'],
     'ab' => ['Abkhazian', 'аҧсшәа'],

@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Model\Common\Mailchimp;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string|null $mailchimp_group_cat_id
  * @property string|null $agora_product_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroupAgoraRelation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpGroupAgoraRelation newQuery()

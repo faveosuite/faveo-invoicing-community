@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Model\Product;
 
 use App\BaseModel;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $group_id
  * @property string $features
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFeatures newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFeatures newQuery()

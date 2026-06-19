@@ -33,8 +33,8 @@ use RuntimeException;
 
 class PostPaymentService
 {
-    use TaxCalculation;
     use PostPaymentHandle;
+    use TaxCalculation;
 
     /**
      * @return array<mixed>
@@ -56,7 +56,7 @@ class PostPaymentService
         };
 
         if ($invoice->grand_total && emailSendingStatus()) {
-            /** @var \App\User $user */
+            /** @var User $user */
             $user = User::find($invoice->user_id);
             $productNames = $invoice->invoiceItem()->pluck('product_name')->implode(', ');
             self::sendPaymentSuccessMailtoAdmin($invoice, (float) $invoice->grand_total, $user, $productNames);
@@ -90,7 +90,7 @@ class PostPaymentService
                 OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id')
             )->whereIn('product', cloudPopupProducts())->value('number');
 
-            new TenantController(new Client(), new FaveoCloud())->createTenant(
+            new TenantController(new Client, new FaveoCloud)->createTenant(
                 new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain])
             );
         }
@@ -116,7 +116,7 @@ class PostPaymentService
      */
     private function handleAgentAlteration(Invoice $invoice, array $metadata): array
     {
-        $cloud = new CloudExtraActivities(new Client(), new FaveoCloud());
+        $cloud = new CloudExtraActivities(new Client, new FaveoCloud);
 
         if ($metadata['agent_increase_date'] ?? false) {
             new RenewController()->successRenew($invoice);
@@ -162,7 +162,7 @@ class PostPaymentService
 
         $this->doTheDeed($invoice);
 
-        $cloud = new CloudExtraActivities(new Client(), new FaveoCloud());
+        $cloud = new CloudExtraActivities(new Client, new FaveoCloud);
         $cloud->doTheProductUpgradeDowngrade(
             $licenseCode,
             $installationPath,
@@ -176,7 +176,7 @@ class PostPaymentService
         // Transfer subscription from terminated order to new order
         $termOrderId = DB::table('terminated_order_upgrade')
             ->where('upgraded_order_id', $newActiveOrderId)->value('terminated_order_id');
-        /** @var \App\Model\Order\Order|null $terminatedOrder */
+        /** @var Order|null $terminatedOrder */
         $terminatedOrder = Order::find($termOrderId);
         if ($terminatedOrder) {
             $oldSub = Subscription::where('order_id', $terminatedOrder->id)->first();
@@ -233,7 +233,7 @@ class PostPaymentService
 
     private function doTheDeed(Invoice $invoice): void
     {
-        /** @var \App\User $authUser */
+        /** @var User $authUser */
         $authUser = Auth::user();
         $amt_to_credit = Payment::where('user_id', $authUser->id)
             ->where('payment_status', 'success')
@@ -292,9 +292,9 @@ class PostPaymentService
             return; // No subscription found
         }
 
-        /** @var \App\Model\Order\Order $order */
+        /** @var Order $order */
         $order = Order::find($orderId);
-        /** @var \App\Model\Product\Product $product */
+        /** @var Product $product */
         $product = Product::find($subscription->product_id);
 
         if ($subscription->is_subscribed != '1') {
@@ -305,11 +305,11 @@ class PostPaymentService
             return; // Subscription not eligible for price check/update
         }
 
-        /** @var \App\Model\Payment\Plan $plan */
+        /** @var Plan $plan */
         $plan = Plan::find($subscription->plan_id);
-        /** @var \App\User $authUser2 */
+        /** @var User $authUser2 */
         $authUser2 = Auth::user();
-        /** @var \App\Model\Common\Country $countryids */
+        /** @var Country $countryids */
         $countryids = Country::where('country_code_char2', $authUser2->country)->first();
         $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $invoice->currency)->where('country_id', $countryids->country_id)->value('renew_price');
         if (empty($price)) {
@@ -352,8 +352,8 @@ class PostPaymentService
     {
         $numberofAgents = (int) ltrim(substr((string) $order->serial_key, -4), '0');
         $finalPrice = $numberofAgents * $price;
-        $controller = new InvoiceController();
-        /** @var \App\User $authUser3 */
+        $controller = new InvoiceController;
+        /** @var User $authUser3 */
         $authUser3 = Auth::user();
         $tax = $this->calculateTax($product, (string) $authUser3->state, (string) $authUser3->country);
         $tax_rate = $tax['value'];

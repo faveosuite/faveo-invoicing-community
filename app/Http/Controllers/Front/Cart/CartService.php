@@ -21,9 +21,7 @@ use Throwable;
 
 class CartService
 {
-    public function __construct(private readonly GuestCart $guest)
-    {
-    }
+    public function __construct(private readonly GuestCart $guest) {}
 
     // --- Cart resolution ---
 
@@ -207,7 +205,7 @@ class CartService
                 'cloud_domain' => $cloudItem?->domain ?: null,
             ];
 
-            if ($invoice instanceof \App\Model\Order\Invoice) {
+            if ($invoice instanceof Invoice) {
                 $invoice->update($attributes);
                 $invoice->invoiceItem()->delete();
                 InvoiceTaxLine::where('invoice_id', $invoice->id)->delete();

@@ -9,7 +9,7 @@ use App\Model\Product\ProductUpload;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Product\ProductUpload>
+ * @extends Factory<ProductUpload>
  */
 class ProductUploadFactory extends Factory
 {

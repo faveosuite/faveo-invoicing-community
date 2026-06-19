@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use Illuminate\Log\Events\MessageLogged;
 
 return [
 
@@ -58,7 +59,7 @@ return [
      *     '172.17.0.0/255.255.0.0'
      */
     'do_not_track_ips' => [
-        '127.0.0.0/24', /// range 127.0.0.1 - 127.0.0.255
+        '127.0.0.0/24', // / range 127.0.0.1 - 127.0.0.255
     ],
 
     /*
@@ -126,7 +127,7 @@ return [
      *
      */
 
-    'geoip_database_path' => __DIR__.'/geoip', //storage_path('geoip'),
+    'geoip_database_path' => __DIR__.'/geoip', // storage_path('geoip'),
 
     /*
      * Also log SQL query bindings?
@@ -164,7 +165,7 @@ return [
      *
      */
     'do_not_log_events' => [
-        \Illuminate\Log\Events\MessageLogged::class,
+        MessageLogged::class,
         'eloquent.*',
         'router.*',
         'composing: *',

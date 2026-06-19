@@ -38,7 +38,6 @@ class Request implements Stringable
     /**
      * pretty much a helper function to set up the request.
      *
-     * @param  Token  $token
      * @param  string  $httpMethod
      * @param  string  $httpUrl
      * @param  array<mixed>  $parameters
@@ -56,7 +55,7 @@ class Request implements Stringable
             'oauth_timestamp' => time(),
             'oauth_consumer_key' => $consumer->key,
         ];
-        if ($token instanceof \App\Http\Controllers\Common\Twitter\Token) {
+        if ($token instanceof Token) {
             $defaults['oauth_token'] = $token->key;
         }
 
@@ -75,7 +74,6 @@ class Request implements Stringable
     }
 
     /**
-     * @param  $name
      * @return string|null
      */
     public function getParameter(mixed $name)
@@ -91,9 +89,6 @@ class Request implements Stringable
         return $this->parameters;
     }
 
-    /**
-     * @param  $name
-     */
     public function removeParameter(mixed $name): void
     {
         unset($this->parameters[$name]);
@@ -215,9 +210,6 @@ class Request implements Stringable
         return $this->toUrl();
     }
 
-    /**
-     * @param  Token  $token
-     */
     public function signRequest(SignatureMethod $signatureMethod, Consumer $consumer, ?Token $token = null): void
     {
         $this->setParameter('oauth_signature_method', $signatureMethod->getName());
@@ -226,7 +218,6 @@ class Request implements Stringable
     }
 
     /**
-     * @param  Token  $token
      * @return string
      */
     public function buildSignature(SignatureMethod $signatureMethod, Consumer $consumer, ?Token $token = null)

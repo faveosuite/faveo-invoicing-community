@@ -88,7 +88,7 @@ class InstallationService
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int|string, mixed>
+     * @return Collection<int|string, mixed>
      */
     public function getByLicenseCode(string $licenseCode): Collection
     {

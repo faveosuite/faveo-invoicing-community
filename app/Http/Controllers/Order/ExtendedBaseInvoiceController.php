@@ -10,7 +10,12 @@ use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use App\User;
 use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Lang;
 use Logger;
@@ -23,7 +28,7 @@ class ExtendedBaseInvoiceController extends Controller
         $this->middleware('admin', ['except' => ['pdf']]);
     }
 
-    public function newPayment(Request $request): \Illuminate\Http\JsonResponse
+    public function newPayment(Request $request): JsonResponse
     {
         try {
             $clientid = $request->input('clientid');
@@ -67,7 +72,7 @@ class ExtendedBaseInvoiceController extends Controller
         }
     }
 
-    public function postNewPayment(int $clientid, Request $request): \Illuminate\Http\RedirectResponse
+    public function postNewPayment(int $clientid, Request $request): RedirectResponse
     {
         $this->validate($request, [
             'payment_date' => 'required',
@@ -81,7 +86,7 @@ class ExtendedBaseInvoiceController extends Controller
             ]);
 
         try {
-            $payment = new Payment();
+            $payment = new Payment;
             $payment->payment_status = 'success';
             $payment->user_id = $clientid;
             $paymentReceived = $payment->fill($request->all())->save();
@@ -92,10 +97,10 @@ class ExtendedBaseInvoiceController extends Controller
         }
     }
 
-    public function edit(int $invoiceid, Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function edit(int $invoiceid, Request $request): Factory|View
     {
         $totalSum = '0';
-        /** @var \App\Model\Order\Invoice $invoice */
+        /** @var Invoice $invoice */
         $invoice = Invoice::where('id', $invoiceid)->first();
         $date = date('m/d/Y', (int) strtotime((string) $invoice->date));
         $payment = Payment::where('invoice_id', $invoiceid)->pluck('amount')->toArray();
@@ -106,7 +111,7 @@ class ExtendedBaseInvoiceController extends Controller
         return view('themes.default1.invoice.editInvoice', compact('date', 'invoiceid', 'invoice', 'totalSum')); // @phpstan-ignore argument.type
     }
 
-    public function postEdit(int $invoiceid, Request $request): \Illuminate\Http\JsonResponse
+    public function postEdit(int $invoiceid, Request $request): JsonResponse
     {
         $this->validate($request, [
             'date' => 'required',
@@ -133,7 +138,7 @@ class ExtendedBaseInvoiceController extends Controller
         }
     }
 
-    public function postNewMultiplePayment(int $clientid, Request $request): \Illuminate\Http\JsonResponse
+    public function postNewMultiplePayment(int $clientid, Request $request): JsonResponse
     {
         $this->validate($request, [
             'payment_date' => 'required',
@@ -170,7 +175,7 @@ class ExtendedBaseInvoiceController extends Controller
      * @param  array<mixed>  $invoiceChecked
      */
     public function multiplePayment(int $clientid, array $invoiceChecked, string $payment_method,
-             \Illuminate\Support\Carbon $payment_date, float|int $totalAmt, array $invoicAmount, float $amtToCredit, string $payment_status, ?string $currency = null): void
+        Carbon $payment_date, float|int $totalAmt, array $invoicAmount, float $amtToCredit, string $payment_status, ?string $currency = null): void
     {
         try {
             // 1) Record a brand-new payment row against each selected invoice and
@@ -181,7 +186,7 @@ class ExtendedBaseInvoiceController extends Controller
                 }
 
                 $amount = (isset($invoicAmount[$key]) && $invoicAmount[$key] !== '') ? $invoicAmount[$key] : 0;
-                /** @var \App\Model\Order\Invoice|null $invoice */
+                /** @var Invoice|null $invoice */
                 $invoice = Invoice::find($value);
 
                 Payment::create([
@@ -244,7 +249,7 @@ class ExtendedBaseInvoiceController extends Controller
      * that one row intact, so internal grants (e.g. product downgrades) stay
      * compatible with how that balance is later consumed.
      */
-    public function mergeCreditBalance(int $userId, float|int $amount, \Illuminate\Support\Carbon $payment_date, string $payment_status = 'pending'): \App\Model\Order\Payment
+    public function mergeCreditBalance(int $userId, float|int $amount, Carbon $payment_date, string $payment_status = 'pending'): Payment
     {
         $existing = Payment::where('user_id', $userId)
             ->where('invoice_id', 0)
@@ -272,7 +277,7 @@ class ExtendedBaseInvoiceController extends Controller
     /*
      * Apply a client's accumulated credit balance to their pending invoices.
      */
-    public function updateNewMultiplePayment(int $clientid, Request $request): \Illuminate\Http\JsonResponse
+    public function updateNewMultiplePayment(int $clientid, Request $request): JsonResponse
     {
         $this->validate($request, [
             'payment_date' => 'required',
@@ -318,7 +323,7 @@ class ExtendedBaseInvoiceController extends Controller
      * @param  array<mixed>  $invoiceChecked
      */
     public function updatePaymentByInvoice(int $clientid, array $invoiceChecked, string $payment_method,
-             \Illuminate\Support\Carbon $payment_date, array $invoicAmount, string $payment_status): void
+        Carbon $payment_date, array $invoicAmount, string $payment_status): void
     {
         try {
             // Snapshot the current credit balance, and the method/currency it is held under.
@@ -339,7 +344,7 @@ class ExtendedBaseInvoiceController extends Controller
                     continue;
                 }
 
-                /** @var \App\Model\Order\Invoice|null $invoice */
+                /** @var Invoice|null $invoice */
                 $invoice = Invoice::find($value);
 
                 Payment::create([

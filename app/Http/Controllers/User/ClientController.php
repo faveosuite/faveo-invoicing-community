@@ -30,6 +30,10 @@ use Carbon\CarbonImmutable;
 use DB;
 use Exception;
 use Hash;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Lang;
@@ -38,6 +42,7 @@ use Logger;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Str;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use ZipArchive;
 
@@ -47,17 +52,17 @@ class ClientController extends AdvanceSearchController
     use PaymentsAndInvoices;
 
     /**
-     * @var \App\User
+     * @var User
      */
     public $user;
 
     /**
-     * @var \App\Model\User\AccountActivate
+     * @var AccountActivate
      */
     public $activate;
 
     /**
-     * @var \App\Model\Product\Product
+     * @var Product
      */
     public $product;
 
@@ -65,13 +70,13 @@ class ClientController extends AdvanceSearchController
     {
         $this->middleware('auth');
         $this->middleware('admin');
-        $user = new User();
+        $user = new User;
         $this->user = $user;
 
-        $activate = new AccountActivate();
+        $activate = new AccountActivate;
         $this->activate = $activate;
 
-        $product = new Product();
+        $product = new Product;
         $this->product = $product;
     }
 
@@ -98,7 +103,7 @@ class ClientController extends AdvanceSearchController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ClientRequest $request): \Illuminate\Http\RedirectResponse
+    public function store(ClientRequest $request): RedirectResponse
     {
         try {
             $user = $this->user;
@@ -106,7 +111,7 @@ class ClientController extends AdvanceSearchController
             $password = Hash::make($str);
             $user->password = $password;
             if ($request->input('mobile_code') == '') {
-                $country = new Country();
+                $country = new Country;
                 $mobile_code = $country->where('country_code_char2', $request->input('country'))->value('phonecode');
             } else {
                 $mobile_code = str_replace('+', '', $request->input('mobile_code'));
@@ -164,10 +169,10 @@ class ClientController extends AdvanceSearchController
     /**
      * Update the specified resource in storage.
      */
-    public function update(int $id, ClientRequest $request): \Illuminate\Http\RedirectResponse
+    public function update(int $id, ClientRequest $request): RedirectResponse
     {
         try {
-            /** @var \App\User $user */
+            /** @var User $user */
             $user = $this->user->where('id', $id)->firstOrFail();
             $user->fill($request->input());
             $user->role = $request->input('role', $user->role);
@@ -186,12 +191,12 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function sendWelcomeMail(\App\User $user): void
+    public function sendWelcomeMail(User $user): void
     {
         // Retrieve necessary data
         $contact = getContactData();
         $settings = Setting::find(1);
-        /** @var \App\Model\Common\TemplateType $template_type */
+        /** @var TemplateType $template_type */
         $template_type = TemplateType::where('name', 'registration_mail')->firstOrFail();
         $template = Template::find($template_type->id);
 
@@ -217,11 +222,11 @@ class ClientController extends AdvanceSearchController
         $type = $template->type ? TemplateType::find($template->type)->name : ''; // @phpstan-ignore property.notFound
 
         // Send the email
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
         $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    public function exportUsers(Request $request): \Illuminate\Http\JsonResponse
+    public function exportUsers(Request $request): JsonResponse
     {
         try {
             ini_set('memory_limit', '-1');
@@ -231,7 +236,7 @@ class ClientController extends AdvanceSearchController
             $authUser = Auth::user();
             $email = $authUser instanceof User ? $authUser->email : '';
 
-            /** @var \App\Model\Mailjob\QueueService $driver */
+            /** @var QueueService $driver */
             $driver = QueueService::where('status', '1')->firstOrFail();
 
             if ($driver->name === 'Sync') {
@@ -252,7 +257,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function downloadExportedFile(int $id): \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\JsonResponse
+    public function downloadExportedFile(int $id): BinaryFileResponse|JsonResponse
     {
         try {
             $exportDetail = ExportDetail::findOrFail($id);
@@ -269,7 +274,7 @@ class ClientController extends AdvanceSearchController
 
             $zipFileName = $exportDetail->file.'.zip';
             $zipFilePath = storage_path('app/public/export/'.$zipFileName);
-            $zip = new ZipArchive();
+            $zip = new ZipArchive;
             if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
                 if (is_dir($filePath)) {
                     // Add directory and its files to the zip
@@ -298,7 +303,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function saveColumns(Request $request): \Illuminate\Http\JsonResponse
+    public function saveColumns(Request $request): JsonResponse
     {
         $userId = auth()->id();
         $entityType = $request->get('entity_type');
@@ -350,7 +355,7 @@ class ClientController extends AdvanceSearchController
         ]);
     }
 
-    public function getColumns(Request $request): \Illuminate\Http\JsonResponse
+    public function getColumns(Request $request): JsonResponse
     {
         $userId = auth()->id();
         $entityType = $request->get('entity_type');
@@ -391,7 +396,7 @@ class ClientController extends AdvanceSearchController
         ]);
     }
 
-    public function getAllUsers(Request $request): \Illuminate\Http\JsonResponse
+    public function getAllUsers(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'desc');
@@ -426,7 +431,7 @@ class ClientController extends AdvanceSearchController
         return $this->paginateResponse($users, $total);
     }
 
-    public function deleteBulkUsers(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteBulkUsers(Request $request): JsonResponse
     {
         $ids = $request->input('user_ids', []);
 
@@ -460,7 +465,7 @@ class ClientController extends AdvanceSearchController
         return successResponse(__('message.user-suspend-successfully'));
     }
 
-    public function userCreate(ClientRequest $request): \Illuminate\Http\JsonResponse
+    public function userCreate(ClientRequest $request): JsonResponse
     {
         try {
             $password = Hash::make(Str::password(12));
@@ -501,7 +506,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function getEditUser(int $id): \Illuminate\Http\JsonResponse
+    public function getEditUser(int $id): JsonResponse
     {
         $user = User::with([
             'timezone',
@@ -537,14 +542,14 @@ class ClientController extends AdvanceSearchController
             : null;
 
         $mgr = $user->manager instanceof User ? $user->manager : null;
-        $managerObj = $mgr instanceof \App\User ? [
+        $managerObj = $mgr instanceof User ? [
             'id' => $mgr->id,
             'name' => trim($mgr->first_name.' '.$mgr->last_name),
             'email' => $mgr->email,
         ] : null;
 
         $acm = $user->accountManager instanceof User ? $user->accountManager : null;
-        $accountManagerObj = $acm instanceof \App\User ? [
+        $accountManagerObj = $acm instanceof User ? [
             'id' => $acm->id,
             'name' => trim($acm->first_name.' '.$acm->last_name),
             'email' => $acm->email,
@@ -583,7 +588,7 @@ class ClientController extends AdvanceSearchController
         ]);
     }
 
-    public function userUpdate(int $id, ClientRequest $request): \Illuminate\Http\JsonResponse
+    public function userUpdate(int $id, ClientRequest $request): JsonResponse
     {
         try {
             $user = User::find($id);
@@ -602,7 +607,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function getUserSummary(int $id): \Illuminate\Http\JsonResponse
+    public function getUserSummary(int $id): JsonResponse
     {
         try {
             $user = User::find($id);
@@ -613,7 +618,7 @@ class ClientController extends AdvanceSearchController
             $invoices = Invoice::where('user_id', $id)->get();
             $invoiceSum = $this->getTotalInvoice($invoices); // @phpstan-ignore argument.type
             $amountPaid = $this->getAmountPaid($id);
-            if ($amountPaid instanceof \Illuminate\Http\RedirectResponse) {
+            if ($amountPaid instanceof RedirectResponse) {
                 return $amountPaid; // @phpstan-ignore return.type
             }
             $balance = $invoiceSum - $amountPaid;
@@ -633,7 +638,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function getUserInvoices(int $id, Request $request): \Illuminate\Http\JsonResponse
+    public function getUserInvoices(int $id, Request $request): JsonResponse
     {
         try {
             $limit = $request->input('limit', 15);
@@ -672,7 +677,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function getUserPayments(int $id, Request $request): \Illuminate\Http\JsonResponse
+    public function getUserPayments(int $id, Request $request): JsonResponse
     {
         try {
             $limit = $request->input('limit', 15);
@@ -710,7 +715,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function getUserComments(int $id): \Illuminate\Http\JsonResponse
+    public function getUserComments(int $id): JsonResponse
     {
         try {
             $comments = Comment::with('user:id,first_name,last_name')
@@ -732,7 +737,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function storeUserComment(int $id, Request $request): \Illuminate\Http\JsonResponse
+    public function storeUserComment(int $id, Request $request): JsonResponse
     {
         try {
             $user = User::find($id);
@@ -751,14 +756,14 @@ class ClientController extends AdvanceSearchController
                 'description' => $comment->description,
                 'created_at' => $comment->created_at,
                 'updated_at' => $comment->updated_at,
-                'author' => trim(auth()->user() instanceof \App\User ? auth()->user()->first_name.' '.auth()->user()->last_name : ''),
+                'author' => trim(auth()->user() instanceof User ? auth()->user()->first_name.' '.auth()->user()->last_name : ''),
             ]);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
 
-    public function updateUserComment(int $id, int $commentId, Request $request): \Illuminate\Http\JsonResponse
+    public function updateUserComment(int $id, int $commentId, Request $request): JsonResponse
     {
         try {
             $comment = Comment::where('id', $commentId)->where('user_id', $id)->firstOrFail();
@@ -772,7 +777,7 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-    public function deleteUserComment(int $id, int $commentId): \Illuminate\Http\JsonResponse
+    public function deleteUserComment(int $id, int $commentId): JsonResponse
     {
         try {
             Comment::where('id', $commentId)->where('user_id', $id)->firstOrFail()->delete();
@@ -784,10 +789,10 @@ class ClientController extends AdvanceSearchController
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
      */
-    private function applyUsersFilters(\Illuminate\Database\Eloquent\Builder $query, Request $request): \Illuminate\Database\Eloquent\Builder
+    private function applyUsersFilters(Builder $query, Request $request): Builder
     {
         return $query
             ->when($request->filled('company'), fn ($q) => $q->where('company', 'like', '%'.$request->company.'%')
@@ -824,10 +829,10 @@ class ClientController extends AdvanceSearchController
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
      */
-    private function applyUsersSearch(\Illuminate\Database\Eloquent\Builder $query, string $search): \Illuminate\Database\Eloquent\Builder
+    private function applyUsersSearch(Builder $query, string $search): Builder
     {
         return $query->when($search, function ($q) use ($search): void {
             $q->where(function (\Illuminate\Contracts\Database\Query\Builder $subQuery) use ($search): void {

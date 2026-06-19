@@ -2,7 +2,6 @@
 
 namespace Database\Seeders\v3_0_1;
 
-
 use App\Model\Common\Country;
 use Illuminate\Database\Seeder;
 
@@ -14,7 +13,7 @@ class CountrySeeder extends Seeder
     public function run(): void
     {
 
-      Country::where('nicename','Tajikistan')->delete();
-       
-      }
+        Country::where('nicename', 'Tajikistan')->delete();
+
+    }
 }

@@ -25,6 +25,9 @@ use Carbon\Carbon;
 use DB;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Maatwebsite\Excel\Facades\Excel;
@@ -37,27 +40,25 @@ abstract class ExportHandleController
      * @param  array<mixed>  $searchParams
      * @param  array<mixed>  $selectedColumns
      */
-    public function __construct(protected string $reportType, protected array $selectedColumns, protected array $searchParams, protected string $email)
-    {
-    }
+    public function __construct(protected string $reportType, protected array $selectedColumns, protected array $searchParams, protected string $email) {}
 
     /**
      * @param  array<mixed>  $selectedColumns
      * @param  array<mixed>  $searchParams
      */
-    abstract public function userExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse;
+    abstract public function userExports(array $selectedColumns, array $searchParams, string $email): JsonResponse;
 
     /**
      * @param  array<mixed>  $selectedColumns
      * @param  array<mixed>  $searchParams
      */
-    abstract public function invoiceExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse;
+    abstract public function invoiceExports(array $selectedColumns, array $searchParams, string $email): JsonResponse;
 
     /**
      * @param  array<mixed>  $selectedColumns
      * @param  array<mixed>  $searchParams
      */
-    abstract public function orderExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse;
+    abstract public function orderExports(array $selectedColumns, array $searchParams, string $email): JsonResponse;
 
     /**
      * @param  array<mixed>  $selectedColumns
@@ -74,7 +75,7 @@ class ConcreteExportHandleController extends ExportHandleController
      * @param  array<mixed>  $searchParams
      * @param  array<mixed>  $selectedColumns
      */
-    public function userExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse
+    public function userExports(array $selectedColumns, array $searchParams, string $email): JsonResponse
     {
         try {
             // Filter out unwanted columns
@@ -206,7 +207,7 @@ class ConcreteExportHandleController extends ExportHandleController
                 return response()->json(['message' => 'Setting not found.'], 404);
             }
             $from = $settings->email;
-            $mail = new PhpMailController();
+            $mail = new PhpMailController;
             $downloadLink = route('download.exported.file', ['id' => $exportDetail->id]);
             $emailContent = 'Hello '.$user->first_name.' '.$user->last_name.','.
                 '<br><br>User report is successfully generated and ready for download.'.
@@ -228,14 +229,14 @@ class ConcreteExportHandleController extends ExportHandleController
      * @param  array<mixed>  $searchParams
      * @param  array<mixed>  $selectedColumns
      */
-    public function invoiceExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse
+    public function invoiceExports(array $selectedColumns, array $searchParams, string $email): JsonResponse
     {
         try {
             // Filter out unwanted columns
             $selectedColumns = array_filter($selectedColumns, fn ($column): bool => ! in_array($column, ['checkbox', 'action']));
 
             // Perform search and filtering
-            $request = new Request();
+            $request = new Request;
             $request->merge($searchParams);
             $name = $request->input('name');
             $invoice_no = $request->input('invoice_no');
@@ -341,7 +342,7 @@ class ConcreteExportHandleController extends ExportHandleController
                 return response()->json(['message' => 'Setting not found.'], 404);
             }
             $from = $settings->email;
-            $mail = new PhpMailController();
+            $mail = new PhpMailController;
             $downloadLink = route('download.exported.file', ['id' => $exportDetail->id]);
             $emailContent = 'Hello '.$user->first_name.' '.$user->last_name.','.
                 '<br><br>Invoice report is successfully generated and ready for download.'.
@@ -363,7 +364,7 @@ class ConcreteExportHandleController extends ExportHandleController
      * @param  array<mixed>  $searchParams
      * @param  array<mixed>  $selectedColumns
      */
-    public function orderExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse
+    public function orderExports(array $selectedColumns, array $searchParams, string $email): JsonResponse
     {
         try {
             // Filter out unwanted columns
@@ -371,7 +372,7 @@ class ConcreteExportHandleController extends ExportHandleController
             $searchRequest = new Request($searchParams);
 
             // Perform advanced order search
-            $orderSearch = new OrderSearchController();
+            $orderSearch = new OrderSearchController;
             $orders = $orderSearch->advanceOrderSearch($searchRequest);
 
             $orders->latest('orders.created_at');
@@ -480,7 +481,7 @@ class ConcreteExportHandleController extends ExportHandleController
                 return response()->json(['message' => 'Setting not found.'], 404);
             }
             $from = $settings->email;
-            $mail = new PhpMailController();
+            $mail = new PhpMailController;
             $downloadLink = route('download.exported.file', ['id' => $exportDetail->id]);
             $emailContent = 'Hello '.$user->first_name.' '.$user->last_name.','.
                 '<br><br>Order report is successfully generated and ready for download.'.
@@ -508,7 +509,7 @@ class ConcreteExportHandleController extends ExportHandleController
         if (! $this->cloud) {
             throw new Exception('FaveoCloud configuration not found.');
         }
-        $client = new Client();
+        $client = new Client;
 
         // Similar logic to export users but for orders
         $this->selectedColumns = array_filter($this->selectedColumns, fn ($column): bool => $column != 'action');
@@ -548,9 +549,9 @@ class ConcreteExportHandleController extends ExportHandleController
                         break;
                     case 'name':
                         $order_id = DB::table('installation_details')
-                                    ->where('installation_path', $tenats->domain)
-                                    ->latest()
-                                    ->value('order_id');
+                            ->where('installation_path', $tenats->domain)
+                            ->latest()
+                            ->value('order_id');
 
                         if (! $order_id) {
                             $tenantData['name'] = null;
@@ -568,9 +569,9 @@ class ConcreteExportHandleController extends ExportHandleController
 
                     case 'email':
                         $order_id = DB::table('installation_details')
-                                    ->where('installation_path', $tenats->domain)
-                                    ->latest()
-                                    ->value('order_id');
+                            ->where('installation_path', $tenats->domain)
+                            ->latest()
+                            ->value('order_id');
 
                         if (! $order_id) {
                             $tenantData['email'] = null;
@@ -588,9 +589,9 @@ class ConcreteExportHandleController extends ExportHandleController
 
                     case 'mobile':
                         $order_id = DB::table('installation_details')
-                                    ->where('installation_path', $tenats->domain)
-                                    ->latest()
-                                    ->value('order_id');
+                            ->where('installation_path', $tenats->domain)
+                            ->latest()
+                            ->value('order_id');
 
                         if (! $order_id) {
                             $tenantData['mobile'] = null;
@@ -608,9 +609,9 @@ class ConcreteExportHandleController extends ExportHandleController
 
                     case 'country':
                         $order_id = DB::table('installation_details')
-                                    ->where('installation_path', $tenats->domain)
-                                    ->latest()
-                                    ->value('order_id');
+                            ->where('installation_path', $tenats->domain)
+                            ->latest()
+                            ->value('order_id');
 
                         if (! $order_id) {
                             $tenantData['country'] = null;
@@ -633,9 +634,9 @@ class ConcreteExportHandleController extends ExportHandleController
 
                     case 'Expiry day':
                         $order_id = DB::table('installation_details')
-                                    ->where('installation_path', $tenats->domain)
-                                    ->latest()
-                                    ->value('order_id');
+                            ->where('installation_path', $tenats->domain)
+                            ->latest()
+                            ->value('order_id');
                         $subscription_date = Subscription::where('order_id', $order_id)->value('ends_at');
                         if (empty($subscription_date)) {
                             $tenantData['Expiry day'] = null;
@@ -647,9 +648,9 @@ class ConcreteExportHandleController extends ExportHandleController
 
                     case 'Deletion day':
                         $order_id = DB::table('installation_details')
-                                    ->where('installation_path', $tenats->domain)
-                                    ->latest()
-                                    ->value('order_id');
+                            ->where('installation_path', $tenats->domain)
+                            ->latest()
+                            ->value('order_id');
                         $subscription_date = Subscription::where('order_id', $order_id)->value('ends_at');
                         if (empty($subscription_date)) {
                             $tenantData['Deletion day'] = null;
@@ -664,9 +665,9 @@ class ConcreteExportHandleController extends ExportHandleController
 
                     case 'plan':
                         $order_id = DB::table('installation_details')
-                                    ->where('installation_path', $tenats->domain)
-                                    ->latest()
-                                    ->value('order_id');
+                            ->where('installation_path', $tenats->domain)
+                            ->latest()
+                            ->value('order_id');
                         if (empty($order_id)) {
                             $tenantData['plan'] = null;
                         } else {
@@ -747,7 +748,7 @@ class ConcreteExportHandleController extends ExportHandleController
             throw new Exception('Setting not found.');
         }
         $from = $setting->email;
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
         $downloadLink = route('download.exported.file', ['id' => $exportDetail->id]);
         $emailContent = 'Hello '.$user->first_name.' '.$user->last_name.','.
             '<br><br>Tenant report is successfully generated and ready for download.'.
@@ -769,10 +770,10 @@ class ConcreteExportHandleController extends ExportHandleController
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $orders
-     * @return \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
+     * @param  Builder<Model>  $orders
+     * @return Builder<Model>
      */
-    public function allInstallations(?string $allInstallation, \Illuminate\Database\Eloquent\Builder $orders): ?\Illuminate\Database\Eloquent\Builder
+    public function allInstallations(?string $allInstallation, Builder $orders): ?Builder
     {
         if ($allInstallation) {
             $dayUtc = new Carbon('-30 days');
@@ -783,7 +784,7 @@ class ConcreteExportHandleController extends ExportHandleController
                 'not_installed' => $orders->whereColumn('subscriptions.created_at', '=', 'subscriptions.updated_at'),
                 'paid_inactive_ins' => $orders->where('subscriptions.updated_at', '<', $minus30Day),
                 'paid_ins' => $orders->whereColumn('subscriptions.created_at', '!=', 'subscriptions.updated_at')
-                              ->where('subscriptions.updated_at', '>', $minus30Day),
+                    ->where('subscriptions.updated_at', '>', $minus30Day),
                 default => $orders,
             };
         }
@@ -792,10 +793,10 @@ class ConcreteExportHandleController extends ExportHandleController
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $baseQuery
-     * @return \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
+     * @param  Builder<Model>  $baseQuery
+     * @return Builder<Model>
      */
-    public function getSelectedVersionOrders(\Illuminate\Database\Eloquent\Builder $baseQuery, ?string $version, string|int $productId, \Illuminate\Http\Request $request): \Illuminate\Database\Eloquent\Builder
+    public function getSelectedVersionOrders(Builder $baseQuery, ?string $version, string|int $productId, Request $request): Builder
     {
         if ($version) {
             if ($productId == 'paid' || $productId == 'unpaid') {
@@ -807,11 +808,11 @@ class ConcreteExportHandleController extends ExportHandleController
                 }
             } elseif ($version === 'Outdated') {
                 $latestVersion = Subscription::where('product_id', $productId)
-                                             ->orderBy('version', 'desc')
-                                             ->value('version');
+                    ->orderBy('version', 'desc')
+                    ->value('version');
                 $baseQuery->where('subscriptions.version', '!=', value: null)
-                          ->where('subscriptions.version', '!=', '')
-                          ->where('subscriptions.version', '<', $latestVersion);
+                    ->where('subscriptions.version', '!=', '')
+                    ->where('subscriptions.version', '<', $latestVersion);
             } else {
                 $baseQuery->where('subscriptions.version', '=', $version);
             }
@@ -820,7 +821,7 @@ class ConcreteExportHandleController extends ExportHandleController
         return $baseQuery;
     }
 
-    public function getAgents(\App\Model\Order\Order $order): string|int
+    public function getAgents(Order $order): string|int
     {
         $license = substr((string) $order->serial_key, 12, 16);
         if ($license === '0000') {

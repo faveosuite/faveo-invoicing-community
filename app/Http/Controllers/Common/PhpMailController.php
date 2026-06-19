@@ -15,6 +15,7 @@ use App\Model\Common\TemplateType;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Mailjob\FaveoQueue;
 use App\Model\Mailjob\QueueService;
+use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Payment_log;
@@ -24,6 +25,7 @@ use Crypt;
 use DB;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Log;
@@ -32,13 +34,13 @@ use Mail;
 
 class PhpMailController extends Controller
 {
-    protected \App\Http\Controllers\Common\CommonMailer $commonMailer;
+    protected CommonMailer $commonMailer;
 
     protected mixed $queueManager = null;
 
     public function __construct()
     {
-        $this->commonMailer = new CommonMailer();
+        $this->commonMailer = new CommonMailer;
         $this->queueManager = resolve('queue');
     }
 
@@ -66,7 +68,7 @@ class PhpMailController extends Controller
         bool $autoReply = false
     ): void {
         // Step 1: Log email entry
-        /** @var \Illuminate\Database\Eloquent\Model $logIdentifier */
+        /** @var Model $logIdentifier */
         $logIdentifier = Logger::logMailByCategory(
             $from,
             $to,
@@ -110,7 +112,7 @@ class PhpMailController extends Controller
     public function NotifyMail(mixed $from, mixed $to, mixed $template_data, mixed $template_name): void
     {
         $this->setQueue();
-        $job = new NotifyMail();
+        $job = new NotifyMail;
         dispatchNow($job); // @phpstan-ignore function.notFound
     }
 
@@ -133,11 +135,11 @@ class PhpMailController extends Controller
                 'expire' => 60,
             ];
 
-            $queue = new QueueService();
+            $queue = new QueueService;
             $active_queue = $queue->where('status', 1)->first();
             if ($active_queue) {
                 $short = $active_queue->short_name;
-                $fields = new FaveoQueue();
+                $fields = new FaveoQueue;
                 $field = $fields->where('service_id', $active_queue->id)->pluck('value', 'key')->toArray();
             }
 
@@ -152,7 +154,7 @@ class PhpMailController extends Controller
             if ($status == 1) {
                 $this->deleteCloudDetails();
             }
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             Logger::exception($exception);
         }
     }
@@ -175,13 +177,13 @@ class PhpMailController extends Controller
                 ->get();
 
             foreach ($sub as $data) {
-                $cron = new CronController();
+                $cron = new CronController;
                 $user = DB::table('users')->find($data->user_id);
-                /** @var \App\Model\Product\Product $product */
+                /** @var Product $product */
                 $product = Product::find($data->product_id);
                 $order = $cron->getOrderById($data->order_id);
 
-                if (! $order instanceof \App\Model\Order\Order) {
+                if (! $order instanceof Order) {
                     continue;
                 }
 
@@ -196,22 +198,22 @@ class PhpMailController extends Controller
                     continue;
                 }
 
-                //Destroy the tenat
-                $destroy = new TenantController(new Client, new FaveoCloud())->destroyTenant(new Request(['id' => $id, 'orderId' => $data->order_id]));
-                //Mail Sending
+                // Destroy the tenat
+                $destroy = new TenantController(new Client, new FaveoCloud)->destroyTenant(new Request(['id' => $id, 'orderId' => $data->order_id]));
+                // Mail Sending
                 if ($destroy->status() == 200) {
                     $data->is_deleted = 1;
                     $data->save();
-                    //check in the settings
-                    $settings = new Setting();
-                    /** @var \App\Model\Common\Setting $setting */
+                    // check in the settings
+                    $settings = new Setting;
+                    /** @var Setting $setting */
                     $setting = $settings::find(1);
 
-                    //template
-                    /** @var \App\Model\Common\Template $template */
+                    // template
+                    /** @var Template $template */
                     $template = TemplateType::getSelectedTemplate('cloud_deleted');
 
-                    $mail = new PhpMailController();
+                    $mail = new PhpMailController;
                     $type = $template->type()->value('name') ?? '';
                     $replace = ['name' => $user->first_name.' '.$user->last_name, // @phpstan-ignore property.nonObject, property.nonObject
                         'product' => $product->name,
@@ -225,7 +227,7 @@ class PhpMailController extends Controller
                     $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
                 }
             }
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             Logger::exception($exception);
         }
     }
@@ -259,7 +261,7 @@ class PhpMailController extends Controller
             $emailConfig = $this->prepareEmailConfig($replace, $type, $subject, $fromname, $autoReply);
 
             // Configure mail settings
-            /** @var \App\Model\Common\Setting $mailSetting */
+            /** @var Setting $mailSetting */
             $mailSetting = Setting::first();
             $this->setMailConfig($mailSetting);
 
@@ -287,7 +289,7 @@ class PhpMailController extends Controller
                     'password' => $settings->password, // @phpstan-ignore property.notFound
                 ];
 
-                $mail = new CommonMailer();
+                $mail = new CommonMailer;
                 $mailer = $mail->setSmtpDriver($config);
                 if (! $this->commonMailer->setSmtpDriver($config)) {
                     Log::info('Invaid configuration :- '.json_encode($config));
@@ -389,7 +391,7 @@ class PhpMailController extends Controller
     protected function transformEmailData(string $data, array $replace, string $type): string
     {
         $transform = [$replace];
-        $pageController = new PageController();
+        $pageController = new PageController;
 
         return $pageController->transform($type, $data, $transform);
     }

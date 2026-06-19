@@ -11,6 +11,8 @@ use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
 use DB;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Lang;
@@ -18,17 +20,17 @@ use Lang;
 class GroupController extends Controller
 {
     /**
-     * @var \App\Model\Product\ProductGroup
+     * @var ProductGroup
      */
     public $group;
 
     /**
-     * @var \App\Model\Product\GroupFeatures
+     * @var GroupFeatures
      */
     public $feature;
 
     /**
-     * @var \App\Model\Product\ConfigurableOption
+     * @var ConfigurableOption
      */
     public $config;
 
@@ -37,13 +39,13 @@ class GroupController extends Controller
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $group = new ProductGroup();
+        $group = new ProductGroup;
         $this->group = $group;
 
-        $feature = new GroupFeatures();
+        $feature = new GroupFeatures;
         $this->feature = $feature;
 
-        $config = new ConfigurableOption();
+        $config = new ConfigurableOption;
         $this->config = $config;
     }
 
@@ -75,12 +77,12 @@ class GroupController extends Controller
      * Update the specified resource in storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update($id, GroupRequest $request)
     {
         try {
-            /** @var \App\Model\Product\ProductGroup $group */
+            /** @var ProductGroup $group */
             $group = $this->group->where('id', $id)->firstOrFail();
             $products = Product::where('group', $id)->where('hidden', '0')->where('add_to_contact', '0')->get();
 
@@ -132,8 +134,8 @@ class GroupController extends Controller
         echo $slug;
     }
 
-//    This is for the client panel, change it to the client panel controllers, which does not have middleware admin.
-    public function getProductGroups(Request $request): \Illuminate\Http\JsonResponse
+    //    This is for the client panel, change it to the client panel controllers, which does not have middleware admin.
+    public function getProductGroups(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');
@@ -149,7 +151,7 @@ class GroupController extends Controller
         return successResponse('', $groups);
     }
 
-    public function getGroup(mixed $groupId, Request $request): \Illuminate\Http\JsonResponse
+    public function getGroup(mixed $groupId, Request $request): JsonResponse
     {
         try {
             $group = ProductGroup::with([
@@ -163,10 +165,10 @@ class GroupController extends Controller
         }
     }
 
-    public function updateGroup(mixed $groupId, GroupRequest $request): \Illuminate\Http\JsonResponse
+    public function updateGroup(mixed $groupId, GroupRequest $request): JsonResponse
     {
         try {
-            /** @var \App\Model\Product\ProductGroup $group */
+            /** @var ProductGroup $group */
             $group = ProductGroup::findOrFail($groupId);
 
             // Get all visible, non-contact products
@@ -202,7 +204,7 @@ class GroupController extends Controller
         }
     }
 
-    public function groupCreate(GroupRequest $request): \Illuminate\Http\JsonResponse
+    public function groupCreate(GroupRequest $request): JsonResponse
     {
         try {
             ProductGroup::create($request->validated());
@@ -213,7 +215,7 @@ class GroupController extends Controller
         }
     }
 
-    public function deleteBulkGroups(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteBulkGroups(Request $request): JsonResponse
     {
         $ids = $request->input('select', []);
 

@@ -2,9 +2,6 @@
 
 namespace Database\Seeders\v4_0_2_4_RC_1;
 
-use Artisan;
-use DB;
-use Illuminate\Support\Facades\Date;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Msg91Status;
 use App\Model\Common\PipedriveGroups;
@@ -15,7 +12,10 @@ use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use Artisan;
+use DB;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Date;
 
 class DatabaseSeeder extends Seeder
 {
@@ -62,7 +62,7 @@ class DatabaseSeeder extends Seeder
 
     private function updateAppKey(): void
     {
-        $env = base_path() . DIRECTORY_SEPARATOR . '.env';
+        $env = base_path().DIRECTORY_SEPARATOR.'.env';
 
         if (is_file($env) && config('app.env') !== 'testing' && env('APP_KEY_UPDATED') !== 'true') { // @phpstan-ignore larastan.noEnvCallsOutsideOfConfig
 
@@ -131,29 +131,29 @@ class DatabaseSeeder extends Seeder
     public function langSeeder(): void
     {
         $languages = [
-            ["locale" => "ar", "name" => "Arabic", "translation" => "العربية"],
-            ["locale" => "bsn", "name" => "Bosnian", "translation" => "босански"],
-            ["locale" => "zh-hans", "name" => "Chinese", "translation" => "中文 [Simplified]"],
-            ["locale" => "zh-hant", "name" => "Chinese", "translation" => "中文 [Traditional]"],
-            ["locale" => "nl", "name" => "Dutch", "translation" => "Vlaams"],
-            ["locale" => "en", "name" => "English  - United States", "translation" => "English"],
-            ["locale" => "en-gb", "name" => "English - United Kingdom", "translation" => "English"],
-            ["locale" => "fr", "name" => "French", "translation" => "français"],
-            ["locale" => "de", "name" => "German", "translation" => "Deutsch"],
-            ["locale" => "he", "name" => "Hebrew", "translation" => "עברית"],
-            ["locale" => "hi", "name" => "Hindi", "translation" => "हिन्दी"],
-            ["locale" => "id", "name" => "Indonesian", "translation" => "Bahasa Indonesia"],
-            ["locale" => "it", "name" => "Italian", "translation" => "Italiano"],
-            ["locale" => "ja", "name" => "Japanese", "translation" => "日本語 [にほんご]"],
-            ["locale" => "kr", "name" => "Korean", "translation" => "한국어"],
-            ["locale" => "mt", "name" => "Maltese", "translation" => "Malti"],
-            ["locale" => "no", "name" => "Norwegian", "translation" => "Norsk"],
-            ["locale" => "pt", "name" => "Portuguese", "translation" => "Português"],
-            ["locale" => "ru", "name" => "Russian", "translation" => "Русский"],
-            ["locale" => "es", "name" => "Spanish", "translation" => "Español"],
-            ["locale" => "ta", "name" => "Tamil", "translation" => "தமிழ்"],
-            ["locale" => "tr", "name" => "Turkish", "translation" => "Türkçe"],
-            ["locale" => "vi", "name" => "Vietnamese", "translation" => "Tiếng Việt"],
+            ['locale' => 'ar', 'name' => 'Arabic', 'translation' => 'العربية'],
+            ['locale' => 'bsn', 'name' => 'Bosnian', 'translation' => 'босански'],
+            ['locale' => 'zh-hans', 'name' => 'Chinese', 'translation' => '中文 [Simplified]'],
+            ['locale' => 'zh-hant', 'name' => 'Chinese', 'translation' => '中文 [Traditional]'],
+            ['locale' => 'nl', 'name' => 'Dutch', 'translation' => 'Vlaams'],
+            ['locale' => 'en', 'name' => 'English  - United States', 'translation' => 'English'],
+            ['locale' => 'en-gb', 'name' => 'English - United Kingdom', 'translation' => 'English'],
+            ['locale' => 'fr', 'name' => 'French', 'translation' => 'français'],
+            ['locale' => 'de', 'name' => 'German', 'translation' => 'Deutsch'],
+            ['locale' => 'he', 'name' => 'Hebrew', 'translation' => 'עברית'],
+            ['locale' => 'hi', 'name' => 'Hindi', 'translation' => 'हिन्दी'],
+            ['locale' => 'id', 'name' => 'Indonesian', 'translation' => 'Bahasa Indonesia'],
+            ['locale' => 'it', 'name' => 'Italian', 'translation' => 'Italiano'],
+            ['locale' => 'ja', 'name' => 'Japanese', 'translation' => '日本語 [にほんご]'],
+            ['locale' => 'kr', 'name' => 'Korean', 'translation' => '한국어'],
+            ['locale' => 'mt', 'name' => 'Maltese', 'translation' => 'Malti'],
+            ['locale' => 'no', 'name' => 'Norwegian', 'translation' => 'Norsk'],
+            ['locale' => 'pt', 'name' => 'Portuguese', 'translation' => 'Português'],
+            ['locale' => 'ru', 'name' => 'Russian', 'translation' => 'Русский'],
+            ['locale' => 'es', 'name' => 'Spanish', 'translation' => 'Español'],
+            ['locale' => 'ta', 'name' => 'Tamil', 'translation' => 'தமிழ்'],
+            ['locale' => 'tr', 'name' => 'Turkish', 'translation' => 'Türkçe'],
+            ['locale' => 'vi', 'name' => 'Vietnamese', 'translation' => 'Tiếng Việt'],
         ];
 
         foreach ($languages as $lang) {
@@ -165,23 +165,23 @@ class DatabaseSeeder extends Seeder
 
     }
 
-    public function update_is_deleted(): void{
-        $today= Date::today();
+    public function update_is_deleted(): void
+    {
+        $today = Date::today();
         $day = ExpiryMailDay::value('cloud_days');
         Subscription::whereNotNull('ends_at')
-        ->whereIn('product_id',cloudPopupProducts())->whereDate(
-            DB::raw(sprintf('DATE_ADD(ends_at, INTERVAL %s DAY)', $day)),
-            '<',
-            $today
-        )->update(['is_deleted'=>1]);
+            ->whereIn('product_id', cloudPopupProducts())->whereDate(
+                DB::raw(sprintf('DATE_ADD(ends_at, INTERVAL %s DAY)', $day)),
+                '<',
+                $today
+            )->update(['is_deleted' => 1]);
     }
 
-
-
-    public function add_providers(): void{
-        $providers =[ ['provider'=>'reoon','type'=>'email'],
-            ['provider'=>'vonage','type'=>'mobile'],
-            ['provider'=>'abstract','type'=>'mobile'],
+    public function add_providers(): void
+    {
+        $providers = [['provider' => 'reoon', 'type' => 'email'],
+            ['provider' => 'vonage', 'type' => 'mobile'],
+            ['provider' => 'abstract', 'type' => 'mobile'],
         ];
         foreach ($providers as $provider) {
             EmailMobileValidationProviders::updateOrCreate([

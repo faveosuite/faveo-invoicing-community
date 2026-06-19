@@ -8,6 +8,7 @@ use App\ReportSetting;
 use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,7 +25,7 @@ class ReportController extends Controller
         $request->validate([
             'records' => ['required', 'integer', 'min:1', 'max:3000'],
         ]);
-        /** @var \App\ReportSetting $settings */
+        /** @var ReportSetting $settings */
         $settings = ReportSetting::firstOrFail();
         $settings->records = $request->records;
         $settings->save();
@@ -32,7 +33,7 @@ class ReportController extends Controller
         return back()->with('success', __('message.settings_updated_successfully'));
     }
 
-    public function getAllReports(Request $request): \Illuminate\Http\JsonResponse
+    public function getAllReports(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');
@@ -70,7 +71,7 @@ class ReportController extends Controller
         return successResponse('', $reports);
     }
 
-    public function deleteBulkReports(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteBulkReports(Request $request): JsonResponse
     {
         $ids = $request->input('select', []);
 
@@ -99,12 +100,12 @@ class ReportController extends Controller
         }
     }
 
-    public function getReportsSettings(Request $request): \Illuminate\Http\JsonResponse
+    public function getReportsSettings(Request $request): JsonResponse
     {
         return successResponse('', ReportSetting::first());
     }
 
-    public function updateReportsSettings(Request $request): \Illuminate\Http\JsonResponse
+    public function updateReportsSettings(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'records' => ['required', 'integer', 'min:1', 'max:3000'],

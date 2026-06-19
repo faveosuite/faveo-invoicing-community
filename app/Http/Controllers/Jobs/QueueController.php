@@ -7,21 +7,23 @@ use App\Http\Requests\Queue\QueueRequest;
 use App\Model\Mailjob\FaveoQueue;
 use App\Model\Mailjob\QueueService;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Throwable;
 
 class QueueController extends Controller
 {
-    private \App\Model\Mailjob\QueueService $queue;
+    private QueueService $queue;
 
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $this->queue = new QueueService();
+        $this->queue = new QueueService;
     }
 
-    public function getQueueData(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function getQueueData(Request $request): JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -32,7 +34,7 @@ class QueueController extends Controller
             $cronPath = base_path('artisan');
             $paths = $this->getPHPBinPath();
 
-            $queueService = new QueueService();
+            $queueService = new QueueService;
             $activeQueue = $queueService->where('status', 1)->first();
 
             $queueData = $this->queue
@@ -61,7 +63,7 @@ class QueueController extends Controller
         }
     }
 
-    public function edit(int $id): \Illuminate\Http\JsonResponse
+    public function edit(int $id): JsonResponse
     {
         try {
             $queueIdData = $this->queue->find($id);
@@ -76,7 +78,7 @@ class QueueController extends Controller
         }
     }
 
-    public function update(int $id, QueueRequest $request): \Illuminate\Http\JsonResponse
+    public function update(int $id, QueueRequest $request): JsonResponse
     {
         try {
             $values = $request->except('_token');
@@ -109,14 +111,14 @@ class QueueController extends Controller
         }
     }
 
-    public function getForm(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function getForm(Request $request): JsonResponse
     {
         $queueid = $request->input('queueid');
 
         return $this->getFormById($queueid);
     }
 
-    public function activate(\Illuminate\Http\Request $request, int $queue): \Illuminate\Http\JsonResponse
+    public function activate(Request $request, int $queue): JsonResponse
     {
         try {
             $queue = QueueService::findOrFail($queue);
@@ -150,7 +152,7 @@ class QueueController extends Controller
     public function getShortNameById(int $queueid): string
     {
         $short = '';
-        $queues = new QueueService();
+        $queues = new QueueService;
         $queue = $queues->find($queueid);
         if ($queue) {
             return $queue->short_name;
@@ -166,7 +168,7 @@ class QueueController extends Controller
         return $queue ? $queue->id : null;
     }
 
-    public function getFormById(int $id): \Illuminate\Http\JsonResponse
+    public function getFormById(int $id): JsonResponse
     {
         try {
             $short = $this->getShortNameById($id);

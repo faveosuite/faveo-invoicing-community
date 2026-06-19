@@ -1309,7 +1309,7 @@ return [
     'subscriptions_table' => 'பதிவு அட்டவணை',
     'invalid_format' => 'செல்லுபடியாகாத வடிவம்.',
 
-    //front-page template
+    // front-page template
     'all_pages' => 'எல்லா பக்கங்களும்',
     'create_new_page' => 'புதிய பக்கம் உருவாக்கவும்',
     'edit_page' => 'பக்கம் பதிலிடவும்',
@@ -1319,14 +1319,14 @@ return [
     'select_checkbox' => 'குறைந்தது ஒரு செக்க்பாக்ஸ் தேர்ந்தெடுக்கவும்',
     'search_result' => 'தேடல் முடிவுகள்',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'எல்லா விண்ஜெட்களும்',
     'create_widget' => 'விண்ஜெட் உருவாக்கவும்',
     'configure_mailchimp' => 'Mailchimp ஐ அமைப்புகளில் உருவாக்கவும்',
     'configure_tweet' => 'Tweet ஐ அமைப்புகளில் உருவாக்கவும்',
     'edit_widget' => 'விண்ஜெட்டை பதிலிடவும்',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'தயவுசெய்து தயாரிப்பை நீக்கவும்',
     'cart_totals' => 'கார்டு மொத்தம்',
     'clear_cart' => 'கார்டைத் துறக்கவும்',
@@ -1383,11 +1383,11 @@ return [
     'go_back' => 'திரும்பச் செல்லவும்',
     'be_right_back' => 'சில நேரங்களில் திரும்புவோம்.',
 
-    //category template
+    // category template
     'all_categories' => 'எல்லா வகைப்பட்டியலும்',
     'category_name' => 'பெயர்',
 
-    //common template
+    // common template
     'create_script_code' => 'உருவாக்க கோடு உருவாக்கவும்',
     'create_script' => 'உருவாக்க ஸ்கிரிப்ட்',
     'edit_script_code' => 'கோடு திருத்தவும்',
@@ -1638,7 +1638,7 @@ return [
     'enter_domain_license' => 'டொமைன் உள்ளிடவும் & லைசென்ஸ் கோப்பு பதிவிறக்கம் செய்யவும்',
     'installation_details' => 'நிறுவல் விவரங்கள்',
 
-    //payment panel
+    // payment panel
     'payment_date' => 'பணம் செலுத்திய தேதி',
     'auto_renewal_subscription' => 'எதிர்கால சந்தாவிற்கு தானாக புதுப்பிப்பு',
     'subscription_start_date' => 'சந்தா தொடக்க தேதி',
@@ -1664,7 +1664,7 @@ return [
     'coupon' => 'கூப்பன்',
     'actions' => 'செயல்கள்',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'பணியாளர் வரி உருவாக்கவும்',
     'caps_others' => 'பிறவை',
     'others' => 'பிறவை',
@@ -1702,7 +1702,7 @@ return [
     'show_cart_page' => 'கார்டு பக்கத்தில் காண்க',
     'select_taxes' => 'வரிகளை தேர்ந்தெடுக்கவும்',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'பொருள் விவரங்களை சேர்க்கவும்',
     'enter_json_format' => 'JSON வடிவத்தில் உள்ளிடவும்.',
     'upload' => 'பதிவேற்றவும்',
@@ -1731,20 +1731,20 @@ return [
     'all_types' => 'அனைத்து வகைகள்',
     'configure_queue' => 'எதிர்பார்ப்பு அமைப்பை கட்டமைக்கவும்',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'உங்கள் பொருளை புதுப்பிக்க, கர்ட்டை காலியாக விடுங்கள்',
     'click_renew' => 'புதுப்பிக்க இங்கு கிளிக் செய்யவும்',
     'renew_your_order' => 'உங்கள் ஆர்டரை புதுப்பிக்கவும்',
     'renew_order' => 'ஆர்டரை புதுப்பிக்கவும்',
     'renewal_price_per_agent' => 'எஜென்டுக்கு புதுப்பிப்பு விலை: ',
-    //report panel
+    // report panel
     'file_name' => 'கோப்பின் பெயர்',
     'format' => 'வடிவம்',
     'contact' => 'தொடர்பு',
     'report_settings' => 'அறிக்கையின் அமைப்புகள்',
     'report_limit' => 'ஒவ்வொரு பக்கத்திற்கும் பதிவுகளைச் சேர்க்கவும். அதிகபட்ச வரம்பு 3000.',
 
-    //tenant panel
+    // tenant panel
     'cloud_server' => 'கிளவுட் சர்வர்',
     'customise_cloud_popup' => 'கிளவுட் பாப்அப் தனிப்பயனாக்கவும்',
     'cloud_product_configuration' => 'கிளவுட் தயாரிப்பு கட்டமைப்பு',
@@ -1771,7 +1771,7 @@ return [
     'app_key' => 'பயன்பாட்டு விசை',
     'app_secret' => 'பயன்பாட்டு ரகசியம்',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'புதிய பயனரை உருவாக்கவும்',
     'create_user' => 'பயனரை உருவாக்கவும்',
     'position' => 'பதவி',
@@ -1866,7 +1866,7 @@ return [
     'by_arcanedev' => 'ARCANEDEV மூலம்',
     'toggle_navigation' => 'நாவிகேஷனை மாற்றவும்',
 
-    //boostrap-4
+    // boostrap-4
     'logs' => 'பதிவுகள்',
     'caps_delete_log_file' => 'பதிவை நீக்கு கோப்பு',
     'caps_delete_file' => 'கோப்பை நீக்கு',
@@ -1887,7 +1887,7 @@ return [
     'error_logs' => 'பிழை பதிவுகள்',
     'view_logs' => 'பதிவுகளைப் பார்வையிடவும்',
 
-    //visitstats
+    // visitstats
     'request' => 'விண்ணப்பம்',
     'visitor' => 'விசிட்டர்',
     'browser' => 'ப்ரௌசர்',
@@ -1917,7 +1917,7 @@ return [
     'product_quantity' => 'தயாரிப்பு அளவு',
     'table_search' => 'தேடல்:',
 
-    //validation message
+    // validation message
     'enter_valid_otp' => 'சரியான OTP ஐ உள்ளிடவும்',
     'verifying' => 'உறுதிப்படுத்துதல்',
     'resending' => 'மறு அனுப்புதல்',
@@ -2047,7 +2047,7 @@ return [
     'null' => 'இல்லை',
     'choose_one_payment_gateway' => 'ஒரு கட்டண வழி தேர்ந்தெடுக்கவும்',
 
-    //Controller keys and values
+    // Controller keys and values
     'product_uploaded_successfully' => 'தயாரிப்பு வெற்றிகரமாக பதிவேற்றப்பட்டது',
     'token_mismatch_account_not_activated' => 'குறியீடு பொருந்தவில்லை. கணக்கு இயக்கப்படவில்லை.',
     'email_verification_success' => 'மின்னஞ்சல் உறுதிப்படுத்தல் வெற்றிகரமாக நடந்தது. உங்களின் கணக்கை அணுக உள்நுழையவும் !!',

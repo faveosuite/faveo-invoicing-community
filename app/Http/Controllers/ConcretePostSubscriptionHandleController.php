@@ -23,17 +23,17 @@ use Log;
 
 abstract class PostSubscriptionHandleController
 {
-    protected \App\Model\Order\Invoice $invoiceModel;
+    protected Invoice $invoiceModel;
 
-    protected \App\Model\Order\Order $orderModel;
+    protected Order $orderModel;
 
-    protected \App\Model\Common\StatusSetting $statusSettingModel;
+    protected StatusSetting $statusSettingModel;
 
-    protected \App\Model\Payment\Plan $plan;
+    protected Plan $plan;
 
-    protected \App\Model\Product\Subscription $sub;
+    protected Subscription $sub;
 
-    protected \App\Model\Order\Payment $payment;
+    protected Payment $payment;
 
     public function __construct(Invoice $invoiceModel, Order $orderModel, StatusSetting $statusSettingModel, Plan $plan, Subscription $sub, Payment $payment)
     {
@@ -117,7 +117,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $currency = getCurrencyForClient($user->country);
         $paymentSuccessdata = 'Payment for '.$productName.' of '.$currency.' '.$total.' successful by '.$user->first_name.' '.$user->last_name.' Email: '.$user->email;
 
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
         $mail->SendEmail((string) $setting->email, (string) $setting->company_email, $paymentSuccessdata, 'payment-success', $template->type()->value('name'));
         $mail->payment_log($user->email, $payment, 'success', $order->number, amount: $amount, payment_type: 'Product renew');
     }
@@ -131,7 +131,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         }
         $currency = getCurrencyForClient($user->country);
         $paymentFailData = 'Payment for of '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
         $dbTemplate = Template::where('name', $template)->first();
         if (! $dbTemplate instanceof Template) {
             throw new Exception('Template not found');
@@ -147,14 +147,14 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             return;
         }
         $contact = getContactData();
-        //check in the settings
+        // check in the settings
         $setting = Setting::find(1);
         if (! $setting instanceof Setting) {
             return;
         }
 
-        $mail = new PhpMailController();
-        //template
+        $mail = new PhpMailController;
+        // template
         $template = TemplateType::getSelectedTemplate('payment_successfull');
         if (! $template instanceof Template) {
             return;
@@ -186,7 +186,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             return;
         }
         $contact = getContactData();
-        //check in the settings
+        // check in the settings
         $setting = Setting::find(1);
         if (! $setting instanceof Setting) {
             return;
@@ -194,9 +194,9 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
 
         $this->disableAutorenewalStatusByOrderId($order->id);
 
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
         $mail->setMailConfig($setting);
-        //template
+        // template
         $template = TemplateType::getSelectedTemplate('payment_failed');
         if (! $template instanceof Template) {
             return;
@@ -216,7 +216,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $type = $template->type()->value('name') ?? '';
 
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
-        $this->FailedPaymenttoAdmin($invoice, $total ?? 0, $product_details->name, $exceptionMessage, $user, $template->name, $order, $payment instanceof Payment ? $payment : new Payment());
+        $this->FailedPaymenttoAdmin($invoice, $total ?? 0, $product_details->name, $exceptionMessage, $user, $template->name, $order, $payment instanceof Payment ? $payment : new Payment);
     }
 
     public function calculateUnitCost(string $currency, float|int $cost): float

@@ -25,18 +25,30 @@ use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
+use Laravel\Passport\Client;
 use Laravel\Passport\HasApiTokens;
+use Laravel\Passport\Token;
 use Override;
+use Spatie\Activitylog\Models\Activity;
 
-//use Laravel\Cashier\Billable;
-//use LinkThrow\Billing\CustomerBillableTrait;
-//use App\Model\Common\Website;
+// use Laravel\Cashier\Billable;
+// use LinkThrow\Billing\CustomerBillableTrait;
+// use App\Model\Common\Website;
 
 /**
  * @property int $id
@@ -64,8 +76,8 @@ use Override;
  * @property string|null $remember_token
  * @property string|null $company_type
  * @property string|null $company_size
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string $country
  * @property string|null $ip
  * @property int $mobile_verified
@@ -81,56 +93,56 @@ use Override;
  * @property int $is_2fa_enabled
  * @property string|null $backup_code
  * @property int|null $code_usage_count
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $deleted_at
  * @property string|null $gstin
  * @property int $is_tax_exempt
  * @property int $first_time_login
  * @property int $billing_pay_balance
  * @property-read User|null $accountManager
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Auto_renewal> $auto_renewal
+ * @property-read Collection<int, Auto_renewal> $auto_renewal
  * @property-read int|null $auto_renewal_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Passport\Client> $clients
+ * @property-read Collection<int, Client> $clients
  * @property-read int|null $clients_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Comment> $comments
+ * @property-read Collection<int, Comment> $comments
  * @property-read int|null $comments_count
  * @property-read Country|null $countryRelation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\ExportDetail> $export_details
+ * @property-read Collection<int, ExportDetail> $export_details
  * @property-read int|null $export_details_count
  * @property-read string $full_name
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Installation> $installations
+ * @property-read Collection<int, Installation> $installations
  * @property-read int|null $installations_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoice
+ * @property-read Collection<int, Invoice> $invoice
  * @property-read int|null $invoice_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceItem> $invoiceItem
+ * @property-read Collection<int, InvoiceItem> $invoiceItem
  * @property-read int|null $invoice_item_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, LicenseCallback> $licenseCallbacks
+ * @property-read Collection<int, LicenseCallback> $licenseCallbacks
  * @property-read int|null $license_callbacks_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, LicenseReport> $licenseReports
+ * @property-read Collection<int, LicenseReport> $licenseReports
  * @property-read int|null $license_reports_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, License> $licenses
+ * @property-read Collection<int, License> $licenses
  * @property-read int|null $licenses_count
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Passport\Client> $oauthApps
+ * @property-read Collection<int, Client> $oauthApps
  * @property-read int|null $oauth_apps_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $order
+ * @property-read Collection<int, Order> $order
  * @property-read int|null $order_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, OrderInvoiceRelation> $orderRelation
+ * @property-read Collection<int, OrderInvoiceRelation> $orderRelation
  * @property-read int|null $order_relation_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payment
+ * @property-read Collection<int, Payment> $payment
  * @property-read int|null $payment_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Subscription> $subscription
+ * @property-read Collection<int, Subscription> $subscription
  * @property-read int|null $subscription_count
  * @property-read Timezone|null $timezone
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Passport\Token> $tokens
+ * @property-read Collection<int, Token> $tokens
  * @property-read int|null $tokens_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\UserLinkReport> $userLinkReports
+ * @property-read Collection<int, UserLinkReport> $userLinkReports
  * @property-read int|null $user_link_reports_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\VerificationAttempt> $verificationAttempts
+ * @property-read Collection<int, VerificationAttempt> $verificationAttempts
  * @property-read int|null $verification_attempts_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\WhatsappIntegrationUser> $whatsappUsers
+ * @property-read Collection<int, WhatsappIntegrationUser> $whatsappUsers
  * @property-read int|null $whatsapp_users_count
  *
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
@@ -192,18 +204,19 @@ use Override;
  */
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract // @phpstan-ignore class.missingImplements
 {
+    use Authenticatable;
+
+    use CanResetPassword;
+    use HasApiTokens;
+    use HasApiTokens;
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
-    use Authenticatable;
-    use CanResetPassword;
-    use SystemActivityLogsTrait;
-    use HasApiTokens;
     use Notifiable;
-    use HasApiTokens;
     use Notifiable;
     use SoftDeletes;
+    use SystemActivityLogsTrait;
 
     // use Billable;
     // use CustomerBillableTrait;
@@ -257,7 +270,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     protected $hidden = ['password', 'remember_token'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\Order, $this>
+     * @return HasMany<Order, $this>
      */
     public function order(): HasMany
     {
@@ -265,7 +278,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Comment, $this>
+     * @return HasMany<Comment, $this>
      */
     public function comments(): HasMany
     {
@@ -273,7 +286,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Product\Subscription, $this>
+     * @return HasMany<Subscription, $this>
      */
     public function subscription(): HasMany
     {
@@ -282,23 +295,23 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\App\Model\Order\InvoiceItem, \App\Model\Order\Invoice, $this>
+     * @return HasManyThrough<InvoiceItem, Invoice, $this>
      */
-    public function invoiceItem(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    public function invoiceItem(): HasManyThrough
     {
         return $this->hasManyThrough(InvoiceItem::class, Invoice::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\App\Model\Order\OrderInvoiceRelation, \App\Model\Order\Invoice, $this>
+     * @return HasManyThrough<OrderInvoiceRelation, Invoice, $this>
      */
-    public function orderRelation(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    public function orderRelation(): HasManyThrough
     {
         return $this->hasManyThrough(OrderInvoiceRelation::class, Invoice::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\Invoice, $this>
+     * @return HasMany<Invoice, $this>
      */
     public function invoice(): HasMany
     {
@@ -306,15 +319,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Common\Timezone, $this>
+     * @return BelongsTo<Timezone, $this>
      */
-    public function timezone(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function timezone(): BelongsTo
     {
         return $this->belongsTo(Timezone::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Auto_renewal, $this>
+     * @return HasMany<Auto_renewal, $this>
      */
     public function auto_renewal(): HasMany
     {
@@ -322,7 +335,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\ExportDetail, $this>
+     * @return HasMany<ExportDetail, $this>
      */
     public function export_details(): HasMany
     {
@@ -330,11 +343,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function profilePic(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function profilePic(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
+        return Attribute::make(get: function (?string $value) {
             if ($value) {
                 return Attach::getUrlPath('common/images/users/'.$value);
             }
@@ -344,7 +357,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\Payment, $this>
+     * @return HasMany<Payment, $this>
      */
     public function payment(): HasMany
     {
@@ -352,11 +365,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function country(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function country(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(set: function ($value): array {
+        return Attribute::make(set: function ($value): array {
             $value = strtoupper((string) $value);
 
             return ['country' => $value];
@@ -364,11 +377,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function bussiness(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function bussiness(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+        return Attribute::make(get: function ($value) {
             $short = $this->attributes['bussiness'] ?? null;
             $name = '--';
             $bussiness = Bussiness::where('short', $short)->first();
@@ -381,11 +394,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function companyType(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function companyType(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
+        return Attribute::make(get: function () {
             $short = $this->attributes['company_type'] ?? null;
             $name = '--';
             $company = DB::table('company_types')->where('short', $short)->first();
@@ -408,17 +421,17 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     //     return parent::delete();
     // }
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function manager(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function manager(): BelongsTo
     {
         return $this->belongsTo(User::class, 'manager');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function accountManager(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function accountManager(): BelongsTo
     {
         return $this->belongsTo(User::class, 'account_manager');
     }
@@ -438,12 +451,12 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $result = parent::save($options);
         $role = $this->role;
         if ($changed && checkArray('manager', $changed) && $role == 'user' && emailSendingStatus()) {
-            $auth = new AuthController();
+            $auth = new AuthController;
             $auth->salesManagerMail($this);
         }
 
         if ($changed && checkArray('account_manager', $changed) && $role == 'user' && emailSendingStatus()) {
-            $auth = new AuthController();
+            $auth = new AuthController;
             $auth->accountManagerMail($this);
         }
 
@@ -507,7 +520,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\UserLinkReport, $this>
+     * @return HasMany<UserLinkReport, $this>
      */
     public function userLinkReports(): HasMany
     {
@@ -515,25 +528,25 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function fullName(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function fullName(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (): string {
+        return Attribute::make(get: function (): string {
             return sprintf('%s %s', $this->first_name, $this->last_name);
         });
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Model\Common\Country, $this>
+     * @return HasOne<Country, $this>
      */
-    public function countryRelation(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function countryRelation(): HasOne
     {
         return $this->hasOne(Country::class, 'country_code_char2', 'country');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\WhatsappIntegrationUser, $this>
+     * @return HasMany<WhatsappIntegrationUser, $this>
      */
     public function whatsappUsers(): HasMany
     {
@@ -541,7 +554,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\License\Models\License, $this>
+     * @return HasMany<License, $this>
      */
     public function licenses(): HasMany
     {
@@ -549,7 +562,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\License\Models\Installation, $this>
+     * @return HasMany<Installation, $this>
      */
     public function installations(): HasMany
     {
@@ -557,7 +570,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\License\Models\LicenseCallback, $this>
+     * @return HasMany<LicenseCallback, $this>
      */
     public function licenseCallbacks(): HasMany
     {
@@ -565,7 +578,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\License\Models\LicenseReport, $this>
+     * @return HasMany<LicenseReport, $this>
      */
     public function licenseReports(): HasMany
     {

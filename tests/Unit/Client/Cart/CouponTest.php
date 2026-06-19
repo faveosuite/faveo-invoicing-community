@@ -24,7 +24,7 @@ class CouponTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->cart = new Cart();
+        $this->cart = new Cart;
     }
 
     #[Group('coupon')]
@@ -92,7 +92,7 @@ class CouponTest extends DBTestCase
     // }
 
     #[Group('coupon')]
-    public function test_checkCode_whenExpiredCouponProvided(): void
+    public function test_check_code_when_expired_coupon_provided(): void
     {
         $this->expectException(Exception::class);
         $this->withoutMiddleware();
@@ -118,13 +118,13 @@ class CouponTest extends DBTestCase
             'product_id' => $product->id,
         ]);
 
-//        \Cart::add([
-//            'id' => $product->id,
-//            'name' => $product->name,
-//            'price' => $invoice->grand_total,
-//            'quantity' => 1,
-//            'attributes' => [],
-//        ]);
+        //        \Cart::add([
+        //            'id' => $product->id,
+        //            'name' => $product->name,
+        //            'price' => $invoice->grand_total,
+        //            'quantity' => 1,
+        //            'attributes' => [],
+        //        ]);
 
         $this->cart->add(
             $plan->id, $product->name,
@@ -132,12 +132,12 @@ class CouponTest extends DBTestCase
             1,
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
-        $controller = new PromotionController();
+        $controller = new PromotionController;
         $controller->checkCode('FAVEOCOUPON');
     }
 
     #[Group('coupon')]
-    public function test_checkCode_whenInvalidCouponProvided(): void
+    public function test_check_code_when_invalid_coupon_provided(): void
     {
         $this->expectException(Exception::class);
         $this->withoutMiddleware();
@@ -167,7 +167,7 @@ class CouponTest extends DBTestCase
             1,
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
-        $controller = new PromotionController();
+        $controller = new PromotionController;
         $controller->checkCode('FAVEOCOUPON123');
     }
 }

@@ -30,7 +30,7 @@ Artisan::command('preinstall:check', function (): void {
             $this->call('droptables');
         }
 
-        //throw new \Exception($ex->getMessage());
+        // throw new \Exception($ex->getMessage());
     }
 
     $this->info('Preinstall has checked successfully');

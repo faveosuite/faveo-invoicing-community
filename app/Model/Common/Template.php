@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace App\Model\Common;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $name
- * @property \App\Model\Common\TemplateType|null $type
+ * @property TemplateType|null $type
  * @property string $url
  * @property string $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $reply_to
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Template newModelQuery()
@@ -37,9 +39,9 @@ class Template extends Model
     protected $fillable = ['name', 'data', 'type', 'url', 'reply_to'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Model\Common\TemplateType, $this>
+     * @return HasOne<TemplateType, $this>
      */
-    public function type(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function type(): HasOne
     {
         return $this->hasOne(TemplateType::class, 'id', 'type');
     }

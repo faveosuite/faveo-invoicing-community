@@ -4,7 +4,14 @@ namespace App\Model\Order;
 
 use App\BaseModel;
 use App\Model\Product\Product;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -23,13 +30,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $domain
  * @property int|null $plan_id
  * @property string|null $agents
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $billing_pay
- * @property-read \App\Model\Order\Invoice|null $invoice
- * @property-read \App\Model\Order\Order|null $order
+ * @property-read Invoice|null $invoice
+ * @property-read Order|null $order
  * @property-read Product|null $product
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\InvoiceTaxLine> $taxLines
+ * @property-read Collection<int, InvoiceTaxLine> $taxLines
  * @property-read int|null $tax_lines_count
  *
  * @method static \Database\Factories\Model\Order\InvoiceItemFactory factory($count = null, $state = [])
@@ -61,7 +68,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class InvoiceItem extends BaseModel
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -72,19 +79,19 @@ class InvoiceItem extends BaseModel
         'tax_percentage', 'tax_code', 'tax_rate_id', 'discount_mode', 'subtotal', 'domain', 'plan_id', 'agents', 'billing_pay', 'product_id'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<InvoiceTaxLine, $this>
+     * @return HasMany<InvoiceTaxLine, $this>
      */
-    public function taxLines(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function taxLines(): HasMany
     {
         return $this->hasMany(InvoiceTaxLine::class, 'invoice_item_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function domain(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function domain(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(set: function ($value): array {
+        return Attribute::make(set: function ($value): array {
             return ['domain' => $this->get_domain($value)];
         });
     }
@@ -106,25 +113,25 @@ class InvoiceItem extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Model\Order\Order, $this>
+     * @return HasOne<Order, $this>
      */
-    public function order(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function order(): HasOne
     {
         return $this->hasOne(Order::class, 'invoice_item_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Order\Invoice, $this>
+     * @return BelongsTo<Invoice, $this>
      */
-    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class, 'invoice_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Product, $this>
+     * @return BelongsTo<Product, $this>
      */
-    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }

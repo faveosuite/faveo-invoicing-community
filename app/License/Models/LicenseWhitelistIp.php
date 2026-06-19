@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\License\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $whitelist_host_ip
  * @property string|null $whitelist_host_comments
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseWhitelistIp newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseWhitelistIp newQuery()

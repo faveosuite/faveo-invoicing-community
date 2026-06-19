@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace App\Model\Configure;
 
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $config_group_name
  * @property string|null $description
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Configure\ConfigOption> $configOptions
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, ConfigOption> $configOptions
  * @property-read int|null $config_options_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigGroup newModelQuery()
@@ -30,7 +34,7 @@ use Illuminate\Database\Eloquent\Model;
 class ConfigGroup extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -40,9 +44,9 @@ class ConfigGroup extends Model
 
     // Define the relationship with ConfigOption
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ConfigOption, $this>
+     * @return HasMany<ConfigOption, $this>
      */
-    public function configOptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function configOptions(): HasMany
     {
         return $this->hasMany(ConfigOption::class, 'group_id');
     }

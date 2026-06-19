@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
 use App\Model\Common\CommonSettings;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Memcached;
@@ -22,7 +23,7 @@ class CacheSettingsController extends Controller
         ['name' => 'DynamoDB',  'short_name' => 'dynamodb'],
     ];
 
-    public function getDriverData(): \Illuminate\Http\JsonResponse
+    public function getDriverData(): JsonResponse
     {
         $active = CommonSettings::where('option_name', 'cache')
             ->where('optional_field', 'driver')
@@ -47,7 +48,7 @@ class CacheSettingsController extends Controller
         ]);
     }
 
-    public function getFormByDriver(string $driver): \Illuminate\Http\JsonResponse
+    public function getFormByDriver(string $driver): JsonResponse
     {
         return successResponse('', [
             'driver' => $driver,
@@ -55,7 +56,7 @@ class CacheSettingsController extends Controller
         ]);
     }
 
-    public function update(Request $request, string $driver): \Illuminate\Http\JsonResponse
+    public function update(Request $request, string $driver): JsonResponse
     {
         if ($this->formFields($driver) === []) {
             return errorResponse(__('message.no_fields_to_update'), 422);
@@ -77,7 +78,7 @@ class CacheSettingsController extends Controller
         return successResponse(__('message.updated_successfully'));
     }
 
-    public function activate(string $driver): \Illuminate\Http\JsonResponse
+    public function activate(string $driver): JsonResponse
     {
         if (collect(self::DRIVERS)->pluck('short_name')->doesntContain($driver)) {
             return errorResponse(__('message.invalid_driver'), 422);
@@ -138,7 +139,7 @@ class CacheSettingsController extends Controller
     private function testRedis(string $host, int $port, string $password): void
     {
         if (extension_loaded('redis')) {
-            $redis = new Redis();
+            $redis = new Redis;
             if (! $redis->connect($host, $port, 3)) {
                 throw new RuntimeException(sprintf('Could not connect to Redis at %s:%d', $host, $port));
             }
@@ -168,7 +169,7 @@ class CacheSettingsController extends Controller
             throw new RuntimeException(__('message.extension_required_error', ['extension' => 'memcached']));
         }
 
-        $memcached = new Memcached();
+        $memcached = new Memcached;
         $memcached->addServer($host, $port);
 
         $stats = $memcached->getStats();

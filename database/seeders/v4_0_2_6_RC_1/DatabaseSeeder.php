@@ -23,17 +23,17 @@ class DatabaseSeeder extends Seeder
             'rachidlaasri/laravel-installer',
             'anhskohbo/no-captcha',
             'torann/currency',
-            'devio/pipedrive'
+            'devio/pipedrive',
         ];
 
         $configs = [
             'currency.php',
-            'log-viewer.php'
+            'log-viewer.php',
         ];
 
         foreach ($packages as $package) {
 
-            $packagePath = base_path('vendor/' . $package);
+            $packagePath = base_path('vendor/'.$package);
 
             if (! File::exists($packagePath)) {
                 continue;

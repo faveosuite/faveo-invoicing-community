@@ -140,7 +140,7 @@ return [
     /*
      Request file custom validation message
      */
-    //Common
+    // Common
     'settings_form' => [
         'company' => [
             'required' => 'حقل الشركة مطلوب.',
@@ -238,7 +238,7 @@ return [
         ],
     ],
 
-    //Email
+    // Email
     'custom' => [
         'password' => [
             'required_if' => 'حقل كلمة المرور مطلوب لمزود البريد المحدد.',
@@ -342,7 +342,7 @@ return [
         ],
     ],
 
-    //Order form
+    // Order form
     'order_form' => [
         'client' => [
             'required' => 'حقل العميل مطلوب.',
@@ -370,7 +370,7 @@ return [
         ],
     ],
 
-    //Payment form
+    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'حقل رمز القسيمة مطلوب.',
@@ -520,7 +520,7 @@ return [
         ],
     ],
 
-    //Users
+    // Users
     'users' => [
         'first_name' => [
             'required' => 'حقل الاسم الأول مطلوب.',
@@ -630,7 +630,7 @@ return [
         ],
     ],
 
-    //Invoice form
+    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'حقل العملاء مطلوب.',
@@ -653,7 +653,7 @@ return [
         ],
     ],
 
-    //LocalizedLicense form
+    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'حقل النطاق مطلوب.',
@@ -661,7 +661,7 @@ return [
         ],
     ],
 
-    //Product Renewal form
+    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'حقل النطاق مطلوب.',
@@ -669,13 +669,13 @@ return [
         ],
     ],
 
-    //Language form
+    // Language form
     'language' => [
         'required' => 'حقل اللغة مطلوب.',
         'invalid' => 'اللغة المحددة غير صالحة.',
     ],
 
-    //UpdateSroragePathRequest form
+    // UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'حقل القرص في التخزين مطلوب.',
@@ -720,7 +720,7 @@ return [
         'invalid' => 'كلمة المرور غير صالحة.',
     ],
 
-    //AuthController file
+    // AuthController file
     'auth_controller' => [
         'name_required' => 'الاسم مطلوب.',
         'name_max' => 'لا يجوز أن يزيد الاسم عن 255 حرفًا.',

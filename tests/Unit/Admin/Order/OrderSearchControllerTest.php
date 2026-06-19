@@ -11,16 +11,16 @@ use Tests\DBTestCase;
 
 class OrderSearchControllerTest extends DBTestCase
 {
-    private \App\Http\Controllers\Order\OrderSearchController $classObject;
+    private OrderSearchController $classObject;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->classObject = new OrderSearchController();
+        $this->classObject = new OrderSearchController;
     }
 
     #[Group('orderFilter')]
-    public function test_getBaseQueryForOrders_givesRequiredColumnsWhenCalled(): void
+    public function test_get_base_query_for_orders_gives_required_columns_when_called(): void
     {
         $this->getLoggedInUser('admin');
         $product = Product::create(['name' => 'Helpdesk']);
@@ -36,7 +36,7 @@ class OrderSearchControllerTest extends DBTestCase
     }
 
     #[Group('orderFilter')]
-    public function test_getSelectedVersionOrders_whenVersionFromIsNullAndVersionTillIsNull_shouldNotChangeTheQuery(): void
+    public function test_get_selected_version_orders_when_version_from_is_null_and_version_till_is_null_should_not_change_the_query(): void
     {
         $this->getLoggedInUser('admin');
         $this->createOrder('v3.0.0');
@@ -48,7 +48,7 @@ class OrderSearchControllerTest extends DBTestCase
     }
 
     #[Group('orderFilter')]
-    public function test_getSelectedVersionOrders_whenVersionFromIsNull_shouldGiveResultWhichAllPassedVersion(): void
+    public function test_get_selected_version_orders_when_version_from_is_null_should_give_result_which_all_passed_version(): void
     {
         $this->getLoggedInUser('admin');
         $this->createOrder('v3.0.0');
@@ -61,7 +61,7 @@ class OrderSearchControllerTest extends DBTestCase
     }
 
     #[Group('orderFilter')]
-    public function test_getSelectedVersionOrders_whenVersionFromIsNotNullproductidisnull_shouldGiveResultWhichAreLessThanToPassedVersion(): void
+    public function test_get_selected_version_orders_when_version_from_is_not_nullproductidisnull_should_give_result_which_are_less_than_to_passed_version(): void
     {
         $this->getLoggedInUser('admin');
         $this->createOrder('v3.0.0');
@@ -75,7 +75,7 @@ class OrderSearchControllerTest extends DBTestCase
     }
 
     #[Group('orderFilter')]
-    public function test_getSelectedVersionOrders_whenVersionFromIsNotNullAndVersionTillIsNotNull_shouldGiveIntersectionOfBoth(): void
+    public function test_get_selected_version_orders_when_version_from_is_not_null_and_version_till_is_not_null_should_give_intersection_of_both(): void
     {
         $this->getLoggedInUser('admin');
         $this->createOrder('v3.0.0');
@@ -88,7 +88,7 @@ class OrderSearchControllerTest extends DBTestCase
         $this->assertEquals('v3.1.0', $records[0]->product_version);
     }
 
-    public function test_allInstallations_seachInstalledProducts_shouldGiveInstalledProduct(): void
+    public function test_all_installations_seach_installed_products_should_give_installed_product(): void
     {
         $this->getLoggedInUser('admin');
         $this->createOrder('v3.0.0');
@@ -101,7 +101,7 @@ class OrderSearchControllerTest extends DBTestCase
     }
 
     #[Group('orderFilter')]
-    public function test_allInstallations_seachINotnstalledProducts_shouldGiveNotInstalledSubscripion(): void
+    public function test_all_installations_seach_i_notnstalled_products_should_give_not_installed_subscripion(): void
     {
         $this->getLoggedInUser('admin');
         $this->createOrder('v3.0.0');
@@ -114,7 +114,7 @@ class OrderSearchControllerTest extends DBTestCase
     }
 
     #[Group('orderFilter')]
-    public function test_allInstallations_checkActiveInstallation_shouldGiveActiveInstallation(): void
+    public function test_all_installations_check_active_installation_should_give_active_installation(): void
     {
         $this->getLoggedInUser('admin');
         $this->createOrder('v3.0.0');
@@ -135,7 +135,7 @@ class OrderSearchControllerTest extends DBTestCase
         Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'version' => $version]);
     }
 
-    public function test_getBaseQueryForOrders_shouldNotGiveDuplicates_WhenSameOrderHasMoreThanOneInstallationpath(): void
+    public function test_get_base_query_for_orders_should_not_give_duplicates_when_same_order_has_more_than_one_installationpath(): void
     {
         $this->getLoggedInUser('admin');
         $product = Product::create(['name' => 'Helpdesk']);

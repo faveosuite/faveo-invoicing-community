@@ -6,6 +6,10 @@ use App\BaseModel;
 use App\Model\Common\Country;
 use App\Model\Common\State;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -19,15 +23,15 @@ use App\Traits\SystemActivityLogsTrait;
  * @property int $compound
  * @property int $priority
  * @property int $apply_to_shipping
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string $c_gst
  * @property string $s_gst
  * @property string $i_gst
  * @property string $ut_gst
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \App\Model\Payment\TaxClass|null $taxClass
+ * @property-read TaxClass|null $taxClass
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax newQuery()
@@ -101,9 +105,9 @@ class Tax extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<TaxClass, $this>
+     * @return BelongsTo<TaxClass, $this>
      */
-    public function taxClass(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function taxClass(): BelongsTo
     {
         return $this->belongsTo(TaxClass::class, 'tax_classes_id');
     }

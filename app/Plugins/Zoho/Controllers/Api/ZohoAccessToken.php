@@ -45,10 +45,10 @@ class ZohoAccessToken
             return null;
         }
 
-        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $zohoIntegration */
+        /** @var ZohoOAuthClient $zohoIntegration */
         $zohoIntegration = ZohoOAuthClient::whereIntegrationId($integrationId)->first();
 
-        /** @var \App\Plugins\Zoho\Models\ZohoOAuthToken $zohoToken */
+        /** @var ZohoOAuthToken $zohoToken */
         $zohoToken = ZohoOAuthToken::findRefreshToken($integrationId);
         $refreshToken = $zohoToken->refresh_token;
 

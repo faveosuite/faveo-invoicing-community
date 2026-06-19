@@ -24,32 +24,32 @@ class BaseSettingsControllerTest extends DBTestCase
     {
         $response = $this->getJson('job-scheduler');
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'data' => [
-                         'cronPath',
-                         'commands',
-                         'expiryDays',
-                         'selectedDays',
-                         'delLogDays',
-                         'beforeLogDay',
-                         'execEnabled',
-                         'paths',
-                         'Subs_expiry',
-                         'Auto_expiryday',
-                         'post_expiry',
-                         'post_expiryday',
-                         'cloudDays',
-                         'beforeCloudDay',
-                         'invoiceDays',
-                         'invoiceDeletionDay',
-                         'msg91Days',
-                         'msgDeletionDays',
-                         'ReeonLogDeletionDays',
-                         'reoonDays',
-                         'systemLogsDays',
-                         'systemLogsDeletionDays',
-                     ],
-                 ]);
+            ->assertJsonStructure([
+                'data' => [
+                    'cronPath',
+                    'commands',
+                    'expiryDays',
+                    'selectedDays',
+                    'delLogDays',
+                    'beforeLogDay',
+                    'execEnabled',
+                    'paths',
+                    'Subs_expiry',
+                    'Auto_expiryday',
+                    'post_expiry',
+                    'post_expiryday',
+                    'cloudDays',
+                    'beforeCloudDay',
+                    'invoiceDays',
+                    'invoiceDeletionDay',
+                    'msg91Days',
+                    'msgDeletionDays',
+                    'ReeonLogDeletionDays',
+                    'reoonDays',
+                    'systemLogsDays',
+                    'systemLogsDeletionDays',
+                ],
+            ]);
     }
 
     public function test_post_scheduler_status_flags(): void
@@ -69,7 +69,7 @@ class BaseSettingsControllerTest extends DBTestCase
         $response = $this->patchJson('/post-scheduler', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.updated-successfully')]);
+            ->assertJsonFragment(['message' => __('message.updated-successfully')]);
 
         $this->assertDatabaseHas('status_settings', [
             'id' => 1,
@@ -122,7 +122,7 @@ class BaseSettingsControllerTest extends DBTestCase
         $response = $this->patchJson('/post-scheduler', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.updated-successfully')]);
+            ->assertJsonFragment(['message' => __('message.updated-successfully')]);
 
         $this->assertDatabaseHas('status_settings', [
             'id' => 1,
@@ -173,9 +173,9 @@ class BaseSettingsControllerTest extends DBTestCase
         $response = $this->patchJson('/cron-days', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment([
-                     'message' => __('message.updated-successfully'),
-                 ]);
+            ->assertJsonFragment([
+                'message' => __('message.updated-successfully'),
+            ]);
 
         $this->assertDatabaseHas('activity_log_days', [
             'id' => 1,
@@ -242,7 +242,7 @@ class BaseSettingsControllerTest extends DBTestCase
 
     public function test_it_returns_cron_condition_when_condition_exists(): void
     {
-        //expiryMail
+        // expiryMail
         $response = $this->getJson('/cron/condition/expiryMail');
         $response->assertStatus(200)
             ->assertJson([

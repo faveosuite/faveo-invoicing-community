@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Model\Common\Country;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class WelcomeController extends Controller
@@ -16,7 +17,7 @@ class WelcomeController extends Controller
     /**
      * Get country list with user count.
      */
-    public function getCountry(Request $request): \Illuminate\Http\JsonResponse
+    public function getCountry(Request $request): JsonResponse
     {
         try {
             $searchQuery = $request->input('search-query', '');

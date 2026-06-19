@@ -2,8 +2,8 @@
 
 namespace Database\Seeders\v2_0_2;
 
-use Illuminate\Database\Seeder;
 use App\Model\Common\Setting;
+use Illuminate\Database\Seeder;
 
 class SettingsSeeder extends Seeder
 {
@@ -12,7 +12,7 @@ class SettingsSeeder extends Seeder
      */
     public function run(): void
     {
-        Setting::where('id',1)->update([
+        Setting::where('id', 1)->update([
             'autosubscription_going_to_end' => 12,
             'payment_successfull' => 13,
             'payment_failed' => 14,

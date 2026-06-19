@@ -8,12 +8,13 @@ use App\License\Models\LicenseWhitelistIp;
 use App\License\Requests\whitelistIpsRequest;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 
 class WhitelistIpsController extends Controller
 {
-    public function whitelistAdd(whitelistIpsRequest $request): \Illuminate\Http\JsonResponse
+    public function whitelistAdd(whitelistIpsRequest $request): JsonResponse
     {
         try {
             $whitelist_host_ip = $request->input('whitelist_host_ip');
@@ -36,12 +37,12 @@ class WhitelistIpsController extends Controller
             $statusCode = $id ? 200 : 201;
 
             return successResponse($responseMessage, $whitelist, $statusCode);
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception, 404);
         }
     }
 
-    public function deleteWhitelistIp(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteWhitelistIp(Request $request): JsonResponse
     {
         try {
             $host_data = LicenseWhitelistIp::where('id', $request->id)->firstOrFail();
@@ -53,14 +54,14 @@ class WhitelistIpsController extends Controller
         }
     }
 
-    public function edit(mixed $id): \Illuminate\Http\JsonResponse
+    public function edit(mixed $id): JsonResponse
     {
         $host_data = LicenseWhitelistIp::where('id', $id)->firstOrFail();
 
         return successResponse('data', ['host_data' => $host_data], 200);
     }
 
-    public function view(Request $request): \Illuminate\Http\JsonResponse
+    public function view(Request $request): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -70,7 +71,7 @@ class WhitelistIpsController extends Controller
 
         $records = LicenseWhitelistIp::when($searchQuery, fn ($query) => $query->where('whitelist_host_ip', 'like', '%'.$searchQuery.'%')
             ->orWhere('whitelist_host_comments', 'like', '%'.$searchQuery.'%'))->orderBy($sortField, $sortOrder)
-        ->paginate($perPage, ['*'], 'page', $page);
+            ->paginate($perPage, ['*'], 'page', $page);
 
         $records->getCollection()->transform(fn ($record): array => [
             'id' => $record->id,

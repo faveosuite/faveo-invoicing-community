@@ -48,7 +48,7 @@ class ResetPasswordController extends Controller
         $this->middleware(['recaptcha:reset'])->only('reset');
     }
 
-    public function showResetForm(Request $request, mixed $token = null): \Illuminate\Http\JsonResponse
+    public function showResetForm(Request $request, mixed $token = null): JsonResponse
     {
         try {
             $reset = DB::table('password_resets')->select('email', 'created_at')->where('token', $token)->first();
@@ -87,8 +87,8 @@ class ResetPasswordController extends Controller
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', new StrongPassword()],
-            'reset' => [new Honeypot()],
+            'password' => ['required', 'confirmed', new StrongPassword],
+            'reset' => [new Honeypot],
         ], [
             'token.required' => __('validation.token_validation.token_required'),
             'email.required' => __('validation.custom_email.required'),

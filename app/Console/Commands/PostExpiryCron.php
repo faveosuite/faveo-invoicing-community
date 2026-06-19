@@ -28,7 +28,7 @@ class PostExpiryCron extends LoggableCommand
      */
     public function handleAndLog(): void
     {
-        $controller = new CronController();
+        $controller = new CronController;
         $controller->postRenewalNotify();
         $this->info('postexpiry:notification Command Run successfully!');
     }

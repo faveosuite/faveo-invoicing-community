@@ -14,7 +14,7 @@ class AttachmentHelperServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
-        $this->app->bind('attachment-helper', fn (): \App\Helper\AttachmentHelper => new AttachmentHelper());
+        $this->app->bind('attachment-helper', fn (): AttachmentHelper => new AttachmentHelper);
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 use DB;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ZohoBaseController extends Controller
@@ -16,14 +17,14 @@ class ZohoBaseController extends Controller
     /**
      * Get mapped fields for a specific platform and module.
      */
-    public function getModulesFields(string $platform, string $module): \Illuminate\Http\JsonResponse
+    public function getModulesFields(string $platform, string $module): JsonResponse
     {
         $moduleFields = ZohoConnectHelper::getModulesFields($platform, $module);
 
         return successResponse('', $moduleFields);
     }
 
-    public function getMappedFields(string $platform, string $module): \Illuminate\Http\JsonResponse
+    public function getMappedFields(string $platform, string $module): JsonResponse
     {
         $mappedFields = ZohoConnectHelper::getExistingMappings($platform, $module);
 
@@ -33,7 +34,7 @@ class ZohoBaseController extends Controller
     /**
      * Update mapping for a specific field.
      */
-    public function updateMapping(Request $request): \Illuminate\Http\JsonResponse
+    public function updateMapping(Request $request): JsonResponse
     {
         $request->validate([
             'integration_id' => ['required', 'exists:zoho_integrations,id'],
@@ -49,7 +50,7 @@ class ZohoBaseController extends Controller
                 ->pluck('zoho_field_id')
                 ->unique();
 
-            /** @var \App\Plugins\Zoho\Models\ZohoIntegration $zohoIntegration */
+            /** @var ZohoIntegration $zohoIntegration */
             $zohoIntegration = ZohoIntegration::findOrFail($request->integration_id);
 
             ZohoFieldMappings::whereIn('zoho_field_id', function ($query) use (

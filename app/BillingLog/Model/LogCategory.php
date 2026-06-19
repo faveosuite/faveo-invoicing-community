@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace App\BillingLog\Model;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
  * @property string $name
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\BillingLog\Model\ExceptionLog> $exceptions
+ * @property-read Collection<int, ExceptionLog> $exceptions
  * @property-read int|null $exceptions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\BillingLog\Model\MailLog> $mail
+ * @property-read Collection<int, MailLog> $mail
  * @property-read int|null $mail_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LogCategory newModelQuery()
@@ -31,17 +33,17 @@ class LogCategory extends Model
     protected $fillable = ['name'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ExceptionLog, $this>
+     * @return HasMany<ExceptionLog, $this>
      */
-    public function exceptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function exceptions(): HasMany
     {
         return $this->hasMany(ExceptionLog::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<MailLog, $this>
+     * @return HasMany<MailLog, $this>
      */
-    public function mail(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function mail(): HasMany
     {
         return $this->hasMany(MailLog::class);
     }

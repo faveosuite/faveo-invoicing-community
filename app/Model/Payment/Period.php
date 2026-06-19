@@ -2,16 +2,18 @@
 
 namespace App\Model\Payment;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
  * @property int $id
  * @property string $name
  * @property string $days
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\Plan> $plans
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Plan> $plans
  * @property-read int|null $plans_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Period newModelQuery()

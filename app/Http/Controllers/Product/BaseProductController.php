@@ -11,14 +11,16 @@ use App\Model\Product\ProductUpload;
 use App\User;
 use Auth;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Logger;
+use Symfony\Component\HttpFoundation\Response;
 
 class BaseProductController extends ExtendedBaseProductController
 {
     public function getMyUrl(): string
     {
-        $server = new Request();
+        $server = new Request;
         $url = \Illuminate\Support\Facades\Request::server('REQUEST_URI');
         $server = parse_url(is_string($url) ? $url : '');
         $server = is_array($server) ? $server : [];
@@ -65,7 +67,7 @@ class BaseProductController extends ExtendedBaseProductController
      */
     public function checkMultiProduct(int $productid): bool
     {
-        $product = new Product();
+        $product = new Product;
         $product = $product->find($productid);
         if (! $product) {
             return false;
@@ -104,7 +106,7 @@ class BaseProductController extends ExtendedBaseProductController
      */
     public function checkMultiAgent(int $productid): bool
     {
-        $product = new Product();
+        $product = new Product;
         $product = $product->find($productid);
         if (! $product) {
             return false;
@@ -116,13 +118,13 @@ class BaseProductController extends ExtendedBaseProductController
     /**
      * Get the Subscription and Price Based on the Product Selected while generating Invoice (Admin Panel).
      */
-    public function getSubscriptionCheck(int $productid, Request $request): \Illuminate\Http\JsonResponse
+    public function getSubscriptionCheck(int $productid, Request $request): JsonResponse
     {
         try {
-            /** @var \App\User $authUser */
+            /** @var User $authUser */
             $authUser = Auth::user();
             $useID = $request->input('user_id') ?: $authUser->id;
-            /** @var \App\User $userForCountry */
+            /** @var User $userForCountry */
             $userForCountry = User::find($useID);
             $userCountry = $userForCountry->country;
             $currency = getCurrencyForClient($userCountry);
@@ -161,13 +163,13 @@ class BaseProductController extends ExtendedBaseProductController
         }
     }
 
-    public function userDownload(mixed $order_id, mixed $version_id = ''): \Symfony\Component\HttpFoundation\Response|\Illuminate\Http\JsonResponse
+    public function userDownload(mixed $order_id, mixed $version_id = ''): Response|JsonResponse
     {
         try {
-            /** @var \App\Model\Order\Order $order */
+            /** @var Order $order */
             $order = Order::with('subscription')->findOrFail($order_id);
 
-            /** @var \App\User $authUser2 */
+            /** @var User $authUser2 */
             $authUser2 = Auth::user();
             if ($authUser2->role !== 'admin' && $authUser2->id !== $order->client) {
                 throw new Exception(__('message.no_permission_for_action'));
@@ -216,7 +218,7 @@ class BaseProductController extends ExtendedBaseProductController
      *
      * get productid,userid,plan id as request
      */
-    public function getPrice(Request $request): \Illuminate\Http\JsonResponse
+    public function getPrice(Request $request): JsonResponse
     {
         $request->validate([
             'product' => ['required', 'integer'],
@@ -229,7 +231,7 @@ class BaseProductController extends ExtendedBaseProductController
             $userId = $request->input('user');
             $planId = $request->input('plan');
 
-            /** @var \App\Model\Payment\Plan $plan */
+            /** @var Plan $plan */
             $plan = Plan::findOrFail($planId);
 
             $currency = userCurrencyAndPrice($userId, $plan)['currency'];
@@ -266,7 +268,7 @@ class BaseProductController extends ExtendedBaseProductController
 
     public function updateVersionFromGithub(mixed $productid, string $github_owner, string $github_repository): void
     {
-        /** @var \App\Model\Product\Product $product */
+        /** @var Product $product */
         $product = Product::findOrFail($productid);
         $product->version = resolve(GithubApiController::class)->latestTag($github_owner, $github_repository) ?? '';
         $product->save();
@@ -281,7 +283,7 @@ class BaseProductController extends ExtendedBaseProductController
      */
     public function allowQuantityOrAgent(int $productid): bool
     {
-        /** @var \App\Model\Product\Product $product */
+        /** @var Product $product */
         $product = Product::find($productid);
 
         return (bool) $product->show_agent;
@@ -296,7 +298,7 @@ class BaseProductController extends ExtendedBaseProductController
      */
     public function isAllowedtoEdit(int $productid): array
     {
-        /** @var \App\Model\Product\Product $product */
+        /** @var Product $product */
         $product = Product::where('id', $productid)->first();
 
         $agentModifyPermission = $product->can_modify_agent;
@@ -305,7 +307,7 @@ class BaseProductController extends ExtendedBaseProductController
         return ['agent' => $agentModifyPermission, 'quantity' => $quantityModifyPermission];
     }
 
-    public function getProductUsingLicenseCode(Request $request): \Illuminate\Http\JsonResponse
+    public function getProductUsingLicenseCode(Request $request): JsonResponse
     {
         $license_code = $request->input('license_code');
 

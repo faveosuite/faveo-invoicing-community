@@ -17,7 +17,7 @@ class CallBackControllerTest extends LicenseTestCase
     {
         parent::setUp();
 
-        $this->controller = new CallBackController();
+        $this->controller = new CallBackController;
     }
 
     #[Test]

@@ -142,8 +142,6 @@ class DatabaseSetupController extends Controller
     /**
      * Method attempts database connection after setting connection configurations and
      * returns mysqli connection object.
-     *
-     * @return false|\mysqli
      */
     private function getDBConnection(): false|\mysqli
     {
@@ -185,14 +183,14 @@ class DatabaseSetupController extends Controller
             error_reporting(0);
             try {
                 if (DB_DEFAULT == 'mysql') {
-                    $connection = $this->getDBConnection(); //first attempt assuming db exists
+                    $connection = $this->getDBConnection(); // first attempt assuming db exists
                     if (! $connection) {
                         /**
                          * if connection is not successful that may be because database does not exist so we will
                          * try to create one and reconnect.
                          */
                         createDB(DB_NAME);
-                        $connection = $this->getDBConnection(); //second attempt after db creation
+                        $connection = $this->getDBConnection(); // second attempt after db creation
                     }
 
                     if ($connection) {
@@ -216,6 +214,5 @@ class DatabaseSetupController extends Controller
 class TestResult
 {
     public function __construct(public mixed $message, public mixed $status = STATUS_OK) // @phpstan-ignore constant.notFound
-    {
-    }
+    {}
 }

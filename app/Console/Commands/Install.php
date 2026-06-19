@@ -45,11 +45,11 @@ class Install extends LoggableCommand
      *
      * @return void
      */
-    protected \App\Http\Controllers\BillingInstaller\InstallerController $install;
+    protected InstallerController $install;
 
     public function __construct()
     {
-        $this->install = new InstallerController();
+        $this->install = new InstallerController;
         parent::__construct();
     }
 
@@ -67,7 +67,7 @@ class Install extends LoggableCommand
                 return;
             }
 
-            //Form application URL
+            // Form application URL
             $this->handleAppUrl();
 
             // Check if the URL is valid
@@ -77,10 +77,10 @@ class Install extends LoggableCommand
                 return;
             }
 
-            //Check database credentials
+            // Check database credentials
             $this->collectDatabaseCredentials();
 
-            //Check ssl options
+            // Check ssl options
             $this->configureSslOptions();
 
             Cache::put('search-driver', 'database');
@@ -163,7 +163,6 @@ class Install extends LoggableCommand
     /**
      * it checks the url whether the ssl certificate is installed or not.
      *
-     * @param  $appUrl
      * @return bool
      */
     public function appReq(mixed $appUrl)
@@ -233,16 +232,16 @@ class Install extends LoggableCommand
         $this->sslCa = null; // @phpstan-ignore property.notFound
         $this->sslVerify = false; // @phpstan-ignore property.notFound
 
-        //If want ssl connection enabled then uncomment below code
+        // If want ssl connection enabled then uncomment below code
 
-//        $securecon = filter_var($this->option('securecon') ?? $this->confirm('Does your database allows secure connection? If yes then make sure you have all required files available on the server as pem bundle. (yes/no)'), FILTER_VALIDATE_BOOLEAN);
+        //        $securecon = filter_var($this->option('securecon') ?? $this->confirm('Does your database allows secure connection? If yes then make sure you have all required files available on the server as pem bundle. (yes/no)'), FILTER_VALIDATE_BOOLEAN);
 
-//        if ($securecon) {
-//            $this->sslKey = $this->option('sslkey') ?: $this->ask('Full path to SSL key file in PEM format (Leave blank if not available)');
-//            $this->sslCert = $this->option('sslcert') ?: $this->ask('Full path to SSL certificate file in PEM format (Leave blank if not available)');
-//            $this->sslCa = $this->option('sslca') ?: $this->ask('Full path to Certificate Authority file in PEM format (Leave blank if not available)');
-//            $this->sslVerify = filter_var($this->option('sslverify') ?? $this->confirm('Verify SSL Peer\'s Certificate?'), FILTER_VALIDATE_BOOLEAN);
-//        }
+        //        if ($securecon) {
+        //            $this->sslKey = $this->option('sslkey') ?: $this->ask('Full path to SSL key file in PEM format (Leave blank if not available)');
+        //            $this->sslCert = $this->option('sslcert') ?: $this->ask('Full path to SSL certificate file in PEM format (Leave blank if not available)');
+        //            $this->sslCa = $this->option('sslca') ?: $this->ask('Full path to Certificate Authority file in PEM format (Leave blank if not available)');
+        //            $this->sslVerify = filter_var($this->option('sslverify') ?? $this->confirm('Verify SSL Peer\'s Certificate?'), FILTER_VALIDATE_BOOLEAN);
+        //        }
     }
 
     /**

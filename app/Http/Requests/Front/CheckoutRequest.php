@@ -24,7 +24,7 @@ class CheckoutRequest extends Request
      */
     public function rules(): array
     {
-        //dd($this->method() );
+        // dd($this->method() );
         if ($this->method() == 'POST') {
             return [
                 'first_name' => ['required'],
@@ -34,11 +34,11 @@ class CheckoutRequest extends Request
                 'address' => ['required'],
                 'zip' => ['required', 'min:5', 'numeric'],
                 'email' => ['required', 'email', 'unique:users,email'],
-                //'payment_gateway' => 'required',
+                // 'payment_gateway' => 'required',
             ];
         }
 
-        //dd($this->method() );
+        // dd($this->method() );
         if ($this->method() == 'PATCH') {
             return [
                 'first_name' => ['required'],
@@ -48,7 +48,7 @@ class CheckoutRequest extends Request
                 'address' => ['required'],
                 'zip' => ['required', 'min:5', 'numeric'],
                 'email' => ['required', 'email'],
-                //'payment_gateway' => 'required',
+                // 'payment_gateway' => 'required',
             ];
         }
 

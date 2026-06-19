@@ -6,16 +6,20 @@ namespace App\Model\Payment;
 
 use App\BaseModel;
 use App\Model\Product\Product;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $product_id
  * @property int $tax_class_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $product
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Product> $product
  * @property-read int|null $product_count
- * @property-read \App\Model\Payment\TaxClass $tax
+ * @property-read TaxClass $tax
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxProductRelation newQuery()
@@ -35,17 +39,17 @@ class TaxProductRelation extends BaseModel
     protected $fillable = ['product_id', 'tax_class_id'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<TaxClass, $this>
+     * @return BelongsTo<TaxClass, $this>
      */
-    public function tax(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function tax(): BelongsTo
     {
         return $this->belongsTo(TaxClass::class, 'tax_class_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Product, $this>
+     * @return HasMany<Product, $this>
      */
-    public function product(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function product(): HasMany
     {
         return $this->hasMany(Product::class, 'product_id');
     }

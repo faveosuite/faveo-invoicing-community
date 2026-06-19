@@ -6,6 +6,7 @@ namespace App\Plugins\Recaptcha\Controller;
 
 use App\Http\Controllers\Controller;
 use App\Plugins\Recaptcha\Model\RecaptchaSetting;
+use Illuminate\Http\JsonResponse;
 
 /**
  * Exposes the guest-safe reCAPTCHA configuration to the Vue SPA.
@@ -15,7 +16,7 @@ use App\Plugins\Recaptcha\Model\RecaptchaSetting;
  */
 class RecaptchaConfigController extends Controller
 {
-    public function show(): \Illuminate\Http\JsonResponse
+    public function show(): JsonResponse
     {
         return successResponse('', RecaptchaSetting::publicConfig());
     }

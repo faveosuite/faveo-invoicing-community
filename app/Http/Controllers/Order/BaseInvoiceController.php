@@ -6,6 +6,7 @@ use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Payment\TaxOption;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Logger;
@@ -40,7 +41,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
 
     public function whenDateNotSet(?string $start, ?string $end): ?string
     {
-        //both not set, always true
+        // both not set, always true
         if (($start == null || $start === '0000-00-00 00:00:00') &&
          ($end == null || $end === '0000-00-00 00:00:00')) {
             return 'success';
@@ -100,7 +101,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         return null;
     }
 
-    public function postPayment(int $invoiceid, Request $request): \Illuminate\Http\RedirectResponse
+    public function postPayment(int $invoiceid, Request $request): RedirectResponse
     {
         $this->validate($request, [
             'payment_method' => 'required',
@@ -169,7 +170,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         try {
             $total = intval($total);
             $rates = explode(',', $rate);
-            $rule = new TaxOption();
+            $rule = new TaxOption;
             $rule = $rule->findOrFail(1);
             if ($rule->inclusive == 0) {
                 foreach ($rates as $rate1) {
@@ -201,7 +202,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
     {
         $code = '';
         $codevalue = '';
-        if (Session::has('code')) {//If coupon code is applied get it here from Session
+        if (Session::has('code')) {// If coupon code is applied get it here from Session
             $code = Session::get('code');
             $codevalue = Session::get('codevalue');
         }

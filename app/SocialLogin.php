@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -14,8 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $client_secret
  * @property string|null $redirect_url
  * @property int|null $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialLogin newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SocialLogin newQuery()
@@ -34,7 +36,7 @@ use Illuminate\Database\Eloquent\Model;
 class SocialLogin extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 

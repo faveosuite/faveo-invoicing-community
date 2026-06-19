@@ -8,6 +8,8 @@ use App\License\Models\Installation;
 use App\License\Services\InstallationService;
 use App\Model\Order\Order;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class LocalizedLicenseController extends Controller
 {
@@ -30,7 +33,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Downloads the license file.
      * */
-    public function downloadFile(Request $request): \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
+    public function downloadFile(Request $request): BinaryFileResponse|RedirectResponse
     {
         if (Auth::check()) {
             $orderNo = $request->get('orderNo');
@@ -46,7 +49,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Downloads the license file through admin.
      * */
-    public function downloadFileAdmin(string $fileName): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function downloadFileAdmin(string $fileName): BinaryFileResponse
     {
         $filePath = storage_path('app/public/'.$fileName);
 
@@ -56,7 +59,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Downloads the private key for the license.
      * */
-    public function downloadPrivate(string $orderNo): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function downloadPrivate(string $orderNo): BinaryFileResponse
     {
         $fileName = storage_path('app/public/privateKey-'.$orderNo.'.txt');
 
@@ -66,7 +69,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Downloads the private key for the license through admin panel.
      * */
-    public function downloadPrivateKeyAdmin(string $fileName): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function downloadPrivateKeyAdmin(string $fileName): BinaryFileResponse
     {
         $value = explode('}', $fileName);
         $orderNo = substr($value[0], 15);
@@ -78,7 +81,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Chooses which license mode is applicable File/Database.
      * */
-    public function chooseLicenseMode(Request $request): \Illuminate\Http\JsonResponse
+    public function chooseLicenseMode(Request $request): JsonResponse
     {
         $orderNo = $request->input('orderNo');
         $chose = $request->boolean('choose');
@@ -100,7 +103,7 @@ class LocalizedLicenseController extends Controller
         return successResponse(__('message.status_change_successfully'));
     }
 
-    public function filesApi(Request $request): \Illuminate\Http\JsonResponse
+    public function filesApi(Request $request): JsonResponse
     {
         try {
             $searchQuery = $request->input('search-query', '');
@@ -147,7 +150,7 @@ class LocalizedLicenseController extends Controller
         }
     }
 
-    public function deleteFileApi(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteFileApi(Request $request): JsonResponse
     {
         try {
             $fileName = $request->input('file_name');
@@ -166,7 +169,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Stores the license file after the client has entered a domain and downloads the license.
      * */
-    public function storeFile(LocalizedLicenseRequest $request): \Illuminate\Http\RedirectResponse
+    public function storeFile(LocalizedLicenseRequest $request): RedirectResponse
     {
         if (Auth::check()) {
             $userID = $request->input('userId');
@@ -207,7 +210,7 @@ class LocalizedLicenseController extends Controller
 
                 $userData = '<root_url>'.$domain.'</root_url><license_code>'.$licenseCode.'</license_code><license_expiry>'.$licenseExpiry.'</license_expiry><updates_expiry>'.$updatesExpiry.'</updates_expiry><support_expiry>'.$supportExpiry.'</support_expiry>';
 
-                $encrypt = new EncryptDecryptController();
+                $encrypt = new EncryptDecryptController;
                 $encryptData = $encrypt->encrypt($userData, $orderNo);
 
                 $fileName = 'faveo-license-{'.$orderNo.'}.txt';
@@ -227,7 +230,7 @@ class LocalizedLicenseController extends Controller
     /**
      * Generates a temporary link to download the license file with a time constraint.
      * */
-    public function tempOrderLink(string $orderNo, int $userID): string|\Illuminate\Http\RedirectResponse
+    public function tempOrderLink(string $orderNo, int $userID): string|RedirectResponse
     {
         if ($userID !== 0 && ! empty(Auth::user()->id)) {
             return URL::temporarySignedRoute('event.rsvp', now()->addSeconds(30), [
@@ -291,14 +294,14 @@ class LocalizedLicenseController extends Controller
     /**
      * Deletes the license file.
      * */
-    public function deleteFile(string $fileName): \Illuminate\Http\RedirectResponse
+    public function deleteFile(string $fileName): RedirectResponse
     {
         Storage::disk('public')->delete($fileName);
 
         return back()->with('success', Lang::get('message.license_file_deleted', ['file' => $fileName]));
     }
 
-    //return an array with license data
+    // return an array with license data
     /**
      * @return array<mixed>
      */
@@ -307,7 +310,7 @@ class LocalizedLicenseController extends Controller
         return $this->parseLicenseFile($fileName, $orderNo);
     }
 
-    //parse license file and make an array with license data
+    // parse license file and make an array with license data
     /**
      * @return string[]
      */
@@ -316,7 +319,7 @@ class LocalizedLicenseController extends Controller
         $license_data_array = [];
         $stored = Storage::disk('public')->path($fileName);
         if (@is_readable($stored)) {
-            $decrypt = new EncryptDecryptController();
+            $decrypt = new EncryptDecryptController;
             $contents = $decrypt->decrypt($orderNo);
             Storage::disk('public')->put($fileName, $contents);
             $stored = Storage::disk('public')->path($fileName);

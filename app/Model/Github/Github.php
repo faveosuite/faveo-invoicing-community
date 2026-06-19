@@ -5,6 +5,10 @@ namespace App\Model\Github;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 use Crypt;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -12,9 +16,9 @@ use Crypt;
  * @property string|null $client_secret
  * @property string|null $username
  * @property string|null $password
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Github newModelQuery()
@@ -70,11 +74,11 @@ class Github extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function password(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function password(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+        return Attribute::make(get: function ($value) {
             if ($value) {
                 return Crypt::decrypt($value);
             }

@@ -17,7 +17,7 @@ class NotificationsControllerTest extends LicenseTestCase
     {
         parent::setUp();
 
-        $this->controller = new NotificationsController();
+        $this->controller = new NotificationsController;
     }
 
     #[Test]

@@ -3,6 +3,8 @@
 namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -18,7 +20,7 @@ trait PaginationTotal
      * Scoped (builder with backend constraints) — pass an explicit cache key:
      *   $total = $this->cachedTotal($query, $request, ['category'], cacheKey: 'active_products_total');
      *
-     * @param  string|Builder<\Illuminate\Database\Eloquent\Model>  $model  Eloquent model class or Builder with backend scope
+     * @param  string|Builder<Model>  $model  Eloquent model class or Builder with backend scope
      * @param  array<mixed>  $filterKeys  Request keys that indicate user filtering is active
      * @param  string  $searchKey  Request key for search input (default: 'search-query')
      * @param  int  $ttl  Cache TTL in seconds (default: 60)
@@ -58,7 +60,7 @@ trait PaginationTotal
      * Usage:
      *   return $this->paginateResponse($users, $total);
      */
-    protected function paginateResponse(mixed $paginator, ?int $total): \Illuminate\Http\JsonResponse
+    protected function paginateResponse(mixed $paginator, ?int $total): JsonResponse
     {
         $response = collect((array) $paginator->toArray())->put('total', $total);
 

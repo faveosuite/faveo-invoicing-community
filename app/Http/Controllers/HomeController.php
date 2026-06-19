@@ -13,6 +13,8 @@ use App\License\Services\LicenseService;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\License\LicenseType;
+use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
@@ -25,10 +27,12 @@ use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Log;
 use Logger;
 use NumberFormatter;
+use Symfony\Component\HttpFoundation\Response;
 use Validator;
 
 class HomeController extends BaseHomeController
@@ -119,7 +123,7 @@ class HomeController extends BaseHomeController
             $faveo_encrypted_order_number = self::decryptByFaveoPrivateKey((string) $request->input('order_number'));
             $domain = $this->getDomain((string) $request->input('domain'));
 
-            //return $domain;
+            // return $domain;
             $faveo_encrypted_key = self::decryptByFaveoPrivateKey((string) $request->input('serial_key'));
             $request_type = $request->input('request_type');
             $faveo_name = (string) $request->input('name');
@@ -128,8 +132,8 @@ class HomeController extends BaseHomeController
 
             $domain = $this->checkDomain($domain);
             $serial_key = $this->checkSerialKey((string) $faveo_encrypted_key, $order_number);
-            //dd($serial_key);
-            //return $serial_key;
+            // dd($serial_key);
+            // return $serial_key;
             $result = [];
             if ($request_type == 'install') {
                 $result = $this->verificationResult($order_number, (string) $serial_key);
@@ -203,7 +207,7 @@ class HomeController extends BaseHomeController
             if ($privateKey === false) {
                 throw new Exception('Failed to generate key');
             }
-            //dd($privateKey);
+            // dd($privateKey);
             // Save the private key to private.key file. Never share this file with anyone.
             openssl_pkey_export_to_file($privateKey, 'private.key');
 
@@ -212,7 +216,7 @@ class HomeController extends BaseHomeController
             if ($a_key === false) {
                 throw new Exception('Failed to get details');
             }
-            //dd($a_key);
+            // dd($a_key);
             // Save the public key in public.key file. Send this file to anyone who want to send you the encrypted data.
             file_put_contents('public.key', $a_key['key']);
 
@@ -245,8 +249,8 @@ class HomeController extends BaseHomeController
             $domain = $this->checkDomain($domain);
 
             $serial_key = $this->checkSerialKey($faveo_encrypted_key, $order_number);
-            //dd($serial_key);
-            //return $serial_key;
+            // dd($serial_key);
+            // return $serial_key;
             $result = [];
             if ($request_type == 'install') {
                 $result = $this->verificationResult($order_number, (string) $serial_key);
@@ -275,7 +279,7 @@ class HomeController extends BaseHomeController
         echo '<input type=hidden name=_token value=csrf_token()/>';
         echo '<input type=hidden name=result value='.$result.'/>';
         echo '</form>';
-        echo"<script language='javascript'>document.redirect.submit();</script>";
+        echo "<script language='javascript'>document.redirect.submit();</script>";
     }
 
     /**
@@ -286,8 +290,8 @@ class HomeController extends BaseHomeController
         try {
             if ($order_number && $domain && $serial_key) {
                 $order = $this->verifyOrder($order_number, $serial_key);
-                //var_dump($order);
-                if ($order instanceof \App\Model\Order\Order) {
+                // var_dump($order);
+                if ($order instanceof Order) {
                     return $this->checkFaveoDetails($order_number, $faveo_name, $faveo_version);
                 }
 
@@ -306,8 +310,8 @@ class HomeController extends BaseHomeController
     public function checkFaveoDetails(?string $order_number, string $faveo_name, string $faveo_version): array
     {
         try {
-            $order = new Order();
-            $product = new Product();
+            $order = new Order;
+            $product = new Product;
             $this_order = $order->where('number', $order_number)->first();
             if ($this_order) {
                 $product_id = $this_order->product;
@@ -328,7 +332,7 @@ class HomeController extends BaseHomeController
     public static function encryptByPublicKey(string $data): string
     {
         $path = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public.key';
-        //dd($path);
+        // dd($path);
         $key_content = file_get_contents($path);
         if ($key_content === false) {
             throw new Exception('Failed to read public key file');
@@ -351,7 +355,7 @@ class HomeController extends BaseHomeController
         return $res !== false ? $res : '';
     }
 
-    public function downloadForFaveo(Request $request): \Symfony\Component\HttpFoundation\Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    public function downloadForFaveo(Request $request): Response|JsonResponse|RedirectResponse
     {
         $order = Order::where('number', $request->input('order_number'))
             ->where('serial_key', $request->input('serial_key'))
@@ -378,7 +382,7 @@ class HomeController extends BaseHomeController
         );
     }
 
-    public function latestVersion(Request $request, Product $product): \Illuminate\Http\JsonResponse
+    public function latestVersion(Request $request, Product $product): JsonResponse
     {
         $v = Validator::make($request->all(), [
             'title' => 'required',
@@ -441,14 +445,14 @@ class HomeController extends BaseHomeController
 
                     $inBetweenVersions = ProductUpload::where([['product_id', $product->id]])->select('version', 'description', 'created_at', 'is_restricted', 'is_private', 'dependencies')
                         ->whereIn('release_type', $releases)
-                    ->get()->filter(fn ($newVersion): bool => version_compare($this->getPHPCompatibleVersionString($newVersion->version), $currenctVersion) === 1)->sortBy('version', SORT_NATURAL)->toArray();
+                        ->get()->filter(fn ($newVersion): bool => version_compare($this->getPHPCompatibleVersionString($newVersion->version), $currenctVersion) === 1)->sortBy('version', SORT_NATURAL)->toArray();
 
                     $message = ['version' => array_values($inBetweenVersions)];
                 } else {
                     $message = ['error' => 'product_not_found'];
                 }
             } elseif ($product) {
-                //For older clients in which version is not sent as parameter
+                // For older clients in which version is not sent as parameter
                 // $product = $product->where('name', $title)->first();
                 $productId = $product->id;
                 $productUpload = ProductUpload::where('product_id', $productId)->where('is_restricted', 1)->orderBy('id', 'asc')->first();
@@ -464,7 +468,7 @@ class HomeController extends BaseHomeController
         return response()->json($message);
     }
 
-    public function isNewVersionAvailable(Request $request, Product $product): \Illuminate\Http\JsonResponse
+    public function isNewVersionAvailable(Request $request, Product $product): JsonResponse
     {
         $v = Validator::make($request->all(), [
             'title' => 'required',
@@ -526,8 +530,8 @@ class HomeController extends BaseHomeController
             };
 
             $allVersions = ProductUpload::where('product_id', $product->id)->where('is_private', '!=', 1)
-            ->whereIn('release_type', $releases)
-            ->orderBy('id', 'desc')->pluck('version')->toArray();
+                ->whereIn('release_type', $releases)
+                ->orderBy('id', 'desc')->pluck('version')->toArray();
             $currenctVersion = $this->getPHPCompatibleVersionString($request->version);
             $message = ['status' => '', 'message' => 'no-new-version-available'];
             foreach ($allVersions as $version) {
@@ -562,7 +566,7 @@ class HomeController extends BaseHomeController
         return (string) preg_replace('#v\.|v#', '', str_replace('_', '.', $version));
     }
 
-    public function renewurl(ProductRenewalRequest $request): string|\Illuminate\Http\JsonResponse
+    public function renewurl(ProductRenewalRequest $request): string|JsonResponse
     {
         try {
             $licenseCode = Installation::where('installation_path', 'like', '%'.$request->input('domain').'%')->value('license_code');
@@ -573,17 +577,17 @@ class HomeController extends BaseHomeController
                 throw new Exception('Subscription not found');
             }
 
-            $basecron = new CronController();
+            $basecron = new CronController;
             $order = $basecron->getOrderById($subscription->order_id);
             if (! $order instanceof Order) {
                 throw new Exception('Order not found');
             }
             $oldinvoice = $basecron->getInvoiceByOrderId($subscription->order_id);
-            if (! $oldinvoice instanceof \App\Model\Order\Invoice) {
+            if (! $oldinvoice instanceof Invoice) {
                 throw new Exception('Invoice not found');
             }
             $item = $basecron->getInvoiceItemByInvoiceId($oldinvoice->id);
-            if (! $item instanceof \App\Model\Order\InvoiceItem) {
+            if (! $item instanceof InvoiceItem) {
                 throw new Exception('Invoice item not found');
             }
 
@@ -604,15 +608,15 @@ class HomeController extends BaseHomeController
             $planid = Plan::where('product', $product_details->id)->value('id');
             $cost = PlanPrice::where('plan_id', $planid)->where('currency', $oldcurrency)->value('renew_price');
 
-            $renewController = new RenewController();
+            $renewController = new RenewController;
             $invoiceItems = $renewController->generateInvoice($product_details, $user, $order->id, $plan->id, $cost, $code = '', $item->agents, $oldcurrency);
-            if (! $invoiceItems instanceof \App\Model\Order\InvoiceItem) {
+            if (! $invoiceItems instanceof InvoiceItem) {
                 throw new Exception('Renewal failed');
             }
             $invoiceid = $invoiceItems->invoice_id;
 
             return url('autopaynow/'.$invoiceid);
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             $message = ['error' => $exception->getMessage()];
 
             return response()->json($message);
@@ -639,7 +643,7 @@ class HomeController extends BaseHomeController
         };
     }
 
-    public function getPricingData(Request $request): \Illuminate\Http\JsonResponse
+    public function getPricingData(Request $request): JsonResponse
     {
         $validator = Validator::make($request->query(), [
             'group' => 'required|integer|exists:product_groups,id',
@@ -697,7 +701,7 @@ class HomeController extends BaseHomeController
                 ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
                 ->get();
 
-            $pageController = new PageController();
+            $pageController = new PageController;
 
             $productsRelatedToGroup->transform(function ($product) use ($pageController) {
                 if ((int) $product->status === 1) {
@@ -730,7 +734,7 @@ class HomeController extends BaseHomeController
             $formatter->getSymbol(NumberFormatter::CURRENCY_SYMBOL);
     }
 
-    public function getGroupDatails(): \Illuminate\Http\JsonResponse
+    public function getGroupDatails(): JsonResponse
     {
         $group = ProductGroup::where('hidden', '0')->pluck('id', 'name');
 

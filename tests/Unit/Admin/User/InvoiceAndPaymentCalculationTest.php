@@ -13,7 +13,7 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
     use DatabaseTransactions;
 
     #[Group('InvoiceAndPayment')]
-    public function test_change_invoiceTotal_whenInvoiceIsUpdated(): void
+    public function test_change_invoice_total_when_invoice_is_updated(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser();
@@ -30,7 +30,7 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
     }
 
     #[Group('InvoiceAndPayment')]
-    public function test_change_get_clients_invoiceDetailsWhenInvoiceIsViewed(): void
+    public function test_change_get_clients_invoice_details_when_invoice_is_viewed(): void
     {
         $this->getLoggedInUser();
         $user = $this->user;

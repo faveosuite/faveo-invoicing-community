@@ -28,7 +28,7 @@ use App\Plugins\Payment\Exceptions\SignatureVerificationException;
  *   getPaymentStatus() — read a payment's current status from the gateway.
  *   verifyWebhook()    — authenticate a raw webhook body against its signature.
  *
- * Every method that talks to the gateway throws a {@see \App\Plugins\Payment\Exceptions\PaymentException}
+ * Every method that talks to the gateway throws a {@see PaymentException}
  * on failure (so "no exception" means success); only verifyWebhook returns a
  * plain bool rather than throwing.
  */

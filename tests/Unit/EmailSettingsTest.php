@@ -21,7 +21,7 @@ class EmailSettingsTest extends TestCase
     public function test_smtp_driver_correct_fields(): void
     {
         $data = ['driver' => 'smtp', 'password' => 'password'];
-        $request = new EmailSettingRequest();
+        $request = new EmailSettingRequest;
         $rules = $request->rules();
 
         $validator = Validator::make($data, $rules);

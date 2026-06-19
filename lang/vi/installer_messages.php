@@ -114,7 +114,7 @@ return [
     'user_name' => 'Tên người dùng',
     'user_email' => 'Email người dùng',
     'password_not_match' => 'Mật khẩu không khớp',
-    //new
+    // new
     'installation_check' => 'Bài kiểm tra này sẽ kiểm tra các yêu cầu tiên quyết cần thiết để cài đặt Agora Invoice Community',
     'db_setup_error_1' => 'Điều này có thể có nghĩa là thông tin tên người dùng và mật khẩu không chính xác hoặc máy chủ của bạn không thể kết nối.',
     'db_setup_error_2' => 'Bạn có chắc chắn rằng bạn đã có một cơ sở dữ liệu với tên cơ sở dữ liệu đã cho?',

@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\VersionCallback;
 use App\Model\Product\ProductUpload;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class VersionsViewController extends Controller
 {
-    public function getVersionInfo(mixed $version_id): \Illuminate\Http\JsonResponse
+    public function getVersionInfo(mixed $version_id): JsonResponse
     {
         $version = ProductUpload::with('product:id,name')
             ->find($version_id);
@@ -19,7 +20,7 @@ class VersionsViewController extends Controller
             return successResponse(__('lang.version_details'), data: null);
         }
 
-        /** @var \App\Model\Product\ProductUpload $version */
+        /** @var ProductUpload $version */
         return successResponse(__('lang.version_details'), [
             'id' => $version->id,
             'product_id' => $version->product_id,
@@ -35,14 +36,14 @@ class VersionsViewController extends Controller
         ]);
     }
 
-    public function getVersionCallbacks(Request $request, mixed $version_id): \Illuminate\Http\JsonResponse
+    public function getVersionCallbacks(Request $request, mixed $version_id): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query');
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
-        /** @var \App\Model\Product\ProductUpload $productUpload */
+        /** @var ProductUpload $productUpload */
         $productUpload = ProductUpload::find($version_id);
         $versionInstallation = $productUpload
             ->callbacks()

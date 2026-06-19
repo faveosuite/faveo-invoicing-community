@@ -2,15 +2,14 @@
 
 namespace Database\Seeders\v4_0_2_5_RC_1;
 
-
 use App\Model\Common\Country;
 use App\Model\Common\PricingTemplate;
 use App\Model\Common\State;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
 use App\Model\Payment\Currency;
 use App\Plugins\Recaptcha\Model\RecaptchaSetting;
 use DB;
-use App\Model\Common\Template;
-use App\Model\Common\TemplateType;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -24,7 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->countrySeeder();
         $this->addMailTemplateForEmailAndMobileChange();
 
-        PricingTemplate::where('id',1)->update(['data' => '<div class="">
+        PricingTemplate::where('id', 1)->update(['data' => '<div class="">
         <div class="card border-radius-0 bg-color-light box-shadow-6 anim-hover-translate-top-10px transition-3ms">
             <div class="card-body py-5">
     
@@ -74,8 +73,7 @@ class DatabaseSeeder extends Seeder
         </div>
     </div>']);
 
-
-        PricingTemplate::where('id',2)->update(['data' => '<div class="">
+        PricingTemplate::where('id', 2)->update(['data' => '<div class="">
         <div class="card border-radius-0 bg-color-light box-shadow-6 anim-hover-translate-top-10px transition-3ms">
             <div class="card-body py-5">
     
@@ -154,9 +152,9 @@ class DatabaseSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // Chunked bulk inserts for currencies
-        $currencies->chunk(500)->each(function($chunk): void{
+        $currencies->chunk(500)->each(function ($chunk): void {
             DB::table('currencies')->insert(
-                $chunk->map(fn($c): array => [
+                $chunk->map(fn ($c): array => [
                     'id' => $c['id'],
                     'code' => $c['code'],
                     'name' => $c['name'],
@@ -168,9 +166,9 @@ class DatabaseSeeder extends Seeder
         });
 
         // Chunked bulk inserts for countries
-        $countries->chunk(500)->each(function($chunk): void{
+        $countries->chunk(500)->each(function ($chunk): void {
             DB::table('countries')->insert(
-                $chunk->map(fn($c): array => [
+                $chunk->map(fn ($c): array => [
                     'country_id' => $c['country_id'],
                     'country_code_char2' => $c['country_code_char2'],
                     'country_code_char3' => $c['country_code_char3'],
@@ -189,9 +187,9 @@ class DatabaseSeeder extends Seeder
         });
 
         // Chunked bulk inserts for states
-        $states->chunk(500)->each(function($chunk): void{
+        $states->chunk(500)->each(function ($chunk): void {
             DB::table('states_subdivisions')->insert(
-                $chunk->map(fn($s): array => [
+                $chunk->map(fn ($s): array => [
                     'state_subdivision_id' => $s['state_subdivision_id'],
                     'state_subdivision_name' => $s['state_subdivision_name'],
                     'country_code' => $s['country_code'],
@@ -208,13 +206,13 @@ class DatabaseSeeder extends Seeder
         DB::table('users')
             ->whereNotNull('state')
             ->update([
-                'state' => DB::raw("SUBSTRING_INDEX(state, '-', -1)")
+                'state' => DB::raw("SUBSTRING_INDEX(state, '-', -1)"),
             ]);
 
         DB::table('tax_by_states')
             ->whereNotNull('state_code')
             ->update([
-                'state_code' => DB::raw("SUBSTRING_INDEX(state_code, '-', -1)")
+                'state_code' => DB::raw("SUBSTRING_INDEX(state_code, '-', -1)"),
             ]);
     }
 
@@ -288,7 +286,7 @@ class DatabaseSeeder extends Seeder
     </tr>
     </tbody>
 </table>
-'
+',
             ]
         );
 
@@ -361,10 +359,9 @@ class DatabaseSeeder extends Seeder
     </tr>
     </tbody>
 </table>
-'
+',
             ]
         );
-
 
         TemplateType::updateOrCreate(
             ['id' => '27'],
@@ -435,10 +432,9 @@ class DatabaseSeeder extends Seeder
     </tr>
     </tbody>
 </table>
-'
+',
             ]
         );
-
 
     }
 }

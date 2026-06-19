@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Model\Common;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -13,9 +16,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $key
  * @property string|null $value
  * @property int $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Model\Common\PipedriveField $pipedriveField
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read PipedriveField $pipedriveField
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveFieldOption newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveFieldOption newQuery()
@@ -33,16 +36,16 @@ use Illuminate\Database\Eloquent\Model;
 class PipedriveFieldOption extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
     protected $guarded = [];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<PipedriveField, $this>
+     * @return BelongsTo<PipedriveField, $this>
      */
-    public function pipedriveField(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function pipedriveField(): BelongsTo
     {
         return $this->belongsTo(PipedriveField::class, 'pipedrive_field_id');
     }

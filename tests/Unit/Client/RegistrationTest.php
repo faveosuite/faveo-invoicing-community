@@ -23,10 +23,10 @@ class RegistrationTest extends DBTestCase
         $_SERVER['HTTP_CLIENT_IP'] = $ip;
         $_SERVER['REMOTE_ADDR'] = $address;
 
-        $builder = new MockBuilder();
+        $builder = new MockBuilder;
         $builder->setNamespace('Illuminate\Foundation\Auth')
-                ->setName('file_get_contents')
-                ->setFunction(fn (): string => $content);
+            ->setName('file_get_contents')
+            ->setFunction(fn (): string => $content);
 
         $this->mock = $builder->build();
         $this->mock->disable();
@@ -40,7 +40,7 @@ class RegistrationTest extends DBTestCase
     }
 
     #[Group('postRegister')]
-    public function test_when_user_registers_emailAndUsername_not_given(): void
+    public function test_when_user_registers_email_and_username_not_given(): void
     {
         $user = User::factory()->create();
         $this->withoutMiddleware();
@@ -64,7 +64,7 @@ class RegistrationTest extends DBTestCase
     }
 
     #[Group('postRegister')]
-    public function test_postRegister_whenPasswordDoesNotMatch(): void
+    public function test_post_register_when_password_does_not_match(): void
     {
         $this->setUpServerVariable('192.168.12.12', 'someaddress', 'IN');
         $user = User::factory()->create(['bussiness' => 'Accounting', 'mobile_code' => 91]);
@@ -205,7 +205,7 @@ class RegistrationTest extends DBTestCase
         ]);
     }
 
-    public function test_postRegister_whenEverythingMatches(): void
+    public function test_post_register_when_everything_matches(): void
     {
         $this->withoutMiddleware();
         $this->setUpServerVariable('192.168.12.12', 'someaddress', 'IN');

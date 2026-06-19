@@ -39,18 +39,18 @@ class BaseCartControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->classObject = new BaseCartController();
-        $this->classObject1 = new ClientController();
+        $this->classObject = new BaseCartController;
+        $this->classObject1 = new ClientController;
         $this->request = resolve(Request::class);
-//        $this->html1 = new Html($this->request);
+        //        $this->html1 = new Html($this->request);
         $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
         $this->html->shouldReceive('token')->andReturn('mocked-token');
         $this->app->instance(Html::class, $this->html);
-        $this->cart = new Cart();
+        $this->cart = new Cart;
     }
 
     #[Group('quantity')]
-    public function test_getCartValues_calculatesAgentQtyPriceOfCartWhenReducingAgtAllowed_returnArrayToBeAdded(): void
+    public function test_get_cart_values_calculates_agent_qty_price_of_cart_when_reducing_agt_allowed_return_array_to_be_added(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -66,12 +66,12 @@ class BaseCartControllerTest extends DBTestCase
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
         $response = $this->getPrivateMethod($this->classObject, 'getCartValues', [$plan1->id, true]);
-        $this->assertEquals($response['agtqty'], 9); //Reduced to half
-        $this->assertEquals($response['price'], 900); //Reduced to half
+        $this->assertEquals($response['agtqty'], 9); // Reduced to half
+        $this->assertEquals($response['price'], 900); // Reduced to half
     }
 
     #[Group('quantity')]
-    public function test_getCartValues_calculateAgentQtyPriceOfCartWhenIncreasinAgtAllowed_returnArrayToBeAdded(): void
+    public function test_get_cart_values_calculate_agent_qty_price_of_cart_when_increasin_agt_allowed_return_array_to_be_added(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -87,12 +87,12 @@ class BaseCartControllerTest extends DBTestCase
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
         $response = $this->getPrivateMethod($this->classObject, 'getCartValues', [$plan1->id]);
-        $this->assertEquals($response['agtqty'], 11); //Doubled
-        $this->assertEquals($response['price'], 1100); //Doubled
+        $this->assertEquals($response['agtqty'], 11); // Doubled
+        $this->assertEquals($response['price'], 1100); // Doubled
     }
 
     #[Group('quantity')]
-    public function test_getCartValues_calculateAgentQtyPriceOfCartWhenInvalidProductPassed_throwsException(): void
+    public function test_get_cart_values_calculate_agent_qty_price_of_cart_when_invalid_product_passed_throws_exception(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Product not present in cart.');
@@ -112,31 +112,31 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[Group('quantity')]
-    //re think this case
-//    public function test_updateAgentQty_updatesCart_returnsUpdatedCart()
-//    {
-//        $this->getLoggedInUser();
-//        $this->withoutMiddleware();
-//        $product = Product::factory()->create(['can_modify_agent' => 1]);
-//        $currency = 'INR';
-//        \Cart::add([
-//            'id' => $product->id,
-//            'name' => $product->name,
-//            'price' => 1000,
-//            'quantity' => 1,
-//            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-//        ]);
-//        $response = $this->call('POST', 'update-agent-qty', [
-//            'productid' => $product->id,
-//        ]);
-//        foreach (\Cart::getContent() as $cart) {
-//            $this->assertEquals($cart->price, 1900);
-//            $this->assertEquals($cart->attributes->agents, 19);
-//        }
-//    }
+    // re think this case
+    //    public function test_updateAgentQty_updatesCart_returnsUpdatedCart()
+    //    {
+    //        $this->getLoggedInUser();
+    //        $this->withoutMiddleware();
+    //        $product = Product::factory()->create(['can_modify_agent' => 1]);
+    //        $currency = 'INR';
+    //        \Cart::add([
+    //            'id' => $product->id,
+    //            'name' => $product->name,
+    //            'price' => 1000,
+    //            'quantity' => 1,
+    //            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+    //        ]);
+    //        $response = $this->call('POST', 'update-agent-qty', [
+    //            'productid' => $product->id,
+    //        ]);
+    //        foreach (\Cart::getContent() as $cart) {
+    //            $this->assertEquals($cart->price, 1900);
+    //            $this->assertEquals($cart->attributes->agents, 19);
+    //        }
+    //    }
 
     #[Group('quantity')]
-    public function test_updateAgentQty_updatesCartWhenModifyingAgentNotAllowed_returnsSameCartValues(): void
+    public function test_update_agent_qty_updates_cart_when_modifying_agent_not_allowed_returns_same_cart_values(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -162,7 +162,7 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[Group('quantity')]
-    public function test_updateProductQty_updatesCartWhenModifyingQtyAllowed_returnsUpdatedCart(): void
+    public function test_update_product_qty_updates_cart_when_modifying_qty_allowed_returns_updated_cart(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -187,7 +187,7 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[Group('quantity')]
-    public function test_updateProductQty_updatesCartWhenModifyingQtyNotAllowed_throwsException(): void
+    public function test_update_product_qty_updates_cart_when_modifying_qty_not_allowed_throws_exception(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Cannot Modify Quantity');
@@ -208,7 +208,7 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[Group('quantity')]
-    public function test_reduceProductQty_reduceCartQtyWhenModifyingQtyAllowed_returnsUpdatedCart(): void
+    public function test_reduce_product_qty_reduce_cart_qty_when_modifying_qty_allowed_returns_updated_cart(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -233,7 +233,7 @@ class BaseCartControllerTest extends DBTestCase
     }
 
     #[Group('quantity')]
-    public function test_reduceProductQty_updatesCartWhenModifyingQtyNotAllowed_throwsException(): void
+    public function test_reduce_product_qty_updates_cart_when_modifying_qty_not_allowed_throws_exception(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Cannot Modify Quantity');
@@ -342,7 +342,7 @@ class BaseCartControllerTest extends DBTestCase
             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10], null,
             $product,
         );
-        $checkoutController = new CheckoutController();
+        $checkoutController = new CheckoutController;
         $checkoutController->getAttributes($this->cart->getContent());
 
         $response = $this->withSession(['nothingLeft' => 0, 'discount' => 300, 'priceRemaining' => 1, 'priceToBePaid' => 0])->call('post', 'checkout-and-pay', ['cost' => 0, 'payment_gateway' => '', 'invoice_id' => 0, 'checkout_token' => Str::uuid()]);

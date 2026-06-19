@@ -3,15 +3,17 @@
 namespace App\License\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $option_key
  * @property string|null $option_value
  * @property string|null $option_group
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption group(mixed $group)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption newModelQuery()
@@ -37,10 +39,10 @@ class LicenseOption extends Model
     ];
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      */
     #[Scope]
-    protected function group(\Illuminate\Database\Eloquent\Builder $query, mixed $group): mixed
+    protected function group(Builder $query, mixed $group): mixed
     {
         return $query->where('option_group', $group);
     }

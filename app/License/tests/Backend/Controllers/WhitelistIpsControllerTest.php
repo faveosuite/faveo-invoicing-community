@@ -18,7 +18,7 @@ class WhitelistIpsControllerTest extends LicenseTestCase
     {
         parent::setUp();
 
-        $this->controller = new WhitelistIpsController();
+        $this->controller = new WhitelistIpsController;
     }
 
     #[Test]

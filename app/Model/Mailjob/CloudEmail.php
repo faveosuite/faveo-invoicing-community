@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Model\Mailjob;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -13,8 +14,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $result_password
  * @property string $domain
  * @property int $counter
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudEmail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudEmail newQuery()

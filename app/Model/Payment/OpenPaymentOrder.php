@@ -3,7 +3,9 @@
 namespace App\Model\Payment;
 
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Override;
 use Str;
 
@@ -28,9 +30,9 @@ use Str;
  * @property string|null $transaction_id
  * @property string|null $gateway_transaction_id
  * @property string $payment_status
- * @property \Illuminate\Support\Carbon|null $paid_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $paid_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OpenPaymentOrder completed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OpenPaymentOrder failed()
@@ -143,10 +145,10 @@ class OpenPaymentOrder extends Model
      * Scope for completed payments.
      */
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      */
     #[Scope]
-    protected function completed(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function completed(Builder $query): mixed
     {
         return $query->where('payment_status', 'completed');
     }
@@ -155,10 +157,10 @@ class OpenPaymentOrder extends Model
      * Scope for pending payments.
      */
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      */
     #[Scope]
-    protected function pending(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function pending(Builder $query): mixed
     {
         return $query->where('payment_status', 'pending');
     }
@@ -167,10 +169,10 @@ class OpenPaymentOrder extends Model
      * Scope for failed payments.
      */
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      */
     #[Scope]
-    protected function failed(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function failed(Builder $query): mixed
     {
         return $query->where('payment_status', 'failed');
     }

@@ -28,7 +28,7 @@ class LicenseController extends Controller
         $this->ip_address = request()->server('REMOTE_ADDR'); // @phpstan-ignore property.notFound
     }
 
-    public function licenseAdd(LicenseRequest $request): \Illuminate\Http\JsonResponse
+    public function licenseAdd(LicenseRequest $request): JsonResponse
     {
         $productId = $request->integer('product_id');
         $licenseCode = $request->get('license_code') ?: null;
@@ -49,7 +49,7 @@ class LicenseController extends Controller
             $request->get('license_support_date')
         );
 
-        if ($checks instanceof \Illuminate\Http\JsonResponse) {
+        if ($checks instanceof JsonResponse) {
             return $checks;
         }
 
@@ -87,9 +87,9 @@ class LicenseController extends Controller
         return successResponse(__('license::lang.adddd'), $clientFormatted, 201);
     }
 
-    public function licenseUpdate(Request $request): \Illuminate\Http\JsonResponse
+    public function licenseUpdate(Request $request): JsonResponse
     {
-        /** @var \App\License\Models\License|null $license */
+        /** @var License|null $license */
         $license = License::with('user:id,email')->find($request->get('id'));
         if (! $license) {
             return errorResponse(__('license::lang.license_id'), 400);
@@ -106,7 +106,7 @@ class LicenseController extends Controller
             $request->get('license_support_date')
         );
 
-        if ($checks instanceof \Illuminate\Http\JsonResponse) {
+        if ($checks instanceof JsonResponse) {
             return errorResponse($checks->getOriginalContent()['message'], 400);
         }
 
@@ -132,10 +132,10 @@ class LicenseController extends Controller
         return successResponse(__('license::lang.license_Update'), $clientFormatted, 200);
     }
 
-    public function deleteLicense(Request $request): \Illuminate\Http\JsonResponse
-    /** @var \App\License\Models\License|null $license */
+    public function deleteLicense(Request $request): JsonResponse
+    /** @var License|null $license */
     {
-        /** @var \App\License\Models\License|null $license */
+        /** @var License|null $license */
         $license = License::find($request->get('id'));
         if (! $license) {
             return successResponse(__('license::lang.delete'), 0, 200);
@@ -152,7 +152,7 @@ class LicenseController extends Controller
         return successResponse(__('license::lang.delete'), 1, 200);
     }
 
-    public function show(Request $request): \Illuminate\Http\JsonResponse
+    public function show(Request $request): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -208,7 +208,7 @@ class LicenseController extends Controller
         return successResponse(__('license::lang.License_show'), $licenses, 200);
     }
 
-    public function edit(int $license_id): \Illuminate\Http\JsonResponse
+    public function edit(int $license_id): JsonResponse
     {
         $license = License::with(['product:id,name', 'user:id,first_name,last_name,email'])->findOrFail($license_id);
         $productName = collect([(object) ['name' => $license->product->name, 'id' => $license->id]]);
@@ -226,7 +226,7 @@ class LicenseController extends Controller
         return filter_var($client_email, FILTER_VALIDATE_EMAIL) ? (string) $client_email : 'Unknown Client';
     }
 
-    protected function licenseChecks(mixed $client_id, ?string $license_code, ?string $license_ip, ?string $license_domain, mixed $license_limit, ?string $license_expire_date, ?string $license_updates_date, ?string $license_support_date): ?\Illuminate\Http\JsonResponse
+    protected function licenseChecks(mixed $client_id, ?string $license_code, ?string $license_ip, ?string $license_domain, mixed $license_limit, ?string $license_expire_date, ?string $license_updates_date, ?string $license_support_date): ?JsonResponse
     {
         if (! LicenseHelper::validateIntegerValue($client_id) && in_array($license_code, [null, '', '0'], strict: true)) {
             return errorResponse(__('license::lang.error_client_or_license_code'), 400);
@@ -286,7 +286,7 @@ class LicenseController extends Controller
         return License::where('license_code', $request->old_license_code)->update(['license_code' => $request->license_code]);
     }
 
-    public function syncTheCreationOfLicense(Request $request): \Illuminate\Http\JsonResponse
+    public function syncTheCreationOfLicense(Request $request): JsonResponse
     {
         try {
             $license = License::where('license_code', $request->input('license_code'))->first();
@@ -327,7 +327,7 @@ class LicenseController extends Controller
         }
     }
 
-    public function licenseInfo(Request $request): \Illuminate\Http\JsonResponse
+    public function licenseInfo(Request $request): JsonResponse
     {
         $license = License::with(['addonProducts.latestVersion'])->where('license_code', $request->input('license_code'))->firstOrFail();
         $product = Product::find($license->product_id);
@@ -362,12 +362,12 @@ class LicenseController extends Controller
         return successResponse('', $licenseOptions);
     }
 
-    public function giveLicenseTakeOrder(Request $request): \Illuminate\Http\JsonResponse
+    public function giveLicenseTakeOrder(Request $request): JsonResponse
     {
         return successResponse('', License::where('license_code', $request->input('license_code'))->value('license_order_number'));
     }
 
-    public function getPluginInfo(Request $request): \Illuminate\Http\JsonResponse
+    public function getPluginInfo(Request $request): JsonResponse
     {
         $licenseCodes = collect((array) json_decode((string) $request->input('license_code'), associative: true));
         $licenses = License::whereIn('license_code', $licenseCodes)

@@ -32,7 +32,7 @@ class CrmTest extends DBTestCase
             'expires_at' => now()->addHour(),
         ]);
 
-        $this->crm = new Crm();
+        $this->crm = new Crm;
     }
 
     public function test_it_retrieves_crm_module_fields(): void

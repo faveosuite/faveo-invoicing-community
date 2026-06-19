@@ -5,12 +5,13 @@ namespace App\Traits\Order;
 use App\Model\Product\Subscription;
 use App\Services\SubscriptionRenewalService;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 
 trait UpdateDates
 {
-    public function updateLicenseDetails(Request $request): \Illuminate\Http\JsonResponse
+    public function updateLicenseDetails(Request $request): JsonResponse
     {
         $this->validate($request, ['orderid' => 'required']);
 

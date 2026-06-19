@@ -28,7 +28,7 @@ class AutorenewalExpirymail extends LoggableCommand
      */
     public function handleAndLog(): void
     {
-        $controller = new CronController();
+        $controller = new CronController;
         $controller->autoRenewalExpiryNotify();
         $this->info('renewal:notification Command Run successfully!');
     }

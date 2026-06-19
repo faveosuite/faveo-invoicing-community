@@ -5,17 +5,19 @@ declare(strict_types=1);
 namespace App\BillingLog\Model;
 
 use App\BaseModel;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $command
  * @property string $description
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $status
  * @property int|null $exception_log_id
  * @property int|null $duration
- * @property-read \App\BillingLog\Model\ExceptionLog|null $exception
+ * @property-read ExceptionLog|null $exception
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CronLog newQuery()
@@ -42,9 +44,9 @@ class CronLog extends BaseModel
     protected $hidden = ['exception_log_id'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<ExceptionLog, $this>
+     * @return BelongsTo<ExceptionLog, $this>
      */
-    public function exception(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function exception(): BelongsTo
     {
         return $this->belongsTo(ExceptionLog::class, 'exception_log_id');
     }

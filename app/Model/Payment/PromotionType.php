@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Model\Payment;
 
 use App\BaseModel;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PromotionType newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PromotionType newQuery()

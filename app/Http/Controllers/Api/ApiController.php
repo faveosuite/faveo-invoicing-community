@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Log;
 
 class ApiController extends Controller
 {
-    public function logCSP(Request $request): \Illuminate\Http\JsonResponse
+    public function logCSP(Request $request): JsonResponse
     {
         $content = $request->getContent();
 

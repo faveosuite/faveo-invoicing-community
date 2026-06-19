@@ -15,6 +15,7 @@ use Exception;
 use Facades\Spatie\Referer\Referer;
 use Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Log;
 use Logger;
@@ -50,7 +51,7 @@ class RegisterController extends Controller
                 'spamtrap' => 256,
             ];
 
-            /** @var \App\Model\Common\EmailMobileValidationProviders $reoonProvider */
+            /** @var EmailMobileValidationProviders $reoonProvider */
             $reoonProvider = EmailMobileValidationProviders::where('provider', 'reoon')
                 ->select('api_key', 'mode', 'accepted_output')
                 ->firstOrFail();
@@ -122,13 +123,13 @@ class RegisterController extends Controller
         return $this->abstractPhoneVerification($provider, $phone);
     }
 
-    public function postRegister(ProfileRequest $request, User $user): \Illuminate\Http\JsonResponse
+    public function postRegister(ProfileRequest $request, User $user): JsonResponse
     {
         $this->validate($request, [
-            'registerForm' => [new Honeypot()],
+            'registerForm' => [new Honeypot],
         ]);
         try {
-            /** @var \App\Model\Common\StatusSetting $status */
+            /** @var StatusSetting $status */
             $status = StatusSetting::select(
                 'email_validation_status',
                 'mobile_validation_status',

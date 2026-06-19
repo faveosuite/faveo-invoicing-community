@@ -6,6 +6,9 @@ namespace App\Model\Payment;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -17,9 +20,9 @@ use App\Traits\SystemActivityLogsTrait;
  * @property int $cart_inclusive
  * @property string $Gst_No
  * @property int $rounding
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption newModelQuery()

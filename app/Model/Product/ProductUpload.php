@@ -7,8 +7,16 @@ use App\License\Models\VersionInstallation;
 use App\Model\Order\Order;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -20,21 +28,21 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $version_expire_date
  * @property int $version_install_count
  * @property int $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int $is_private
  * @property int $is_restricted
  * @property string|null $dependencies
  * @property int $is_pre_release
  * @property string $release_type
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, VersionCallback> $callbacks
+ * @property-read Collection<int, VersionCallback> $callbacks
  * @property-read int|null $callbacks_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, VersionInstallation> $installations
+ * @property-read Collection<int, VersionInstallation> $installations
  * @property-read int|null $installations_count
  * @property-read Order|null $order
- * @property-read \App\Model\Product\Product|null $product
+ * @property-read Product|null $product
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductUpload active()
  * @method static \Database\Factories\Model\Product\ProductUploadFactory factory($count = null, $state = [])
@@ -63,9 +71,10 @@ use Illuminate\Database\Eloquent\Model;
 class ProductUpload extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'product_uploads';
@@ -107,42 +116,42 @@ class ProductUpload extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Product\Product, $this>
+     * @return BelongsTo<Product, $this>
      */
-    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Order, $this>
+     * @return BelongsTo<Order, $this>
      */
-    public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<VersionCallback, $this>
+     * @return HasMany<VersionCallback, $this>
      */
-    public function callbacks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function callbacks(): HasMany
     {
         return $this->hasMany(VersionCallback::class, 'version_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<VersionInstallation, $this>
+     * @return HasMany<VersionInstallation, $this>
      */
-    public function installations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function installations(): HasMany
     {
         return $this->hasMany(VersionInstallation::class, 'version_id');
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      */
     #[Scope]
-    protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function active(Builder $query): mixed
     {
         return $query->where(function ($q): void {
             $q->where('status', 1);
@@ -150,11 +159,11 @@ class ProductUpload extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function dependencies(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function dependencies(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+        return Attribute::make(get: function ($value) {
             return json_decode((string) $value);
         });
     }

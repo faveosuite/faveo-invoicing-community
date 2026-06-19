@@ -7,7 +7,11 @@ use App\License\Helpers\LicenseHelper;
 use App\License\Models\License;
 use App\License\Models\LicenseReport;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Contracts\Translation\Translator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Lang;
 
 class ReportsController extends Controller
@@ -18,7 +22,7 @@ class ReportsController extends Controller
 
     public int $action_success = 1;
 
-    public function reports(Request $request): \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+    public function reports(Request $request): ResponseFactory|Response
     {
         $report_ids_array = $request->arr;
         $whichReport = $request->get('which_report');
@@ -47,7 +51,7 @@ class ReportsController extends Controller
     /**
      * @return array<mixed>
      */
-    protected function whichReportDeleted(mixed $whichReport, mixed $action_success, mixed $removed_records, mixed $error_details = ''): \Illuminate\Contracts\Translation\Translator|string|array
+    protected function whichReportDeleted(mixed $whichReport, mixed $action_success, mixed $removed_records, mixed $error_details = ''): Translator|string|array
     {
         $page_message = '';
         if (! empty($whichReport)) {
@@ -61,7 +65,7 @@ class ReportsController extends Controller
         return $page_message;
     }
 
-    //delete report
+    // delete report
     private function deleteReport(mixed $report_id, int $removed_records): int|float
     {
         if (LicenseHelper::validateIntegerValue($report_id)) {
@@ -71,8 +75,8 @@ class ReportsController extends Controller
         return $removed_records;
     }
 
-    //system1
-    public function reportArraySystem(Request $request): \Illuminate\Http\JsonResponse
+    // system1
+    public function reportArraySystem(Request $request): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -108,7 +112,7 @@ class ReportsController extends Controller
         return successResponse(__('lang.SystemReport_Show'), $reportsQuery, 200);
     }
 
-    public function reportArrayCracking(Request $request): \Illuminate\Http\JsonResponse
+    public function reportArrayCracking(Request $request): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -152,7 +156,7 @@ class ReportsController extends Controller
         return successResponse(__('lang.CrackingReport_Show'), $crakingReports, 200);
     }
 
-    public function reportArrayLicense(Request $request): \Illuminate\Http\JsonResponse
+    public function reportArrayLicense(Request $request): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -197,7 +201,7 @@ class ReportsController extends Controller
         return successResponse(__('lang.LicenseReport_Show'), $LicenseReports, 200);
     }
 
-    public function reportArrayUpdate(Request $request): \Illuminate\Http\JsonResponse
+    public function reportArrayUpdate(Request $request): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);

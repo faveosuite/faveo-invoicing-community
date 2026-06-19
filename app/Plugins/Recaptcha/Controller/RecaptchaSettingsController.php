@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
 use App\Plugins\Recaptcha\Model\RecaptchaSetting;
 use App\Plugins\Recaptcha\Requests\UpdateSettingsRequest;
+use Illuminate\Http\JsonResponse;
 
 class RecaptchaSettingsController extends Controller
 {
@@ -14,7 +15,7 @@ class RecaptchaSettingsController extends Controller
         $this->middleware(['auth', 'admin']);
     }
 
-    public function getSettings(): \Illuminate\Http\JsonResponse
+    public function getSettings(): JsonResponse
     {
         $status = StatusSetting::first();
         $settings = RecaptchaSetting::firstOrCreate([]);
@@ -34,7 +35,7 @@ class RecaptchaSettingsController extends Controller
         ]);
     }
 
-    public function updateSettings(UpdateSettingsRequest $request): \Illuminate\Http\JsonResponse
+    public function updateSettings(UpdateSettingsRequest $request): JsonResponse
     {
         $status = StatusSetting::findOrFail(1);
         $status->recaptcha_status = (int) $request->boolean('recaptcha_status', default: true);

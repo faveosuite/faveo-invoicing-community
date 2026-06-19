@@ -5,6 +5,7 @@ namespace App\Http\Requests\User;
 use App\Http\Requests\Request;
 use App\Rules\PhoneNumber;
 use App\Rules\StrongPassword;
+use App\User;
 use Auth;
 use Override;
 
@@ -26,7 +27,7 @@ class ProfileRequest extends Request
     public function rules(): array
     {
         if ($this->segment(1) == 'profile') {
-            /** @var \App\User $authUser */
+            /** @var User $authUser */
             $authUser = Auth::user();
             $userid = $authUser->id;
 
@@ -45,7 +46,7 @@ class ProfileRequest extends Request
         }
 
         if ($this->segment(1) == 'my-profile') {
-            /** @var \App\User $authUser2 */
+            /** @var User $authUser2 */
             $authUser2 = Auth::user();
             $userid = $authUser2->id;
 
@@ -67,7 +68,7 @@ class ProfileRequest extends Request
                 'old_password' => ['required', 'min:6'],
                 'new_password' => [
                     'required',
-                    new StrongPassword(),
+                    new StrongPassword,
                     'different:old_password',
                 ],
                 'confirm_password' => ['required', 'same:new_password'],
@@ -85,7 +86,7 @@ class ProfileRequest extends Request
                 'terms' => ['sometimes'],
                 'password' => [
                     'required',
-                    new StrongPassword(),
+                    new StrongPassword,
                 ],
                 'password_confirmation' => ['required', 'same:password'],
                 // 'country'               => 'required|exists:countries,country_code_char2',

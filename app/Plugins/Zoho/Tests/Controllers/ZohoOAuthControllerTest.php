@@ -23,7 +23,7 @@ class ZohoOAuthControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->controller = new ZohoOAuthController();
+        $this->controller = new ZohoOAuthController;
     }
 
     public function test_it_gets_oauth_client_keys_for_integration(): void

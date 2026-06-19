@@ -20,7 +20,7 @@ class ProfileTest extends DBTestCase
         self::getLoggedInUser();
     }
 
-    public function test_postProfile_successful_update(): void
+    public function test_post_profile_successful_update(): void
     {
         Storage::fake('local');
 
@@ -44,7 +44,7 @@ class ProfileTest extends DBTestCase
         ]);
     }
 
-    public function test_postProfile_validation_failure(): void
+    public function test_post_profile_validation_failure(): void
     {
         $response = $this->patchJson('/my-profile', [
             'email' => 'invalid-email',
@@ -61,7 +61,7 @@ class ProfileTest extends DBTestCase
         ]);
     }
 
-    public function test_postPassword_successful_update(): void
+    public function test_post_password_successful_update(): void
     {
         $this->user->update(['password' => Hash::make('oldpassword')]);
         $response = $this->patchJson('/my-password', [
@@ -74,7 +74,7 @@ class ProfileTest extends DBTestCase
         $this->assertTrue(Hash::check('Newpassword@123', $this->user->fresh()->password));
     }
 
-    public function test_postPassword_incorrect_old_password(): void
+    public function test_post_password_incorrect_old_password(): void
     {
         $response = $this->patchJson('/my-password', [
             'old_password' => 'wrongpassword',
@@ -86,7 +86,7 @@ class ProfileTest extends DBTestCase
         $response->assertJson(['message' => 'Incorrect old password']);
     }
 
-    public function test_postPassword_with_short_new_password(): void
+    public function test_post_password_with_short_new_password(): void
     {
         $response = $this->patchJson('/my-password', [
             'old_password' => 'oldpassword',
@@ -163,7 +163,7 @@ class ProfileTest extends DBTestCase
         $response->assertJsonStructure([
             'success', 'message']);
         $this->assertEquals(expected: true, actual: $content['success']);
-        $this->assertTrue(20 === strlen((string) $content['message']['code']));
+        $this->assertTrue(strlen((string) $content['message']['code']) === 20);
     }
 
     public function test_when_2fa_verify_password(): void

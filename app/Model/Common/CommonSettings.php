@@ -2,8 +2,10 @@
 
 namespace App\Model\Common;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -11,8 +13,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $option_value
  * @property string $status
  * @property string $optional_field
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CommonSettings newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CommonSettings newQuery()
@@ -30,7 +32,7 @@ use Illuminate\Database\Eloquent\Model;
 class CommonSettings extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 

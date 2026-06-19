@@ -5,8 +5,14 @@ namespace App\Model\Product;
 use App\BaseModel;
 use App\Model\Common\PricingTemplate;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Override;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -17,17 +23,17 @@ use Override;
  * @property int $hidden
  * @property string $cart_link
  * @property int|null $pricing_templates_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string $status
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\ConfigurableOption> $config
+ * @property-read Collection<int, ConfigurableOption> $config
  * @property-read int|null $config_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\GroupFeatures> $features
+ * @property-read Collection<int, GroupFeatures> $features
  * @property-read int|null $features_count
  * @property-read PricingTemplate|null $pricingTemplate
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\Product> $product
+ * @property-read Collection<int, Product> $product
  * @property-read int|null $product_count
  *
  * @method static \Database\Factories\Model\Product\ProductGroupFactory factory($count = null, $state = [])
@@ -51,9 +57,10 @@ use Override;
 class ProductGroup extends BaseModel
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'product_groups';
@@ -77,33 +84,33 @@ class ProductGroup extends BaseModel
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ConfigurableOption, $this>
+     * @return HasMany<ConfigurableOption, $this>
      */
-    public function config(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function config(): HasMany
     {
         return $this->hasMany(ConfigurableOption::class, 'group_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<GroupFeatures, $this>
+     * @return HasMany<GroupFeatures, $this>
      */
-    public function features(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function features(): HasMany
     {
         return $this->hasMany(GroupFeatures::class, 'group_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Product\Product, $this>
+     * @return HasMany<Product, $this>
      */
-    public function product(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function product(): HasMany
     {
         return $this->hasMany(Product::class, 'group');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Common\PricingTemplate, $this>
+     * @return BelongsTo<PricingTemplate, $this>
      */
-    public function pricingTemplate(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function pricingTemplate(): BelongsTo
     {
         return $this->belongsTo(PricingTemplate::class, 'pricing_templates_id', 'id');
     }

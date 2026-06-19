@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace App\Model\Configure;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $option_id
  * @property string $key
  * @property string $value
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Model\Configure\ConfigOption $configOption
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read ConfigOption $configOption
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigOptionValue newQuery()
@@ -31,7 +34,7 @@ use Illuminate\Database\Eloquent\Model;
 class ConfigOptionValue extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -41,9 +44,9 @@ class ConfigOptionValue extends Model
 
     // Define the relationship with ConfigOption
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<ConfigOption, $this>
+     * @return BelongsTo<ConfigOption, $this>
      */
-    public function configOption(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function configOption(): BelongsTo
     {
         return $this->belongsTo(ConfigOption::class, 'option_id');
     }

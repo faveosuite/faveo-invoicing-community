@@ -7,15 +7,25 @@ use App\License\Models\Installation;
 use App\Model\Product\Subscription;
 use App\Traits\SystemActivityLogsTrait;
 use App\User;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Override;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
  * @property int $user_id
  * @property string $number
- * @property \Illuminate\Support\Carbon $date
+ * @property Carbon $date
  * @property string|null $discount
  * @property string $discount_mode
  * @property string|null $coupon_code
@@ -23,8 +33,8 @@ use Override;
  * @property string $currency
  * @property string $status
  * @property string|null $description
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int $is_renewed
  * @property string|null $processing_fee
  * @property string|null $billing_pay
@@ -32,17 +42,17 @@ use Override;
  * @property string|null $cloud_domain
  * @property array<array-key, mixed>|null $metadata
  * @property string|null $fulfillment_intent
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\InvoiceItem> $invoiceItem
+ * @property-read Collection<int, InvoiceItem> $invoiceItem
  * @property-read int|null $invoice_item_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\OrderInvoiceRelation> $orderRelation
+ * @property-read Collection<int, OrderInvoiceRelation> $orderRelation
  * @property-read int|null $order_relation_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\Order> $orders
+ * @property-read Collection<int, Order> $orders
  * @property-read int|null $orders_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Order\Payment> $payment
+ * @property-read Collection<int, Payment> $payment
  * @property-read int|null $payment_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Subscription> $subscriptions
+ * @property-read Collection<int, Subscription> $subscriptions
  * @property-read int|null $subscriptions_count
  * @property-read User|null $user
  *
@@ -76,9 +86,10 @@ use Override;
 class Invoice extends BaseModel
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'invoices';
@@ -137,18 +148,18 @@ class Invoice extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\InvoiceItem, $this>
+     * @return HasMany<InvoiceItem, $this>
      */
-    public function invoiceItem(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function invoiceItem(): HasMany
     {
         return $this->hasMany(InvoiceItem::class, 'invoice_id');
     }
 
     // Many-to-many: one invoice covers multiple orders; one order appears on multiple invoices (renewals)
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Model\Order\Order, $this, \Illuminate\Database\Eloquent\Relations\Pivot>
+     * @return BelongsToMany<Order, $this, Pivot>
      */
-    public function orders(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function orders(): BelongsToMany
     {
         return $this->belongsToMany(
             Order::class,
@@ -159,23 +170,23 @@ class Invoice extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\OrderInvoiceRelation, $this>
+     * @return HasMany<OrderInvoiceRelation, $this>
      */
-    public function orderRelation(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function orderRelation(): HasMany
     {
-        return $this->hasMany(\App\Model\Order\OrderInvoiceRelation::class, 'invoice_id');
+        return $this->hasMany(OrderInvoiceRelation::class, 'invoice_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
     // Subscriptions reached through the pivot: Invoice → order_invoice_relations → subscriptions
-    public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasManyThrough // @phpstan-ignore missingType.generics
+    public function subscriptions(): HasManyThrough // @phpstan-ignore missingType.generics
     {
         return $this->hasManyThrough(
             Subscription::class,
@@ -196,19 +207,19 @@ class Invoice extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\Payment, $this>
+     * @return HasMany<Payment, $this>
      */
-    public function payment(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function payment(): HasMany
     {
         return $this->hasMany(Payment::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function status(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function status(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value): string {
+        return Attribute::make(get: function ($value): string {
             return ucfirst((string) $value);
         });
     }

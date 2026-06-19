@@ -11,12 +11,12 @@ use Tests\DBTestCase;
 
 class PageControllerTest extends DBTestCase
 {
-    private \App\Http\Controllers\Front\PageController $con;
+    private PageController $con;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->con = new PageController();
+        $this->con = new PageController;
     }
 
     /**
@@ -57,24 +57,24 @@ class PageControllerTest extends DBTestCase
         $this->assertDatabaseHas('frontend_pages', ['name' => 'demo']);
     }
 
-//    public function test_plansYear_returnstatus200()
-//    {
-//        // Create a sample product
-//        $product = Product::factory()->create([
-//            'id' => 1,
-//            'name' => 'Example Product',
-//        ]);
-//
-//        // Call the plansYear method with the sample URL and product ID
-//        $page = new PageController();
-//        $form = $page->plansYear('/example-url', $product->id);
-//
-//        // Assert that the form contains the expected action URL
-//        $expectedAction = 'http://localhost/example-url';
-//        $this->assertStringContainsString('action="'.$expectedAction.'"', $form);
-//    }
+    //    public function test_plansYear_returnstatus200()
+    //    {
+    //        // Create a sample product
+    //        $product = Product::factory()->create([
+    //            'id' => 1,
+    //            'name' => 'Example Product',
+    //        ]);
+    //
+    //        // Call the plansYear method with the sample URL and product ID
+    //        $page = new PageController();
+    //        $form = $page->plansYear('/example-url', $product->id);
+    //
+    //        // Assert that the form contains the expected action URL
+    //        $expectedAction = 'http://localhost/example-url';
+    //        $this->assertStringContainsString('action="'.$expectedAction.'"', $form);
+    //    }
 
-    public function test_getPrice(): void
+    public function test_get_price(): void
     {
         $product = Product::factory()->create([
             'id' => 40,
@@ -93,35 +93,35 @@ class PageControllerTest extends DBTestCase
         $currency = 'USD';
         $offer = 10;
 
-        $page = new PageController();
+        $page = new PageController;
         $result = $page->getPrice($months, $price, $priceDescription, $value, $cost, $currency, $offer, $product);
 
         $expectedPrice = '12  $1,080.00 per year';
         $this->assertEquals($expectedPrice, $result[$value->id]);
     }
 
-    public function testDetectSpamWithExcessivePunctuation(): void
+    public function test_detect_spam_with_excessive_punctuation(): void
     {
         $message = 'This is a spam message with too many exclamation marks!!!!!!!!!!';
         $response = $this->getPrivateMethod($this->con, 'containsExcessivePunctuation', [$message]);
         $this->assertTrue($response);
     }
 
-    public function testDetectSpamWithExcessiveCaps(): void
+    public function test_detect_spam_with_excessive_caps(): void
     {
         $message = 'This is a SPAM message with TOO MANY CAPITAL LETTERS';
         $response = $this->getPrivateMethod($this->con, 'containsExcessiveCaps', [$message]);
         $this->assertTrue($response);
     }
 
-    public function testDetectSpamWithSpamKeywords(): void
+    public function test_detect_spam_with_spam_keywords(): void
     {
         $message = 'This message contains the word Viagra';
         $response = $this->getPrivateMethod($this->con, 'containsSpamKeywords', [$message]);
         $this->assertTrue($response);
     }
 
-    public function testDetectNonSpam(): void
+    public function test_detect_non_spam(): void
     {
         $email = 'example@gmail.com';
         $message = 'Hi,Need a demo.';
@@ -129,7 +129,7 @@ class PageControllerTest extends DBTestCase
         $this->assertFalse($response);
     }
 
-    public function testDetectSpam(): void
+    public function test_detect_spam(): void
     {
         $email = 'example@gmail.com';
         $message = 'Promo codes and promotions are a great way to get additional benefits from using the online bookmaker 1xbet. Promo codes for one x bet One of these promo codes is 1xpromo. It makes it possible to receive an additional bonus to your account when registering on the bookmaker’s website. In order to take advantage of this offer, you need to enter a promo code during registration and make the first deposit of at least 1000 rubles. After this, a bonus in the amount of 100% of the deposit amount will be credited to your account. The received bonus can be used for betting on sporting events or online casinos. The conditions for receiving and using the bonus are described in detail on the official 1xbet website. The site also regularly holds promotions, within which you can receive additional promotional codes or bonuses. Follow the news and don’t miss the opportunity to get even more benefits from playing at 1xbet.';

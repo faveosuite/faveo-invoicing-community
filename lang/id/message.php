@@ -701,10 +701,10 @@ return [
     'cloud_field_label' => 'Masukkan nama domain cloud yang Anda inginkan',
     'cloud_price' => 'Harga per agen',
 
-    //Delete message
+    // Delete message
     'confirm' => 'Apakah Anda yakin ingin menghapus ini?',
 
-    //Delete message
+    // Delete message
     'cloud_domain_change' => 'Berita baik! Domain Cloud Anda telah berhasil diubah. Harap diperhatikan bahwa akan ada sedikit waktu henti sekitar 5 menit untuk menerapkan perubahan ini. Terima kasih atas kesabaran Anda!',
     'limit_is_up' => 'Kami perhatikan bahwa Anda telah melewati batas uji coba gratis, harap hapus instansi yang ada untuk melanjutkan.',
     'too_long' => 'Sepertinya domain ini terlalu panjang, silakan coba membuat dengan jumlah karakter yang lebih sedikit.',
@@ -759,7 +759,7 @@ return [
     'user_suspend' => 'Pengguna ini disuspensi dari sistem. Pulihkan pengguna untuk melihat detailnya',
     'country_notfound' => 'Negara tidak dapat ditentukan',
 
-    //Strong Password
+    // Strong Password
     'strong_password' => 'Kata sandi harus mengandung setidaknya 8 karakter, satu huruf kapital, satu huruf kecil, satu angka, dan satu karakter khusus.',
 
     'password_requirements' => 'Kata sandi Anda harus memiliki:',
@@ -779,7 +779,7 @@ return [
     'new_password_different' => 'Kata sandi baru harus berbeda dari kata sandi lama.',
     'reset_link_expired' => 'Tautan reset kata sandi Anda telah kedaluwarsa atau tidak ditemukan. Silakan coba reset kata sandi lagi.',
 
-    //file storage
+    // file storage
 
     'file_storage' => 'Penyimpanan File',
     'set_file_storage' => 'Setel jalur penyimpanan file',
@@ -870,7 +870,7 @@ return [
     'required_stripe_secret' => 'Harap masukkan Secret Stripe',
     'max_stripe_secret' => 'Secret Stripe tidak boleh melebihi 200 karakter',
 
-    //email templates
+    // email templates
 
     'choose_password' => 'Klik di sini untuk mengatur ulang kata sandi Anda: ',
     'email_username' => 'Nama Pengguna: ',
@@ -878,7 +878,7 @@ return [
     'email_click_here' => 'Klik Di Sini',
     'activate_account' => 'Untuk mengaktifkan akun Anda:',
 
-    //error template
+    // error template
     'page_not_found' => 'Halaman Tidak Ditemukan',
     'sorry' => 'Maaf, tetapi halaman yang Anda cari tidak ada.',
     'useful_links' => 'Berikut beberapa tautan berguna',
@@ -887,7 +887,7 @@ return [
     'my_profile' => 'Profil Saya',
     'contact_us' => 'Hubungi Kami',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Masuk | Daftar',
     'sign_lr' => 'Masuk atau Daftar',
     'or' => 'Atau',
@@ -921,7 +921,7 @@ return [
     'error_occurred' => 'Terjadi kesalahan. Silakan coba lagi.',
     'error_one_country' => 'Harap pilih satu negara ',
 
-    //contact template
+    // contact template
     'feel_free' => 'Jangan ragu untuk menanyakan rincian, jangan simpan pertanyaan!',
     'contact_name' => 'Nama',
     'contact_error_name' => 'Harap masukkan nama Anda.',
@@ -934,7 +934,7 @@ return [
     'contact_send_msg' => 'Kirim Pesan',
     'our_office' => 'Kantor Kami',
 
-    //password template
+    // password template
     'forgot_password' => 'Lupa Kata Sandi? Atur Ulang Sekarang!',
     'lost_password' => 'Kehilangan kata sandi Anda?',
     'know_password' => 'Saya tahu kata sandi saya',
@@ -943,7 +943,7 @@ return [
     'sending' => 'Mengirim...',
     'error_occurs' => 'Terjadi kesalahan.',
     'reset_password' => 'Atur Ulang Kata Sandi',
-    //front-client template
+    // front-client template
     'change_faveo' => 'Apakah Anda ingin mengubah domain cloud Faveo Anda yang ada?',
     'current_domain' => 'Masukkan domain saat ini',
     'enter_domain' => 'Masukkan domain baru',
@@ -1105,7 +1105,7 @@ return [
     'subscriptions_table' => 'Tabel Langganan',
     'invalid_format' => 'Format tidak valid.',
 
-    //front-page template
+    // front-page template
     'all_pages' => 'Semua Halaman',
     'create_new_page' => 'Buat Halaman Baru',
     'edit_page' => 'Edit Halaman',
@@ -1115,14 +1115,14 @@ return [
     'select_checkbox' => 'Harap pilih setidaknya satu checkbox',
     'search_result' => 'Hasil Pencarian',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'Semua Widget',
     'create_widget' => 'Buat Widget',
     'configure_mailchimp' => 'Konfigurasi mailchimp Anda di pengaturan untuk mengakses',
     'configure_tweet' => 'Konfigurasi tweet Anda di pengaturan untuk mengakses',
     'edit_widget' => 'Edit Widget',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Hapus Produk',
     'cart_totals' => 'Total Keranjang',
     'clear_cart' => 'Kosongkan Keranjang',
@@ -1179,11 +1179,11 @@ return [
     'go_back' => 'Kembali',
     'be_right_back' => 'Akan segera kembali.',
 
-    //category template
+    // category template
     'all_categories' => 'Semua Kategori',
     'category_name' => 'Nama',
 
-    //common template
+    // common template
     'create_script_code' => 'Buat Kode Skrip',
     'create_script' => 'Buat Skrip',
     'edit_script_code' => 'Edit Kode Skrip',
@@ -1346,14 +1346,14 @@ return [
     'deactivate' => 'Nonaktifkan',
     'provider' => 'Penyedia',
 
-    //github template
+    // github template
     'github_setting' => 'Pengaturan Github',
     'enter_github_username' => 'Harap Masukkan Username Github',
     'enter_github_password' => 'Harap Masukkan Password Github',
     'enter_github_clientid' => 'Harap Masukkan Client Id',
     'enter_github_client_secret_key' => 'Harap Masukkan Client Secret Key',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => 'Edit Faktur',
     'view_user' => 'Lihat Pengguna',
     'pending' => 'Tertunda',
@@ -1394,7 +1394,7 @@ return [
     'no_tax_rates' => 'Tidak Ada Tarif Pajak',
     'store' => 'Toko',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Dasbor Admin',
     'my_account' => 'Akun Saya',
     'start_free_trial' => 'MULAI UJI COBA GRATIS',
@@ -1435,7 +1435,7 @@ return [
     'enter_domain_license' => 'Masukkan Domain & Unduh File Lisensi',
     'installation_details' => 'Detail Pemasangan',
 
-    //Payment panel
+    // Payment panel
     'payment_date' => 'Tanggal Pembayaran',
     'auto_renewal_subscription' => 'Pembaruan Otomatis untuk Langganan Mendatang',
     'subscription_start_date' => 'Tanggal Mulai Langganan',
@@ -1461,7 +1461,7 @@ return [
     'coupon' => 'Kupon',
     'actions' => 'Tindakan',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Buat Pajak',
     'caps_others' => 'LAINNYA',
     'others' => 'Lainnya',
@@ -1499,7 +1499,7 @@ return [
     'show_cart_page' => 'Tampilkan di Halaman Keranjang',
     'select_taxes' => 'Pilih Pajak',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Tambahkan Detail Produk',
     'enter_json_format' => 'Masukkan format JSON.',
     'upload' => 'Unggah',
@@ -1528,21 +1528,21 @@ return [
     'all_types' => 'Semua Jenis',
     'configure_queue' => 'Konfigurasi Antrian',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Pastikan keranjang kosong untuk memperbarui produk Anda',
     'click_renew' => 'Klik di sini untuk memperbarui',
     'renew_your_order' => 'Perbarui pesanan Anda',
     'renew_order' => 'Perbarui Pesanan',
     'renewal_price_per_agent' => 'Harga pembaruan per agen:',
 
-    //report panel
+    // report panel
     'file_name' => 'Nama Berkas',
     'format' => 'Format',
     'contact' => 'Kontak',
     'report_settings' => 'Pengaturan Laporan',
     'report_limit' => 'Tambahkan catatan per lembar. Batas maksimum adalah 3000.',
 
-    //tenant panel
+    // tenant panel
     'cloud_server' => 'Server Cloud',
     'customise_cloud_popup' => 'Kustomisasi Pop-up Cloud',
     'cloud_product_configuration' => 'Konfigurasi Produk Cloud',
@@ -1569,7 +1569,7 @@ return [
     'app_key' => 'Kunci Aplikasi',
     'app_secret' => 'Rahasia Aplikasi',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Buat Pengguna Baru',
     'create_user' => 'Buat Pengguna',
     'position' => 'Posisi',
@@ -1683,7 +1683,7 @@ return [
     'error_logs' => 'Log Kesalahan',
     'view_logs' => 'Lihat Log',
 
-    //visitstats
+    // visitstats
     'request' => 'Permintaan',
     'visitor' => 'Pengunjung',
     'browser' => 'Browser',

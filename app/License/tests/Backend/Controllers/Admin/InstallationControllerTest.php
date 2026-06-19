@@ -17,7 +17,7 @@ class InstallationControllerTest extends LicenseTestCase
     {
         parent::setUp();
 
-        $this->controller = new InstallationController();
+        $this->controller = new InstallationController;
     }
 
     #[Test]

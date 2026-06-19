@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
 
     public function templateSeeder(): void
     {
-        Template::where('id',2)->update(['data' =>'<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+        Template::where('id', 2)->update(['data' => '<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
         <tbody>
         <tr>
         <td style="width: 30px;">&nbsp;</td>
@@ -75,7 +75,6 @@ class DatabaseSeeder extends Seeder
         </tbody>
         </table>
         <p>&nbsp;</p>']);
-
 
         TemplateType::create([
             'id' => 24,
@@ -135,7 +134,7 @@ class DatabaseSeeder extends Seeder
         </tr>
     </tbody>
 </table>
-'
+',
         ]);
     }
 }

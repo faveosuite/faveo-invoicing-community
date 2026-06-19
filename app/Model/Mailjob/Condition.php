@@ -4,13 +4,14 @@ namespace App\Model\Mailjob;
 
 use App\Model\Common\StatusSetting;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string|null $job
  * @property string|null $value
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Condition newQuery()
@@ -35,7 +36,7 @@ class Condition extends Model
     public function checkActiveJob(): array
     {
         $result = ['expiryMail' => '', 'deleteLogs' => '', 'subsExpirymail' => '', 'postExpirymail' => '', 'cloud' => '', 'invoice' => '', 'msg91Reports' => '', 'reoonLogs' => '', 'systemLogs' => '', 'installationLogs' => '', 'licenseReportsCleanup' => '', 'licenseCallbacksCleanup' => '', 'licenseCrackReportsCleanup' => '', 'licenseSystemReportsCleanup' => '', 'licenseVersionsCleanup' => ''];
-        $allStatus = new StatusSetting();
+        $allStatus = new StatusSetting;
         $status = $allStatus->find(1);
         if ($status) {
             if ($status->expiry_mail == 1) {

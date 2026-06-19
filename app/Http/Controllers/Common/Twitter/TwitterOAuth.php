@@ -26,19 +26,19 @@ class TwitterOAuth extends Config
     const UPLOAD_CHUNK = 40960; // 1024 * 40
 
     /** @var Response details about the result of the last request */
-    private \App\Http\Controllers\Common\Twitter\Response $response;
+    private Response $response;
 
     /** @var string|null Application bearer token */
     private $bearer;
 
     /** @var Consumer Twitter application details */
-    private \App\Http\Controllers\Common\Twitter\Consumer $consumer;
+    private Consumer $consumer;
 
     /** @var Token|null User access token details */
-    private ?\App\Http\Controllers\Common\Twitter\Token $token = null;
+    private ?Token $token = null;
 
     /** @var HmacSha1 OAuth 1 signature type used by Twitter */
-    private \App\Http\Controllers\Common\Twitter\HmacSha1 $signatureMethod;
+    private HmacSha1 $signatureMethod;
 
     /**
      * Constructor.
@@ -51,7 +51,7 @@ class TwitterOAuth extends Config
     public function __construct($consumerKey, $consumerSecret, $oauthToken = null, $oauthTokenSecret = null)
     {
         $this->resetLastResponse();
-        $this->signatureMethod = new HmacSha1();
+        $this->signatureMethod = new HmacSha1;
         $this->consumer = new Consumer($consumerKey, $consumerSecret);
         if (! empty($oauthToken) && ! empty($oauthTokenSecret)) {
             $this->token = new Token($oauthToken, $oauthTokenSecret);
@@ -107,7 +107,7 @@ class TwitterOAuth extends Config
      */
     public function resetLastResponse(): void
     {
-        $this->response = new Response();
+        $this->response = new Response;
     }
 
     /**
@@ -438,7 +438,7 @@ class TwitterOAuth extends Config
     /**
      * Encode application authorization header with base64.
      */
-    private function encodeAppAuthorization(\App\Http\Controllers\Common\Twitter\Consumer $consumer): string
+    private function encodeAppAuthorization(Consumer $consumer): string
     {
         // TODO: key and secret should be rfc 1738 encoded
         $key = $consumer->key;

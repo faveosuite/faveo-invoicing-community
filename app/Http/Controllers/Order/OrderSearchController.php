@@ -7,6 +7,8 @@ use App\Model\Order\Order;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use DB;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 
 class OrderSearchController extends Controller
@@ -17,9 +19,9 @@ class OrderSearchController extends Controller
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>
+     * @return Builder<Order>
      */
-    public function advanceOrderSearch(\Illuminate\Http\Request $request): \Illuminate\Database\Eloquent\Builder
+    public function advanceOrderSearch(Request $request): Builder
     {
         $query = Order::with([
             'user' => function ($q): void {
@@ -56,9 +58,9 @@ class OrderSearchController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     * @param  Builder<Order>  $query
      */
-    private function filterOrderNum(\Illuminate\Database\Eloquent\Builder $query, mixed $orderNo): void
+    private function filterOrderNum(Builder $query, mixed $orderNo): void
     {
         if ($orderNo) {
             $query->where('number', $orderNo);
@@ -66,9 +68,9 @@ class OrderSearchController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     * @param  Builder<Order>  $query
      */
-    private function filterProduct(\Illuminate\Database\Eloquent\Builder $query, mixed $productId): void
+    private function filterProduct(Builder $query, mixed $productId): void
     {
         if (! $productId) {
             return;
@@ -84,9 +86,9 @@ class OrderSearchController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     * @param  Builder<Order>  $query
      */
-    private function filterDateRange(\Illuminate\Database\Eloquent\Builder $query, \Illuminate\Http\Request $request): void
+    private function filterDateRange(Builder $query, Request $request): void
     {
         $field = $request->renewal ? 'subscription.update_ends_at' : 'created_at';
 
@@ -105,9 +107,9 @@ class OrderSearchController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     * @param  Builder<Order>  $query
      */
-    private function filterDomain(\Illuminate\Database\Eloquent\Builder $query, mixed $domain): void
+    private function filterDomain(Builder $query, mixed $domain): void
     {
         if ($domain) {
             $domain = rtrim((string) $domain, '/');
@@ -118,9 +120,9 @@ class OrderSearchController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     * @param  Builder<Order>  $query
      */
-    private function filterInstallation(\Illuminate\Database\Eloquent\Builder $query, mixed $filter): void
+    private function filterInstallation(Builder $query, mixed $filter): void
     {
         if (! $filter) {
             return;
@@ -143,9 +145,9 @@ class OrderSearchController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     * @param  Builder<Order>  $query
      */
-    private function filterRenewal(\Illuminate\Database\Eloquent\Builder $query, mixed $renewal): void
+    private function filterRenewal(Builder $query, mixed $renewal): void
     {
         if (! $renewal) {
             return;
@@ -170,9 +172,9 @@ class OrderSearchController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
+     * @param  Builder<Order>  $query
      */
-    private function filterVersion(\Illuminate\Database\Eloquent\Builder $query, mixed $version, mixed $productId): void
+    private function filterVersion(Builder $query, mixed $version, mixed $productId): void
     {
         if (! $version) {
             return;
@@ -196,10 +198,10 @@ class OrderSearchController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>
+     * @param  Builder<Order>  $query
+     * @return Builder<Order>
      */
-    public function applyOrdersSearch(\Illuminate\Database\Eloquent\Builder $query, mixed $search): \Illuminate\Database\Eloquent\Builder
+    public function applyOrdersSearch(Builder $query, mixed $search): Builder
     {
         return $query->when($search, function ($q) use ($search): void {
             $q->where(function (\Illuminate\Contracts\Database\Query\Builder $q) use ($search): void {

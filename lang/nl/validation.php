@@ -404,7 +404,7 @@ return [
         ],
         'state' => [
             'required' => 'Het provincieveld is verplicht.',
-            //'exists' => 'De geselecteerde provincie is ongeldig.',
+            // 'exists' => 'De geselecteerde provincie is ongeldig.',
         ],
     ],
     // Product

@@ -7,6 +7,7 @@ use App\BillingLog\Model\LogCategory;
 use App\BillingLog\Model\MailLog;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Throwable;
@@ -78,7 +79,7 @@ class LogWriteController
      * @param  Throwable  $e  Exception or Error
      * @param  string  $category  Category to which it belongs
      */
-    public function exception(Throwable $e, string $category = 'default'): ?\Illuminate\Database\Eloquent\Model
+    public function exception(Throwable $e, string $category = 'default'): ?Model
     {
         try {
             $logCategory = LogCategory::firstOrCreate(['name' => $category]);
@@ -134,7 +135,6 @@ class LogWriteController
      * Format addresses for database storage.
      *
      * @param  array<mixed>|string  $addresses
-     * @return string
      */
     protected function formatAddresses(array|string $addresses): string
     {
@@ -180,7 +180,7 @@ class LogWriteController
         }
     }
 
-    public function deleteLogs(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteLogs(Request $request): JsonResponse
     {
         // Validation
         $validated = $request->validate([

@@ -3,15 +3,18 @@
 namespace App\Model\Product;
 
 use App\BaseModel;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
  * @property int $id
  * @property string $name
  * @property string $description
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\Product> $product
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Product> $product
  * @property-read int|null $product_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Type newModelQuery()
@@ -32,9 +35,9 @@ class Type extends BaseModel
     protected $fillable = ['name', 'description'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Product, $this>
+     * @return HasMany<Product, $this>
      */
-    public function product(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function product(): HasMany
     {
         return $this->hasMany(Product::class);
     }

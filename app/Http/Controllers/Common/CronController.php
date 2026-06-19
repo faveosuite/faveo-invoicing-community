@@ -10,6 +10,7 @@ use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
@@ -26,47 +27,47 @@ use Session;
 
 class CronController extends BaseCronController
 {
-    protected ?\App\Model\Product\Subscription $subscription = null;
+    protected ?Subscription $subscription = null;
 
-    protected \App\Model\Order\Order $order;
+    protected Order $order;
 
-    protected \App\User $user;
+    protected User $user;
 
-    protected \App\Model\Common\Template $template;
+    protected Template $template;
 
-    protected \App\Model\Order\Invoice $invoice;
+    protected Invoice $invoice;
 
-    protected \GuzzleHttp\Client $client;
+    protected Client $client;
 
     protected mixed $PostSubscriptionHandle = null;
 
     public function __construct()
     {
-        $subscription = new Subscription();
+        $subscription = new Subscription;
         $this->sub = $subscription; // @phpstan-ignore property.notFound
 
-        $plan = new Plan();
+        $plan = new Plan;
         $this->plan = $plan; // @phpstan-ignore property.notFound
 
-        $order = new Order();
+        $order = new Order;
         $this->order = $order;
 
-        $user = new User();
+        $user = new User;
         $this->user = $user;
 
-        $template = new Template();
+        $template = new Template;
         $this->template = $template;
 
-        $invoice = new Invoice();
+        $invoice = new Invoice;
         $this->invoice = $invoice;
 
-        $payment = new Payment();
+        $payment = new Payment;
         $this->payment = $payment; // @phpstan-ignore property.notFound
 
-        $stripeController = new SettingsController();
+        $stripeController = new SettingsController;
         $this->stripeController = $stripeController; // @phpstan-ignore property.notFound
 
-        $this->client = new Client();
+        $this->client = new Client;
     }
 
     /**
@@ -352,14 +353,14 @@ class CronController extends BaseCronController
             foreach ($sub as $value) {
                 $value = (object) $value;
                 $userid = $value->user_id;
-                /** @var \App\User $user */
+                /** @var User $user */
                 $user = $this->getUserById($userid);
                 $end = $value->update_ends_at;
-                /** @var \App\Model\Order\Order $order */
+                /** @var Order $order */
                 $order = $this->getOrderById($value->order_id);
-                /** @var \App\Model\Order\Invoice $invoice */
+                /** @var Invoice $invoice */
                 $invoice = $this->getInvoiceByOrderId($value->order_id);
-                /** @var \App\Model\Order\InvoiceItem $item */
+                /** @var InvoiceItem $item */
                 $item = $this->getInvoiceItemByInvoiceId($invoice->id);
                 $product = (int) $item->product_id;
                 if (emailSendingStatus()) {
@@ -378,14 +379,14 @@ class CronController extends BaseCronController
             foreach ($Autosub as $value) {
                 $value = (object) $value;
                 $userid = $value->user_id;
-                /** @var \App\User $user */
+                /** @var User $user */
                 $user = $this->getUserById($userid);
                 $end = $value->update_ends_at;
-                /** @var \App\Model\Order\Order $order */
+                /** @var Order $order */
                 $order = $this->getOrderById($value->order_id);
-                /** @var \App\Model\Order\Invoice $invoice */
+                /** @var Invoice $invoice */
                 $invoice = $this->getInvoiceByOrderId($value->order_id);
-                /** @var \App\Model\Order\InvoiceItem $item */
+                /** @var InvoiceItem $item */
                 $item = $this->getInvoiceItemByInvoiceId($invoice->id);
                 $product = (int) $item->product_id;
                 if (emailSendingStatus()) {
@@ -408,13 +409,13 @@ class CronController extends BaseCronController
                 $end = $value->update_ends_at;
                 $order = Order::find($value->order_id);
                 if ($order) {
-                    /** @var \App\User $user */
+                    /** @var User $user */
                     $user = $this->getUserById($userid);
-                    /** @var \App\Model\Order\Order $postOrder */
+                    /** @var Order $postOrder */
                     $postOrder = $this->getOrderById($value->order_id);
-                    /** @var \App\Model\Order\Invoice $invoice */
+                    /** @var Invoice $invoice */
                     $invoice = $this->getInvoiceByOrderId($value->order_id);
-                    /** @var \App\Model\Order\InvoiceItem $item */
+                    /** @var InvoiceItem $item */
                     $item = $this->getInvoiceItemByInvoiceId($invoice->id);
                     $product = (int) $item->product_id;
                     if (emailSendingStatus()) {

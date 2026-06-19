@@ -12,7 +12,9 @@ use App\User;
 use Cache;
 use Config;
 use Exception;
+use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -55,7 +57,7 @@ class LoginController extends BaseAuthController
      * JSON config consumed by the Vue guest login/register SPA page.
      * Mirrors the data that showLoginForm() passed to the blade view.
      */
-    public function loginConfig(): \Illuminate\Http\JsonResponse
+    public function loginConfig(): JsonResponse
     {
         try {
             $status = StatusSetting::select('msg91_status', 'emailverification_status', 'terms')->first();
@@ -96,14 +98,14 @@ class LoginController extends BaseAuthController
     /**
      * Function returns modified response(if required) for login when called via v3 api.
      */
-    private function returnApiV3LoginResponse(mixed $response): \Illuminate\Http\JsonResponse
+    private function returnApiV3LoginResponse(mixed $response): JsonResponse
     {
         // If not v3 API or user not logged in, just return original response
         if (! isV3Api() || ! Auth::check()) {
             return $response;
         }
 
-        /** @var \App\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         $userInfo = array_merge(
@@ -117,7 +119,7 @@ class LoginController extends BaseAuthController
     /**
      * Handle a login request to the application.
      */
-    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse // 2. Type-hint the LoginRequest
+    public function login(LoginRequest $request): JsonResponse // 2. Type-hint the LoginRequest
     {
         try {
             // 1. Prepare credentials for both email and username login
@@ -131,7 +133,7 @@ class LoginController extends BaseAuthController
                 return errorResponse(__('message.enter_valid_credentials'));
             }
 
-            /** @var \App\User $user */
+            /** @var User $user */
             $user = Auth::user();
 
             // 3. Handle post-authentication checks (Verification)
@@ -150,7 +152,7 @@ class LoginController extends BaseAuthController
             $this->logActivityLogin($user);
 
             return successResponse('', ['redirect' => $this->redirectPath()]);
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
@@ -176,7 +178,7 @@ class LoginController extends BaseAuthController
     /**
      * Handle redirection for an unverified user.
      */
-    private function handleUnverifiedUser(User $user): \Illuminate\Http\JsonResponse
+    private function handleUnverifiedUser(User $user): JsonResponse
     {
         Auth::logout();
 
@@ -193,7 +195,7 @@ class LoginController extends BaseAuthController
     /**
      * Prepare the session and redirect for 2FA.
      */
-    private function handleTwoFactorAuthentication(Request $request, User $user): \Illuminate\Http\JsonResponse
+    private function handleTwoFactorAuthentication(Request $request, User $user): JsonResponse
     {
         Auth::logout();
 
@@ -212,7 +214,7 @@ class LoginController extends BaseAuthController
      *
      * @return string
      */
-    public function redirectPath(): \Illuminate\Contracts\Routing\UrlGenerator|string
+    public function redirectPath(): UrlGenerator|string
     {
         $auth = Auth::user();
 
@@ -227,31 +229,28 @@ class LoginController extends BaseAuthController
 
     /**
      * This function redirects to the social login based on the provider(twitter,gitHub).
-     *
-     * @param  $provider
      */
-    public function redirectToGithub(mixed $provider): \Illuminate\Http\JsonResponse
+    public function redirectToGithub(mixed $provider): JsonResponse
     {
-        /** @var \App\SocialLogin $details */
+        /** @var SocialLogin $details */
         $details = SocialLogin::where('type', $provider)->firstOrFail();
 
         Config::set(sprintf('services.%s.redirect', $provider), $details->redirect_url);
         Config::set(sprintf('services.%s.client_id', $provider), $details->client_id);
         Config::set(sprintf('services.%s.client_secret', $provider), $details->client_secret);
 
-        //return Socialite::driver($provider)->redirect();
+        // return Socialite::driver($provider)->redirect();
         return successResponse('success', ['url' => Socialite::driver($provider)->redirect()->getTargetUrl()]);
     }
 
     /**
      * This function performs the whole social login operations(creating new user, if existing user just logging in).
      *
-     * @param  $provider
      * @return RedirectResponse
      */
     public function handler(mixed $provider)
     {
-        /** @var \App\SocialLogin $details */
+        /** @var SocialLogin $details */
         $details = SocialLogin::where('type', $provider)->firstOrFail();
         Config::set(sprintf('services.%s.redirect', $provider), $details->redirect_url);
         Config::set(sprintf('services.%s.client_id', $provider), $details->client_id);
@@ -293,7 +292,7 @@ class LoginController extends BaseAuthController
 
         Auth::login($user);
 
-        /** @var \App\User $authUser */
+        /** @var User $authUser */
         $authUser = \Auth::user();
         if ($authUser->is_2fa_enabled == 1) {
             $userId = $authUser->id;
@@ -316,7 +315,7 @@ class LoginController extends BaseAuthController
     /**
      * This function stores basic details for social logins.
      */
-    public function storeBasicDetails(Request $request): \Illuminate\Http\JsonResponse
+    public function storeBasicDetails(Request $request): JsonResponse
     {
         try {
             $this->validate($request, [
@@ -330,7 +329,7 @@ class LoginController extends BaseAuthController
                     'address.string' => __('validation.company_validation.company_string'),
                 ]);
 
-            /** @var \App\User $user */
+            /** @var User $user */
             $user = Auth::user();
             $user->company = $request->company;
             $user->address = $request->address;

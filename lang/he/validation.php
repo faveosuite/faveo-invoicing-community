@@ -233,7 +233,7 @@ return [
         ],
     ],
 
-    //Email
+    // Email
     'custom' => [
         'password' => [
             'required_if' => 'שדה הסיסמה הוא שדה חובה עבור נהג הדואר שנבחר.',
@@ -337,7 +337,7 @@ return [
         ],
     ],
 
-    //Order form
+    // Order form
     'order_form' => [
         'client' => [
             'required' => 'שדה לקוח הוא שדה חובה.',
@@ -365,7 +365,7 @@ return [
         ],
     ],
 
-    //Payment form
+    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'שדה קוד הקופון הוא שדה חובה.',
@@ -423,7 +423,7 @@ return [
         ],
     ],
 
-    //Product
+    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'שדה שם הוא שדה חובה.',
@@ -516,7 +516,7 @@ return [
         ],
     ],
 
-    //User
+    // User
     'users' => [
         'first_name' => [
             'required' => 'שדה שם פרטי הוא שדה חובה.',
@@ -613,7 +613,7 @@ return [
         ],
     ],
 
-    //Invoice form
+    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'שדה הלקוחות נדרש.',
@@ -636,7 +636,7 @@ return [
         ],
     ],
 
-    //LocalizedLicense form
+    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'שדה הדומיין נדרש.',
@@ -644,7 +644,7 @@ return [
         ],
     ],
 
-    //Product Renewal form
+    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'שדה הדומיין נדרש.',
@@ -652,13 +652,13 @@ return [
         ],
     ],
 
-    //Language form
+    // Language form
     'language' => [
         'required' => 'שדה השפה נדרש.',
         'invalid' => 'השפה שנבחרה אינה תקפה.',
     ],
 
-    //UpdateSroragePathRequest form
+    // UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'שדה הדיסק נדרש.',
@@ -670,7 +670,7 @@ return [
         ],
     ],
 
-    //ValidateSecretRequest form
+    // ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'אנא הזן קוד',
@@ -678,7 +678,7 @@ return [
         ],
     ],
 
-    //VerifyOtp form
+    // VerifyOtp form
     'verify_email' => [
         'required' => 'שדה הדוא"ל נדרש.',
         'email' => 'הדוא"ל חייב להיות כתובת דוא"ל תקפה.',
@@ -703,7 +703,7 @@ return [
         'invalid' => 'סיסמא לא תקפה.',
     ],
 
-    //AuthController file
+    // AuthController file
     'auth_controller' => [
         'name_required' => 'שם נדרש.',
         'name_max' => 'שם לא יכול להיות ארוך יותר מ-255 תווים.',

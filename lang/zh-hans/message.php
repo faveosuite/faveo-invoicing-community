@@ -685,10 +685,10 @@ return [
     'cloud_field_label' => '输入您想要的云域名',
     'cloud_price' => '每个代理的价格',
 
-    //Delete message
+    // Delete message
     'confirm' => '您确定要删除此项吗？',
 
-    //Delete message
+    // Delete message
     'cloud_domain_change' => '好消息！您的云域名已成功更改。请注意，应用这些更改时会有大约5分钟的短暂停机时间。感谢您的耐心等待！',
     'limit_is_up' => '我们注意到您已经超过了免费试用的限制，请删除现有实例后继续。',
     'too_long' => '域名似乎太长了，请尝试使用较少的字符进行创建。',
@@ -744,7 +744,7 @@ return [
     'user_suspend' => '此用户已被系统暂停。恢复用户以查看详细信息',
     'country_notfound' => '未找到国家',
 
-    //Strong Password
+    // Strong Password
     'strong_password' => '密码必须包含至少8个字符，一个大写字母，一个小写字母，一个数字和一个特殊字符。',
 
     'password_requirements' => '您的密码必须包含：',
@@ -764,7 +764,7 @@ return [
     'new_password_different' => '新密码必须与旧密码不同。',
     'reset_link_expired' => '您的重置密码链接已过期或找不到。请重新尝试重置密码。',
 
-    //file storage
+    // file storage
 
     'file_storage' => '文件存储',
     'set_file_storage' => '设置文件存储路径',
@@ -856,7 +856,7 @@ return [
     'required_stripe_secret' => '请输入Stripe密钥密码',
     'max_stripe_secret' => 'Stripe密钥密码不能超过200个字符',
 
-    //email templates
+    // email templates
 
     'choose_password' => '点击这里重置您的密码：',
     'email_username' => '用户名：',
@@ -864,7 +864,7 @@ return [
     'email_click_here' => '点击这里',
     'activate_account' => '激活您的账户：',
 
-    //error template
+    // error template
     'page_not_found' => '页面未找到',
     'sorry' => '抱歉，您访问的页面不存在。',
     'useful_links' => '以下是一些有用的链接',
@@ -873,7 +873,7 @@ return [
     'my_profile' => '我的个人资料',
     'contact_us' => '联系我们',
 
-    //login-register template
+    // login-register template
     'login_lr' => '登录 | 注册',
     'sign_lr' => '登录或注册',
     'or' => '或',
@@ -907,7 +907,7 @@ return [
     'error_occurred' => '发生了一个错误。请再试一次。',
     'error_one_country' => '请选择一个国家',
 
-    //contact template
+    // contact template
     'feel_free' => '请随时询问详情，不要保留任何问题！',
     'contact_name' => '姓名',
     'contact_error_name' => '请输入您的姓名。',
@@ -920,7 +920,7 @@ return [
     'contact_send_msg' => '发送消息',
     'our_office' => '我们的办公室',
 
-    //password template
+    // password template
     'forgot_password' => '忘记密码？现在重置！',
     'lost_password' => '忘记了密码？',
     'know_password' => '我知道我的密码',
@@ -930,7 +930,7 @@ return [
     'error_occurs' => '发生了一个错误。',
     'reset_password' => '重置密码',
 
-    //front-client template
+    // front-client template
     'change_faveo' => '您想更改现有的Faveo云域名吗？',
     'current_domain' => '请输入当前域名',
     'enter_domain' => '请输入新域名',
@@ -1092,7 +1092,7 @@ return [
     'subscriptions_table' => '订阅表',
     'invalid_format' => '格式无效',
 
-    //front-page template
+    // front-page template
     'all_pages' => '所有页面',
     'create_new_page' => '创建新页面',
     'edit_page' => '编辑页面',
@@ -1102,14 +1102,14 @@ return [
     'select_checkbox' => '请至少选择一个复选框',
     'search_result' => '搜索结果',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => '所有小部件',
     'create_widget' => '创建小部件',
     'configure_mailchimp' => '在设置中配置您的Mailchimp以访问',
     'configure_tweet' => '在设置中配置您的推文以访问',
     'edit_widget' => '编辑小部件',
 
-    //front outer template
+    // front outer template
     'remove_product' => '移除产品',
     'cart_totals' => '购物车总计',
     'clear_cart' => '清空购物车',
@@ -1166,11 +1166,11 @@ return [
     'go_back' => '返回',
     'be_right_back' => '马上回来。',
 
-    //category template
+    // category template
     'all_categories' => '所有类别',
     'category_name' => '名称',
 
-    //common template
+    // common template
     'create_script_code' => '创建脚本代码',
     'create_script' => '创建脚本',
     'edit_script_code' => '编辑脚本代码',
@@ -1333,14 +1333,14 @@ return [
     'deactivate' => '停用',
     'provider' => '提供者',
 
-    //github template
+    // github template
     'github_setting' => 'Github 设置',
     'enter_github_username' => '请输入Github用户名',
     'enter_github_password' => '请输入Github密码',
     'enter_github_clientid' => '请输入客户端ID',
     'enter_github_client_secret_key' => '请输入客户端密钥',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => '编辑发票',
     'view_user' => '查看用户',
     'pending' => '待处理',
@@ -1381,7 +1381,7 @@ return [
     'no_tax_rates' => '没有税率',
     'store' => '商店',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => '管理员仪表盘',
     'my_account' => '我的账户',
     'start_free_trial' => '开始免费试用',
@@ -1422,7 +1422,7 @@ return [
     'enter_domain_license' => '输入域名并下载许可证文件',
     'installation_details' => '安装详情',
 
-    //payment panel
+    // payment panel
     'payment_date' => '付款日期',
     'auto_renewal_subscription' => '未来订阅自动续订',
     'subscription_start_date' => '订阅开始日期',
@@ -1448,7 +1448,7 @@ return [
     'coupon' => '优惠券',
     'actions' => '操作',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => '创建税收',
     'caps_others' => '其他',
     'others' => '其他',
@@ -1486,7 +1486,7 @@ return [
     'show_cart_page' => '显示在购物车页面',
     'select_taxes' => '选择税收',
 
-    //Product panel
+    // Product panel
     'all_product_details' => '添加产品详情',
     'enter_json_format' => '输入 JSON 格式。',
     'upload' => '上传',
@@ -1515,21 +1515,21 @@ return [
     'all_types' => '所有类型',
     'configure_queue' => '配置队列',
 
-    //renew panel
+    // renew panel
     'renew_product' => '确保购物车为空，以续订您的产品',
     'click_renew' => '点击此处续订',
     'renew_your_order' => '续订您的订单',
     'renew_order' => '续订订单',
     'renewal_price_per_agent' => '每位代理的续订价格：',
 
-    //report panel
+    // report panel
     'file_name' => '文件名',
     'format' => '格式',
     'contact' => '联系方式',
     'report_settings' => '报告设置',
     'report_limit' => '每张表单最多添加记录。最大限制为3000。',
 
-    //tenanat panel
+    // tenanat panel
     'cloud_server' => '云服务器',
     'customise_cloud_popup' => '自定义云弹窗',
     'cloud_product_configuration' => '云产品配置',
@@ -1556,7 +1556,7 @@ return [
     'app_key' => '应用密钥',
     'app_secret' => '应用密钥',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => '创建新用户',
     'create_user' => '创建用户',
     'position' => '职位',

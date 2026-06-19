@@ -21,7 +21,7 @@ class LicenseControllerTest extends LicenseTestCase
     {
         parent::setUp();
 
-        $this->controller = new LicenseController();
+        $this->controller = new LicenseController;
     }
 
     #[Test]

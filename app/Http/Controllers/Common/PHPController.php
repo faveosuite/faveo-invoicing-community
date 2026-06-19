@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lang;
 
@@ -63,7 +64,7 @@ class PHPController extends Controller
         return $paths;
     }
 
-    public function checkPHPExecutablePath(Request $request): \Illuminate\Http\JsonResponse
+    public function checkPHPExecutablePath(Request $request): JsonResponse
     {
         try {
             $path = $request->get('path');

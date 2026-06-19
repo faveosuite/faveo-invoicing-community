@@ -30,7 +30,7 @@ class OrderRequest extends Request
             'promotion_code' => ['required'],
             'order_status' => ['required'],
             'product' => ['required'],
-            //'domain'         => 'url',
+            // 'domain'         => 'url',
             'subscription' => ['required'],
             'price_override' => ['numeric'],
             'qty' => ['integer'],

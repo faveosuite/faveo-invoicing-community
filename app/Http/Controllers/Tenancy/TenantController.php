@@ -13,6 +13,7 @@ use App\Model\Common\Country;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Mailjob\QueueService;
@@ -29,6 +30,8 @@ use Crypt;
 use DB;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Date;
@@ -49,7 +52,7 @@ class TenantController extends Controller
         $this->middleware('auth', ['except' => ['verifyThirdPartyToken']]);
     }
 
-    public function viewTenant(): \Illuminate\Http\JsonResponse
+    public function viewTenant(): JsonResponse
     {
         try {
             if ($this->cloud && $this->cloud->cloud_central_domain) {
@@ -107,7 +110,7 @@ class TenantController extends Controller
         }
     }
 
-    public function enableCloud(Request $request): \Illuminate\Http\JsonResponse
+    public function enableCloud(Request $request): JsonResponse
     {
         try {
             $statusSetting = StatusSetting::findOrFail(1);
@@ -121,7 +124,7 @@ class TenantController extends Controller
         }
     }
 
-    public function getTenants(Request $request): \Illuminate\Http\JsonResponse
+    public function getTenants(Request $request): JsonResponse
     {
         try {
             $searchQuery = $request->input('search-query', '');
@@ -131,8 +134,8 @@ class TenantController extends Controller
             $page = (int) $request->input('page', 1);
 
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')
-                    ->select('app_key', 'app_secret')
-                    ->first();
+                ->select('app_key', 'app_secret')
+                ->first();
 
             if (! $keys || empty($keys->app_key)) {
                 return errorResponse(__('message.cloud_invalid_message'));
@@ -210,7 +213,7 @@ class TenantController extends Controller
     /**
      * Logic for creating new tenant is handled here.
      */
-    public function createTenant(Request $request): \Illuminate\Http\JsonResponse
+    public function createTenant(Request $request): JsonResponse
     {
         $order = Order::where('number', $request->orderNo)->first();
         if (! $order) {
@@ -241,7 +244,7 @@ class TenantController extends Controller
         $userLastName = $userInformation->last_name;
         $userId = $userInformation->id;
 
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
 
         try {
             $company = (string) $request->input('domain');
@@ -255,14 +258,14 @@ class TenantController extends Controller
             $dns_record = dns_get_record($faveoCloud, DNS_CNAME);
             if (! strpos($faveoCloud, (string) cloudSubDomain()) && ($dns_record === [] || $dns_record === false || ! in_array(cloudSubDomain(), array_column($dns_record, 'target')))) {
                 return errorResponse(trans('message.cname'));
-                //return ['status' => 'false', 'message' => trans('message.cname')];
+                // return ['status' => 'false', 'message' => trans('message.cname')];
             }
 
             $licCode = $order->serial_key;
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            if (! $keys?->app_key) {//Validate if the app key to be sent is valid or not
+            if (! $keys?->app_key) {// Validate if the app key to be sent is valid or not
                 return errorResponse(trans('message.something_bad'));
-                //return ['status' => 'false', 'message' => trans('message.something_bad')];
+                // return ['status' => 'false', 'message' => trans('message.something_bad')];
             }
 
             $token = Str::random(32);
@@ -296,14 +299,14 @@ class TenantController extends Controller
                 $this->googleChat($result['message'] ?? '');
 
                 return errorResponse(trans('message.something_bad'));
-                //return ['status' => 'false', 'message' => trans('message.something_bad')];
+                // return ['status' => 'false', 'message' => trans('message.something_bad')];
             } elseif (($result['status'] ?? null) == 'validationFailure') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                 $this->prepareMessages($faveoCloud, $userEmail);
 
                 $this->googleChat($result['message'] ?? '');
 
                 return errorResponse($result['message'] ?? '');
-                //return ['status' => 'validationFailure', 'message' => $result->message];
+                // return ['status' => 'validationFailure', 'message' => $result->message];
             } else {
                 $client->request('GET', config('custom.cloud_job_url_normal'), [
                     'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
@@ -313,7 +316,7 @@ class TenantController extends Controller
                     ],
                 ]);
 
-                //template
+                // template
                 $template = TemplateType::getSelectedTemplate('cloud_created');
                 $contact = getContactData();
 
@@ -349,7 +352,7 @@ class TenantController extends Controller
                 );
 
                 $this->prepareMessages($faveoCloud, $userEmail, success: true);
-                if ($template instanceof \App\Model\Common\Template) {
+                if ($template instanceof Template) {
                     $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $template->type()->value('name'), $replace, $type);
                 }
 
@@ -384,7 +387,7 @@ class TenantController extends Controller
             if ($faveoToken && $token == $faveoToken) {
                 DB::table('third_party_tokens')->where('user_id', $userId)->delete();
 
-                //delete third party token here
+                // delete third party token here
                 return ['status' => 'success', 'message' => 'Valid token'];
             }
 
@@ -394,7 +397,7 @@ class TenantController extends Controller
         }
     }
 
-    public function destroyTenant(Request $request): \Illuminate\Http\JsonResponse
+    public function destroyTenant(Request $request): JsonResponse
     {
         try {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
@@ -424,7 +427,7 @@ class TenantController extends Controller
                     $this->statusChange($request->orderId);
                 }
 
-//                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
+                //                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
                 if (! empty($request->orderId)) {
                     $encryptedKey = Order::where('number', $request->input('orderId'))->value('serial_key');
                     if ($encryptedKey) {
@@ -474,7 +477,7 @@ class TenantController extends Controller
 
     private function deleteCronForTenant(string $tenantId): void
     {
-        $client = new Client();
+        $client = new Client;
         if (strpos($tenantId, (string) cloudSubDomain())) {
             $client->request('GET', config('custom.cloud_delete_job_url_normal'), [
                 'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
@@ -494,7 +497,7 @@ class TenantController extends Controller
         }
     }
 
-    public function saveCloudDetails(Request $request): \Illuminate\Http\JsonResponse
+    public function saveCloudDetails(Request $request): JsonResponse
     {
         $this->validate($request, [
             'cloud_central_domain' => 'required',
@@ -514,7 +517,7 @@ class TenantController extends Controller
         }
     }
 
-    public function DeleteCloudInstanceForClient(string $orderNumber, bool $isDelete): \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse|null
+    public function DeleteCloudInstanceForClient(string $orderNumber, bool $isDelete): RedirectResponse|JsonResponse|null
     {
         if ($isDelete) {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
@@ -586,7 +589,7 @@ class TenantController extends Controller
     /**
      * @return array<mixed>
      */
-    protected function reissueCloudLicense(int $order_id): \Illuminate\Http\JsonResponse|array
+    protected function reissueCloudLicense(int $order_id): JsonResponse|array
     {
         $order = Order::findorFail($order_id);
         if ($this->authUser()->role != 'admin' && $order->client != $this->authUser()->id) {
@@ -620,7 +623,7 @@ class TenantController extends Controller
             ]);
         }
 
-        //Remove installations so the install slots are freed
+        // Remove installations so the install slots are freed
         resolve(InstallationService::class)->deleteByLicenseCode($licenseCode);
 
         return ['message' => 'success', 'update' => __('message.license_installations_removed')];
@@ -644,14 +647,14 @@ class TenantController extends Controller
         $message_headers = [
             'Content-Type' => 'application/json; charset=UTF-8',
         ];
-        $client = new Client();
+        $client = new Client;
         $client->post($url, [
             'headers' => $message_headers,
             'body' => json_encode($message),
         ]);
     }
 
-    private function createTenantWithRandomDomain(string $randomDomain, Request $request): \Illuminate\Http\JsonResponse
+    private function createTenantWithRandomDomain(string $randomDomain, Request $request): JsonResponse
     {
         // Modify the request with the new random domain
         $request->merge(['domain' => $randomDomain]);
@@ -660,7 +663,7 @@ class TenantController extends Controller
         return $this->createTenant($request);
     }
 
-    public function cloudPopUp(Request $request): \Illuminate\Http\JsonResponse
+    public function cloudPopUp(Request $request): JsonResponse
     {
         $this->validate($request, [
             'cloud_top_message' => 'required',
@@ -685,7 +688,7 @@ class TenantController extends Controller
         }
     }
 
-    public function cloudProductStore(Request $request): \Illuminate\Http\JsonResponse
+    public function cloudProductStore(Request $request): JsonResponse
     {
         $request->validate(
             [
@@ -703,12 +706,12 @@ class TenantController extends Controller
             CloudProducts::create($request->all());
 
             return successResponse(__('message.saved_products'));
-        } catch(Exception) {
+        } catch (Exception) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
-    public function exportTenats(Request $request): \Illuminate\Http\JsonResponse
+    public function exportTenats(Request $request): JsonResponse
     {
         try {
             ini_set('memory_limit', '-1');
@@ -795,11 +798,11 @@ class TenantController extends Controller
         ];
     }
 
-    private function authUser(): \App\User
+    private function authUser(): User
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        if (! $user instanceof \App\User) {
-            throw new \Exception('Unauthorized');
+        if (! $user instanceof User) {
+            throw new Exception('Unauthorized');
         }
 
         return $user;

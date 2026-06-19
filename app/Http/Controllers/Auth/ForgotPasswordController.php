@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Setting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\User\Password;
 use App\Rules\Honeypot;
 use App\User;
 use Exception;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
@@ -43,11 +45,11 @@ class ForgotPasswordController extends Controller
     /**
      * Send a reset link to the given user.
      */
-    public function sendResetLinkEmail(Request $request): \Illuminate\Http\JsonResponse
+    public function sendResetLinkEmail(Request $request): JsonResponse
     {
         $this->validate($request,
             ['email' => 'required|email|exists:users,email',
-                'forgot' => [new Honeypot()],
+                'forgot' => [new Honeypot],
             ],
             [
                 'email.required' => __('validation.custom_email.required'),
@@ -65,7 +67,7 @@ class ForgotPasswordController extends Controller
             }
 
             $token = Str::random(40);
-            $password = new Password();
+            $password = new Password;
             if ($password->where('email', $email)->first()) {
                 $password->where('email', $email)->delete();
             }
@@ -75,14 +77,14 @@ class ForgotPasswordController extends Controller
 
             $url = url('password/reset/'.$token);
 
-            $user = new User();
+            $user = new User;
             $user = $user->where('email', $email)->firstOrFail();
 
-            //check in the settings
-            /** @var \App\Model\Common\Setting $setting */
+            // check in the settings
+            /** @var Setting $setting */
             $setting = Setting::find(1);
-            //template
-            /** @var \App\Model\Common\Template $template */
+            // template
+            /** @var Template $template */
             $template = TemplateType::getSelectedTemplate('forgot_password_mail');
 
             $contact = getContactData();
@@ -95,7 +97,7 @@ class ForgotPasswordController extends Controller
             $data = $template->data;
             $type = $template->type()->value('name') ?? '';
             if (emailSendingStatus()) {
-                $mail = new PhpMailController();
+                $mail = new PhpMailController;
                 $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 
                 return successResponse(__('validation.forgot_email_validation'));

@@ -7,8 +7,17 @@ use App\Model\Configure\ConfigOption;
 use App\Model\Product\Product;
 use App\Traits\SystemActivityLogsTrait;
 use DB;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 use Override;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -17,15 +26,15 @@ use Override;
  * @property int $allow_tax
  * @property string|null $days
  * @property int $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ConfigOption> $configOptions
+ * @property-read Collection<int, ConfigOption> $configOptions
  * @property-read int|null $config_options_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\Period> $periods
+ * @property-read Collection<int, Period> $periods
  * @property-read int|null $periods_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\PlanPrice> $planPrice
+ * @property-read Collection<int, PlanPrice> $planPrice
  * @property-read int|null $plan_price_count
  * @property-read Product|null $productRelation
  *
@@ -47,9 +56,10 @@ use Override;
 class Plan extends BaseModel
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'plans';
@@ -89,25 +99,25 @@ class Plan extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Payment\PlanPrice, $this>
+     * @return HasMany<PlanPrice, $this>
      */
-    public function planPrice(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function planPrice(): HasMany
     {
         return $this->hasMany(PlanPrice::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Product\Product, $this>
+     * @return BelongsTo<Product, $this>
      */
-    public function productRelation(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function productRelation(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product', 'id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Relations\Pivot, string>
+     * @return BelongsToMany<Model, Model, Pivot, string>
      */
-    public function periods(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function periods(): BelongsToMany
     {
         return $this->belongstoMany(Period::class, 'plans_periods_relation')->withTimestamps(); // @phpstan-ignore return.type
     }
@@ -123,9 +133,9 @@ class Plan extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ConfigOption, $this>
+     * @return HasMany<ConfigOption, $this>
      */
-    public function configOptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function configOptions(): HasMany
     {
         return $this->hasMany(ConfigOption::class);
     }

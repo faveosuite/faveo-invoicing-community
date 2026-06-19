@@ -17,7 +17,7 @@ use App\Plugins\Payment\Exceptions\PaymentException;
  * application-agnostic: they take a plain {@see SubscriptionRequest} and return a
  * plain {@see SubscriptionResult}, depending only on their vendor SDK.
  *
- * Gateway calls throw {@see \App\Plugins\Payment\Exceptions\PaymentException} on
+ * Gateway calls throw {@see PaymentException} on
  * failure.
  */
 interface SubscriptionGateway

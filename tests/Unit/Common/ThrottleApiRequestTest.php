@@ -17,7 +17,7 @@ class ThrottleApiRequestTest extends TestCase
         Cache::flush();
     }
 
-    public function test_firstRequest_doesNotWait(): void
+    public function test_first_request_does_not_wait(): void
     {
         $start = microtime(as_float: true);
 
@@ -28,7 +28,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertLessThan(0.1, $elapsed, 'First request should not wait');
     }
 
-    public function test_cacheKeyIsSetAfterFirstRequest(): void
+    public function test_cache_key_is_set_after_first_request(): void
     {
         $url = 'https://api.example.com/users';
         $endpoint = parse_url($url, PHP_URL_HOST);
@@ -39,7 +39,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertNotNull(Cache::get($key), 'Cache key should be set after first request');
     }
 
-    public function test_secondRequestWaitsApproximatelyOneInterval(): void
+    public function test_second_request_waits_approximately_one_interval(): void
     {
         $url = 'https://api.example.com/data';
 
@@ -56,7 +56,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertLessThan(1.5, $elapsed, 'Second request should not wait too long');
     }
 
-    public function test_defaultParametersAre60RequestsPer60Seconds(): void
+    public function test_default_parameters_are60_requests_per60_seconds(): void
     {
         $url = 'https://api.example.com/endpoint';
         $endpoint = parse_url($url, PHP_URL_HOST);
@@ -72,7 +72,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertLessThan($now + 1.5, $nextAllowed);
     }
 
-    public function test_differentHostsAreThrottledIndependently(): void
+    public function test_different_hosts_are_throttled_independently(): void
     {
         $url1 = 'https://api.example.com/users';
         $url2 = 'https://api.other.com/users';
@@ -97,7 +97,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertGreaterThan(0.8, $elapsed);
     }
 
-    public function test_sameHostDifferentPathsShareThrottleByDefault(): void
+    public function test_same_host_different_paths_share_throttle_by_default(): void
     {
         $url1 = 'https://api.example.com/v1/users';
         $url2 = 'https://api.example.com/v2/users';
@@ -111,7 +111,7 @@ class ThrottleApiRequestTest extends TestCase
         );
     }
 
-    public function test_perApiFlagThrottlesByEndpoint(): void
+    public function test_per_api_flag_throttles_by_endpoint(): void
     {
         $url1 = 'https://api.example.com/v1/users';
         $url2 = 'https://api.example.com/v2/users';
@@ -130,7 +130,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertNotEquals(md5($endpoint1), md5($endpoint2));
     }
 
-    public function test_queryParametersDoNotAffectThrottleKey(): void
+    public function test_query_parameters_do_not_affect_throttle_key(): void
     {
         $url1 = 'https://api.example.com/users?page=1';
         $url2 = 'https://api.example.com/users?page=2';
@@ -142,7 +142,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertEquals(md5($endpoint1), md5($endpoint2));
     }
 
-    public function test_cacheExceptionDoesNotThrow(): void
+    public function test_cache_exception_does_not_throw(): void
     {
         Cache::shouldReceive('lock')->andThrow(new RuntimeException('Cache down'));
 
@@ -152,10 +152,10 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertTrue(condition: true, message: 'Function should not throw when cache fails');
     }
 
-    public function test_lockTimeoutExceptionDoesNotThrow(): void
+    public function test_lock_timeout_exception_does_not_throw(): void
     {
         $mockLock = Mockery::mock(Lock::class);
-        $mockLock->shouldReceive('block')->andThrow(new LockTimeoutException());
+        $mockLock->shouldReceive('block')->andThrow(new LockTimeoutException);
 
         Cache::shouldReceive('lock')->andReturn($mockLock);
 
@@ -164,7 +164,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertTrue(condition: true, message: 'Function should not throw on lock timeout');
     }
 
-    public function test_intervalCalculation_higherRateMeansSmallInterval(): void
+    public function test_interval_calculation_higher_rate_means_small_interval(): void
     {
         $url = 'https://api.example.com/fast';
         $endpoint = parse_url($url, PHP_URL_HOST);
@@ -179,7 +179,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertEqualsWithDelta($beforeCall + 0.1, $nextAllowed, 0.15);
     }
 
-    public function test_consecutiveCallsStackWaitTimes(): void
+    public function test_consecutive_calls_stack_wait_times(): void
     {
         $url = 'https://api.example.com/stack';
         $endpoint = parse_url($url, PHP_URL_HOST);
@@ -202,7 +202,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertEqualsWithDelta(1.0, $third - $second, 0.3);
     }
 
-    public function test_expiredSlotDoesNotCauseWait(): void
+    public function test_expired_slot_does_not_cause_wait(): void
     {
         $url = 'https://api.example.com/expired';
         $endpoint = parse_url($url, PHP_URL_HOST);
@@ -218,7 +218,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertLessThan(0.1, $elapsed, 'Expired slot should not cause waiting');
     }
 
-    public function test_cacheKeyUsesHostByDefault(): void
+    public function test_cache_key_uses_host_by_default(): void
     {
         $url = 'https://payments.stripe.com/v1/charges';
         $expectedKey = 'api_rate_next_allowed_'.md5('payments.stripe.com');
@@ -228,7 +228,7 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertNotNull(Cache::get($expectedKey));
     }
 
-    public function test_cachePutStoresFor300Seconds(): void
+    public function test_cache_put_stores_for300_seconds(): void
     {
         // Use a spy to verify the TTL passed to Cache::put
         Cache::shouldReceive('lock')->andReturnUsing(function () {

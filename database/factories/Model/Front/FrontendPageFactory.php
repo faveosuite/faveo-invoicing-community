@@ -8,7 +8,7 @@ use App\Model\Front\FrontendPage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Front\FrontendPage>
+ * @extends Factory<FrontendPage>
  */
 class FrontendPageFactory extends Factory
 {

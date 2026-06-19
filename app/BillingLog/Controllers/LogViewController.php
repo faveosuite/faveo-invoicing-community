@@ -8,6 +8,9 @@ use App\BillingLog\Model\LogCategory;
 use App\BillingLog\Model\MailLog;
 use DB;
 use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 
@@ -21,7 +24,7 @@ class LogViewController
 
     private int $limit = 10;
 
-    public function getSystemLogs(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function getSystemLogs(): Factory|View
     {
         return view('log::index');
     }
@@ -31,7 +34,7 @@ class LogViewController
         // Extract search/sorting/limit parameters once
         $this->applyListFiltersForLogs($request);
 
-        switch($type) {
+        switch ($type) {
             case 'exception':
                 return $this->getExceptionLogs($request);
             case 'cron':
@@ -43,7 +46,7 @@ class LogViewController
         return errorResponse(__('message.invalid_log_type'), 400);
     }
 
-    public function getExceptionLogs(Request $request): \Illuminate\Http\JsonResponse
+    public function getExceptionLogs(Request $request): JsonResponse
     {
         $request->validate([
             'date' => ['required', 'date'],
@@ -54,7 +57,7 @@ class LogViewController
             $date = $request->input('date');
             $logCategoryId = $request->input('category');
 
-            /** @var \App\BillingLog\Model\LogCategory|null $exceptionCategory */
+            /** @var LogCategory|null $exceptionCategory */
             $exceptionCategory = LogCategory::find($logCategoryId);
 
             if (! $exceptionCategory) {
@@ -79,7 +82,7 @@ class LogViewController
         }
     }
 
-    public function getCronLogs(Request $request): \Illuminate\Http\JsonResponse
+    public function getCronLogs(Request $request): JsonResponse
     {
         $request->validate([
             'date' => ['required', 'date'],
@@ -111,7 +114,7 @@ class LogViewController
         }
     }
 
-    public function getMailLogs(Request $request): \Illuminate\Http\JsonResponse
+    public function getMailLogs(Request $request): JsonResponse
     {
         $request->validate([
             'date' => ['required', 'date'],
@@ -123,7 +126,7 @@ class LogViewController
             $date = $request->input('date');
             $logCategoryId = $request->input('category');
             $status = $request->input('status');
-            /** @var \App\BillingLog\Model\LogCategory|null $mailCategory */
+            /** @var LogCategory|null $mailCategory */
             $mailCategory = LogCategory::find($logCategoryId);
 
             if (! $mailCategory) {

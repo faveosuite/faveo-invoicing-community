@@ -19,12 +19,10 @@ class DBTestCase extends TestCase
 
     protected $organization;
 
-    //NOTE: For logging into api, we require token but for web we don't need any
+    // NOTE: For logging into api, we require token but for web we don't need any
 
     /**
      * creates user for db testing for web.
-     *
-     * @return
      */
     protected function getLoggedInUser($role = 'user')
     {
@@ -125,7 +123,7 @@ class DBTestCase extends TestCase
             }
         }
 
-        //if not found key is empty, it means all the keys are found. else not
+        // if not found key is empty, it means all the keys are found. else not
         $hasKeys = ! $notFoundKeys;
         $notFoundKeysJson = json_encode($notFoundKeys);
         $message = $notFoundKeysJson.' not found in target array';
@@ -146,5 +144,5 @@ class DBTestCase extends TestCase
         self::assertThat($hasSubstring, self::isTrue(), $message);
     }
 
-    /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+    /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 }

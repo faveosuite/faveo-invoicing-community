@@ -9,13 +9,16 @@ use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Payment\TaxByState;
 use App\Plugins\Payment\Dto\SubscriptionRequest;
+use App\Plugins\Payment\Dto\SubscriptionResult;
 use App\Plugins\Payment\Exceptions\SignatureVerificationException;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\Services\Payment\InvoicePaymentService;
 use App\Services\Payment\SubscriptionService;
 use App\Traits\Payment\PostPaymentHandle;
+use App\User;
 use Auth;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Session;
@@ -26,21 +29,21 @@ class RazorpayController extends Controller
     use PostPaymentHandle;
 
     /**
-     * @var \App\Model\Order\Invoice
+     * @var Invoice
      */
     public $invoice;
 
     /**
-     * @var \App\Model\Order\InvoiceItem
+     * @var InvoiceItem
      */
     public $invoiceItem;
 
     public function __construct()
     {
-        $invoice = new Invoice();
+        $invoice = new Invoice;
         $this->invoice = $invoice;
 
-        $invoiceItem = new InvoiceItem();
+        $invoiceItem = new InvoiceItem;
         $this->invoiceItem = $invoiceItem;
     }
 
@@ -48,7 +51,7 @@ class RazorpayController extends Controller
      * Verify a Razorpay Checkout handler response for an invoice and fulfil it.
      * The signature is verified server-side; nothing is recorded unless authentic.
      */
-    public function payment(mixed $invoice, Request $request): \Illuminate\Http\JsonResponse
+    public function payment(mixed $invoice, Request $request): JsonResponse
     {
         $request->validate([
             'razorpay_payment_id' => ['required', 'string'],
@@ -56,10 +59,10 @@ class RazorpayController extends Controller
             'razorpay_signature' => ['required', 'string'],
         ]);
 
-        /** @var \App\Model\Order\Invoice|null $model */
+        /** @var Invoice|null $model */
         $model = Invoice::find($invoice);
         abort_if(! $model, 404, 'Invoice not found.');
-        /** @var \App\User $authUser */
+        /** @var User $authUser */
         $authUser = Auth::user();
         if ($authUser->role != 'admin' && (int) $model->user_id !== (int) Auth::id()) {
             return errorResponse(__('message.invalid_modification'));
@@ -76,7 +79,7 @@ class RazorpayController extends Controller
                 : errorResponse(__('message.payment_declined_try_other_gateway'));
         } catch (SignatureVerificationException $e) {
             if (emailSendingStatus()) {
-                /** @var \App\User $authUser4 */
+                /** @var User $authUser4 */
                 $authUser4 = Auth::user();
                 $this->sendFailedPaymenttoAdmin($model, $model->grand_total, (string) $model->invoiceItem()->first()?->product_name, $e->getMessage(), $authUser4); // @phpstan-ignore argument.type
             }
@@ -89,7 +92,7 @@ class RazorpayController extends Controller
 
     public function getCurrency(): mixed
     {
-        /** @var \App\User $authUser2 */
+        /** @var User $authUser2 */
         $authUser2 = Auth::user();
 
         return $authUser2->currency_symbol;
@@ -97,7 +100,7 @@ class RazorpayController extends Controller
 
     public function getState(mixed $country, mixed $stateCode): mixed
     {
-        /** @var \App\User $authUser3 */
+        /** @var User $authUser3 */
         $authUser3 = Auth::user();
         if ($authUser3->country != 'IN') {
             return State::where('country_code', $country)->where('iso2', $stateCode)->value('state_subdivision_name');
@@ -119,14 +122,14 @@ class RazorpayController extends Controller
             $paymentIntent = $stripe->paymentIntents->retrieve($request->input('payment_intent'));
             if ($paymentIntent->status === 'succeeded') {
                 $currency = strtolower((string) $invoice->currency);
-                $controller = new SettingsController();
+                $controller = new SettingsController;
                 $result = $controller->processPaymentSuccess($invoice, $currency); // @phpstan-ignore method.notFound
                 Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
 
                 return redirect('checkout')->with($result['status'], $result['message']);
             }
 
-            $control = new RenewController();
+            $control = new RenewController;
             if (! $control->checkRenew($invoice->is_renewed)) {
                 return redirect('checkout')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
             }
@@ -140,13 +143,13 @@ class RazorpayController extends Controller
     /**
      * Create a recurring Razorpay subscription for autopay.
      *
-     * Thin adapter over the centralized {@see \App\Services\Payment\SubscriptionService}
+     * Thin adapter over the centralized {@see SubscriptionService}
      * (which drives the payment package's RazorpayGateway). Returns a
-     * {@see \App\Plugins\Payment\Dto\SubscriptionResult} — callers read ->status,
+     * {@see SubscriptionResult} — callers read ->status,
      * ->id and ->raw['short_url']. $cost is already in minor units; start_at /
      * expire_by are derived here from the subscription's current period.
      */
-    public function handleRzpAutoPay(mixed $cost, mixed $days, mixed $product_name, mixed $invoice, mixed $currency, mixed $subscription, mixed $user, mixed $order, mixed $endDate, mixed $productDetails): \App\Plugins\Payment\Dto\SubscriptionResult
+    public function handleRzpAutoPay(mixed $cost, mixed $days, mixed $product_name, mixed $invoice, mixed $currency, mixed $subscription, mixed $user, mixed $order, mixed $endDate, mixed $productDetails): SubscriptionResult
     {
         return resolve(SubscriptionService::class)->createSubscription('Razorpay', new SubscriptionRequest(
             amountMinor: (int) $cost,

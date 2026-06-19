@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class GithubController extends Controller
@@ -18,7 +19,7 @@ class GithubController extends Controller
     /**
      * Validate and persist GitHub credentials + integration status.
      */
-    public function postSettings(Request $request): \Illuminate\Http\JsonResponse
+    public function postSettings(Request $request): JsonResponse
     {
         try {
             $username = $request->input('git_username');

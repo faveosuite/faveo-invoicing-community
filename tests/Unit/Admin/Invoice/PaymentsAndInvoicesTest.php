@@ -16,11 +16,11 @@ class PaymentsAndInvoicesTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->classObject = new InvoiceController();
+        $this->classObject = new InvoiceController;
     }
 
     #[Group('paymentandinvoice')]
-    public function test_getAgents_whenAgentsIsPassed_returnsNoOfAgents(): void
+    public function test_get_agents_when_agents_is_passed_returns_no_of_agents(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -32,7 +32,7 @@ class PaymentsAndInvoicesTest extends DBTestCase
     }
 
     #[Group('paymentandinvoice')]
-    public function test_getAgents_whenAgentsIsPassedIsNull_returnsNoOfAgents(): void
+    public function test_get_agents_when_agents_is_passed_is_null_returns_no_of_agents(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -44,7 +44,7 @@ class PaymentsAndInvoicesTest extends DBTestCase
     }
 
     #[Group('paymentandinvoice')]
-    public function test_getAgents_whenAgentsIsPassedIsNullWhenPlanDoesNotExistForProduct_returnsNoOfAgents(): void
+    public function test_get_agents_when_agents_is_passed_is_null_when_plan_does_not_exist_for_product_returns_no_of_agents(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -54,7 +54,7 @@ class PaymentsAndInvoicesTest extends DBTestCase
     }
 
     #[Group('paymentandinvoice')]
-    public function test_getQuantity_whenQuantityIsPassed_returnsProductQuantity(): void
+    public function test_get_quantity_when_quantity_is_passed_returns_product_quantity(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -66,7 +66,7 @@ class PaymentsAndInvoicesTest extends DBTestCase
     }
 
     #[Group('paymentandinvoice')]
-    public function test_getAgents_whenQtyIsPassedIsNull_returnsProductQuantity(): void
+    public function test_get_agents_when_qty_is_passed_is_null_returns_product_quantity(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -78,7 +78,7 @@ class PaymentsAndInvoicesTest extends DBTestCase
     }
 
     #[Group('paymentandinvoice')]
-    public function test_getAgents_whenQtyIsPassedIsNullWhenPlanDoesNotExistForProduct_returnsProductQuantity(): void
+    public function test_get_agents_when_qty_is_passed_is_null_when_plan_does_not_exist_for_product_returns_product_quantity(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();

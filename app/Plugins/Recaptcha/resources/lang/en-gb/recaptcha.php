@@ -17,7 +17,7 @@ return [
     'none' => 'None',
     'fallback_v2_checkbox' => 'Fallback to reCAPTCHA v2 Checkbox',
     'action_if_captcha_fails' => 'Action to take if reCAPTCHA fails',
-    
+
     /*
     * Recaptcha v3 Settings
     */
@@ -29,7 +29,7 @@ return [
     'v3_score_threshold' => 'v3 Score Threshold',
     'v3_score_hint' => 'Value between 0.0 and 1.0 (higher is better)',
     'v3_preview' => 'v3 Preview',
-    
+
     /*
     * Recaptcha v2 Settings
     */
@@ -39,7 +39,7 @@ return [
     'v2_secret_key' => 'v2 Secret Key',
     'enter_v2_secret_key' => 'Enter your reCAPTCHA v2 secret key',
     'v2_preview' => 'v2 Preview',
-    
+
     /*
     * Appearance
     */
@@ -54,7 +54,7 @@ return [
     'badge_bottomright' => 'Bottom Right',
     'badge_bottomleft' => 'Bottom Left',
     'badge_inline' => 'Inline',
-    
+
     /*
     * Common
     */
@@ -62,17 +62,17 @@ return [
     'saving' => 'Saving',
     'home' => 'Home',
     'settings' => 'Settings',
-    
+
     /*
     * Success messages
     */
     'captcha_settings_updated' => 'reCAPTCHA settings updated successfully!',
-    
+
     /*
     * Error messages
     */
     'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
-    
+
     /*
     * JavaScript validation messages
     */
@@ -92,13 +92,13 @@ return [
     'failed_generate_v2_token' => 'Failed to generate reCAPTCHA v2 token.',
     'settings_saved' => 'Settings saved.',
     'failed_save_settings' => 'Failed to save settings. Please try again.',
-    
+
     /*
     * Backend validation messages
     */
     'invalid_secret_or_token' => 'Secret key or response token is invalid',
     'captcha_verification_failed' => 'reCAPTCHA verification failed (score/action/hostname mismatch)',
-    
+
     /*
     * Validation messages
     */

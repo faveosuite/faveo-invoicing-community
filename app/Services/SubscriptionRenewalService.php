@@ -26,9 +26,9 @@ class SubscriptionRenewalService
         $updatesExpiry = $this->computeExpiry($permissions['generateUpdatesxpiryDate'], $sub->update_ends_at, $days, $fromNowIfExpired);
         $supportExpiry = $this->computeExpiry($permissions['generateSupportExpiryDate'], $sub->support_ends_at, $days, $fromNowIfExpired);
 
-        $sub->ends_at = $licenseExpiry ? \Illuminate\Support\Facades\Date::parse($licenseExpiry) : null;
-        $sub->update_ends_at = $updatesExpiry ? \Illuminate\Support\Facades\Date::parse($updatesExpiry) : null;
-        $sub->support_ends_at = $supportExpiry ? \Illuminate\Support\Facades\Date::parse($supportExpiry) : null;
+        $sub->ends_at = $licenseExpiry ? Date::parse($licenseExpiry) : null;
+        $sub->update_ends_at = $updatesExpiry ? Date::parse($updatesExpiry) : null;
+        $sub->support_ends_at = $supportExpiry ? Date::parse($supportExpiry) : null;
         $sub->save();
 
         $order = Order::find($sub->order_id);
@@ -88,7 +88,7 @@ class SubscriptionRenewalService
     public function updateInstallationLimit(Subscription $sub, int $limit): void
     {
         $licenseService = resolve(LicenseService::class);
-        /** @var \App\Model\Order\Order $order */
+        /** @var Order $order */
         $order = Order::find($sub->order_id);
         $ipAndDomain = LicenseService::parseIpAndDomain($order->domain);
         $existingLicense = $licenseService->findByCode($order->serial_key);
@@ -124,7 +124,7 @@ class SubscriptionRenewalService
         $installService = resolve(InstallationService::class);
         $licenseService = resolve(LicenseService::class);
 
-        /** @var \App\Model\Order\Order $subOrder */
+        /** @var Order $subOrder */
         $subOrder = $sub->order;
         $licenseCode = $subOrder->serial_key;
         $domain = $subOrder->domain;

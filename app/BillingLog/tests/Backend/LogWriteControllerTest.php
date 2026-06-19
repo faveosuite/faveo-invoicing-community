@@ -25,7 +25,7 @@ class LogWriteControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->controller = new LogWriteController();
+        $this->controller = new LogWriteController;
     }
 
     #[Test]

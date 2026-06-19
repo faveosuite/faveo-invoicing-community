@@ -6,6 +6,8 @@ use App\Model\CloudDataCenters;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Services\Payment\FreeTrialService;
+use App\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Logger;
 use RuntimeException;
@@ -19,7 +21,7 @@ class FreeTrailController extends Controller
         $this->middleware('auth')->except('getCloudProducts');
     }
 
-    public function startTrial(Request $request): \Illuminate\Http\JsonResponse
+    public function startTrial(Request $request): JsonResponse
     {
         $request->validate([
             'domain' => ['required', 'regex:/^[a-zA-Z0-9]+$/u'],
@@ -34,7 +36,7 @@ class FreeTrailController extends Controller
             return errorResponse(__('message.cannot_find_product'));
         }
 
-        /** @var \App\User $user */
+        /** @var User $user */
         $user = auth()->user();
 
         try {
@@ -51,7 +53,7 @@ class FreeTrailController extends Controller
         }
     }
 
-    public function getCloudProducts(): \Illuminate\Http\JsonResponse
+    public function getCloudProducts(): JsonResponse
     {
         $cloudProductIds = cloudPopupProducts();
 

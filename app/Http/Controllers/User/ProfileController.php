@@ -7,10 +7,13 @@ use App\Http\Controllers\Auth\BaseAuthController;
 use App\Http\Requests\User\ProfileRequest;
 use App\Model\Common\Bussiness;
 use App\Model\Common\Timezone;
+use App\User;
 use Auth;
 use DB;
 use Exception;
 use Hash;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Lang;
 
 class ProfileController extends BaseAuthController
@@ -21,10 +24,10 @@ class ProfileController extends BaseAuthController
         $this->middleware('admin');
     }
 
-    public function profile(): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    public function profile(): JsonResponse|RedirectResponse
     {
         try {
-            /** @var \App\User $user */
+            /** @var User $user */
             $user = Auth::user();
             $timezonesList = Timezone::get();
             $is2faEnabled = $user->is_2fa_enabled;
@@ -41,23 +44,23 @@ class ProfileController extends BaseAuthController
                 }
             }
 
-            //for display
+            // for display
             $timezones = array_column($display, 'name', 'id');
             $state = getStateByCode((string) $user->country, (string) $user->state);
             $states = findStateByRegionId($user->country);
             $bussinesses = Bussiness::pluck('name', 'short')->toArray();
 
             return successResponse('', ['bussinesses' => $bussinesses, 'user' => $user, 'timezones' => $timezones, 'state' => $state, 'states' => $states, 'is2faEnabled' => $is2faEnabled, 'dateSinceEnabled' => $dateSinceEnabled]);
-//            return view('themes.default1.user.profile', compact('bussinesses', 'user', 'timezones', 'state', 'states', 'is2faEnabled', 'dateSinceEnabled'));
+            //            return view('themes.default1.user.profile', compact('bussinesses', 'user', 'timezones', 'state', 'states', 'is2faEnabled', 'dateSinceEnabled'));
         } catch (Exception $exception) {
             return back()->with('fails', $exception->getMessage());
         }
     }
 
-    public function updateProfile(ProfileRequest $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    public function updateProfile(ProfileRequest $request): JsonResponse|RedirectResponse
     {
         try {
-            /** @var \App\User $user */
+            /** @var User $user */
             $user = Auth::user();
             if ($request->hasFile('profile_pic')) {
                 $path = Attach::put('common/images/users/', $request->file('profile_pic'), null, true);
@@ -80,10 +83,10 @@ class ProfileController extends BaseAuthController
         }
     }
 
-    public function updatePassword(ProfileRequest $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    public function updatePassword(ProfileRequest $request): JsonResponse|RedirectResponse
     {
         try {
-            /** @var \App\User $user */
+            /** @var User $user */
             $user = Auth::user();
             $oldpassword = $request->input('old_password');
             $currentpassword = $user->getAuthPassword();
@@ -117,7 +120,7 @@ class ProfileController extends BaseAuthController
         }
     }
 
-    public function getCountries(): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    public function getCountries(): JsonResponse|RedirectResponse
     {
         $countries = getSupportedCountriesForIntlInput();
         $list = collect($countries)->map(fn ($name, $iso): array => ['id' => $iso, 'name' => $name])->values();
@@ -125,7 +128,7 @@ class ProfileController extends BaseAuthController
         return successResponse('', ['countries' => $list]);
     }
 
-    public function getStatesByCountry(string $countryCode): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    public function getStatesByCountry(string $countryCode): JsonResponse|RedirectResponse
     {
         $states = findStateByRegionId($countryCode);
         $list = collect($states)->map(fn ($name, $iso): array => ['id' => $iso, 'name' => $name])->values();

@@ -701,10 +701,10 @@ return [
     'cloud_field_label' => 'Geben Sie Ihren gewünschten Cloud-Domainnamen ein.',
     'cloud_price' => 'Preis pro Agent',
 
-    //Delete message
+    // Delete message
     'confirm' => 'Sind Sie sicher, dass Sie dies löschen möchten?',
 
-    //Delete message
+    // Delete message
     'cloud_domain_change' => 'Gute Nachrichten! Ihre Cloud-Domain wurde erfolgreich geändert. Bitte beachten Sie, dass es eine kurze Ausfallzeit von ca. 5 Minuten geben wird, um diese Änderungen anzuwenden. Vielen Dank für Ihre Geduld!',
     'limit_is_up' => 'Es ist uns aufgefallen, dass Sie das kostenlose Testlimit überschritten haben. Bitte löschen Sie Ihre bestehenden Instanzen, um weiterzumachen.',
     'too_long' => 'Dies scheint eine große Domain zu sein. Bitte versuchen Sie es mit einer kürzeren Anzahl von Zeichen.',
@@ -760,7 +760,7 @@ return [
     'user_suspend' => 'Dieser Benutzer ist im System gesperrt. Stellen Sie den Benutzer wieder her, um Details anzuzeigen.',
     'country_notfound' => 'Das Land konnte nicht bestimmt werden.',
 
-    //Strong Password
+    // Strong Password
     'strong_password' => 'Das Passwort muss mindestens 8 Zeichen, einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.',
 
     'password_requirements' => 'Ihr Passwort muss folgendes haben:',
@@ -869,7 +869,7 @@ return [
     'required_stripe_secret' => 'Bitte geben Sie das Stripe-Geheimnis ein',
     'max_stripe_secret' => 'Das Stripe-Geheimnis darf 200 Zeichen nicht überschreiten',
 
-    //email templates
+    // email templates
 
     'choose_password' => 'Klicken Sie hier, um Ihr Passwort zurückzusetzen: ',
     'email_username' => 'Benutzername: ',
@@ -877,7 +877,7 @@ return [
     'email_click_here' => 'Klicken Sie hier',
     'activate_account' => 'Um Ihr Konto zu aktivieren:',
 
-    //error template
+    // error template
     'page_not_found' => 'Seite nicht gefunden',
     'sorry' => 'Es tut uns leid, aber die Seite, die Sie suchen, existiert nicht.',
     'useful_links' => 'Hier sind einige nützliche Links',
@@ -886,7 +886,7 @@ return [
     'my_profile' => 'Mein Profil',
     'contact_us' => 'Kontaktieren Sie uns',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Anmelden | Registrieren',
     'sign_lr' => 'Einloggen oder Registrieren',
     'or' => 'Oder',
@@ -919,7 +919,7 @@ return [
     'error_valid_number' => 'Bitte geben Sie eine gültige Telefonnummer ein',
     'error_occurred' => 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
     'error_one_country' => 'Bitte wählen Sie ein Land aus',
-    //contact template
+    // contact template
     'feel_free' => 'Fühlen Sie sich frei, nach Details zu fragen, speichern Sie keine Fragen!',
     'contact_name' => 'Name',
     'contact_error_name' => 'Bitte geben Sie Ihren Namen ein.',
@@ -932,7 +932,7 @@ return [
     'contact_send_msg' => 'Nachricht senden',
     'our_office' => 'Unser Büro',
 
-    //password template
+    // password template
     'forgot_password' => 'Passwort vergessen? Setzen Sie es jetzt zurück!',
     'lost_password' => 'Haben Sie Ihr Passwort vergessen?',
     'know_password' => 'Ich kenne mein Passwort',
@@ -942,7 +942,7 @@ return [
     'error_occurs' => 'Ein Fehler ist aufgetreten.',
     'reset_password' => 'Passwort zurücksetzen',
 
-    //front-client template
+    // front-client template
     'change_faveo' => 'Möchten Sie Ihre bestehende Faveo-Cloud-Domain ändern?',
     'current_domain' => 'Geben Sie die aktuelle Domain ein',
     'enter_domain' => 'Geben Sie eine neue Domain ein',
@@ -1103,7 +1103,7 @@ return [
     'loading' => 'Lädt...',
     'subscriptions_table' => 'Abonnement-Tabelle',
     'invalid_format' => 'Ungültiges Format.',
-    //front-page template
+    // front-page template
     'all_pages' => 'Alle Seiten',
     'create_new_page' => 'Neue Seite erstellen',
     'edit_page' => 'Seite bearbeiten',
@@ -1113,14 +1113,14 @@ return [
     'select_checkbox' => 'Bitte wählen Sie mindestens ein Kontrollkästchen',
     'search_result' => 'Suchergebnisse',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'Alle Widgets',
     'create_widget' => 'Widget erstellen',
     'configure_mailchimp' => 'Konfigurieren Sie Ihr Mailchimp in den Einstellungen, um darauf zuzugreifen',
     'configure_tweet' => 'Konfigurieren Sie Ihre Tweets in den Einstellungen, um darauf zuzugreifen',
     'edit_widget' => 'Widget bearbeiten',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Produkt entfernen',
     'cart_totals' => 'Warenkorb Gesamtsumme',
     'clear_cart' => 'Warenkorb leeren',
@@ -1177,10 +1177,10 @@ return [
     'go_back' => 'Zurück gehen',
     'be_right_back' => 'Sind gleich wieder da.',
 
-    //category template
+    // category template
     'all_categories' => 'Alle Kategorien',
     'category_name' => 'Name',
-    //common template
+    // common template
     'create_script_code' => 'Erstellen Sie Script-Code',
     'create_script' => 'Script erstellen',
     'edit_script_code' => 'Script-Code bearbeiten',
@@ -1343,14 +1343,14 @@ return [
     'deactivate' => 'Deaktivieren',
     'provider' => 'Anbieter',
 
-    //github template
+    // github template
     'github_setting' => 'Github-Einstellungen',
     'enter_github_username' => 'Bitte geben Sie den Github-Benutzernamen ein',
     'enter_github_password' => 'Bitte geben Sie das Github-Passwort ein',
     'enter_github_clientid' => 'Bitte geben Sie die Client-ID ein',
     'enter_github_client_secret_key' => 'Bitte geben Sie den Client-Geheimschlüssel ein',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => 'Rechnung bearbeiten',
     'view_user' => 'Benutzer anzeigen',
     'pending' => 'Ausstehend',
@@ -1391,7 +1391,7 @@ return [
     'no_tax_rates' => 'Keine Steuersätze',
     'store' => 'Geschäft',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Admin-Dashboard',
     'my_account' => 'Mein Konto',
     'start_free_trial' => 'KOSTENLOSES TESTABO STARTEN',
@@ -1432,7 +1432,7 @@ return [
     'enter_domain_license' => 'Domain eingeben & Lizenzdatei herunterladen',
     'installation_details' => 'Installationsdetails',
 
-    //payement panel
+    // payement panel
     'payment_date' => 'Zahlungsdatum',
     'auto_renewal_subscription' => 'Automatische Verlängerung für zukünftige Abonnements',
     'subscription_start_date' => 'Abo-Startdatum',
@@ -1458,7 +1458,7 @@ return [
     'coupon' => 'Gutschein',
     'actions' => 'Aktionen',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Steuer erstellen',
     'caps_others' => 'ANDERE',
     'others' => 'Andere',
@@ -1496,7 +1496,7 @@ return [
     'show_cart_page' => 'Auf der Warenkorb-Seite anzeigen',
     'select_taxes' => 'Steuern auswählen',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Produktdetails hinzufügen',
     'enter_json_format' => 'Geben Sie das JSON-Format ein.',
     'upload' => 'Hochladen',
@@ -1525,21 +1525,21 @@ return [
     'all_types' => 'Alle Typen',
     'configure_queue' => 'Warteschlange konfigurieren',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Stellen Sie sicher, dass der Warenkorb leer ist, um Ihr Produkt zu erneuern',
     'click_renew' => 'Klicken Sie hier, um zu erneuern',
     'renew_your_order' => 'Erneuern Sie Ihre Bestellung',
     'renew_order' => 'Bestellung erneuern',
     'renewal_price_per_agent' => 'Erneuerungspreis pro Agent: ',
 
-    //report panel
+    // report panel
     'file_name' => 'Dateiname',
     'format' => 'Format',
     'contact' => 'Kontakt',
     'report_settings' => 'Berichtseinstellungen',
     'report_limit' => 'Fügen Sie Datensätze pro Blatt hinzu. Das maximale Limit beträgt 3000.',
 
-    //tenanat panel
+    // tenanat panel
     'cloud_server' => 'Cloud-Server',
     'customise_cloud_popup' => 'Cloud-Popup anpassen',
     'cloud_product_configuration' => 'Cloud-Produktkonfiguration',
@@ -1566,7 +1566,7 @@ return [
     'app_key' => 'App-Schlüssel',
     'app_secret' => 'App-Geheimnis',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Neuen Benutzer erstellen',
     'create_user' => 'Benutzer erstellen',
     'position' => 'Position',
@@ -1680,7 +1680,7 @@ return [
     'error_logs' => 'Fehlerprotokolle',
     'view_logs' => 'Protokolle anzeigen',
 
-    //visitstats
+    // visitstats
     'request' => 'Anfrage',
     'visitor' => 'Besucher',
     'browser' => 'Browser',
@@ -2038,7 +2038,7 @@ return [
     'null' => 'Null',
     'choose_one_payment_gateway' => 'Wählen Sie ein Zahlungs-Gateway',
 
-    //Controller key and values
+    // Controller key and values
     'product_uploaded_successfully' => 'Produkt erfolgreich hochgeladen',
     'token_mismatch_account_not_activated' => 'Token stimmt nicht überein. Konto kann nicht aktiviert werden.',
     'email_verification_success' => 'E-Mail-Verifizierung erfolgreich. Bitte melden Sie sich an, um auf Ihr Konto zuzugreifen!',

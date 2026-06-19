@@ -31,82 +31,86 @@ use App\User;
 use Auth;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Logger;
 use Session;
 use Spatie\LaravelPdf\Enums\Format;
 use Spatie\LaravelPdf\Facades\Pdf;
+use Spatie\LaravelPdf\PdfBuilder;
 use Str;
 
 class InvoiceController extends TaxRatesAndCodeExpiryController
 {
-    use  CoupCodeAndInvoiceSearch;
-    use  PaymentsAndInvoices;
+    use CoupCodeAndInvoiceSearch;
+    use PaymentsAndInvoices;
     use TaxCalculation;
 
     /**
-     * @var \App\Model\Order\Invoice
+     * @var Invoice
      */
     public $invoice;
 
     /**
-     * @var \App\Model\Order\InvoiceItem
+     * @var InvoiceItem
      */
     public $invoiceItem;
 
     /**
-     * @var \App\User
+     * @var User
      */
     public $user;
 
     /**
-     * @var \App\Model\Common\Template
+     * @var Template
      */
     public $template;
 
     /**
-     * @var \App\Model\Common\Setting
+     * @var Setting
      */
     public $setting;
 
     /**
-     * @var \App\Model\Order\Payment
+     * @var Payment
      */
     public $payment;
 
     /**
-     * @var \App\Model\Product\Product
+     * @var Product
      */
     public $product;
 
     /**
-     * @var \App\Model\Product\Price
+     * @var Price
      */
     public $price;
 
     /**
-     * @var \App\Model\Payment\Promotion
+     * @var Promotion
      */
     public $promotion;
 
     /**
-     * @var \App\Model\Payment\Currency
+     * @var Currency
      */
     public $currency;
 
     /**
-     * @var \App\Model\Payment\Tax
+     * @var Tax
      */
     public $tax;
 
     /**
-     * @var \App\Model\Payment\TaxOption
+     * @var TaxOption
      */
     public $tax_option;
 
     /**
-     * @var \App\Model\Order\Order
+     * @var Order
      */
     public $order;
 
@@ -115,50 +119,50 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         $this->middleware('auth');
         $this->middleware('admin', ['except' => ['pdf']]);
 
-        $invoice = new Invoice();
+        $invoice = new Invoice;
         $this->invoice = $invoice;
 
-        $invoiceItem = new InvoiceItem();
+        $invoiceItem = new InvoiceItem;
         $this->invoiceItem = $invoiceItem;
 
-        $user = new User();
+        $user = new User;
         $this->user = $user;
 
-        $template = new Template();
+        $template = new Template;
         $this->template = $template;
 
-        $seting = new Setting();
+        $seting = new Setting;
         $this->setting = $seting;
 
-        $payment = new Payment();
+        $payment = new Payment;
         $this->payment = $payment;
 
-        $product = new Product();
+        $product = new Product;
         $this->product = $product;
 
-        $price = new Price();
+        $price = new Price;
         $this->price = $price;
 
-        $promotion = new Promotion();
+        $promotion = new Promotion;
         $this->promotion = $promotion;
 
-        $currency = new Currency();
+        $currency = new Currency;
         $this->currency = $currency;
 
-        $tax = new Tax();
+        $tax = new Tax;
         $this->tax = $tax;
 
-        $tax_option = new TaxOption();
+        $tax_option = new TaxOption;
         $this->tax_option = $tax_option;
 
-        $order = new Order();
+        $order = new Order;
         $this->order = $order;
 
-        $tax_by_state = new TaxByState();
-        $this->tax_by_state = new $tax_by_state(); // @phpstan-ignore property.notFound
+        $tax_by_state = new TaxByState;
+        $this->tax_by_state = new $tax_by_state; // @phpstan-ignore property.notFound
     }
 
-    public function getInvoices(Request $request): \Illuminate\Http\JsonResponse
+    public function getInvoices(Request $request): JsonResponse
     {
         try {
             $searchQuery = $request->input('search-query', '');
@@ -182,8 +186,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 ];
 
                 $status = array_key_exists($search, $statusMapping) ? $statusMapping[$search] : $search;
-                $query->where(function (\Illuminate\Contracts\Database\Query\Builder $q) use ($search, $status): void {
-                    $q->whereHas('user', function (\Illuminate\Contracts\Database\Query\Builder $q2) use ($search): void {
+                $query->where(function (Builder $q) use ($search, $status): void {
+                    $q->whereHas('user', function (Builder $q2) use ($search): void {
                         $q2->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', [sprintf('%%%s%%', $search)]);
                     })
                         ->orWhere('number', 'like', sprintf('%%%s%%', $search))
@@ -224,7 +228,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
      *
      * @throws Exception
      */
-    public function invoiceGenerateByForm(InvoiceRequest $request, int|string $user_id = ''): \Illuminate\Http\JsonResponse
+    public function invoiceGenerateByForm(InvoiceRequest $request, int|string $user_id = ''): JsonResponse
     {
         try {
             $cloud_domain = '';
@@ -244,7 +248,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
                 $cloud_domain = $cloud_domain.'.'.cloudSubDomain();
 
-                if (! (bool) new CloudExtraActivities(new Client, new FaveoCloud())->checkDomain($cloud_domain)) { // @phpstan-ignore-line
+                if (! (bool) new CloudExtraActivities(new Client, new FaveoCloud)->checkDomain($cloud_domain)) { // @phpstan-ignore-line
                     return errorResponse([trans('message.domain_taken')]);
                 }
             }
@@ -310,7 +314,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     }
 
     public function createInvoiceItemsByAdmin(int $invoiceid, string $productid, mixed $price,
-                                              string $currency, int $qty, mixed $agents, int $planid, int $userid, ?string $tax_name, float|int $tax_rate, mixed $grandTotalAfterCoupon): \App\Model\Order\InvoiceItem|\Illuminate\Http\RedirectResponse
+        string $currency, int $qty, mixed $agents, int $planid, int $userid, ?string $tax_name, float|int $tax_rate, mixed $grandTotalAfterCoupon): InvoiceItem|RedirectResponse
     {
         try {
             $product = $this->product->findOrFail($productid);
@@ -379,7 +383,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         }
     }
 
-    public function pdf(Request $request): \Illuminate\Http\JsonResponse|\Spatie\LaravelPdf\PdfBuilder
+    public function pdf(Request $request): JsonResponse|PdfBuilder
     {
         try {
             $id = $request->input('invoiceid');
@@ -434,7 +438,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         }
     }
 
-    public function exportInvoices(Request $request): \Illuminate\Http\JsonResponse
+    public function exportInvoices(Request $request): JsonResponse
     {
         try {
             ini_set('memory_limit', '-1');
@@ -465,7 +469,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         }
     }
 
-    public function getInvoice(int $id): \Illuminate\Http\JsonResponse
+    public function getInvoice(int $id): JsonResponse
     {
         try {
             $query = Invoice::with([

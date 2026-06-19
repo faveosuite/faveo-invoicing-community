@@ -3,10 +3,12 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\Response;
 
 class LanguageController extends Controller
 {
-    public function getLanguageFile(): \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+    public function getLanguageFile(): ResponseFactory|Response
     {
         $locale = app()->getLocale() ?: 'en';
         $fallback = 'en';

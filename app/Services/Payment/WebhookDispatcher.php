@@ -72,7 +72,7 @@ class WebhookDispatcher
     private static function confirmStripePayment(array $object): void
     {
         if ($invoiceId = $object['metadata']['invoice_id'] ?? null) {
-            /** @var \App\Model\Order\Invoice|null $invoice */
+            /** @var Invoice|null $invoice */
             $invoice = Invoice::find($invoiceId);
             if ($invoice) {
                 resolve(InvoicePaymentService::class)->confirm($invoice, 'Stripe', [
@@ -84,7 +84,7 @@ class WebhookDispatcher
         }
 
         $orderId = $object['metadata']['order_id'] ?? null;
-        /** @var \App\Model\Payment\OpenPaymentOrder|null $stripeOrder */
+        /** @var OpenPaymentOrder|null $stripeOrder */
         $stripeOrder = $orderId ? OpenPaymentOrder::find($orderId) : null;
         if ($stripeOrder && ! $stripeOrder->isPaid()) {
             $stripeOrder->update([
@@ -101,7 +101,7 @@ class WebhookDispatcher
     private static function failStripePayment(array $object): void
     {
         $orderId = $object['metadata']['order_id'] ?? null;
-        /** @var \App\Model\Payment\OpenPaymentOrder|null $failStripeOrder */
+        /** @var OpenPaymentOrder|null $failStripeOrder */
         $failStripeOrder = $orderId ? OpenPaymentOrder::find($orderId) : null;
         if ($failStripeOrder && ! $failStripeOrder->isPaid()) {
             $failStripeOrder->update(['payment_status' => 'failed']);
@@ -119,7 +119,7 @@ class WebhookDispatcher
         $type = $event['event'] ?? '';
 
         if ($invoiceId = $payment['notes']['invoice_id'] ?? null) {
-            /** @var \App\Model\Order\Invoice|null $invoice2 */
+            /** @var Invoice|null $invoice2 */
             $invoice2 = Invoice::find($invoiceId);
             if ($invoice2 && $type === 'payment.captured') {
                 resolve(InvoicePaymentService::class)->confirm($invoice2, 'Razorpay', [
@@ -131,7 +131,7 @@ class WebhookDispatcher
         }
 
         $orderId = $payment['notes']['order_id'] ?? null;
-        /** @var \App\Model\Payment\OpenPaymentOrder|null $rzpOrder */
+        /** @var OpenPaymentOrder|null $rzpOrder */
         $rzpOrder = $orderId ? OpenPaymentOrder::find($orderId) : null;
         if ($rzpOrder) {
             if ($type === 'payment.captured' && ! $rzpOrder->isPaid()) {

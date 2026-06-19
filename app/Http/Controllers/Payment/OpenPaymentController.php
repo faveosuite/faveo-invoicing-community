@@ -12,11 +12,15 @@ use App\Model\Payment\OpenPaymentOrder;
 use App\Model\Plugin;
 use App\Plugins\Payment\Exceptions\SignatureVerificationException;
 use App\Services\Payment\OpenPaymentService;
+use App\Services\Payment\PaymentService;
 use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Throwable;
 
 /**
@@ -24,19 +28,17 @@ use Throwable;
  *
  * HTTP + CRUD layer. All gateway work (open a payment, verify a callback,
  * authenticate a webhook) is delegated to {@see OpenPaymentService}, which drives
- * the same {@see \App\Services\Payment\PaymentService} / payment package the rest
+ * the same {@see PaymentService} / payment package the rest
  * of the application uses — no raw gateway SDK calls live here anymore.
  */
 class OpenPaymentController extends Controller
 {
-    public function __construct(private readonly OpenPaymentService $payments)
-    {
-    }
+    public function __construct(private readonly OpenPaymentService $payments) {}
 
     /**
      * Create order.
      */
-    public function createOrder(OpenPaymentRequest $request): \Illuminate\Http\JsonResponse
+    public function createOrder(OpenPaymentRequest $request): JsonResponse
     {
         try {
             // Lock fee server-side — client cannot manipulate it
@@ -74,10 +76,10 @@ class OpenPaymentController extends Controller
     /**
      * Get Order Details (with gateway publishable keys for the client).
      */
-    public function getOrderDetails(mixed $id): \Illuminate\Http\JsonResponse
+    public function getOrderDetails(mixed $id): JsonResponse
     {
         try {
-            /** @var \App\Model\Payment\OpenPaymentOrder $order */
+            /** @var OpenPaymentOrder $order */
             $order = OpenPaymentOrder::findOrFail($id);
             $apiKeys = ApiKey::first();
 
@@ -103,14 +105,14 @@ class OpenPaymentController extends Controller
      * Stripe → embedded Checkout Session {client_secret, session_id, publishable_key};
      * Razorpay → Checkout options {key, order_id, amount, ...} for `new Razorpay()`.
      */
-    public function preparePayment(Request $request): \Illuminate\Http\JsonResponse
+    public function preparePayment(Request $request): JsonResponse
     {
         $request->validate([
             'order_id' => ['required', 'integer'],
         ]);
 
         try {
-            /** @var \App\Model\Payment\OpenPaymentOrder $order */
+            /** @var OpenPaymentOrder $order */
             $order = OpenPaymentOrder::findOrFail($request->order_id);
 
             if ($order->isPaid()) {
@@ -130,12 +132,12 @@ class OpenPaymentController extends Controller
      * secret + publishable key. The browser confirms the card directly against
      * the PaymentIntent; the server verifies the result via verifyStripePayment.
      */
-    public function stripeCardSession(Request $request): \Illuminate\Http\JsonResponse
+    public function stripeCardSession(Request $request): JsonResponse
     {
         $request->validate(['order_id' => ['required', 'exists:open_payment_orders,id']]);
 
         try {
-            /** @var \App\Model\Payment\OpenPaymentOrder $order */
+            /** @var OpenPaymentOrder $order */
             $order = OpenPaymentOrder::findOrFail($request->order_id);
 
             if ($order->isPaid()) {
@@ -155,7 +157,7 @@ class OpenPaymentController extends Controller
     /**
      * Verify a Razorpay Checkout handler response (client-side verification).
      */
-    public function verifyRazorpayPayment(Request $request): \Illuminate\Http\JsonResponse
+    public function verifyRazorpayPayment(Request $request): JsonResponse
     {
         $request->validate([
             'order_id' => ['required', 'exists:open_payment_orders,id'],
@@ -165,7 +167,7 @@ class OpenPaymentController extends Controller
         ]);
 
         try {
-            /** @var \App\Model\Payment\OpenPaymentOrder $order */
+            /** @var OpenPaymentOrder $order */
             $order = OpenPaymentOrder::findOrFail($request->order_id);
 
             $paid = $this->payments->confirm($order, $request->only([
@@ -185,7 +187,7 @@ class OpenPaymentController extends Controller
     /**
      * Verify a completed Stripe PaymentIntent (custom card UI).
      */
-    public function verifyStripePayment(Request $request): \Illuminate\Http\JsonResponse
+    public function verifyStripePayment(Request $request): JsonResponse
     {
         $request->validate([
             'order_id' => ['required', 'exists:open_payment_orders,id'],
@@ -193,7 +195,7 @@ class OpenPaymentController extends Controller
         ]);
 
         try {
-            /** @var \App\Model\Payment\OpenPaymentOrder $order */
+            /** @var OpenPaymentOrder $order */
             $order = OpenPaymentOrder::findOrFail($request->order_id);
 
             $paid = $this->payments->confirm($order, ['payment_intent' => $request->payment_intent_id]);
@@ -209,7 +211,7 @@ class OpenPaymentController extends Controller
     /**
      * Detect country from the user's IP using the installed GeoIP package.
      */
-    public function detectCountry(Request $request): \Illuminate\Http\JsonResponse
+    public function detectCountry(Request $request): JsonResponse
     {
         $location = getLocation($request->ip());
         $countryCode = $location->iso_code ?? null;
@@ -232,7 +234,7 @@ class OpenPaymentController extends Controller
      * Calculate totals server-side — called by the review page before order creation.
      * Returns base_amount, processing_fee, processing_fee_rate, total.
      */
-    public function calculate(Request $request): \Illuminate\Http\JsonResponse
+    public function calculate(Request $request): JsonResponse
     {
         $request->validate([
             'amount' => ['required', 'numeric', 'min:0'],
@@ -255,7 +257,7 @@ class OpenPaymentController extends Controller
     /**
      * Return enabled gateways (with processing fee) and active currencies (with symbol).
      */
-    public function getConfig(): \Illuminate\Http\JsonResponse
+    public function getConfig(): JsonResponse
     {
         $gatewayNames = Plugin::where('status', 1)
             ->whereIn('name', ['Stripe', 'Razorpay'])
@@ -283,7 +285,7 @@ class OpenPaymentController extends Controller
      * and legacy params (search, status, gateway, from_date, to_date, per_page).
      * Returns the paginator directly so the frontend DataTable default adapter works.
      */
-    public function listOrders(Request $request): \Illuminate\Http\JsonResponse
+    public function listOrders(Request $request): JsonResponse
     {
         try {
             $query = OpenPaymentOrder::query();
@@ -292,9 +294,9 @@ class OpenPaymentController extends Controller
             if ($search) {
                 $query->where(function (Builder $q) use ($search): void {
                     $q->where('name', 'like', sprintf('%%%s%%', $search))
-                      ->orWhere('email', 'like', sprintf('%%%s%%', $search))
-                      ->orWhere('company', 'like', sprintf('%%%s%%', $search))
-                      ->orWhere('transaction_id', 'like', sprintf('%%%s%%', $search));
+                        ->orWhere('email', 'like', sprintf('%%%s%%', $search))
+                        ->orWhere('company', 'like', sprintf('%%%s%%', $search))
+                        ->orWhere('transaction_id', 'like', sprintf('%%%s%%', $search));
                 });
             }
 
@@ -339,7 +341,7 @@ class OpenPaymentController extends Controller
     /**
      * Get order by ID (Admin).
      */
-    public function getOrder(mixed $id): \Illuminate\Http\JsonResponse
+    public function getOrder(mixed $id): JsonResponse
     {
         try {
             $order = OpenPaymentOrder::select('open_payment_orders.*')
@@ -363,11 +365,11 @@ class OpenPaymentController extends Controller
      * gateway no longer redirects here; this remains only as a safety net that
      * reflects the order's current status back to the open-payment page.
      */
-    public function handleStripeCallback(Request $request): \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+    public function handleStripeCallback(Request $request): Redirector|RedirectResponse
     {
         $orderId = $request->query('order_id');
 
-        /** @var \App\Model\Payment\OpenPaymentOrder|null $order */
+        /** @var OpenPaymentOrder|null $order */
         $order = $orderId ? OpenPaymentOrder::find($orderId) : null;
         if (! $orderId || ! $order) {
             return redirect('/open-payment?status=error&message=Order not found');

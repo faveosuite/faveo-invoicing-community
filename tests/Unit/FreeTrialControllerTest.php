@@ -12,7 +12,7 @@ use Tests\DBTestCase;
 
 class FreeTrialControllerTest extends DBTestCase
 {
-    public function test_firstLoginAttempt_return_exception_when_not_first_time_register_users(): void
+    public function test_first_login_attempt_return_exception_when_not_first_time_register_users(): void
     {
         $this->expectException(Exception::class);
         $user = User::factory()->create(['role' => 'user', 'country' => 'IN']);

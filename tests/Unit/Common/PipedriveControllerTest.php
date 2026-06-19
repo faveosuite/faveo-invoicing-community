@@ -38,7 +38,7 @@ class PipedriveControllerTest extends DBTestCase
 
         StatusSetting::first()->update(['pipedrive_status' => 1]);
 
-        $this->pipedriveController = new PipedriveController();
+        $this->pipedriveController = new PipedriveController;
     }
 
     protected function tearDown(): void

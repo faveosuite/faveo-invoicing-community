@@ -4,6 +4,7 @@ namespace App\Plugins\Zoho\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -12,9 +13,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $client_secret
  * @property string $redirect_uri
  * @property string $region
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Plugins\Zoho\Models\ZohoIntegration $integration
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read ZohoIntegration $integration
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthClient newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthClient newQuery()

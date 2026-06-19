@@ -135,7 +135,7 @@ return [
        கோரிக்கை கோப்பு தனிப்பயன் சரிபார்ப்பு செய்தியுகள்
     */
 
-    //பொதுவாக
+    // பொதுவாக
     'settings_form' => [
         'company' => [
             'required' => 'நிறுவனத்தின் புலம் அவசியம்.',
@@ -232,7 +232,7 @@ return [
         ],
     ],
 
-    //மின்னஞ்சல்
+    // மின்னஞ்சல்
     'custom' => [
         'password' => [
             'required_if' => 'தேர்ந்த மின்னஞ்சல் இயக்கி உடன் கடவுச்சொல் புலம் அவசியம்.',
@@ -416,7 +416,7 @@ return [
             'required' => 'மாநிலம் புலம் அவசியம்.',
         ],
     ],
-    //Product
+    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'பெயர் புலம் அவசியம்.',
@@ -506,7 +506,7 @@ return [
         ],
     ],
 
-    //User
+    // User
     'users' => [
         'first_name' => [
             'required' => 'முதல் பெயர் புலம் அவசியம்.',
@@ -706,7 +706,7 @@ return [
         'invalid' => 'தவறான கடவுச்சொல்.',
     ],
 
-    //AuthController file
+    // AuthController file
     'auth_controller' => [
         'name_required' => 'பெயர் அவசியம்.',
         'name_max' => 'பெயர் 255 எழுத்துகளை விட அதிகமாக இருக்கக்கூடாது.',

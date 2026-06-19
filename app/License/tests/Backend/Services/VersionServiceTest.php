@@ -15,7 +15,7 @@ class VersionServiceTest extends LicenseTestCase
     {
         parent::setUp();
 
-        $this->service = new VersionService();
+        $this->service = new VersionService;
     }
 
     #[Test]

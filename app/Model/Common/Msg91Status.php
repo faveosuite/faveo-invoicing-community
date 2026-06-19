@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Model\Common;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $status_code
  * @property string $status_label
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Msg91Status newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Msg91Status newQuery()
@@ -28,7 +30,7 @@ use Illuminate\Database\Eloquent\Model;
 class Msg91Status extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 

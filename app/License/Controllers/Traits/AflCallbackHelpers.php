@@ -5,6 +5,7 @@ namespace App\License\Controllers\Traits;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseNotification;
 use App\License\Models\LicenseReport;
+use Illuminate\Http\JsonResponse;
 
 trait AflCallbackHelpers
 {
@@ -24,7 +25,7 @@ trait AflCallbackHelpers
         ?string $client_email = null,
         ?string $license_code = null,
         ?string $root_url = null
-    ): \Illuminate\Http\JsonResponse {
+    ): JsonResponse {
         $notification = LicenseNotification::first();
         $notificationText = $notification ? ($notification->{$notificationCase} ?? $notificationCase) : $notificationCase;
 

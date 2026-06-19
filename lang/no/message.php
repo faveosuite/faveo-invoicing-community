@@ -880,7 +880,7 @@ return [
     'required_stripe_secret' => 'Vennligst skriv inn Stripe-hemmelighet',
     'max_stripe_secret' => 'Stripe-hemmelighet kan ikke overstige 200 tegn',
 
-    //email templates
+    // email templates
 
     'choose_password' => 'Klikk her for å tilbakestille passordet ditt: ',
     'email_username' => 'Brukernavn: ',
@@ -888,7 +888,7 @@ return [
     'email_click_here' => 'Klikk her',
     'activate_account' => 'For å aktivere kontoen din:',
 
-    //error template
+    // error template
     'page_not_found' => 'Side ikke funnet',
     'sorry' => 'Vi beklager, men siden du leter etter eksisterer ikke.',
     'useful_links' => 'Her er noen nyttige lenker',
@@ -897,7 +897,7 @@ return [
     'my_profile' => 'Min profil',
     'contact_us' => 'Kontakt oss',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Logg inn | Registrer',
     'sign_lr' => 'Logg inn eller Registrer',
     'or' => 'Eller',
@@ -931,7 +931,7 @@ return [
     'error_occurred' => 'En feil oppstod. Vennligst prøv igjen.',
     'error_one_country' => 'Vennligst velg ett land',
 
-    //contact template
+    // contact template
     'feel_free' => 'Føl deg fri til å spørre om detaljer, spar ingen spørsmål!',
     'contact_name' => 'Navn',
     'contact_error_name' => 'Vennligst skriv inn navnet ditt.',
@@ -944,7 +944,7 @@ return [
     'contact_send_msg' => 'Send melding',
     'our_office' => 'Vårt kontor',
 
-    //password template
+    // password template
     'forgot_password' => 'Glemt passord? Tilbakestill det nå!',
     'lost_password' => 'Mistet passordet ditt?',
     'know_password' => 'Jeg kjenner passordet mitt',
@@ -954,7 +954,7 @@ return [
     'error_occurs' => 'En feil oppstod.',
     'reset_password' => 'Tilbakestill passord',
 
-    //front-client template
+    // front-client template
     'change_faveo' => 'Vil du endre ditt eksisterende faveo cloud-domene?',
     'current_domain' => 'Skriv inn nåværende domene',
     'enter_domain' => 'Skriv inn nytt domene',
@@ -1115,7 +1115,7 @@ return [
     'loading' => 'Laster...',
     'subscriptions_table' => 'Abonnementstabell',
     'invalid_format' => 'Ugyldig format.',
-    //front-page template
+    // front-page template
     'all_pages' => 'Alle sider',
     'create_new_page' => 'Opprett ny side',
     'edit_page' => 'Rediger side',
@@ -1125,14 +1125,14 @@ return [
     'select_checkbox' => 'Vennligst velg minst én avkrysningsboks',
     'search_result' => 'Søkeresultat',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'Alle widgets',
     'create_widget' => 'Opprett widget',
     'configure_mailchimp' => 'Konfigurer Mailchimp i innstillingene for tilgang',
     'configure_tweet' => 'Konfigurer dine tweets i innstillingene for tilgang',
     'edit_widget' => 'Rediger widget',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Fjern produkt',
     'cart_totals' => 'Handlevogn totaler',
     'clear_cart' => 'Tøm handlevogn',
@@ -1189,11 +1189,11 @@ return [
     'go_back' => 'Gå tilbake',
     'be_right_back' => 'Kommer straks tilbake.',
 
-    //category template
+    // category template
     'all_categories' => 'Alle kategorier',
     'category_name' => 'Navn',
 
-    //common template
+    // common template
     'create_script_code' => 'Opprett skriptkode',
     'create_script' => 'Opprett skript',
     'edit_script_code' => 'Rediger skriptkode',
@@ -1356,14 +1356,14 @@ return [
     'deactivate' => 'Deaktiver',
     'provider' => 'Leverandør',
 
-    //github template
+    // github template
     'github_setting' => 'Github-innstillinger',
     'enter_github_username' => 'Vennligst skriv inn GitHub-brukernavn',
     'enter_github_password' => 'Vennligst skriv inn GitHub-passord',
     'enter_github_clientid' => 'Vennligst skriv inn klient-ID',
     'enter_github_client_secret_key' => 'Vennligst skriv inn klienthemmelig nøkkel',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => 'Rediger faktura',
     'view_user' => 'Vis bruker',
     'pending' => 'Ventende',
@@ -1404,7 +1404,7 @@ return [
     'no_tax_rates' => 'Ingen Skattesatser',
     'store' => 'Butikk',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Admin Dashboard',
     'my_account' => 'Min Konto',
     'start_free_trial' => 'START GRATIS PRØVEPERIODE',
@@ -1445,7 +1445,7 @@ return [
     'enter_domain_license' => 'Skriv inn Domene & Last ned Lisensfil',
     'installation_details' => 'Installasjonsdetaljer',
 
-    //Payment panel
+    // Payment panel
     'payment_date' => 'Betalingsdato',
     'auto_renewal_subscription' => 'Automatisk Fornyelse for Fremtidige Abonnementer',
     'subscription_start_date' => 'Abonnementsstartdato',
@@ -1471,7 +1471,7 @@ return [
     'coupon' => 'Kupong',
     'actions' => 'Handlinger',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Opprett Skatt',
     'caps_others' => 'ANDRE',
     'others' => 'Andre',
@@ -1509,7 +1509,7 @@ return [
     'show_cart_page' => 'Vis på Handlekurvside',
     'select_taxes' => 'Velg Skatter',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Legg til Produktdetaljer',
     'enter_json_format' => 'Skriv inn JSON-format.',
     'upload' => 'Last opp',
@@ -1538,21 +1538,21 @@ return [
     'all_types' => 'Alle typer',
     'configure_queue' => 'Konfigurer kø',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Sørg for at handlekurven er tom for å fornye produktet ditt',
     'click_renew' => 'Klikk her for å fornye',
     'renew_your_order' => 'Forny bestillingen din',
     'renew_order' => 'Forny bestilling',
     'renewal_price_per_agent' => 'Fornyelsespris per agent:',
 
-    //report panel
+    // report panel
     'file_name' => 'Filnavn',
     'format' => 'Format',
     'contact' => 'Kontakt',
     'report_settings' => 'Rapportinnstillinger',
     'report_limit' => 'Legg til poster per ark. Maksimal grense er 3000.',
 
-    //tenant panel
+    // tenant panel
     'cloud_server' => 'Skyserver',
     'customise_cloud_popup' => 'Tilpass sky-popup',
     'cloud_product_configuration' => 'Skyproduktkonfigurasjon',
@@ -1579,7 +1579,7 @@ return [
     'app_key' => 'App-nøkkel',
     'app_secret' => 'App-hemmelighet',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Opprett ny bruker',
     'create_user' => 'Opprett bruker',
     'position' => 'Stilling',
@@ -1693,7 +1693,7 @@ return [
     'error_logs' => 'Feillogg',
     'view_logs' => 'Se logg',
 
-    //visitstats
+    // visitstats
     'request' => 'Forespørsel',
     'visitor' => 'Besøkende',
     'browser' => 'Nettleser',
@@ -2051,7 +2051,7 @@ return [
     'no_tax' => 'Ingen skatt',
     'null' => 'Null',
     'choose_one_payment_gateway' => 'Velg en betalingsgateway',
-    //Controller keys and values
+    // Controller keys and values
     'product_uploaded_successfully' => 'Produktet ble lastet opp vellykket',
     'token_mismatch_account_not_activated' => 'Token mismatch. Kontoen kan ikke aktiveres.',
     'email_verification_success' => 'E-postverifisering vellykket. Logg inn for å få tilgang til kontoen din!!',

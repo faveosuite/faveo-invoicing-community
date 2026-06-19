@@ -34,7 +34,7 @@ class SocialLoginsControllerTest extends DBTestCase
         // search query google
         $response = $this->getJson('/social-logins?search-query=google');
         $response->assertStatus(200)
-                 ->assertJsonFragment(['type' => 'Google']);
+            ->assertJsonFragment(['type' => 'Google']);
 
         // search query Github
         $response = $this->getJson('/social-logins?search-query=Github');
@@ -59,7 +59,7 @@ class SocialLoginsControllerTest extends DBTestCase
         ];
         $google = $this->postJson('/update-social-login', $googlePayload);
         $google->assertStatus(200)
-               ->assertJsonFragment(['message' => __('message.social_login_settings_updated')]);
+            ->assertJsonFragment(['message' => __('message.social_login_settings_updated')]);
 
         // Update credentials for github
         $githubPayload = [
@@ -71,7 +71,7 @@ class SocialLoginsControllerTest extends DBTestCase
         ];
         $google = $this->postJson('/update-social-login', $githubPayload);
         $google->assertStatus(200)
-               ->assertJsonFragment(['message' => __('message.social_login_settings_updated')]);
+            ->assertJsonFragment(['message' => __('message.social_login_settings_updated')]);
 
         // Update credentials for linkedin
         $linkedinPayload = [
@@ -83,7 +83,7 @@ class SocialLoginsControllerTest extends DBTestCase
         ];
         $google = $this->postJson('/update-social-login', $linkedinPayload);
         $google->assertStatus(200)
-               ->assertJsonFragment(['message' => __('message.social_login_settings_updated')]);
+            ->assertJsonFragment(['message' => __('message.social_login_settings_updated')]);
     }
 
     public function test_returns_single_social_login_for_edit(): void
@@ -100,7 +100,7 @@ class SocialLoginsControllerTest extends DBTestCase
         $response = $this->getJson('/edit/SocialLogins/'.$row->id);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['id' => $row->id, 'type' => 'Google']);
+            ->assertJsonFragment(['id' => $row->id, 'type' => 'Google']);
 
         // Github
         $row = SocialLogin::updateOrCreate([
@@ -114,7 +114,7 @@ class SocialLoginsControllerTest extends DBTestCase
         $response = $this->getJson('/edit/SocialLogins/'.$row->id);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['id' => $row->id, 'type' => 'Github']);
+            ->assertJsonFragment(['id' => $row->id, 'type' => 'Github']);
 
         // Linkedin
         $row = SocialLogin::updateOrCreate([
@@ -141,7 +141,7 @@ class SocialLoginsControllerTest extends DBTestCase
         $response = $this->postJson('/update-social-login', $googlePayload);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['client_id', 'client_secret', 'redirect_url']);
+            ->assertJsonValidationErrors(['client_id', 'client_secret', 'redirect_url']);
 
         // Check validation error in github
         $githubPayload = [
@@ -151,7 +151,7 @@ class SocialLoginsControllerTest extends DBTestCase
         $response = $this->postJson('/update-social-login', $githubPayload);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['client_id', 'client_secret', 'redirect_url']);
+            ->assertJsonValidationErrors(['client_id', 'client_secret', 'redirect_url']);
 
         // Check validation error in linkedin
         $linkedinPayload = [
@@ -161,6 +161,6 @@ class SocialLoginsControllerTest extends DBTestCase
         $response = $this->postJson('/update-social-login', $linkedinPayload);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['client_id', 'client_secret', 'redirect_url']);
+            ->assertJsonValidationErrors(['client_id', 'client_secret', 'redirect_url']);
     }
 }

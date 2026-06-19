@@ -4,8 +4,11 @@ namespace App\Model\Common;
 
 use App\Traits\SystemActivityLogsTrait;
 use Database\Factories\StatusSettingFactory;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -44,7 +47,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $license_crack_reports_cleanup_status
  * @property int $license_system_reports_cleanup_status
  * @property int $license_versions_cleanup_status
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  *
  * @method static \Database\Factories\StatusSettingFactory factory($count = null, $state = [])
@@ -93,9 +96,10 @@ use Illuminate\Database\Eloquent\Model;
 class StatusSetting extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'status_settings';

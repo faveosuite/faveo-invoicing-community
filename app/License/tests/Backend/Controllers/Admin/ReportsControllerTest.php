@@ -16,7 +16,7 @@ class ReportsControllerTest extends LicenseTestCase
     {
         parent::setUp();
 
-        $this->controller = new ReportsController();
+        $this->controller = new ReportsController;
     }
 
     #[Test]

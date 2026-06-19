@@ -11,7 +11,7 @@ class TaxOptionTest extends TestCase
     use DatabaseTransactions;
 
     #[Group('taxController')]
-    public function test_options_whenGstIsEnable(): void
+    public function test_options_when_gst_is_enable(): void
     {
         $this->withoutMiddleware();
         TaxOption::where('id', 1)->update(['tax_enable' => '1']);
@@ -22,7 +22,7 @@ class TaxOptionTest extends TestCase
     }
 
     #[Group('taxController')]
-    public function test_options_whenTaxClassIsCreated_whenTaxTypeIsOthers(): void
+    public function test_options_when_tax_class_is_created_when_tax_type_is_others(): void
     {
         $this->withoutMiddleware();
         $response = $this->call('POST', 'taxes/option', [
@@ -37,7 +37,7 @@ class TaxOptionTest extends TestCase
     }
 
     #[Group('taxController')]
-    public function test_options_whenTaxClassIsCreated_whenTaxTypeIsGst(): void
+    public function test_options_when_tax_class_is_created_when_tax_type_is_gst(): void
     {
         $this->withoutMiddleware();
         $response = $this->call('POST', 'taxes/option', [

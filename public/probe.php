@@ -2,8 +2,8 @@
 require __DIR__.'/../bootstrap/autoload.php';
 $config = require_once '../config/app.php';
 use App\Http\Controllers\BillingInstaller\BillingDependencyController;
-require_once dirname(__DIR__, 1).'/app/Http/helpers.php';
 
+require_once dirname(__DIR__, 1).'/app/Http/helpers.php';
 
 $passwordMatched = false;
 $showError = false;
@@ -26,14 +26,15 @@ if (isset($_POST['submit'])) {
 }
 
 $currentLang = 'en';
-function fetchLang() {
+function fetchLang()
+{
     $langUrl = createUrl('lang');
     $options = [
         'http' => [
             'method' => 'POST',
             'header' => "Content-Type: application/json;charset=UTF-8\r\n",
-            'content' => ''
-        ]
+            'content' => '',
+        ],
     ];
     $context = stream_context_create($options);
     $response = file_get_contents($langUrl, false, $context);
@@ -71,26 +72,26 @@ $currentLang = $fetchLang['currentLang'];
         ['file' => './admin/css-1/probe.css', 'id' => 'default-styles-1'],
     ];
 
-    $rtl = [
-        ['file' => './admin/css-1/adminlte-rtl.css', 'id' => 'rtl-styles'],
-        ['file' => './admin/css-1/bs-stepper-rtl.css', 'id' => 'rtl-styles-2'],
-        ['file' => './admin/css-1/probe-rtl.css', 'id' => 'rtl-styles-1'],
-    ];
+$rtl = [
+    ['file' => './admin/css-1/adminlte-rtl.css', 'id' => 'rtl-styles'],
+    ['file' => './admin/css-1/bs-stepper-rtl.css', 'id' => 'rtl-styles-2'],
+    ['file' => './admin/css-1/probe-rtl.css', 'id' => 'rtl-styles-1'],
+];
 
-    $ltr = [
-        ['file' => './admin/css-1/adminlte.min.css', 'id' => 'default-styles'],
-        ['file' => './admin/css-1/bs-stepper-rtl.css', 'id' => 'rtl-styles-2'], // Seems incorrect (should be 'bs-stepper.css'?)
-        ['file' => './admin/css-1/probe.css', 'id' => 'default-styles-1'],
-    ];
+$ltr = [
+    ['file' => './admin/css-1/adminlte.min.css', 'id' => 'default-styles'],
+    ['file' => './admin/css-1/bs-stepper-rtl.css', 'id' => 'rtl-styles-2'], // Seems incorrect (should be 'bs-stepper.css'?)
+    ['file' => './admin/css-1/probe.css', 'id' => 'default-styles-1'],
+];
 
-    $selected_files = (in_array($currentLang, ['ar', 'he'])) ? array_merge($css_files, $rtl) : array_merge($css_files, $ltr);
+$selected_files = (in_array($currentLang, ['ar', 'he'])) ? array_merge($css_files, $rtl) : array_merge($css_files, $ltr);
 
-    // Output styles
-    foreach ($selected_files as $css) {
-        $id = isset($css['id']) ? ' id="' . $css['id'] . '"' : '';
-        echo '<link rel="stylesheet" href="' . $css['file'] . '"' . $id . '>' . PHP_EOL;
-    }
-    ?>
+// Output styles
+foreach ($selected_files as $css) {
+    $id = isset($css['id']) ? ' id="'.$css['id'].'"' : '';
+    echo '<link rel="stylesheet" href="'.$css['file'].'"'.$id.'>'.PHP_EOL;
+}
+?>
 
     <style>
         .cursor-default { cursor: default !important; }
@@ -132,35 +133,35 @@ $currentLang = $fetchLang['currentLang'];
                 <li class="nav-item dropdown">
                     <a class="nav-link" id="languageButton" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                         <?php
-                        $localeMap = [
-                            'ar' => 'ae',
-                            'bsn' => 'bs',
-                            'de' => 'de',
-                            'en' => 'us',
-                            'en-gb' => 'gb',
-                            'es' => 'es',
-                            'fr' => 'fr',
-                            'id' => 'id',
-                            'it' => 'it',
-                            'kr' => 'kr',
-                            'mt' => 'mt',
-                            'nl' => 'nl',
-                            'no' => 'no',
-                            'pt' => 'pt',
-                            'ru' => 'ru',
-                            'vi' => 'vn',
-                            'zh-hans' => 'cn',
-                            'zh-hant' => 'cn',
-                            'ja' => 'jp',
-                            'ta' => 'in',
-                            'hi' => 'in',
-                            'he' => 'il',
-                            'tr' => 'tr',
-                        ];
+                    $localeMap = [
+                        'ar' => 'ae',
+                        'bsn' => 'bs',
+                        'de' => 'de',
+                        'en' => 'us',
+                        'en-gb' => 'gb',
+                        'es' => 'es',
+                        'fr' => 'fr',
+                        'id' => 'id',
+                        'it' => 'it',
+                        'kr' => 'kr',
+                        'mt' => 'mt',
+                        'nl' => 'nl',
+                        'no' => 'no',
+                        'pt' => 'pt',
+                        'ru' => 'ru',
+                        'vi' => 'vn',
+                        'zh-hans' => 'cn',
+                        'zh-hant' => 'cn',
+                        'ja' => 'jp',
+                        'ta' => 'in',
+                        'hi' => 'in',
+                        'he' => 'il',
+                        'tr' => 'tr',
+                    ];
 
-                        $currentLanguage = $currentLang;
-                        $flagClass = 'flag-icon flag-icon-' . $localeMap[$currentLanguage];
-                        ?>
+$currentLanguage = $currentLang;
+$flagClass = 'flag-icon flag-icon-'.$localeMap[$currentLanguage];
+?>
                         <i id="flagIcon" class="<?= $flagClass ?>"></i>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right p-0" style="left: inherit; right: 0px;" id="language-dropdown">
@@ -172,7 +173,7 @@ $currentLang = $fetchLang['currentLang'];
     </nav>
 
     <?php
-    if ($envFound && ! $passwordMatched){
+    if ($envFound && ! $passwordMatched) {
         ?>
         <div class="content-wrapper" style="margin-top: 80px;">
             <div class="content">
@@ -194,9 +195,9 @@ $currentLang = $fetchLang['currentLang'];
                                                    placeholder="<?= $lang['enter_magic_phrase'] ?>"
                                                    value="<?= isset($_POST['passPhrase']) ? htmlspecialchars($_POST['passPhrase']) : '' ?>">
 
-                                            <?php if (isset($showError) && $showError): ?>
+                                            <?php if (isset($showError) && $showError) { ?>
                                                 <span class="error invalid-feedback"><?= $lang['magic_phrase_not_work'] ?></span>
-                                            <?php endif; ?>
+                                            <?php } ?>
                                         </div>
                                     </div>
                                 </div>
@@ -303,18 +304,18 @@ $currentLang = $fetchLang['currentLang'];
                                             <tbody>
                                             <?php
                                             $errorCount = 0;
-                                            $basePath = substr(__DIR__, 0, -6);
-                                            $billingController = new BillingDependencyController('probe');
-                                            $details = $billingController->validateDirectory($basePath, $errorCount);
+        $basePath = substr(__DIR__, 0, -6);
+        $billingController = new BillingDependencyController('probe');
+        $details = $billingController->validateDirectory($basePath, $errorCount);
 
-                                            foreach ($details as $item): ?>
+        foreach ($details as $item) { ?>
                                                 <tr>
                                                     <td><?= htmlspecialchars($item['extensionName'], ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="text-<?= htmlspecialchars($item['color'], ENT_QUOTES, 'UTF-8'); ?>">
                                                         <?= htmlspecialchars($item['message'], ENT_QUOTES, 'UTF-8'); ?>
                                                     </td>
                                                 </tr>
-                                            <?php endforeach; ?>
+                                            <?php } ?>
                                             </tbody>
                                         </table>
                                     </div>
@@ -330,15 +331,15 @@ $currentLang = $fetchLang['currentLang'];
 
                                             <tbody>
                                             <?php
-                                            $details = (new BillingDependencyController('probe'))->validateRequisites($errorCount);
-                                            foreach ($details as $detail): ?>
+        $details = (new BillingDependencyController('probe'))->validateRequisites($errorCount);
+        foreach ($details as $detail) { ?>
                                                 <tr>
                                                     <td><?= htmlspecialchars($detail['extensionName'], ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td style="color: <?= htmlspecialchars($detail['color'], ENT_QUOTES, 'UTF-8'); ?>;">
                                                         <?= $detail['connection']; ?>
                                                     </td>
                                                 </tr>
-                                            <?php endforeach; ?>
+                                            <?php } ?>
                                             </tbody>
                                         </table>
                                     </div>
@@ -354,27 +355,27 @@ $currentLang = $fetchLang['currentLang'];
 
                                             <tbody>
                                             <?php
-                                            $details = (new BillingDependencyController('probe'))->validatePHPExtensions($errorCount);
+        $details = (new BillingDependencyController('probe'))->validatePHPExtensions($errorCount);
 
-                                            $extString = $lang['extension_not_enabled'];
+        $extString = $lang['extension_not_enabled'];
 
-                                            $phpIniFile = php_ini_loaded_file();
-                                            $extensionName = $detail['extensionName'];
-                                            $url = 'https://support.faveohelpdesk.com/show/how-to-enable-required-php-extension-on-different-servers-for-faveo-installation';
+        $phpIniFile = php_ini_loaded_file();
+        $extensionName = $detail['extensionName'];
+        $url = 'https://support.faveohelpdesk.com/show/how-to-enable-required-php-extension-on-different-servers-for-faveo-installation';
 
-                                            $extString = str_replace(
-                                                [':php_ini_file', ':extensionName', ':url'],
-                                                [$phpIniFile, $extensionName, $url],
-                                                $extString
-                                            );
-                                            foreach ($details as $item): ?>
+        $extString = str_replace(
+            [':php_ini_file', ':extensionName', ':url'],
+            [$phpIniFile, $extensionName, $url],
+            $extString
+        );
+        foreach ($details as $item) { ?>
                                                 <tr>
                                                     <td><?= htmlspecialchars($item['extensionName'], ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="<?= $item['key'] === 'no-error' ? 'text-success' : 'text-warning'; ?>">
                                                         <?= $item['key'] === 'no-error' ? 'Enabled' : $extString; ?>
                                                     </td>
                                                 </tr>
-                                            <?php endforeach; ?>
+                                            <?php } ?>
                                             </tbody>
                                         </table>
                                     </div>
@@ -387,70 +388,70 @@ $currentLang = $fetchLang['currentLang'];
                                             <tr><th style="width:50%;"><?= $lang['mod_rewrite'] ?></th><th><?= $lang['status'] ?></th></tr>
                                             </thead>
                                             <?php
-                                            function getLicenseUrl()
-                                            {
-                                                if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
-                                                    $url = 'https://';
-                                                } else {
-                                                    $url = 'http://';
-                                                }
-                                                // Append the host(domain name, ip) to the URL.
-                                                $url .= $_SERVER['HTTP_HOST'];
+        function getLicenseUrl()
+        {
+            if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+                $url = 'https://';
+            } else {
+                $url = 'http://';
+            }
+            // Append the host(domain name, ip) to the URL.
+            $url .= $_SERVER['HTTP_HOST'];
 
-                                                // Append the requested resource location to the URL
-                                                $url .= $_SERVER['REQUEST_URI'];
+            // Append the requested resource location to the URL
+            $url .= $_SERVER['REQUEST_URI'];
 
-                                                return str_replace('probe.php', 'db-setup', $url);
-                                            }
-                                            function checkUserFriendlyUrl()
-                                            {
-                                                if (function_exists('curl_init') === true) {
-                                                    try {
-                                                        $ch = curl_init(getLicenseUrl());
-                                                        curl_setopt($ch, CURLOPT_HEADER, true);
-                                                        curl_setopt($ch, CURLOPT_NOBODY, true);
-                                                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                                                        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-                                                        curl_exec($ch);
-                                                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                                                        curl_close($ch);
+            return str_replace('probe.php', 'db-setup', $url);
+        }
+        function checkUserFriendlyUrl()
+        {
+            if (function_exists('curl_init') === true) {
+                try {
+                    $ch = curl_init(getLicenseUrl());
+                    curl_setopt($ch, CURLOPT_HEADER, true);
+                    curl_setopt($ch, CURLOPT_NOBODY, true);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+                    curl_exec($ch);
+                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    curl_close($ch);
 
-                                                        return $httpcode != 404;
-                                                    } catch (Exception $e) {
-                                                        return null;
-                                                    }
-                                                }
+                    return $httpcode != 404;
+                } catch (Exception $e) {
+                    return null;
+                }
+            }
 
-                                                return null;
-                                            }
+            return null;
+        }
 
-                                            // Rewrite Engine Check
-                                            $redirect = function_exists('apache_get_modules') ? (int) in_array('mod_rewrite', apache_get_modules()) : 2;
-                                            $rewriteStatusColor = 'green';
-                                            $rewriteStatusString = 'Enabled';
-                                            if ($redirect == 2) {
-                                                $rewriteStatusColor = '#F89C0D';
-                                                $rewriteStatusString = 'Unable to detect';
-                                            } elseif (!$redirect) {
-                                                $errorCount++;
-                                                $rewriteStatusColor = 'red';
-                                                $rewriteStatusString = 'OFF';
-                                            }
+        // Rewrite Engine Check
+        $redirect = function_exists('apache_get_modules') ? (int) in_array('mod_rewrite', apache_get_modules()) : 2;
+        $rewriteStatusColor = 'green';
+        $rewriteStatusString = 'Enabled';
+        if ($redirect == 2) {
+            $rewriteStatusColor = '#F89C0D';
+            $rewriteStatusString = 'Unable to detect';
+        } elseif (! $redirect) {
+            $errorCount++;
+            $rewriteStatusColor = 'red';
+            $rewriteStatusString = 'OFF';
+        }
 
-                                            // User Friendly URL Check
-                                            $userFriendlyUrl = checkUserFriendlyUrl();
-                                            $userFriendlyUrlStatusColor = 'green';
-                                            $userFriendlyUrlStatusString = 'Enabled';
+        // User Friendly URL Check
+        $userFriendlyUrl = checkUserFriendlyUrl();
+        $userFriendlyUrlStatusColor = 'green';
+        $userFriendlyUrlStatusString = 'Enabled';
 
-                                            if ($userFriendlyUrl === false) {
-                                                $errorCount++;
-                                                $userFriendlyUrlStatusColor = 'red';
-                                                $userFriendlyUrlStatusString = $lang['off_apache'];
-                                            } elseif ($userFriendlyUrl !== true) {
-                                                $userFriendlyUrlStatusColor = '#F89C0D';
-                                                $userFriendlyUrlStatusString = 'Unable to detect';
-                                            }
-                                            ?>
+        if ($userFriendlyUrl === false) {
+            $errorCount++;
+            $userFriendlyUrlStatusColor = 'red';
+            $userFriendlyUrlStatusString = $lang['off_apache'];
+        } elseif ($userFriendlyUrl !== true) {
+            $userFriendlyUrlStatusColor = '#F89C0D';
+            $userFriendlyUrlStatusString = 'Unable to detect';
+        }
+        ?>
                                             <tbody>
                                             <tr>
                                                 <td><?= $lang['rewrite_engine'] ?></td>

@@ -17,7 +17,7 @@ class ZohoSyncTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sync = new ZohoSync();
+        $this->sync = new ZohoSync;
     }
 
     public function test_it_syncs_crm_fields_correctly(): void

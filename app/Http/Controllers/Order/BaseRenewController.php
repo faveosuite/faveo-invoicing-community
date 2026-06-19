@@ -11,9 +11,12 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Traits\TaxCalculation;
+use App\User;
 use Auth;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 
@@ -21,7 +24,7 @@ class BaseRenewController extends Controller
 {
     use TaxCalculation;
 
-    public function invoiceBySubscriptionId(int $id, int $planid, float|int $cost, string $currency, int|string|null $agents = null): \App\Model\Order\InvoiceItem|\Illuminate\Http\RedirectResponse
+    public function invoiceBySubscriptionId(int $id, int $planid, float|int $cost, string $currency, int|string|null $agents = null): InvoiceItem|RedirectResponse
     {
         try {
             $sub = Subscription::find($id);
@@ -45,22 +48,22 @@ class BaseRenewController extends Controller
      * @param  int  $cost  The Renew cost for for the Paln
      * @param  string  $currency  Currency of ther plan
      */
-    public function getInvoiceByOrderId(int $orderid, int $planid, float|int $cost, string $currency, int|string|null $agents = null): \App\Model\Order\InvoiceItem|\Illuminate\Http\RedirectResponse
+    public function getInvoiceByOrderId(int $orderid, int $planid, float|int $cost, string $currency, int|string|null $agents = null): InvoiceItem|RedirectResponse
     {
         try {
-            /** @var \App\Model\Order\Order $order */
+            /** @var Order $order */
             $order = Order::find($orderid);
             $invoice_item_id = $order->invoice_item_id;
             $invoice_id = $order->invoice_id; // @phpstan-ignore property.notFound
-            /** @var \App\Model\Order\Invoice $invoice */
+            /** @var Invoice $invoice */
             $invoice = Invoice::find($invoice_id);
             if ($invoice_item_id == 0) {
-                /** @var \App\Model\Order\InvoiceItem $firstInvoiceItem */
+                /** @var InvoiceItem $firstInvoiceItem */
                 $firstInvoiceItem = $invoice->invoiceItem()->first();
                 $invoice_item_id = $firstInvoiceItem->id;
             }
 
-            /** @var \App\Model\Order\InvoiceItem $item */
+            /** @var InvoiceItem $item */
             $item = InvoiceItem::find($invoice_item_id);
             $product = $this->getProductByProductId($item->product_id, $order);
             $user = $this->getUserById($order->client); // @phpstan-ignore method.notFound
@@ -68,7 +71,7 @@ class BaseRenewController extends Controller
                 throw new Exception(__('message.user_removed_database'));
             }
 
-            if (! $product instanceof \App\Model\Product\Product) {
+            if (! $product instanceof Product) {
                 throw new Exception(__('message.product_removed_database'));
             }
 
@@ -82,7 +85,7 @@ class BaseRenewController extends Controller
         }
     }
 
-    public function getProductByProductId(?int $id, Order|string|null $order = ''): ?\App\Model\Product\Product
+    public function getProductByProductId(?int $id, Order|string|null $order = ''): ?Product
     {
         try {
             $product = Product::find($id);
@@ -96,13 +99,13 @@ class BaseRenewController extends Controller
         }
     }
 
-    public function getCost(Request $request): \Illuminate\Http\JsonResponse
+    public function getCost(Request $request): JsonResponse
     {
         try {
             $planId = $request->input('plan');
             $orderId = $request->input('order');
 
-            /** @var \App\User $authUser */
+            /** @var User $authUser */
             $authUser = Auth::user();
             if (! $planId) {
                 $currency = getCurrencyForClient($authUser->country);
@@ -137,20 +140,20 @@ class BaseRenewController extends Controller
         }
     }
 
-    public function generateInvoice(\App\Model\Product\Product $product, \App\User $user, int $orderid, int $planid, float|int $cost, string $code, int|string|null $agents, string $currency): \App\Model\Order\InvoiceItem|\Illuminate\Http\RedirectResponse
+    public function generateInvoice(Product $product, User $user, int $orderid, int $planid, float|int $cost, string $code, int|string|null $agents, string $currency): InvoiceItem|RedirectResponse
     {
         try {
-            $controller = new InvoiceController();
+            $controller = new InvoiceController;
             if ($code !== '') {
                 $product_cost = $controller->checkCode($code, $product->id, $currency); // @phpstan-ignore method.notFound
             }
 
-//            if (!empty($agents) && in_array($product->id, cloudPopupProducts())) {
-//                $license_code = Order::where('id', $orderid)->value('serial_key');
-//                $cost = $cost * (int) substr($license_code, -4);
-//            }
-            $renewalPrice = $cost; //Get Renewal Price before calculating tax over it to save as regular price of product
-            $controller = new InvoiceController();
+            //            if (!empty($agents) && in_array($product->id, cloudPopupProducts())) {
+            //                $license_code = Order::where('id', $orderid)->value('serial_key');
+            //                $cost = $cost * (int) substr($license_code, -4);
+            //            }
+            $renewalPrice = $cost; // Get Renewal Price before calculating tax over it to save as regular price of product
+            $controller = new InvoiceController;
             $tax = $this->calculateTax($product->id, $user->state ?? '', $user->country ?? '');
             $tax_name = $tax['name'];
             $tax_rate = $tax['value'];
@@ -166,7 +169,7 @@ class BaseRenewController extends Controller
                 'is_renewed' => 1,
                 'status' => 'pending',
             ]);
-            $renewController = new RenewController();
+            $renewController = new RenewController;
             $renewController->createOrderInvoiceRelation($orderid, $invoice->id);
             $items = $controller->createInvoiceItemsByAdmin($invoice->id, (string) $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, $tax_rate, $renewalPrice); // @phpstan-ignore argument.type
             if (in_array($product->id, cloudPopupProducts())) {

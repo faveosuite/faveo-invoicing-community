@@ -20,7 +20,7 @@ class OpenPaymentControllerTest extends DBTestCase
     {
         parent::setUp();
         $this->withoutMiddleware();
-        $this->controller = new OpenPaymentController();
+        $this->controller = new OpenPaymentController;
     }
 
     protected function tearDown(): void
@@ -383,7 +383,7 @@ class OpenPaymentControllerTest extends DBTestCase
     public function test_prepare_payment_fails_for_invalid_gateway(): void
     {
         // Manually create order with invalid gateway (bypassing validation)
-        $order = new OpenPaymentOrder();
+        $order = new OpenPaymentOrder;
         $order->forceFill($this->getValidOrderData(['gateway' => 'InvalidGateway']));
         $order->save();
 

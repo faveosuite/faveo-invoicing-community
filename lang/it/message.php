@@ -700,10 +700,10 @@ return [
     'cloud_heading' => 'Creiamo insieme la tua istanza Faveo!',
     'cloud_field_label' => 'Inserisci il nome del dominio del cloud desiderato',
     'cloud_price' => 'Prezzo per agente',
-    //Delete message
+    // Delete message
     'confirm' => 'Sei sicuro di voler eliminare questo?',
 
-    //Delete message
+    // Delete message
     'cloud_domain_change' => 'Ottime notizie! Il tuo dominio Cloud è stato cambiato con successo. Tieni presente che ci sarà un breve periodo di inattività di circa 5 minuti per applicare queste modifiche. Grazie per la tua pazienza!',
     'limit_is_up' => 'Ci siamo accorti che hai superato il limite della prova gratuita, per favore elimina le tue istanze esistenti per procedere.',
     'too_long' => 'Sembra che tu stia cercando di creare un dominio troppo grande, prova a crearne uno con un numero inferiore di caratteri.',
@@ -759,7 +759,7 @@ return [
     'user_suspend' => 'Questo utente è sospeso dal sistema. Ripristina l\'utente per visualizzare i dettagli.',
     'country_notfound' => 'Impossibile determinare il paese.',
 
-    //Strong Password
+    // Strong Password
     'strong_password' => 'La password deve contenere almeno 8 caratteri, una lettera maiuscola, una lettera minuscola, un numero e un carattere speciale.',
 
     'password_requirements' => 'La tua password deve contenere:',
@@ -779,7 +779,7 @@ return [
     'new_password_different' => 'La nuova password deve essere diversa dalla vecchia.',
     'reset_link_expired' => 'Il link per il reset della password è scaduto o non trovato. Riprova a resettare la password.',
 
-    //file storage
+    // file storage
 
     'file_storage' => 'Archiviazione file',
     'set_file_storage' => 'Imposta il percorso di archiviazione dei file',
@@ -870,7 +870,7 @@ return [
     'required_stripe_secret' => 'Inserisci il segreto Stripe',
     'max_stripe_secret' => 'Il segreto Stripe non può superare i 200 caratteri',
 
-    //email templates
+    // email templates
 
     'choose_password' => 'Clicca qui per reimpostare la tua password: ',
     'email_username' => 'Nome utente: ',
@@ -878,7 +878,7 @@ return [
     'email_click_here' => 'Clicca qui',
     'activate_account' => 'Per attivare il tuo account:',
 
-    //error template
+    // error template
     'page_not_found' => 'Pagina non trovata',
     'sorry' => 'Siamo spiacenti, ma la pagina che cercavi non esiste.',
     'useful_links' => 'Ecco alcuni link utili',
@@ -887,7 +887,7 @@ return [
     'my_profile' => 'Il mio profilo',
     'contact_us' => 'Contattaci',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Accedi | Registrati',
     'sign_lr' => 'Accedi o Registrati',
     'or' => 'Oppure',
@@ -921,7 +921,7 @@ return [
     'error_occurred' => 'Si è verificato un errore. Riprova.',
     'error_one_country' => 'Seleziona un paese',
 
-    //contact template
+    // contact template
     'feel_free' => 'Sentiti libero di chiedere ulteriori dettagli, non esitare a fare domande!',
     'contact_name' => 'Nome',
     'contact_error_name' => 'Inserisci il tuo nome.',
@@ -933,7 +933,7 @@ return [
     'contact_leave' => 'Lascia questo campo vuoto',
     'contact_send_msg' => 'Invia messaggio',
     'our_office' => 'Il nostro ufficio',
-    //password template
+    // password template
     'forgot_password' => 'Hai dimenticato la password? Ripristinala ora!',
     'lost_password' => 'Hai perso la tua password?',
     'know_password' => 'Conosco la mia password',
@@ -943,7 +943,7 @@ return [
     'error_occurs' => 'Si è verificato un errore.',
     'reset_password' => 'Ripristina la password',
 
-    //front-client template
+    // front-client template
     'change_faveo' => 'Vuoi cambiare il tuo dominio cloud Faveo esistente?',
     'current_domain' => 'Inserisci il dominio attuale',
     'enter_domain' => 'Inserisci il nuovo dominio',
@@ -1105,7 +1105,7 @@ return [
     'subscriptions_table' => 'Tabella degli abbonamenti',
     'invalid_format' => 'Formato non valido.',
 
-    //front-page template
+    // front-page template
     'all_pages' => 'Tutte le pagine',
     'create_new_page' => 'Crea una nuova pagina',
     'edit_page' => 'Modifica pagina',
@@ -1115,14 +1115,14 @@ return [
     'select_checkbox' => 'Per favore seleziona almeno una casella',
     'search_result' => 'Risultato della ricerca',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'Tutti i widget',
     'create_widget' => 'Crea widget',
     'configure_mailchimp' => 'Configura il tuo mailchimp nelle impostazioni per accedere',
     'configure_tweet' => 'Configura i tuoi tweet nelle impostazioni per accedere',
     'edit_widget' => 'Modifica widget',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Rimuovi prodotto',
     'cart_totals' => 'Totali carrello',
     'clear_cart' => 'Svuota carrello',
@@ -1178,11 +1178,11 @@ return [
     'go_back' => 'Torna indietro',
     'be_right_back' => 'Torno subito.',
 
-    //template categoria
+    // template categoria
     'all_categories' => 'Tutte le categorie',
     'category_name' => 'Nome',
 
-    //template comune
+    // template comune
     'create_script_code' => 'Crea Codice Script',
     'create_script' => 'Crea Script',
     'edit_script_code' => 'Modifica Codice Script',
@@ -1346,14 +1346,14 @@ return [
     'deactivate' => 'Disattiva',
     'provider' => 'Fornitore',
 
-    //template GitHub
+    // template GitHub
     'github_setting' => 'Impostazioni Github',
     'enter_github_username' => 'Inserisci il nome utente Github',
     'enter_github_password' => 'Inserisci la password Github',
     'enter_github_clientid' => 'Inserisci l\'ID Client',
     'enter_github_client_secret_key' => 'Inserisci la chiave segreta Client',
 
-    //template Fattura
+    // template Fattura
     'edit_invoice' => 'Modifica Fattura',
     'view_user' => 'Visualizza Utente',
     'pending' => 'In sospeso',
@@ -1394,7 +1394,7 @@ return [
     'no_tax_rates' => 'Nessuna Aliquota Fiscale',
     'store' => 'Negozio',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Dashboard Admin',
     'my_account' => 'Il Mio Account',
     'start_free_trial' => 'INIZIA PROVA GRATUITA',
@@ -1435,7 +1435,7 @@ return [
     'enter_domain_license' => 'Inserisci il Dominio e Scarica il File della Licenza',
     'installation_details' => 'Dettagli Installazione',
 
-    //payment panel
+    // payment panel
     'payment_date' => 'Data di Pagamento',
     'auto_renewal_subscription' => 'Rinnovo Automatico per Abbonamenti Futuri',
     'subscription_start_date' => 'Data di Inizio Abbonamento',
@@ -1461,7 +1461,7 @@ return [
     'coupon' => 'Coupon',
     'actions' => 'Azioni',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Crea Tassa',
     'caps_others' => 'ALTRI',
     'others' => 'Altri',
@@ -1499,7 +1499,7 @@ return [
     'show_cart_page' => 'Mostra nella Pagina del Carrello',
     'select_taxes' => 'Seleziona Tasse',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Aggiungi Dettagli Prodotto',
     'enter_json_format' => 'Inserisci formato JSON.',
     'upload' => 'Carica',
@@ -1528,21 +1528,21 @@ return [
     'all_types' => 'Tutti i tipi',
     'configure_queue' => 'Configura la coda',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Assicurati che il carrello sia vuoto per rinnovare il prodotto',
     'click_renew' => 'Clicca qui per rinnovare',
     'renew_your_order' => 'Rinnova il tuo ordine',
     'renew_order' => 'Rinnova ordine',
     'renewal_price_per_agent' => 'Prezzo di rinnovo per agente: ',
 
-    //report panel
+    // report panel
     'file_name' => 'Nome del file',
     'format' => 'Formato',
     'contact' => 'Contatto',
     'report_settings' => 'Impostazioni del report',
     'report_limit' => 'Aggiungi record per foglio. Il limite massimo è 3000.',
 
-    //tenant panel
+    // tenant panel
     'cloud_server' => 'Server cloud',
     'customise_cloud_popup' => 'Personalizza popup cloud',
     'cloud_product_configuration' => 'Configurazione prodotto cloud',
@@ -1569,7 +1569,7 @@ return [
     'app_key' => 'Chiave app',
     'app_secret' => 'Segreto app',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Crea nuovo utente',
     'create_user' => 'Crea utente',
     'position' => 'Posizione',
@@ -1683,7 +1683,7 @@ return [
     'error_logs' => 'Log degli errori',
     'view_logs' => 'Visualizza log',
 
-    //visitstats
+    // visitstats
     'request' => 'Richiesta',
     'visitor' => 'Visitatore',
     'browser' => 'Browser',

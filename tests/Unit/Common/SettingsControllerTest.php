@@ -20,7 +20,7 @@ class SettingsControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->classObject = new SettingsController();
+        $this->classObject = new SettingsController;
         $this->request = resolve(Request::class);
         $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
         $this->html->shouldReceive('token')->andReturn('mocked-token');

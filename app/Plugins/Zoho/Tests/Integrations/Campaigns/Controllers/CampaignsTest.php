@@ -46,7 +46,7 @@ class CampaignsTest extends DBTestCase
             ], 200),
         ]);
 
-        $this->campaigns = new Campaigns();
+        $this->campaigns = new Campaigns;
     }
 
     public function test_it_subscribes_contact_to_list(): void
@@ -311,7 +311,7 @@ class CampaignsTest extends DBTestCase
             ], 200),
         ]);
 
-        $campaigns = new Campaigns();
+        $campaigns = new Campaigns;
         $campaigns->subscribe('test@example.com');
     }
 

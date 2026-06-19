@@ -13,6 +13,9 @@ use Artisan;
 use DB;
 use Exception;
 use Hash;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -32,7 +35,7 @@ class InstallerController extends Controller
      * Post configurationcheck
      * checking prerequisites.
      */
-    public function configurationcheck(Request $request): \Illuminate\Http\RedirectResponse
+    public function configurationcheck(Request $request): RedirectResponse
     {
         Cache::forever('config-check', 'config-check');
         $inputs = $request->only([
@@ -44,7 +47,7 @@ class InstallerController extends Controller
         return to_route('database');
     }
 
-    public function checkPreInstall(): \Illuminate\Http\JsonResponse
+    public function checkPreInstall(): JsonResponse
     {
         Artisan::call('key:generate', ['--force' => true]);
 
@@ -55,7 +58,7 @@ class InstallerController extends Controller
         return response()->json(compact('result'));
     }
 
-    public function migrate(): \Illuminate\Http\JsonResponse
+    public function migrate(): JsonResponse
     {
         $db_install_method = '';
         try {
@@ -67,7 +70,7 @@ class InstallerController extends Controller
                 schema: DB::getDatabaseName(),
                 schemaQualified: false
             );
-            //allowing migrations table in db as it does not get removed on "migrate:reset"
+            // allowing migrations table in db as it does not get removed on "migrate:reset"
             $tableNames = array_unique(array_merge(['migrations'], $tableNames));
             if (count($tableNames) === 1) {
                 $this->rollBackMigration();
@@ -91,11 +94,11 @@ class InstallerController extends Controller
         return response()->json(compact('result'));
     }
 
-    public function rollBackMigration(): ?\Illuminate\Http\JsonResponse
+    public function rollBackMigration(): ?JsonResponse
     {
         try {
             Artisan::call('migrate', ['--force' => true]);
-//            shell_exec('php ../artisan passport:install');
+            //            shell_exec('php ../artisan passport:install');
             // Artisan::call('passport:install', ['--force' => true]);
         } catch (Exception $exception) {
             $result = ['error' => $exception->getMessage()];
@@ -106,7 +109,7 @@ class InstallerController extends Controller
         return null;
     }
 
-    public function createEnv(bool $api = true): ?\Illuminate\Http\JsonResponse
+    public function createEnv(bool $api = true): ?JsonResponse
     {
         try {
             $default = request()->get('default', Session::get('default'));
@@ -209,7 +212,7 @@ class InstallerController extends Controller
     /**
      * @param  array<mixed>  $redisConfig
      */
-    public function updateInstallEnv(string $environment, ?string $driver = null, array $redisConfig = []): ?\Illuminate\Http\JsonResponse
+    public function updateInstallEnv(string $environment, ?string $driver = null, array $redisConfig = []): ?JsonResponse
     {
         $env = base_path().DIRECTORY_SEPARATOR.'.env';
         if (! is_file($env)) {
@@ -235,7 +238,7 @@ APP_ENV='.$environment;
             QueueService::where('status', 1)->update(['status' => 0]);
 
             // Enable the Redis QueueService
-            /** @var \App\Model\Mailjob\QueueService $queue */
+            /** @var QueueService $queue */
             $queue = QueueService::where('short_name', 'redis')->firstOrFail();
             $queue->status = 1;
             $queue->save();
@@ -252,7 +255,7 @@ APP_ENV='.$environment;
      * Post accountcheck
      * checking prerequisites.
      */
-    public function accountcheck(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    public function accountcheck(Request $request): JsonResponse|RedirectResponse
     {
         // Validation rules and custom messages
         $validator = Validator::make($request->all(), [
@@ -381,7 +384,7 @@ APP_ENV='.$environment;
         return $display;
     }
 
-    public function getLang(): \Illuminate\Http\JsonResponse
+    public function getLang(): JsonResponse
     {
         $language = Cache::get('language', config('app.locale'));
         $lang = Lang::get('installer_messages', [], $language);
@@ -393,7 +396,7 @@ APP_ENV='.$environment;
         ]);
     }
 
-    public function languageList(): \Illuminate\Http\JsonResponse
+    public function languageList(): JsonResponse
     {
         try {
             $languageList = array_map(basename(...), File::directories(lang_path()));
@@ -417,7 +420,7 @@ APP_ENV='.$environment;
         }
     }
 
-    public function storeLanguage(StoreLanguageRequest $request): \Illuminate\Http\JsonResponse
+    public function storeLanguage(StoreLanguageRequest $request): JsonResponse
     {
         try {
             $language = $request->input('language');
@@ -428,7 +431,7 @@ APP_ENV='.$environment;
                 return successResponse('Language set successfully');
             }
 
-            /** @var \App\User $user */
+            /** @var User $user */
             $user = Auth::user();
             $user->language = $language;
             $user->save();
@@ -439,9 +442,9 @@ APP_ENV='.$environment;
         }
     }
 
-    public function dbsetup(Request $request): \Illuminate\Http\RedirectResponse
+    public function dbsetup(Request $request): RedirectResponse
     {
-        //server requirements error checking
+        // server requirements error checking
         if (Session::has('fails')) {
             Session::flush();
         }
@@ -457,7 +460,7 @@ APP_ENV='.$environment;
         return back();
     }
 
-    public function database(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+    public function database(Request $request): View|RedirectResponse
     {
         // checking if the installation is running for the first time or not
         if (Cache::get('config-check') == 'config-check') {
@@ -467,7 +470,7 @@ APP_ENV='.$environment;
         return to_route('config-check');
     }
 
-    public function databasePage(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+    public function databasePage(Request $request): View|RedirectResponse
     {
         Session::flush();
         // Database Setup Page
@@ -478,7 +481,7 @@ APP_ENV='.$environment;
         return redirect()->to('/probe.php');
     }
 
-    public function account(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+    public function account(Request $request): View|RedirectResponse
     {
         // checking if the installation is running for the first time or not,getting-started page
         if (Cache::get('config-check') == 'config-check') {
@@ -490,9 +493,9 @@ APP_ENV='.$environment;
         return to_route('db-setup');
     }
 
-    public function finalize(): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+    public function finalize(): View|RedirectResponse
     {
-        //final page -> login url
+        // final page -> login url
         if (Cache::get('getting-started') == 'getting-started') {
             $environment = Cache::get('env');
             $this->updateInstallEnv($environment);
@@ -518,7 +521,7 @@ APP_ENV='.$environment;
         return false;
     }
 
-    public function storeLanguageForUsers(StoreLanguageRequest $request): \Illuminate\Http\JsonResponse
+    public function storeLanguageForUsers(StoreLanguageRequest $request): JsonResponse
     {
         try {
             $language = $request->input('language');
@@ -527,7 +530,7 @@ APP_ENV='.$environment;
                 return successResponse('Language set successfully');
             }
 
-            /** @var \App\User $user */
+            /** @var User $user */
             $user = Auth::user();
             $user->language = $language;
 

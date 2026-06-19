@@ -3,9 +3,14 @@
 namespace App\Model\Common;
 
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -14,13 +19,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $field_type
  * @property int|null $local_field_id
  * @property int|null $pipedrive_group_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \App\Model\Common\PipedriveLocalFields|null $localField
- * @property-read \App\Model\Common\PipedriveGroups|null $pipedriveGroups
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Common\PipedriveFieldOption> $pipedriveOptions
+ * @property-read PipedriveLocalFields|null $localField
+ * @property-read PipedriveGroups|null $pipedriveGroups
+ * @property-read Collection<int, PipedriveFieldOption> $pipedriveOptions
  * @property-read int|null $pipedrive_options_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PipedriveField newModelQuery()
@@ -40,9 +45,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PipedriveField extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'pipedrive_fields';
@@ -92,9 +98,9 @@ class PipedriveField extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Common\PipedriveLocalFields, $this>
+     * @return BelongsTo<PipedriveLocalFields, $this>
      */
-    public function localField(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function localField(): BelongsTo
     {
         return $this->belongsTo(PipedriveLocalFields::class, 'local_field_id');
     }
@@ -108,9 +114,9 @@ class PipedriveField extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Common\PipedriveFieldOption, $this>
+     * @return HasMany<PipedriveFieldOption, $this>
      */
-    public function pipedriveOptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function pipedriveOptions(): HasMany
     {
         return $this->hasMany(PipedriveFieldOption::class, 'pipedrive_field_id');
     }

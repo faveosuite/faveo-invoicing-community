@@ -6,6 +6,7 @@ use App\Plugins\Zoho\Controllers\Api\ZohoAccessToken;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\Api\ZohoCrmApi;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\Exceptions\ZohoCrmApiException;
 use App\Plugins\Zoho\Models\ZohoIntegration;
+use App\Plugins\Zoho\Models\ZohoOAuthClient;
 use Illuminate\Http\Client\HttpClientException;
 use Illuminate\Support\Collection;
 
@@ -22,7 +23,7 @@ class Crm
             ->where('platform', 'crm')
             ->firstOrFail();
 
-        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $crmIntClient */
+        /** @var ZohoOAuthClient $crmIntClient */
         $crmIntClient = $crmIntegration->client;
 
         $this->zohoApi = new ZohoCrmApi(
@@ -36,7 +37,7 @@ class Crm
      * Get fields of a CRM module.
      *
      * @param  string  $module  (Leads, Contacts, Deals, etc.)
-     * @return \Illuminate\Support\Collection<int|string, mixed>
+     * @return Collection<int|string, mixed>
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
@@ -53,7 +54,7 @@ class Crm
      *
      *
      * @param  array<mixed>  $params
-     * @return \Illuminate\Support\Collection<int|string, mixed>
+     * @return Collection<int|string, mixed>
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException

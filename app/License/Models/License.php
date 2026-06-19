@@ -5,11 +5,14 @@ namespace App\License\Models;
 use App\Model\Product\Product;
 use App\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -32,19 +35,19 @@ use Override;
  * @property string|null $license_support_email_date
  * @property string|null $license_comments
  * @property int $license_status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $addonProducts
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Product> $addonProducts
  * @property-read int|null $addon_products_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\License\Models\LicenseCallback> $callbacks
+ * @property-read Collection<int, LicenseCallback> $callbacks
  * @property-read int|null $callbacks_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\License\Models\Installation> $installations
+ * @property-read Collection<int, Installation> $installations
  * @property-read int|null $installations_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\License\Models\LicenseOption> $licenseOptions
+ * @property-read Collection<int, LicenseOption> $licenseOptions
  * @property-read int|null $license_options_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\License\Models\LicenseOption> $options
+ * @property-read Collection<int, LicenseOption> $options
  * @property-read int|null $options_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\License\Models\LicensePlugin> $plugins
+ * @property-read Collection<int, LicensePlugin> $plugins
  * @property-read int|null $plugins_count
  * @property-read Product $product
  * @property-read User|null $user
@@ -160,7 +163,7 @@ class License extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Model>
+     * @return HasMany<Model, Model>
      */
     public function licenseOptions(): HasMany
     {
@@ -178,19 +181,19 @@ class License extends Model
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      */
     #[Scope]
-    protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function active(Builder $query): mixed
     {
         return $query->where('license_status', 1);
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      */
     #[Scope]
-    protected function suspended(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function suspended(Builder $query): mixed
     {
         return $query->where('license_status', 2);
     }

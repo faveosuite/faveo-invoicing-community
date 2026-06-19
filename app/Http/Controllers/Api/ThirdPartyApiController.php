@@ -9,31 +9,32 @@ use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Traits\Upload\ChunkUpload;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ThirdPartyApiController extends Controller
 {
     use ChunkUpload;
 
-    private \App\Model\Product\ProductUpload $product_upload; // @phpstan-ignore property.onlyWritten
+    private ProductUpload $product_upload; // @phpstan-ignore property.onlyWritten
 
-    private \App\Model\Product\Product $product; // @phpstan-ignore property.onlyWritten
+    private Product $product; // @phpstan-ignore property.onlyWritten
 
     public function __construct()
     {
         $this->middleware('validateThirdParty');
 
-        $product_upload = new ProductUpload();
+        $product_upload = new ProductUpload;
         $this->product_upload = $product_upload;
 
-        $product = new Product();
+        $product = new Product;
         $this->product = $product;
     }
 
-    public function chunkUploadFile(Request $request): \Illuminate\Http\JsonResponse
+    public function chunkUploadFile(Request $request): JsonResponse
     {
         try {
-            //Put check in this api for valid product id before uploading
+            // Put check in this api for valid product id before uploading
             $result = $this->uploadFile($request);
 
             return $result;

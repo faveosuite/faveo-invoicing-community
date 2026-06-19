@@ -79,7 +79,7 @@ class LicenseValidator
      */
     public function validateProduct(mixed $product_id): ?Product
     {
-        /** @var \App\Model\Product\Product|null $product */
+        /** @var Product|null $product */
         $product = Product::find($product_id);
 
         return $product;
@@ -101,11 +101,11 @@ class LicenseValidator
         string $ip,
         string $root_url
     ): array {
-        if (! $license instanceof \App\License\Models\License) {
+        if (! $license instanceof License) {
             $license = $this->findLicenseByEmail($client_email, $product_id);
         }
 
-        if (! $license instanceof \App\License\Models\License) {
+        if (! $license instanceof License) {
             return ['valid' => false, 'error' => 'license_not_found'];
         }
 
@@ -262,7 +262,7 @@ class LicenseValidator
     {
         if (! in_array($license_code, [null, '', '0'], strict: true)) {
             $license = $this->findLicenseWithPlugins($license_code, $product_id);
-            if ($license instanceof \App\License\Models\License) {
+            if ($license instanceof License) {
                 return $license;
             }
         }

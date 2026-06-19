@@ -7,13 +7,14 @@ use Illuminate\Support\Collection;
 /**
  * Map local data to Zoho field values using saved mappings.
  *
- * @param  \Illuminate\Support\Collection<int|string, mixed>  $mappings
+ * @param  Collection<int|string, mixed>  $mappings
  * @param  array<mixed>  $source
- * @param  \Illuminate\Support\Collection<int|string, mixed>  $zohoFields
- * @return array<mixed>
+ * @param  Collection<int|string, mixed>  $zohoFields
  *
- * @phpstan-param \Illuminate\Support\Collection<array-key, mixed> $zohoFields
- * @phpstan-param \Illuminate\Support\Collection<array-key, mixed> $mappings
+ * @phpstan-param Collection<array-key, mixed> $zohoFields
+ * @phpstan-param Collection<array-key, mixed> $mappings
+ *
+ * @return array<mixed>
  */
 function zohoMappedFields(
     Collection $zohoFields,
@@ -62,10 +63,11 @@ function zohoMappedFields(
 /**
  * Resolve selectable options for a Zoho field.
  *
- * @param  \Illuminate\Support\Collection<int|string, mixed>  $localFields
- * @return array<mixed>
+ * @param  Collection<int|string, mixed>  $localFields
  *
- * @phpstan-param \Illuminate\Support\Collection<array-key, mixed> $localFields
+ * @phpstan-param Collection<array-key, mixed> $localFields
+ *
+ * @return array<mixed>
  */
 function resolveOptions(mixed $zohoField, Collection $localFields): array
 {
@@ -95,7 +97,7 @@ function resolveOptions(mixed $zohoField, Collection $localFields): array
  */
 function resolveSelected(?ZohoFieldMappings $mapping): ?array
 {
-    if (! $mapping instanceof \App\Plugins\Zoho\Models\ZohoFieldMappings) {
+    if (! $mapping instanceof ZohoFieldMappings) {
         return null;
     }
 

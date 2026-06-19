@@ -13,7 +13,7 @@ use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Order\Order>
+ * @extends Factory<Order>
  */
 class OrderFactory extends Factory
 {

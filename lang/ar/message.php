@@ -1278,7 +1278,7 @@ return [
     'no_tax_rates' => 'لا توجد معدلات ضريبة',
     'store' => 'المتجر',
 
-    //لوحة الإدارة والعميل
+    // لوحة الإدارة والعميل
     'admin_dashboard' => 'لوحة تحكم المشرف',
     'my_account' => 'حسابي',
     'start_free_trial' => 'ابدأ التجربة المجانية',
@@ -1319,7 +1319,7 @@ return [
     'enter_domain_license' => 'أدخل النطاق وقم بتنزيل ملف الرخصة',
     'installation_details' => 'تفاصيل التثبيت',
 
-    //لوحة الدفع
+    // لوحة الدفع
     'payment_date' => 'تاريخ الدفع',
     'auto_renewal_subscription' => 'التجديد التلقائي للاشتراكات المستقبلية',
     'subscription_start_date' => 'تاريخ بدء الاشتراك',
@@ -1505,7 +1505,7 @@ return [
     'error_logs' => 'سجلات الأخطاء',
     'view_logs' => 'عرض السجلات',
 
-    //visitstats
+    // visitstats
     'request' => 'طلب',
     'visitor' => 'زائر',
     'browser' => 'متصفح',
@@ -1805,7 +1805,7 @@ return [
     'null' => 'فارغ',
     'choose_one_payment_gateway' => 'اختر بوابة دفع واحدة',
 
-    //Controller keys and values
+    // Controller keys and values
     'product_uploaded_successfully' => 'تم تحميل المنتج بنجاح',
     'token_mismatch_account_not_activated' => 'عدم تطابق الرمز. لا يمكن تفعيل الحساب.',
     'email_verification_success' => 'تم التحقق من البريد الإلكتروني بنجاح. يرجى تسجيل الدخول للوصول إلى حسابك !!',

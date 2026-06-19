@@ -27,8 +27,7 @@ class SubscriptionWebhookService
 {
     public function __construct(
         private readonly ConcretePostSubscriptionHandleController $handler
-    ) {
-    }
+    ) {}
 
     // ── Stripe ────────────────────────────────────────────────────────────
 
@@ -85,9 +84,9 @@ class SubscriptionWebhookService
 
         $this->handler->disableAutorenewalStatusByOrderId($subscription->order_id);
 
-        /** @var \App\Model\Order\Order|null $order */
+        /** @var Order|null $order */
         $order = Order::find($subscription->order_id);
-        /** @var \App\User|null $user */
+        /** @var User|null $user */
         $user = User::find($subscription->user_id);
         $product = Product::find($subscription->product_id);
 
@@ -201,7 +200,7 @@ class SubscriptionWebhookService
         }
     }
 
-    private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, \App\User $user, Plan $plan, float $cost, string $currency): Invoice
+    private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, User $user, Plan $plan, float $cost, string $currency): Invoice
     {
         $latestInvoiceId = DB::table('order_invoice_relations')
             ->where('order_id', $subscription->order_id)

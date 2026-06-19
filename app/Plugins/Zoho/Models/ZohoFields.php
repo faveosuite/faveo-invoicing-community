@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Plugins\Zoho\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -17,8 +18,8 @@ use Override;
  * @property string|null $field_type
  * @property bool $is_mandatory
  * @property array<array-key, mixed> $raw_metadata
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFields newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoFields newQuery()

@@ -7,20 +7,24 @@ namespace App\Model\Payment;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 use Deprecated;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
  * @property string $name
  * @property string $slug
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\TaxRate> $rates
+ * @property-read Collection<int, TaxRate> $rates
  * @property-read int|null $rates_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\Tax> $tax
+ * @property-read Collection<int, Tax> $tax
  * @property-read int|null $tax_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\TaxProductRelation> $tax_product_relation
+ * @property-read Collection<int, TaxProductRelation> $tax_product_relation
  * @property-read int|null $tax_product_relation_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxClass newModelQuery()
@@ -68,26 +72,26 @@ class TaxClass extends BaseModel
 
     /** Generic tax rates that belong to this class (joined on slug). */
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<TaxRate, $this>
+     * @return HasMany<TaxRate, $this>
      */
-    public function rates(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function rates(): HasMany
     {
         return $this->hasMany(TaxRate::class, 'tax_class', 'slug');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Tax, $this>
+     * @return HasMany<Tax, $this>
      */
     #[Deprecated(message: 'legacy India-GST taxes table; kept for historical data.')]
-    public function tax(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function tax(): HasMany
     {
         return $this->hasMany(Tax::class, 'tax_classes_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<TaxProductRelation, $this>
+     * @return HasMany<TaxProductRelation, $this>
      */
-    public function tax_product_relation(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function tax_product_relation(): HasMany
     {
         return $this->hasMany(TaxProductRelation::class, 'tax_class_id');
     }

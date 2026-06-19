@@ -22,6 +22,4 @@ class DatabaseSeeder extends Seeder
         $this->call([LicenseModuleSeeder::class]);
         $this->command->info('Seeded License Module!');
     }
-
-
 }

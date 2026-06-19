@@ -696,10 +696,10 @@ return [
     'cloud_field_label' => 'Digite o nome desejado para seu domínio de nuvem',
     'cloud_price' => 'Preço por agente',
 
-    //Delete message
+    // Delete message
     'confirm' => 'Tem certeza de que deseja excluir isso?',
 
-    //Delete message
+    // Delete message
     'cloud_domain_change' => 'Ótimas notícias! O domínio da sua nuvem foi alterado com sucesso. Haverá um breve tempo de inatividade de aproximadamente 5 minutos para aplicar essas alterações. Obrigado pela paciência!',
     'limit_is_up' => 'Notamos que você ultrapassou o limite de teste gratuito, por favor, exclua suas instâncias existentes para prosseguir.',
     'too_long' => 'Parece ser um domínio grande, tente criar com menos caracteres.',
@@ -862,7 +862,7 @@ return [
     'required_stripe_secret' => 'Por favor, insira o segredo Stripe',
     'max_stripe_secret' => 'O segredo Stripe não pode exceder 200 caracteres',
 
-    //email templates
+    // email templates
 
     'choose_password' => 'Clique aqui para redefinir sua senha: ',
     'email_username' => 'Nome de usuário: ',
@@ -870,7 +870,7 @@ return [
     'email_click_here' => 'Clique Aqui',
     'activate_account' => 'Para ativar sua conta:',
 
-    //error template
+    // error template
     'page_not_found' => 'Página Não Encontrada',
     'sorry' => 'Desculpe, mas a página que você estava procurando não existe.',
     'useful_links' => 'Aqui estão alguns links úteis',
@@ -879,7 +879,7 @@ return [
     'my_profile' => 'Meu Perfil',
     'contact_us' => 'Fale Conosco',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Entrar | Registrar',
     'sign_lr' => 'Entrar ou Registrar',
     'or' => 'Ou',
@@ -913,7 +913,7 @@ return [
     'error_occurred' => 'Ocorreu um erro. Por favor, tente novamente.',
     'error_one_country' => 'Por favor, selecione um país ',
 
-    //contact template
+    // contact template
     'feel_free' => 'Fique à vontade para pedir detalhes, não deixe de perguntar!',
     'contact_name' => 'Nome',
     'contact_error_name' => 'Por favor, insira seu nome.',
@@ -926,7 +926,7 @@ return [
     'contact_send_msg' => 'Enviar Mensagem',
     'our_office' => 'Nosso Escritório',
 
-    //password template
+    // password template
     'forgot_password' => 'Esqueceu a Senha? Redefina Agora!',
     'lost_password' => 'Perdeu sua senha?',
     'know_password' => 'Eu sei minha senha',
@@ -936,7 +936,7 @@ return [
     'error_occurs' => 'Ocorreu um erro.',
     'reset_password' => 'Redefinir Senha',
 
-    //front-client template
+    // front-client template
     'change_faveo' => 'Você deseja mudar seu domínio atual do Faveo?',
     'current_domain' => 'Insira o domínio atual',
     'enter_domain' => 'Insira o novo domínio',
@@ -1097,7 +1097,7 @@ return [
     'loading' => 'Carregando...',
     'subscriptions_table' => 'Tabela de Assinaturas',
     'invalid_format' => 'Formato inválido.',
-    //front-page template
+    // front-page template
     'all_pages' => 'Todas as Páginas',
     'create_new_page' => 'Criar Nova Página',
     'edit_page' => 'Editar Página',
@@ -1107,14 +1107,14 @@ return [
     'select_checkbox' => 'Por favor, selecione pelo menos uma caixa de seleção',
     'search_result' => 'Resultado da Pesquisa',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'Todos os Widgets',
     'create_widget' => 'Criar Widget',
     'configure_mailchimp' => 'Configure seu Mailchimp nas configurações para acessar',
     'configure_tweet' => 'Configure seus tweets nas configurações para acessar',
     'edit_widget' => 'Editar Widget',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Remover Produto',
     'cart_totals' => 'Totais do Carrinho',
     'clear_cart' => 'Limpar Carrinho',
@@ -1171,11 +1171,11 @@ return [
     'go_back' => 'Voltar',
     'be_right_back' => 'Volto já.',
 
-    //category template
+    // category template
     'all_categories' => 'Todas as Categorias',
     'category_name' => 'Nome',
 
-    //common template
+    // common template
     'create_script_code' => 'Criar Código de Script',
     'create_script' => 'Criar Script',
     'edit_script_code' => 'Editar Código de Script',
@@ -1338,14 +1338,14 @@ return [
     'deactivate' => 'Desativar',
     'provider' => 'Provedor',
 
-    //github template
+    // github template
     'github_setting' => 'Configuração do Github',
     'enter_github_username' => 'Por favor, insira o nome de usuário do Github',
     'enter_github_password' => 'Por favor, insira a senha do Github',
     'enter_github_clientid' => 'Por favor, insira o ID do Cliente',
     'enter_github_client_secret_key' => 'Por favor, insira a chave secreta do cliente',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => 'Editar Fatura',
     'view_user' => 'Ver Usuário',
     'pending' => 'Pendente',
@@ -1386,7 +1386,7 @@ return [
     'no_tax_rates' => 'Sem Taxas de Impostos',
     'store' => 'Loja',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Painel de Administração',
     'my_account' => 'Minha Conta',
     'start_free_trial' => 'INICIAR TESTE GRÁTIS',
@@ -1427,7 +1427,7 @@ return [
     'enter_domain_license' => 'Digite o Domínio & Baixe o Arquivo de Licença',
     'installation_details' => 'Detalhes da Instalação',
 
-    //payement panel
+    // payement panel
     'payment_date' => 'Data de Pagamento',
     'auto_renewal_subscription' => 'Renovação Automática para Assinatura Futura',
     'subscription_start_date' => 'Data de Início da Assinatura',
@@ -1453,7 +1453,7 @@ return [
     'coupon' => 'Cupom',
     'actions' => 'Ações',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Criar Imposto',
     'caps_others' => 'OUTROS',
     'others' => 'Outros',
@@ -1491,7 +1491,7 @@ return [
     'show_cart_page' => 'Exibir na Página do Carrinho',
     'select_taxes' => 'Selecionar Impostos',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Adicionar Detalhes do Produto',
     'enter_json_format' => 'Digite o formato JSON.',
     'upload' => 'Carregar',
@@ -1520,21 +1520,21 @@ return [
     'all_types' => 'Todos os Tipos',
     'configure_queue' => 'Configurar Fila',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Certifique-se de que o carrinho está vazio para Renovar seu produto',
     'click_renew' => 'Clique aqui para renovar',
     'renew_your_order' => 'Renove seu pedido',
     'renew_order' => 'Renovar Pedido',
     'renewal_price_per_agent' => 'Preço de renovação por agente: ',
 
-    //report panel
+    // report panel
     'file_name' => 'Nome do Arquivo',
     'format' => 'Formato',
     'contact' => 'Contato',
     'report_settings' => 'Configurações do Relatório',
     'report_limit' => 'Adicione registros por planilha. O limite máximo é 3000.',
 
-    //tenant panel
+    // tenant panel
     'cloud_server' => 'Servidor de Nuvem',
     'customise_cloud_popup' => 'Personalizar Popup da Nuvem',
     'cloud_product_configuration' => 'Configuração do Produto de Nuvem',
@@ -1561,7 +1561,7 @@ return [
     'app_key' => 'Chave do Aplicativo',
     'app_secret' => 'Segredo do Aplicativo',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Criar Novo Usuário',
     'create_user' => 'Criar Usuário',
     'position' => 'Posição',
@@ -1675,7 +1675,7 @@ return [
     'error_logs' => 'Logs de Erro',
     'view_logs' => 'Ver Logs',
 
-    //visitstats
+    // visitstats
     'request' => 'Requisição',
     'visitor' => 'Visitante',
     'browser' => 'Navegador',

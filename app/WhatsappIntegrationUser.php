@@ -6,6 +6,11 @@ use App\Model\Order\Order;
 use App\Traits\SystemActivityLogsTrait;
 use Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -16,12 +21,12 @@ use Illuminate\Contracts\Encryption\DecryptException;
  * @property string $access_token
  * @property int $user_id
  * @property string $user_callback_url
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string $order_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \App\User|null $user
+ * @property-read User|null $user
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WhatsappIntegrationUser newQuery()
@@ -58,9 +63,9 @@ class WhatsappIntegrationUser extends BaseModel
     protected string $logNameColumn = 'phone_number';
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -82,11 +87,11 @@ class WhatsappIntegrationUser extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function accessToken(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function accessToken(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+        return Attribute::make(get: function ($value) {
             try {
                 return Crypt::decrypt($value);
             } catch (DecryptException) {

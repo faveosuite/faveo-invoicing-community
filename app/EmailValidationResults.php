@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -12,8 +13,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $method
  * @property string $status
  * @property string $result
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $state
  * @property string|null $town
  * @property string|null $mobile

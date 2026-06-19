@@ -97,8 +97,8 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapApiRoutes()
     {
         Route::prefix('api')
-             ->middleware('api')
-             ->group(base_path('routes/api.php'));
+            ->middleware('api')
+            ->group(base_path('routes/api.php'));
     }
 
     /**
@@ -111,7 +111,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapThirdPartyRoutes()
     {
         Route::middleware('validateThirdParty')
-             ->group(base_path('routes/thirdparty.php'));
+            ->group(base_path('routes/thirdparty.php'));
     }
 
     /**

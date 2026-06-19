@@ -39,9 +39,9 @@ class AdvanceSearchController extends AdminOrderInvoiceController
             }
 
             $users = User::where('email', 'LIKE', '%'.$term.'%')
-             ->orWhere('first_name', 'LIKE', '%'.$term.'%')
-             ->orWhere('last_name', 'LIKE', '%'.$term.'%')
-             ->select('id', 'email', 'profile_pic', 'first_name', 'last_name')->get();
+                ->orWhere('first_name', 'LIKE', '%'.$term.'%')
+                ->orWhere('last_name', 'LIKE', '%'.$term.'%')
+                ->select('id', 'email', 'profile_pic', 'first_name', 'last_name')->get();
             $formatted_tags = [];
             $formatted_users = [];
 
@@ -62,7 +62,7 @@ class AdvanceSearchController extends AdminOrderInvoiceController
      */
     public function getClientDetail(mixed $id): array
     {
-        /** @var \App\User $client */
+        /** @var User $client */
         $client = User::where('id', $id)->firstOrFail();
         $currency = $client->currency;
         $client->state = getStateByCode((string) $client->country, (string) $client->state)['name'];

@@ -78,7 +78,7 @@ abstract class LicenseTestCase extends DBTestCase
             'product_key' => 'PRODKEY'.uniqid(),
         ];
 
-        $product = new Product();
+        $product = new Product;
         foreach (array_merge($defaults, $attributes) as $column => $value) {
             if (Schema::hasColumn('products', $column)) {
                 $product->{$column} = $value;

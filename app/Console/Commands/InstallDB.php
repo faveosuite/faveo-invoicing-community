@@ -32,14 +32,14 @@ class InstallDB extends LoggableCommand
      */
     protected $description = 'installing database';
 
-    protected \App\Http\Controllers\BillingInstaller\InstallerController $install;
+    protected InstallerController $install;
 
     /**
      * Create a new command instance.
      */
     public function __construct()
     {
-        $this->install = new InstallerController();
+        $this->install = new InstallerController;
         parent::__construct();
     }
 

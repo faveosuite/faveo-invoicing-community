@@ -31,7 +31,7 @@ class HmacSha1 extends SignatureMethod
     {
         $signatureBase = $request->getSignatureBaseString();
 
-        $parts = [$consumer->secret, $token instanceof \App\Http\Controllers\Common\Twitter\Token ? $token->secret : ''];
+        $parts = [$consumer->secret, $token instanceof Token ? $token->secret : ''];
 
         $parts = Util::urlencodeRfc3986($parts);
 

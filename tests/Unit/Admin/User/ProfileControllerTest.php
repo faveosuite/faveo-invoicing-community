@@ -33,7 +33,7 @@ class ProfileControllerTest extends DBTestCase
         return User::factory()->create($attributes);
     }
 
-    public function testUpdateProfileWithoutAnyErrors(): void
+    public function test_update_profile_without_any_errors(): void
     {
         $this->call('PATCH', 'profile', [
             'first_name' => 'update first',
@@ -58,7 +58,7 @@ class ProfileControllerTest extends DBTestCase
         $this->assertEquals('updated@example.com', $this->user->email);
     }
 
-    public function testUpdateProfileWithErrors(): void
+    public function test_update_profile_with_errors(): void
     {
         $this->getLoggedInUser('admin');
 
@@ -75,7 +75,7 @@ class ProfileControllerTest extends DBTestCase
         $response->assertSessionHasErrors(['last_name']);
     }
 
-    public function testUpdatePasswordSuccess(): void
+    public function test_update_password_success(): void
     {
         // Manually update the password first
         Auth::user()->update(['password' => Hash::make('Test@1234')]);
@@ -95,9 +95,9 @@ class ProfileControllerTest extends DBTestCase
         $this->assertEquals(session('success1'), 'Updated Successfully');
     }
 
-    public function testPasswordResetLinkExpiredAfterUpdatingThePasswordFromUI(): void
+    public function test_password_reset_link_expired_after_updating_the_password_from_ui(): void
     {
-        $password = new Password();
+        $password = new Password;
 
         $user = Auth::user();
         $token = Str::random(40);

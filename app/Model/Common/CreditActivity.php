@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace App\Model\Common;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $payment_id
  * @property string $text
  * @property string $role
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditActivity newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditActivity newQuery()

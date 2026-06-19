@@ -8,9 +8,7 @@ use Illuminate\Support\Facades\Request;
 
 class BillingDependencyController extends Controller
 {
-    public function __construct(private mixed $extensionCheckFrom)
-    {
-    }
+    public function __construct(private mixed $extensionCheckFrom) {}
 
     public function validateDirectory(string $basePath, int &$errorCount): mixed
     {
@@ -394,7 +392,7 @@ class BillingDependencyController extends Controller
             $this->validateOptionalExtensions($requiredExtensions->optional, $error);
 
             return $error;
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }

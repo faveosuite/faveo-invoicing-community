@@ -714,7 +714,7 @@ return [
         'invalid' => 'Geçersiz şifre.',
     ],
 
-    //AuthController file
+    // AuthController file
     'auth_controller' => [
         'name_required' => 'Ad gereklidir.',
         'name_max' => 'Ad en fazla 255 karakter olabilir.',

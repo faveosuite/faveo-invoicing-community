@@ -4,6 +4,7 @@ namespace App\Plugins\Zoho\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -11,10 +12,10 @@ use Override;
  * @property string $platform
  * @property string|null $description
  * @property bool $is_active
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Plugins\Zoho\Models\ZohoOAuthClient|null $client
- * @property-read \App\Plugins\Zoho\Models\ZohoOAuthToken|null $token
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read ZohoOAuthClient|null $client
+ * @property-read ZohoOAuthToken|null $token
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoIntegration newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoIntegration newQuery()

@@ -185,7 +185,7 @@ return [
    Request file custom validation messages
    */
 
-    //Common
+    // Common
     'settings_form' => [
         'company' => [
             'required' => 'The company field is required.',
@@ -283,7 +283,7 @@ return [
         ],
     ],
 
-    //Email
+    // Email
     'custom' => [
         'password' => [
             'required_if' => 'The password field is required for the selected mail driver.',
@@ -387,7 +387,7 @@ return [
         ],
     ],
 
-    //Order form
+    // Order form
     'order_form' => [
         'client' => [
             'required' => 'The client field is required.',
@@ -415,7 +415,7 @@ return [
         ],
     ],
 
-    //Payment form
+    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'The coupon code field is required.',
@@ -473,7 +473,7 @@ return [
         ],
     ],
 
-    //Product
+    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'The name field is required.',
@@ -569,7 +569,7 @@ return [
         ],
     ],
 
-    //User
+    // User
     'users' => [
         'first_name' => [
             'required' => 'The first name field is required.',
@@ -679,7 +679,7 @@ return [
         ],
     ],
 
-    //Invoice form
+    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'The clients field is required.',
@@ -706,7 +706,7 @@ return [
         ],
     ],
 
-    //License form
+    // License form
     'licenses' => [
         'product' => [
             'required' => 'The product field is required.',
@@ -728,7 +728,7 @@ return [
         ],
     ],
 
-    //LocalizedLicense form
+    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'The domain field is required.',
@@ -736,7 +736,7 @@ return [
         ],
     ],
 
-    //Product Renewal form
+    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'The domain field is required.',
@@ -744,13 +744,13 @@ return [
         ],
     ],
 
-    //Language form
+    // Language form
     'language' => [
         'required' => 'The language field is required.',
         'invalid' => 'The selected language is invalid.',
     ],
 
-    //UpdateSroragePathRequest form
+    // UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'The storage disk field is required.',
@@ -763,7 +763,7 @@ return [
         ],
     ],
 
-    //pdf settings paths
+    // pdf settings paths
     'pdf_settings' => [
         'node_path' => [
             'required' => 'The node path field is required.',
@@ -779,7 +779,7 @@ return [
         ],
     ],
 
-    //ValidateSecretRequest form
+    // ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Please enter code',
@@ -787,7 +787,7 @@ return [
         ],
     ],
 
-    //VerifyOtp form
+    // VerifyOtp form
     'verify_email' => [
         'required' => 'The email field is required.',
         'email' => 'The email must be a valid email address.',
@@ -812,7 +812,7 @@ return [
         'invalid' => 'Invalid password.',
     ],
 
-    //AuthController file
+    // AuthController file
     'auth_controller' => [
         'name_required' => 'Name is required.',
         'name_max' => 'Name may not be greater than 255 characters.',

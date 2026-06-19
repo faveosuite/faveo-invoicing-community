@@ -10,10 +10,12 @@ use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Payment\TaxProductRelation;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
+use App\User;
 use Auth;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Logger;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,7 +51,7 @@ class ExtendedBaseProductController extends Controller
         }
     }
 
-    //Update the File Info
+    // Update the File Info
     public function uploadUpdate(mixed $id, Request $request): mixed
     {
         $this->validate($request, [
@@ -63,13 +65,13 @@ class ExtendedBaseProductController extends Controller
                 'dependencies.required' => __('validation.extend_product.dependencies_required'),
             ]);
         try {
-            /** @var \App\Model\Product\ProductUpload $file_upload */
+            /** @var ProductUpload $file_upload */
             $file_upload = ProductUpload::find($id);
             $file_upload->update(['title' => $request->input('title'), 'description' => $request->input('description'), 'version' => $request->input('version'), 'dependencies' => json_encode($request->input('dependencies')), 'is_private' => $request->input('is_private'), 'is_restricted' => $request->input('is_restricted'), 'release_type' => $request->input('release_type')]);
-            /** @var \App\Model\Product\Product $productFromUpload */
+            /** @var Product $productFromUpload */
             $productFromUpload = $file_upload->product;
             $productSku = $productFromUpload->product_sku;
-            $updateClassObj = new AutoUpdateController(); // @phpstan-ignore arguments.count
+            $updateClassObj = new AutoUpdateController; // @phpstan-ignore arguments.count
             $updateClassObj->editVersion($request->input('version'), $productSku);
 
             return back()->with('success', __('message.product_updated_successfully'));
@@ -87,7 +89,7 @@ class ExtendedBaseProductController extends Controller
         TaxProductRelation::where('product_id', $product_id)->delete();
         if ($taxes) {
             foreach ($taxes as $tax) {
-                $newTax = new TaxProductRelation();
+                $newTax = new TaxProductRelation;
                 $newTax->product_id = $product_id;
                 $newTax->tax_class_id = $tax;
                 $newTax->save();
@@ -102,7 +104,7 @@ class ExtendedBaseProductController extends Controller
     {
         try {
             $field = '';
-            /** @var \App\Model\Product\Product $product */
+            /** @var Product $product */
             $product = Product::find($productid);
             if ($product->require_domain == 1) {
                 $field .= '<div>
@@ -131,7 +133,7 @@ class ExtendedBaseProductController extends Controller
         }
     }
 
-    public function adminDownload(mixed $id, mixed $release = 'official'): \Symfony\Component\HttpFoundation\Response|\Illuminate\Http\JsonResponse
+    public function adminDownload(mixed $id, mixed $release = 'official'): Response|JsonResponse
     {
         try {
             $permissions = LicensePermissionsController::getPermissionsForProduct($id);
@@ -139,7 +141,7 @@ class ExtendedBaseProductController extends Controller
                 throw new Exception(__('message.no_permission_for_action'));
             }
 
-            /** @var \App\Model\Product\Product $product */
+            /** @var Product $product */
             $product = Product::findOrFail($id);
 
             $tag = $product->github_owner
@@ -187,7 +189,7 @@ class ExtendedBaseProductController extends Controller
     {
         $checkSubscription = false;
         if ($invoice) {
-            /** @var \App\User $authUser */
+            /** @var User $authUser */
             $authUser = Auth::user();
             if ($invoice->user_id != $authUser->id) {
                 throw new Exception(__('message.invalid_modification_data_permission'));
@@ -218,7 +220,7 @@ class ExtendedBaseProductController extends Controller
      */
     public function saveCartValues($input, bool $can_modify_agent, bool $can_modify_quantity, mixed $highlight, mixed $add_to_contact): void
     {
-        $this->product->show_agent = $input['show_agent'] == 1; //if Show Agents Selected // @phpstan-ignore property.notFound
+        $this->product->show_agent = $input['show_agent'] == 1; // if Show Agents Selected // @phpstan-ignore property.notFound
         $this->product->highlight = ($highlight == 1) ? 1 : 0; // @phpstan-ignore property.notFound
         $this->product->add_to_contact = ($add_to_contact == 1) ? 1 : 0; // @phpstan-ignore property.notFound
         $this->product->can_modify_agent = $can_modify_agent; // @phpstan-ignore property.notFound
@@ -233,12 +235,12 @@ class ExtendedBaseProductController extends Controller
      * @date   2019-01-07T20:40:20+0530
      *
      * @param  Request  $input  All the Product Detais Sent from  the form
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  mixed  $product  instance of the Product
      */
     public function saveCartDetailsWhileUpdating($input, $request, $product, mixed $highlight, mixed $add_to_contact): void
     {
-        $product->show_agent = $input['show_agent'] == 1 ? 1 : 0; //if Show Agents Selected
+        $product->show_agent = $input['show_agent'] == 1 ? 1 : 0; // if Show Agents Selected
         if ($product->show_agent === 1) {
             $product->can_modify_quantity = 0;
             if ($request->has('can_modify_agent')) {

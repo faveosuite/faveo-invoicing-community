@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace App\Model\Mailjob;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $service_id
  * @property string $key
  * @property string $value
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoQueue newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FaveoQueue newQuery()

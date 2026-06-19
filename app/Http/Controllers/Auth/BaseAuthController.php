@@ -6,6 +6,7 @@ use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
 use App\User;
@@ -22,7 +23,7 @@ class BaseAuthController extends Controller
         }
 
         try {
-            $activate_model = new AccountActivate();
+            $activate_model = new AccountActivate;
 
             if ($method == 'GET') {
                 $response = $activate_model->where('email', $email)->first();
@@ -42,11 +43,11 @@ class BaseAuthController extends Controller
             }
 
             // Check the settings
-            /** @var \App\Model\Common\Setting $settings */
+            /** @var Setting $settings */
             $settings = Setting::find(1);
 
             // Retrieve the template
-            /** @var \App\Model\Common\Template $template */
+            /** @var Template $template */
             $template = TemplateType::getSelectedTemplate('welcome_mail');
             $website_url = url('/');
             $replace = [
@@ -62,7 +63,7 @@ class BaseAuthController extends Controller
 
             $type = $template->type()->value('name') ?? '';
 
-            $mail = new PhpMailController();
+            $mail = new PhpMailController;
             $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
@@ -71,7 +72,7 @@ class BaseAuthController extends Controller
 
     protected function userNeedVerified(User $user): bool
     {
-        /** @var \App\Model\Common\StatusSetting $setting */
+        /** @var StatusSetting $setting */
         $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);
 
         if ($setting->emailverification_status == 1 && $user->email_verified != 1) {

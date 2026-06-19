@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Plugins\Payment\Dto;
 
+use App\Plugins\Payment\Support\Money;
+
 /**
  * An immutable request to charge a payer once, in plain data only.
  *
  * The amount is given in MAJOR currency units (e.g. 49.99, not 4999); each
- * gateway converts to minor units itself via {@see \App\Plugins\Payment\Support\Money}.
+ * gateway converts to minor units itself via {@see Money}.
  */
 final readonly class PaymentRequest
 {
@@ -26,6 +28,5 @@ final readonly class PaymentRequest
         public ?string $description = null,
         public ?string $returnUrl = null,
         public array $metadata = [],
-    ) {
-    }
+    ) {}
 }

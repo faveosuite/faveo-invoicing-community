@@ -243,14 +243,14 @@ class SmsOtpController extends Controller
                 return;
             }
 
-            /** @var \App\User $user */
+            /** @var User $user */
             $countryIso = $user->mobile_country_iso;
             $mobileNumber = $user->mobile;
             $mobileCode = $user->mobile_code;
         }
 
         try {
-            $controller = new MSG91Controller();
+            $controller = new MSG91Controller;
 
             if ($action === 'resend') {
                 $controller->appendOtpRetry(

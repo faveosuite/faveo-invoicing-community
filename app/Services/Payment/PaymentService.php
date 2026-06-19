@@ -3,6 +3,8 @@
 namespace App\Services\Payment;
 
 use App\ApiKey;
+use App\Http\Controllers\Front\PaymentController;
+use App\Plugins\Payment;
 use App\Plugins\Payment\Contracts\CardPaymentGateway;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentResult;
@@ -17,7 +19,7 @@ use App\Plugins\Payment\PaymentGatewayManager;
  * Generalized payment processing for the application.
  *
  * The single, domain-agnostic bridge between the dependency-pure payment package
- * ({@see \App\Plugins\Payment}) and the application. It knows only how to wire the
+ * ({@see Payment}) and the application. It knows only how to wire the
  * configured gateways from the {@see ApiKey} model and drive them with plain
  * package value objects — it knows nothing about invoices, open-payment orders,
  * the authenticated user, or order fulfilment.
@@ -25,7 +27,7 @@ use App\Plugins\Payment\PaymentGatewayManager;
  * Each caller owns its own domain: it builds a {@see PaymentRequest} for its
  * entity, calls {@see start()} / {@see capture()} / {@see verifyWebhook()}, and
  * decides what a verified payment means for it (e.g. invoice fulfilment lives in
- * {@see \App\Http\Controllers\Front\PaymentController}). This keeps the service
+ * {@see PaymentController}). This keeps the service
  * reusable across every payment surface — invoices, open payments, and beyond.
  */
 class PaymentService
@@ -36,12 +38,12 @@ class PaymentService
         $keys = ApiKey::find(1);
 
         return (new PaymentGatewayManager)
-            ->register('Stripe', fn (): \App\Plugins\Payment\Gateways\StripeGateway => new StripeGateway(
+            ->register('Stripe', fn (): StripeGateway => new StripeGateway(
                 (string) ($keys->stripe_secret ?? ''),
                 (string) ($keys->stripe_key ?? ''),
                 (string) ($keys->stripe_webhook_secret ?? ''),
             ))
-            ->register('Razorpay', fn (): \App\Plugins\Payment\Gateways\RazorpayGateway => new RazorpayGateway(
+            ->register('Razorpay', fn (): RazorpayGateway => new RazorpayGateway(
                 (string) ($keys->rzp_key ?? ''),
                 (string) ($keys->rzp_secret ?? ''),
                 'Faveo Helpdesk',

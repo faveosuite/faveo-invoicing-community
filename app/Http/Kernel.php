@@ -65,7 +65,7 @@ class Kernel extends HttpKernel
             AddQueuedCookiesToResponse::class,
 
             CaptureReferer::class,
-            //\Illuminate\Session\Middleware\AuthenticateSession::class,
+            // \Illuminate\Session\Middleware\AuthenticateSession::class,
             // \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,

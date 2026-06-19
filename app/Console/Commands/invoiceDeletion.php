@@ -28,7 +28,7 @@ class invoiceDeletion extends LoggableCommand
      */
     public function handleAndLog(): void
     {
-        $controller = new CronController();
+        $controller = new CronController;
         $controller->invoicesDeletion();
         $this->info('invoices:delete Command Run successfully!');
     }

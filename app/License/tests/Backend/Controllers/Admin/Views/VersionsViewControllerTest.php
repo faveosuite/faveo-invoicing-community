@@ -16,7 +16,7 @@ class VersionsViewControllerTest extends LicenseTestCase
     {
         parent::setUp();
 
-        $this->controller = new VersionsViewController();
+        $this->controller = new VersionsViewController;
     }
 
     #[Test]

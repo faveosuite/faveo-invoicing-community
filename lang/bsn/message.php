@@ -804,14 +804,14 @@ return [
     'required_stripe_secret' => 'Molimo unesite Stripe tajni ključ',
     'max_stripe_secret' => 'Stripe tajni ključ ne smije biti duži od 200 karaktera',
 
-    //email templates
+    // email templates
     'choose_password' => 'Kliknite ovdje da resetirate svoju lozinku: ',
     'email_username' => 'Korisničko ime: ',
     'email_password' => 'Lozinka: ',
     'email_click_here' => 'Kliknite ovdje',
     'activate_account' => 'Za aktiviranje vašeg računa:',
 
-    //error template
+    // error template
     'page_not_found' => 'Stranica nije pronađena',
     'sorry' => 'Žao nam je, ali stranica koju ste tražili ne postoji.',
     'useful_links' => 'Evo nekoliko korisnih linkova',
@@ -820,7 +820,7 @@ return [
     'my_profile' => 'Moj profil',
     'contact_us' => 'Kontaktirajte nas',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Prijava | Registracija',
     'sign_lr' => 'Prijavite se ili registrirajte',
     'or' => 'Ili',
@@ -854,7 +854,7 @@ return [
     'error_occurred' => 'Došlo je do pogreške. Pokušajte ponovo.',
     'error_one_country' => 'Molimo odaberite jednu zemlju',
 
-    //contact template
+    // contact template
     'feel_free' => 'Slobodno postavite pitanja, ne ustručavajte se!',
     'contact_name' => 'Ime',
     'contact_error_name' => 'Molimo unesite svoje ime.',
@@ -867,7 +867,7 @@ return [
     'contact_send_msg' => 'Pošaljite poruku',
     'our_office' => 'Naš ured',
 
-    //password template
+    // password template
     'forgot_password' => 'Zaboravili ste lozinku? Resetirajte je sada!',
     'lost_password' => 'Izgubili ste svoju lozinku?',
     'know_password' => 'Znam svoju lozinku',
@@ -876,7 +876,7 @@ return [
     'sending' => 'Šaljem...',
     'error_occurs' => 'Došlo je do pogreške.',
     'reset_password' => 'Resetirajte lozinku',
-    //front-client template
+    // front-client template
     'change_faveo' => 'Želite li promijeniti svoj postojeći faveo cloud domen?',
     'current_domain' => 'Unesite trenutni domen',
     'enter_domain' => 'Unesite novi domen',
@@ -1037,7 +1037,7 @@ return [
     'loading' => 'Učitavanje...',
     'subscriptions_table' => 'Tablica pretplata',
     'invalid_format' => 'Neispravan format.',
-    //front-page template
+    // front-page template
     'all_pages' => 'Sve stranice',
     'create_new_page' => 'Kreiraj novu stranicu',
     'edit_page' => 'Uredi stranicu',
@@ -1047,14 +1047,14 @@ return [
     'select_checkbox' => 'Molimo označite barem jedno polje',
     'search_result' => 'Rezultat pretrage',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'Svi widgeti',
     'create_widget' => 'Kreiraj widget',
     'configure_mailchimp' => 'Konfigurirajte svoj Mailchimp u postavkama za pristup',
     'configure_tweet' => 'Konfigurirajte svoje tweetove u postavkama za pristup',
     'edit_widget' => 'Uredi widget',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Ukloni proizvod',
     'cart_totals' => 'Ukupno u košarici',
     'clear_cart' => 'Očisti košaricu',
@@ -1111,11 +1111,11 @@ return [
     'go_back' => 'Vrati se',
     'be_right_back' => 'Vratićemo se uskoro.',
 
-    //category template
+    // category template
     'all_categories' => 'Sve kategorije',
     'category_name' => 'Ime',
 
-    //common template
+    // common template
     'create_script_code' => 'Kreirajte kod skripte',
     'create_script' => 'Kreirajte skriptu',
     'edit_script_code' => 'Uredi kod skripte',
@@ -1276,14 +1276,14 @@ return [
     'deactivate' => 'Deaktiviraj',
     'provider' => 'Pružatelj',
 
-    //github template
+    // github template
     'github_setting' => 'Postavke Github-a',
     'enter_github_username' => 'Unesite Github korisničko ime',
     'enter_github_password' => 'Unesite Github lozinku',
     'enter_github_clientid' => 'Unesite Client Id',
     'enter_github_client_secret_key' => 'Unesite Client Secret Key',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => 'Uredi fakturu',
     'view_user' => 'Pogledaj korisnika',
     'pending' => 'Na čekanju',
@@ -1324,7 +1324,7 @@ return [
     'no_tax_rates' => 'Nema poreskih stopa',
     'store' => 'Prodavnica',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Administratorska tabla',
     'my_account' => 'Moj nalog',
     'start_free_trial' => 'POČNI BESPLATNU PROBU',
@@ -1365,7 +1365,7 @@ return [
     'enter_domain_license' => 'Unesite domen i preuzmite licencu',
     'installation_details' => 'Detalji instalacije',
 
-    //payement panel
+    // payement panel
     'payment_date' => 'Datum uplate',
     'auto_renewal_subscription' => 'Automatsko obnavljanje buduće pretplate',
     'subscription_start_date' => 'Datum početka pretplate',
@@ -1391,7 +1391,7 @@ return [
     'coupon' => 'Kupon',
     'actions' => 'Akcije',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => 'Kreiraj porez',
     'caps_others' => 'OSTALO',
     'others' => 'Ostalo',
@@ -1429,7 +1429,7 @@ return [
     'show_cart_page' => 'Prikazivanje na stranici korpe',
     'select_taxes' => 'Odaberite poreze',
 
-    //Product panel
+    // Product panel
     'all_product_details' => 'Dodajte detalje proizvoda',
     'enter_json_format' => 'Unesite JSON format.',
     'upload' => 'Otprema',
@@ -1458,21 +1458,21 @@ return [
     'all_types' => 'Svi tipovi',
     'configure_queue' => 'Konfigurišite red',
 
-    //renew panel
+    // renew panel
     'renew_product' => 'Pobrinite se da je korpa prazna da biste obnovili svoj proizvod',
     'click_renew' => 'Kliknite ovde da biste obnovili',
     'renew_your_order' => 'Obnovite svoju narudžbinu',
     'renew_order' => 'Obnoviti narudžbinu',
     'renewal_price_per_agent' => 'Cijena obnove po agentu: ',
 
-    //report panel
+    // report panel
     'file_name' => 'Naziv fajla',
     'format' => 'Format',
     'contact' => 'Kontakt',
     'report_settings' => 'Postavke izvještaja',
     'report_limit' => 'Dodajte zapise po listu. Maksimalna granica je 3000.',
 
-    //tenanat panel
+    // tenanat panel
     'cloud_server' => 'Cloud server',
     'customise_cloud_popup' => 'Prilagodite skočni prozor oblaka',
     'cloud_product_configuration' => 'Konfiguracija proizvoda oblaka',
@@ -1499,7 +1499,7 @@ return [
     'app_key' => 'Ključ aplikacije',
     'app_secret' => 'Tajna aplikacije',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Kreiraj novog korisnika',
     'create_user' => 'Kreiraj korisnika',
     'position' => 'Pozicija',
@@ -1612,7 +1612,7 @@ return [
     'logs_viewer' => 'Pregledač logova',
     'error_logs' => 'Greške u logovima',
     'view_logs' => 'Pogledaj logove',
-    //visitstats
+    // visitstats
     'request' => 'Zahtjev',
     'visitor' => 'Posjetilac',
     'browser' => 'Pregledač',
@@ -1970,7 +1970,7 @@ return [
     'null' => 'Nula',
     'choose_one_payment_gateway' => 'Odaberite jednu platnu mrežu',
 
-    //Controller key and values
+    // Controller key and values
     'product_uploaded_successfully' => 'Proizvod uspješno učitavan',
     'token_mismatch_account_not_activated' => 'Token se ne podudara. Nalog se ne može aktivirati.',
     'email_verification_success' => 'Verifikacija e-pošte uspješna. Molimo prijavite se da pristupite svom nalogu!',

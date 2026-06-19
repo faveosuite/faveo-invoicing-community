@@ -853,7 +853,7 @@ return [
     'required_stripe_secret' => '請輸入 Stripe 秘密金鑰',
     'max_stripe_secret' => 'Stripe 秘密金鑰不能超過 200 個字符',
 
-    //email templates
+    // email templates
 
     'choose_password' => '點擊這裡重設您的密碼：',
     'email_username' => '用戶名稱：',
@@ -861,7 +861,7 @@ return [
     'email_click_here' => '點擊這裡',
     'activate_account' => '要激活您的帳戶：',
 
-    //error template
+    // error template
     'page_not_found' => '頁面未找到',
     'sorry' => '抱歉，我們無法找到您尋找的頁面。',
     'useful_links' => '這裡有一些有用的連結',
@@ -870,7 +870,7 @@ return [
     'my_profile' => '我的個人資料',
     'contact_us' => '聯繫我們',
 
-    //login-register template
+    // login-register template
     'login_lr' => '登入 | 註冊',
     'sign_lr' => '登入或註冊',
     'or' => '或',
@@ -904,7 +904,7 @@ return [
     'error_occurred' => '發生錯誤，請再試一次。',
     'error_one_country' => '請選擇一個國家',
 
-    //contact template
+    // contact template
     'feel_free' => '隨時向我們詢問詳情，別有任何疑問！',
     'contact_name' => '姓名',
     'contact_error_name' => '請輸入您的姓名。',
@@ -917,7 +917,7 @@ return [
     'contact_send_msg' => '發送訊息',
     'our_office' => '我們的辦公室',
 
-    //password template
+    // password template
     'forgot_password' => '忘記密碼？現在重設！',
     'lost_password' => '忘記了密碼？',
     'know_password' => '我知道我的密碼',
@@ -927,7 +927,7 @@ return [
     'error_occurs' => '發生錯誤。',
     'reset_password' => '重設密碼',
 
-    //front-client template
+    // front-client template
     'change_faveo' => '您想要更改現有的 Faveo 雲端域名嗎？',
     'current_domain' => '輸入當前域名',
     'enter_domain' => '輸入新域名',
@@ -1089,7 +1089,7 @@ return [
     'subscriptions_table' => '訂閱表格',
     'invalid_format' => '格式無效。',
 
-    //front-page template
+    // front-page template
     'all_pages' => '所有頁面',
     'create_new_page' => '創建新頁面',
     'edit_page' => '編輯頁面',
@@ -1099,14 +1099,14 @@ return [
     'select_checkbox' => '請至少選擇一個復選框',
     'search_result' => '搜尋結果',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => '所有小部件',
     'create_widget' => '創建小部件',
     'configure_mailchimp' => '在設置中配置您的 Mailchimp 以訪問',
     'configure_tweet' => '在設置中配置您的推文以訪問',
     'edit_widget' => '編輯小部件',
 
-    //front outer template
+    // front outer template
     'remove_product' => '移除產品',
     'cart_totals' => '購物車總計',
     'clear_cart' => '清空購物車',
@@ -1329,14 +1329,14 @@ return [
     'author' => '作者',
     'deactivate' => '停用',
     'provider' => '提供者',
-    //github template
+    // github template
     'github_setting' => 'Github 設定',
     'enter_github_username' => '請輸入 Github 用戶名',
     'enter_github_password' => '請輸入 Github 密碼',
     'enter_github_clientid' => '請輸入客戶端ID',
     'enter_github_client_secret_key' => '請輸入客戶端密鑰',
 
-    //invoice template
+    // invoice template
     'edit_invoice' => '編輯發票',
     'view_user' => '查看用戶',
     'pending' => '待處理',
@@ -1377,7 +1377,7 @@ return [
     'no_tax_rates' => '無稅率',
     'store' => '商店',
 
-    //Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => '管理員儀表板',
     'my_account' => '我的帳戶',
     'start_free_trial' => '開始免費試用',
@@ -1418,7 +1418,7 @@ return [
     'enter_domain_license' => '輸入域名並下載許可證文件',
     'installation_details' => '安裝詳情',
 
-    //payment panel
+    // payment panel
     'payment_date' => '付款日期',
     'auto_renewal_subscription' => '自動續訂未來訂閱',
     'subscription_start_date' => '訂閱開始日期',
@@ -1444,7 +1444,7 @@ return [
     'coupon' => '優惠券',
     'actions' => '操作',
 
-    //Tax panel
+    // Tax panel
     'create_tax' => '創建稅務',
     'caps_others' => '其他',
     'others' => '其他',
@@ -1482,7 +1482,7 @@ return [
     'show_cart_page' => '顯示在購物車頁面',
     'select_taxes' => '選擇稅收',
 
-    //Product panel
+    // Product panel
     'all_product_details' => '添加產品詳情',
     'enter_json_format' => '輸入 JSON 格式。',
     'upload' => '上傳',
@@ -1511,21 +1511,21 @@ return [
     'all_types' => '所有類型',
     'configure_queue' => '配置隊列',
 
-    //renew panel
+    // renew panel
     'renew_product' => '請確保購物車為空以便續訂您的產品',
     'click_renew' => '點擊此處以續訂',
     'renew_your_order' => '續訂您的訂單',
     'renew_order' => '續訂訂單',
     'renewal_price_per_agent' => '每位代理續訂價格：',
 
-    //report panel
+    // report panel
     'file_name' => '檔案名稱',
     'format' => '格式',
     'contact' => '聯繫方式',
     'report_settings' => '報告設置',
     'report_limit' => '每個工作表添加記錄的數量。最大限制是 3000。',
 
-    //tenanat panel
+    // tenanat panel
     'cloud_server' => '雲端伺服器',
     'customise_cloud_popup' => '自訂雲端彈出窗口',
     'cloud_product_configuration' => '雲端產品配置',
@@ -1552,7 +1552,7 @@ return [
     'app_key' => '應用金鑰',
     'app_secret' => '應用密鑰',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => '創建新用戶',
     'create_user' => '創建用戶',
     'position' => '職位',
@@ -1666,7 +1666,7 @@ return [
     'error_logs' => '錯誤日誌',
     'view_logs' => '查看日誌',
 
-    //visitstats
+    // visitstats
     'request' => '請求',
     'visitor' => '訪客',
     'browser' => '瀏覽器',

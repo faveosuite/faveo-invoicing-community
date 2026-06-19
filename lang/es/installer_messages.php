@@ -114,7 +114,7 @@ return [
     'user_name' => 'Nombre de usuario',
     'user_email' => 'Correo electrónico del usuario',
     'password_not_match' => 'Las contraseñas no coinciden',
-    //nuevo
+    // nuevo
     'installation_check' => 'Esta prueba verificará los requisitos previos necesarios para instalar Agora Facturación Comunidad',
     'db_setup_error_1' => 'Esto significa que la información de nombre de usuario y contraseña es incorrecta o tu host no es accesible',
     'db_setup_error_2' => '¿Estás seguro de que ya tienes una base de datos existente con el nombre de base de datos proporcionado?',

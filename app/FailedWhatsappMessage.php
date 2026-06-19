@@ -4,13 +4,15 @@ namespace App;
 
 use Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $message
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FailedWhatsappMessage newQuery()
@@ -29,11 +31,11 @@ class FailedWhatsappMessage extends Model
     protected $fillable = ['message'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function message(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function message(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+        return Attribute::make(get: function ($value) {
             try {
                 return Crypt::decrypt($value);
             } catch (DecryptException) {

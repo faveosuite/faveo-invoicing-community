@@ -14,7 +14,7 @@ use Tests\DBTestCase;
 class SoftDeleteControllerTest extends DBTestCase
 {
     #[Group('softDelete')]
-    public function test_softDeletedUsers_checkUserIsSoftDeleted(): void
+    public function test_soft_deleted_users_check_user_is_soft_deleted(): void
     {
         $this->withoutMiddleware();
         $user = User::factory()->create();
@@ -26,7 +26,7 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('softDelete')]
-    public function test_restoreUser_checkSoftDeletedUserIsRestored(): void
+    public function test_restore_user_check_soft_deleted_user_is_restored(): void
     {
         $this->withoutMiddleware();
         $user = User::factory()->create();
@@ -37,7 +37,7 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('softDelete')]
-    public function test_permanentDeleteUser_deleteUserPermanently(): void
+    public function test_permanent_delete_user_delete_user_permanently(): void
     {
         $this->withoutMiddleware();
         $user = User::factory()->create();
@@ -51,7 +51,7 @@ class SoftDeleteControllerTest extends DBTestCase
     }
 
     #[Group('softDelete')]
-    public function test_permanentDeleteUser_deleteInvoiceOrderCommnetPermanently(): void
+    public function test_permanent_delete_user_delete_invoice_order_commnet_permanently(): void
     {
         $this->withoutMiddleware();
         $user1 = User::factory()->create();
@@ -72,7 +72,7 @@ class SoftDeleteControllerTest extends DBTestCase
         $this->assertDatabaseMissing('auto_renewals', ['user_id' => $user1->id]);
     }
 
-    public function test_permanentDeleteUser_fails_due_to_auto_renewal_not_deleted(): void
+    public function test_permanent_delete_user_fails_due_to_auto_renewal_not_deleted(): void
     {
         $this->withoutMiddleware();
         $user1 = User::factory()->create();

@@ -11,8 +11,7 @@ abstract class ZohoBaseApi
         protected ZohoRegion $region,
         protected ZohoAccessToken $accessToken,
         protected int $integrationId
-    ) {
-    }
+    ) {}
 
     protected function newRequest(): PendingRequest
     {

@@ -24,6 +24,8 @@ use App\Traits\Upload\ChunkUpload;
 use DB;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Logger;
 
@@ -34,57 +36,57 @@ class ProductController extends BaseProductController
     use ChunkUpload;
 
     /**
-     * @var \App\Model\Product\Product
+     * @var Product
      */
     public $product;
 
     /**
-     * @var \App\Model\Product\Price
+     * @var Price
      */
     public $price;
 
     /**
-     * @var \App\Model\License\LicenseType
+     * @var LicenseType
      */
     public $type;
 
     /**
-     * @var \App\Model\Product\Subscription
+     * @var Subscription
      */
     public $subscription;
 
     /**
-     * @var \App\Model\Payment\Currency
+     * @var Currency
      */
     public $currency;
 
     /**
-     * @var \App\Model\Product\ProductGroup
+     * @var ProductGroup
      */
     public $group;
 
     /**
-     * @var \App\Model\Payment\Plan
+     * @var Plan
      */
     public $plan;
 
     /**
-     * @var \App\Model\Payment\Tax
+     * @var Tax
      */
     public $tax;
 
     /**
-     * @var \App\Model\Payment\TaxProductRelation
+     * @var TaxProductRelation
      */
     public $tax_relation;
 
     /**
-     * @var \App\Model\Payment\TaxClass
+     * @var TaxClass
      */
     public $tax_class;
 
     /**
-     * @var \App\Model\Product\ProductUpload
+     * @var ProductUpload
      */
     public $product_upload;
 
@@ -93,45 +95,45 @@ class ProductController extends BaseProductController
         $this->middleware('auth');
         $this->middleware('admin', ['except' => ['adminDownload', 'userDownload']]);
 
-        $product = new Product();
+        $product = new Product;
         $this->product = $product;
 
-        $price = new Price();
+        $price = new Price;
         $this->price = $price;
 
-        $type = new LicenseType();
+        $type = new LicenseType;
         $this->type = $type;
 
-        $subscription = new Subscription();
+        $subscription = new Subscription;
         $this->subscription = $subscription;
 
-        $currency = new Currency();
+        $currency = new Currency;
         $this->currency = $currency;
 
-        $group = new ProductGroup();
+        $group = new ProductGroup;
         $this->group = $group;
 
-        $plan = new Plan();
+        $plan = new Plan;
         $this->plan = $plan;
 
-        $tax = new Tax();
+        $tax = new Tax;
         $this->tax = $tax;
 
-        $period = new Period();
+        $period = new Period;
         $this->period = $period; // @phpstan-ignore property.notFound
 
-        $tax_relation = new TaxProductRelation();
+        $tax_relation = new TaxProductRelation;
         $this->tax_relation = $tax_relation;
 
-        $tax_class = new TaxClass();
+        $tax_class = new TaxClass;
         $this->tax_class = $tax_class;
 
-        $product_upload = new ProductUpload();
+        $product_upload = new ProductUpload;
         $this->product_upload = $product_upload;
     }
 
     // Save file Info in Modal popup
-    public function save(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function save(Request $request): JsonResponse
     {
         $this->validate(
             $request,
@@ -150,7 +152,7 @@ class ProductController extends BaseProductController
         );
 
         try {
-            /** @var \App\Model\Product\Product $product_id */
+            /** @var Product $product_id */
             $product_id = Product::find($request->input('product_id'));
 
             $this->product_upload->product_id = $product_id->id;
@@ -179,7 +181,7 @@ class ProductController extends BaseProductController
     /**
      * Remove the specified resource from storage.
      */
-    public function fileDestroy(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function fileDestroy(Request $request): JsonResponse
     {
         try {
             $ids = $request->input('select');
@@ -189,7 +191,7 @@ class ProductController extends BaseProductController
             }
 
             foreach ($ids as $id) {
-                /** @var \App\Model\Product\ProductUpload|null $product */
+                /** @var ProductUpload|null $product */
                 $product = $this->product_upload->find($id);
                 if ($product) {
                     $filePath = $storagePath.'/'.$product->file;
@@ -212,7 +214,7 @@ class ProductController extends BaseProductController
         url('get-price');
     }
 
-    public function uploadImage(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function uploadImage(Request $request): JsonResponse
     {
         try {
             $setting = Setting::find(1);
@@ -226,7 +228,7 @@ class ProductController extends BaseProductController
             $path = '';
             if ($request->input('url')) {
                 $url = $request->input('url');
-                $client = new Client();
+                $client = new Client;
                 $response = $client->get($url, [
                     'headers' => [
                         'User-Agent' => 'Mozilla/5.0', // Some servers require User-Agent
@@ -248,7 +250,7 @@ class ProductController extends BaseProductController
         }
     }
 
-    public function getProductDropdown(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function getProductDropdown(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $limit = $request->input('limit', 10);
@@ -265,7 +267,7 @@ class ProductController extends BaseProductController
         return successResponse('', $productsQuery);
     }
 
-    public function getProductPlans(\Illuminate\Http\Request $request, int $productId): \Illuminate\Http\JsonResponse
+    public function getProductPlans(Request $request, int $productId): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $limit = $request->input('limit', 10);
@@ -281,7 +283,7 @@ class ProductController extends BaseProductController
         return successResponse('', $plans);
     }
 
-    public function getAllProducts(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function getAllProducts(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = in_array($request->input('sort-order'), ['asc', 'desc']) ? $request->input('sort-order') : 'asc';
@@ -302,9 +304,9 @@ class ProductController extends BaseProductController
             ])
             ->when($searchQuery, function ($query, string $searchQuery): void {
                 $query->where('products.name', 'like', sprintf('%%%s%%', $searchQuery))
-                      ->orWhereHas('groupRelation', function ($q) use ($searchQuery): void {
-                          $q->where('name', 'like', sprintf('%%%s%%', $searchQuery));
-                      });
+                    ->orWhereHas('groupRelation', function ($q) use ($searchQuery): void {
+                        $q->where('name', 'like', sprintf('%%%s%%', $searchQuery));
+                    });
             })
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
@@ -332,7 +334,7 @@ class ProductController extends BaseProductController
         return successResponse('', $products);
     }
 
-    public function deleteBulkProducts(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function deleteBulkProducts(Request $request): JsonResponse
     {
         $ids = $request->input('product_ids', []);
 
@@ -355,7 +357,7 @@ class ProductController extends BaseProductController
         }
     }
 
-    public function getProduct(\Illuminate\Http\Request $request, int $productId): \Illuminate\Http\JsonResponse
+    public function getProduct(Request $request, int $productId): JsonResponse
     {
         try {
             $product = Product::with([
@@ -376,7 +378,7 @@ class ProductController extends BaseProductController
         }
     }
 
-    public function productUploadCreate(\Illuminate\Http\Request $request, int $productId): \Illuminate\Http\JsonResponse
+    public function productUploadCreate(Request $request, int $productId): JsonResponse
     {
         $validated = $request->validate([
             'producttitle' => ['required', 'string', 'max:255'],
@@ -425,7 +427,7 @@ class ProductController extends BaseProductController
      * Paginated list of a product's version uploads, for the DataTable on the
      * product edit page's "Versions" tab.
      */
-    public function getProductUploads(int $productId, \Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function getProductUploads(int $productId, Request $request): JsonResponse
     {
         try {
             $limit = $request->input('limit', 10);
@@ -470,7 +472,7 @@ class ProductController extends BaseProductController
     /**
      * Single version upload, for the edit form.
      */
-    public function getProductUpload(int $productUploadId): \Illuminate\Http\JsonResponse
+    public function getProductUpload(int $productUploadId): JsonResponse
     {
         try {
             $u = ProductUpload::findOrFail($productUploadId);
@@ -495,7 +497,7 @@ class ProductController extends BaseProductController
     /**
      * Update a version's metadata (the file itself is not changed on edit).
      */
-    public function updateProductUpload(int $productUploadId, \Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function updateProductUpload(int $productUploadId, Request $request): JsonResponse
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -540,7 +542,7 @@ class ProductController extends BaseProductController
         }
     }
 
-    public function productCreate(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function productCreate(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'unique:products,name'],
@@ -594,7 +596,7 @@ class ProductController extends BaseProductController
         }
     }
 
-    public function updateProduct(int $productId, \Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function updateProduct(int $productId, Request $request): JsonResponse
     {
         $validated = $request->validate([
             'name' => ['required'],

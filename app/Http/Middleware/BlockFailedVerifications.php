@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use App\Http\Controllers\Auth\LoginController;
 use Cache;
 use Closure;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use RateLimiter;
 use Session;
@@ -183,7 +185,7 @@ class BlockFailedVerifications
      * Returns a 429 JSON error for AJAX requests, or redirects to login with
      * an error flash message for standard page requests.
      */
-    private function respond(Request $request, string $type, string $waitTime): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    private function respond(Request $request, string $type, string $waitTime): JsonResponse|RedirectResponse
     {
         $message = __($this->getMessageKey($type), ['time' => $waitTime]);
 

@@ -21,11 +21,11 @@ class InvoiceControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->classObject = new InvoiceController();
+        $this->classObject = new InvoiceController;
     }
 
     #[Group('invoice')]
-    public function test_generateInvoice_generatesInvoiceAndInvoiceItem(): void
+    public function test_generate_invoice_generates_invoice_and_invoice_item(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -49,7 +49,7 @@ class InvoiceControllerTest extends DBTestCase
     }
 
     #[Group('invoice')]
-    public function test_createInvoiceItems_createsNewInvoiceItem(): void
+    public function test_create_invoice_items_creates_new_invoice_item(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -77,7 +77,7 @@ class InvoiceControllerTest extends DBTestCase
     }
 
     #[Group('invoice')]
-    public function test_invoiceGenerateByForm_createsNewInvoice(): void
+    public function test_invoice_generate_by_form_creates_new_invoice(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();

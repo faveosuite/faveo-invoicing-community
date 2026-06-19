@@ -5,6 +5,7 @@ namespace App\License\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\License\Models\LicenseNotification;
 use App\License\Models\VersionNotification;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class NotificationsController extends Controller
@@ -12,7 +13,7 @@ class NotificationsController extends Controller
     /**
      * Get license notifications.
      */
-    public function showLicenseNotifications(): \Illuminate\Http\JsonResponse
+    public function showLicenseNotifications(): JsonResponse
     {
         return successResponse('', LicenseNotification::first());
     }
@@ -20,7 +21,7 @@ class NotificationsController extends Controller
     /**
      * Update license notifications.
      */
-    public function updateLicenseNotifications(Request $request, mixed $notification_id): \Illuminate\Http\JsonResponse
+    public function updateLicenseNotifications(Request $request, mixed $notification_id): JsonResponse
     {
         $fields = (new LicenseNotification)->getFillable();
 
@@ -28,7 +29,7 @@ class NotificationsController extends Controller
             array_fill_keys($fields, 'required|string|max:250')
         );
 
-        /** @var \App\License\Models\LicenseNotification|null $notification */
+        /** @var LicenseNotification|null $notification */
         $notification = LicenseNotification::find($notification_id) ?? LicenseNotification::first();
 
         if ($notification) {
@@ -43,7 +44,7 @@ class NotificationsController extends Controller
     /**
      * Get version/update notifications.
      */
-    public function showUpdateNotifications(): \Illuminate\Http\JsonResponse
+    public function showUpdateNotifications(): JsonResponse
     {
         return successResponse('', VersionNotification::first());
     }
@@ -51,14 +52,14 @@ class NotificationsController extends Controller
     /**
      * Update version/update notifications.
      */
-    public function updateUpdateNotifications(Request $request, mixed $notification_id): \Illuminate\Http\JsonResponse
+    public function updateUpdateNotifications(Request $request, mixed $notification_id): JsonResponse
     {
         $fields = (new VersionNotification)->getFillable();
 
         $validated = $request->validate(
             array_fill_keys($fields, 'required|string|max:250')
         );
-        /** @var \App\License\Models\VersionNotification|null $notification */
+        /** @var VersionNotification|null $notification */
         $notification = VersionNotification::find($notification_id) ?? VersionNotification::first();
 
         if ($notification) {

@@ -10,7 +10,7 @@ use App\Model\Product\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Order\InvoiceItem>
+ * @extends Factory<InvoiceItem>
  */
 class InvoiceItemFactory extends Factory
 {

@@ -6,8 +6,13 @@ namespace App\Model\Configure;
 
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -16,10 +21,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $config_option_description
  * @property int $plan_id
  * @property int|null $product_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Model\Configure\ConfigGroup $configGroup
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Configure\ConfigOptionValue> $configOptionValues
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read ConfigGroup $configGroup
+ * @property-read Collection<int, ConfigOptionValue> $configOptionValues
  * @property-read int|null $config_option_values_count
  * @property-read Plan $plan
  * @property-read Product|null $product
@@ -41,7 +46,7 @@ use Illuminate\Database\Eloquent\Model;
 class ConfigOption extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -51,35 +56,35 @@ class ConfigOption extends Model
 
     // Define the relationship with ConfigGroup
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<ConfigGroup, $this>
+     * @return BelongsTo<ConfigGroup, $this>
      */
-    public function configGroup(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function configGroup(): BelongsTo
     {
         return $this->belongsTo(ConfigGroup::class, 'group_id');
     }
 
     // Define the relationship with Plan
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Plan, $this>
+     * @return BelongsTo<Plan, $this>
      */
-    public function plan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class);
     }
 
     // Define the relationship with ConfigOptionValue
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Configure\ConfigOptionValue, $this>
+     * @return HasMany<ConfigOptionValue, $this>
      */
-    public function configOptionValues(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function configOptionValues(): HasMany
     {
         return $this->hasMany(ConfigOptionValue::class, 'option_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Product, $this>
+     * @return BelongsTo<Product, $this>
      */
-    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }

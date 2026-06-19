@@ -5,7 +5,9 @@ namespace App\License\Controllers\AflCallbacks;
 use App\License\Controllers\Traits\AflCallbackHelpers;
 use App\License\Helpers\LicenseValidator;
 use App\License\Models\Installation;
+use App\License\Models\License;
 use App\License\Models\LicenseScheme;
+use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -13,9 +15,7 @@ class LicenseSchemeController extends Controller
 {
     use AflCallbackHelpers;
 
-    public function __construct(protected LicenseValidator $validator)
-    {
-    }
+    public function __construct(protected LicenseValidator $validator) {}
 
     /**
      * Get license scheme query
@@ -51,14 +51,14 @@ class LicenseSchemeController extends Controller
 
         // Verify product exists
         $product = $this->validator->validateProduct($product_id);
-        if (! $product instanceof \App\Model\Product\Product) {
+        if (! $product instanceof Product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
         // Find license (with LicensePlugin support)
         $license = $this->validator->findLicense($license_code, $client_email, $product_id);
 
-        if (! $license instanceof \App\License\Models\License) {
+        if (! $license instanceof License) {
             return $this->notificationResponse('notification_license_not_found', []);
         }
 

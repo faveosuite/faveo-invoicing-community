@@ -1086,7 +1086,7 @@ return [
     'price_description' => 'Fiyat Açıklaması',
     'image_allowed' => 'Yalnızca PNG, JPG ve JPEG dosyalarına izin verilir.',
     'image_max' => 'Görsel boyutu 2 MB\'dan büyük olamaz.',
-    //email templates
+    // email templates
 
     'choose_password' => 'Şifrenizi sıfırlamak için buraya tıklayın: ',
     'email_username' => 'Kullanıcı Adı: ',
@@ -1094,7 +1094,7 @@ return [
     'email_click_here' => 'Buraya Tıklayın',
     'activate_account' => 'Hesabınızı etkinleştirmek için:',
 
-    //error template
+    // error template
     'page_not_found' => 'Sayfa Bulunamadı',
     'sorry' => 'Üzgünüz, ancak aradığınız sayfa mevcut değil.',
     'useful_links' => 'İşte bazı faydalı bağlantılar',
@@ -1103,7 +1103,7 @@ return [
     'my_profile' => 'Profilim',
     'contact_us' => 'Bize Ulaşın',
 
-    //login-register template
+    // login-register template
     'login_lr' => 'Giriş | Kayıt',
     'sign_lr' => 'Giriş yap veya Kayıt ol',
     'or' => 'Veya',
@@ -1137,7 +1137,7 @@ return [
     'error_occurred' => 'Bir hata oluştu. Lütfen tekrar deneyin.',
     'error_one_country' => 'Lütfen Bir Ülke Seçin',
 
-    //contact template
+    // contact template
     'feel_free' => 'Detaylar için sorularınızı sormaktan çekinmeyin, hiçbir soruyu kaydetmeyin!',
     'contact_name' => 'Ad',
     'contact_error_name' => 'Lütfen adınızı girin.',
@@ -1150,7 +1150,7 @@ return [
     'contact_send_msg' => 'Mesaj Gönder',
     'our_office' => 'Ofisimiz',
 
-    //password template
+    // password template
     'forgot_password' => 'Şifrenizi mi unuttunuz? Şimdi sıfırlayın!',
     'lost_password' => 'Şifrenizi mi kaybettiniz?',
     'know_password' => 'Şifremi biliyorum',
@@ -1159,7 +1159,7 @@ return [
     'sending' => 'Gönderiliyor...',
     'error_occurs' => 'Bir hata oluştu.',
     'reset_password' => 'Şifreyi Sıfırla',
-    //front-client template
+    // front-client template
     'change_faveo' => 'Mevcut Faveo bulut alan adınızı değiştirmek istiyor musunuz?',
     'current_domain' => 'Mevcut alan adınızı girin',
     'enter_domain' => 'Yeni alan adını girin',
@@ -1320,7 +1320,7 @@ return [
     'loading' => 'Yükleniyor...',
     'subscriptions_table' => 'Abonelik Tablosu',
     'invalid_format' => 'Geçersiz format.',
-    //front-page template
+    // front-page template
     'all_pages' => 'Tüm Sayfalar',
     'create_new_page' => 'Yeni Sayfa Oluştur',
     'edit_page' => 'Sayfayı Düzenle',
@@ -1330,14 +1330,14 @@ return [
     'select_checkbox' => 'Lütfen en az bir onay kutusunu işaretleyin',
     'search_result' => 'Arama Sonucu',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'Tüm Widget\'lar',
     'create_widget' => 'Widget Oluştur',
     'configure_mailchimp' => 'Mailchimp\'inizi ayarlarda yapılandırarak erişim sağlayın',
     'configure_tweet' => 'Tweet\'lerinizi ayarlarda yapılandırarak erişim sağlayın',
     'edit_widget' => 'Widget\'ı Düzenle',
 
-    //front outer template
+    // front outer template
     'remove_product' => 'Ürünü Kaldır',
     'cart_totals' => 'Sepet Toplamları',
     'clear_cart' => 'Sepeti Temizle',
@@ -1394,11 +1394,11 @@ return [
     'go_back' => 'Geri Dön',
     'be_right_back' => 'Hemen döneceğiz.',
 
-    //category template
+    // category template
     'all_categories' => 'Tüm Kategoriler',
     'category_name' => 'İsim',
 
-    //common template
+    // common template
     'create_script_code' => 'Script Kodu Oluştur',
     'create_script' => 'Script Oluştur',
     'edit_script_code' => 'Script Kodu Düzenle',
@@ -1742,21 +1742,21 @@ return [
     'add_product' => 'Ürün Ekle',
     'all_types' => 'Tüm Türler',
     'configure_queue' => 'Kuyruğu Yapılandır',
-    //renew panel
+    // renew panel
     'renew_product' => 'Ürününüzü yenilemek için sepetin boş olduğundan emin olun',
     'click_renew' => 'Yenilemek için buraya tıklayın',
     'renew_your_order' => 'Siparişinizi yenileyin',
     'renew_order' => 'Siparişi Yenile',
     'renewal_price_per_agent' => 'Ajan başına yenileme ücreti: ',
 
-    //report panel
+    // report panel
     'file_name' => 'Dosya adı',
     'format' => 'Biçim',
     'contact' => 'İletişim',
     'report_settings' => 'Rapor ayarları',
     'report_limit' => 'Sayfa başına kayıt ekleyin. Maksimum sınır 3000\'dir.',
 
-    //tenanat panel
+    // tenanat panel
     'cloud_server' => 'Bulut sunucusu',
     'customise_cloud_popup' => 'Bulut Açılır Penceresini Özelleştir',
     'cloud_product_configuration' => 'Bulut Ürün Yapılandırması',
@@ -1783,7 +1783,7 @@ return [
     'app_key' => 'Uygulama anahtarı',
     'app_secret' => 'Uygulama gizli anahtarı',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => 'Yeni Kullanıcı Oluştur',
     'create_user' => 'Kullanıcı Oluştur',
     'position' => 'Pozisyon',
@@ -1877,7 +1877,7 @@ return [
     'created_with' => 'İle oluşturuldu',
     'by_arcanedev' => 'ARCANEDEV tarafından',
     'toggle_navigation' => 'Gezinmeyi Aç/Kapat',
-    //boostrap-4
+    // boostrap-4
     'logs' => 'Kayıtlar',
     'caps_delete_log_file' => 'KAYIT DOSYASINI SİL',
     'caps_delete_file' => 'DOSYAYI SİL',
@@ -1898,7 +1898,7 @@ return [
     'error_logs' => 'Hata Kayıtları',
     'view_logs' => 'Kayıtları Görüntüle',
 
-    //visitstats
+    // visitstats
     'request' => 'İstek',
     'visitor' => 'Ziyaretçi',
     'browser' => 'Tarayıcı',
@@ -1928,7 +1928,7 @@ return [
     'product_quantity' => 'Ürün Miktarı',
     'table_search' => 'Ara:',
 
-    //validation message
+    // validation message
     'enter_valid_otp' => 'Lütfen Geçerli Bir OTP Girin',
     'verifying' => 'Doğrulanıyor',
     'resending' => 'Tekrar Gönderiliyor',
@@ -2058,7 +2058,7 @@ return [
     'null' => 'Boş',
     'choose_one_payment_gateway' => 'Bir ödeme geçidi seçin',
 
-    //Controller keys and values
+    // Controller keys and values
     'product_uploaded_successfully' => 'Ürün Başarıyla Yüklendi',
     'token_mismatch_account_not_activated' => 'Jeton uyuşmazlığı. Hesap etkinleştirilemez.',
     'email_verification_success' => 'E-posta doğrulaması başarılı. Lütfen hesabınıza erişmek için giriş yapın!',

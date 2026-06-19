@@ -6,7 +6,10 @@ namespace App\Model\Order;
 
 use App\BaseModel;
 use App\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -18,9 +21,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string|null $payment_method
  * @property string|null $payment_status
  * @property string|null $amt_to_credit
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Model\Order\Invoice|null $invoice
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Invoice|null $invoice
  * @property-read User|null $user
  *
  * @method static \Database\Factories\Model\Order\PaymentFactory factory($count = null, $state = [])
@@ -44,7 +47,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Payment extends BaseModel
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -54,22 +57,22 @@ class Payment extends BaseModel
         'payment_method', 'user_id', 'payment_status', 'created_at', 'amt_to_credit', 'currency', ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Order\Invoice, $this>
+     * @return BelongsTo<Invoice, $this>
      */
-    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
     //    public function setCreatedAtAttribute($value) {
-//        dd($value);
-//    }
+    //        dd($value);
+    //    }
 }

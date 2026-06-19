@@ -19,13 +19,13 @@ class CartControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->classObject = new CartController();
-        $this->cart = new Cart();
+        $this->classObject = new CartController;
+        $this->cart = new Cart;
         Currency::where('code', 'INR')->update(['status' => 1]);
     }
 
     #[Group('cart')]
-    public function test_addProduct_addNewProductToCart_returnArrayOfProductDetails(): void
+    public function test_add_product_add_new_product_to_cart_return_array_of_product_details(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -38,7 +38,7 @@ class CartControllerTest extends DBTestCase
     }
 
     #[Group('cart')]
-    public function test_planCost_getCostForProductPlan_returnCost(): void
+    public function test_plan_cost_get_cost_for_product_plan_return_cost(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -51,7 +51,7 @@ class CartControllerTest extends DBTestCase
     }
 
     #[Group('cart')]
-    public function test_planCost_whenPlanIdNotRelatedToProductPassed_throwsException(): void
+    public function test_plan_cost_when_plan_id_not_related_to_product_passed_throws_exception(): void
     {
         $this->expectException(Exception::class);
         session('errors');
@@ -65,7 +65,7 @@ class CartControllerTest extends DBTestCase
     }
 
     #[Group('cart')]
-    public function test_planCost_whenPlanIdNotPassed_returnsProductCost(): void
+    public function test_plan_cost_when_plan_id_not_passed_returns_product_cost(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -78,7 +78,7 @@ class CartControllerTest extends DBTestCase
     }
 
     #[Group('cart')]
-    public function test_planCost_whenPlanIdForOtherProductPassed_throwsException(): void
+    public function test_plan_cost_when_plan_id_for_other_product_passed_throws_exception(): void
     {
         $this->expectException(Exception::class);
         session('errors');
@@ -97,7 +97,7 @@ class CartControllerTest extends DBTestCase
     }
 
     #[Group('cart')]
-    public function test_cartRemove_removeAnItemFromCart_returnEmptyCart(): void
+    public function test_cart_remove_remove_an_item_from_cart_return_empty_cart(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
@@ -121,7 +121,7 @@ class CartControllerTest extends DBTestCase
     }
 
     #[Group('cart')]
-    public function test_cartRemove_clearsCart_returnEmptyCart(): void
+    public function test_cart_remove_clears_cart_return_empty_cart(): void
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();

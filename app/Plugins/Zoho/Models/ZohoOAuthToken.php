@@ -20,7 +20,7 @@ use Override;
  * @property string|null $api_domain
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Plugins\Zoho\Models\ZohoIntegration $integration
+ * @property-read ZohoIntegration $integration
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ZohoOAuthToken newQuery()

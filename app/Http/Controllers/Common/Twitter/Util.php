@@ -10,7 +10,6 @@ namespace App\Http\Controllers\Common\Twitter;
 class Util
 {
     /**
-     * @param  $input
      * @return array<mixed>
      */
     public static function urlencodeRfc3986(mixed $input): string|array
@@ -74,9 +73,6 @@ class Util
         return $parameters;
     }
 
-    /**
-     * @param  $params
-     */
     public static function buildHttpQuery(mixed $params): string
     {
         if (! $params) {

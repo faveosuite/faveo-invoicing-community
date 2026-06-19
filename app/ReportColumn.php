@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -13,9 +17,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $label
  * @property string|null $type
  * @property string|null $default
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\UserLinkReport> $userLinkReports
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, UserLinkReport> $userLinkReports
  * @property-read int|null $user_link_reports_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ReportColumn newModelQuery()
@@ -34,7 +38,7 @@ use Illuminate\Database\Eloquent\Model;
 class ReportColumn extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -48,9 +52,9 @@ class ReportColumn extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<UserLinkReport, $this>
+     * @return HasMany<UserLinkReport, $this>
      */
-    public function userLinkReports(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function userLinkReports(): HasMany
     {
         return $this->hasMany(UserLinkReport::class, 'column_id');
     }

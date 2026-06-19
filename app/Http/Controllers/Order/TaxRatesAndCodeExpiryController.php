@@ -6,6 +6,7 @@ use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Payment\PromotionController;
 use App\Http\Controllers\User\AdvanceSearchController;
 use App\Model\Common\Setting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
@@ -14,6 +15,9 @@ use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use App\User;
 use Exception;
+use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Lang;
 
 class TaxRatesAndCodeExpiryController extends BaseInvoiceController
@@ -30,7 +34,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         }
 
         if ($code) {
-            $cont = new PromotionController();
+            $cont = new PromotionController;
             $promo = $cont->getPromotionDetails($code);
             $total = $cont->findCostAfterDiscount($promo->id, $productid, $user_id);
 
@@ -55,7 +59,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         return ['fails' => Lang::get('message.can-not-generate-invoice')];
     }
 
-    public function checkExecution(int $invoiceid): bool|\Illuminate\Http\RedirectResponse
+    public function checkExecution(int $invoiceid): bool|RedirectResponse
     {
         try {
             $response = false;
@@ -125,16 +129,16 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
     public function sendInvoiceMail(int $userid, string $number, float|int $total, int $invoiceid): void
     {
         $contact = getContactData();
-        //user
-        $users = new User();
+        // user
+        $users = new User;
         $user = $users->find($userid);
-        //check in the settings
-        $settings = new Setting();
-        /** @var \App\Model\Common\Setting $setting */
+        // check in the settings
+        $settings = new Setting;
+        /** @var Setting $setting */
         $setting = $settings::find(1);
         $invoiceurl = $this->invoiceUrl($invoiceid);
-        //template
-        /** @var \App\Model\Common\Template $template */
+        // template
+        /** @var Template $template */
         $template = TemplateType::getSelectedTemplate('invoice_mail');
         $type = '';
         $replace = [
@@ -149,16 +153,16 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             'reply_email' => $setting->company_email,
         ];
         $type = $template->type()->value('name') ?? '';
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
         $mail->SendEmail($setting->email, $user->email ?? '', $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    public function invoiceUrl(int $invoiceid): \Illuminate\Contracts\Routing\UrlGenerator|string
+    public function invoiceUrl(int $invoiceid): UrlGenerator|string
     {
         return url('my-invoice/'.$invoiceid);
     }
 
-    public function paymentDeleleById(int $id): \Illuminate\Http\RedirectResponse
+    public function paymentDeleleById(int $id): RedirectResponse
     {
         try {
             $invoice_no = '';
@@ -181,7 +185,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         }
     }
 
-    public function paymentEditById(int $id): \Illuminate\Http\JsonResponse
+    public function paymentEditById(int $id): JsonResponse
     {
         try {
             $payment = Payment::findOrFail($id);

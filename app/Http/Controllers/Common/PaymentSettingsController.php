@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Common;
 use App\Http\Controllers\Controller;
 use App\Model\Plugin;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PaymentSettingsController extends Controller
@@ -18,11 +19,11 @@ class PaymentSettingsController extends Controller
     /**
      * @return array<mixed>
      */
-    public function fetchConfig(): array|\Illuminate\Http\JsonResponse
+    public function fetchConfig(): array|JsonResponse
     {
         $configs = $this->readConfigs();
 
-        $plugs = new Plugin();
+        $plugs = new Plugin;
         $fields = [];
         $attributes = [];
         try {
@@ -93,7 +94,7 @@ class PaymentSettingsController extends Controller
 
             foreach ($plugins as $plugin) {
                 $dir = $plugin['file'];
-                //opendir($dir);
+                // opendir($dir);
                 if ($dh = opendir($dir)) {
                     while (($file = readdir($dh)) !== false) {
                         if ($file === 'config.php') {
@@ -113,7 +114,7 @@ class PaymentSettingsController extends Controller
 
     public function statusPlugin(string $slug): mixed
     {
-        $plugs = new Plugin();
+        $plugs = new Plugin;
         $plug = $plugs->where('name', $slug)->first();
 
         if (! $plug) {
@@ -160,9 +161,9 @@ class PaymentSettingsController extends Controller
         return back()->with('success', __('message.status_change'));
     }
 
-    public function updatePaymentStatus(Request $request): \Illuminate\Http\JsonResponse
+    public function updatePaymentStatus(Request $request): JsonResponse
     {
-        $plugs = new Plugin();
+        $plugs = new Plugin;
         $name = $request->input('name');
         $status = $request->input('status');
         $plug = $plugs->where('name', $name)->first();
@@ -194,11 +195,11 @@ class PaymentSettingsController extends Controller
         return successResponse(__('message.status_change'));
     }
 
-    public function getPaymentGatewayList(): \Illuminate\Http\JsonResponse
+    public function getPaymentGatewayList(): JsonResponse
     {
         try {
             $configs = $this->fetchConfig();
-            if ($configs instanceof \Illuminate\Http\JsonResponse) {
+            if ($configs instanceof JsonResponse) {
                 return $configs;
             }
 

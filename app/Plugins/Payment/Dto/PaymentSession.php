@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Plugins\Payment\Dto;
 
+use App\Plugins\Payment\Contracts\PaymentGateway;
+
 /**
- * The result of opening a payment ({@see \App\Plugins\Payment\Contracts\PaymentGateway::createPayment}).
+ * The result of opening a payment ({@see PaymentGateway::createPayment}).
  *
  * - $id          The gateway's handle for this attempt (Stripe Checkout Session
  *                id, Razorpay Order id) — pass it back when confirming.
@@ -25,6 +27,5 @@ final readonly class PaymentSession
         public string $id,
         public array $clientConfig,
         public array $raw = [],
-    ) {
-    }
+    ) {}
 }

@@ -3,8 +3,12 @@
 namespace App\Model\Common;
 
 use App\User;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -19,10 +23,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $country_iso
  * @property string|null $source
  * @property string|null $action
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read mixed $formatted_sender_id
- * @property-read \App\Model\Common\Msg91Status|null $readableStatus
+ * @property-read Msg91Status|null $readableStatus
  * @property-read User|null $user
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MsgDeliveryReports newModelQuery()
@@ -48,7 +52,7 @@ use Illuminate\Database\Eloquent\Model;
 class MsgDeliveryReports extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -69,27 +73,27 @@ class MsgDeliveryReports extends Model
     protected $appends = ['formatted_sender_id'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Common\Msg91Status, $this>
+     * @return BelongsTo<Msg91Status, $this>
      */
-    public function readableStatus(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function readableStatus(): BelongsTo
     {
         return $this->belongsTo(Msg91Status::class, 'status', 'status_code');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function formattedSenderId(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function formattedSenderId(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
+        return Attribute::make(get: function () {
             return strtoupper((string) $this->sender_id);
         });
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id')
             ->withTrashed()

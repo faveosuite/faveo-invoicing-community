@@ -9,6 +9,7 @@ use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
 use App\User;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ZohoCrmController extends ZohoBaseController
@@ -20,14 +21,14 @@ class ZohoCrmController extends ZohoBaseController
      */
     protected function crm(): Crm
     {
-        if (! $this->crm instanceof \App\Plugins\Zoho\Integrations\Crm\Controllers\Crm) {
-            $this->crm = new Crm();
+        if (! $this->crm instanceof Crm) {
+            $this->crm = new Crm;
         }
 
         return $this->crm;
     }
 
-    public function syncFields(): \Illuminate\Http\JsonResponse
+    public function syncFields(): JsonResponse
     {
         try {
             resolve(ZohoSync::class)->sync(
@@ -66,7 +67,7 @@ class ZohoCrmController extends ZohoBaseController
     /**
      * Create or update a CRM contact.
      */
-    public function updateToZohoCrm(Request $request): \Illuminate\Http\JsonResponse
+    public function updateToZohoCrm(Request $request): JsonResponse
     {
         try {
             $data = $request->validate([

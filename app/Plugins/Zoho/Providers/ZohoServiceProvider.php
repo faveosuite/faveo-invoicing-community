@@ -4,10 +4,8 @@ namespace App\Plugins\Zoho\Providers;
 
 use App\Events\OrderPlacedEvent;
 use App\Events\UserRegisteredEvent;
-use App\Plugins\Zoho\Controllers\Api\{
-    ZohoAccessToken,
-    ZohoAccountsApi,
-};
+use App\Plugins\Zoho\Controllers\Api\ZohoAccessToken;
+use App\Plugins\Zoho\Controllers\Api\ZohoAccountsApi;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Api\ZohoCampaignsApi;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns;
 use App\Plugins\Zoho\Integrations\Campaigns\Providers\ZohoCampaignsNewsletterProvider;
@@ -17,6 +15,7 @@ use App\Plugins\Zoho\Listeners\SyncProductInterestToZoho;
 use App\Plugins\Zoho\Listeners\SyncUserToZohoCampaigns;
 use App\Plugins\Zoho\Listeners\SyncUserToZohoCrm;
 use App\Plugins\Zoho\Models\ZohoIntegration;
+use App\Plugins\Zoho\Models\ZohoOAuthClient;
 use App\Services\NewsletterManager;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -58,9 +57,9 @@ class ZohoServiceProvider extends ServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $this->app->singleton('zoho.accounts.campaigns', fn (): \App\Plugins\Zoho\Controllers\Api\ZohoAccountsApi => $this->makeAccountsApi('campaigns'));
+        $this->app->singleton('zoho.accounts.campaigns', fn (): ZohoAccountsApi => $this->makeAccountsApi('campaigns'));
 
-        $this->app->singleton('zoho.accounts.crm', fn (): \App\Plugins\Zoho\Controllers\Api\ZohoAccountsApi => $this->makeAccountsApi('crm'));
+        $this->app->singleton('zoho.accounts.crm', fn (): ZohoAccountsApi => $this->makeAccountsApi('crm'));
 
         /*
         |--------------------------------------------------------------------------
@@ -68,7 +67,7 @@ class ZohoServiceProvider extends ServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $this->app->singleton(fn ($app): ZohoAccessToken => new ZohoAccessToken());
+        $this->app->singleton(fn ($app): ZohoAccessToken => new ZohoAccessToken);
 
         /*
         |--------------------------------------------------------------------------
@@ -78,7 +77,7 @@ class ZohoServiceProvider extends ServiceProvider
 
         $this->app->singleton(function ($app): ZohoCampaignsApi {
             $integration = $this->getIntegration('campaigns');
-            /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $campaignsClient */
+            /** @var ZohoOAuthClient $campaignsClient */
             $campaignsClient = $integration->client;
 
             return new ZohoCampaignsApi(
@@ -90,7 +89,7 @@ class ZohoServiceProvider extends ServiceProvider
 
         $this->app->singleton(function ($app): ZohoCrmApi {
             $integration = $this->getIntegration('crm');
-            /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $crmClient */
+            /** @var ZohoOAuthClient $crmClient */
             $crmClient = $integration->client;
 
             return new ZohoCrmApi(
@@ -106,9 +105,9 @@ class ZohoServiceProvider extends ServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $this->app->singleton('zoho.campaigns', fn ($app): \App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns => new Campaigns());
+        $this->app->singleton('zoho.campaigns', fn ($app): Campaigns => new Campaigns);
 
-        $this->app->singleton('zoho.crm', fn ($app): \App\Plugins\Zoho\Integrations\Crm\Controllers\Crm => new Crm());
+        $this->app->singleton('zoho.crm', fn ($app): Crm => new Crm);
     }
 
     /**
@@ -135,7 +134,7 @@ class ZohoServiceProvider extends ServiceProvider
         Event::listen(UserRegisteredEvent::class, SyncUserToZohoCampaigns::class);
         Event::listen(OrderPlacedEvent::class, SyncProductInterestToZoho::class);
 
-        resolve(NewsletterManager::class)->register(new ZohoCampaignsNewsletterProvider());
+        resolve(NewsletterManager::class)->register(new ZohoCampaignsNewsletterProvider);
     }
 
     /**
@@ -145,9 +144,9 @@ class ZohoServiceProvider extends ServiceProvider
     {
         return $this->integrations[$platform]
             ??= ZohoIntegration::with(['client'])
-            ->where('platform', $platform)
-            ->where('is_active', operator: true)
-            ->firstOrFail();
+                ->where('platform', $platform)
+                ->where('is_active', operator: true)
+                ->firstOrFail();
     }
 
     /**
@@ -157,7 +156,7 @@ class ZohoServiceProvider extends ServiceProvider
     {
         $integration = $this->getIntegration($platform);
 
-        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $accountsClient */
+        /** @var ZohoOAuthClient $accountsClient */
         $accountsClient = $integration->client;
 
         return new ZohoAccountsApi(

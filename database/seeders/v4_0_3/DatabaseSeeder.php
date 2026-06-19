@@ -17,13 +17,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-       $this->faveoLocalFieldsSeeder();
-       $this->zohoSeeder();
-       $this->packageRemoval();
-       $this->openPaymentEmailTemplates();
-       $this->seedSentrySettings();
-       $this->seedCacheSessionDefaults();
-       $this->seedLicensesReportColumns();
+        $this->faveoLocalFieldsSeeder();
+        $this->zohoSeeder();
+        $this->packageRemoval();
+        $this->openPaymentEmailTemplates();
+        $this->seedSentrySettings();
+        $this->seedCacheSessionDefaults();
+        $this->seedLicensesReportColumns();
     }
 
     /**
@@ -79,10 +79,10 @@ class DatabaseSeeder extends Seeder
         FaveoLocalFields::insert(
             collect($fields)->map(fn ($field): array => [
                 'display_name' => $field['label'],
-                'field_key'    => $field['key'],
-                'field_type'   => $field['type'],
-                'created_at'   => now(),
-                'updated_at'   => now(),
+                'field_key' => $field['key'],
+                'field_type' => $field['type'],
+                'created_at' => now(),
+                'updated_at' => now(),
             ])->all()
         );
     }
@@ -92,13 +92,13 @@ class DatabaseSeeder extends Seeder
         $integrations = [
             [
                 'id' => 1,
-                'platform'       => 'crm',
-                'description'    => 'Zoho CRM integration for managing leads, contacts, and sales automation.',
+                'platform' => 'crm',
+                'description' => 'Zoho CRM integration for managing leads, contacts, and sales automation.',
             ],
             [
                 'id' => 2,
-                'platform'       => 'campaigns',
-                'description'    => 'Zoho Campaigns integration for managing email marketing and subscriber lists.',
+                'platform' => 'campaigns',
+                'description' => 'Zoho Campaigns integration for managing email marketing and subscriber lists.',
             ],
         ];
 
@@ -106,9 +106,9 @@ class DatabaseSeeder extends Seeder
             ZohoIntegration::updateOrCreate(
                 ['id' => $integration['id']],
                 [
-                    'platform'    => $integration['platform'],
+                    'platform' => $integration['platform'],
                     'description' => $integration['description'],
-                    'is_active'   => false,
+                    'is_active' => false,
                 ]
             );
         }
@@ -124,10 +124,10 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        $successId       = DB::table('template_types')->where('name', 'open_payment_success')->value('id');
-        $failedId        = DB::table('template_types')->where('name', 'open_payment_failed')->value('id');
-        $adminSuccessId  = DB::table('template_types')->where('name', 'open_payment_admin_success')->value('id');
-        $adminFailedId   = DB::table('template_types')->where('name', 'open_payment_admin_failed')->value('id');
+        $successId = DB::table('template_types')->where('name', 'open_payment_success')->value('id');
+        $failedId = DB::table('template_types')->where('name', 'open_payment_failed')->value('id');
+        $adminSuccessId = DB::table('template_types')->where('name', 'open_payment_admin_success')->value('id');
+        $adminFailedId = DB::table('template_types')->where('name', 'open_payment_admin_failed')->value('id');
 
         $this->seedTemplate('Payment Received', $successId, '
 <table style="background:#f2f2f2;width:700px;" border="0" cellspacing="0" cellpadding="0"><tbody>
@@ -237,10 +237,10 @@ Dear {{name}},<br/><br/>
         }
 
         $id = DB::table('templates')->insertGetId([
-            'name'       => $name,
-            'type'       => $typeId,
-            'url'        => '',
-            'data'       => trim($html),
+            'name' => $name,
+            'type' => $typeId,
+            'url' => '',
+            'data' => trim($html),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -280,7 +280,7 @@ Dear {{name}},<br/><br/>
 
         foreach ($packages as $package) {
 
-            $packagePath = base_path('vendor/' . $package);
+            $packagePath = base_path('vendor/'.$package);
 
             if (! File::exists($packagePath)) {
                 continue;
@@ -309,7 +309,6 @@ Dear {{name}},<br/><br/>
             }
         }
     }
-
 
     private function seedCacheSessionDefaults(): void
     {
@@ -344,5 +343,4 @@ Dear {{name}},<br/><br/>
             );
         }
     }
-
 }

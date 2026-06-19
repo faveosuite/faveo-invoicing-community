@@ -6,6 +6,7 @@ use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -15,10 +16,10 @@ use Override;
  * @property string $callback_type
  * @property string|null $callback_ip
  * @property string|null $callback_path
- * @property \Illuminate\Support\Carbon $callback_date_time
+ * @property Carbon $callback_date_time
  * @property string|null $callback_status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Product $product
  * @property-read ProductUpload|null $version
  *

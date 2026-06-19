@@ -6,6 +6,7 @@ use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Services\LicenseService;
 use App\Model\Common\Setting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Invoice;
@@ -23,6 +24,7 @@ use App\User;
 use Carbon\Carbon;
 use Crypt;
 use Exception;
+use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 
@@ -32,7 +34,7 @@ class BaseOrderController extends ExtendedOrderController
 
     use UpdateDates;
 
-    public function getUrl(\App\Model\Order\Order $model, string $status, ?string $subscriptionId, ?int $agents = null): string
+    public function getUrl(Order $model, string $status, ?string $subscriptionId, ?int $agents = null): string
     {
         $url = '';
         if ($model->order_status != 'Terminated' && $status === 'success' && $subscriptionId) {
@@ -56,7 +58,7 @@ class BaseOrderController extends ExtendedOrderController
      * inserting the values to orders table.
      *
      *
-     * @return \Illuminate\Support\Collection<int|string, mixed>
+     * @return Collection<int|string, mixed>
      *
      * @throws Exception
      */
@@ -65,10 +67,10 @@ class BaseOrderController extends ExtendedOrderController
         $userId = Invoice::findOrFail($invoiceId)->user_id;
         $items = InvoiceItem::where('invoice_id', $invoiceId)->get();
 
-        return $items->map(fn (\App\Model\Order\InvoiceItem $item): \App\Model\Order\Order => $this->processInvoiceItem($item, $userId)); // @phpstan-ignore return.type
+        return $items->map(fn (InvoiceItem $item): Order => $this->processInvoiceItem($item, $userId)); // @phpstan-ignore return.type
     }
 
-    private function processInvoiceItem(\App\Model\Order\InvoiceItem $item, int $userId): Order
+    private function processInvoiceItem(InvoiceItem $item, int $userId): Order
     {
         $productModel = Product::findOrFail($item->product_id);
         $product = $productModel->id;
@@ -94,7 +96,7 @@ class BaseOrderController extends ExtendedOrderController
 
         if ($item->plan_id) {
             $this->addSubscription($order->id, $item->plan_id, $version, $product, $serialKey, $item->invoice_id);
-            /** @var \App\Model\Product\Product $productForAddons */
+            /** @var Product $productForAddons */
             $productForAddons = Product::find($product);
             $addOnIds = $productForAddons->productPluginGroupsAsProduct->pluck('plugin_id')->toArray();
             $cfgOptions = $this->formatConfigurableOptions($product);
@@ -180,7 +182,7 @@ class BaseOrderController extends ExtendedOrderController
      * @param  int  $days  [No of days that would get addeed to the current date ]
      * @return string [The final License Expiry date that is generated]
      */
-    protected function getLicenseExpiryDate(bool $permissions, int $days): \Carbon\Carbon|string
+    protected function getLicenseExpiryDate(bool $permissions, int $days): Carbon|string
     {
         $ends_at = '';
         if ($days > 0 && $permissions == 1) {
@@ -198,7 +200,7 @@ class BaseOrderController extends ExtendedOrderController
      * @param  int  $days  [No of days that would get added to the current date ]
      * @return string [The final Updates Expiry date that is generated]
      */
-    protected function getUpdatesExpiryDate(bool $permissions, int $days): \Carbon\Carbon|string
+    protected function getUpdatesExpiryDate(bool $permissions, int $days): Carbon|string
     {
         $update_ends_at = '';
         if ($days > 0 && $permissions == 1) {
@@ -216,7 +218,7 @@ class BaseOrderController extends ExtendedOrderController
      * @param  int  $days  [No of days that would get added to the current date ]
      * @return string [The final Suport Expiry date that is generated]
      */
-    protected function getSupportExpiryDate(bool $permissions, int $days): \Carbon\Carbon|string
+    protected function getSupportExpiryDate(bool $permissions, int $days): Carbon|string
     {
         $support_ends_at = '';
         if ($days > 0 && $permissions == 1) {
@@ -229,24 +231,24 @@ class BaseOrderController extends ExtendedOrderController
 
     public function sendOrderMail(int $userid, string $orderid, int $itemid): void
     {
-        //order
+        // order
         $order = Order::find($orderid);
-        //product
+        // product
         $product = $this->product($itemid); // @phpstan-ignore method.notFound
-        //user
+        // user
         $productId = Product::where('id', $product)->value('id');
-        $users = new User();
-        /** @var \App\User $user */
+        $users = new User;
+        /** @var User $user */
         $user = $users->find($userid);
-        //check in the settings
-        $settings = new Setting();
-        /** @var \App\Model\Common\Setting $setting */
+        // check in the settings
+        $settings = new Setting;
+        /** @var Setting $setting */
         $setting = $settings::find(1);
-        $orders = new Order();
-        /** @var \App\Model\Order\Order $order */
+        $orders = new Order;
+        /** @var Order $order */
         $order = $orders->where('id', $orderid)->first();
         $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-        /** @var \App\Model\Order\Invoice|null $invoice */
+        /** @var Invoice|null $invoice */
         $invoice = Invoice::find($invoiceId);
         $number = $invoice?->number;
         $downloadurl = '';
@@ -257,11 +259,11 @@ class BaseOrderController extends ExtendedOrderController
         // $downloadurl = $this->downloadUrl($userid, $orderid,$productId);
         $myaccounturl = url('my-order/'.$orderid);
         $invoiceurl = (string) $this->invoiceUrl($orderid); // @phpstan-ignore argument.type, cast.string
-        //template
+        // template
         $this->getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $order->serial_key);
     }
 
-    public function getMail(\App\Model\Common\Setting $setting, \App\User $user, string $downloadurl, string $invoiceurl, \App\Model\Order\Order $order, int $productId, string $orderid, string $myaccounturl, string $licenseCode): void
+    public function getMail(Setting $setting, User $user, string $downloadurl, string $invoiceurl, Order $order, int $productId, string $orderid, string $myaccounturl, string $licenseCode): void
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
@@ -271,7 +273,7 @@ class BaseOrderController extends ExtendedOrderController
 
         $value = $product->type;
 
-        /** @var \App\Model\Common\Template $template */
+        /** @var Template $template */
         $template = TemplateType::getSelectedTemplate('order_mail');
 
         $knowledgeBaseUrl = $setting->knowledge_base_url;
@@ -305,18 +307,18 @@ class BaseOrderController extends ExtendedOrderController
         ];
 
         $type = $template->type()->value('name') ?? '';
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 
         $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-        /** @var \App\Model\Order\Invoice|null $orderInvoice */
+        /** @var Invoice|null $orderInvoice */
         $orderInvoice = $invoiceId ? Invoice::find($invoiceId) : null;
         if ($orderInvoice?->grand_total) {
             SettingsController::sendPaymentSuccessMailtoAdmin($orderInvoice, (float) $orderInvoice->grand_total, $user, $product->name);
         }
     }
 
-    public function invoiceUrl(int $orderid): \Illuminate\Contracts\Routing\UrlGenerator|string
+    public function invoiceUrl(int $orderid): UrlGenerator|string
     {
         $invoiceid = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
 
@@ -329,7 +331,7 @@ class BaseOrderController extends ExtendedOrderController
      *
      * @throws Exception
      */
-    public function getPrice(int $product_id): ?\App\Model\Product\Price
+    public function getPrice(int $product_id): ?Price
     {
         try {
             return Price::where('product_id', $product_id)->first();
@@ -338,10 +340,10 @@ class BaseOrderController extends ExtendedOrderController
         }
     }
 
-    public function downloadUrl(string $userid, int $orderid): \Illuminate\Contracts\Routing\UrlGenerator|string
+    public function downloadUrl(string $userid, int $orderid): UrlGenerator|string
     {
         $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-        /** @var \App\Model\Order\Invoice|null $invoice */
+        /** @var Invoice|null $invoice */
         $invoice = Invoice::find($invoiceId);
         $number = $invoice?->number;
 
@@ -349,9 +351,9 @@ class BaseOrderController extends ExtendedOrderController
     }
 
     /**
-     * @return array<mixed>|\Illuminate\Support\Collection<int, array{product_id: int, option_group: string, option_name: string, key: mixed, value: mixed}>
+     * @return array<mixed>|Collection<int, array{product_id: int, option_group: string, option_name: string, key: mixed, value: mixed}>
      */
-    public function formatConfigurableOptions(int $productId): \Illuminate\Support\Collection|array
+    public function formatConfigurableOptions(int $productId): Collection|array
     {
         // Retrieve the product ID and related plugin IDs in one query
         $productIds = ProductPluginGroup::where('product_id', $productId)

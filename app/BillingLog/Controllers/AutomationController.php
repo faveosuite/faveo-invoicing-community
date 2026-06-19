@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use DB;
 use Exception;
 use Illuminate\Container\Container;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Queue\Jobs\Job;
 use Illuminate\Support\Facades\Date;
@@ -22,7 +23,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
 {
     public ?string $rawBody = null;
 
-    public function getAutomationLog(Request $request): \Illuminate\Http\JsonResponse
+    public function getAutomationLog(Request $request): JsonResponse
     {
         $request->validate([
             'date' => ['required', 'date'],
@@ -101,10 +102,10 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ]);
     }
 
-    public function dispatchPayload(mixed $id): \Illuminate\Http\JsonResponse
+    public function dispatchPayload(mixed $id): JsonResponse
     {
         try {
-            /** @var \App\BillingLog\Model\MailLog $mailLog */
+            /** @var MailLog $mailLog */
             $mailLog = MailLog::findOrFail($id);
 
             $this->rawBody = $mailLog->job_payload;

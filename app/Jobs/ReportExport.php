@@ -12,7 +12,7 @@ class ReportExport implements ShouldQueue
 {
     use Queueable;
 
-    protected \App\Http\Controllers\Report\ConcreteExportHandleController $exportHandleController;
+    protected ConcreteExportHandleController $exportHandleController;
 
     public int $tries = 5;
 

@@ -2,8 +2,11 @@
 
 namespace App\Model\Order;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -13,9 +16,9 @@ use Override;
  * @property string|null $version
  * @property string|null $last_active
  * @property int $order_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Model\Order\Order|null $order
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Order|null $order
  *
  * @method static \Database\Factories\Model\Order\InstallationDetailFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationDetail newModelQuery()
@@ -35,7 +38,7 @@ use Override;
 class InstallationDetail extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -44,9 +47,9 @@ class InstallationDetail extends Model
     protected $fillable = ['installation_path', 'installation_ip', 'version', 'last_active', 'order_id'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Order, $this>
+     * @return BelongsTo<Order, $this>
      */
-    public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }

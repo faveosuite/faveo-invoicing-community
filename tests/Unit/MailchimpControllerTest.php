@@ -12,7 +12,7 @@ class MailchimpControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->classObject = new BaseMailChimpController();
+        $this->classObject = new BaseMailChimpController;
     }
 
     public function test_post_mailchimp_settings_success(): void

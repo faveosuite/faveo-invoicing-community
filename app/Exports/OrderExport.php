@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -11,12 +12,10 @@ class OrderExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
 
-    public function __construct(protected mixed $selectedColumns, protected mixed $ordersData, protected mixed $sheetIndex)
-    {
-    }
+    public function __construct(protected mixed $selectedColumns, protected mixed $ordersData, protected mixed $sheetIndex) {}
 
     /**
-     * @return \Illuminate\Support\Collection<int|string, mixed>
+     * @return Collection<int|string, mixed>
      */
     public function collection()
     {

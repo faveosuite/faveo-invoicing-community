@@ -11,6 +11,9 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use Exception;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Logger;
 use Session;
@@ -18,12 +21,12 @@ use Session;
 class TemplateController extends Controller
 {
     /**
-     * @var \App\Model\Common\Template
+     * @var Template
      */
     public $template;
 
     /**
-     * @var \App\Model\Common\TemplateType
+     * @var TemplateType
      */
     public $type;
 
@@ -32,14 +35,14 @@ class TemplateController extends Controller
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $template = new Template();
+        $template = new Template;
         $this->template = $template;
 
-        $type = new TemplateType();
+        $type = new TemplateType;
         $this->type = $type;
     }
 
-    public function getTemplates(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function getTemplates(Request $request): JsonResponse
     {
         try {
             $search = $request->input('search-query', '');
@@ -72,12 +75,12 @@ class TemplateController extends Controller
         }
     }
 
-    public function create(): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+    public function create(): View|RedirectResponse
     {
         try {
-            $controller = new ProductController();
+            $controller = new ProductController;
             $url = $controller->GetMyUrl();
-            /** @var \App\Model\Common\Template $latestTemplate */
+            /** @var Template $latestTemplate */
             $latestTemplate = $this->template->orderBy('created_at', 'desc')->first();
             $i = $latestTemplate->id + 1;
             $cartUrl = $url.'/'.$i;
@@ -89,7 +92,7 @@ class TemplateController extends Controller
         }
     }
 
-    public function store(\Illuminate\Http\Request $request): \Illuminate\Http\RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $this->validate($request, [
             'name' => 'required',
@@ -107,7 +110,7 @@ class TemplateController extends Controller
         }
     }
 
-    public function showTemplate(int $id): \Illuminate\Http\JsonResponse
+    public function showTemplate(int $id): JsonResponse
     {
         try {
             $shortcodes = config('transform');
@@ -120,7 +123,7 @@ class TemplateController extends Controller
             }
 
             $type = $this->type->pluck('name', 'id')->toArray();
-            /** @var \App\Model\Common\TemplateType|null $templateType */
+            /** @var TemplateType|null $templateType */
             $templateType = TemplateType::find($template->type);
             $shortcodeName = $templateType ? $templateType->name : null;
             $codes = null;
@@ -141,7 +144,7 @@ class TemplateController extends Controller
         }
     }
 
-    public function updateTemplate(int $id, \Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function updateTemplate(int $id, Request $request): JsonResponse
     {
         $request->validate([
             'name' => ['required'],
@@ -186,7 +189,7 @@ class TemplateController extends Controller
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.(string) __('message.no-record').'
                 </div>';
-                        //echo \__('message.no-record') . '  [id=>' . $id . ']';
+                        // echo \__('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
 
@@ -217,7 +220,7 @@ class TemplateController extends Controller
         }
     }
 
-    public function plans(string $url, int $id): string|\Illuminate\Http\RedirectResponse
+    public function plans(string $url, int $id): string|RedirectResponse
     {
         try {
             $product = Product::find($id);
@@ -226,7 +229,7 @@ class TemplateController extends Controller
             }
 
             $plansData = $this->prices($id);
-            if ($plansData instanceof \Illuminate\Http\RedirectResponse || $plansData === []) {
+            if ($plansData instanceof RedirectResponse || $plansData === []) {
                 return '';
             }
 
@@ -269,7 +272,7 @@ class TemplateController extends Controller
      * @param  int  $id  Product id
      * @return string Product price with html
      */
-    public function leastAmount(int $id): string|\Illuminate\Http\RedirectResponse
+    public function leastAmount(int $id): string|RedirectResponse
     {
         try {
             $cost = 'Free';
@@ -302,7 +305,7 @@ class TemplateController extends Controller
      * @param  array<mixed>  $price
      * @return array<mixed>
      */
-    public function getPrice(string $months, array $price, string $priceDescription, \App\Model\Payment\Plan $value, float|int $cost, string $currency, float|int|null $offer, \App\Model\Product\Product $product): array
+    public function getPrice(string $months, array $price, string $priceDescription, Plan $value, float|int $cost, string $currency, float|int|null $offer, Product $product): array
     {
         if (isset($offer)) {
             $cost -= ($offer / 100) * $cost;
@@ -319,9 +322,9 @@ class TemplateController extends Controller
     }
 
     /**
-     * @return array<mixed>|\Illuminate\Http\RedirectResponse
+     * @return array<mixed>|RedirectResponse
      */
-    public function prices(int $id): array|\Illuminate\Http\RedirectResponse
+    public function prices(int $id): array|RedirectResponse
     {
         try {
             $plans = Plan::where('product', $id)
@@ -384,7 +387,7 @@ class TemplateController extends Controller
         }
     }
 
-    public function toggle(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    public function toggle(Request $request): JsonResponse
     {
         Session::put('toggleState', $request->toggleState === 'selected' ? 'yearly' : 'monthly');
 

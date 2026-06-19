@@ -9,7 +9,7 @@ use Tests\TestCase;
 
 class BillingDependencyControllerTest extends TestCase
 {
-    private \App\Http\Controllers\BillingInstaller\BillingDependencyController $validator;
+    private BillingDependencyController $validator;
 
     private string $basePath;
 
@@ -47,7 +47,7 @@ class BillingDependencyControllerTest extends TestCase
         clearstatcache();
     }
 
-    public function testValidateDirectorySuccess(): void
+    public function test_validate_directory_success(): void
     {
         $errorCount = 0;
 
@@ -66,7 +66,7 @@ class BillingDependencyControllerTest extends TestCase
         $this->assertEquals(0, $result[1]['errorCount']);
     }
 
-    public function testValidateDirectoryFailure(): void
+    public function test_validate_directory_failure(): void
     {
         $errorCount = 0;
 

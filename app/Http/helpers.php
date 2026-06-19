@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Sleep;
 use Spatie\Activitylog\Support\ActivityLogger;
 use Spatie\Activitylog\Support\ActivityLogStatus;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 function getLocation(?string $ip = null): mixed
 {
@@ -58,7 +59,7 @@ function checkArray(string $key, array $array): mixed
 function mime(string $type): ?string
 {
     if (in_array($type, ['jpg', 'png', 'jpeg', 'gif'], strict: true) ||
-        \Illuminate\Support\Str::startsWith($type, 'image')) {
+        Illuminate\Support\Str::startsWith($type, 'image')) {
         return 'image';
     }
 
@@ -113,8 +114,6 @@ function successResponse(string $message = '', mixed $data = '', int $statusCode
 
 /**
  * Gets time in logged in user's timezone.
- *
- * @param  string  $format
  */
 function getTimeInLoggedInUserTimeZone(string $dateTimeString, ?string $format = null): string
 {
@@ -496,7 +495,7 @@ function getCurrencyPrecision(string $currency): int
 function rounding(mixed $price): ?float
 {
     try {
-        $tax_rule = new TaxOption();
+        $tax_rule = new TaxOption;
         $rule = $tax_rule->findOrFail(1);
         $rounding = $rule->rounding;
         if ($rounding) {
@@ -531,10 +530,10 @@ function userCountryId(): mixed
     return null;
 }
 
-//function getIndianCurrencySymbol($currency)
-//{
+// function getIndianCurrencySymbol($currency)
+// {
 //    return \DB::table('format_currencies')->where('code', $currency)->value('symbol');
-//}
+// }
 
 /**
  * @param  array<mixed>  $number
@@ -623,12 +622,12 @@ function setServiceConfig(object $emailConfig): void
         }
         $dynamicServiceConfig = [];
 
-        //loop over it and assign according to the keys given by user
+        // loop over it and assign according to the keys given by user
         foreach ($services as $key => $value) {
             $dynamicServiceConfig[$key] = $emailConfig->$key ?? $value;
         }
 
-        //setting that service configuration
+        // setting that service configuration
         Config::set('services.'.$sendingProtocol, $dynamicServiceConfig);
     } else {
         $email = isset($emailConfig->email) ? (string) $emailConfig->email : '';
@@ -640,13 +639,13 @@ function setServiceConfig(object $emailConfig): void
         Config::set('mail.security', isset($emailConfig->encryption) ? $emailConfig->encryption : null);
     }
 
-    //setting mail driver as $sending protocol
+    // setting mail driver as $sending protocol
     Config::set('mail.driver', $sendingProtocol);
     Config::set('mail.from.address', isset($emailConfig->email) ? (string) $emailConfig->email : '');
     Config::set('mail.from.name', isset($emailConfig->company) ? (string) $emailConfig->company : '');
     Config::set('mail.username', isset($emailConfig->email) ? (string) $emailConfig->email : '');
 
-    //setting the config again in the service container
+    // setting the config again in the service container
     new MailServiceProvider(app())->register();
 }
 
@@ -673,40 +672,40 @@ function installationStatusLabel(mixed $installedPath): string
                     </label>".__('message.inactive').'</span>';
 }
 
-//return root url from long url (http://www.domain.com/path/file.php?aa=xx becomes http://www.domain.com/path/), remove scheme, www. and last slash if needed
+// return root url from long url (http://www.domain.com/path/file.php?aa=xx becomes http://www.domain.com/path/), remove scheme, www. and last slash if needed
 function getRootUrl(mixed $url, int $remove_scheme, int $remove_www, int $remove_path, int $remove_last_slash): string
 {
     if (filter_var($url, FILTER_VALIDATE_URL)) {
-        $url_array = parse_url((string) $url); //parse URL into arrays like $url_array['scheme'], $url_array['host'], etc
+        $url_array = parse_url((string) $url); // parse URL into arrays like $url_array['scheme'], $url_array['host'], etc
         if (! is_array($url_array)) {
             return '';
         }
         $scheme = isset($url_array['scheme']) ? $url_array['scheme'] : '';
 
-        $url = str_ireplace($scheme.'://', '', $url); //make URL without scheme, so no :// is included when searching for first or last /
+        $url = str_ireplace($scheme.'://', '', $url); // make URL without scheme, so no :// is included when searching for first or last /
 
-        if ($remove_path === 1) { //remove everything after FIRST / in URL, so it becomes "real" root URL
-            $first_slash_position = stripos($url, '/'); //find FIRST slash - the end of root URL
-            if ($first_slash_position > 0) { //cut URL up to FIRST slash
+        if ($remove_path === 1) { // remove everything after FIRST / in URL, so it becomes "real" root URL
+            $first_slash_position = stripos($url, '/'); // find FIRST slash - the end of root URL
+            if ($first_slash_position > 0) { // cut URL up to FIRST slash
                 $url = substr($url, 0, $first_slash_position + 1);
             }
-        } else { //remove everything after LAST / in URL, so it becomes "normal" root URL
-            $last_slash_position = strripos($url, '/'); //find LAST slash - the end of root URL
-            if ($last_slash_position > 0) { //cut URL up to LAST slash
+        } else { // remove everything after LAST / in URL, so it becomes "normal" root URL
+            $last_slash_position = strripos($url, '/'); // find LAST slash - the end of root URL
+            if ($last_slash_position > 0) { // cut URL up to LAST slash
                 $url = substr($url, 0, $last_slash_position + 1);
             }
         }
 
-        if ($remove_scheme !== 1) { //scheme was already removed, add it again
+        if ($remove_scheme !== 1) { // scheme was already removed, add it again
             $url = $scheme.'://'.$url;
         }
 
-        if ($remove_www === 1) { //remove www.
+        if ($remove_www === 1) { // remove www.
             $url = str_ireplace('www.', '', $url);
         }
 
-        if ($remove_last_slash === 1) { //remove / from the end of URL if it exists
-            while (str_ends_with($url, '/')) { //use cycle in case URL already contained multiple // at the end
+        if ($remove_last_slash === 1) { // remove / from the end of URL if it exists
+            while (str_ends_with($url, '/')) { // use cycle in case URL already contained multiple // at the end
                 $url = substr($url, 0, -1);
             }
         }
@@ -801,7 +800,7 @@ function createDB(string $dbName): mixed
 
         // Creating testing_db
         DB::connection('mysql')->getPdo()->exec(sprintf('CREATE DATABASE `%s`', $dbName));
-        //disconnecting it will remove database config from the memory so that new database name can be
+        // disconnecting it will remove database config from the memory so that new database name can be
         // populated
         DB::disconnect('mysql');
     } catch (Exception $exception) {
@@ -852,9 +851,9 @@ function setEnvValue(array $data): void
     File::put($envFile, $content);
 }
 
-function downloadExternalFile(string $url, string $filename): \Symfony\Component\HttpFoundation\StreamedResponse
+function downloadExternalFile(string $url, string $filename): StreamedResponse
 {
-    $client = new Client();
+    $client = new Client;
     $response = $client->get($url, ['stream' => true]);
 
     return response()->stream(function () use ($response): void {
@@ -890,8 +889,7 @@ function rateLimitForKeyIp(string $key, int $maxAttempts, int $decayMinutes, str
     }
 
     // Command 2: Handle persistent cache using RateLimiter.
-    if (! RateLimiter::attempt($IpKey, $maxAttempts, function (): void {
-    }, $decaySeconds)) {
+    if (! RateLimiter::attempt($IpKey, $maxAttempts, function (): void {}, $decaySeconds)) {
         $remainingTime = RateLimiter::availableIn($IpKey);
 
         return ['status' => true, 'remainingTime' => formatDuration($remainingTime)];
@@ -963,12 +961,12 @@ function isJson(mixed $string): bool
 
 function getUrl(): string
 {
-    $protocol = (isset($_SERVER['HTTPS']) && \Illuminate\Support\Facades\Request::server('HTTPS') === 'on') ? 'https' : 'http';
-    $host = \Illuminate\Support\Facades\Request::server('HTTP_HOST');
+    $protocol = (isset($_SERVER['HTTPS']) && Illuminate\Support\Facades\Request::server('HTTPS') === 'on') ? 'https' : 'http';
+    $host = Illuminate\Support\Facades\Request::server('HTTP_HOST');
     if (! is_string($host)) {
         $host = '';
     }
-    $scriptName = \Illuminate\Support\Facades\Request::server('SCRIPT_NAME');
+    $scriptName = Illuminate\Support\Facades\Request::server('SCRIPT_NAME');
     if (! is_string($scriptName)) {
         $scriptName = '';
     }

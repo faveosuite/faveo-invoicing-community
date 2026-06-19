@@ -8,6 +8,7 @@ use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
 use DB;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lang;
 use Session;
@@ -15,7 +16,7 @@ use Session;
 class CurrencyController extends Controller
 {
     /**
-     * @var \App\Model\Payment\Currency
+     * @var Currency
      */
     public $currency;
 
@@ -23,14 +24,14 @@ class CurrencyController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('admin');
-        $currency = new Currency();
+        $currency = new Currency;
         $this->currency = $currency;
     }
 
     /**
      * Get Currency List.
      */
-    public function getCurrencyList(Request $request): \Illuminate\Http\JsonResponse
+    public function getCurrencyList(Request $request): JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -84,14 +85,14 @@ class CurrencyController extends Controller
     public function getButtonColor(string $id): string
     {
         $defaultCurrency = Setting::value('default_currency');
-        $currencyCode = Currency::where('id', $id)->value('code'); //If default currency is equal to the currency code then make that button as Disabled as it would always be shown on dashboard and cannot be modified
+        $currencyCode = Currency::where('id', $id)->value('code'); // If default currency is equal to the currency code then make that button as Disabled as it would always be shown on dashboard and cannot be modified
         if ($defaultCurrency == $currencyCode) {
-            return  '<a class="btn btn-sm btn-warning btn-xs disabled" style="background-color:#f39c12;">&nbsp;&nbsp;'.__('message.default-currency').'</a>';
+            return '<a class="btn btn-sm btn-warning btn-xs disabled" style="background-color:#f39c12;">&nbsp;&nbsp;'.__('message.default-currency').'</a>';
         }
 
         $currency = Currency::where('id', $id)->value('dashboard_currency');
         if ($currency == 1) {
-            return'<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.Session::token().'>'.'
+            return '<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.Session::token().'>'.'
                                     <button type="submit" class="btn btn-sm btn-success btn-xs"><i class="fa fa-check" style="color:white;"></i>&nbsp;&nbsp; '.__('message.show_on_dashboard').'</button></form>';
         }
 
@@ -102,7 +103,7 @@ class CurrencyController extends Controller
     /**
      * Activate the Currency to be Shown on Dashboard.
      */
-    public function setDashboardCurrency(mixed $id): \Illuminate\Http\JsonResponse
+    public function setDashboardCurrency(mixed $id): JsonResponse
     {
         Currency::where('id', $id)->update(['dashboard_currency' => 1]);
         $dashboardStatus = Currency::where('id', '!=', $id)->select('dashboard_currency', 'id')->get();
@@ -127,7 +128,7 @@ class CurrencyController extends Controller
         try {
             $nicename = Country::where('country_id', $request->name)->value('country_name');
             $codeChar2 = Country::where('country_id', $request->name)->value('country_code_char2');
-            $currency = new Currency();
+            $currency = new Currency;
 
             $currency->code = $request->code;
             $currency->symbol = $request->symbol;
@@ -168,7 +169,7 @@ class CurrencyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request): \Illuminate\Http\JsonResponse
+    public function update(Request $request): JsonResponse
     {
         try {
             $nicename = Country::where('country_id', $request->editnicename)->value('country_name');
@@ -284,10 +285,10 @@ class CurrencyController extends Controller
         ];
     }
 
-    public function updatecurrency(Request $request): \Illuminate\Http\JsonResponse
+    public function updatecurrency(Request $request): JsonResponse
     {
         try {
-            return DB::transaction(function () use ($request): \Illuminate\Http\JsonResponse {
+            return DB::transaction(function () use ($request): JsonResponse {
                 $currency = Currency::findOrFail($request->input('current_id'));
                 if (! $currency instanceof Currency) {
                     throw new Exception('Currency not found.');
@@ -308,7 +309,7 @@ class CurrencyController extends Controller
         }
     }
 
-    public function setDefaultCurrency(mixed $id): \Illuminate\Http\JsonResponse
+    public function setDefaultCurrency(mixed $id): JsonResponse
     {
         try {
             $currency = Currency::findOrFail($id);

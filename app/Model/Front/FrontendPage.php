@@ -4,8 +4,14 @@ namespace App\Model\Front;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -17,9 +23,9 @@ use Illuminate\Support\Facades\Date;
  * @property string $type
  * @property int $publish
  * @property int $hidden
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read FrontendPage|null $parent
  *
@@ -44,7 +50,7 @@ use Illuminate\Support\Facades\Date;
 class FrontendPage extends BaseModel
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
 
@@ -93,19 +99,19 @@ class FrontendPage extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function slug(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function slug(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(set: function ($value): array {
+        return Attribute::make(set: function ($value): array {
             return ['slug' => str_replace(' ', '', $value)];
         });
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Front\FrontendPage, $this>
+     * @return BelongsTo<FrontendPage, $this>
      */
-    public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function parent(): BelongsTo
     {
         return $this->belongsTo(FrontendPage::class, 'parent_page_id');
     }

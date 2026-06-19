@@ -4,6 +4,7 @@ namespace App\Services\Payment;
 
 use App\Http\Controllers\Common\PhpMailController;
 use App\Model\Common\Setting;
+use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Payment\OpenPaymentOrder;
 use App\Plugins\Payment\Dto\Customer;
@@ -26,9 +27,7 @@ use App\Plugins\Payment\Exceptions\PaymentException;
  */
 class OpenPaymentService
 {
-    public function __construct(private readonly PaymentService $payments)
-    {
-    }
+    public function __construct(private readonly PaymentService $payments) {}
 
     /** Stripe publishable key, for the client to initialise Stripe.js. */
     public function publishableKey(): string
@@ -141,7 +140,7 @@ class OpenPaymentService
             'paid_at' => now(),
         ]);
 
-        /** @var \App\Model\Payment\OpenPaymentOrder $freshOrder */
+        /** @var OpenPaymentOrder $freshOrder */
         $freshOrder = $order->fresh() ?? $order;
         $this->sendSuccessEmails($freshOrder);
     }
@@ -163,7 +162,7 @@ class OpenPaymentService
 
         // Client success email
         $clientTemplate = TemplateType::getSelectedTemplate('open_payment_success');
-        if ($clientTemplate instanceof \App\Model\Common\Template) {
+        if ($clientTemplate instanceof Template) {
             $replace = [
                 'name' => $order->name,
                 'transaction_id' => $order->transaction_id,
@@ -184,7 +183,7 @@ class OpenPaymentService
 
         // Admin notification email
         $adminTemplate = TemplateType::getSelectedTemplate('open_payment_admin_success');
-        if ($adminTemplate instanceof \App\Model\Common\Template) {
+        if ($adminTemplate instanceof Template) {
             $replace = [
                 'name' => $order->name,
                 'company' => $order->company,
@@ -220,7 +219,7 @@ class OpenPaymentService
 
         // Client failure email
         $clientTemplate = TemplateType::getSelectedTemplate('open_payment_failed');
-        if ($clientTemplate instanceof \App\Model\Common\Template) {
+        if ($clientTemplate instanceof Template) {
             $replace = [
                 'name' => $order->name,
                 'currency' => $order->currency,
@@ -239,7 +238,7 @@ class OpenPaymentService
 
         // Admin failure notification
         $adminTemplate = TemplateType::getSelectedTemplate('open_payment_admin_failed');
-        if ($adminTemplate instanceof \App\Model\Common\Template) {
+        if ($adminTemplate instanceof Template) {
             $replace = [
                 'name' => $order->name,
                 'company' => $order->company,

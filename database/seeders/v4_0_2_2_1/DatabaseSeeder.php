@@ -18,10 +18,7 @@ class DatabaseSeeder extends Seeder
     private function movePreReleaseData(): void
     {
         ProductUpload::where('is_pre_release', 1)->each(function ($product): void {
-           $product->update(['release_type' => 'pre_release']);
+            $product->update(['release_type' => 'pre_release']);
         });
     }
 }
-
-
-

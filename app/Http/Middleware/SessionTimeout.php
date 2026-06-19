@@ -18,7 +18,7 @@ class SessionTimeout
      * @param  Closure(Request): (Response|RedirectResponse)  $next
      * @param  int  $timeoutMinutes  The session timeout threshold in minutes (default: 10).
      * @param  string  $sessionKey  The session key used to track verification activity.
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return Response|RedirectResponse
      */
     public function handle(Request $request, Closure $next, int $timeoutMinutes = 10, string $sessionKey = 'lastVerificationActivity')
     {

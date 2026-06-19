@@ -26,7 +26,7 @@ class ClientFooterGeneralTest extends DBTestCase
     {
         parent::setUp();
         $this->withoutMiddleware();
-        $this->tenantController = Mockery::mock(new TenantController(new Client, new FaveoCloud()));
+        $this->tenantController = Mockery::mock(new TenantController(new Client, new FaveoCloud));
     }
 
     #[Group('demo')]

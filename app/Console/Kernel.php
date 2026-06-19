@@ -80,7 +80,7 @@ class Kernel extends ConsoleKernel
         $this->execute($schedule, 'systemLogs');
 
         // Schedule the cloudEmail method
-        //Should not be touched unless you are changing something with cloud
+        // Should not be touched unless you are changing something with cloud
         $schedule->call(function (): void {
             $lockFilePath = storage_path('cloudEmail.lock');
 
@@ -105,7 +105,7 @@ class Kernel extends ConsoleKernel
         $this->execute($schedule, 'licenseVersionsCleanup');
 
         if (config('database.DB_INSTALL')) {
-            $condition = new Condition();
+            $condition = new Condition;
             $command = $condition->getConditionValue($task = 'cloud');
             $this->getCondition($schedule->job(new NotifyMail), $command);
 
@@ -164,7 +164,7 @@ class Kernel extends ConsoleKernel
             }
 
             Config::set('activitylog.delete_records_older_than_days', $delLogDays);
-            $condition = new Condition();
+            $condition = new Condition;
             $command = $condition->getConditionValue($task);
             switch ($task) {
                 case 'expiryMail':
@@ -300,14 +300,14 @@ class Kernel extends ConsoleKernel
         require base_path('routes/console.php');
     }
 
-    //This is to send an email to the client when the custom domain has been created properly
+    // This is to send an email to the client when the custom domain has been created properly
     public function cloudEmail(): void
     {
         try {
             $contact = getContactData();
-            /** @var \App\Model\Common\Setting $setting */
+            /** @var Setting $setting */
             $setting = Setting::find(1);
-            $mail = new PhpMailController();
+            $mail = new PhpMailController;
             $clouds = cloudemailsend::cursor();
 
             foreach ($clouds as $cloud) {
@@ -317,14 +317,14 @@ class Kernel extends ConsoleKernel
                     cloudemailsend::where('domain', $cloud->domain)->delete();
                 }
             }
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             $this->googleChat($exception->getMessage());
         }
     }
 
     private function checkTheAvailabilityOfCustomDomain(string $domain, mixed $counter, string $user): bool
     {
-        $client = new Client();
+        $client = new Client;
         try {
             $response = $client->get('https://'.$domain);
             $statusCode = $response->getStatusCode();
@@ -354,7 +354,7 @@ class Kernel extends ConsoleKernel
         $message_headers = [
             'Content-Type' => 'application/json; charset=UTF-8',
         ];
-        $client = new Client();
+        $client = new Client;
         $client->post($url, [
             'headers' => $message_headers,
             'body' => json_encode($message),

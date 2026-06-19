@@ -12,26 +12,26 @@ use App\Plugins\Payment\Dto\Customer as PaymentCustomer;
 use App\Plugins\Payment\Dto\PaymentRequest as GatewayPaymentRequest;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\SubscriptionService;
+use App\User;
 use Auth;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Logger;
 
 class AutoRenewalController extends Controller
 {
-    public function __construct(private readonly PaymentService $payments)
-    {
-    }
+    public function __construct(private readonly PaymentService $payments) {}
 
     /**
      * Create a Stripe PaymentIntent for card verification.
      * Returns client_secret + payment_intent_id + publishable_key.
      * POST auto-renewal/{order}/stripe/session.
      */
-    public function stripeSession(Request $request, int $order): \Illuminate\Http\JsonResponse
+    public function stripeSession(Request $request, int $order): JsonResponse
     {
         $order = $this->authorizedOrder($order);
-        /** @var \App\User $authUser */
+        /** @var User $authUser */
         $authUser = Auth::user();
         $currency = getCurrencyForClient($authUser->country);
         $amount = getMinimumAmountForPayments($currency, 'stripe');
@@ -58,7 +58,7 @@ class AutoRenewalController extends Controller
      * and save the payment method for future auto-renewal.
      * POST auto-renewal/{order}/stripe/confirm.
      */
-    public function stripeConfirm(Request $request, int $order): \Illuminate\Http\JsonResponse
+    public function stripeConfirm(Request $request, int $order): JsonResponse
     {
         $order = $this->authorizedOrder($order);
         try {
@@ -93,7 +93,7 @@ class AutoRenewalController extends Controller
      * Create a Razorpay Order and return the Checkout config for the browser.
      * POST auto-renewal/{order}/razorpay/order.
      */
-    public function razorpayOrder(Request $request, int $order): \Illuminate\Http\JsonResponse
+    public function razorpayOrder(Request $request, int $order): JsonResponse
     {
         $order = $this->authorizedOrder($order);
         try {
@@ -110,7 +110,7 @@ class AutoRenewalController extends Controller
      * and save the payment method for future auto-renewal.
      * POST auto-renewal/{order}/razorpay/confirm.
      */
-    public function razorpayConfirm(Request $request, int $order): \Illuminate\Http\JsonResponse
+    public function razorpayConfirm(Request $request, int $order): JsonResponse
     {
         $order = $this->authorizedOrder($order);
         try {
@@ -139,7 +139,7 @@ class AutoRenewalController extends Controller
      * on the gateway if one exists.
      * POST auto-renewal/{order}/disable.
      */
-    public function disable(Request $request, int $order): \Illuminate\Http\JsonResponse
+    public function disable(Request $request, int $order): JsonResponse
     {
         $order = $this->authorizedOrder($order);
         try {
@@ -164,7 +164,7 @@ class AutoRenewalController extends Controller
 
     private function buildRequest(Order $order, string $gateway, string $nonce = ''): GatewayPaymentRequest
     {
-        /** @var \App\User $user */
+        /** @var User $user */
         $user = Auth::user();
         $currency = getCurrencyForClient($user->country);
 
@@ -193,7 +193,7 @@ class AutoRenewalController extends Controller
 
     private function saveRenewal(Order $order, string $gateway, string $paymentRef): void
     {
-        /** @var \App\User $authUser2 */
+        /** @var User $authUser2 */
         $authUser2 = Auth::user();
         Auto_renewal::create([
             'user_id' => $authUser2->id,
@@ -236,7 +236,7 @@ class AutoRenewalController extends Controller
 
     private function logPayment(Order $order, string $gateway, string $status, string $note = ''): void
     {
-        /** @var \App\User $authUser3 */
+        /** @var User $authUser3 */
         $authUser3 = Auth::user();
         new PhpMailController()->payment_log(
             $authUser3->email, $gateway, $status, $order->number, $note ?: null, 0, 'Payment method updated'

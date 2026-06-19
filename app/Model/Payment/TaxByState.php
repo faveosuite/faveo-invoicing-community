@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Model\Payment;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -13,8 +14,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $s_gst
  * @property string $i_gst
  * @property string $ut_gst
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string $country
  * @property string $state_code
  *

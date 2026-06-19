@@ -13,13 +13,13 @@ class ZohoConnectHelper
     public static function getModulesFields(string $platform, string $module): mixed
     {
         return ZohoFields::wherePlatform($platform)
-           ->whereModule($module)
-           ->get()
-           ->map(fn ($z): array => [
-               'id' => $z->id,
-               'field_name' => $z->display_name,
-               'type' => $z->field_type,
-           ]);
+            ->whereModule($module)
+            ->get()
+            ->map(fn ($z): array => [
+                'id' => $z->id,
+                'field_name' => $z->display_name,
+                'type' => $z->field_type,
+            ]);
     }
 
     /**
@@ -59,16 +59,16 @@ class ZohoConnectHelper
 
             return null;
         })
-        ->filter()
-        ->values();
+            ->filter()
+            ->values();
     }
 
     /**
-     * @param  \Illuminate\Support\Collection<int|string, mixed>  $localFields
-     * @param  \Illuminate\Support\Collection<int|string, mixed>  $zohoFields
+     * @param  Collection<int|string, mixed>  $localFields
+     * @param  Collection<int|string, mixed>  $zohoFields
      *
-     * @phpstan-param \Illuminate\Support\Collection<array-key, mixed> $zohoFields
-     * @phpstan-param \Illuminate\Support\Collection<array-key, mixed> $localFields
+     * @phpstan-param Collection<array-key, mixed> $zohoFields
+     * @phpstan-param Collection<array-key, mixed> $localFields
      */
     public static function mergeFields(Collection $zohoFields, Collection $localFields): mixed
     {

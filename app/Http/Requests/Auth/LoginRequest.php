@@ -28,7 +28,7 @@ class LoginRequest extends FormRequest
         return [
             'email_username' => ['required', 'string'],
             'password1' => ['required', 'string'],
-            'login' => [new Honeypot()],
+            'login' => [new Honeypot],
         ];
     }
 

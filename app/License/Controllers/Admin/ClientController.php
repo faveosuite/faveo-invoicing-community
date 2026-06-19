@@ -4,12 +4,13 @@ namespace App\License\Controllers\Admin;
 
 use App\Model\Product\Product;
 use App\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
 class ClientController extends Controller
 {
-    public function viewClients(Request $request): \Illuminate\Http\JsonResponse
+    public function viewClients(Request $request): JsonResponse
     {
         $search = $request->input('search-query', $request->input('search_query', ''));
 
@@ -35,7 +36,7 @@ class ClientController extends Controller
         return response()->json(['data' => $paginated]);
     }
 
-    public function viewProducts(): \Illuminate\Http\JsonResponse
+    public function viewProducts(): JsonResponse
     {
         $products = Product::select('id', 'name')
             ->orderBy('name')

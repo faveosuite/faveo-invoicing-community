@@ -6,7 +6,12 @@ use App\BaseModel;
 use App\Model\Common\Country;
 use App\Model\Common\State;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Override;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * A generic tax rate (WooCommerce-style). See the create_tax_rates migration
@@ -22,13 +27,13 @@ use Override;
  * @property string $tax_class
  * @property int $display_order
  * @property bool $active
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\TaxRateLocation> $locations
+ * @property-read Collection<int, TaxRateLocation> $locations
  * @property-read int|null $locations_count
- * @property-read \App\Model\Payment\TaxClass|null $taxClass
+ * @property-read TaxClass|null $taxClass
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxRate newQuery()
@@ -105,17 +110,17 @@ class TaxRate extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Payment\TaxRateLocation, $this>
+     * @return HasMany<TaxRateLocation, $this>
      */
-    public function locations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function locations(): HasMany
     {
         return $this->hasMany(TaxRateLocation::class, 'tax_rate_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<TaxClass, $this>
+     * @return BelongsTo<TaxClass, $this>
      */
-    public function taxClass(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function taxClass(): BelongsTo
     {
         return $this->belongsTo(TaxClass::class, 'tax_class', 'slug');
     }

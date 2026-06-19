@@ -782,7 +782,7 @@ return [
     'password_required' => 'パスワードが必要です。',
     'new_password_different' => '新しいパスワードは現在のパスワードと異なる必要があります。',
     'reset_link_expired' => 'パスワードリセットリンクが期限切れまたは無効です。再度お試しください。',
-    //file storage
+    // file storage
     'file_storage' => 'ファイルストレージ',
     'set_file_storage' => 'ファイル保存パスを設定',
     'storage_disk' => 'ストレージディスク',
@@ -1150,7 +1150,7 @@ return [
     'sending' => '送信中...',
     'error_occurs' => 'エラーが発生しました。',
     'reset_password' => 'パスワードをリセット',
-    //front-client template
+    // front-client template
     'change_faveo' => '既存のFaveoクラウドドメインを変更しますか？',
     'current_domain' => '現在のドメインを入力してください',
     'enter_domain' => '新しいドメインを入力してください',
@@ -1311,7 +1311,7 @@ return [
     'loading' => '読み込み中...',
     'subscriptions_table' => 'サブスクリプションテーブル',
     'invalid_format' => '無効な形式。',
-    //front-page template
+    // front-page template
     'all_pages' => 'すべてのページ',
     'create_new_page' => '新しいページを作成',
     'edit_page' => 'ページを編集',
@@ -1321,14 +1321,14 @@ return [
     'select_checkbox' => '少なくとも1つのチェックボックスを選択してください',
     'search_result' => '検索結果',
 
-    //front-widgets template
+    // front-widgets template
     'all_widgets' => 'すべてのウィジェット',
     'create_widget' => 'ウィジェットを作成',
     'configure_mailchimp' => '設定でMailchimpを構成してアクセスします',
     'configure_tweet' => '設定でツイートを構成してアクセスします',
     'edit_widget' => 'ウィジェットを編集',
 
-    //front outer template
+    // front outer template
     'remove_product' => '商品を削除',
     'cart_totals' => 'カートの合計',
     'clear_cart' => 'カートをクリア',
@@ -1385,11 +1385,11 @@ return [
     'go_back' => '戻る',
     'be_right_back' => 'すぐ戻ります',
 
-    //category template
+    // category template
     'all_categories' => 'すべてのカテゴリ',
     'category_name' => '名前',
 
-    //common template
+    // common template
     'create_script_code' => 'スクリプトコードを作成',
     'create_script' => 'スクリプトを作成',
     'edit_script_code' => 'スクリプトコードを編集',
@@ -1733,21 +1733,21 @@ return [
     'add_product' => '製品を追加',
     'all_types' => 'すべてのタイプ',
     'configure_queue' => 'キューを構成',
-    //renew panel
+    // renew panel
     'renew_product' => '製品を更新するにはカートが空であることを確認してください',
     'click_renew' => 'ここをクリックして更新',
     'renew_your_order' => '注文を更新する',
     'renew_order' => '注文の更新',
     'renewal_price_per_agent' => 'エージェントごとの更新価格：',
 
-    //report panel
+    // report panel
     'file_name' => 'ファイル名',
     'format' => '形式',
     'contact' => '連絡先',
     'report_settings' => 'レポート設定',
     'report_limit' => 'シートごとに追加するレコード数。最大制限は3000です。',
 
-    //tenanat panel
+    // tenanat panel
     'cloud_server' => 'クラウドサーバー',
     'customise_cloud_popup' => 'クラウドポップアップのカスタマイズ',
     'cloud_product_configuration' => 'クラウド製品構成',
@@ -1774,7 +1774,7 @@ return [
     'app_key' => 'アプリキー',
     'app_secret' => 'アプリシークレット',
 
-    //user-client panel
+    // user-client panel
     'create_new_user' => '新しいユーザーを作成',
     'create_user' => 'ユーザーを作成',
     'position' => '役職',
@@ -1868,7 +1868,7 @@ return [
     'created_with' => '作成者',
     'by_arcanedev' => 'ARCANEDEVによる',
     'toggle_navigation' => 'ナビゲーションの切り替え',
-    //boostrap-4
+    // boostrap-4
     'logs' => 'ログ',
     'caps_delete_log_file' => 'ログファイルを削除',
     'caps_delete_file' => 'ファイルを削除',
@@ -1889,7 +1889,7 @@ return [
     'error_logs' => 'エラーログ',
     'view_logs' => 'ログを表示',
 
-    //visitstats
+    // visitstats
     'request' => 'リクエスト',
     'visitor' => '訪問者',
     'browser' => 'ブラウザ',
@@ -1919,7 +1919,7 @@ return [
     'product_quantity' => '製品数量',
     'table_search' => '検索：',
 
-    //validation message
+    // validation message
     'enter_valid_otp' => '有効なOTPを入力してください',
     'verifying' => '確認中',
     'resending' => '再送信中',
@@ -2049,7 +2049,7 @@ return [
     'null' => 'ヌル',
     'choose_one_payment_gateway' => '1つの支払いゲートウェイを選択してください',
 
-    //Controller keys and values
+    // Controller keys and values
     'product_uploaded_successfully' => '製品が正常にアップロードされました',
     'token_mismatch_account_not_activated' => 'トークンが一致しません。アカウントを有効化できません。',
     'email_verification_success' => 'メール認証が成功しました。ログインしてアカウントにアクセスしてください！',

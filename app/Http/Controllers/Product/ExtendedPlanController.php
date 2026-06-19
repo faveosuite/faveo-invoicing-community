@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Product;
 use App\Http\Controllers\Controller;
 use App\Model\Payment\Period;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/////
-//Handles Operations for Setting up Product Plans //
-/////
+// ///
+// Handles Operations for Setting up Product Plans //
+// ///
 class ExtendedPlanController extends Controller
 {
     /**
@@ -20,7 +21,7 @@ class ExtendedPlanController extends Controller
      * @date   2019-01-08T02:27:37+0530
      *
      * @param  Request  $request  Get Name And Days as Parameter
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function postInsertPeriod(Request $request)
     {

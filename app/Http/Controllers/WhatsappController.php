@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Jobs\SendWhatsappMessage;
 use App\Model\Common\StatusSetting;
+use App\User;
 use App\WhatsappIntegration;
 use App\WhatsappIntegrationUser;
 use Auth;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Log;
 use Session;
@@ -51,7 +54,7 @@ class WhatsappController extends Controller
     /**
      * Return the stored Meta app credentials for the admin settings screen.
      */
-    public function whatsappIntegration(): \Illuminate\Http\JsonResponse
+    public function whatsappIntegration(): JsonResponse
     {
         try {
             [$app_id, $app_secret, $config_id, $verify_token] =
@@ -71,7 +74,7 @@ class WhatsappController extends Controller
     /**
      * Save the Meta app credentials and enable the global WhatsApp toggle.
      */
-    public function whatsappSave(Request $request): \Illuminate\Http\JsonResponse
+    public function whatsappSave(Request $request): JsonResponse
     {
         try {
             WhatsappIntegration::updateOrCreate(
@@ -89,7 +92,7 @@ class WhatsappController extends Controller
     /**
      * Paginated, searchable list of every registered WhatsApp number (admin users table — Vue).
      */
-    public function whatsappUsersApi(Request $request): \Illuminate\Http\JsonResponse
+    public function whatsappUsersApi(Request $request): JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -145,7 +148,7 @@ class WhatsappController extends Controller
      * Paginated list of the WhatsApp numbers the authenticated user has registered for one of
      * their orders. Response shape matches the client DataTable contract (paginate + successResponse).
      */
-    public function whatsappClientNumbers(Request $request, mixed $orderid): \Illuminate\Http\JsonResponse
+    public function whatsappClientNumbers(Request $request, mixed $orderid): JsonResponse
     {
         try {
             $query = WhatsappIntegrationUser::where('user_id', Auth::id())
@@ -191,7 +194,7 @@ class WhatsappController extends Controller
     /**
      * Stash the callback URL in the session before launching Meta's embedded signup.
      */
-    public function urlSave(Request $request): \Illuminate\Http\JsonResponse
+    public function urlSave(Request $request): JsonResponse
     {
         Session::put('whatsapp_url', $request->input('url'));
 
@@ -202,7 +205,7 @@ class WhatsappController extends Controller
      * Persist the number Meta returned from embedded signup, exchange the auth code for a
      * long-lived token, resolve the display number, and subscribe our app to the WABA.
      */
-    public function saveWabaId(Request $request): \Illuminate\Http\JsonResponse
+    public function saveWabaId(Request $request): JsonResponse
     {
         try {
             $wabaId = $request->input('waba_id');
@@ -235,9 +238,9 @@ class WhatsappController extends Controller
     /**
      * Return the stored callback URL for a number (owner or admin only).
      */
-    public function getWebhookUrl(Request $request): \Illuminate\Http\JsonResponse
+    public function getWebhookUrl(Request $request): JsonResponse
     {
-        /** @var \App\WhatsappIntegrationUser $record */
+        /** @var WhatsappIntegrationUser $record */
         $record = WhatsappIntegrationUser::findOrFail($request->input('id'));
 
         if (! $this->canManage($record)) {
@@ -250,14 +253,14 @@ class WhatsappController extends Controller
     /**
      * Update the callback URL for a number (owner or admin only).
      */
-    public function webhookUrlEdit(Request $request): \Illuminate\Http\JsonResponse
+    public function webhookUrlEdit(Request $request): JsonResponse
     {
         $request->validate([
             'id' => ['required', 'integer', 'exists:whatsapp_integration_user,id'],
             'url' => ['required', 'string'],
         ]);
 
-        /** @var \App\WhatsappIntegrationUser $record */
+        /** @var WhatsappIntegrationUser $record */
         $record = WhatsappIntegrationUser::findOrFail($request->input('id'));
 
         if (! $this->canManage($record)) {
@@ -277,9 +280,9 @@ class WhatsappController extends Controller
      * Deregister a number from Meta and delete it locally (owner or admin only).
      * The local row is removed even if the Meta call fails, so the slot is always freed.
      */
-    public function deregister(Request $request): \Illuminate\Http\JsonResponse
+    public function deregister(Request $request): JsonResponse
     {
-        /** @var \App\WhatsappIntegrationUser $record */
+        /** @var WhatsappIntegrationUser $record */
         $record = WhatsappIntegrationUser::findOrFail($request->input('id'));
 
         if (! $this->canManage($record)) {
@@ -305,7 +308,7 @@ class WhatsappController extends Controller
      * Meta webhook endpoint (faveo-whatsapp). GET verifies the subscription;
      * POST queues inbound messages for relay to the number's callback URL.
      */
-    public function whatsappWebhook(Request $request): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+    public function whatsappWebhook(Request $request): Response|JsonResponse
     {
         try {
             if ($request->isMethod('get')) {
@@ -350,7 +353,7 @@ class WhatsappController extends Controller
      */
     private function canManage(WhatsappIntegrationUser $record): bool
     {
-        /** @var \App\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         return $user->role === 'admin' || (int) $record->user_id === (int) $user->id;

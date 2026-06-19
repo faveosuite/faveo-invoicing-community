@@ -7,11 +7,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
+use App\User;
 use Auth;
 use DB;
 use Exception;
 use Hash;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Logger;
@@ -21,10 +24,10 @@ class BaseClientController extends Controller
     /**
      *  This function is to update profile.
      */
-    public function postProfile(ProfileRequest $request): \Illuminate\Http\JsonResponse
+    public function postProfile(ProfileRequest $request): JsonResponse
     {
         try {
-            /** @var \App\User $user */
+            /** @var User $user */
             $user = Auth::user();
             if ($request->hasFile('profile_pic')) {
                 $path = Attach::put('common/images/users/', $request->file('profile_pic'), null, true);
@@ -57,10 +60,10 @@ class BaseClientController extends Controller
     /**
      *  This function is to update password.
      */
-    public function postPassword(ProfileRequest $request): \Illuminate\Http\JsonResponse
+    public function postPassword(ProfileRequest $request): JsonResponse
     {
         try {
-            /** @var \App\User $user */
+            /** @var User $user */
             $user = Auth::user();
             $oldPassword = $request->input('old_password');
             $newPassword = $request->input('new_password');
@@ -89,10 +92,7 @@ class BaseClientController extends Controller
     /**
      *  This function returns invoice using order id.
      *
-     * @param  $orderid
-     * @param  $userid
-     * @param  $admin
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * @return JsonResponse|RedirectResponse
      *
      * @throws Exception
      */
@@ -145,7 +145,7 @@ class BaseClientController extends Controller
                     $url = '<a href='.url($url).'>'.$model->number.'</a>';
                 }
 
-                /** @var \App\User $authUser */
+                /** @var User $authUser */
                 $authUser = Auth::user();
                 $status = $authUser->role == 'admin' ? getStatusLabel($model->status) : getStatusLabel($model->status);
 
@@ -176,9 +176,6 @@ class BaseClientController extends Controller
 
     /**
      *  This function returns individual invoice opening link.
-     *
-     * @param  $invoiceId
-     * @param  $admin
      */
     public function getInvoiceLinkUrl(string $invoiceId, mixed $admin = null): string
     {
@@ -217,12 +214,11 @@ class BaseClientController extends Controller
     /**
      *  This returns to the cloud popup deletion.
      *
-     * @param  $orderNumber
      * @return View
      *
      * @throws Exception
      */
-    public function deleteCloudPopup(mixed $orderNumber): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function deleteCloudPopup(mixed $orderNumber): Factory|View
     {
         return view('themes.default1.front.clients.delete-cloud-popup', compact('orderNumber')); // @phpstan-ignore argument.type
     }

@@ -10,6 +10,10 @@ use App\Model\Common\StatusSetting;
 use App\ThirdPartyApp;
 use Carbon\CarbonImmutable;
 use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Log;
@@ -150,7 +154,7 @@ class MSG91Controller extends Controller
         ]);
     }
 
-    public function msg91Reports(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function msg91Reports(): Factory|View
     {
         $status = Msg91Status::orderBy('status_label')->get();
         $sources = MsgDeliveryReports::query()
@@ -171,7 +175,7 @@ class MSG91Controller extends Controller
         return view('themes.default1.common.sms.msgReports', compact('status', 'sources', 'actions')); // @phpstan-ignore argument.type
     }
 
-    public function getMsg91Reports(Request $request): \Illuminate\Http\JsonResponse
+    public function getMsg91Reports(Request $request): JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -202,10 +206,10 @@ class MSG91Controller extends Controller
             $total = $baseQuery->count();
 
             $logs = $baseQuery->orderBy($sortField, $sortOrder)
-                    ->simplePaginate($limit);
+                ->simplePaginate($limit);
 
             // Format collection
-            $logs->getCollection()->transform(function (\App\Model\Common\MsgDeliveryReports $log): array {
+            $logs->getCollection()->transform(function (MsgDeliveryReports $log): array {
                 $fullName = $log->user ? trim($log->user->first_name.' '.$log->user->last_name) : null;
 
                 return [
@@ -230,7 +234,7 @@ class MSG91Controller extends Controller
         }
     }
 
-    public function getMsgFilters(): \Illuminate\Http\JsonResponse
+    public function getMsgFilters(): JsonResponse
     {
         try {
             $statuses = Msg91Status::orderBy('status_label')->pluck('status_label')->filter()->values();
@@ -246,18 +250,18 @@ class MSG91Controller extends Controller
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Common\MsgDeliveryReports>
+     * @return Builder<MsgDeliveryReports>
      */
-    public function msgLogData(): \Illuminate\Database\Eloquent\Builder
+    public function msgLogData(): Builder
     {
         return MsgDeliveryReports::with(['user:id,user_name,first_name,last_name,email', 'readableStatus']);
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Model\Common\MsgDeliveryReports>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Common\MsgDeliveryReports>
+     * @param  Builder<MsgDeliveryReports>  $query
+     * @return Builder<MsgDeliveryReports>
      */
-    private function filterQueryForMsg(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    private function filterQueryForMsg(Builder $query): Builder
     {
         $request = request();
 

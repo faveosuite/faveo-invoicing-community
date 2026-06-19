@@ -12,16 +12,13 @@ use Illuminate\Queue\SerializesModels;
 class UserOrderDelete
 {
     use Dispatchable;
-
     use InteractsWithSockets;
     use SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(public mixed $domain, public mixed $order_id)
-    {
-    }
+    public function __construct(public mixed $domain, public mixed $order_id) {}
 
     /**
      * Get the channels the event should broadcast on.

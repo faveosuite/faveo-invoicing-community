@@ -5,8 +5,10 @@ namespace App\License\Models;
 use App\Model\Product\Product;
 use App\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -14,13 +16,13 @@ use Override;
  * @property int|null $product_id
  * @property int|null $user_id
  * @property string|null $license_code
- * @property \Illuminate\Support\Carbon $report_date_time
+ * @property Carbon $report_date_time
  * @property string|null $report_text
  * @property int|null $report_system
  * @property int $report_status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\License\Models\License|null $license
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read License|null $license
  * @property-read Product|null $product
  * @property-read User|null $user
  *
@@ -80,10 +82,10 @@ class LicenseReport extends Model
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      */
     #[Scope]
-    protected function pending(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function pending(Builder $query): mixed
     {
         return $query->where('report_status', 0);
     }

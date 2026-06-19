@@ -4,26 +4,27 @@ namespace App\Http\Controllers;
 
 use App\ThirdPartyApp;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ThirdPartyAppController extends Controller
 {
-    private \App\ThirdPartyApp $thirdParty;
+    private ThirdPartyApp $thirdParty;
 
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('admin');
 
-        $thirdParty = new ThirdPartyApp();
+        $thirdParty = new ThirdPartyApp;
         $this->thirdParty = $thirdParty;
     }
 
     /*
     * Get All the third party apps
     */
-    public function getThirdPartyDetails(Request $request): \Illuminate\Http\JsonResponse
+    public function getThirdPartyDetails(Request $request): JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -57,7 +58,7 @@ class ThirdPartyAppController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function createThirdPartyApp(Request $request): \Illuminate\Http\JsonResponse
+    public function createThirdPartyApp(Request $request): JsonResponse
     {
         $this->validate($request, [
             'app_name' => 'required',
@@ -90,7 +91,7 @@ class ThirdPartyAppController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function updateThirdPartyApp(Request $request, mixed $id): \Illuminate\Http\JsonResponse
+    public function updateThirdPartyApp(Request $request, mixed $id): JsonResponse
     {
         $this->validate($request, [
             'app_name' => 'required',
@@ -102,7 +103,7 @@ class ThirdPartyAppController extends Controller
             'app_key.size' => __('validation.thirdparty_api.app_key_size'),
         ]);
 
-        /** @var \App\ThirdPartyApp $thirdPartyApp */
+        /** @var ThirdPartyApp $thirdPartyApp */
         $thirdPartyApp = ThirdPartyApp::findOrFail($id);
 
         $data = $request->only(['app_name', 'app_key']);
@@ -118,7 +119,7 @@ class ThirdPartyAppController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function deleteThirdPartyApp(Request $request): \Illuminate\Http\JsonResponse
+    public function deleteThirdPartyApp(Request $request): JsonResponse
     {
         try {
             $ids = $request->input('select');

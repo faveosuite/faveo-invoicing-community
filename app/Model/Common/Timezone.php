@@ -3,6 +3,7 @@
 namespace App\Model\Common;
 
 use App\BaseModel;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 /**
  * @property int $id
@@ -30,11 +31,11 @@ class Timezone extends BaseModel
     protected $appends = ['timezone_name'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function timezoneName(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function timezoneName(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (): string {
+        return Attribute::make(get: function (): string {
             $extractGMT = explode(' ', $this->location);
 
             return reset($extractGMT).' '.$this->name;

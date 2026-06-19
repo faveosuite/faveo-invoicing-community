@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Common\Dependency;
 
 use App\Http\Controllers\Controller;
+use App\User;
 use Auth;
 use Closure;
 
@@ -121,18 +122,18 @@ class BaseDependencyController extends Controller
             $this->limit = 10000;
         }
 
-        /** @var \App\User $authUserForRole */
+        /** @var User $authUserForRole */
         $authUserForRole = Auth::user();
         $this->userRole = Auth::check() ? $authUserForRole->role : 'user';
 
         $this->ids = $request->input('ids') ?: [];
 
-        //only admin can set config as true
+        // only admin can set config as true
         // or can be set through code when $ids are non empty
         $this->config = ($this->userRole == 'admin' || count($this->ids)) && (bool) $request->input('config');
 
-        //Config will be true if it is accessed from admin panel, in that case all the data & columns in the table will be returned
-        //So meta don't have to be true
+        // Config will be true if it is accessed from admin panel, in that case all the data & columns in the table will be returned
+        // So meta don't have to be true
         $this->meta = $request->input('meta') ?: false;
 
         $this->supplements = $request->input('supplements') ?: [];
@@ -200,7 +201,7 @@ class BaseDependencyController extends Controller
             $paginationMethod = $this->simplePaginate ? 'simplePaginate' : 'paginate';
             $result = $baseQuery->$paginationMethod($this->limit);
 
-            if ($callback instanceof \Closure) {
+            if ($callback instanceof Closure) {
                 $result->getCollection()->transform($callback);
             }
 
@@ -208,7 +209,7 @@ class BaseDependencyController extends Controller
         }
 
         $result = $baseQuery->take($this->limit)->get();
-        if ($callback instanceof \Closure) {
+        if ($callback instanceof Closure) {
             $result = $result->transform($callback);
         }
 

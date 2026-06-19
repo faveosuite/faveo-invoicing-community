@@ -4,9 +4,11 @@ namespace App\Model\Cart;
 
 use App\Model\Order\Invoice;
 use App\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -16,10 +18,10 @@ use Override;
  * @property float $coupon_discount
  * @property string $currency
  * @property int|null $invoice_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Invoice|null $invoice
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Cart\CartItem> $items
+ * @property-read Collection<int, CartItem> $items
  * @property-read int|null $items_count
  * @property-read User|null $user
  *

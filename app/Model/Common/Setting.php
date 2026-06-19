@@ -7,8 +7,14 @@ use App\Model\Payment\Currency;
 use App\Traits\SystemActivityLogsTrait;
 use Crypt;
 use Exception;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * @property int $id
@@ -34,8 +40,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $download
  * @property int $invoice_template
  * @property string $city
- * @property \App\Model\Common\State|null $state
- * @property \App\Model\Common\Country|null $country
+ * @property State|null $state
+ * @property Country|null $country
  * @property int $timezone_id
  * @property string $date_format
  * @property string $time_format
@@ -50,8 +56,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $default_currency
  * @property string|null $default_symbol
  * @property string|null $file_storage
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $cin_no
  * @property string|null $gstin
  * @property string|null $key
@@ -74,11 +80,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $phone_code
  * @property string|null $knowledge_base_url
  * @property int $autorenewal_status
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
+ * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read Currency|null $defaultCurrency
- * @property-read \App\Model\Common\Language|null $language
- * @property-read \App\Model\Common\Timezone|null $timezone
+ * @property-read Language|null $language
+ * @property-read Timezone|null $timezone
  *
  * @method static \Database\Factories\Model\Common\SettingFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting newModelQuery()
@@ -153,9 +159,10 @@ use Illuminate\Database\Eloquent\Model;
 class Setting extends Model
 {
     /**
-     * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory>
+     * @use HasFactory<Factory>
      */
     use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'settings';
@@ -248,11 +255,11 @@ class Setting extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function password(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function password(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+        return Attribute::make(get: function ($value) {
             if ($value) {
                 return Crypt::decrypt($value);
             }
@@ -277,71 +284,71 @@ class Setting extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function logo(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function logo(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
+        return Attribute::make(get: function (?string $value) {
             return $this->getImage($value, 'images', asset('images/agora-invoicing.png'));
         });
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function adminLogo(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function adminLogo(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
+        return Attribute::make(get: function (?string $value) {
             return $this->getImage($value, 'admin/images', asset('images/agora_admin_logo.png'));
         });
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<mixed, mixed>
+     * @return Attribute<mixed, mixed>
      */
-    protected function favIcon(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function favIcon(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (?string $value) {
+        return Attribute::make(get: function (?string $value) {
             return $this->getImage($value, 'common/images', asset('images/faveo.png'));
         });
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Currency, $this>
+     * @return BelongsTo<Currency, $this>
      */
-    public function defaultCurrency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function defaultCurrency(): BelongsTo
     {
         return $this->belongsTo(Currency::class, 'default_currency', 'code');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Country, $this>
+     * @return BelongsTo<Country, $this>
      */
-    public function country(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class, 'country', 'country_code_char2');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<State, $this>
+     * @return BelongsTo<State, $this>
      */
-    public function state(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function state(): BelongsTo
     {
         return $this->belongsTo(State::class, 'state', 'state_subdivision_code');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Language, $this>
+     * @return BelongsTo<Language, $this>
      */
-    public function language(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function language(): BelongsTo
     {
         return $this->belongsTo(Language::class, 'content', 'locale');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\Common\Timezone, $this>
+     * @return BelongsTo<Timezone, $this>
      */
-    public function timezone(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function timezone(): BelongsTo
     {
         return $this->belongsTo(Timezone::class, 'timezone_id');
     }

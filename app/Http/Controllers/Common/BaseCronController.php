@@ -7,26 +7,28 @@ use App\Model\Common\Setting;
 use App\Model\Common\TemplateType;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 
 class BaseCronController extends Controller
 {
-    public function getUserById(int $id): ?\App\User
+    public function getUserById(int $id): ?User
     {
         return User::find($id);
     }
 
-    public function getOrderById(int $id): ?\App\Model\Order\Order
+    public function getOrderById(int $id): ?Order
     {
         return Order::find($id);
     }
 
-    public function getInvoiceByOrderId(int $orderid): ?\App\Model\Order\Invoice
+    public function getInvoiceByOrderId(int $orderid): ?Invoice
     {
         $order = Order::find($orderid);
         if (! $order) {
@@ -38,7 +40,7 @@ class BaseCronController extends Controller
         return $invoice instanceof Invoice ? $invoice : null;
     }
 
-    public function getInvoiceItemByInvoiceId(int $invoiceid): ?\App\Model\Order\InvoiceItem
+    public function getInvoiceItemByInvoiceId(int $invoiceid): ?InvoiceItem
     {
         $invoice = Invoice::find($invoiceid);
 
@@ -132,7 +134,7 @@ class BaseCronController extends Controller
     public function get30DaysUsers(): mixed
     {
         $users = $this->get30DaysExpiryUsers(); // @phpstan-ignore method.notFound
-        //dd($users);
+        // dd($users);
         if (count($users) > 0) {
             return $users[0]['users'];
         }
@@ -141,22 +143,22 @@ class BaseCronController extends Controller
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Product\Subscription>
+     * @return Builder<Subscription>
      */
-    public function getExpiredInfo(): \Illuminate\Database\Eloquent\Builder
+    public function getExpiredInfo(): Builder
     {
         $yesterday = new Carbon('today');
         $tomorrow = new Carbon('+2 days');
 
         return Subscription::whereNotNull('update_ends_at')
-                ->where('is_subscribed', 0)
-                ->whereBetween('update_ends_at', [$yesterday, $tomorrow]);
+            ->where('is_subscribed', 0)
+            ->whereBetween('update_ends_at', [$yesterday, $tomorrow]);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Product\Subscription>
+     * @return Builder<Subscription>
      */
-    public function getOnDayExpiryInfo(): \Illuminate\Database\Eloquent\Builder
+    public function getOnDayExpiryInfo(): Builder
     {
         $yesterday = new Carbon('yesterday');
         $tomorrow = new Carbon('tomorrow');
@@ -167,22 +169,22 @@ class BaseCronController extends Controller
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Product\Subscription>
+     * @return Builder<Subscription>
      */
-    public function getOneDayExpiryInfo(): \Illuminate\Database\Eloquent\Builder
+    public function getOneDayExpiryInfo(): Builder
     {
         $yesterday = new Carbon('-2 days');
         $today = new Carbon('today');
 
         return Subscription::whereNotNull('update_ends_at')
-                ->where('is_subscribed', 0)
-                ->whereBetween('update_ends_at', [$yesterday, $today]);
+            ->where('is_subscribed', 0)
+            ->whereBetween('update_ends_at', [$yesterday, $today]);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Product\Subscription>
+     * @return Builder<Subscription>
      */
-    public function get15DaysExpiryInfo(): \Illuminate\Database\Eloquent\Builder
+    public function get15DaysExpiryInfo(): Builder
     {
         $plus14days = new Carbon('+14 days');
         $plus16days = new Carbon('+16 days');
@@ -193,9 +195,9 @@ class BaseCronController extends Controller
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Product\Subscription>
+     * @return Builder<Subscription>
      */
-    public function getAllDaysExpiryInfo(int $day): \Illuminate\Database\Eloquent\Builder
+    public function getAllDaysExpiryInfo(int $day): Builder
     {
         $minus1day = new Carbon('+'.($day - 1).' days');
         $plus1day = new Carbon('+'.($day + 1).' days');
@@ -205,7 +207,7 @@ class BaseCronController extends Controller
             ->whereBetween('update_ends_at', [$minus1day, $plus1day]);
     }
 
-    public function mail(\App\User $user, string $end, int $productId, \App\Model\Order\Order $order, \App\Model\Product\Subscription $sub): void
+    public function mail(User $user, string $end, int $productId, Order $order, Subscription $sub): void
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
@@ -252,11 +254,11 @@ class BaseCronController extends Controller
         ];
 
         $type = (string) ($template->type()->value('name') ?? '');
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
         $mail->SendEmail((string) $setting->email, (string) $user->email, (string) $template->data, (string) $template->name, $type, $replace, $type);
     }
 
-    public function Auto_renewalMail(\App\User $user, string $end, int $productId, \App\Model\Order\Order $order, int $sub): void
+    public function Auto_renewalMail(User $user, string $end, int $productId, Order $order, int $sub): void
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
@@ -279,9 +281,9 @@ class BaseCronController extends Controller
             return;
         }
 
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
 
-        //template
+        // template
         $template = TemplateType::getSelectedTemplate('auto_subscription_going_to_end');
         if (! $template) {
             return;
@@ -319,7 +321,7 @@ class BaseCronController extends Controller
         $mail->SendEmail($from, $to, $data, $subject, $type, $replace, $type);
     }
 
-    public function Expiredsub_Mail(\App\User $user, string $end, int $productId, \App\Model\Order\Order $order, mixed $sub): void
+    public function Expiredsub_Mail(User $user, string $end, int $productId, Order $order, mixed $sub): void
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
@@ -330,15 +332,15 @@ class BaseCronController extends Controller
         $expiryMailDay = ExpiryMailDay::first();
         $expiryDays = $expiryMailDay ? $expiryMailDay->cloud_days : 0;
 
-        //check in the settings
+        // check in the settings
         $setting = Setting::where('id', 1)->first();
         if (! $setting) {
             return;
         }
 
-        $mail = new PhpMailController();
+        $mail = new PhpMailController;
 
-        //template
+        // template
         $template = TemplateType::getSelectedTemplate('subscription_over_mail');
         if (! $template) {
             return;

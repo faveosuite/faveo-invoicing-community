@@ -7,12 +7,14 @@ use App\Http\Controllers\Controller;
 use App\Jobs\CancelGatewaySubscriptionsJob;
 use App\Model\Common\StatusSetting;
 use App\Plugins\Payment\Dto\SubscriptionRequest;
+use App\Plugins\Payment\Dto\SubscriptionResult;
 use App\Services\Payment\ProcessingFee;
 use App\Services\Payment\SubscriptionService;
 use App\Traits\Payment\PostPaymentHandle;
 use App\User;
 use Arr;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Logger;
 use Stripe\Exception\AuthenticationException;
@@ -39,7 +41,7 @@ class SettingsController extends Controller
         $this->middleware('admin', ['except' => []]);
     }
 
-    public function getSettings(): \Illuminate\Http\JsonResponse
+    public function getSettings(): JsonResponse
     {
         try {
             $keys = ApiKey::select('stripe_key', 'stripe_secret', 'stripe_webhook_secret')->first();
@@ -58,7 +60,7 @@ class SettingsController extends Controller
         }
     }
 
-    public function updateApiKey(Request $request): \Illuminate\Http\JsonResponse
+    public function updateApiKey(Request $request): JsonResponse
     {
         $request->validate([
             'stripe_secret' => ['required', 'string'],
@@ -189,9 +191,9 @@ class SettingsController extends Controller
     /**
      * Create a recurring Stripe subscription for autopay.
      *
-     * Thin adapter over the centralized {@see \App\Services\Payment\SubscriptionService}
+     * Thin adapter over the centralized {@see SubscriptionService}
      * (which drives the payment package's StripeGateway). Returns a
-     * {@see \App\Plugins\Payment\Dto\SubscriptionResult} — callers read ->status,
+     * {@see SubscriptionResult} — callers read ->status,
      * ->id and ->raw['latest_invoice']. $unit_cost is already in minor units.
      */
     public function handleStripeAutoPay(mixed $stripe_payment_details, mixed $product_details, mixed $unit_cost, mixed $currency, mixed $plan): mixed

@@ -17,9 +17,7 @@ class Consumer implements Stringable
      * @param  string  $key
      * @param  string  $secret
      */
-    public function __construct(public $key, public $secret, public mixed $callbackUrl = null)
-    {
-    }
+    public function __construct(public $key, public $secret, public mixed $callbackUrl = null) {}
 
     public function __toString(): string
     {

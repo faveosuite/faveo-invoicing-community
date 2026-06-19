@@ -9,6 +9,7 @@ use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
 use App\User;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ZohoCampaignsController extends ZohoBaseController
@@ -20,14 +21,14 @@ class ZohoCampaignsController extends ZohoBaseController
      */
     protected function campaigns(): Campaigns
     {
-        if (! $this->campaigns instanceof \App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns) {
-            $this->campaigns = new Campaigns();
+        if (! $this->campaigns instanceof Campaigns) {
+            $this->campaigns = new Campaigns;
         }
 
         return $this->campaigns;
     }
 
-    public function syncFields(): \Illuminate\Http\JsonResponse
+    public function syncFields(): JsonResponse
     {
         try {
             // Sync Topics
@@ -56,7 +57,7 @@ class ZohoCampaignsController extends ZohoBaseController
         return $this->getModulesFields('campaigns', 'Contacts');
     }
 
-    public function subscribeCampaign(Request $request): \Illuminate\Http\JsonResponse
+    public function subscribeCampaign(Request $request): JsonResponse
     {
         try {
             $data = $request->validate([
@@ -85,7 +86,7 @@ class ZohoCampaignsController extends ZohoBaseController
 
         $mappings = ZohoFieldMappings::with('faveoLocalField')->get();
 
-        /** @var \App\User $zohoUser */
+        /** @var User $zohoUser */
         $zohoUser = User::where('email', $email)->first();
         $contactInfo = zohoMappedFields(
             $zohoFields,

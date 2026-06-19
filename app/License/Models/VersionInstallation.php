@@ -5,8 +5,10 @@ namespace App\License\Models;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -16,8 +18,8 @@ use Override;
  * @property int $version_id
  * @property string|null $installation_date
  * @property int $installation_status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Product $product
  * @property-read ProductUpload $version
  *
@@ -65,10 +67,10 @@ class VersionInstallation extends Model
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      */
     #[Scope]
-    protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function active(Builder $query): mixed
     {
         return $query->where('installation_status', 1);
     }

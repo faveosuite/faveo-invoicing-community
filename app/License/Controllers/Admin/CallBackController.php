@@ -8,11 +8,12 @@ use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\VersionCallback;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CallBackController extends Controller
 {
-    public function licneseCallbacks(Request $request): \Illuminate\Http\JsonResponse
+    public function licneseCallbacks(Request $request): JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -60,7 +61,7 @@ class CallBackController extends Controller
         return successResponse(__('lang.Callback_Show'), $paginatedCallbacks, 200);
     }
 
-    public function updateCallbacks(Request $request): \Illuminate\Http\JsonResponse
+    public function updateCallbacks(Request $request): JsonResponse
     {
         $perPage = $request->input('perPage', 10); // Number of items per page
         $page = $request->input('page', 1); // Get the current page from the request
@@ -108,7 +109,7 @@ class CallBackController extends Controller
         return successResponse('', $updateCallbacks);
     }
 
-    public function callbacksDelete(Request $request): \Illuminate\Http\JsonResponse
+    public function callbacksDelete(Request $request): JsonResponse
     {
         $removed_records = 0;
         $error_details = '';
@@ -129,9 +130,9 @@ class CallBackController extends Controller
             $error_details .= 'No record selected.';
         }
 
-        if ($action_success === 1) { //everything OK
+        if ($action_success === 1) { // everything OK
             $page_message = sprintf('Deleted %s callback(s).', $removed_records);
-        } else { //display error message
+        } else { // display error message
             $page_message = 'Callback could not be deleted because of this reason: '.$error_details;
         }
 
@@ -140,13 +141,13 @@ class CallBackController extends Controller
         return successResponse($page_message, $removed_records, 200);
     }
 
-    //delete callback
+    // delete callback
     private function deleteCallback(mixed $callback_id, mixed $isLicense): int|float
     {
         $removed_records = 0;
         if ($isLicense) {
             if (LicenseHelper::validateIntegerValue($callback_id)) {
-                $removed_records += LicenseCallback::where('license_callbacks.product_id', $callback_id)->delete(); //doMysqlQuery("DELETE FROM apl_callbacks WHERE license_callbacks.product_id=?", array($callback_id), array("i"));
+                $removed_records += LicenseCallback::where('license_callbacks.product_id', $callback_id)->delete(); // doMysqlQuery("DELETE FROM apl_callbacks WHERE license_callbacks.product_id=?", array($callback_id), array("i"));
             }
 
             return $removed_records;

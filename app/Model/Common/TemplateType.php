@@ -3,15 +3,19 @@
 namespace App\Model\Common;
 
 use App\BaseModel;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $name
  * @property int|null $selected_template_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Model\Common\Template|null $selectedTemplate
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Common\Template> $templates
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Template|null $selectedTemplate
+ * @property-read Collection<int, Template> $templates
  * @property-read int|null $templates_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TemplateType newModelQuery()
@@ -28,17 +32,17 @@ use App\BaseModel;
 class TemplateType extends BaseModel
 {
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Template, $this>
+     * @return BelongsTo<Template, $this>
      */
-    public function selectedTemplate(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function selectedTemplate(): BelongsTo
     {
         return $this->belongsTo(Template::class, 'selected_template_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Common\Template, $this>
+     * @return HasMany<Template, $this>
      */
-    public function templates(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function templates(): HasMany
     {
         return $this->hasMany(Template::class, 'type');
     }
@@ -47,7 +51,7 @@ class TemplateType extends BaseModel
     {
         $templateId = static::where('name', $name)->value('selected_template_id');
 
-        /** @var \App\Model\Common\Template|null $template */
+        /** @var Template|null $template */
         $template = $templateId ? Template::find($templateId) : null;
 
         return $template;

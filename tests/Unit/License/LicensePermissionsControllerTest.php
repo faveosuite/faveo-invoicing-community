@@ -31,8 +31,8 @@ class LicensePermissionsControllerTest extends DBTestCase
         $response = $this->getJson('/get-license-permission');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['name' => 'Standard'])
-                 ->assertJsonFragment(['permissions' => ['view']]);
+            ->assertJsonFragment(['name' => 'Standard'])
+            ->assertJsonFragment(['permissions' => ['view']]);
 
         $response->assertJsonFragment([
             'id' => $permA->id,
@@ -55,8 +55,8 @@ class LicensePermissionsControllerTest extends DBTestCase
         $response = $this->getJson('/get-license-permission?search-query=Start');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['name' => 'Starter'])
-                 ->assertJsonMissing(['name' => 'Enterprise']);
+            ->assertJsonFragment(['name' => 'Starter'])
+            ->assertJsonMissing(['name' => 'Enterprise']);
     }
 
     public function test_get_permissions_includes_all_permission_mapping(): void
@@ -93,7 +93,7 @@ class LicensePermissionsControllerTest extends DBTestCase
         $response = $this->postJson('/add-permission', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.permissions_updated_successfully')]);
+            ->assertJsonFragment(['message' => __('message.permissions_updated_successfully')]);
 
         // Assert they are attached
         $this->assertDatabaseHas('license_license_permissions', [
@@ -124,7 +124,7 @@ class LicensePermissionsControllerTest extends DBTestCase
         $response = $this->postJson('/add-permission', $payload);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => __('message.permissions_updated_successfully')]);
+            ->assertJsonFragment(['message' => __('message.permissions_updated_successfully')]);
 
         $this->assertDatabaseMissing('license_license_permissions', [
             'license_type_id' => $type->id,

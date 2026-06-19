@@ -3,9 +3,10 @@
 namespace App\Http\Middleware;
 
 use App\DefaultPage;
+use App\User;
 use Auth;
+// use Illuminate\Routing\Middleware;
 use Closure;
-//use Illuminate\Routing\Middleware;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
 use Session;
@@ -15,7 +16,7 @@ class Admin
     /**
      * The Guard implementation.
      */
-    protected \Illuminate\Contracts\Auth\Guard $auth;
+    protected Guard $auth;
 
     /**
      * Create a new filter instance.
@@ -34,7 +35,7 @@ class Admin
     public function handle($request, Closure $next)
     {
         $defaulturl = DefaultPage::value('page_url');
-        /** @var \App\User $authUser */
+        /** @var User $authUser */
         $authUser = Auth::user();
         if ($authUser->role == 'admin') {
             return $next($request);
