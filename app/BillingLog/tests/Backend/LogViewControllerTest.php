@@ -233,7 +233,7 @@ class LogViewControllerTest extends DBTestCase
 
     /** ----------------------- Helpers ----------------------- */
     /**
-     * @param array<mixed> $overrides
+     * @param  array<mixed>  $overrides
      * @return array<mixed>
      */
     private function defaultExceptionPayload(array $overrides = []): array
@@ -252,7 +252,7 @@ class LogViewControllerTest extends DBTestCase
     }
 
     /**
-     * @param array<mixed> $overrides
+     * @param  array<mixed>  $overrides
      * @return array<mixed>
      */
     private function defaultCronPayload(array $overrides = []): array
@@ -267,7 +267,7 @@ class LogViewControllerTest extends DBTestCase
     }
 
     /**
-     * @param array<mixed> $overrides
+     * @param  array<mixed>  $overrides
      * @return array<mixed>
      */
     private function defaultMailPayload(array $overrides = []): array
@@ -287,7 +287,7 @@ class LogViewControllerTest extends DBTestCase
     }
 
     /**
-     * @param array<mixed> $fields
+     * @param  array<mixed>  $fields
      * @return array<mixed>
      */
     private function defaultColumns(array $fields): array
@@ -301,8 +301,8 @@ class LogViewControllerTest extends DBTestCase
     }
 
     /**
-     * @param array<mixed> $bcc
-     * @param array<mixed> $cc
+     * @param  array<mixed>  $bcc
+     * @param  array<mixed>  $cc
      */
     private function logMailByCategory(
         string $senderMail = 'test@sender.com',
@@ -457,7 +457,8 @@ class LogViewControllerTest extends DBTestCase
 
     /**
      * Create activity record with ability to override any field.
-     * @param array<mixed> $overrides
+     *
+     * @param  array<mixed>  $overrides
      */
     protected function createActivity(array $overrides = []): mixed
     {
@@ -677,7 +678,7 @@ class LogViewControllerTest extends DBTestCase
     */
 
     /**
-     * @param array<mixed> $overrides
+     * @param  array<mixed>  $overrides
      */
     protected function createPaymentLog(array $overrides = []): \App\Payment_log
     {

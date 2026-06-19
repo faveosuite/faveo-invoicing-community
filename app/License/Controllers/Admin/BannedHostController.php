@@ -9,7 +9,6 @@ use App\License\Models\LicenseWhitelistIp;
 use App\License\Requests\BannedHostRequest;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Lang;
 
 /**
  * Consist of functionalities for the Banned Host page in Auto Faveo licenser
@@ -21,7 +20,8 @@ class BannedHostController extends Controller
 
     public function __construct()
     {
-        $addr = request()->server('REMOTE_ADDR'); $this->ip_address = is_string($addr) ? $addr : '';
+        $addr = request()->server('REMOTE_ADDR');
+        $this->ip_address = is_string($addr) ? $addr : '';
     }
 
     /**

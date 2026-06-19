@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $role
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditActivity newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditActivity newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditActivity query()
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditActivity whereRole($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditActivity whereText($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditActivity whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class CreditActivity extends Model

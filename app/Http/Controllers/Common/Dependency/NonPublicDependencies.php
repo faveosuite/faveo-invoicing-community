@@ -51,6 +51,7 @@ class NonPublicDependencies extends BaseDependencyController
             case 'users':
                 return $this->allSystemUsers();
         }
+
         return null;
     }
 

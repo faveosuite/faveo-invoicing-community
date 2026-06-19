@@ -24,7 +24,7 @@ class LanguageController extends Controller
     }
 
     /**
-     * @param array<mixed> $languageArray
+     * @param  array<mixed>  $languageArray
      */
     private function appendLicenseLanguage(string $languageName, array &$languageArray): void
     {

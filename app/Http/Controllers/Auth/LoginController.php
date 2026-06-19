@@ -158,6 +158,7 @@ class LoginController extends BaseAuthController
     /**
      * Build the credentials array for authentication.
      * Allows login with either email or username.
+     *
      * @return array<mixed>
      */
     private function buildCredentials(Request $request): array

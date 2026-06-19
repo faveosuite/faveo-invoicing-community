@@ -171,7 +171,8 @@ class ZohoOAuthController extends Controller
 
     /**
      * Store tokens per platform.
-     * @param array<mixed> $data
+     *
+     * @param  array<mixed>  $data
      */
     protected function storeTokenForPlatform(
         ZohoIntegration $integration,
@@ -222,7 +223,7 @@ class ZohoOAuthController extends Controller
     }
 
     /**
-     * @param array<mixed> $queryParams
+     * @param  array<mixed>  $queryParams
      */
     public function authorizationUrl(
         string $region,

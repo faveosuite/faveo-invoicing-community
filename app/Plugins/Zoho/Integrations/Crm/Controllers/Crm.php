@@ -36,10 +36,10 @@ class Crm
      * Get fields of a CRM module.
      *
      * @param  string  $module  (Leads, Contacts, Deals, etc.)
+     * @return \Illuminate\Support\Collection<int|string, mixed>
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
-     * @return \Illuminate\Support\Collection<int|string, mixed>
      */
     public function fields(string $module): Collection
     {
@@ -52,10 +52,11 @@ class Crm
      * Get records from a CRM module.
      *
      *
+     * @param  array<mixed>  $params
+     * @return \Illuminate\Support\Collection<int|string, mixed>
+     *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
-     * @param array<mixed> $params
-     * @return \Illuminate\Support\Collection<int|string, mixed>
      */
     public function records(string $module, array $params = []): Collection
     {
@@ -68,9 +69,10 @@ class Crm
      * Create a CRM record.
      *
      *
+     * @param  array<mixed>  $data
+     *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
-     * @param array<mixed> $data
      */
     public function create(string $module, array $data): void
     {
@@ -81,9 +83,10 @@ class Crm
      * Update a CRM record.
      *
      *
+     * @param  array<mixed>  $data
+     *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
-     * @param array<mixed> $data
      */
     public function update(string $module, string $recordId, array $data): void
     {

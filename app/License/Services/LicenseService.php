@@ -14,7 +14,8 @@ class LicenseService
     /**
      * Create a new license
      * Mirrors: POST /api/admin/license/add.
-     * @param array<mixed> $data
+     *
+     * @param  array<mixed>  $data
      */
     public function create(array $data): License
     {
@@ -43,7 +44,8 @@ class LicenseService
     /**
      * Update an existing license
      * Mirrors: POST /api/admin/license/edit.
-     * @param array<mixed> $data
+     *
+     * @param  array<mixed>  $data
      */
     public function update(int $id, array $data): bool
     {
@@ -83,7 +85,8 @@ class LicenseService
     /**
      * Get plugin licenses for given license codes
      * Mirrors: GET /api/pluginLicense.
-     * @param array<mixed> $licenseCodes
+     *
+     * @param  array<mixed>  $licenseCodes
      * @return array<mixed>
      */
     public function getPluginLicenses(array $licenseCodes): array
@@ -135,8 +138,9 @@ class LicenseService
     /**
      * Sync addon licenses for a parent license
      * Mirrors: POST /api/admin/license/syncAddonLicense.
-     * @param array<mixed> $options
-     * @param array<mixed> $productIds
+     *
+     * @param  array<mixed>  $options
+     * @param  array<mixed>  $productIds
      */
     public function syncAddons(string $licenseCode, array $productIds, array $options = []): void
     {
@@ -188,6 +192,7 @@ class LicenseService
     /**
      * Get license info with addons
      * Mirrors: GET /api/licenseInfo.
+     *
      * @return array<mixed>
      */
     public function getLicenseInfo(string $licenseCode): ?array
@@ -242,6 +247,7 @@ class LicenseService
     /**
      * Get individual license info (options)
      * Mirrors: GET /api/IndividuallicenseInfo.
+     *
      * @return array<mixed>
      */
     public function getIndividualLicenseInfo(string $licenseCode): array
@@ -284,6 +290,7 @@ class LicenseService
 
     /**
      * Parse a domain string into IP/domain components for license assignment.
+     *
      * @return array<mixed>
      */
     public static function parseIpAndDomain(string $domain): array

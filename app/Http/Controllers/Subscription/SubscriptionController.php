@@ -170,7 +170,7 @@ class SubscriptionController extends Controller
 
         try {
             $subscription = Subscription::findOrFail($subscriptionData->id);
-            if (!$subscription instanceof Subscription) {
+            if (! $subscription instanceof Subscription) {
                 throw new Exception('Subscription not found.');
             }
             $plan = Plan::findOrFail($subscription->plan_id);
@@ -232,7 +232,7 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * @param array<mixed> $planDetails
+     * @param  array<mixed>  $planDetails
      */
     private function calculateRenewalCost(Subscription $subscription, array $planDetails, Order $order): float
     {
@@ -312,7 +312,7 @@ class SubscriptionController extends Controller
             }
 
             $sub = Subscription::find($subscription->id);
-            if (!$sub instanceof Subscription) {
+            if (! $sub instanceof Subscription) {
                 return;
             }
 
@@ -429,7 +429,7 @@ class SubscriptionController extends Controller
     private function sendPendingAuthMail(Subscription $subscription, Product $product, float|int $cost, string $currency, ?string $url, \App\User $user): void
     {
         $setting = Setting::find(1);
-        if (!$setting instanceof Setting) {
+        if (! $setting instanceof Setting) {
             return;
         }
         $contact = getContactData();

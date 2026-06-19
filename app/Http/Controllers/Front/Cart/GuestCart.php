@@ -25,7 +25,7 @@ class GuestCart
     private const string KEY = 'guest_cart';
 
     /**
-     * @param array<mixed> $data
+     * @param  array<mixed>  $data
      */
     public function add(array $data, string $currency): void
     {
@@ -62,7 +62,7 @@ class GuestCart
     }
 
     /**
-     * @param array<mixed> $data
+     * @param  array<mixed>  $data
      */
     public function update(int $id, array $data): void
     {
@@ -156,7 +156,7 @@ class GuestCart
     }
 
     /**
-     * @param array<mixed> $cart
+     * @param  array<mixed>  $cart
      */
     private function write(array $cart): void
     {

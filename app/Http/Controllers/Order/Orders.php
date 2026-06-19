@@ -25,6 +25,7 @@ class Orders extends Controller
         if ($order) {
             return $order->subscription;
         }
+
         return null;
     }
 
@@ -34,6 +35,7 @@ class Orders extends Controller
         if ($order) {
             return $order->product;
         }
+
         return null;
     }
 
@@ -43,6 +45,7 @@ class Orders extends Controller
         if ($subscription) {
             return $subscription->plan;
         }
+
         return null;
     }
 

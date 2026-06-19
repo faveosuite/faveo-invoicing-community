@@ -67,7 +67,7 @@ class Config
     }
 
     /**
-     * @param array<mixed> $proxy
+     * @param  array<mixed>  $proxy
      */
     public function setProxy(array $proxy): void
     {

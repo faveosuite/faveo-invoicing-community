@@ -30,7 +30,6 @@ use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Logger;
@@ -106,7 +105,7 @@ class ClientController extends BaseClientController
             $id = request()->route('id');
             $order_id = DB::table('order_invoice_relations')->where('invoice_id', $id)->value('order_id');
             $sub = Subscription::where('order_id', $order_id)->first();
-            if (!$sub instanceof Subscription) {
+            if (! $sub instanceof Subscription) {
                 throw new Exception('Subscription not found.');
             }
             $planid = $sub->plan_id;
@@ -120,7 +119,7 @@ class ClientController extends BaseClientController
             $currency = $planDetails['currency'];
             $controller = new RenewController();
             $items = InvoiceItem::where('invoice_id', $id)->first();
-            if (!$items instanceof InvoiceItem) {
+            if (! $items instanceof InvoiceItem) {
                 throw new Exception('Invoice item not found.');
             }
             $invoiceid = $items->invoice_id;
@@ -198,7 +197,7 @@ class ClientController extends BaseClientController
 
             $latestInvoice = $order->invoices->first();
             $user = Auth::user();
-            if (!$user instanceof User) {
+            if (! $user instanceof User) {
                 return errorResponse('Unauthorized', 401);
             }
 
@@ -309,7 +308,7 @@ class ClientController extends BaseClientController
     {
         try {
             $user = Auth::user();
-            if (!$user instanceof User) {
+            if (! $user instanceof User) {
                 return errorResponse('Unauthorized', 401);
             }
             $order = $this->getClientPanelOrdersData()->where('id', $orderId)->first();
@@ -368,7 +367,7 @@ class ClientController extends BaseClientController
     {
         try {
             $user = Auth::user();
-            if (!$user instanceof User) {
+            if (! $user instanceof User) {
                 return errorResponse('Unauthorized', 401);
             }
             $currency = getCurrencyForClient($user->country);
@@ -546,7 +545,7 @@ class ClientController extends BaseClientController
             }
 
             $product = $order->productRelation;
-            if (!$product instanceof Product) {
+            if (! $product instanceof Product) {
                 return errorResponse('Product relation not found.', 404);
             }
             $subscription = $order->subscription;
@@ -569,7 +568,7 @@ class ClientController extends BaseClientController
         $status = StatusSetting::first(['stripe_auto_renewal', 'razorpay_auto_renewal']);
         $currency = getCurrencyForClient($country);
         $active = SettingsController::checkPaymentGateway($currency);
-        if (!is_array($active)) {
+        if (! is_array($active)) {
             $active = [];
         }
         $active = array_map(strtolower(...), $active);
@@ -618,7 +617,7 @@ class ClientController extends BaseClientController
             $canDownload = false;
             $downloadUrl = null;
 
-            if (!$subscription instanceof \App\Model\Product\Subscription) {
+            if (! $subscription instanceof \App\Model\Product\Subscription) {
                 $canDownload = true;
             } elseif ($allowTillExpiry) {
                 $canDownload = strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at)
@@ -697,7 +696,7 @@ class ClientController extends BaseClientController
         $paginator->getCollection()->transform(function ($version) use ($allowTillExpiry, $countExpiry, $countVersions, $subscription, $order): array {
             $canDownload = false;
 
-            if (!$subscription instanceof \App\Model\Product\Subscription) {
+            if (! $subscription instanceof \App\Model\Product\Subscription) {
                 $canDownload = true;
             } elseif ($allowTillExpiry) {
                 $createdAt = $version->created_at;
@@ -725,6 +724,7 @@ class ClientController extends BaseClientController
 
     /**
      *  Gets all the order details for a particular user.
+     *
      * @return \Illuminate\Database\Eloquent\Builder<\App\Model\Order\Order>
      */
     public function getClientPanelOrdersData(): \Illuminate\Database\Eloquent\Builder
@@ -897,7 +897,7 @@ class ClientController extends BaseClientController
     public function clientDetails(): \Illuminate\Http\JsonResponse
     {
         $user = Auth::user();
-        if (!$user instanceof User) {
+        if (! $user instanceof User) {
             return errorResponse('Unauthenticated.', 401);
         }
 
@@ -915,11 +915,11 @@ class ClientController extends BaseClientController
         try {
             $paid = 0;
             $invoice = Invoice::find($invoiceid);
-            if (!$invoice instanceof Invoice) {
+            if (! $invoice instanceof Invoice) {
                 return errorResponse('Invoice not found.', 404);
             }
             $user = Auth::user();
-            if (!$user instanceof User || $invoice->user_id != $user->id) {
+            if (! $user instanceof User || $invoice->user_id != $user->id) {
                 return errorResponse(__('message.invalid_payment_modification'));
             }
 

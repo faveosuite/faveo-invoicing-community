@@ -207,7 +207,7 @@ class InstallerController extends Controller
     }
 
     /**
-     * @param array<mixed> $redisConfig
+     * @param  array<mixed>  $redisConfig
      */
     public function updateInstallEnv(string $environment, ?string $driver = null, array $redisConfig = []): ?\Illuminate\Http\JsonResponse
     {

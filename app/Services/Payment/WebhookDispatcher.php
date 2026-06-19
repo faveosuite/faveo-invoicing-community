@@ -13,7 +13,7 @@ class WebhookDispatcher
     private array $handlers = [];
 
     /**
-     * @param array<mixed> $events
+     * @param  array<mixed>  $events
      */
     public function on(string|array $events, callable $handler): static
     {
@@ -25,7 +25,7 @@ class WebhookDispatcher
     }
 
     /**
-     * @param array<mixed> $event
+     * @param  array<mixed>  $event
      */
     public function dispatch(string $eventType, array $event): void
     {
@@ -67,7 +67,7 @@ class WebhookDispatcher
     // ── Stripe payment handlers ───────────────────────────────────────────
 
     /**
-     * @param array<mixed> $object
+     * @param  array<mixed>  $object
      */
     private static function confirmStripePayment(array $object): void
     {
@@ -96,7 +96,7 @@ class WebhookDispatcher
     }
 
     /**
-     * @param array<mixed> $object
+     * @param  array<mixed>  $object
      */
     private static function failStripePayment(array $object): void
     {
@@ -111,7 +111,7 @@ class WebhookDispatcher
     // ── Razorpay payment handlers ─────────────────────────────────────────
 
     /**
-     * @param array<mixed> $event
+     * @param  array<mixed>  $event
      */
     private static function handleRazorpayPayment(array $event): void
     {

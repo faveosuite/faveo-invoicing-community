@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends Factory<\Illuminate\Database\Eloquent\Model>
  */
-
 class pettingFactory extends Factory
 {
     /**

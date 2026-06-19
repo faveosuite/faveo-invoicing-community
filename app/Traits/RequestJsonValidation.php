@@ -4,7 +4,6 @@ namespace App\Traits;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Lang;
 
 /**
  * Contains method `failedValidation` which catches the validation errors before it reaches the actual

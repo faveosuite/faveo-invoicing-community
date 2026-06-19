@@ -19,7 +19,7 @@ trait PaginationTotal
      *   $total = $this->cachedTotal($query, $request, ['category'], cacheKey: 'active_products_total');
      *
      * @param  string|Builder<\Illuminate\Database\Eloquent\Model>  $model  Eloquent model class or Builder with backend scope
-     * @param  array<mixed> $filterKeys  Request keys that indicate user filtering is active
+     * @param  array<mixed>  $filterKeys  Request keys that indicate user filtering is active
      * @param  string  $searchKey  Request key for search input (default: 'search-query')
      * @param  int  $ttl  Cache TTL in seconds (default: 60)
      * @param  string|null  $cacheKey  Override the cache key (required when passing a Builder)

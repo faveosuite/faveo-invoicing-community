@@ -10,7 +10,8 @@ trait AfuCallbackHelpers
     /**
      * Build notification response with headers (same format as license callbacks).
      * Original only sends notification_data when notification_case is 'notification_operation_ok'.
-     * @param array<mixed> $data
+     *
+     * @param  array<mixed>  $data
      */
     protected function notificationResponse(string $notificationCase, array $data = []): \Illuminate\Http\JsonResponse
     {
@@ -70,8 +71,9 @@ trait AfuCallbackHelpers
     /**
      * Filter sensitive elements from response data.
      * Original removes: product_key, version files/queries, counts, comments.
-     * @param array<mixed> $data
-     * @param array<mixed> $extraKeysToRemove
+     *
+     * @param  array<mixed>  $data
+     * @param  array<mixed>  $extraKeysToRemove
      * @return array<mixed>
      */
     protected function filterSensitiveData(array $data, array $extraKeysToRemove = []): array

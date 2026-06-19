@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $currencies
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RazorpayPayment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RazorpayPayment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RazorpayPayment query()
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RazorpayPayment whereImageUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RazorpayPayment whereProcessingFee($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RazorpayPayment whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class RazorpayPayment extends Model

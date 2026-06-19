@@ -7,7 +7,6 @@ use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
 use Exception;
 use Illuminate\Http\Request;
-use Lang;
 
 class GithubController extends Controller
 {

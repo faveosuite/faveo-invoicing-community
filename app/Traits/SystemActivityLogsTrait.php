@@ -81,8 +81,9 @@ trait SystemActivityLogsTrait
 
     /**
      * Format attributes using mappings.
-     * @param array<mixed> $attributes
-     * @param array<mixed> $mappings
+     *
+     * @param  array<mixed>  $attributes
+     * @param  array<mixed>  $mappings
      * @return array<mixed>
      */
     private function formatLoggingAttributes(array $attributes, array $mappings): array

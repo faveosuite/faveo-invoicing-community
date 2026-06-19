@@ -24,6 +24,7 @@ use App\BaseModel;
  * @property string|null $is_paid_no
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpFieldAgoraRelation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpFieldAgoraRelation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpFieldAgoraRelation query()
@@ -44,6 +45,7 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpFieldAgoraRelation whereTown($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpFieldAgoraRelation whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MailchimpFieldAgoraRelation whereZip($value)
+ *
  * @mixin \Eloquent
  */
 class MailchimpFieldAgoraRelation extends BaseModel

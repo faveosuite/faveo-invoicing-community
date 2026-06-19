@@ -308,7 +308,7 @@ trait ApiKeySettings
     {
         $created = new DateTime($dbdate);
         $user = Auth::user();
-        if (!$user instanceof \App\User) {
+        if (! $user instanceof \App\User) {
             $tz = 'UTC';
         } else {
             $timezone = $user->timezone()->first();
@@ -325,7 +325,7 @@ trait ApiKeySettings
     {
         $created = new DateTime($dbdate);
         $user = Auth::user();
-        if (!$user instanceof \App\User) {
+        if (! $user instanceof \App\User) {
             $tz = 'UTC';
         } else {
             $timezone = $user->timezone()->first();
@@ -410,7 +410,7 @@ trait ApiKeySettings
     }
 
     /**
-     * @param array<mixed> $jobs
+     * @param  array<mixed>  $jobs
      */
     public function storeCommand(array $jobs = []): void
     {
@@ -432,7 +432,7 @@ trait ApiKeySettings
     {
         try {
             $fileStorageSettings = FileSystemSettings::first();
-            if (!$fileStorageSettings instanceof FileSystemSettings) {
+            if (! $fileStorageSettings instanceof FileSystemSettings) {
                 throw new Exception('File system settings not configured.');
             }
 
@@ -458,7 +458,7 @@ trait ApiKeySettings
     {
         $disk = $request->input('disk');
         $fileStorageSettings = FileSystemSettings::first();
-        if (!$fileStorageSettings instanceof FileSystemSettings) {
+        if (! $fileStorageSettings instanceof FileSystemSettings) {
             return errorResponse('File system settings not configured.');
         }
 

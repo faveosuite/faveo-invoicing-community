@@ -20,6 +20,7 @@ use Override;
  * @property int $installation_status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationLog forLicense(string $licenseCode)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationLog newQuery()
@@ -34,6 +35,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationLog whereLicenseCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationLog whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstallationLog whereVersionNumber($value)
+ *
  * @mixin \Eloquent
  */
 class InstallationLog extends Model
@@ -52,11 +54,11 @@ class InstallationLog extends Model
     /**
      * Scope: filter by license code.
      */
-        /**
-     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
      */
     #[Scope]
-        protected function forLicense( \Illuminate\Database\Eloquent\Builder $query, string $licenseCode): mixed
+    protected function forLicense(\Illuminate\Database\Eloquent\Builder $query, string $licenseCode): mixed
     {
         return $query->where('license_code', $licenseCode);
     }
@@ -64,11 +66,11 @@ class InstallationLog extends Model
     /**
      * Scope: order by most recent activity.
      */
-        /**
-     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
      */
     #[Scope]
-        protected function recent(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function recent(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->orderBy('installation_last_active_date', 'desc');
     }

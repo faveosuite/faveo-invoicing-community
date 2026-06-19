@@ -281,7 +281,8 @@ trait PaymentsAndInvoices
 
     /**
      * Get total of the Invoices for a User.
-     * @param \Illuminate\Support\Collection<int|string, mixed> $invoices
+     *
+     * @param  \Illuminate\Support\Collection<int|string, mixed>  $invoices
      */
     public function getTotalInvoice(\Illuminate\Support\Collection $invoices): int|float
     {

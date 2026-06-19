@@ -196,7 +196,7 @@ class RenewController extends BaseRenewController
     {
         try {
             $product = $this->getProductById($productid);
-            if (!$product instanceof \App\Model\Product\Product) {
+            if (! $product instanceof \App\Model\Product\Product) {
                 throw new Exception(__('message.product_removed_database'));
             }
 

@@ -10,7 +10,6 @@ use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Lang;
 
 class LicenseViewController extends Controller
 {

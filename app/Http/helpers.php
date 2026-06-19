@@ -44,11 +44,11 @@ function getLocation(?string $ip = null): mixed
 }
 
 /**
- * @param array<mixed> $array
+ * @param  array<mixed>  $array
  */
 function checkArray(string $key, array $array): mixed
 {
-    if (array_key_exists($key, $array)) { 
+    if (array_key_exists($key, $array)) {
         return $array[$key];
     }
 
@@ -376,6 +376,7 @@ function getCountry(mixed $userid): mixed
 {
     if (Auth::check() && empty($userid)) {
         $user = Auth::user();
+
         return $user ? $user->country : null;
     }
 
@@ -460,7 +461,7 @@ function getLocalesByCurrency(string $currencyCode): string
     return cache()->rememberForever('currency_locale_'.$currencyCode, function () use ($currencyCode) {
         $firstMatch = null;
         $locales = ResourceBundle::getLocales('');
-        if (!is_array($locales)) {
+        if (! is_array($locales)) {
             $locales = [];
         }
         foreach ($locales as $locale) {
@@ -515,13 +516,15 @@ function userCountryId(): mixed
         $user = Auth::user();
         if ($user) {
             $country = Country::where('country_code_char2', $user->country)->first();
+
             return $country ? $country->country_id : null;
         }
     }
 
     $location = getLocation();
-    if (!empty($location['iso_code'])) {
+    if (! empty($location['iso_code'])) {
         $country = Country::where('country_code_char2', $location['iso_code'])->first();
+
         return $country ? $country->country_id : null;
     }
 
@@ -534,7 +537,7 @@ function userCountryId(): mixed
 //}
 
 /**
- * @param array<mixed> $number
+ * @param  array<mixed>  $number
  */
 function getIndianCurrencyFormat(array $number): string
 {
@@ -579,6 +582,7 @@ function getIndianCurrencyFormat(array $number): string
 /**
  * Render a single tax for display. Tax is now a generic named rate (no
  * CGST/SGST/IGST split), so this simply formats name@rate and the amount.
+ *
  * @return array<mixed>
  */
 function bifurcateTax(string $taxName, string $taxValue, mixed $currency, string $state = '', mixed $price = ''): array
@@ -591,6 +595,7 @@ function bifurcateTax(string $taxName, string $taxValue, mixed $currency, string
 
 /**
  * Structured tax breakdown for display. One generic entry per tax.
+ *
  * @return array<mixed>
  */
 function bifurcate(string $taxName, string $taxValue, mixed $currency, string $state = '', mixed $price = ''): array
@@ -613,7 +618,7 @@ function setServiceConfig(object $emailConfig): void
     $sendingProtocol = isset($emailConfig->driver) ? (string) $emailConfig->driver : null;
     if ($sendingProtocol && $sendingProtocol != 'smtp' && $sendingProtocol != 'mail') {
         $services = Config::get('services.'.$sendingProtocol);
-        if (!is_array($services)) {
+        if (! is_array($services)) {
             $services = [];
         }
         $dynamicServiceConfig = [];
@@ -646,8 +651,8 @@ function setServiceConfig(object $emailConfig): void
 }
 
 /**
- * @param array<mixed> $variables
- * @param Closure(): mixed $closure
+ * @param  array<mixed>  $variables
+ * @param  Closure(): mixed  $closure
  */
 function persistentCache(string $key, Closure $closure, int $noOfSeconds = 30, array $variables = []): mixed
 {
@@ -673,7 +678,7 @@ function getRootUrl(mixed $url, int $remove_scheme, int $remove_www, int $remove
 {
     if (filter_var($url, FILTER_VALIDATE_URL)) {
         $url_array = parse_url((string) $url); //parse URL into arrays like $url_array['scheme'], $url_array['host'], etc
-        if (!is_array($url_array)) {
+        if (! is_array($url_array)) {
             return '';
         }
         $scheme = isset($url_array['scheme']) ? $url_array['scheme'] : '';
@@ -716,7 +721,7 @@ function getRootUrl(mixed $url, int $remove_scheme, int $remove_www, int $remove
 function getContactData(): array
 {
     $setting = Setting::first();
-    if (!$setting) {
+    if (! $setting) {
         return ['logo' => '', 'contact' => ''];
     }
     $countryCode = Country::where('country_code_char2', $setting->country)->value('phonecode');
@@ -819,8 +824,8 @@ function isS3Enabled(): bool
  * This function reads the current environment file, updates existing keys,
  * or appends new ones if they do not exist.
  *
- * @param  array<mixed> $data  An associative array where the key is the environment
- *                       variable name, and the value is the new value to set.
+ * @param  array<mixed>  $data  An associative array where the key is the environment
+ *                              variable name, and the value is the new value to set.
  *
  * @throws FileNotFoundException If the .env file is not found.
  */
@@ -960,11 +965,11 @@ function getUrl(): string
 {
     $protocol = (isset($_SERVER['HTTPS']) && \Illuminate\Support\Facades\Request::server('HTTPS') === 'on') ? 'https' : 'http';
     $host = \Illuminate\Support\Facades\Request::server('HTTP_HOST');
-    if (!is_string($host)) {
+    if (! is_string($host)) {
         $host = '';
     }
     $scriptName = \Illuminate\Support\Facades\Request::server('SCRIPT_NAME');
-    if (!is_string($scriptName)) {
+    if (! is_string($scriptName)) {
         $scriptName = '';
     }
     $path = dirname($scriptName);
@@ -1046,11 +1051,12 @@ function isAgentAllowed(mixed $productId, mixed $planId): bool
     if ($product instanceof Product) {
         return (bool) $product->can_modify_agent;
     }
+
     return false;
 }
 
 /**
- * @param array<mixed> $paymentMethods
+ * @param  array<mixed>  $paymentMethods
  */
 function isCurrencySupportedForPayments(string $currency, array|string $paymentMethods): bool
 {
@@ -1107,7 +1113,8 @@ function calculateUnitCost(string $currency, int|float $cost): int
 
 /**
  * log the actions in log files.
- * @param array<mixed> $array
+ *
+ * @param  array<mixed>  $array
  */
 function loging(string $context, string $message, string $level = 'error', array $array = []): void
 {
@@ -1214,7 +1221,8 @@ function hyperLinkGenerator(string $href, string $value): string
 
 /**
  * Log activity in a standard format across the system.
- * @param array<mixed> $properties
+ *
+ * @param  array<mixed>  $properties
  */
 function logActivity(
     string $message,
@@ -1251,6 +1259,7 @@ function getUserStateWithCountry(?string $country = null, ?string $state = null)
 
 /**
  *Get Supported Countries for IntlInput Plugins.
+ *
  * @return array<mixed>
  */
 function getSupportedCountriesForIntlInput(): array

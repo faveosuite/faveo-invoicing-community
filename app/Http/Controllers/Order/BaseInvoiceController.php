@@ -194,6 +194,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
      * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
      *
      * @date   2019-02-22T13:10:50+0530
+     *
      * @return array<mixed>
      */
     protected function getCodeFromSession(): array

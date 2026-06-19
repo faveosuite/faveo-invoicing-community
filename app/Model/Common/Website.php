@@ -8,6 +8,7 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Website newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Website newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Website query()
+ *
  * @mixin \Eloquent
  */
 class Website extends BaseModel

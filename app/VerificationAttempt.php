@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VerificationAttempt newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VerificationAttempt newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VerificationAttempt query()
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VerificationAttempt whereMobileAttempt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VerificationAttempt whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VerificationAttempt whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class VerificationAttempt extends Model

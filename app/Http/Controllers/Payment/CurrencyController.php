@@ -8,7 +8,6 @@ use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
 use DB;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lang;
 use Session;
@@ -290,7 +289,7 @@ class CurrencyController extends Controller
         try {
             return DB::transaction(function () use ($request): \Illuminate\Http\JsonResponse {
                 $currency = Currency::findOrFail($request->input('current_id'));
-                if (!$currency instanceof Currency) {
+                if (! $currency instanceof Currency) {
                     throw new Exception('Currency not found.');
                 }
 
@@ -313,7 +312,7 @@ class CurrencyController extends Controller
     {
         try {
             $currency = Currency::findOrFail($id);
-            if (!$currency instanceof Currency) {
+            if (! $currency instanceof Currency) {
                 throw new Exception('Currency not found.');
             }
             Setting::where('id', 1)->update([

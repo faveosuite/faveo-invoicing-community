@@ -81,7 +81,7 @@ class Response
     }
 
     /**
-     * @param  array<mixed> $headers
+     * @param  array<mixed>  $headers
      */
     public function setHeaders($headers): void
     {
@@ -102,7 +102,7 @@ class Response
     }
 
     /**
-     * @param  array<mixed> $xHeaders
+     * @param  array<mixed>  $xHeaders
      */
     public function setXHeaders($xHeaders): void
     {

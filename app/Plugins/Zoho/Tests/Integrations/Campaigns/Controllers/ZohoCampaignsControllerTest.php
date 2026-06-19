@@ -24,7 +24,8 @@ class ZohoCampaignsControllerTest extends DBTestCase
 
     /**
      * Set up default HTTP fakes for Zoho API calls.
-     * @param array<mixed> $additionalFakes
+     *
+     * @param  array<mixed>  $additionalFakes
      */
     protected function fakeZohoHttpCalls(array $additionalFakes = []): void
     {

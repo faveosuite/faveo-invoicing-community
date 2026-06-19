@@ -64,8 +64,9 @@ class ZohoConnectHelper
     }
 
     /**
-     * @param \Illuminate\Support\Collection<int|string, mixed> $localFields
-     * @param \Illuminate\Support\Collection<int|string, mixed> $zohoFields
+     * @param  \Illuminate\Support\Collection<int|string, mixed>  $localFields
+     * @param  \Illuminate\Support\Collection<int|string, mixed>  $zohoFields
+     *
      * @phpstan-param \Illuminate\Support\Collection<array-key, mixed> $zohoFields
      * @phpstan-param \Illuminate\Support\Collection<array-key, mixed> $localFields
      */
@@ -121,8 +122,8 @@ class ZohoConnectHelper
     }
 
     /**
-     * @param array<mixed> $meta
-     * @param array<mixed> $selected
+     * @param  array<mixed>  $meta
+     * @param  array<mixed>  $selected
      */
     public static function updateMapping(
         int $zohoFieldId,

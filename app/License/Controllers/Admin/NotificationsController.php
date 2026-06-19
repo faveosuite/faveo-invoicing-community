@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\License\Models\LicenseNotification;
 use App\License\Models\VersionNotification;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Lang;
 
 class NotificationsController extends Controller
 {
@@ -59,8 +58,7 @@ class NotificationsController extends Controller
         $validated = $request->validate(
             array_fill_keys($fields, 'required|string|max:250')
         );
- /** @var \App\License\Models\VersionNotification|null $notification */
-
+        /** @var \App\License\Models\VersionNotification|null $notification */
         $notification = VersionNotification::find($notification_id) ?? VersionNotification::first();
 
         if ($notification) {

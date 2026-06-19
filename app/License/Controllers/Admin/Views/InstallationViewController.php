@@ -7,7 +7,6 @@ use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
 use App\License\Models\LicenseCallback;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Lang;
 
 class InstallationViewController extends Controller
 {

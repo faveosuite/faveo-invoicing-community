@@ -39,7 +39,7 @@ class OrderFactory extends Factory
     }
 
     /**
-     * @param array<mixed> $overrides
+     * @param  array<mixed>  $overrides
      */
     public function withRelations(array $overrides = []): mixed
     {

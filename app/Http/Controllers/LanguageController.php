@@ -39,7 +39,7 @@ class LanguageController extends Controller
     }
 
     /**
-     * @param array<mixed> $languageArray
+     * @param  array<mixed>  $languageArray
      */
     private function appendCoreLanguage(string $languageName, array &$languageArray): void
     {
@@ -48,7 +48,7 @@ class LanguageController extends Controller
     }
 
     /**
-     * @param array<mixed> $languageArray
+     * @param  array<mixed>  $languageArray
      */
     private function appendRecaptchaLanguage(string $locale, array &$languageArray): void
     {
@@ -62,7 +62,7 @@ class LanguageController extends Controller
     }
 
     /**
-     * @param array<mixed> $languageArray
+     * @param  array<mixed>  $languageArray
      */
     private function appendLicenseLanguage(string $locale, array &$languageArray): void
     {
@@ -74,7 +74,7 @@ class LanguageController extends Controller
     }
 
     /**
-     * @param array<mixed> $languageArray
+     * @param  array<mixed>  $languageArray
      */
     private function appendPackageLanguage(string $package, string $locale, string $namespace, array &$languageArray): void
     {
@@ -86,7 +86,7 @@ class LanguageController extends Controller
     }
 
     /**
-     * @param array<mixed> $languageArray
+     * @param  array<mixed>  $languageArray
      */
     private function updateLanguageArray(string $path, array &$languageArray): void
     {

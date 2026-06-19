@@ -25,8 +25,8 @@ class ZohoCampaignsApi extends ZohoBaseApi
      *
      * @param  string  $listKey  The list key.
      * @param  string  $email  The email address to subscribe.
-     * @param  array<mixed> $contactInfo  Additional contact information to subscribe.
-     * @param  array<mixed> $additionalParams  Additional parameters to pass to the API.
+     * @param  array<mixed>  $contactInfo  Additional contact information to subscribe.
+     * @param  array<mixed>  $additionalParams  Additional parameters to pass to the API.
      *
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
@@ -58,7 +58,7 @@ class ZohoCampaignsApi extends ZohoBaseApi
      *
      * @param  string  $listKey  The list key.
      * @param  string  $email  The email address to unsubscribe.
-     * @param  array<mixed> $additionalParams  Additional parameters to pass to the API.
+     * @param  array<mixed>  $additionalParams  Additional parameters to pass to the API.
      *
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
@@ -92,11 +92,11 @@ class ZohoCampaignsApi extends ZohoBaseApi
      * @param  string  $sort  The sort order of the results. Possible values are 'asc' and 'desc'. Default is 'asc'.
      * @param  int  $fromIndex  The starting index for the results. Default is 1.
      * @param  int  $range  The range of results to retrieve. Default is 25.
+     * @param  array<mixed>  $additionalParams
      * @return array<array-key, ZohoCustomer> The list of subscribers.
      *
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
-     * @param array<mixed> $additionalParams
      */
     public function listSubscribers(
         string $listKey,
@@ -138,11 +138,11 @@ class ZohoCampaignsApi extends ZohoBaseApi
      *
      * @param  string  $listKey  The list key.
      * @param  string  $status  The status of the subscribers to retrieve. Possible values are 'active', 'unsub', 'bounce' and 'spam'. Default is 'active'
+     * @param  array<mixed>  $additionalParams
      * @return int The count of subscribers.
      *
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
-     * @param array<mixed> $additionalParams
      */
     public function listSubscribersCount(
         string $listKey,
