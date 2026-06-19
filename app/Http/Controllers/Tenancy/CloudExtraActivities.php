@@ -24,7 +24,6 @@ use App\Model\Product\Subscription;
 use App\ThirdPartyApp;
 use App\Traits\TaxCalculation;
 use App\User;
-use Auth;
 use Crypt;
 use DB;
 use Exception;
@@ -50,12 +49,12 @@ class CloudExtraActivities extends Controller
     }
 
     /**
-     * @param array<mixed> $data
+     * @param  array<mixed>  $data
      */
     private function cloudApiPost(string $endpoint, array $data): object
     {
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-        if (!$keys) {
+        if (! $keys) {
             throw new Exception('Missing faveo_app_key setting');
         }
         $data = array_merge($data, ['app_key' => $keys->app_key, 'token' => Str::random(32), 'timestamp' => time()]);
@@ -101,7 +100,7 @@ class CloudExtraActivities extends Controller
     public function orderDomainCloudAutofill(Request $request): \Illuminate\Http\JsonResponse
     {
         $order = Order::find($request->orderId);
-        if (!$order instanceof Order) {
+        if (! $order instanceof Order) {
             return successResponse('', ['url' => '']);
         }
         $path = Installation::where('license_code', $order->serial_key)
@@ -150,7 +149,7 @@ class CloudExtraActivities extends Controller
 
             $orderId = $request->input('order_id');
             $order = Order::where('id', $orderId)->first();
-            if (!$order) {
+            if (! $order) {
                 return errorResponse(trans('message.something_went_wrong'));
             }
 
@@ -215,7 +214,7 @@ class CloudExtraActivities extends Controller
 
             $orderId = $request->input('order_id');
             $order = Order::where('id', $orderId)->first();
-            if (!$order) {
+            if (! $order) {
                 return errorResponse(trans('message.something_went_wrong'));
             }
 
@@ -249,7 +248,7 @@ class CloudExtraActivities extends Controller
             $oldLicense = $order->serial_key;
             $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId, agentAction: $request->agentAction);
             $invoice = new RenewController()->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', isAgentIncrease: false, agents: $totalAgents);
-            if (!$invoice instanceof \App\Model\Order\InvoiceItem) {
+            if (! $invoice instanceof \App\Model\Order\InvoiceItem) {
                 return errorResponse(trans('message.something_went_wrong'));
             }
 
@@ -289,7 +288,7 @@ class CloudExtraActivities extends Controller
             $orderId = $request->orderId;
 
             $order = Order::find($orderId);
-            if (!$order instanceof Order) {
+            if (! $order instanceof Order) {
                 return errorResponse(trans('message.something_went_wrong'));
             }
             if ($order->client != $this->authUser()->id) {
@@ -352,17 +351,17 @@ class CloudExtraActivities extends Controller
     {
         try {
             $sub = Subscription::where('order_id', $orderId)->first();
-            if (!$sub) {
+            if (! $sub) {
                 return [];
             }
             $planId ??= $sub->plan_id;
             $plan = Plan::with('productRelation')->find($planId);
-            if (!$plan) {
+            if (! $plan) {
                 return [];
             }
 
             $product = $plan->productRelation;
-            if (!$product) {
+            if (! $product) {
                 return [];
             }
             $planTarget = $product->planRelation->find($planId);
@@ -436,7 +435,7 @@ class CloudExtraActivities extends Controller
     {
         try {
             $sub = Subscription::where('order_id', $orderId)->first();
-            if (!$sub) {
+            if (! $sub) {
                 return ['price' => 0, 'discount' => null, 'product' => null, 'currency' => ''];
             }
             $planIdOld = $sub->plan_id;
@@ -444,11 +443,11 @@ class CloudExtraActivities extends Controller
             $oldAgents = (int) substr($oldLicense, 12, 16);
 
             $planOld = Plan::with('productRelation')->find($planIdOld);
-            if (!$planOld) {
+            if (! $planOld) {
                 return ['price' => 0, 'discount' => null, 'product' => null, 'currency' => ''];
             }
             $productOld = $planOld->productRelation;
-            if (!$productOld) {
+            if (! $productOld) {
                 return ['price' => 0, 'discount' => null, 'product' => null, 'currency' => ''];
             }
             $planTargetOld = $productOld->planRelation->find($planIdOld);
@@ -457,11 +456,11 @@ class CloudExtraActivities extends Controller
             $planDaysOld = (int) $planOld->days;
 
             $planNew = Plan::with('productRelation')->find($planIdNew);
-            if (!$planNew) {
+            if (! $planNew) {
                 return ['price' => 0, 'discount' => null, 'product' => null, 'currency' => ''];
             }
             $productNew = $planNew->productRelation;
-            if (!$productNew) {
+            if (! $productNew) {
                 return ['price' => 0, 'discount' => null, 'product' => null, 'currency' => ''];
             }
             $planTargetNew = $productNew->planRelation->find($planIdNew);
@@ -726,7 +725,7 @@ class CloudExtraActivities extends Controller
             $product_id_old = Plan::where('id', $planIdOld)->value('product');
             $planDaysOld = Plan::where('id', $planIdOld)->value('days');
             $productOld = Product::find($product_id_old);
-            if (!$productOld instanceof Product) {
+            if (! $productOld instanceof Product) {
                 throw new Exception('Product not found');
             }
             $planTargetOld = $productOld->planRelation->find($planIdOld);
@@ -736,7 +735,7 @@ class CloudExtraActivities extends Controller
             $product_id_new = Plan::where('id', $planIdNew)->value('product');
             $planDaysNew = Plan::where('id', $planIdNew)->value('days');
             $productNew = Product::find($product_id_new);
-            if (!$productNew instanceof Product) {
+            if (! $productNew instanceof Product) {
                 throw new Exception('Product not found');
             }
             $planTargetNew = $productNew->planRelation->find($planIdNew);
@@ -877,7 +876,7 @@ class CloudExtraActivities extends Controller
             $orderId = $request->get('orderId');
             $planId = Subscription::where('order_id', $orderId)->value('plan_id');
             $product = Product::find(Plan::where('id', $planId)->value('product'));
-            if (!$product instanceof Product) {
+            if (! $product instanceof Product) {
                 throw new Exception('Product not found');
             }
             $plan = $product->planRelation->find($planId);
@@ -977,9 +976,11 @@ class CloudExtraActivities extends Controller
             }
 
             $msg = Lang::get('message.trial_status_updated');
+
             return successResponse(is_array($msg) ? '' : $msg);
         } catch (Exception) {
             $msg = Lang::get('message.trial_status_error');
+
             return errorResponse(is_array($msg) ? '' : $msg);
         }
     }
@@ -1065,9 +1066,10 @@ class CloudExtraActivities extends Controller
     private function authUser(): \App\User
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        if (!$user instanceof \App\User) {
+        if (! $user instanceof \App\User) {
             throw new \Exception('Unauthorized');
         }
+
         return $user;
     }
 }

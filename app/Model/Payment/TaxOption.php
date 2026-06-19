@@ -21,6 +21,7 @@ use App\Traits\SystemActivityLogsTrait;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption query()
@@ -35,6 +36,7 @@ use App\Traits\SystemActivityLogsTrait;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereTaxBasedOn($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereTaxEnable($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxOption whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class TaxOption extends BaseModel

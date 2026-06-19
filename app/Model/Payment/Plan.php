@@ -28,6 +28,7 @@ use Override;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Payment\PlanPrice> $planPrice
  * @property-read int|null $plan_price_count
  * @property-read Product|null $productRelation
+ *
  * @method static \Database\Factories\Model\Payment\PlanFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan newQuery()
@@ -40,6 +41,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereProduct($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Plan extends BaseModel

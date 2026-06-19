@@ -269,7 +269,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $number = random_int(11111111, 99999999);
             $date = Date::parse($request->input('date'));
             $product = Product::find($productid);
-            if (!$product instanceof Product) {
+            if (! $product instanceof Product) {
                 throw new Exception('Product not found.');
             }
 
@@ -284,7 +284,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             }
 
             $user = User::where('id', $user_id)->select('state', 'country')->first();
-            if (!$user instanceof User) {
+            if (! $user instanceof User) {
                 throw new Exception('User not found.');
             }
             $user_state = (string) ($user->state ?? '');
@@ -388,12 +388,12 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             }
 
             $invoice = $this->invoice->find($id);
-            if (!$invoice instanceof Invoice) {
+            if (! $invoice instanceof Invoice) {
                 return errorResponse(__('message.invalid-invoice-id'));
             }
 
             $authUser = Auth::user();
-            if (!$authUser instanceof User) {
+            if (! $authUser instanceof User) {
                 return errorResponse('Unauthorized', 401);
             }
             if ($invoice->user_id != $authUser->id && $authUser->role != 'admin') {
@@ -441,12 +441,12 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $selectedColumns = $request->input('selected_columns', []);
             $searchParams = $request->input('search_params', []);
             $authUser = Auth::user();
-            if (!$authUser instanceof User) {
+            if (! $authUser instanceof User) {
                 return errorResponse('Unauthorized', 401);
             }
             $email = $authUser->email;
             $driver = QueueService::where('status', '1')->first();
-            if (!$driver instanceof QueueService) {
+            if (! $driver instanceof QueueService) {
                 return errorResponse('Queue driver not configured.');
             }
 
@@ -483,7 +483,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'id', 'company', 'address', 'state', 'zip', 'city', 'country',
                 'phone_code', 'phone', 'logo', 'company_email'
             )->first();
-            if (!$setting instanceof Setting) {
+            if (! $setting instanceof Setting) {
                 throw new Exception('Company settings not configured.');
             }
 

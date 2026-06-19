@@ -106,7 +106,7 @@ class SetupTestEnv extends LoggableCommand
     }
 
     /**
-     * @param array<mixed> $settings
+     * @param  array<mixed>  $settings
      */
     private function createEnvFile(array $settings, string $envFile): void
     {

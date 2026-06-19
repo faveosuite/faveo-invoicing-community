@@ -34,34 +34,34 @@ abstract class ExportHandleController
     use CoupCodeAndInvoiceSearch;
 
     /**
-     * @param array<mixed> $searchParams
-     * @param array<mixed> $selectedColumns
+     * @param  array<mixed>  $searchParams
+     * @param  array<mixed>  $selectedColumns
      */
     public function __construct(protected string $reportType, protected array $selectedColumns, protected array $searchParams, protected string $email)
     {
     }
 
     /**
-     * @param array<mixed> $selectedColumns
-     * @param array<mixed> $searchParams
+     * @param  array<mixed>  $selectedColumns
+     * @param  array<mixed>  $searchParams
      */
     abstract public function userExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse;
 
     /**
-     * @param array<mixed> $selectedColumns
-     * @param array<mixed> $searchParams
+     * @param  array<mixed>  $selectedColumns
+     * @param  array<mixed>  $searchParams
      */
     abstract public function invoiceExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse;
 
     /**
-     * @param array<mixed> $selectedColumns
-     * @param array<mixed> $searchParams
+     * @param  array<mixed>  $selectedColumns
+     * @param  array<mixed>  $searchParams
      */
     abstract public function orderExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse;
 
     /**
-     * @param array<mixed> $selectedColumns
-     * @param array<mixed> $searchParams
+     * @param  array<mixed>  $selectedColumns
+     * @param  array<mixed>  $searchParams
      */
     abstract public function tenantExports(array $selectedColumns, array $searchParams, string $email): void;
 }
@@ -69,10 +69,10 @@ abstract class ExportHandleController
 class ConcreteExportHandleController extends ExportHandleController
 {
     /**
-     * @param array<mixed> $searchParams
-     * @param array<mixed> $selectedColumns
-     * @param array<mixed> $searchParams
-     * @param array<mixed> $selectedColumns
+     * @param  array<mixed>  $searchParams
+     * @param  array<mixed>  $selectedColumns
+     * @param  array<mixed>  $searchParams
+     * @param  array<mixed>  $selectedColumns
      */
     public function userExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse
     {
@@ -171,7 +171,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
             // Get user details for email
             $user = User::where('email', $email)->first();
-            if (!$user instanceof User) {
+            if (! $user instanceof User) {
                 return response()->json(['message' => 'User not found.'], 404);
             }
             $id = $user->id;
@@ -202,7 +202,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
             // Send email notification
             $settings = Setting::find(1);
-            if (!$settings instanceof Setting) {
+            if (! $settings instanceof Setting) {
                 return response()->json(['message' => 'Setting not found.'], 404);
             }
             $from = $settings->email;
@@ -223,10 +223,10 @@ class ConcreteExportHandleController extends ExportHandleController
     }
 
     /**
-     * @param array<mixed> $searchParams
-     * @param array<mixed> $selectedColumns
-     * @param array<mixed> $searchParams
-     * @param array<mixed> $selectedColumns
+     * @param  array<mixed>  $searchParams
+     * @param  array<mixed>  $selectedColumns
+     * @param  array<mixed>  $searchParams
+     * @param  array<mixed>  $selectedColumns
      */
     public function invoiceExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse
     {
@@ -301,7 +301,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
             // Get user details for email
             $user = User::where('email', $email)->first();
-            if (!$user instanceof User) {
+            if (! $user instanceof User) {
                 return response()->json(['message' => 'User not found.'], 404);
             }
             $id = $user->id;
@@ -337,7 +337,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
             // Send email notification
             $settings = Setting::find(1);
-            if (!$settings instanceof Setting) {
+            if (! $settings instanceof Setting) {
                 return response()->json(['message' => 'Setting not found.'], 404);
             }
             $from = $settings->email;
@@ -358,10 +358,10 @@ class ConcreteExportHandleController extends ExportHandleController
     }
 
     /**
-     * @param array<mixed> $searchParams
-     * @param array<mixed> $selectedColumns
-     * @param array<mixed> $searchParams
-     * @param array<mixed> $selectedColumns
+     * @param  array<mixed>  $searchParams
+     * @param  array<mixed>  $selectedColumns
+     * @param  array<mixed>  $searchParams
+     * @param  array<mixed>  $selectedColumns
      */
     public function orderExports(array $selectedColumns, array $searchParams, string $email): \Illuminate\Http\JsonResponse
     {
@@ -440,7 +440,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
             // Get user details for email
             $user = User::where('email', $email)->first();
-            if (!$user instanceof User) {
+            if (! $user instanceof User) {
                 return response()->json(['message' => 'User not found.'], 404);
             }
             $id = $user->id;
@@ -476,7 +476,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
             // Send email notification
             $settings = Setting::find(1);
-            if (!$settings instanceof Setting) {
+            if (! $settings instanceof Setting) {
                 return response()->json(['message' => 'Setting not found.'], 404);
             }
             $from = $settings->email;
@@ -497,15 +497,15 @@ class ConcreteExportHandleController extends ExportHandleController
     }
 
     /**
-     * @param array<mixed> $searchParams
-     * @param array<mixed> $selectedColumns
-     * @param array<mixed> $searchParams
-     * @param array<mixed> $selectedColumns
+     * @param  array<mixed>  $searchParams
+     * @param  array<mixed>  $selectedColumns
+     * @param  array<mixed>  $searchParams
+     * @param  array<mixed>  $selectedColumns
      */
     public function tenantExports(array $selectedColumns, array $searchParams, string $email): void
     {
         $this->cloud = FaveoCloud::first(); // @phpstan-ignore property.notFound
-        if (!$this->cloud) {
+        if (! $this->cloud) {
             throw new Exception('FaveoCloud configuration not found.');
         }
         $client = new Client();
@@ -514,7 +514,7 @@ class ConcreteExportHandleController extends ExportHandleController
         $this->selectedColumns = array_filter($this->selectedColumns, fn ($column): bool => $column != 'action');
 
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-        if (!$keys) {
+        if (! $keys) {
             throw new Exception(__('message.cloud_invalid_message'));
         }
 
@@ -620,7 +620,7 @@ class ConcreteExportHandleController extends ExportHandleController
                                 $tenantData['country'] = null;
                             } else {
                                 $user = User::find($userId);
-                                if (!$user instanceof User) {
+                                if (! $user instanceof User) {
                                     $tenantData['country'] = null;
                                 } else {
                                     $country = Country::where('country_code_char2', $user->country)->value('country_name');
@@ -710,7 +710,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
         // Get user details for email
         $user = User::where('email', $email)->first();
-        if (!$user instanceof User) {
+        if (! $user instanceof User) {
             throw new Exception('User not found.');
         }
         $id = $user->id;
@@ -743,7 +743,7 @@ class ConcreteExportHandleController extends ExportHandleController
         ]);
 
         $setting = Setting::find(1);
-        if (!$setting instanceof Setting) {
+        if (! $setting instanceof Setting) {
             throw new Exception('Setting not found.');
         }
         $from = $setting->email;
@@ -769,7 +769,7 @@ class ConcreteExportHandleController extends ExportHandleController
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $orders
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $orders
      * @return \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
      */
     public function allInstallations(?string $allInstallation, \Illuminate\Database\Eloquent\Builder $orders): ?\Illuminate\Database\Eloquent\Builder
@@ -792,7 +792,7 @@ class ConcreteExportHandleController extends ExportHandleController
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $baseQuery
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $baseQuery
      * @return \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
      */
     public function getSelectedVersionOrders(\Illuminate\Database\Eloquent\Builder $baseQuery, ?string $version, string|int $productId, \Illuminate\Http\Request $request): \Illuminate\Database\Eloquent\Builder

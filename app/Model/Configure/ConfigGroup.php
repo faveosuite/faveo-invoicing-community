@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Configure\ConfigOption> $configOptions
  * @property-read int|null $config_options_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigGroup newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigGroup newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigGroup query()
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigGroup whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigGroup whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConfigGroup whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class ConfigGroup extends Model

@@ -78,6 +78,7 @@ class ZohoBaseController extends Controller
 
     /**
      * Get options for a specific Zoho field.
+     *
      * @return array<mixed>
      */
     public function getOptions(mixed $zohoFieldID): array

@@ -71,7 +71,8 @@ class MSG91Controller extends Controller
 
     /**
      * Process and store individual report.
-     * @param array<mixed> $reportData
+     *
+     * @param  array<mixed>  $reportData
      */
     protected function processIndividualReport(array $reportData): void
     {
@@ -115,7 +116,8 @@ class MSG91Controller extends Controller
      * Create a new retry row for the OTP request.
      *
      * Each retry gets its own row so webhook delivery status is tracked independently.
-     * @param array<mixed> $response
+     *
+     * @param  array<mixed>  $response
      */
     public function appendOtpRetry(array $response, string $countryIso, string $mobile, string $mobileCode, int $userID, string $source): void
     {

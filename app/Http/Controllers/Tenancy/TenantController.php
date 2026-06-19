@@ -213,7 +213,7 @@ class TenantController extends Controller
     public function createTenant(Request $request): \Illuminate\Http\JsonResponse
     {
         $order = Order::where('number', $request->orderNo)->first();
-        if (!$order) {
+        if (! $order) {
             return errorResponse(__('message.something_went_wrong'));
         }
         $product = CloudProducts::where('cloud_product', $order->productRelation()->value('id'))->value('cloud_product_key');
@@ -228,11 +228,11 @@ class TenantController extends Controller
             ]);
 
         $settings = Setting::find(1);
-        if (!$settings) {
+        if (! $settings) {
             return errorResponse(trans('message.something_bad'));
         }
         $userInformation = $request->has('userInfo') ? User::find($request->input('userInfo')) : $this->authUser();
-        if (!$userInformation instanceof User) {
+        if (! $userInformation instanceof User) {
             $userInformation = $this->authUser();
         }
 
@@ -280,7 +280,7 @@ class TenantController extends Controller
             $response = '{'.$response[1];
 
             $result = json_decode($response, true);
-            if (!is_array($result)) {
+            if (! is_array($result)) {
                 return errorResponse(trans('message.something_bad'));
             }
             if (($result['status'] ?? null) == 'fails') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
@@ -398,7 +398,7 @@ class TenantController extends Controller
     {
         try {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            if (!$keys) {
+            if (! $keys) {
                 return errorResponse(__('message.something_went_wrong_try_again'));
             }
             $token = Str::random(32);
@@ -412,7 +412,7 @@ class TenantController extends Controller
             );
             $responseBody = (string) $response->getBody();
             $responseArray = json_decode($responseBody, true);
-            if (!is_array($responseArray)) {
+            if (! is_array($responseArray)) {
                 return errorResponse(__('message.cloud_deleted_failed'));
             }
             $user = $this->authUser()->email ?? 'Auto deletion';
@@ -518,7 +518,7 @@ class TenantController extends Controller
     {
         if ($isDelete) {
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            if (!$keys) {
+            if (! $keys) {
                 return errorResponse(__('message.something_went_wrong_try_again'));
             }
             $token = Str::random(32);
@@ -798,9 +798,10 @@ class TenantController extends Controller
     private function authUser(): \App\User
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        if (!$user instanceof \App\User) {
+        if (! $user instanceof \App\User) {
             throw new \Exception('Unauthorized');
         }
+
         return $user;
     }
 }

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $option_group
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption group(mixed $group)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption newQuery()
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption whereOptionKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption whereOptionValue($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class LicenseOption extends Model
@@ -34,11 +36,11 @@ class LicenseOption extends Model
         'option_group',
     ];
 
-        /**
-     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
      */
     #[Scope]
-        protected function group( \Illuminate\Database\Eloquent\Builder $query, mixed $group): mixed
+    protected function group(\Illuminate\Database\Eloquent\Builder $query, mixed $group): mixed
     {
         return $query->where('option_group', $group);
     }

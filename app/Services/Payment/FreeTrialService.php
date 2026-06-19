@@ -37,8 +37,9 @@ class FreeTrialService
     }
 
     /**
-     * @throws RuntimeException
      * @return array<mixed>
+     *
+     * @throws RuntimeException
      */
     public function provision(User $user, string $domain, CloudProducts $cloudProduct): array
     {

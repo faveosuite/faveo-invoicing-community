@@ -7,7 +7,6 @@ use App\License\Helpers\LicenseHelper;
 use App\License\Models\VersionCallback;
 use App\Model\Product\ProductUpload;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Lang;
 
 class VersionsViewController extends Controller
 {

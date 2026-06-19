@@ -19,7 +19,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
 
 class LicenseController extends Controller
@@ -220,7 +219,7 @@ class LicenseController extends Controller
 
     public function formatClient(?string $license_code, ?string $client_email): string
     {
-        if (!in_array($license_code, [null, '', '0'], strict: true)) {
+        if (! in_array($license_code, [null, '', '0'], strict: true)) {
             return $license_code;
         }
 
@@ -233,11 +232,11 @@ class LicenseController extends Controller
             return errorResponse(__('license::lang.error_client_or_license_code'), 400);
         }
 
-        if (LicenseHelper::validateIntegerValue($client_id) && !in_array($license_code, [null, '', '0'], strict: true)) {
+        if (LicenseHelper::validateIntegerValue($client_id) && ! in_array($license_code, [null, '', '0'], strict: true)) {
             return errorResponse(__('license::lang.invalid_licnese'), 400);
         }
 
-        if (!in_array($license_ip, [null, '', '0'], strict: true)) {
+        if (! in_array($license_ip, [null, '', '0'], strict: true)) {
             foreach (explode(',', $license_ip) as $ipToValidate) {
                 if (! filter_var($ipToValidate, FILTER_VALIDATE_IP)) {
                     return errorResponse(__('license::lang.invalid_license_ip'), 400);
@@ -245,7 +244,7 @@ class LicenseController extends Controller
             }
         }
 
-        if (!in_array($license_domain, [null, '', '0'], strict: true)) {
+        if (! in_array($license_domain, [null, '', '0'], strict: true)) {
             foreach (explode(',', $license_domain) as $domain) {
                 if (! LicenseHelper::validateRawDomain(LicenseHelper::getRawDomain($domain)) || ! ctype_alnum(substr($domain, -1))) {
                     return errorResponse(__('license::lang.invalid_domain'), 400);
@@ -257,15 +256,15 @@ class LicenseController extends Controller
             return errorResponse(__('license::lang.invalid_license_limit'), 400);
         }
 
-        if (!in_array($license_expire_date, [null, '', '0'], strict: true) && ! LicenseHelper::verifyDateTime($license_expire_date, 'Y-m-d')) {
+        if (! in_array($license_expire_date, [null, '', '0'], strict: true) && ! LicenseHelper::verifyDateTime($license_expire_date, 'Y-m-d')) {
             return errorResponse(__('license::lang.invalid_license_expiry'), 400);
         }
 
-        if (!in_array($license_updates_date, [null, '', '0'], strict: true) && ! LicenseHelper::verifyDateTime($license_updates_date, 'Y-m-d')) {
+        if (! in_array($license_updates_date, [null, '', '0'], strict: true) && ! LicenseHelper::verifyDateTime($license_updates_date, 'Y-m-d')) {
             return errorResponse(__('license::lang.invalid_license_update_date'), 400);
         }
 
-        if (!in_array($license_support_date, [null, '', '0'], strict: true) && ! LicenseHelper::verifyDateTime($license_support_date, 'Y-m-d')) {
+        if (! in_array($license_support_date, [null, '', '0'], strict: true) && ! LicenseHelper::verifyDateTime($license_support_date, 'Y-m-d')) {
             return errorResponse(__('license::lang.invalid_license_support_date'), 400);
         }
 

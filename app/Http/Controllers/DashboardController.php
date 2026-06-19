@@ -75,6 +75,7 @@ class DashboardController extends Controller
 
     /**
      * Get all the orders that got converted into paid orders in last 30 days.
+     *
      * @return array<mixed>
      */
     private function getConversionRate(): array
@@ -93,6 +94,7 @@ class DashboardController extends Controller
 
     /**
      * Get all the installations and their percentage that got active in the last 30 days with respect to inactive installation.
+     *
      * @return array<mixed>
      */
     public function getLast30DaysInstallation(): array
@@ -351,7 +353,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * @param array<mixed> $totals
+     * @param  array<mixed>  $totals
      * @return array<mixed>
      */
     private function formatCurrencyTotals(array $totals): array

@@ -115,6 +115,7 @@ use Override;
  * @property-read int|null $taxes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Model\Product\ProductUpload> $versions
  * @property-read int|null $versions_count
+ *
  * @method static \Database\Factories\Model\Product\ProductFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newQuery()
@@ -166,6 +167,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWelcomeEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWhatsappIntegration($value)
+ *
  * @mixin \Eloquent
  */
 class Product extends BaseModel

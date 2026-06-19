@@ -5,7 +5,6 @@ namespace App\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Translation\PotentiallyTranslatedString;
-use Lang;
 
 class StrongPassword implements ValidationRule
 {

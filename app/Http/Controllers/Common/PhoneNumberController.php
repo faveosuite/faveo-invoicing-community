@@ -130,6 +130,7 @@ class PhoneNumberController
 
     /**
      * Get parsed phone number details (country code, national number, region).
+     *
      * @return array<mixed>
      */
     public function parse(string $phoneNumber, ?string $countryCode = null): ?array

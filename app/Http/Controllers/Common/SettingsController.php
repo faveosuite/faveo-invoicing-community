@@ -70,7 +70,7 @@ class SettingsController extends BaseSettingsController
     public function mobileVerification(ApiKey $apikeys): \Illuminate\Http\JsonResponse
     {
         $apiKeyRecord = $apikeys->select('msg91_auth_key', 'msg91_sender', 'msg91_template_id', 'msg91_third_party_id')->first();
-        if (!$apiKeyRecord) {
+        if (! $apiKeyRecord) {
             return successResponse('', []);
         }
         [$mobileauthkey,$msg91Sender,$msg91TemplateId,$msg91ThirdPartyId] = array_values($apiKeyRecord->toArray());
@@ -136,7 +136,7 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $keys = $apikeys->find(1);
-            if (!$keys instanceof ApiKey) {
+            if (! $keys instanceof ApiKey) {
                 return back()->with('fails', trans('message.something_went_wrong'));
             }
             $keys->fill($request->input())->save();
@@ -224,7 +224,7 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $set = $settings->find(1);
-            if (!$set instanceof Setting) {
+            if (! $set instanceof Setting) {
                 return errorResponse(trans('message.something_went_wrong'));
             }
 
@@ -385,13 +385,13 @@ class SettingsController extends BaseSettingsController
                 ['key' => 'whatsapp_status',        'slug' => 'whatsapp',          'name' => $this->langStr('message.whatsapp_config'),                  'description' => $this->langStr('message.whatsapp_thirdParty_explanation'), 'enabled' => (bool) $status?->whatsapp_status,         'route' => '/settings/whatsapp-integration'],
                 ['key' => 'zoho',                   'slug' => 'zoho',              'name' => $this->langStr('message.zoho_integration'),                'description' => $this->langStr('message.zoho_description'),                'enabled' => true,                                              'route' => '/settings/api/zoho', 'settings_only' => true],
             ];
- 
+
             foreach ($all as $index => &$item) {
                 $item['id'] = $index + 1;
             }
- 
+
             unset($item);
- 
+
             $search = trim((string) $request->input('search-query', ''));
             if ($search !== '') {
                 $all = array_values(array_filter($all, fn (array $m): bool => stripos($m['name'], $search) !== false ||
@@ -825,7 +825,7 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $setting = $settings->find(1);
-            if (!$setting instanceof Setting) {
+            if (! $setting instanceof Setting) {
                 return errorResponse(trans('message.something_went_wrong'));
             }
             $setting->fill($request->only(['error_log', 'error_email']))->save();
@@ -911,6 +911,7 @@ class SettingsController extends BaseSettingsController
         }
 
         $timestamp = strtotime($date);
+
         return date('Y-m-d H:i:s', $timestamp !== false ? $timestamp : null);
     }
 
@@ -1005,7 +1006,7 @@ class SettingsController extends BaseSettingsController
         try {
             $id = $request->input('id');
             $result = EmailValidationResults::where('id', $id)->first();
-            if (!$result instanceof EmailValidationResults) {
+            if (! $result instanceof EmailValidationResults) {
                 return errorResponse(trans('message.something_went_wrong'));
             }
 
@@ -1031,7 +1032,7 @@ class SettingsController extends BaseSettingsController
         try {
             $id = $request->input('id');
             $result = EmailValidationResults::where('id', $id)->first();
-            if (!$result instanceof EmailValidationResults) {
+            if (! $result instanceof EmailValidationResults) {
                 return errorResponse(trans('message.something_went_wrong'));
             }
             $content = ['name' => $result->first_name.' '.$result->last_name,
@@ -1246,6 +1247,7 @@ class SettingsController extends BaseSettingsController
     private function langStr(string $key): string
     {
         $msg = Lang::get($key);
+
         return is_array($msg) ? '' : $msg;
     }
 }

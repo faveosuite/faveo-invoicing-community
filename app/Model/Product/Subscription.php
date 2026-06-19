@@ -36,6 +36,7 @@ use Override;
  * @property-read Plan|null $plan
  * @property-read \App\Model\Product\Product|null $product
  * @property-read User|null $user
+ *
  * @method static \Database\Factories\Model\Product\SubscriptionFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription newQuery()
@@ -59,6 +60,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription whereVersionUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Subscription extends Model

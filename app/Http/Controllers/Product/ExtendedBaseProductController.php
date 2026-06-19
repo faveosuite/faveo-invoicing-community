@@ -15,7 +15,6 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Lang;
 use Logger;
 use Symfony\Component\HttpFoundation\Response;
 

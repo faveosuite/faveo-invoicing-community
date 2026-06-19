@@ -20,6 +20,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
 {
     /**
      * Get Grandtotal.
+     *
      * @return array<mixed>
      **/
     public function getGrandTotal(?string $code, float|int $total, float|int $cost, int $productid, string $currency, string $user_id = ''): array
@@ -41,6 +42,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
 
     /**
      * Get Message on Invoice Generation.
+     *
      * @return array<mixed>
      **/
     public function getMessage(mixed $items, int $user_id): array

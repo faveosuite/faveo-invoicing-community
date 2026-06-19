@@ -37,7 +37,7 @@ class MailchimpClient
     }
 
     /**
-     * @param array<mixed> $params
+     * @param  array<mixed>  $params
      * @return array<mixed>
      */
     public function get(string $endpoint, array $params = []): array
@@ -46,7 +46,7 @@ class MailchimpClient
     }
 
     /**
-     * @param array<mixed> $body
+     * @param  array<mixed>  $body
      * @return array<mixed>
      */
     public function post(string $endpoint, array $body = []): array
@@ -55,7 +55,7 @@ class MailchimpClient
     }
 
     /**
-     * @param array<mixed> $body
+     * @param  array<mixed>  $body
      * @return array<mixed>
      */
     public function patch(string $endpoint, array $body = []): array
@@ -64,7 +64,7 @@ class MailchimpClient
     }
 
     /**
-     * @param array<mixed> $body
+     * @param  array<mixed>  $body
      * @return array<mixed>
      */
     public function put(string $endpoint, array $body = []): array
@@ -73,7 +73,7 @@ class MailchimpClient
     }
 
     /**
-     * @param array<mixed> $data
+     * @param  array<mixed>  $data
      * @return array<mixed>
      */
     private function request(string $method, string $endpoint, array $data = []): array

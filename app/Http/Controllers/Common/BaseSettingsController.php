@@ -49,8 +49,8 @@ class BaseSettingsController extends PaymentSettingsController
      * {"attributes":{"Status":"Active"},"old":{"Status":"Inactive"}}
      * where old represents the old data and attributes represents the new data.
      *
+     * @param  array<mixed>  $properties
      * @return non-falsy-string[]
-     * @param array<mixed> $properties
      */
     protected function formatProperties(array $properties, mixed $event): array
     {

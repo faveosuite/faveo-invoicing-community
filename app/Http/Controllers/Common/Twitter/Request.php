@@ -25,7 +25,7 @@ class Request implements Stringable
      *
      * @param  string  $httpMethod
      * @param  string  $httpUrl
-     * @param array<mixed> $parameters
+     * @param  array<mixed>  $parameters
      */
     public function __construct(protected $httpMethod, $httpUrl, array $parameters = [])
     {
@@ -41,7 +41,7 @@ class Request implements Stringable
      * @param  Token  $token
      * @param  string  $httpMethod
      * @param  string  $httpUrl
-     * @param array<mixed> $parameters
+     * @param  array<mixed>  $parameters
      */
     public static function fromConsumerAndToken(
         Consumer $consumer,

@@ -12,6 +12,7 @@ use App\BaseModel;
  * @property int $bundle_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundleRelation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundleRelation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundleRelation query()
@@ -20,6 +21,7 @@ use App\BaseModel;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundleRelation whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundleRelation whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductBundleRelation whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class ProductBundleRelation extends BaseModel

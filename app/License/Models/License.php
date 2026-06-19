@@ -48,6 +48,7 @@ use Override;
  * @property-read int|null $plugins_count
  * @property-read Product $product
  * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License active()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License newQuery()
@@ -74,6 +75,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class License extends Model
@@ -175,20 +177,20 @@ class License extends Model
         return ! empty($this->license_expire_date) && $this->license_expire_date < now()->toDateTimeString();
     }
 
-        /**
-     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
      */
     #[Scope]
-        protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where('license_status', 1);
     }
 
-        /**
-     * @param \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
      */
     #[Scope]
-        protected function suspended(\Illuminate\Database\Eloquent\Builder $query): mixed
+    protected function suspended(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where('license_status', 2);
     }

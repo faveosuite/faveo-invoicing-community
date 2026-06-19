@@ -9,7 +9,6 @@ use App\License\Models\LicenseCallback;
 use App\License\Models\VersionCallback;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Lang;
 
 class CallBackController extends Controller
 {
