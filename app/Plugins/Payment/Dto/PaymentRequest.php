@@ -28,5 +28,6 @@ final readonly class PaymentRequest
         public ?string $description = null,
         public ?string $returnUrl = null,
         public array $metadata = [],
-    ) {}
+    ) {
+    }
 }

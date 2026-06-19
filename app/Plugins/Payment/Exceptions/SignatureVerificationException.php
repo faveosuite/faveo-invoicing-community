@@ -10,4 +10,6 @@ namespace App\Plugins\Payment\Exceptions;
  * generic {@see PaymentException} so callers can treat tampering specially
  * (e.g. alert an admin) without parsing messages.
  */
-class SignatureVerificationException extends PaymentException {}
+class SignatureVerificationException extends PaymentException
+{
+}

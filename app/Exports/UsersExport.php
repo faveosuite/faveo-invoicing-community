@@ -12,7 +12,9 @@ class UsersExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
 
-    public function __construct(protected mixed $selectedColumns, protected mixed $usersData, protected mixed $sheetIndex) {}
+    public function __construct(protected mixed $selectedColumns, protected mixed $usersData, protected mixed $sheetIndex)
+    {
+    }
 
     /**
      * @return Collection<int|string, mixed>

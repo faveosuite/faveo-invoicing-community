@@ -12,7 +12,8 @@ class ZohoAccountsApi
         protected string $clientId,
         protected string $clientSecret,
         protected ZohoRegion $region,
-    ) {}
+    ) {
+    }
 
     /**
      * @return array{

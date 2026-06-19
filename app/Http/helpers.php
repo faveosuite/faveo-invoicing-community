@@ -889,7 +889,8 @@ function rateLimitForKeyIp(string $key, int $maxAttempts, int $decayMinutes, str
     }
 
     // Command 2: Handle persistent cache using RateLimiter.
-    if (! RateLimiter::attempt($IpKey, $maxAttempts, function (): void {}, $decaySeconds)) {
+    if (! RateLimiter::attempt($IpKey, $maxAttempts, function (): void {
+    }, $decaySeconds)) {
         $remainingTime = RateLimiter::availableIn($IpKey);
 
         return ['status' => true, 'remainingTime' => formatDuration($remainingTime)];

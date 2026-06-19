@@ -48,7 +48,9 @@ trait MailTracker
 
 class TestingMailEventListener implements Swift_Events_EventListener
 {
-    public function __construct(protected $test) {}
+    public function __construct(protected $test)
+    {
+    }
 
     public function beforeSendPerformed($event): void
     {

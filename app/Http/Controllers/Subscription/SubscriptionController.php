@@ -32,7 +32,8 @@ class SubscriptionController extends Controller
 {
     public function __construct(
         protected ConcretePostSubscriptionHandleController $PostSubscriptionHandle
-    ) {}
+    ) {
+    }
 
     // ── Cron entry point ──────────────────────────────────────────────────
 

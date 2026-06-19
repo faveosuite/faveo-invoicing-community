@@ -9,7 +9,9 @@ use App\User;
 
 class SubscribeUserOnRegister extends BaseExternalSyncListener
 {
-    public function __construct(private readonly MailchimpService $service) {}
+    public function __construct(private readonly MailchimpService $service)
+    {
+    }
 
     protected function serviceKey(): string
     {
