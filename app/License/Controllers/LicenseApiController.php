@@ -13,7 +13,9 @@ use Illuminate\Routing\Controller;
  */
 class LicenseApiController extends Controller
 {
-    public function __construct(protected LicenseService $licenseService) {}
+    public function __construct(protected LicenseService $licenseService)
+    {
+    }
 
     /**
      * GET /api/licenseInfo.

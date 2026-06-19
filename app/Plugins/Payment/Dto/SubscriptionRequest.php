@@ -37,5 +37,6 @@ final readonly class SubscriptionRequest
         public ?int $expireBy = null,
         public int $totalCount = 100,
         public array $metadata = [],
-    ) {}
+    ) {
+    }
 }

@@ -19,5 +19,6 @@ final readonly class Customer
         public ?string $state = null,
         public ?string $postalCode = null,
         public ?string $country = null,
-    ) {}
+    ) {
+    }
 }

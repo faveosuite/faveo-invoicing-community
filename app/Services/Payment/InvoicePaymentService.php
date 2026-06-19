@@ -33,7 +33,8 @@ class InvoicePaymentService
     public function __construct(
         private readonly PaymentService $payments,
         private readonly PostPaymentService $postPayment,
-    ) {}
+    ) {
+    }
 
     /** Stripe publishable key, for the SPA to initialise Stripe.js. */
     public function publishableKey(): string

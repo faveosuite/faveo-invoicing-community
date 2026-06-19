@@ -27,7 +27,9 @@ use App\Plugins\Payment\Exceptions\PaymentException;
  */
 class OpenPaymentService
 {
-    public function __construct(private readonly PaymentService $payments) {}
+    public function __construct(private readonly PaymentService $payments)
+    {
+    }
 
     /** Stripe publishable key, for the client to initialise Stripe.js. */
     public function publishableKey(): string

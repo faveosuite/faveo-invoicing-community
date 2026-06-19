@@ -15,7 +15,9 @@ class LicenseVerifyController extends Controller
 {
     use AflCallbackHelpers;
 
-    public function __construct(protected LicenseValidator $validator, protected InstallationService $installationService) {}
+    public function __construct(protected LicenseValidator $validator, protected InstallationService $installationService)
+    {
+    }
 
     /**
      * Verify license for deployed product

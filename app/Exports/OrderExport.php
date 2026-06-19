@@ -12,7 +12,9 @@ class OrderExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
 
-    public function __construct(protected mixed $selectedColumns, protected mixed $ordersData, protected mixed $sheetIndex) {}
+    public function __construct(protected mixed $selectedColumns, protected mixed $ordersData, protected mixed $sheetIndex)
+    {
+    }
 
     /**
      * @return Collection<int|string, mixed>

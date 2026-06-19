@@ -13,7 +13,9 @@ class SmsIntegration extends Event
     /**
      * Create a new event instance.
      */
-    public function __construct(public mixed $para) {}
+    public function __construct(public mixed $para)
+    {
+    }
 
     /**
      * Get the channels the event should be broadcast on.

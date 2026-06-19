@@ -15,7 +15,9 @@ class LicenseInstallController extends Controller
 {
     use AflCallbackHelpers;
 
-    public function __construct(protected LicenseValidator $validator, protected InstallationService $installationService) {}
+    public function __construct(protected LicenseValidator $validator, protected InstallationService $installationService)
+    {
+    }
 
     /**
      * Register license installation

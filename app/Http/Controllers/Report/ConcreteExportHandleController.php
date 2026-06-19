@@ -40,7 +40,9 @@ abstract class ExportHandleController
      * @param  array<mixed>  $searchParams
      * @param  array<mixed>  $selectedColumns
      */
-    public function __construct(protected string $reportType, protected array $selectedColumns, protected array $searchParams, protected string $email) {}
+    public function __construct(protected string $reportType, protected array $selectedColumns, protected array $searchParams, protected string $email)
+    {
+    }
 
     /**
      * @param  array<mixed>  $selectedColumns

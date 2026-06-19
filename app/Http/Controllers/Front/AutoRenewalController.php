@@ -21,7 +21,9 @@ use Logger;
 
 class AutoRenewalController extends Controller
 {
-    public function __construct(private readonly PaymentService $payments) {}
+    public function __construct(private readonly PaymentService $payments)
+    {
+    }
 
     /**
      * Create a Stripe PaymentIntent for card verification.

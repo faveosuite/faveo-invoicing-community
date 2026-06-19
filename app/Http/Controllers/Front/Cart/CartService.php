@@ -21,7 +21,9 @@ use Throwable;
 
 class CartService
 {
-    public function __construct(private readonly GuestCart $guest) {}
+    public function __construct(private readonly GuestCart $guest)
+    {
+    }
 
     // --- Cart resolution ---
 

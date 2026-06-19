@@ -214,5 +214,6 @@ class DatabaseSetupController extends Controller
 class TestResult
 {
     public function __construct(public mixed $message, public mixed $status = STATUS_OK) // @phpstan-ignore constant.notFound
-    {}
+    {
+    }
 }

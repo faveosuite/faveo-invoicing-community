@@ -10,7 +10,9 @@ use Exception;
 
 class AutoUpdateController extends Controller
 {
-    public function __construct(protected VersionService $versionService) {}
+    public function __construct(protected VersionService $versionService)
+    {
+    }
 
     /*
     *  Add New Version

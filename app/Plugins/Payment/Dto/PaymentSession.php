@@ -27,5 +27,6 @@ final readonly class PaymentSession
         public string $id,
         public array $clientConfig,
         public array $raw = [],
-    ) {}
+    ) {
+    }
 }

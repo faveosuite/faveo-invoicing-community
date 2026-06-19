@@ -24,5 +24,6 @@ final readonly class SubscriptionResult
         public ?string $id,
         public string $status,
         public array $raw = [],
-    ) {}
+    ) {
+    }
 }

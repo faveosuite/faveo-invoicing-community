@@ -16,7 +16,9 @@ class SendEmail implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected mixed $from, protected mixed $to, protected mixed $template_data, protected mixed $template_name, protected mixed $replace = [], protected mixed $type = '', protected mixed $bcc = [], protected mixed $fromname = '', protected mixed $toname = '', protected mixed $cc = [], protected mixed $attach = [], protected mixed $logIdentifier = null, protected mixed $auto_reply = false) {}
+    public function __construct(protected mixed $from, protected mixed $to, protected mixed $template_data, protected mixed $template_name, protected mixed $replace = [], protected mixed $type = '', protected mixed $bcc = [], protected mixed $fromname = '', protected mixed $toname = '', protected mixed $cc = [], protected mixed $attach = [], protected mixed $logIdentifier = null, protected mixed $auto_reply = false)
+    {
+    }
 
     /**
      * Execute the job.

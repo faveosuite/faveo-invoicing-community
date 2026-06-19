@@ -41,7 +41,8 @@ class PaymentController extends Controller
     public function __construct(
         private readonly InvoicePaymentService $invoices,
         private readonly OpenPaymentService $webhooks,
-    ) {}
+    ) {
+    }
 
     public function payInit(Request $request, int $invoice): JsonResponse
     {

@@ -12,7 +12,9 @@ class InvoiceExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
 
-    public function __construct(protected mixed $selectedColumns, protected mixed $invoicesData, protected mixed $sheetIndex) {}
+    public function __construct(protected mixed $selectedColumns, protected mixed $invoicesData, protected mixed $sheetIndex)
+    {
+    }
 
     /**
      * @return Collection<int|string, mixed>
