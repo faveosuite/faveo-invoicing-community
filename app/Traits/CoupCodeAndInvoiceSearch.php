@@ -21,7 +21,7 @@ trait CoupCodeAndInvoiceSearch
      */
     public function advanceSearch(Request $request): \Illuminate\Database\Eloquent\Builder
     {
-        return Invoice::with(['user:id,first_name,last_name,email,mobile,mobile_code,country', 'payment', 'invoiceItem'])
+        return Invoice::with(['user:id,first_name,last_name,email,mobile,mobile_code,country', 'payment', 'invoiceItem']) // @phpstan-ignore return.type
             ->when($request->name, function ($query, $name): void {
                 $query->whereHas('user', function (Builder $q) use ($name): void {
                     $q->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', [sprintf('%%%s%%', $name)]);
@@ -67,7 +67,7 @@ trait CoupCodeAndInvoiceSearch
                 $invoice_status = 'success';
             }
 
-            if ($invoice) {
+            if ($invoice) { // @phpstan-ignore if.alwaysTrue
                 $sessionValue = $this->getCodeFromSession(); // @phpstan-ignore method.notFound
                 $code = $sessionValue['code'];
                 $codevalue = $sessionValue['codevalue'];

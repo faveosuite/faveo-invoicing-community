@@ -10,6 +10,8 @@ use Illuminate\Support\Collection;
  * @param array<mixed> $source
  * @param \Illuminate\Support\Collection<int|string, mixed> $zohoFields
  * @return array<mixed>
+ * @phpstan-param \Illuminate\Support\Collection<array-key, mixed> $zohoFields
+ * @phpstan-param \Illuminate\Support\Collection<array-key, mixed> $mappings
  */
 function zohoMappedFields(
     Collection $zohoFields,
@@ -31,13 +33,13 @@ function zohoMappedFields(
 
         $selected = resolveSelected($mapping);
 
-        if ($selected['type'] === 'local') {
+        if ($selected !== null && $selected['type'] === 'local') {
             $updateKey = $mapping->faveoLocalField->field_key;
             $value = data_get($source, $updateKey, $mapping->default_value);
         }
 
         $value = null;
-        if ($selected['type'] === 'zoho') {
+        if ($selected !== null && $selected['type'] === 'zoho') {
             $value = json_decode((string) $selected['value'], associative: true)['value'] ?? null;
         }
 
@@ -59,11 +61,12 @@ function zohoMappedFields(
  * Resolve selectable options for a Zoho field.
  * @param \Illuminate\Support\Collection<int|string, mixed> $localFields
  * @return array<mixed>
+ * @phpstan-param \Illuminate\Support\Collection<array-key, mixed> $localFields
  */
 function resolveOptions(mixed $zohoField, Collection $localFields): array
 {
     if ($zohoField->field_type === 'picklist') {
-        return collect($zohoField->raw_metadata['pick_list_values'] ?? [])
+        return collect((array) ($zohoField->raw_metadata['pick_list_values'] ?? []))
             ->reject(fn ($opt): bool => ($opt['actual_value'] ?? null) === '-None-')
             ->map(fn ($opt): array => [
                 'type' => 'zoho',

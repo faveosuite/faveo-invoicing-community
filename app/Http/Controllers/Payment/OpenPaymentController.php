@@ -375,6 +375,6 @@ class OpenPaymentController extends Controller
 
         $status = $order->isPaid() ? 'success' : ($order->isFailed() ? 'failed' : 'pending');
 
-        return redirect('/open-payment?order_id='.$orderId.'&status='.$status);
+        return redirect('/open-payment?order_id='.urlencode((string) $orderId).'&status='.$status); // @phpstan-ignore cast.string
     }
 }

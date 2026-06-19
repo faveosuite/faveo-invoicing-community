@@ -144,7 +144,7 @@ class AutomationControllerTest extends TestCase
             categoryName: 'test_category'
         );
 
-        $mailLog = MailLog::latest()->first();
+        $mailLog = MailLog::latest()->firstOrFail();
         $response = $this->getJson('retry/mail-log/'.$mailLog->id);
 
         // Assert response structure
@@ -162,9 +162,8 @@ class AutomationControllerTest extends TestCase
         );
 
         // Assert database record exists and payload is not null
-        $this->assertNotNull($mailLog);
-        $this->assertNotNull($mailLog->job_payload); // @phpstan-ignore method.alreadyNarrowedType
-        $this->assertEquals('test_category', $mailLog->category->name);
+        $this->assertNotNull($mailLog->job_payload);
+        $this->assertEquals('test_category', $mailLog->category?->name);
     }
 
     #[Test]

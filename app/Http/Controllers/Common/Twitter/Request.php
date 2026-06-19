@@ -151,10 +151,11 @@ class Request implements Stringable
     public function getNormalizedHttpUrl(): string
     {
         $parts = parse_url($this->httpUrl);
+        $parts = is_array($parts) ? $parts : [];
 
-        $scheme = $parts['scheme'];
-        $host = strtolower($parts['host']);
-        $path = $parts['path'];
+        $scheme = $parts['scheme'] ?? '';
+        $host = strtolower($parts['host'] ?? '');
+        $path = $parts['path'] ?? '';
 
         return sprintf('%s://%s%s', $scheme, $host, $path);
     }
@@ -201,8 +202,8 @@ class Request implements Stringable
             }
 
             $out .= ($first) ? ' ' : ', ';
-            $out .= (string) Util::urlencodeRfc3986($k).'="'.
-            (string) Util::urlencodeRfc3986($v).'"';
+            $out .= (string) Util::urlencodeRfc3986($k).'="'. // @phpstan-ignore cast.string
+            (string) Util::urlencodeRfc3986($v).'"'; // @phpstan-ignore cast.string
             $first = false;
         }
 

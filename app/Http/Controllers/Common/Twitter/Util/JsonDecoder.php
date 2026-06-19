@@ -12,7 +12,7 @@ class JsonDecoder
      *
      * @param  string  $string
      * @param  bool  $asArray
-     * @return array|object
+     * @return array<mixed>|object
      */
     public static function decode($string, $asArray): mixed
     {

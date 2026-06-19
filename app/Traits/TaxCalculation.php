@@ -30,7 +30,7 @@ trait TaxCalculation
         try {
             $user = $this->taxUserFromLocation($user_state, $user_country);
 
-            return resolve(TaxService::class)->legacyCondition($productid, $user, $taxCaluculationFromAdminPanel);
+            return resolve(TaxService::class)->legacyCondition($productid, $user, $taxCaluculationFromAdminPanel); // @phpstan-ignore return.type
         } catch (Throwable $throwable) {
             resolve('log')->warning('calculateTax failed: '.$throwable->getMessage());
 

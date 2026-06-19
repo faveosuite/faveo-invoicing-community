@@ -93,7 +93,7 @@ class ForgotPasswordController extends Controller
             $contactUs = $setting->website;
             $subject = $template->name;
             $data = $template->data;
-            $type = $template?->type()->value('name') ?? '';
+            $type = $template->type()->value('name') ?? '';
             if (emailSendingStatus()) {
                 $mail = new PhpMailController();
                 $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);

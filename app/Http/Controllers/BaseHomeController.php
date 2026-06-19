@@ -294,7 +294,7 @@ class BaseHomeController extends Controller
             $ip = $remote;
         }
 
-        return $ip;
+        return is_string($ip) ? $ip : null;
     }
 
     public function updateLicenseCode(Request $request): ?\Illuminate\Http\JsonResponse

@@ -1,47 +1,49 @@
 <template>
-    <div class="datatable">
+  <div class="datatable">
 
-        <!-- Search + optional bulk-actions slot -->
-        <div v-if="isFilterable" class="d-flex align-items-center gap-2 float-end me-0 mb-3">
-            <slot name="bulk-actions" />
-            <input
-                type="text"
-                class="form-control globe-search"
-                v-model="searchStr"
-                @keyup.enter="onSearch"
-                placeholder="Type and press enter to search..."
-            />
-        </div>
-
-        <v-server-table
-            :url="url"
-            :columns="dataColumns"
-            :options="computedOptions"
-            ref="tableRef"
-            @loaded="onLoaded"
-        >
-            <template v-for="(_, slotName) in $slots" :key="slotName" v-slot:[slotName]="slotData">
-                <slot :name="slotName" v-bind="slotData ?? {}" />
-            </template>
-        </v-server-table>
-
-        <div class="pagination-container">
-            <div v-if="!isLoading">
-                <template v-if="total === 1">1 record</template>
-                <template v-else-if="total !== null && total <= perPage">{{ total }} records</template>
-                <template v-else-if="total !== null && total > perPage">Showing {{ from }} to {{ to }} of {{ total }} records</template>
-                <template v-else-if="from && to && nextPage">Showing {{ from }} to {{ to }} records of many</template>
-                <template v-else-if="from && to">Showing {{ from }} to {{ to }} of {{ to }} records</template>
-            </div>
-            <div v-if="!isLoading && (nextPage || prevPage)" class="float-end mr-0 pt-2">
-                <SimplePagination
-                    :nextPage="nextPage"
-                    :prevPage="prevPage"
-                    @paginate="onPaginate"
-                />
-            </div>
-        </div>
+    <!-- Search + optional bulk-actions slot -->
+    <div v-if="isFilterable || $slots['table-tools'] || $slots['bulk-actions']" class="d-flex align-items-center gap-2 float-end me-0 mb-3">
+      <slot name="bulk-actions" />
+      <input
+          v-if="isFilterable"
+          type="text"
+          class="form-control globe-search"
+          v-model="searchStr"
+          @keyup.enter="onSearch"
+          placeholder="Type and press enter to search..."
+      />
+      <slot name="table-tools" />
     </div>
+
+    <v-server-table
+        :url="url"
+        :columns="dataColumns"
+        :options="computedOptions"
+        ref="tableRef"
+        @loaded="onLoaded"
+    >
+      <template v-for="(_, slotName) in $slots" :key="slotName" v-slot:[slotName]="slotData">
+        <slot :name="slotName" v-bind="slotData ?? {}" />
+      </template>
+    </v-server-table>
+
+    <div class="pagination-container">
+      <div v-if="!isLoading">
+        <template v-if="total === 1">1 record</template>
+        <template v-else-if="total !== null && total <= perPage">{{ total }} records</template>
+        <template v-else-if="total !== null && total > perPage">Showing {{ from }} to {{ to }} of {{ total }} records</template>
+        <template v-else-if="from && to && nextPage">Showing {{ from }} to {{ to }} records of many</template>
+        <template v-else-if="from && to">Showing {{ from }} to {{ to }} of {{ to }} records</template>
+      </div>
+      <div v-if="!isLoading && (nextPage || prevPage)" class="float-end mr-0 pt-2">
+        <SimplePagination
+            :nextPage="nextPage"
+            :prevPage="prevPage"
+            @paginate="onPaginate"
+        />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -50,9 +52,9 @@ import http from '@/plugins/axios'
 import SimplePagination from '@/components/Reusable/SimplePagination.vue'
 
 const props = defineProps({
-    url: { type: String, required: true },
-    dataColumns: { type: Array, required: true },
-    option: { type: Object, default: () => ({}) },
+  url: { type: String, required: true },
+  dataColumns: { type: Array, required: true },
+  option: { type: Object, default: () => ({}) },
 })
 
 const tableRef  = ref(null)
@@ -68,96 +70,96 @@ const perPage   = ref(10)
 const isFilterable = computed(() => props.option.filterable ?? false)
 
 function onSearch() {
-    tableRef.value?.setFilter(searchStr.value)
+  tableRef.value?.setFilter(searchStr.value)
 }
 
 function onLoaded() {
-    isLoading.value = false
+  isLoading.value = false
 }
 
 function onPaginate(direction) {
-    const targetUrl = direction === 'next' ? nextPage.value : prevPage.value
-    if (!targetUrl) return
-    const page = parseInt(new URL(targetUrl).searchParams.get('page'))
-    if (page) tableRef.value?.setPage(page)
+  const targetUrl = direction === 'next' ? nextPage.value : prevPage.value
+  if (!targetUrl) return
+  const page = parseInt(new URL(targetUrl).searchParams.get('page'))
+  if (page) tableRef.value?.setPage(page)
 }
 
 function defaultResponseAdapter(response) {
-    // requestFunction's catch returns undefined on HTTP errors — handle that
-    // safely so pagination doesn't end up with NaN (→ "Invalid array length").
-    const res         = response?.data?.data
-    const pp          = parseInt(res?.per_page) || 10
-    const currentPage = res?.current_page ?? 1
-    const toVal       = res?.to ?? 0
-    perPage.value     = pp
-    total.value       = res?.total           ?? null
-    from.value        = res?.from            ?? null
-    to.value          = toVal
-    nextPage.value    = res?.next_page_url   ?? null
-    prevPage.value    = res?.prev_page_url   ?? null
-    isLoading.value   = false
-    return {
-        data: res?.data ?? [],
-        count: res?.total ?? (res?.next_page_url ? currentPage * pp + 1 : toVal),
-    }
+  // requestFunction's catch returns undefined on HTTP errors — handle that
+  // safely so pagination doesn't end up with NaN (→ "Invalid array length").
+  const res         = response?.data?.data
+  const pp          = parseInt(res?.per_page) || 10
+  const currentPage = res?.current_page ?? 1
+  const toVal       = res?.to ?? 0
+  perPage.value     = pp
+  total.value       = res?.total           ?? null
+  from.value        = res?.from            ?? null
+  to.value          = toVal
+  nextPage.value    = res?.next_page_url   ?? null
+  prevPage.value    = res?.prev_page_url   ?? null
+  isLoading.value   = false
+  return {
+    data: res?.data ?? [],
+    count: res?.total ?? (res?.next_page_url ? currentPage * pp + 1 : toVal),
+  }
 }
 
 const tableData = computed(() => tableRef.value?.data ?? [])
 
 onMounted(() => {
-    if (window.emitter) window.emitter.on('refreshData', () => tableRef.value?.refresh())
+  if (window.emitter) window.emitter.on('refreshData', () => tableRef.value?.refresh())
 })
 onBeforeUnmount(() => {
-    if (window.emitter) window.emitter.off('refreshData')
+  if (window.emitter) window.emitter.off('refreshData')
 })
 defineExpose({ nextPage, prevPage, paginate: onPaginate, total, from, to, perPage, isLoading, tableData, refresh: () => tableRef.value?.refresh() })
 
 const computedOptions = computed(() => ({
-    perPage: 10,
-    perPageValues: [10, 25, 50, 100],
-    skin: 'table table-hover table-striped table-bordered',
-    sortable: [],
-    filterable: false,
-    sortIcon: {
-        base: 'fas',
-        is:   'fa-up-down',
-        up:   'fa-chevron-down',
-        down: 'fa-chevron-up',
-    },
-    requestAdapter(data) {
-        return {
-            'sort-field': data.orderBy,
-            'sort-order': data.ascending ? 'asc' : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page: data.page,
-            limit: data.limit,
-        }
-    },
-    requestFunction(data) {
-        return http.get(props.url, { params: data }).catch(e => {
-            console.error('[DataTable] request error:', e)
-        })
-    },
-    ...props.option,
-    pagination: { chunk: 0, edge: false },
-    responseAdapter: (response) => {
-        const callerAdapter = props.option.responseAdapter
-        const result = callerAdapter ? callerAdapter(response) : defaultResponseAdapter(response)
-        if (callerAdapter) {
-            const res = response?.data?.data
-            if (res) {
-                const pp          = parseInt(res.per_page) || 10
-                perPage.value     = pp
-                total.value       = res.total           ?? null
-                from.value        = res.from            ?? null
-                to.value          = res.to              ?? null
-                nextPage.value    = res.next_page_url   ?? null
-                prevPage.value    = res.prev_page_url   ?? null
-                isLoading.value   = false
-            }
-        }
-        return result
-    },
+  perPage: 10,
+  perPageValues: [10, 25, 50, 100],
+  skin: 'table table-hover table-striped table-bordered',
+  sortable: [],
+  filterable: false,
+  sortIcon: {
+    base: 'fas',
+    is:   'fa-up-down',
+    up:   'fa-chevron-down',
+    down: 'fa-chevron-up',
+  },
+  requestAdapter(data) {
+    return {
+      'sort-field': data.orderBy,
+      'sort-order': data.ascending ? 'asc' : 'desc',
+      'search-query': (data.query ?? '').trim(),
+      page: data.page,
+      limit: data.limit,
+    }
+  },
+  requestFunction(data) {
+    return http.get(props.url, { params: data }).catch(e => {
+      console.error('[DataTable] request error:', e)
+    })
+  },
+  ...props.option,
+  pagination: { chunk: 0, edge: false },
+  responseAdapter: (response) => {
+    const callerAdapter = props.option.responseAdapter
+    const result = callerAdapter ? callerAdapter(response) : defaultResponseAdapter(response)
+    if (callerAdapter) {
+      const res = response?.data?.data
+      if (res) {
+        const pp          = parseInt(res.per_page) || 10
+        perPage.value     = pp
+        total.value       = res.total           ?? null
+        from.value        = res.from            ?? null
+        to.value          = res.to              ?? null
+        nextPage.value    = res.next_page_url   ?? null
+        prevPage.value    = res.prev_page_url   ?? null
+        isLoading.value   = false
+      }
+    }
+    return result
+  },
 }))
 </script>
 
@@ -200,9 +202,9 @@ table                             { border-collapse: collapse; }
 .VueTables__sortable              { cursor: pointer !important; }
 
 .pagination-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .btn-light {

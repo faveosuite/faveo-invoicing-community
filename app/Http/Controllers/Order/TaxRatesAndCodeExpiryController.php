@@ -146,7 +146,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email,
         ];
-        $type = $template?->type()->value('name') ?? '';
+        $type = $template->type()->value('name') ?? '';
         $mail = new PhpMailController();
         $mail->SendEmail($setting->email, $user->email ?? '', $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }

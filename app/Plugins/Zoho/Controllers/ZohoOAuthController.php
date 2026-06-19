@@ -50,6 +50,7 @@ class ZohoOAuthController extends Controller
             'region' => ['required', 'in:in,us,eu,au,jp,cn'],
         ]);
 
+        /** @var \App\Plugins\Zoho\Models\ZohoIntegration $integration */
         $integration = ZohoIntegration::findOrFail($validated['integration_id']);
 
         // There is exactly one callback route, so the redirect URI is fixed —
@@ -77,7 +78,7 @@ class ZohoOAuthController extends Controller
             ->where('platform', $platform)
             ->firstOrFail();
 
-        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient $client */
+        /** @var \App\Plugins\Zoho\Models\ZohoOAuthClient|null $client */
         $client = $integration->client;
 
         if (! $client) {
@@ -201,7 +202,7 @@ class ZohoOAuthController extends Controller
         ?string $message = null
     ): RedirectResponse {
         $path = config(sprintf('zoho.platforms.%s.settings_url', $platform));
-        $url = (string) url($path);
+        $url = (string) url($path); // @phpstan-ignore cast.string
 
         return redirect()->to(
             $url.'?'.http_build_query([

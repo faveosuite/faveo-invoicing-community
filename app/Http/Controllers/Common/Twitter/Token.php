@@ -26,8 +26,8 @@ class Token implements Stringable
     public function __toString(): string
     {
         return sprintf('oauth_token=%s&oauth_token_secret=%s',
-            (string) Util::urlencodeRfc3986($this->key),
-            (string) Util::urlencodeRfc3986($this->secret)
+            (string) Util::urlencodeRfc3986($this->key), // @phpstan-ignore cast.string
+            (string) Util::urlencodeRfc3986($this->secret) // @phpstan-ignore cast.string
         );
     }
 }

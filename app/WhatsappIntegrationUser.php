@@ -69,11 +69,11 @@ class WhatsappIntegrationUser extends BaseModel
     protected function getMappings(): array
     {
         return [
-            'user_id' => ['User', fn ($value) => User::find($value)?->user_name],
+            'user_id' => ['User', fn ($value) => User::find($value)?->user_name], // @phpstan-ignore property.notFound
             'phone_number' => ['Phone Number', fn ($value) => $value],
             'phone_number_id' => ['Phone Number Id', fn ($value) => $value],
             'waba_id' => ['WabaId Id', fn ($value) => $value],
-            'order_id' => ['Order Number', fn ($value) => Order::find($value)?->number],
+            'order_id' => ['Order Number', fn ($value) => Order::find($value)?->number], // @phpstan-ignore property.notFound
             'user_callback_url' => ['Callback Url', fn ($value) => $value],
             'business_id' => ['Business Id', fn ($value) => $value],
         ];

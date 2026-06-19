@@ -110,7 +110,7 @@ class ReportController extends Controller
             'records' => ['required', 'integer', 'min:1', 'max:3000'],
         ]);
 
-        $settings = ReportSetting::first();
+        $settings = ReportSetting::firstOrFail();
 
         $settings->update([
             'records' => $validated['records'],

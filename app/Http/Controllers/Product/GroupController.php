@@ -165,7 +165,7 @@ class GroupController extends Controller
     public function updateGroup(mixed $groupId, GroupRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
-            /** @var \App\ProductGroup $group */
+            /** @var \App\Model\Product\ProductGroup $group */
             $group = ProductGroup::findOrFail($groupId);
 
             // Get all visible, non-contact products

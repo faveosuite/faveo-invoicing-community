@@ -28,7 +28,7 @@ class PaymentSettingsController extends Controller
         $attributes = [];
         try {
             if ($configs != 'null') {
-                foreach ($configs as $key => $config) {
+                foreach ((array) $configs as $key => $config) {
                     $fields[$key] = include $config;
                 }
             }
@@ -122,7 +122,7 @@ class PaymentSettingsController extends Controller
             $str = '
 \'App\Plugins\\'.$slug."\\ServiceProvider',";
             $line_i_am_looking_for = 102;
-            $lines = file($app, FILE_IGNORE_NEW_LINES);
+            $lines = file($app, FILE_IGNORE_NEW_LINES) ?: [];
             $lines[$line_i_am_looking_for] = $str;
             file_put_contents($app, implode("\n", $lines));
             $plugs->create(['name' => $slug, 'path' => $slug, 'status' => 1]);
@@ -139,7 +139,7 @@ class PaymentSettingsController extends Controller
             $str = '
 \'App\Plugins\\'.$slug."\\ServiceProvider',";
             $line_i_am_looking_for = 102;
-            $lines = file($app, FILE_IGNORE_NEW_LINES);
+            $lines = file($app, FILE_IGNORE_NEW_LINES) ?: [];
             $lines[$line_i_am_looking_for] = $str;
             file_put_contents($app, implode("\n", $lines));
         } elseif ($status == 1) {
@@ -171,7 +171,7 @@ class PaymentSettingsController extends Controller
         $str = '
 \'App\Plugins\\'.$name."\\ServiceProvider',";
         $line_i_am_looking_for = 102;
-        $lines = file($app, FILE_IGNORE_NEW_LINES);
+        $lines = file($app, FILE_IGNORE_NEW_LINES) ?: [];
         $lines[$line_i_am_looking_for] = $str;
         if (! $plug) {
             file_put_contents($app, implode("\n", $lines));
@@ -220,7 +220,7 @@ class PaymentSettingsController extends Controller
             $values = $this->fetchConfig();
             $pluginMap = [];
 
-            foreach ($values as $plugin) {
+            foreach (is_array($values) ? $values : [] as $plugin) {
                 $name = strtolower((string) $plugin['name']);
                 $pluginMap[$name] = [
                     'supported_currencies' => $plugin['supported_currencies'] ?? [],

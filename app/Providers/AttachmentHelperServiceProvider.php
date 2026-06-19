@@ -17,11 +17,11 @@ class AttachmentHelperServiceProvider extends ServiceProvider
         $this->app->bind('attachment-helper', fn (): \App\Helper\AttachmentHelper => new AttachmentHelper());
     }
 
-    #[Override]
     /**
      * @return array<mixed>
      */
-    public function provides()
+    #[Override]
+    public function provides(): array
     {
         return ['attachment-helper'];
     }

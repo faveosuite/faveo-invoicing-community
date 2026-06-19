@@ -298,9 +298,9 @@ APP_ENV='.$environment;
                 try {
                     $redis = new Client([
                         'scheme' => 'tcp',
-                        'host' => $redisConfig['redis_host'],
+                        'host' => $redisConfig['redis_host'] ?? '',
                         'password' => $redisConfig['redis_password'] ?? null,
-                        'port' => $redisConfig['redis_port'],
+                        'port' => $redisConfig['redis_port'] ?? 6379,
                     ]);
 
                     $redis->ping();

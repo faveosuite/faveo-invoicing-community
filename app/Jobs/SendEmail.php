@@ -26,7 +26,7 @@ class SendEmail implements ShouldQueue
     public function handle(PhpMailController $phpMailController): void
     {
         if (MailLog::whereId($this->logIdentifier)->value('status') == 'sent') {
-            $this->job->delete();
+            $this->job?->delete();
 
             return;
         }

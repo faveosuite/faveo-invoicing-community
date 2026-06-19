@@ -323,7 +323,7 @@ class CartService
      * taxes for display, and the totals. Both the checkout summary and invoice
      * creation read from here so the numbers can never drift apart.
      *
-     * @return array{items: array, subtotal: float, discount: float, taxes: array, tax_total: float, grand_total: float}
+     * @return array{items: array<mixed>, subtotal: float, discount: float, taxes: array<mixed>, tax_total: float, grand_total: float}
      */
     private function summary(Cart $cart, Authenticatable $user): array
     {
@@ -381,7 +381,7 @@ class CartService
             ? max(0, $subtotal - $discount)
             : max(0, $subtotal - $discount + $taxTotal);
 
-        return [
+        return [ // @phpstan-ignore return.type
             'items' => $items,
             'subtotal' => $subtotal,
             'discount' => $discount,
@@ -396,7 +396,7 @@ class CartService
      * Returns one entry per line so callers can group them (display), attach
      * them per-item (invoice) or persist the per-rate breakdown.
      *
-     * @return array<int, array{line: CartItem, name: string, percent: float, percent_label: string, amount: float, tax_rate_id: ?int, breakdown: array}>
+     * @return array<int, array{line: CartItem, name: string, percent: float, percent_label: string, amount: float, tax_rate_id: ?int, breakdown: array<mixed>}>
      */
     private function lineTaxes(Cart $cart, Authenticatable $user): array
     {

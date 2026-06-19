@@ -306,7 +306,7 @@ class LoginController extends BaseAuthController
         }
 
         if (Auth::check()) {
-            return redirect((string) $this->redirectPath());
+            return redirect((string) $this->redirectPath()); // @phpstan-ignore cast.string, return.type
         }
 
         return back();

@@ -13,6 +13,7 @@ class InstallationViewController extends Controller
 {
     public function getInstallation(mixed $id): \Illuminate\Http\JsonResponse
     {
+        /** @var \App\License\Models\Installation|null $installation */
         $installation = Installation::with(['product:id,name', 'user:id,email', 'license:id,license_code'])
             ->find($id);
 

@@ -23,11 +23,8 @@ class Response
      */
     private $headers = [];
 
-    /** @var array|object Response body from the most recent request */
-    /**
-     * @var array<mixed>
-     */
-    private $body = [];
+    /** @var array<mixed>|object Response body from the most recent request */
+    private array|object $body = [];
 
     /** @var array<mixed> HTTP headers from the most recent request that start with X */
     /**
@@ -52,7 +49,7 @@ class Response
     }
 
     /**
-     * @param  array|object  $body
+     * @param  array<mixed>|object  $body
      */
     public function setBody($body): void
     {
@@ -60,9 +57,9 @@ class Response
     }
 
     /**
-     * @return array|object|string
+     * @return array<mixed>|object
      */
-    public function getBody()
+    public function getBody(): array|object
     {
         return $this->body;
     }

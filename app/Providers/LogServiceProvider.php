@@ -19,10 +19,10 @@ class LogServiceProvider extends ServiceProvider implements DeferrableProvider
         App::bind('Log', fn (): \App\BillingLog\Controllers\LogWriteController => new LogWriteController);
     }
 
-    #[Override]
     /**
      * @return array<mixed>
      */
+    #[Override]
     public function provides(): array
     {
         return ['Log'];

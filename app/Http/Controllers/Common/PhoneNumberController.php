@@ -171,7 +171,7 @@ class PhoneNumberController
      * Format and normalize phone number for storage
      * Returns an array with properly formatted mobile_code and mobile fields.
      *
-     * @return array|null Returns null if invalid
+     * @return array<mixed>|null Returns null if invalid
      */
     public function normalizeForStorage(string $mobileCode, string $mobile, ?string $countryIso = null): ?array
     {

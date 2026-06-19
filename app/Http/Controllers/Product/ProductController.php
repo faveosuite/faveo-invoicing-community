@@ -183,7 +183,7 @@ class ProductController extends BaseProductController
     {
         try {
             $ids = $request->input('select');
-            $storagePath = Setting::find(1)->value('file_storage');
+            $storagePath = Setting::findOrFail(1)->value('file_storage');
             if (empty($ids)) {
                 return successResponse(__('message.select-a-row'));
             }

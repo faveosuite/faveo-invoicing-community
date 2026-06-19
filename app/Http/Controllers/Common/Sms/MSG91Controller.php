@@ -49,10 +49,10 @@ class MSG91Controller extends Controller
             }
 
             // Ensure data is an array
-            $reports = is_string($jsonData) ? collect(json_decode($jsonData, associative: true)) : collect($jsonData);
+            $reports = is_string($jsonData) ? collect((array) json_decode($jsonData, associative: true)) : collect((array) $jsonData);
 
             $reports->each(function (array $reportGroup): void {
-                collect($reportGroup['report'])->each(function (array $singleReport) use ($reportGroup): void {
+                collect((array) $reportGroup['report'])->each(function (array $singleReport) use ($reportGroup): void {
                     $this->processIndividualReport([
                         'request_id' => $reportGroup['requestId'],
                         'number' => $singleReport['number'],

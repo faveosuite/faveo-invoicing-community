@@ -95,7 +95,7 @@ class TwitterOAuth extends Config
     }
 
     /**
-     * @return array|object|null
+     * @return array<mixed>|object|string|null
      */
     public function getLastBody()
     {
@@ -156,7 +156,7 @@ class TwitterOAuth extends Config
      * Make /oauth2/* requests to the API.
      *
      * @param  string  $path
-     * @return array|object
+     * @return array<mixed>|object
      * @param array<mixed> $parameters
      */
     public function oauth2($path, array $parameters = [])
@@ -178,7 +178,7 @@ class TwitterOAuth extends Config
      * Make GET requests to the API.
      *
      * @param  string  $path
-     * @return array|object
+     * @return array<mixed>|object
      * @param array<mixed> $parameters
      */
     public function get($path, array $parameters = [])
@@ -190,7 +190,7 @@ class TwitterOAuth extends Config
      * Make POST requests to the API.
      *
      * @param  string  $path
-     * @return array|object
+     * @return array<mixed>|object
      * @param array<mixed> $parameters
      */
     public function post($path, array $parameters = [])
@@ -202,7 +202,7 @@ class TwitterOAuth extends Config
      * Make DELETE requests to the API.
      *
      * @param  string  $path
-     * @return array|object
+     * @return array<mixed>|object
      * @param array<mixed> $parameters
      */
     public function delete($path, array $parameters = [])
@@ -214,7 +214,7 @@ class TwitterOAuth extends Config
      * Make PUT requests to the API.
      *
      * @param  string  $path
-     * @return array|object
+     * @return array<mixed>|object
      * @param array<mixed> $parameters
      */
     public function put($path, array $parameters = [])
@@ -227,7 +227,7 @@ class TwitterOAuth extends Config
      *
      * @param  string  $path
      * @param  bool  $chunked
-     * @return array|object
+     * @return array<mixed>|object
      * @param array<mixed> $parameters
      */
     public function upload($path, array $parameters = [], $chunked = false)
@@ -243,7 +243,7 @@ class TwitterOAuth extends Config
      * Private method to upload media (not chunked) to upload.twitter.com.
      *
      * @param  string  $path
-     * @return array|object
+     * @return array<mixed>|object
      * @param array<mixed> $parameters
      */
     private function uploadMediaNotChunked($path, array $parameters)
@@ -259,7 +259,7 @@ class TwitterOAuth extends Config
      * Private method to upload media (chunked) to upload.twitter.com.
      *
      * @param  string  $path
-     * @return array|object
+     * @return array<mixed>|object
      * @param array<mixed> $parameters
      */
     private function uploadMediaChunked($path, array $parameters)
@@ -296,7 +296,7 @@ class TwitterOAuth extends Config
 
     /**
      * @param  string  $path
-     * @return array|object
+     * @return array<mixed>|object
      * @param array<mixed> $parameters
      */
     private function http(string $method, string $host, $path, array $parameters)

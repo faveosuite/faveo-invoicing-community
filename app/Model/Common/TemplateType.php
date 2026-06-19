@@ -45,6 +45,9 @@ class TemplateType extends BaseModel
     {
         $templateId = static::where('name', $name)->value('selected_template_id');
 
-        return $templateId ? Template::find($templateId) : null;
+        /** @var \App\Model\Common\Template|null $template */
+        $template = $templateId ? Template::find($templateId) : null;
+
+        return $template;
     }
 }

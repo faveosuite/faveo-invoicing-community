@@ -92,12 +92,12 @@ class SyncBillingToLatestVersion
         Cache::forget($filesystemVersion);
         Cache::remember($filesystemVersion, 3600,
             //Caching version for 1 hr
-            fn () => Setting::first()->value('version'));
+            fn () => Setting::firstOrFail()->value('version'));
     }
 
     private function getPHPCompatibleVersionString(string $version): string
     {
-        return preg_replace('#v\.|v#', '', str_replace('_', '.', $version));
+        return preg_replace('#v\.|v#', '', str_replace('_', '.', $version)) ?? '';
     }
 
     private function getOlderVersion(): string
@@ -106,7 +106,7 @@ class SyncBillingToLatestVersion
             return $this->getPHPCompatibleVersionString('v0.0.0');
         }
 
-        $olderVersion = Setting::first()->version;
+        $olderVersion = Setting::firstOrFail()->version;
         $olderVersion = $olderVersion ?: 'v0.0.0';
 
         return $this->getPHPCompatibleVersionString($olderVersion);

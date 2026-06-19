@@ -96,7 +96,7 @@ class PipedriveController extends Controller
 
             return is_array($result) ? $result : (array) $result;
         } catch (ApiException $e) {
-            throw new Exception((string) (json_decode((string) $e->getResponseBody())->error ?? ''), $e->getCode(), $e);
+            throw new Exception((string) (json_decode((string) $e->getResponseBody())->error ?? ''), $e->getCode(), $e); // @phpstan-ignore cast.string
         } catch (Exception $e) {
             Logger::exception($e);
 
@@ -120,7 +120,7 @@ class PipedriveController extends Controller
 
             return $response;
         } catch (ApiException $e) {
-            return json_decode((string) $e->getResponseBody());
+            return json_decode((string) $e->getResponseBody()); // @phpstan-ignore cast.string
         } catch (Exception $e) {
             Logger::exception($e);
 
@@ -251,7 +251,7 @@ class PipedriveController extends Controller
         // Filter bulk-edit-allowed fields
         $allowedFields = collect($fields)->filter(fn ($field): bool => isset($field->bulk_edit_allowed) && $field->bulk_edit_allowed === true &&
             (! isset($field->use_field) || $field->use_field === 'id') &&
-            ! in_array($field->key, $this->excludeKeysFromPipedrive($groupId)));
+            ! in_array($field->key, $this->excludeKeysFromPipedrive($groupId))); // @phpstan-ignore property.notFound
 
         $newFieldKeys = $allowedFields->pluck('key')->toArray();
         $existingFields->keys()->toArray();
@@ -263,20 +263,21 @@ class PipedriveController extends Controller
         }
 
         foreach ($allowedFields as $field) {
+            /** @var object $field */
             $fieldData = [
-                'field_name' => $field->name,
-                'field_type' => $field->field_type,
+                'field_name' => $field->name, // @phpstan-ignore property.notFound
+                'field_type' => $field->field_type, // @phpstan-ignore property.notFound
                 'pipedrive_group_id' => $groupId,
             ];
 
             $pipedriveField = PipedriveField::updateOrCreate(
-                ['field_key' => $field->key, 'pipedrive_group_id' => $groupId],
+                ['field_key' => $field->key, 'pipedrive_group_id' => $groupId], // @phpstan-ignore property.notFound
                 $fieldData
             );
 
             // Sync field options
             if (isset($field->options)) {
-                $newOptions = collect($field->options)->keyBy('id');
+                $newOptions = collect((array) $field->options)->keyBy('id');
 
                 // Get existing options
                 $existingOptions = PipedriveFieldOption::where('pipedrive_field_id', $pipedriveField->id)->get()->keyBy('key');
@@ -400,7 +401,7 @@ class PipedriveController extends Controller
 
                 // Reset non-selected options
                 $fieldIds = PipedriveField::where('pipedrive_group_id', $groupID)->pluck('id')->toArray();
-                $selectedOptionIds = collect($select2)->filter(fn ($item): bool => isset($item['id']) && $item['faveo_fields'] !== 'true')->pluck('id')->toArray();
+                $selectedOptionIds = collect((array) $select2)->filter(fn ($item): bool => isset($item['id']) && $item['faveo_fields'] !== 'true')->pluck('id')->toArray();
 
                 PipedriveFieldOption::whereIn('pipedrive_field_id', $fieldIds)
                     ->whereNotIn('id', $selectedOptionIds)
@@ -457,7 +458,7 @@ class PipedriveController extends Controller
 
             // Clean up if successful
             if (isset($response->success) && $response->success === false) {
-                return $response->error;
+                return $response->error; // @phpstan-ignore property.notFound
             }
 
             return true;

@@ -181,7 +181,7 @@ class PlanController extends ExtendedPlanController
     /**
      * Convert human-readable period into a days range.
      *
-     * @return array|null [minDays, maxDays] or null if invalid
+     * @return array<mixed>|null [minDays, maxDays] or null if invalid
      */
     protected function parsePeriodToDaysRange(string $period): ?array
     {
@@ -223,7 +223,7 @@ class PlanController extends ExtendedPlanController
 
             // Insert pricing data
             if ($request->filled('add_price')) {
-                $priceData = collect($request->add_price)->map(fn ($addPrice, $key): array => [
+                $priceData = collect((array) $request->add_price)->map(fn ($addPrice, $key): array => [
                     'plan_id' => $plan->id,
                     'currency' => $request->currency[$key],
                     'add_price' => $addPrice,
@@ -285,7 +285,7 @@ class PlanController extends ExtendedPlanController
             if ($request->filled('add_price')) {
                 $plan->planPrice()->delete();
 
-                $priceData = collect($request->add_price)->map(fn ($addPrice, $key): array => [
+                $priceData = collect((array) $request->add_price)->map(fn ($addPrice, $key): array => [
                     'plan_id' => $plan->id,
                     'currency' => $request->currency[$key],
                     'add_price' => $addPrice,

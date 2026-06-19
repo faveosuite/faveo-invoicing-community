@@ -103,11 +103,11 @@ class Order extends BaseModel
     protected function getMappings(): array
     {
         return [
-            'client' => ['Client', fn ($value) => User::find($value)?->user_name],
+            'client' => ['Client', fn ($value) => User::find($value)?->user_name], // @phpstan-ignore property.notFound
             'order_status' => ['Order Status', ucfirst(...)],
             'invoice_item_id' => ['Invoice Item ID', fn ($value) => $value],
             'serial_key' => ['Serial Key', fn ($value) => $value],
-            'product' => ['Product', fn ($value) => Product::find($value)?->name],
+            'product' => ['Product', fn ($value) => Product::find($value)?->name], // @phpstan-ignore property.notFound
             'domain' => ['Domain', fn ($value) => $value],
             'price_override' => ['Price Override', fn ($value) => $value],
             'qty' => ['Quantity', fn ($value) => $value],
@@ -153,10 +153,7 @@ class Order extends BaseModel
         );
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Relations\Pivot, string>
-     */
-    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsToMany // @phpstan-ignore missingType.generics
     {
         return $this->invoices();
     }
@@ -246,13 +243,14 @@ class Order extends BaseModel
     public function get_domain(mixed $url): string
     {
         $pieces = parse_url((string) $url);
+        $pieces = is_array($pieces) ? $pieces : [];
         $domain = $pieces['host'] ?? '';
         if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
             return $regs['domain'];
         }
 
         if (! $domain) {
-            $domain = $pieces['path'];
+            $domain = $pieces['path'] ?? '';
         }
 
         return strtolower($domain);

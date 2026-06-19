@@ -78,11 +78,11 @@ class LicenseHelper
     public static function formatClient(?string $licenseCode, ?string $clientEmail): string
     {
         if (! in_array($licenseCode, [null, '', '0'], strict: true)) {
-            return $licenseCode;
+            return (string) $licenseCode;
         }
 
         if (filter_var($clientEmail, FILTER_VALIDATE_EMAIL)) {
-            return $clientEmail;
+            return (string) $clientEmail;
         }
 
         return 'Unknown Client';

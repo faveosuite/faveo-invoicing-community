@@ -46,7 +46,7 @@ class EmailSettingRequest extends FormRequest
                     $emailDomain = explode('@', $value)[1];
                     $url = Request::url();
                     $domain = parse_url($url);
-                    if (strcasecmp($domain['host'], $emailDomain) !== 0) {
+                    if (is_array($domain) && strcasecmp($domain['host'] ?? '', $emailDomain) !== 0) {
                         return $fail(Lang::get('message.email_not_matching'));
                     }
                 },

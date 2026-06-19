@@ -21,6 +21,7 @@ class InstallationController extends Controller
     public function installationUpdate(Request $request): \Illuminate\Http\JsonResponse
     {
         $id = $request->get('id');
+        /** @var \App\License\Models\Installation|null $installation */
         $installation = Installation::with('product:id,name')->find($id);
 
         if (! $installation || ! LicenseHelper::validateIntegerValue($id)) {

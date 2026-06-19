@@ -104,6 +104,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
     public function dispatchPayload(mixed $id): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\BillingLog\Model\MailLog $mailLog */
             $mailLog = MailLog::findOrFail($id);
 
             $this->rawBody = $mailLog->job_payload;
@@ -125,9 +126,9 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
         return null;
     }
 
-    public function getRawBody()
+    public function getRawBody(): string
     {
-        return $this->rawBody;
+        return $this->rawBody ?? '';
     }
 
     public function attempts()

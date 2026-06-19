@@ -66,6 +66,8 @@ class ZohoConnectHelper
     /**
      * @param \Illuminate\Support\Collection<int|string, mixed> $localFields
      * @param \Illuminate\Support\Collection<int|string, mixed> $zohoFields
+     * @phpstan-param \Illuminate\Support\Collection<array-key, mixed> $zohoFields
+     * @phpstan-param \Illuminate\Support\Collection<array-key, mixed> $localFields
      */
     public static function mergeFields(Collection $zohoFields, Collection $localFields): mixed
     {
@@ -93,7 +95,7 @@ class ZohoConnectHelper
             if (! empty($zoho->options)) {
                 foreach ($zoho->options as $index => $label) {
                     $options->push([
-                        'id' => sprintf('zoho_%s_%s', $zoho->id, $index),
+                        'id' => sprintf('zoho_%s_%s', $zoho->id, $index), // @phpstan-ignore property.notFound
                         'type' => 'zoho_option',
                         'label' => $label,
                     ]);

@@ -122,6 +122,6 @@ class CspPolicy implements Preset
                 'embed.tawk.to',
             ])
             ->add(Directive::WORKER, [Keyword::SELF])
-            ->setReportUri((string) url(config('csp.report_uri')));
+            ->setReportUri((string) url(config('csp.report_uri'))); // @phpstan-ignore cast.string
     }
 }

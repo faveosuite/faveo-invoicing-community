@@ -83,7 +83,7 @@ class RegisterController extends Controller
     {
         ['api_key' => $apikey, 'mode' => $mode,'api_secret' => $apisecret] = EmailMobileValidationProviders::where('provider', $provider)
             ->select('api_key', 'mode', 'api_secret')
-            ->first()
+            ->firstOrFail()
             ->toArray();
 
         $response = Http::get('https://api.nexmo.com/ni/'.$mode.'/json', [

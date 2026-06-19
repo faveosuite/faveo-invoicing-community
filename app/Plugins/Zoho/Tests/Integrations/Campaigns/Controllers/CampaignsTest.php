@@ -24,7 +24,7 @@ class CampaignsTest extends DBTestCase
     {
         parent::setUp();
 
-        $integration = ZohoIntegration::wherePlatform('campaigns')->first();
+        $integration = ZohoIntegration::wherePlatform("campaigns")->firstOrFail();
 
         ZohoOAuthClient::create([
             'integration_id' => $integration->id,

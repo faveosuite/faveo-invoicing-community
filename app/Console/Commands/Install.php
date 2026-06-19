@@ -255,7 +255,7 @@ class Install extends LoggableCommand
         ];
 
         if (array_filter($options, fn($o): bool => (bool) $this->option($o))) {
-            $migrateOption = trim((string) $this->option('migrate'));
+            $migrateOpt = $this->option('migrate'); $migrateOption = trim(is_string($migrateOpt) ? $migrateOpt : '');
 
             $migrate = filter_var($migrateOption === '' ? $this->confirm('Do you want to migrate tables now?') : $migrateOption, FILTER_VALIDATE_BOOLEAN);
             $allowedEnvs = ['production', 'development', 'testing'];

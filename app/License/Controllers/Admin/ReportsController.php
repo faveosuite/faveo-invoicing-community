@@ -24,7 +24,7 @@ class ReportsController extends Controller
         $whichReport = $request->get('which_report');
         if (! empty($report_ids_array)) {
             foreach ($report_ids_array as $report_id) {
-                $this->removed_records += $this->deleteReport($report_id, $this->removed_records);
+                $this->removed_records += (int) $this->deleteReport($report_id, $this->removed_records);
             }
 
             if (! LicenseHelper::validateIntegerValue($this->removed_records)) {
@@ -39,7 +39,7 @@ class ReportsController extends Controller
         }
 
         $page_message = $this->whichReportDeleted($whichReport, $this->action_success, $this->removed_records, $this->error_details);
-        LicenseHelper::logAdminReport(strip_tags((string) $page_message), 1, 1, $this->action_success);
+        LicenseHelper::logAdminReport(strip_tags((string) $page_message), 1, 1, $this->action_success); // @phpstan-ignore cast.string
 
         return response(['message' => $page_message]);
     }

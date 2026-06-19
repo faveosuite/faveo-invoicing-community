@@ -20,6 +20,7 @@ class VersionsViewController extends Controller
             return successResponse(__('lang.version_details'), data: null);
         }
 
+        /** @var \App\Model\Product\ProductUpload $version */
         return successResponse(__('lang.version_details'), [
             'id' => $version->id,
             'product_id' => $version->product_id,
@@ -42,7 +43,9 @@ class VersionsViewController extends Controller
         $searchQuery = $request->input('search_query');
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
-        $versionInstallation = ProductUpload::find($version_id)
+        /** @var \App\Model\Product\ProductUpload $productUpload */
+        $productUpload = ProductUpload::find($version_id);
+        $versionInstallation = $productUpload
             ->callbacks()
             ->select('id', 'version_id', 'callback_ip', 'callback_date_time', 'callback_status', 'callback_type')
             ->when($searchQuery, function ($query) use ($searchQuery): void {
@@ -55,7 +58,7 @@ class VersionsViewController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $versionInstallation->getCollection()->transform(fn (VersionCallback $cb): array => [ // @phpstan-ignore argument.type
+        $versionInstallation->getCollection()->transform(fn (VersionCallback $cb): array => [
             'id' => $cb->id,
             'version_id' => $cb->version_id,
             'callback_ip' => $cb->callback_ip,

@@ -47,6 +47,7 @@ class PhpMailController extends Controller
      * @param array<mixed> $attach
      * @param array<mixed> $bcc
      * @param array<mixed> $replace
+     * @param array<mixed> $cc
      */
     public function sendEmail(
         string $from,
@@ -210,7 +211,7 @@ class PhpMailController extends Controller
                     $template = TemplateType::getSelectedTemplate('cloud_deleted');
 
                     $mail = new PhpMailController();
-                    $type = $template?->type()->value('name') ?? '';
+                    $type = $template->type()->value('name') ?? '';
                     $replace = ['name' => $user->first_name.' '.$user->last_name, // @phpstan-ignore property.nonObject, property.nonObject
                         'product' => $product->name,
                         'number' => $order->number,
@@ -275,14 +276,14 @@ class PhpMailController extends Controller
 
     public function setMailConfig(object $settings): bool|string|null
     {
-        switch ($settings->driver) {
+        switch ($settings->driver) { // @phpstan-ignore property.notFound
             case 'smtp':
 
-                $config = ['host' => $settings->host,
-                    'port' => $settings->port,
-                    'security' => $settings->encryption,
-                    'username' => $settings->email,
-                    'password' => $settings->password,
+                $config = ['host' => $settings->host, // @phpstan-ignore property.notFound
+                    'port' => $settings->port, // @phpstan-ignore property.notFound
+                    'security' => $settings->encryption, // @phpstan-ignore property.notFound
+                    'username' => $settings->email, // @phpstan-ignore property.notFound
+                    'password' => $settings->password, // @phpstan-ignore property.notFound
                 ];
 
                 $mail = new CommonMailer();
@@ -394,6 +395,7 @@ class PhpMailController extends Controller
      * @param array<mixed> $attach
      * @param array<mixed> $bcc
      * @param array<mixed> $config
+     * @param array<mixed> $cc
      */
     protected function sendMailMessage(
         string $from,

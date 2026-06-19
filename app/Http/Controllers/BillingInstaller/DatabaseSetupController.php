@@ -85,8 +85,8 @@ class DatabaseSetupController extends Controller
      *
      * @author Manish Verma <manish.verma@ladybirdweb.com>
      */
-    /** @param \mysqli $connection */
-    private function checkDBPrerequisites(array &$results, bool &$mysqli_ok, object $connection): void
+    /** @param array<mixed> &$results */
+    private function checkDBPrerequisites(array &$results, bool &$mysqli_ok, \mysqli $connection): void
     {
         if (mysqli_select_db($connection, DB_NAME)) {
             $results[] = new TestResult(__('installer_messages.database').' '.DB_NAME.' '.__('installer_messages.selected'), STATUS_OK);

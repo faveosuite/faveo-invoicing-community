@@ -39,16 +39,16 @@ class RecaptchaServiceProvider extends ServiceProvider
     protected function registerMiddleware(): void
     {
         // Register recaptcha middleware
-        $this->app['router']->aliasMiddleware('recaptcha', RecaptchaMiddleware::class);
+        $this->app['router']->aliasMiddleware('recaptcha', RecaptchaMiddleware::class); // @phpstan-ignore offsetAccess.nonOffsetAccessible
     }
 
     /**
      * Get the services provided by the provider.
      */
-    #[Override]
     /**
      * @return array<mixed>
      */
+    #[Override]
     public function provides(): array
     {
         return ['recaptcha'];

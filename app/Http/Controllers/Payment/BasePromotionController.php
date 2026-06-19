@@ -85,6 +85,7 @@ class BasePromotionController extends Controller
     {
         try {
             $planid = '';
+            /** @var \App\Model\Payment\Promotion $promotion */
             $promotion = Promotion::findOrFail($promoid);
             if (checkPlanSession()) {
                 $planid = Session::get('plan');

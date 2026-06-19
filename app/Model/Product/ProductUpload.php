@@ -94,7 +94,7 @@ class ProductUpload extends Model
     protected function getMappings(): array
     {
         return [
-            'product_id' => ['Product', fn ($value) => Product::find($value)?->name],
+            'product_id' => ['Product', fn ($value) => Product::find($value)?->name], // @phpstan-ignore property.notFound
             'title' => ['Title', fn ($value) => $value],
             'version' => ['Version', fn ($value) => $value],
             'file' => ['File', fn ($value) => $value],

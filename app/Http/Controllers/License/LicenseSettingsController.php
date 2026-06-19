@@ -89,8 +89,8 @@ class LicenseSettingsController extends LicensePermissionsController
                 return errorResponse(__('message.select-a-row'));
             }
 
-            /** @var \App\Model\License\LicenseType|null $type */
             foreach ($ids as $id) {
+                /** @var \App\Model\License\LicenseType|null $type */
                 $type = $this->licenseType->find($id);
                 if ($type) {
                     $type->delete();

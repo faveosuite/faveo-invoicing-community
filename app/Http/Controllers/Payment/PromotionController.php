@@ -74,7 +74,7 @@ class PromotionController extends BasePromotionController
             $expiry = Date::parse($request->input('expiry'))->format('Y-m-d H:m:i');
             $this->promotion->code = $request->input('code');
             $this->promotion->type = $request->input('type');
-            $this->promotion->value = $request->input('type') == 1 ? intval($request->input('value')).'%' : intval($request->input('value'));
+            $this->promotion->value = $request->input('type') == 1 ? intval($request->input('value')).'%' : (string) intval($request->input('value'));
             $this->promotion->uses = $request->input('uses');
             $this->promotion->start = $start;
             $this->promotion->expiry = $expiry;
@@ -99,7 +99,7 @@ class PromotionController extends BasePromotionController
         try {
             $start = Date::parse($request->input('start'))->format('Y-m-d H:m:i');
             $expiry = Date::parse($request->input('expiry'))->format('Y-m-d H:m:i');
-            $promotion = $this->promotion->where('id', $id)->first();
+            $promotion = $this->promotion->where('id', $id)->firstOrFail();
             $promotion->update([
                 'code' => $request->input('code'),
                 'type' => $request->input('type'),
@@ -210,7 +210,7 @@ class PromotionController extends BasePromotionController
     public function updatePromotionCode(mixed $promotionId, PromotionRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
-            /** @var \App\Promotion $promotion */
+            /** @var \App\Model\Payment\Promotion $promotion */
             $promotion = Promotion::findOrFail($promotionId);
 
             $start = Date::parse($request->input('start'))->format('Y-m-d H:i:s');

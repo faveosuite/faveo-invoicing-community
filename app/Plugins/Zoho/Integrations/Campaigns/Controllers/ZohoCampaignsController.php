@@ -88,8 +88,8 @@ class ZohoCampaignsController extends ZohoBaseController
         /** @var \App\User $zohoUser */
         $zohoUser = User::where('email', $email)->first();
         $contactInfo = zohoMappedFields(
-            $zohoFields, // @phpstan-ignore argument.type
-            $mappings, // @phpstan-ignore argument.type
+            $zohoFields,
+            $mappings,
             $zohoUser
         );
 

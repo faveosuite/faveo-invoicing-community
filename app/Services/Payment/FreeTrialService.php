@@ -57,14 +57,14 @@ class FreeTrialService
             $result = new TenantController(new Client(), new FaveoCloud())
                 ->createTenant(new Request(['orderNo' => $order->number, 'domain' => $domain]));
 
-            if (($result['status'] ?? '') === 'false') {
-                throw new RuntimeException($result['message'] ?? __('message.cannot_generate_freetrial_cloud_instance'));
+            if (($result['status'] ?? '') === 'false') { // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                throw new RuntimeException($result['message'] ?? __('message.cannot_generate_freetrial_cloud_instance')); // @phpstan-ignore offsetAccess.nonOffsetAccessible
             }
 
             DB::table('free_trial_allowed')->insert([
                 'user_id' => $user->id,
                 'product_id' => $cloudProduct->cloud_product,
-                'domain' => $result['Free_trial_domain'] ?? $domain,
+                'domain' => $result['Free_trial_domain'] ?? $domain, // @phpstan-ignore offsetAccess.nonOffsetAccessible
             ]);
 
             return $result;

@@ -121,6 +121,7 @@ class TemplateController extends Controller
             }
 
             $type = $this->type->pluck('name', 'id')->toArray();
+            /** @var \App\Model\Common\TemplateType|null $templateType */
             $templateType = TemplateType::find($template->type);
             $shortcodeName = $templateType ? $templateType->name : null;
             $codes = null;

@@ -41,7 +41,7 @@ class BaseClientController extends Controller
             $user->gstin = strip_tags((string) $request->input('gstin'));
             $user->address = strip_tags((string) $request->input('address'));
             $user->town = strip_tags((string) $request->input('town'));
-            $user->timezone_id = strip_tags((string) $request->input('timezone_id'));
+            $user->timezone_id = (int) $request->input('timezone_id');
             $user->state = $request->input('state');
             $user->zip = strip_tags($request->input('zipcode') ?? $request->input('zip'));
             $user->company_size = $request->input('company_size');

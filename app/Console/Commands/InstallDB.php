@@ -77,7 +77,8 @@ class InstallDB extends LoggableCommand
             $this->info('Database setup completed successfully.');
 
             $this->createAdmin();
-            $environment = (string) ($envOption ?? $this->choice('Select application environment', ['production', 'development', 'testing']));
+            $envChoice = $envOption ?? $this->choice('Select application environment', ['production', 'development', 'testing']);
+            $environment = is_string($envChoice) ? $envChoice : '';
             $this->install->updateInstallEnv($environment);
             $this->showAdminInfo();
             $this->info('');
@@ -166,7 +167,7 @@ class InstallDB extends LoggableCommand
         $this->info(sprintf('You are running %s database on version %s', $db, $version));
         preg_match("/^[0-9\.]+/", $version, $match);
 
-        return $match[0];
+        return $match[0] ?? '';
     }
 
     public function createAdmin(): mixed

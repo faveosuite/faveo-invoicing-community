@@ -136,6 +136,7 @@ class LicenseController extends Controller
     public function deleteLicense(Request $request): \Illuminate\Http\JsonResponse
     /** @var \App\License\Models\License|null $license */
     {
+        /** @var \App\License\Models\License|null $license */
         $license = License::find($request->get('id'));
         if (! $license) {
             return successResponse(__('license::lang.delete'), 0, 200);
@@ -369,7 +370,7 @@ class LicenseController extends Controller
 
     public function getPluginInfo(Request $request): \Illuminate\Http\JsonResponse
     {
-        $licenseCodes = collect(json_decode((string) $request->input('license_code'), associative: true));
+        $licenseCodes = collect((array) json_decode((string) $request->input('license_code'), associative: true));
         $licenses = License::whereIn('license_code', $licenseCodes)
             ->where(function ($q): void {
                 $q->where('license_expire_date', '>', Date::now())

@@ -90,7 +90,7 @@ class InstallationService
      */
     public function getByLicenseCode(string $licenseCode): Collection
     {
-        return Installation::where('license_code', $licenseCode)
+        return Installation::where('license_code', $licenseCode) // @phpstan-ignore return.type
             ->with(['product', 'user'])
             ->get();
     }

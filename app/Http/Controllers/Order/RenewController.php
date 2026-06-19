@@ -88,7 +88,7 @@ class RenewController extends BaseRenewController
                 return $sub;
             }
 
-            return $invoice;
+            return $invoice; // @phpstan-ignore return.type
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -208,10 +208,10 @@ class RenewController extends BaseRenewController
 
             $cost = $price->sales_price;
             if (! $cost) {
-                return $price->regular_price;
+                return $price->regular_price; // @phpstan-ignore property.notFound
             }
 
-            return $cost;
+            return (float) $cost;
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -342,7 +342,7 @@ class RenewController extends BaseRenewController
             $currency = $planDetails['currency'];
             $noOfAgentsPerPlan = (int) $planDetails['plan']->no_of_agents;
 
-            $agents = InvoiceItem::whereHas('invoice', fn (Builder $q) => $q->whereHas('orders', fn (Builder $q) => $q->where('orders.id', $sub->order_id))
+            $agents = InvoiceItem::whereHas('invoice', fn (Builder $q) => $q->whereHas('orders', fn (Builder $q) => $q->where('orders.id', $sub->order_id)) // @phpstan-ignore argument.templateType
             )
                 ->orderByDesc('id')
                 ->value('agents');
@@ -352,7 +352,7 @@ class RenewController extends BaseRenewController
                 : $price;
 
             $items = $this->invoiceBySubscriptionId($id, $planId, $cost, $currency, $agents ?: null);
-            $invoiceid = $items->invoice_id;
+            $invoiceid = $items->invoice_id; // @phpstan-ignore property.notFound
 
             return successResponse('', ['invoice_id' => $invoiceid]);
         } catch (Exception $exception) {

@@ -138,9 +138,9 @@ class DatabaseSeeder extends Seeder
 
     public function countrySeeder(): void
     {
-        $currencies = collect(require database_path('seeders/v4_0_2_5_RC_1/currencies.php'));
-        $countries = collect(require database_path('seeders/v4_0_2_5_RC_1/countries.php'));
-        $states = collect(require database_path('seeders/v4_0_2_5_RC_1/states.php'));
+        $currencies = collect((array) require database_path('seeders/v4_0_2_5_RC_1/currencies.php'));
+        $countries = collect((array) require database_path('seeders/v4_0_2_5_RC_1/countries.php'));
+        $states = collect((array) require database_path('seeders/v4_0_2_5_RC_1/states.php'));
 
         // Disable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');

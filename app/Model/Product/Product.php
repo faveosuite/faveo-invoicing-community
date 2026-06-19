@@ -29,7 +29,7 @@ use Override;
  * @property string $description
  * @property string $short_description
  * @property string $category
- * @property array $parent
+ * @property array<mixed> $parent
  * @property int $type
  * @property int $group
  * @property string $welcome_email
@@ -229,8 +229,8 @@ class Product extends BaseModel
     protected function getMappings(): array
     {
         return [
-            'type' => ['License Type', fn ($value) => $value ? LicenseType::find($value)?->name : 'No Type'],
-            'group' => ['Product Group', fn ($value) => $value ? ProductGroup::find($value)?->name : 'No Group'],
+            'type' => ['License Type', fn ($value) => $value ? LicenseType::find($value)?->name : 'No Type'], // @phpstan-ignore property.notFound
+            'group' => ['Product Group', fn ($value) => $value ? ProductGroup::find($value)?->name : 'No Group'], // @phpstan-ignore property.notFound
             'file' => ['Product File', fn ($value) => $value],
             'image' => ['Product Image', fn ($value) => $value],
             'require_domain' => ['Require Domain', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],

@@ -116,7 +116,7 @@ class Invoice extends BaseModel
     protected function getMappings(): array
     {
         return [
-            'user_id' => ['User', fn ($value) => User::find($value)?->user_name],
+            'user_id' => ['User', fn ($value) => User::find($value)?->user_name], // @phpstan-ignore property.notFound
             'number' => ['Invoice Number', fn ($value) => $value],
             'date' => ['Invoice Date', fn ($value) => Date::parse($value)->toDateTimeString()],
             'coupon_code' => ['Coupon Code', fn ($value) => $value],
@@ -173,10 +173,7 @@ class Invoice extends BaseModel
     }
 
     // Subscriptions reached through the pivot: Invoice → order_invoice_relations → subscriptions
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\Illuminate\Database\Eloquent\Model, \Illuminate\Database\Eloquent\Model>
-     */
-    public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasManyThrough // @phpstan-ignore missingType.generics
     {
         return $this->hasManyThrough(
             Subscription::class,

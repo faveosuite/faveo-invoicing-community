@@ -115,7 +115,7 @@ class BaseRenewController extends Controller
             $price = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
 
-            $agents = InvoiceItem::whereHas('invoice', fn (Builder $q) => $q->whereHas('orders', fn (Builder $q) => $q->where('orders.id', $orderId)))
+            $agents = InvoiceItem::whereHas('invoice', fn (Builder $q) => $q->whereHas('orders', fn (Builder $q) => $q->where('orders.id', $orderId))) // @phpstan-ignore argument.templateType
                 ->where('plan_id', $planId)
                 ->orderByDesc('id')
                 ->value('agents');

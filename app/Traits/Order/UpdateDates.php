@@ -42,6 +42,6 @@ trait UpdateDates
 
     private function parseDate(string $date): string
     {
-        return Date::createFromFormat('m/d/Y', $date)->format('Y-m-d H:i:s');
+        return Date::createFromFormat('m/d/Y', $date)?->format('Y-m-d H:i:s') ?? ''; // @phpstan-ignore nullsafe.neverNull
     }
 }

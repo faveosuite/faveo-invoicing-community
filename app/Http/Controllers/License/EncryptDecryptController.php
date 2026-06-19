@@ -50,7 +50,7 @@ class EncryptDecryptController extends Controller
         // Create the keypair
         $pair = openssl_pkey_new($config);
         // Get private key
-        openssl_pkey_export($pair ?: '', $privatekey); // @phpstan-ignore argument.type
+        openssl_pkey_export($pair ?: '', $privatekey); 
         // Get public key
         $details = $pair !== false ? openssl_pkey_get_details($pair) : false;
         $publickey = $details !== false ? ($details['key'] ?? '') : '';

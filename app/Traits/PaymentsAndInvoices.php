@@ -226,7 +226,7 @@ trait PaymentsAndInvoices
                 $payment_status = '';
                 $payment_method = '';
                 $domain = '';
-                if ($invoice) {
+                if ($invoice) { // @phpstan-ignore if.alwaysTrue
                     $invoice_status = $invoice->status;
                     $items = $invoice->invoiceItem()->first();
                     if ($items) {

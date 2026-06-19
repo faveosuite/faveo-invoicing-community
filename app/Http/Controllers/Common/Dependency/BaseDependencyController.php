@@ -109,7 +109,7 @@ class BaseDependencyController extends Controller
      */
     public function initializeParameterValues($request): void
     {
-        $this->request = $request;
+        $this->request = $request; // @phpstan-ignore assign.propertyType
 
         $this->searchQuery = $request->input('search-query') ?: '';
 

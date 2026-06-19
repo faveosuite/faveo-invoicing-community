@@ -92,7 +92,7 @@ class SubscriptionWebhookService
         $product = Product::find($subscription->product_id);
 
         $this->handler->sendFailedPayment(
-            total: null, exceptionMessage: 'Stripe subscription payment failed', user: $user, // @phpstan-ignore argument.type
+            total: null, exceptionMessage: 'Stripe subscription payment failed', user: $user,
             number: (string) $order?->number, end: (string) $subscription->update_ends_at,
             currency: $invoice['currency'] ?? '', order: $order, product_details: $product, invoice: null, payment: 'stripe'
         );
@@ -233,7 +233,7 @@ class SubscriptionWebhookService
         $agents = DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents');
         $invoiceItem = new BaseRenewController()->generateInvoice($product, $user, $order->id, $plan->id, $cost, '', $agents, $currency);
 
-        return Invoice::findOrFail($invoiceItem->invoice_id);
+        return Invoice::findOrFail($invoiceItem->invoice_id); // @phpstan-ignore property.notFound
     }
 
     /**

@@ -257,8 +257,8 @@ class ClientController extends AdvanceSearchController
         try {
             $exportDetail = ExportDetail::findOrFail($id);
 
-            $expirationTime = $exportDetail->created_at->addHours(6);
-            if (now()->gt($expirationTime)) {
+            $expirationTime = $exportDetail->created_at?->addHours(6);
+            if ($expirationTime && now()->gt($expirationTime)) {
                 return errorResponse(__('message.download_link_expired'));
             }
 
@@ -614,7 +614,7 @@ class ClientController extends AdvanceSearchController
             $invoiceSum = $this->getTotalInvoice($invoices); // @phpstan-ignore argument.type
             $amountPaid = $this->getAmountPaid($id);
             if ($amountPaid instanceof \Illuminate\Http\RedirectResponse) {
-                return $amountPaid;
+                return $amountPaid; // @phpstan-ignore return.type
             }
             $balance = $invoiceSum - $amountPaid;
             $currency = getCurrencyForClient($user->country);
@@ -763,7 +763,7 @@ class ClientController extends AdvanceSearchController
         try {
             $comment = Comment::where('id', $commentId)->where('user_id', $id)->firstOrFail();
             $comment->description = $request->input('description');
-            $comment->updated_by_user_id = auth()->id();
+            $comment->updated_by_user_id = (int) auth()->id();
             $comment->save();
 
             return successResponse(__('message.updated-successfully'));

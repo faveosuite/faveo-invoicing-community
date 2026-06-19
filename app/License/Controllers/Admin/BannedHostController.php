@@ -21,7 +21,7 @@ class BannedHostController extends Controller
 
     public function __construct()
     {
-        $this->ip_address = request()->server('REMOTE_ADDR') ?? '';
+        $addr = request()->server('REMOTE_ADDR'); $this->ip_address = is_string($addr) ? $addr : '';
     }
 
     /**

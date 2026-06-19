@@ -23,7 +23,7 @@ class HelpersTest extends DBTestCase
             'display_name' => 'First Name',
         ]);
 
-        $localField = FaveoLocalFields::whereFieldKey('first_name')->first();
+        $localField = FaveoLocalFields::whereFieldKey('first_name')->firstOrFail();
 
         $mapping = ZohoFieldMappings::create([
             'zoho_field_id' => $zohoField->id,
@@ -49,7 +49,7 @@ class HelpersTest extends DBTestCase
             'display_name' => 'Contact Email',
         ]);
 
-        $localField = FaveoLocalFields::whereFieldKey('email')->first();
+        $localField = FaveoLocalFields::whereFieldKey('email')->firstOrFail();
 
         $mapping = ZohoFieldMappings::create([
             'zoho_field_id' => $zohoField->id,
@@ -97,7 +97,7 @@ class HelpersTest extends DBTestCase
             'zoho_key' => 'Country',
         ]);
 
-        $localField = FaveoLocalFields::whereFieldKey('country')->first();
+        $localField = FaveoLocalFields::whereFieldKey('country')->firstOrFail();
 
         $mapping = ZohoFieldMappings::create([
             'zoho_field_id' => $zohoField->id,
@@ -234,6 +234,7 @@ class HelpersTest extends DBTestCase
         ]);
 
         $result = resolveSelected($mapping);
+        assert($result !== null);
 
         $this->assertEquals('zoho', $result['type']);
         $this->assertEquals(json_encode(['value' => 'Selected']), $result['value']);
@@ -251,6 +252,7 @@ class HelpersTest extends DBTestCase
         ]);
 
         $result = resolveSelected($mapping);
+        assert($result !== null);
 
         $this->assertEquals('local', $result['type']);
         $this->assertEquals(5, $result['value']);
@@ -298,7 +300,7 @@ class HelpersTest extends DBTestCase
             'zoho_key' => 'Email',
         ]);
 
-        $localField = FaveoLocalFields::whereFieldKey('email')->first();
+        $localField = FaveoLocalFields::whereFieldKey('email')->firstOrFail();
 
         $mapping = ZohoFieldMappings::create([
             'zoho_field_id' => $zohoField->id,

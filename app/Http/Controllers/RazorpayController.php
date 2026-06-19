@@ -56,7 +56,7 @@ class RazorpayController extends Controller
             'razorpay_signature' => ['required', 'string'],
         ]);
 
-        /** @var \App\Model\Order\Invoice $model */
+        /** @var \App\Model\Order\Invoice|null $model */
         $model = Invoice::find($invoice);
         abort_if(! $model, 404, 'Invoice not found.');
         /** @var \App\User $authUser */

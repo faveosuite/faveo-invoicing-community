@@ -239,7 +239,7 @@ class ZohoCampaignsApi extends ZohoBaseApi
             throw ZohoCampaignsApiException::fromResponse($response);
         }
 
-        return Collection::make($response['tags'] ?? [])
+        return Collection::make((array) ($response['tags'] ?? []))
             ->flatMap(fn (array $tag): array => $tag)
             ->all();
     }
@@ -353,7 +353,7 @@ class ZohoCampaignsApi extends ZohoBaseApi
      *
      * @link https://www.zoho.com/campaigns/help/developers/get-topics.html
      *
-     * @return array<int,array>
+     * @return array<int,array<mixed>>
      *
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException

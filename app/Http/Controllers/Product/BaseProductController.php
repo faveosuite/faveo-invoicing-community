@@ -21,12 +21,15 @@ class BaseProductController extends ExtendedBaseProductController
     {
         $server = new Request();
         $url = \Illuminate\Support\Facades\Request::server('REQUEST_URI');
-        $server = parse_url((string) $url);
-        $server['path'] = dirname($server['path']);
+        $server = parse_url(is_string($url) ? $url : '');
+        $server = is_array($server) ? $server : [];
+        $server['path'] = dirname($server['path'] ?? '');
         $server = parse_url($server['path']);
-        $server['path'] = dirname($server['path']);
+        $server = is_array($server) ? $server : [];
+        $server['path'] = dirname($server['path'] ?? '');
 
-        return 'http://'. (string) \Illuminate\Support\Facades\Request::server('HTTP_HOST').$server['path'];
+        $host = \Illuminate\Support\Facades\Request::server('HTTP_HOST');
+        return 'http://'. (is_string($host) ? $host : '').$server['path'];
     }
 
     /*
@@ -161,6 +164,7 @@ class BaseProductController extends ExtendedBaseProductController
     public function userDownload(mixed $order_id, mixed $version_id = ''): \Symfony\Component\HttpFoundation\Response|\Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\Model\Order\Order $order */
             $order = Order::with('subscription')->findOrFail($order_id);
 
             /** @var \App\User $authUser2 */
@@ -262,9 +266,9 @@ class BaseProductController extends ExtendedBaseProductController
 
     public function updateVersionFromGithub(mixed $productid, string $github_owner, string $github_repository): void
     {
-        /** @var \App\Product $product */
+        /** @var \App\Model\Product\Product $product */
         $product = Product::findOrFail($productid);
-        $product->version = resolve(GithubApiController::class)->latestTag($github_owner, $github_repository);
+        $product->version = resolve(GithubApiController::class)->latestTag($github_owner, $github_repository) ?? '';
         $product->save();
     }
 

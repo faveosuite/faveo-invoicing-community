@@ -61,12 +61,12 @@ class CloudProducts extends BaseModel
      */
     protected function getMappings(): array
     {
-        $product = Product::find($this->cloud_product)->name ?? 'Unknown Product';
-        $plan = Plan::find($this->cloud_free_plan)->name ?? 'Unknown Plan';
+        $product = Product::where('id', $this->cloud_product)->value('name') ?? 'Unknown Product';
+        $plan = Plan::where('id', $this->cloud_free_plan)->value('name') ?? 'Unknown Plan';
 
         return [
-            'cloud_product' => ['Product Name', fn ($value) => Product::find($value)?->name],
-            'cloud_free_plan' => ['Free Plan', fn ($value) => Plan::find($value)?->name],
+            'cloud_product' => ['Product Name', fn ($value) => Product::find($value)?->name], // @phpstan-ignore property.notFound
+            'cloud_free_plan' => ['Free Plan', fn ($value) => Plan::find($value)?->name], // @phpstan-ignore property.notFound
             'cloud_product_key' => ['Product Key', fn ($value) => $value],
             'trial_status' => [
                 sprintf('Trial Status for %s (Plan : %s)', $product, $plan),

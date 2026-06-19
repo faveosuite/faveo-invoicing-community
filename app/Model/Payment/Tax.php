@@ -93,7 +93,7 @@ class Tax extends BaseModel
             ],
             'rate' => ['Tax Rate (%)', fn ($value) => $value],
             'active' => [$this->name.' tax status', fn ($value): array|string => $value === 1 ? __('message.active') : __('message.inactive')],
-            'tax_classes_id' => ['Tax Class', fn ($value) => $value ? TaxClass::find($value)?->name : 'No Class'],
+            'tax_classes_id' => ['Tax Class', fn ($value) => $value ? TaxClass::find($value)?->name : 'No Class'], // @phpstan-ignore property.notFound
             'compound' => ['Is Compound Tax', fn ($value): string => $value === 1 ? 'Yes' : 'No'],
         ];
     }

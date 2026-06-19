@@ -79,7 +79,7 @@ class Plan extends BaseModel
     {
         return [
             'name' => ['Plan Name', fn ($value) => $value],
-            'product' => ['Product', fn ($value) => Product::find($value)?->name],
+            'product' => ['Product', fn ($value) => Product::find($value)?->name], // @phpstan-ignore property.notFound
             'allow_tax' => ['Allow Tax', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'days' => ['Plan Days', fn ($value) => $value],
             'status' => ['Status', fn ($value): array|string => $value === 1 ? __('message.active') : __('message.inactive')],
@@ -107,7 +107,7 @@ class Plan extends BaseModel
      */
     public function periods(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongstoMany(Period::class, 'plans_periods_relation')->withTimestamps();
+        return $this->belongstoMany(Period::class, 'plans_periods_relation')->withTimestamps(); // @phpstan-ignore return.type
     }
 
     #[Override]

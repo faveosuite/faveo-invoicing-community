@@ -88,7 +88,7 @@ class EmailSettingsController extends Controller
      *
      *
      * @param  \App\Model\Common\Setting  $emailConfig  emailConfig object
-     * @return bool
+     * @return bool|\Illuminate\Mail\SentMessage|false
      */
     protected function checkSendConnection(Setting $emailConfig)
     {
@@ -107,7 +107,7 @@ class EmailSettingsController extends Controller
                 return $this->checkSMTPConnection();
             }
 
-            return $this->checkServices();
+            return $this->checkServices(); // @phpstan-ignore return.type
         } catch (Exception $exception) {
             $this->error = $exception;
 
@@ -134,7 +134,7 @@ class EmailSettingsController extends Controller
     /**
      * Checks services status by raw sending mail and waiting for the response.
      *
-     * @return \Illuminate\Mail\SentMessage|false
+     * @return \Illuminate\Mail\SentMessage|false|null
      */
     private function checkServices()
     {

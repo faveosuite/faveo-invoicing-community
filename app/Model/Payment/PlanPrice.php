@@ -75,7 +75,7 @@ class PlanPrice extends Model
     protected function getMappings(): array
     {
         return [
-            'plan_id' => ['Plan Name', fn ($value) => Plan::find($value)?->name],
+            'plan_id' => ['Plan Name', fn ($value) => Plan::find($value)?->name], // @phpstan-ignore property.notFound
             'currency' => ['Currency', fn ($value) => $value],
             'add_price' => ['Add Price', fn ($value) => $value],
             'renew_price' => ['Renew Price', fn ($value) => $value],

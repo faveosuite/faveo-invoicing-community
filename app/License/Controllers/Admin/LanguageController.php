@@ -35,7 +35,7 @@ class LanguageController extends Controller
             return;
         }
 
-        $files = glob($path.DIRECTORY_SEPARATOR.'*.php');
+        $files = glob($path.DIRECTORY_SEPARATOR.'*.php') ?: [];
 
         foreach ($files as $file) {
             $name = basename($file, '.php');

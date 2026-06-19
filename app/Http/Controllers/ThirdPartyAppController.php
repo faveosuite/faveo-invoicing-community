@@ -75,15 +75,16 @@ class ThirdPartyAppController extends Controller
         return successResponse(__('message.saved-successfully'));
     }
 
-    public function getAppKey()
+    public function getAppKey(): mixed
     {
         try {
             $code = Str::random(32);
             echo $code;
         } catch (Exception $exception) {
-            // @phpstan-ignore return.void
             return back()->with('fails', $exception->getMessage());
         }
+
+        return null;
     }
 
     /**

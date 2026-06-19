@@ -370,6 +370,7 @@ class AuthController extends BaseAuthController
             return successResponse('', ['redirect' => url('login')]);
         }
 
+        /** @var \App\User $user */
         $eid = Crypt::encrypt($user->email);
 
         /** @var \App\Model\Common\StatusSetting $setting */

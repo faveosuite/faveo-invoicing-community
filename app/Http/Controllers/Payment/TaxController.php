@@ -90,6 +90,7 @@ class TaxController extends Controller
     public function editTaxApi(mixed $id): \Illuminate\Http\JsonResponse
     {
         try {
+            /** @var \App\Model\Payment\TaxRate|null $rate */
             $rate = TaxRate::with('locations')->find($id);
             if (! $rate) {
                 return errorResponse(__('message.tax_record_not_found'), 404);

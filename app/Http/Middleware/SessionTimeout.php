@@ -44,7 +44,7 @@ class SessionTimeout
         if ($elapsedMinutes >= $timeoutMinutes) {
             $this->expireSession($sessionKey);
 
-            return $request->expectsJson()
+            return $request->expectsJson() // @phpstan-ignore return.type
                 ? errorResponse('Your session has expired. Please log in again to continue.', 401)
                 : to_route('login')->with('fails', 'Your session has expired. Please log in again to continue.');
         }

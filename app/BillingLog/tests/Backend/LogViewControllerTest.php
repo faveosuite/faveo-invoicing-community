@@ -120,6 +120,7 @@ class LogViewControllerTest extends DBTestCase
     {
         LogCategory::create(['name' => 'database:sync']);
         $cronLog = Logger::cron('database:sync', 'Update DB to latest version');
+        assert($cronLog !== null);
         Logger::cron('testing-setup', 'Create an testing environment');
         Logger::cronCompleted($cronLog->id);
 
@@ -136,6 +137,8 @@ class LogViewControllerTest extends DBTestCase
     {
         $log1 = Logger::cron('database:sync', 'Update DB to latest version');
         $log2 = Logger::cron('database:sync', 'Update DB to latest version');
+        assert($log1 !== null);
+        assert($log2 !== null);
 
         Logger::cronCompleted($log1->id);
         Logger::cronCompleted($log2->id);
@@ -153,6 +156,8 @@ class LogViewControllerTest extends DBTestCase
     {
         $log1 = Logger::cron('database:sync', 'Update DB to latest version');
         $log2 = Logger::cron('database:sync', 'Update DB to latest version');
+        assert($log1 !== null);
+        assert($log2 !== null);
 
         CronLog::where('id', $log1->id)->update(['created_at' => Date::now()->subDay()]);
 
@@ -170,6 +175,7 @@ class LogViewControllerTest extends DBTestCase
     public function test_mailLogs_withoutFilters(): void
     {
         $log = $this->logMailByCategory();
+        assert($log !== null);
 
         $payload = $this->defaultMailPayload(['category' => $log->log_category_id]);
 
@@ -183,7 +189,10 @@ class LogViewControllerTest extends DBTestCase
     public function test_mailLogs_withSearchQuery(): void
     {
         $log = $this->logMailByCategory('', '', [], [], 'First Subject');
-        $categoryName = LogCategory::find($log->log_category_id)->name;
+        assert($log !== null);
+        /** @var \App\BillingLog\Model\LogCategory $logCat */
+        $logCat = LogCategory::findOrFail($log->log_category_id);
+        $categoryName = $logCat->name;
 
         $this->logMailByCategory('', 'test1@gmail.com', [], [], 'Second Subject', $categoryName);
         $this->logMailByCategory('', 'test2@gmail.com', [], [], 'Third Subject', $categoryName);
@@ -203,7 +212,10 @@ class LogViewControllerTest extends DBTestCase
     public function test_mailLogs_withLimit(): void
     {
         $log = $this->logMailByCategory('', '', [], [], 'First Subject');
-        $categoryName = LogCategory::find($log->log_category_id)->name;
+        assert($log !== null);
+        /** @var \App\BillingLog\Model\LogCategory $logCat */
+        $logCat = LogCategory::findOrFail($log->log_category_id);
+        $categoryName = $logCat->name;
 
         foreach (['a@gmail.com', 'b@gmail.com', 'c@gmail.com', 'd@gmail.com'] as $mail) {
             $this->logMailByCategory('', $mail, [], [], 'Some Subject', $categoryName);
@@ -586,12 +598,14 @@ class LogViewControllerTest extends DBTestCase
 
         //Create OLD cron log — should be deleted
         $oldCronLog = Logger::cron('database:sync', 'Old cron execution');
+        assert($oldCronLog !== null);
         DB::table('cron_logs')->where('id', $oldCronLog->id)->update([
             'created_at' => now()->subDays(10),
         ]);
 
         // Create NEW cron log — should remain
         $newCronLog = Logger::cron('database:sync', 'Recent cron execution');
+        assert($newCronLog !== null);
         DB::table('cron_logs')->where('id', $newCronLog->id)->update([
             'created_at' => now(),
         ]);

@@ -53,7 +53,7 @@ class LicenseValidator
             return '138.197.237.160';
         }
 
-        return $request->ip();
+        return $request->ip() ?? '';
     }
 
     /**
@@ -79,7 +79,10 @@ class LicenseValidator
      */
     public function validateProduct(mixed $product_id): ?Product
     {
-        return Product::find($product_id);
+        /** @var \App\Model\Product\Product|null $product */
+        $product = Product::find($product_id);
+
+        return $product;
     }
 
     /**

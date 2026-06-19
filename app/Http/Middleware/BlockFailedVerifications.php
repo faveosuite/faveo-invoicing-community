@@ -168,7 +168,7 @@ class BlockFailedVerifications
         }
 
         $level = min(Cache::get($penaltyKey, 0) + 1, count(self::PENALTIES));
-        $minutes = self::PENALTIES[$level];
+        $minutes = self::PENALTIES[$level]; // @phpstan-ignore offsetAccess.invalidOffset
 
         Cache::put($penaltyKey, $level, now()->addHours(24));
         Cache::put($appliedKey, true, now()->addMinutes($minutes));

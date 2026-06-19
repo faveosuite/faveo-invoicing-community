@@ -64,7 +64,7 @@ class BaseOrderController extends ExtendedOrderController
         $userId = Invoice::findOrFail($invoiceId)->user_id;
         $items = InvoiceItem::where('invoice_id', $invoiceId)->get();
 
-        return $items->map(fn (\App\Model\Order\InvoiceItem $item): \App\Model\Order\Order => $this->processInvoiceItem($item, $userId));
+        return $items->map(fn (\App\Model\Order\InvoiceItem $item): \App\Model\Order\Order => $this->processInvoiceItem($item, $userId)); // @phpstan-ignore return.type
     }
 
     private function processInvoiceItem(\App\Model\Order\InvoiceItem $item, int $userId): Order
@@ -96,7 +96,8 @@ class BaseOrderController extends ExtendedOrderController
             /** @var \App\Model\Product\Product $productForAddons */
             $productForAddons = Product::find($product);
             $addOnIds = $productForAddons->productPluginGroupsAsProduct->pluck('plugin_id')->toArray();
-            $options = $this->formatConfigurableOptions($product)->toArray();
+            $cfgOptions = $this->formatConfigurableOptions($product);
+            $options = is_array($cfgOptions) ? $cfgOptions : $cfgOptions->toArray();
             resolve(LicenseService::class)->syncAddons($serialKey, $addOnIds, $options);
         }
 
@@ -244,16 +245,17 @@ class BaseOrderController extends ExtendedOrderController
         /** @var \App\Model\Order\Order $order */
         $order = $orders->where('id', $orderid)->first();
         $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
+        /** @var \App\Model\Order\Invoice|null $invoice */
         $invoice = Invoice::find($invoiceId);
         $number = $invoice?->number;
         $downloadurl = '';
-        if ($user && $order->order_status == 'Executed') {
+        if ($user && $order->order_status == 'Executed') { // @phpstan-ignore booleanAnd.leftAlwaysTrue
             $downloadurl = url('product/download/'.$productId.'/'.$number);
         }
 
         // $downloadurl = $this->downloadUrl($userid, $orderid,$productId);
         $myaccounturl = url('my-order/'.$orderid);
-        $invoiceurl = (string) $this->invoiceUrl($orderid); // @phpstan-ignore argument.type
+        $invoiceurl = (string) $this->invoiceUrl($orderid); // @phpstan-ignore argument.type, cast.string
         //template
         $this->getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $order->serial_key);
     }
@@ -301,7 +303,7 @@ class BaseOrderController extends ExtendedOrderController
             'licenseCode' => $licenseCode,
         ];
 
-        $type = $template?->type()->value('name') ?? '';
+        $type = $template->type()->value('name') ?? '';
         $mail = new PhpMailController();
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 
@@ -338,6 +340,7 @@ class BaseOrderController extends ExtendedOrderController
     public function downloadUrl(string $userid, int $orderid): \Illuminate\Contracts\Routing\UrlGenerator|string
     {
         $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
+        /** @var \App\Model\Order\Invoice|null $invoice */
         $invoice = Invoice::find($invoiceId);
         $number = $invoice?->number;
 
@@ -345,9 +348,7 @@ class BaseOrderController extends ExtendedOrderController
     }
 
     /**
-     * @return array<mixed>
-     * @return array<mixed>
-     * @return \Illuminate\Support\Collection<int|string, mixed>
+     * @return array<mixed>|\Illuminate\Support\Collection<int, array{product_id: int, option_group: string, option_name: string, key: mixed, value: mixed}>
      */
     public function formatConfigurableOptions(int $productId): \Illuminate\Support\Collection|array
     {

@@ -60,7 +60,7 @@ class BaseAuthController extends Controller
                 'reply_email' => $settings->company_email,
             ];
 
-            $type = $template?->type()->value('name') ?? '';
+            $type = $template->type()->value('name') ?? '';
 
             $mail = new PhpMailController();
             $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);

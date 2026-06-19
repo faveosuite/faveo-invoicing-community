@@ -28,7 +28,7 @@ class ZohoOAuthControllerTest extends DBTestCase
 
     public function test_it_gets_oauth_client_keys_for_integration(): void
     {
-        $integration = ZohoIntegration::first();
+        $integration = ZohoIntegration::firstOrFail();
         ZohoOAuthClient::create([
             'integration_id' => $integration->id,
             'client_id' => 'test_client_id',
@@ -42,7 +42,7 @@ class ZohoOAuthControllerTest extends DBTestCase
 
     public function test_it_saves_oauth_client_keys_and_returns_redirect_url(): void
     {
-        $integration = ZohoIntegration::wherePlatform('crm')->first();
+        $integration = ZohoIntegration::wherePlatform('crm')->firstOrFail();
 
         Config::set('zoho.platforms.crm.scope', ['ZohoCRM.modules.all']);
 
@@ -81,7 +81,7 @@ class ZohoOAuthControllerTest extends DBTestCase
     {
         $this->expectException(ValidationException::class);
 
-        $integration = ZohoIntegration::first();
+        $integration = ZohoIntegration::firstOrFail();
 
         $request = new Request([
             'integration_id' => $integration->id,
@@ -96,7 +96,7 @@ class ZohoOAuthControllerTest extends DBTestCase
 
     public function test_it_generates_authorization_url_for_platform(): void
     {
-        $integration = ZohoIntegration::wherePlatform('crm')->first();
+        $integration = ZohoIntegration::wherePlatform('crm')->firstOrFail();
         ZohoOAuthClient::create([
             'integration_id' => $integration->id,
             'client_id' => 'test_client',
@@ -128,7 +128,7 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Scopes not configured for [crm]');
 
-        $integration = ZohoIntegration::wherePlatform('crm')->first();
+        $integration = ZohoIntegration::wherePlatform('crm')->firstOrFail();
 
         ZohoOAuthClient::create([
             'integration_id' => $integration->id,
@@ -145,7 +145,7 @@ class ZohoOAuthControllerTest extends DBTestCase
 
     public function test_it_handles_zoho_callback_with_authorization_code(): void
     {
-        $integration = ZohoIntegration::wherePlatform('crm')->first();
+        $integration = ZohoIntegration::wherePlatform('crm')->firstOrFail();
         ZohoOAuthClient::create([
             'integration_id' => $integration->id,
             'region' => 'us',
@@ -185,7 +185,7 @@ class ZohoOAuthControllerTest extends DBTestCase
 
     public function test_it_handles_callback_error_when_code_not_present(): void
     {
-        $integration = ZohoIntegration::wherePlatform('crm')->first();
+        $integration = ZohoIntegration::wherePlatform('crm')->firstOrFail();
         ZohoOAuthClient::create(['integration_id' => $integration->id]);
 
         Config::set('zoho.platforms.crm.settings_url', '/settings/crm');
@@ -203,7 +203,7 @@ class ZohoOAuthControllerTest extends DBTestCase
 
     public function test_it_handles_callback_error_when_token_exchange_fails(): void
     {
-        $integration = ZohoIntegration::wherePlatform('crm')->first();
+        $integration = ZohoIntegration::wherePlatform('crm')->firstOrFail();
         ZohoOAuthClient::create([
             'integration_id' => $integration->id,
             'region' => 'us',

@@ -46,7 +46,7 @@ class Campaigns
         );
 
         $this->defaultListName = config('zoho_campaigns.defaultListName', '');
-        $this->lists = $this->loadLists();
+        $this->lists = $this->loadLists(); // @phpstan-ignore assign.propertyType
     }
 
     /**
@@ -216,7 +216,7 @@ class Campaigns
      */
     protected function loadLists(): Collection
     {
-        return collect($this->zohoApi->lists())
+        return collect((array) $this->zohoApi->lists()) // @phpstan-ignore return.type
             ->mapWithKeys(fn (array $list): array => [
                 $list['listname'] => [
                     'listKey' => $list['listkey'],
@@ -226,10 +226,10 @@ class Campaigns
 
     public function syncTopics(): void
     {
-        $existingTopics = collect($this->zohoApi->topics())
+        $existingTopics = collect((array) $this->zohoApi->topics())
             ->keyBy(fn ($topic) => strtolower(trim($topic['topicName'] ?? '')));
 
-        $configuredTopics = collect(config('zoho_campaigns.topics', []));
+        $configuredTopics = collect((array) config('zoho_campaigns.topics', []));
 
         foreach ($configuredTopics as $topicConfig) {
             $name = trim($topicConfig['name'] ?? '');

@@ -176,6 +176,7 @@ class PostPaymentService
         // Transfer subscription from terminated order to new order
         $termOrderId = DB::table('terminated_order_upgrade')
             ->where('upgraded_order_id', $newActiveOrderId)->value('terminated_order_id');
+        /** @var \App\Model\Order\Order|null $terminatedOrder */
         $terminatedOrder = Order::find($termOrderId);
         if ($terminatedOrder) {
             $oldSub = Subscription::where('order_id', $terminatedOrder->id)->first();

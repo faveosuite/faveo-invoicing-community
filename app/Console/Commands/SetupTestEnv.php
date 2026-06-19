@@ -30,7 +30,7 @@ class SetupTestEnv extends LoggableCommand
     {
         $dbUsername = $this->option('username') ?: config('database.connections.mysql.username');
         $dbPassword = $this->option('password') ?: config('database.connections.mysql.password');
-        $dbName = $this->option('database') ?: 'billing_testing_db';
+        $dbName = is_string($this->option('database')) ? $this->option('database') : 'billing_testing_db';
 
         $dbPassword = $dbPassword ? $dbPassword : '';
         $this->setupConfig($dbUsername, $dbPassword, 'Innodb');
@@ -156,10 +156,10 @@ class SetupTestEnv extends LoggableCommand
 
     private function handleSeeder(): void
     {
-        $latestVersion = preg_replace('#v\.|v#', '', str_replace('_', '.', Config::get('app.version')));
+        $latestVersion = preg_replace('#v\.|v#', '', str_replace('_', '.', (string) Config::get('app.version'))) ?? '';
         $seedersPath = database_path('seeders');
         $seederVersions = scandir($seedersPath);
-        $seederVersions = array_filter($seederVersions, fn ($dir): int|false => preg_match('/^v[\d_]+(?:_[A-Za-z\d]+)*$/', (string) $dir));
+        $seederVersions = array_filter($seederVersions, fn ($dir): bool => (bool) preg_match('/^v[\d_]+(?:_[A-Za-z\d]+)*$/', (string) $dir));
         natsort($seederVersions);
         foreach ($seederVersions as $version) {
             if (version_compare($version, $latestVersion, '<=')) {

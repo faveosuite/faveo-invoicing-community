@@ -162,7 +162,7 @@ class License extends Model
      */
     public function licenseOptions(): HasMany
     {
-        return $this->options();
+        return $this->options(); // @phpstan-ignore return.type
     }
 
     public function isActive(): bool

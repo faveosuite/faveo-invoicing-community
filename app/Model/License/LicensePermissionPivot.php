@@ -55,7 +55,7 @@ class LicensePermissionPivot extends Pivot
     protected function getMappings(): array
     {
         return [
-            'license_permission_id' => ['License Permission', fn ($value) => LicensePermission::find($value)?->permissions],
+            'license_permission_id' => ['License Permission', fn ($value) => LicensePermission::find($value)?->permissions], // @phpstan-ignore property.notFound
         ];
     }
 

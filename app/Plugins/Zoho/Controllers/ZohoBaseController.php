@@ -45,10 +45,11 @@ class ZohoBaseController extends Controller
         ]);
 
         DB::transaction(function () use ($request): void {
-            $incomingIds = collect($request->mappings)
+            $incomingIds = collect((array) $request->mappings)
                 ->pluck('zoho_field_id')
                 ->unique();
 
+            /** @var \App\Plugins\Zoho\Models\ZohoIntegration $zohoIntegration */
             $zohoIntegration = ZohoIntegration::findOrFail($request->integration_id);
 
             ZohoFieldMappings::whereIn('zoho_field_id', function ($query) use (
@@ -85,6 +86,6 @@ class ZohoBaseController extends Controller
 
         $zohoFields = ZohoFields::find($zohoFieldID);
 
-        return resolveOptions($zohoFields, $localFields); // @phpstan-ignore argument.type
+        return resolveOptions($zohoFields, $localFields);
     }
 }

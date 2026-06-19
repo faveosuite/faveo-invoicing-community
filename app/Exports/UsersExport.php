@@ -20,7 +20,7 @@ class UsersExport implements FromCollection, WithHeadings, WithTitle
      */
     public function collection()
     {
-        return collect($this->usersData);
+        return collect((array) $this->usersData);
     }
 
     /**

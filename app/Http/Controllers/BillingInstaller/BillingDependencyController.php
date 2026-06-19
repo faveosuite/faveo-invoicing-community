@@ -113,7 +113,7 @@ class BillingDependencyController extends Controller
      * Extension that are required for Faveo to run.
      *
      * @param  array<mixed> $requiredExtensions  Array of required extensions
-     * @param  array  &$error  Array of errors
+     * @param  array<mixed>  &$error  Array of errors
      */
     private function validateRequiredExtensions(array $requiredExtensions, array &$error, int &$errorCount): void
     {
@@ -141,7 +141,7 @@ class BillingDependencyController extends Controller
      * Extension that are optional for Faveo to run.
      *
      * @param  array<mixed> $requiredExtensions  Array of required extensions
-     * @param  array  &$error  Array of errors
+     * @param  array<mixed>  &$error  Array of errors
      */
     private function validateOptionalExtensions(array $requiredExtensions, array &$error): void
     {
@@ -163,7 +163,7 @@ class BillingDependencyController extends Controller
     /**
      * Gets the Name and status of the requisites for Faveo.
      *
-     * @param  array  &$arrayOfRequisites  Array with name and status
+     * @param  array<mixed>  &$arrayOfRequisites  Array with name and status
      * @param  string  $requisite  The name of the requisite to be checked
      * @return array<mixed>
      */
@@ -365,7 +365,7 @@ class BillingDependencyController extends Controller
     {
         $color = 'green';
         $infoString = 'Valid';
-        if (! filter_var('https://'. (string) Request::server('HTTP_HOST'). (string) Request::server('REQUEST_URI'), FILTER_VALIDATE_URL)) {
+        if (! filter_var('https://'. (string) (Request::server('HTTP_HOST') ?? ''). (string) (Request::server('REQUEST_URI') ?? ''), FILTER_VALIDATE_URL)) { // @phpstan-ignore cast.string, cast.string
             $errorCount += 1;
             $color = 'red';
             $infoString = "Invalid URL found <p>Make sure your domain/IP doesn't contain any special character other than dash( '-' ) and dot ( '.' )<p>";
@@ -410,8 +410,8 @@ class BillingDependencyController extends Controller
             $stream = stream_context_create(['ssl' => ['capture_peer_cert' => true]]);
             $sslHost = $cliAppUrl.'/cron-test.php';
             if (! $cliAppUrl) {
-                $url = preg_replace('#probe.php|api/check-updates#', 'cron-test.php', (string) Request::server('REQUEST_URI'));
-                $sslHost = 'https://'. (string) Request::server('HTTP_HOST').$url;
+                $url = preg_replace('#probe.php|api/check-updates#', 'cron-test.php', (string) (Request::server('REQUEST_URI') ?? '')); // @phpstan-ignore cast.string
+                $sslHost = 'https://'. (string) (Request::server('HTTP_HOST') ?? '').$url; // @phpstan-ignore cast.string
             }
 
             $oldError = error_reporting();

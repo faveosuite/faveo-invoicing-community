@@ -54,6 +54,6 @@ class SecurityEnforcer
             return '';
         }
 
-        return $parsedUrl['scheme'];
+        return $parsedUrl['scheme'] ?? '';
     }
 }

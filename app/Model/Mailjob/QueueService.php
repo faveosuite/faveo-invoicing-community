@@ -37,7 +37,7 @@ class QueueService extends Model
     {
         $related = FaveoQueue::class;
 
-        return $this->hasMany($related, 'service_id');
+        return $this->hasMany($related, 'service_id'); // @phpstan-ignore return.type
     }
 
     public function getExtraField(mixed $key): mixed

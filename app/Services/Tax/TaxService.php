@@ -29,7 +29,7 @@ class TaxService
      * @return array{
      *   applicable: bool,
      *   prices_include_tax: bool,
-     *   rates: array,
+     *   rates: array<mixed>,
      *   total: float,
      *   percent: float,
      *   name: string,

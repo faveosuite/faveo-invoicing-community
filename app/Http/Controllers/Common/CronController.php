@@ -190,7 +190,7 @@ class CronController extends BaseCronController
     }
 
     /**
-     * @return list
+     * @return list<mixed>
      */
     public function getUsers(): array
     {

@@ -25,6 +25,7 @@ class LicenseViewController extends Controller
             return successResponse(__('lang.license_details'), data: null);
         }
 
+        /** @var \App\License\Models\License $license */
         $formatted = (object) [
             'id' => $license->id,
             'product_id' => $license->product_id,
@@ -63,6 +64,7 @@ class LicenseViewController extends Controller
             return successResponse(__('lang.license_installations'), collect([]));
         }
 
+        /** @var \App\License\Models\License $license */
         $licenseInstallations = Installation::query()
             ->select('id', 'user_id as client_id', 'installation_domain', 'installation_ip', 'installation_date', 'installation_status')
             ->where('license_code', $license->license_code)
@@ -93,6 +95,7 @@ class LicenseViewController extends Controller
             return successResponse(__('lang.license_callback'), collect([]));
         }
 
+        /** @var \App\License\Models\License $license */
         $licenseCallBacks = LicenseCallback::where('user_id', $license->client_id) // @phpstan-ignore property.notFound
             ->where('license_code', $license->license_code)
             ->when($searchQuery, function ($query) use ($searchQuery): void {
@@ -129,6 +132,7 @@ class LicenseViewController extends Controller
             return successResponse('', collect([]));
         }
 
+        /** @var \App\License\Models\License $license */
         $installationLogs = InstallationLog::where('license_code', $license->license_code)
             ->when($searchQuery, function ($query) use ($searchQuery): void {
                 $query->where('installation_domain', 'LIKE', '%'.$searchQuery.'%')

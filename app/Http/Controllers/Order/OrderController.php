@@ -239,7 +239,7 @@ class OrderController extends BaseOrderController
     public function update(int $id, OrderRequest $request): \Illuminate\Http\RedirectResponse
     {
         try {
-            $order = $this->order->where('id', $id)->first();
+            $order = $this->order->where('id', $id)->firstOrFail();
             $order->fill($request->input())->save();
 
             return back()->with('success', Lang::get('message.updated-successfully'));

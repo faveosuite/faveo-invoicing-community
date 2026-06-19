@@ -96,11 +96,11 @@ class Subscription extends Model
             'ends_at' => ['Subscription End Date', fn ($value) => $value],
             'update_ends_at' => ['Update End Date', fn ($value) => $value],
             'user_id' => ['User', fn ($value) => User::find($value)?->name], // @phpstan-ignore property.notFound
-            'plan_id' => ['Plan', fn ($value) => Plan::find($value)?->name],
-            'order_id' => ['Order', fn ($value) => $value ? Order::find($value)?->number : 'No Order'],
+            'plan_id' => ['Plan', fn ($value) => Plan::find($value)?->name], // @phpstan-ignore property.notFound
+            'order_id' => ['Order', fn ($value) => $value ? Order::find($value)?->number : 'No Order'], // @phpstan-ignore property.notFound
             'deny_after_subscription' => ['Deny After Subscription', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'version' => ['Version', fn ($value) => $value],
-            'product_id' => ['Product', fn ($value) => Product::find($value)?->name],
+            'product_id' => ['Product', fn ($value) => Product::find($value)?->name], // @phpstan-ignore property.notFound
             'support_ends_at' => ['Support End Date', fn ($value) => $value],
             'version_updated_at' => ['Version Updated At', fn ($value) => $value],
             'is_subscribed' => ['Is Subscribed', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],

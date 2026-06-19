@@ -22,7 +22,7 @@ class CustomValidationProvider extends ServiceProvider
      */
     private function arraySizeValidator(): void
     {
-        $this->app['validator']->extend('array_size_equals', static function ($attribute, $value, $parameters, $validator): bool {
+        $this->app['validator']->extend('array_size_equals', static function ($attribute, $value, $parameters, $validator): bool { // @phpstan-ignore offsetAccess.nonOffsetAccessible
             $parameters = array_map(trim(...), $parameters);
 
             return count($value) === count(request(array_shift($parameters)));
@@ -35,7 +35,7 @@ class CustomValidationProvider extends ServiceProvider
      */
     private function duplicateCountryForCurrencyValidator(): void
     {
-        $this->app['validator']->extend('duplicate_country', function ($attribute, $value, $parameters, $validator): bool {
+        $this->app['validator']->extend('duplicate_country', function ($attribute, $value, $parameters, $validator): bool { // @phpstan-ignore offsetAccess.nonOffsetAccessible
             $parameters = array_map(trim(...), $parameters);
             $currencyArray = request(array_shift($parameters));
 

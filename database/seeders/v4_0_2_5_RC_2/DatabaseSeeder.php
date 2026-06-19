@@ -103,7 +103,9 @@ class DatabaseSeeder extends Seeder
             $responseBody = (string)$response->getBody();
             $responseData = json_decode($responseBody);
 
-            $collection = collect($responseData->message)->reject(fn($item): bool => $item === null);
+            /** @var array<mixed> $msg */
+            $msg = $responseData->message;
+            $collection = collect($msg)->reject(fn($item): bool => $item === null);
 
             $allowedDomains = $collection->pluck('domain')->toArray();
 
@@ -179,7 +181,9 @@ class DatabaseSeeder extends Seeder
             $responseBody = (string)$response->getBody();
             $responseData = json_decode($responseBody);
 
-            $collection = collect($responseData->message)->reject(fn($item): bool => $item === null);
+            /** @var array<mixed> $msg */
+            $msg = $responseData->message;
+            $collection = collect($msg)->reject(fn($item): bool => $item === null);
 
             $allowedDomains = $collection->pluck('domain')->toArray();
             $cloudProductIds = cloudPopupProducts();

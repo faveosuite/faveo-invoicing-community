@@ -145,7 +145,7 @@ class ZohoConnectHelperTest extends DBTestCase
             'display_name' => 'First Name',
         ]);
 
-        $localField = FaveoLocalFields::whereFieldKey('first_name')->first();
+        $localField = FaveoLocalFields::whereFieldKey('first_name')->firstOrFail();
 
         $zohoFields = collect([$zohoField]);
         $localFields = collect([$localField]);
@@ -184,7 +184,7 @@ class ZohoConnectHelperTest extends DBTestCase
             'id' => 1,
         ]);
 
-        $localField = FaveoLocalFields::find(5);
+        $localField = FaveoLocalFields::findOrFail(5);
 
         ZohoFieldMappings::create([
             'zoho_field_id' => $zohoField->id,
@@ -228,7 +228,7 @@ class ZohoConnectHelperTest extends DBTestCase
             'faveo_local_field_id' => null,
         ]);
 
-        $mapping = ZohoFieldMappings::where('zoho_field_id', $zohoField->id)->first();
+        $mapping = ZohoFieldMappings::where('zoho_field_id', $zohoField->id)->firstOrFail();
         $selectedOption = json_decode((string) $mapping->selected_option, associative: true);
         $this->assertEquals('Active', $selectedOption['value']);
     }
@@ -297,7 +297,7 @@ class ZohoConnectHelperTest extends DBTestCase
         );
 
         $mapping = ZohoFieldMappings::where('zoho_field_id', 1)
-            ->first();
+            ->firstOrFail();
 
         $this->assertEquals(1, $mapping->use_default_if_empty);
         $this->assertEquals(
@@ -322,7 +322,7 @@ class ZohoConnectHelperTest extends DBTestCase
             []
         );
 
-        $updated = ZohoFieldMappings::find($mapping->id);
+        $updated = ZohoFieldMappings::findOrFail($mapping->id);
         $this->assertNull($updated->selected_option);
     }
 
@@ -333,7 +333,7 @@ class ZohoConnectHelperTest extends DBTestCase
             'module' => 'Leads',
         ]);
 
-        $localField = FaveoLocalFields::whereFieldKey('email')->first();
+        $localField = FaveoLocalFields::whereFieldKey('email')->firstOrFail();
 
         ZohoFieldMappings::create([
             'zoho_field_id' => $zohoField->id,

@@ -99,8 +99,8 @@ class ZohoCrmController extends ZohoBaseController
         $mappings = ZohoFieldMappings::with('faveoLocalField')->get();
 
         $recordData = zohoMappedFields(
-            $zohoFields, // @phpstan-ignore argument.type
-            $mappings, // @phpstan-ignore argument.type
+            $zohoFields,
+            $mappings,
             $user
         );
 

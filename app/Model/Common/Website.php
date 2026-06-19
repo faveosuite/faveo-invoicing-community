@@ -20,6 +20,6 @@ class Website extends BaseModel
     public function customermodel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         // Return an Eloquent relationship.
-        return $this->belongsTo('User', 'user_id'); // @phpstan-ignore argument.type
+        return $this->belongsTo('User', 'user_id'); // @phpstan-ignore argument.type, argument.templateType, return.type
     }
 }

@@ -131,7 +131,7 @@ class GuestCart
 
         $cart = new Cart(['coupon_discount' => 0, 'currency' => $currency]);
 
-        $items = collect($data['items'])->map(function (array $row) use ($products, $plans, $cart): \App\Model\Cart\CartItem {
+        $items = collect((array) $data['items'])->map(function (array $row) use ($products, $plans, $cart): \App\Model\Cart\CartItem {
             $item = new CartItem($row);
             $item->id = $row['id'];
             $item->setRelation('product', $products->get($row['product_id']));

@@ -20,7 +20,7 @@ class OrderExport implements FromCollection, WithHeadings, WithTitle
      */
     public function collection()
     {
-        return collect($this->ordersData);
+        return collect((array) $this->ordersData);
     }
 
     /**

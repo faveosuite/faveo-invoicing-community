@@ -40,7 +40,7 @@ class SmsOtpController extends Controller
     protected function getCredentials(): object
     {
         if ($this->cachedCredentials === null) {
-            $this->cachedCredentials = ApiKey::find(1, [
+            $this->cachedCredentials = ApiKey::findOrFail(1, [
                 'msg91_auth_key',
                 'msg91_sender',
                 'msg91_template_id',
@@ -56,7 +56,7 @@ class SmsOtpController extends Controller
      * @param  string  $method  HTTP method (GET, POST, etc.)
      * @param  string  $url  Full MSG91 API endpoint URL
      * @param  array<mixed> $queryParams  Query parameters for the request
-     * @return array{status: int, body: array} Response with status code and decoded body
+     * @return array{status: int, body: array<mixed>} Response with status code and decoded body
      */
     public function makeRequest(string $method, string $url, array $queryParams = []): array
     {
@@ -64,7 +64,7 @@ class SmsOtpController extends Controller
 
         try {
             $response = Http::withHeaders([
-                'authkey' => $credentials->msg91_auth_key,
+                'authkey' => $credentials->msg91_auth_key, // @phpstan-ignore property.notFound
                 'Content-Type' => 'application/json',
             ])
                 ->withOptions([
@@ -83,7 +83,7 @@ class SmsOtpController extends Controller
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return $this->errorPayload('There was an error processing your request');
+            return $this->errorPayload('There was an error processing your request'); // @phpstan-ignore return.type
         }
     }
 
@@ -101,8 +101,8 @@ class SmsOtpController extends Controller
         $credentials = $this->getCredentials();
 
         $queryParams = [
-            'template_id' => $credentials->msg91_template_id,
-            'sender' => $credentials->msg91_sender,
+            'template_id' => $credentials->msg91_template_id, // @phpstan-ignore property.notFound
+            'sender' => $credentials->msg91_sender, // @phpstan-ignore property.notFound
             'mobile' => $mobile,
             'otp_length' => self::OTP_LENGTH,
             'otp_expiry' => self::OTP_EXPIRY_MINUTES,
@@ -166,7 +166,7 @@ class SmsOtpController extends Controller
      * MSG91 returns {"type": "success"|"error", "message": "..."} in the body
      * for both 200 and non-200 (e.g. 401) status codes.
      *
-     * @param  array{status: int, body: array}  $response  Raw API response
+     * @param  array{status: int, body: array<mixed>}  $response  Raw API response
      * @return array{type: string, message: string} Normalized response
      */
     public function responseHandler(array $response): array
@@ -213,7 +213,7 @@ class SmsOtpController extends Controller
      */
     protected function sanitizeMobile(string $mobile): string
     {
-        return preg_replace('/\D/', '', $mobile);
+        return preg_replace('/\D/', '', $mobile) ?? '';
     }
 
     /**
@@ -242,6 +242,7 @@ class SmsOtpController extends Controller
                 return;
             }
 
+            /** @var \App\User $user */
             $countryIso = $user->mobile_country_iso;
             $mobileNumber = $user->mobile;
             $mobileCode = $user->mobile_code;

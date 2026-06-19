@@ -110,7 +110,7 @@ class LanguageController extends Controller
             return [];
         }
 
-        return glob($path.DIRECTORY_SEPARATOR.'*.php');
+        return glob($path.DIRECTORY_SEPARATOR.'*.php') ?: [];
     }
 
     public function viewLanguage(Request $request): \Illuminate\Http\JsonResponse

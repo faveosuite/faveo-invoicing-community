@@ -49,7 +49,7 @@ trait PaginationTotal
             ? (clone $model)->count(...)
             : fn () => $modelClass::count();
 
-        return Cache::remember($resolvedKey, $ttl, $counter);
+        return Cache::remember($resolvedKey, $ttl, $counter); // @phpstan-ignore argument.templateType
     }
 
     /**
@@ -60,7 +60,7 @@ trait PaginationTotal
      */
     protected function paginateResponse(mixed $paginator, ?int $total): \Illuminate\Http\JsonResponse
     {
-        $response = collect($paginator->toArray())->put('total', $total);
+        $response = collect((array) $paginator->toArray())->put('total', $total);
 
         return successResponse('', $response);
     }
