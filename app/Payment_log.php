@@ -56,12 +56,12 @@ class Payment_log extends Model
 
     protected $fillable = ['id', 'from', 'to', 'date', 'subject', 'body', 'status', 'amount', 'payment_type'];
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'from', 'email');
     }
 
-    public function orderDetails()
+    public function orderDetails(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Order::class, 'order', 'number');
     }

@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\Date;
 
 class Orders extends Controller
 {
-    public function __construct(public $orderid)
+    public function __construct(public mixed $orderid)
     {
     }
 
-    public function getOrder()
+    public function getOrder(): mixed
     {
         /** @scrutinizer ignore-call */
         $order = self::find($this->orderid); // @phpstan-ignore staticMethod.notFound
@@ -19,31 +19,34 @@ class Orders extends Controller
         return $order;
     }
 
-    public function getSubscription()
+    public function getSubscription(): mixed
     {
         $order = $this->getOrder();
         if ($order) {
             return $order->subscription;
         }
+        return null;
     }
 
-    public function getProduct()
+    public function getProduct(): mixed
     {
         $order = $this->getOrder();
         if ($order) {
             return $order->product;
         }
+        return null;
     }
 
-    public function getPlan()
+    public function getPlan(): mixed
     {
         $subscription = $this->getSubscription();
         if ($subscription) {
             return $subscription->plan;
         }
+        return null;
     }
 
-    public function subscriptionPeriod()
+    public function subscriptionPeriod(): mixed
     {
         $days = '';
         $plan = $this->getPlan();
@@ -54,7 +57,7 @@ class Orders extends Controller
         return $days;
     }
 
-    public function version()
+    public function version(): mixed
     {
         $subscription = $this->getSubscription();
         if ($subscription) {
@@ -64,7 +67,7 @@ class Orders extends Controller
         return null;
     }
 
-    public function isExpired()
+    public function isExpired(): mixed
     {
         $expired = false;
         $subscription = $this->getSubscription();
@@ -79,7 +82,7 @@ class Orders extends Controller
         return $expired;
     }
 
-    public function productName()
+    public function productName(): mixed
     {
         $name = '';
         $product = $this->getProduct();
@@ -90,7 +93,7 @@ class Orders extends Controller
         return $name;
     }
 
-    public function isDownloadable()
+    public function isDownloadable(): mixed
     {
         $check = false;
         $product = $this->getProduct();

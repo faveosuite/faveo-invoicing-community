@@ -22,7 +22,7 @@ class BaseClientController extends Controller
     /**
      *  This function is to update profile.
      */
-    public function postProfile(ProfileRequest $request)
+    public function postProfile(ProfileRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $user = Auth::user();
@@ -57,7 +57,7 @@ class BaseClientController extends Controller
     /**
      *  This function is to update password.
      */
-    public function postPassword(ProfileRequest $request)
+    public function postPassword(ProfileRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $user = Auth::user();
@@ -95,7 +95,7 @@ class BaseClientController extends Controller
      *
      * @throws Exception
      */
-    public function getInvoicesByOrderId($orderid, $userid, $admin = null)
+    public function getInvoicesByOrderId(mixed $orderid, mixed $userid, mixed $admin = null)
     {
         try {
             $order = Order::where('id', $orderid)
@@ -177,7 +177,7 @@ class BaseClientController extends Controller
      * @param  $invoiceId
      * @param  $admin
      */
-    public function getInvoiceLinkUrl(string $invoiceId, $admin = null): string
+    public function getInvoiceLinkUrl(string $invoiceId, mixed $admin = null): string
     {
         if ($admin == 'admin') {
             return '/invoices/show?invoiceid='.$invoiceId;
@@ -186,7 +186,7 @@ class BaseClientController extends Controller
         return 'my-invoice/'.$invoiceId;
     }
 
-    public function subscriptions()
+    public function subscriptions(): mixed
     {
         try {
             return view('themes.default1.front.clients.subscription'); // @phpstan-ignore argument.type
@@ -219,7 +219,7 @@ class BaseClientController extends Controller
      *
      * @throws Exception
      */
-    public function deleteCloudPopup($orderNumber): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function deleteCloudPopup(mixed $orderNumber): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         return view('themes.default1.front.clients.delete-cloud-popup', compact('orderNumber')); // @phpstan-ignore argument.type
     }

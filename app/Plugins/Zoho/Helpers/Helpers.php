@@ -54,7 +54,7 @@ function zohoMappedFields(
 /**
  * Resolve selectable options for a Zoho field.
  */
-function resolveOptions($zohoField, Collection $localFields): array
+function resolveOptions(mixed $zohoField, Collection $localFields): array
 {
     if ($zohoField->field_type === 'picklist') {
         return collect($zohoField->raw_metadata['pick_list_values'] ?? [])

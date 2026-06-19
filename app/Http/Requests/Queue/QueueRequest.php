@@ -27,7 +27,7 @@ class QueueRequest extends FormRequest
     /**
      * @return 'required'[]
      */
-    public function setRule($request): array
+    public function setRule(mixed $request): array
     {
         $rules = ['input' => 'required'];
         if (count($request) > 0) {

@@ -106,10 +106,8 @@ class BaseProductController extends ExtendedBaseProductController
 
     /**
      * Get the Subscription and Price Based on the Product Selected while generating Invoice (Admin Panel).
-     *
-     * @return mixed
      */
-    public function getSubscriptionCheck(int $productid, Request $request)
+    public function getSubscriptionCheck(int $productid, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $useID = $request->input('user_id') ?: Auth::user()->id;
@@ -150,7 +148,7 @@ class BaseProductController extends ExtendedBaseProductController
         }
     }
 
-    public function userDownload($order_id, $version_id = '')
+    public function userDownload(mixed $order_id, mixed $version_id = ''): \Symfony\Component\HttpFoundation\Response|\Illuminate\Http\JsonResponse
     {
         try {
             $order = Order::with('subscription')->findOrFail($order_id);
@@ -201,10 +199,8 @@ class BaseProductController extends ExtendedBaseProductController
      * Get Price For a Particular Plan Selected.
      *
      * get productid,userid,plan id as request
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function getPrice(Request $request)
+    public function getPrice(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'product' => ['required', 'integer'],
@@ -225,6 +221,7 @@ class BaseProductController extends ExtendedBaseProductController
             if (empty($userPlan['plan'])) {
                 return errorResponse(__('message.no_available_plans_currency'));
             }
+
             $planPrice = $userPlan['plan'];
             $cost = (float) $planPrice->add_price;
             $offer = $planPrice->offer_price ?? 0;
@@ -250,7 +247,7 @@ class BaseProductController extends ExtendedBaseProductController
         }
     }
 
-    public function updateVersionFromGithub($productid, string $github_owner, string $github_repository): void
+    public function updateVersionFromGithub(mixed $productid, string $github_owner, string $github_repository): void
     {
         $product = Product::findOrFail($productid);
         $product->version = resolve(GithubApiController::class)->latestTag($github_owner, $github_repository);
@@ -263,10 +260,8 @@ class BaseProductController extends ExtendedBaseProductController
      * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
      *
      * @date   2019-01-11T00:18:49+0530
-     *
-     * @return bool
      */
-    public function allowQuantityOrAgent(int $productid)
+    public function allowQuantityOrAgent(int $productid): bool
     {
         $product = Product::find($productid);
 
@@ -290,7 +285,7 @@ class BaseProductController extends ExtendedBaseProductController
         return ['agent' => $agentModifyPermission, 'quantity' => $quantityModifyPermission];
     }
 
-    public function getProductUsingLicenseCode(Request $request)
+    public function getProductUsingLicenseCode(Request $request): \Illuminate\Http\JsonResponse
     {
         $license_code = $request->input('license_code');
 

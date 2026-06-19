@@ -8,11 +8,11 @@ use Illuminate\Support\Facades\Request;
 
 class BillingDependencyController extends Controller
 {
-    public function __construct(private $extensionCheckFrom)
+    public function __construct(private mixed $extensionCheckFrom)
     {
     }
 
-    public function validateDirectory(string $basePath, &$errorCount)
+    public function validateDirectory(string $basePath, int &$errorCount): mixed
     {
         try {
             $error = [];
@@ -28,7 +28,7 @@ class BillingDependencyController extends Controller
     /**
      * Validate storage directory.
      */
-    private function validateStorageDirectory(string $basePath, &$errorCount, array &$error): array
+    private function validateStorageDirectory(string $basePath, int &$errorCount, array &$error): array
     {
         try {
             $storagePermission = is_readable($basePath.DIRECTORY_SEPARATOR.'storage') && is_writable($basePath.DIRECTORY_SEPARATOR.'storage');
@@ -54,7 +54,7 @@ class BillingDependencyController extends Controller
     /**
      * Validate bootstrap directory.
      */
-    private function validateBootstrapDirectory(string $basePath, &$errorCount, array &$error): array
+    private function validateBootstrapDirectory(string $basePath, int &$errorCount, array &$error): array
     {
         try {
             $bootstrapPermission = is_readable($basePath.DIRECTORY_SEPARATOR.'bootstrap') && is_writable($basePath.DIRECTORY_SEPARATOR.'bootstrap');
@@ -77,7 +77,7 @@ class BillingDependencyController extends Controller
         }
     }
 
-    public function validateRequisites(int &$errorCount)
+    public function validateRequisites(int &$errorCount): mixed
     {
         try {
             $requiredRequisites = json_decode((string) $this->getDependenciesJson())->requisites;
@@ -387,7 +387,7 @@ class BillingDependencyController extends Controller
         }
     }
 
-    public function checkSSLCertificateOnDomain(array &$arrayOfRequisites, int &$errorCount, $cliAppUrl = null): array
+    public function checkSSLCertificateOnDomain(array &$arrayOfRequisites, int &$errorCount, mixed $cliAppUrl = null): array
     {
         $name = 'Domain SSL Certificate';
         try {

@@ -30,12 +30,12 @@ class LogCategory extends Model
 
     protected $fillable = ['name'];
 
-    public function exceptions()
+    public function exceptions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ExceptionLog::class);
     }
 
-    public function mail()
+    public function mail(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(MailLog::class);
     }

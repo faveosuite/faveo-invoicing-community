@@ -91,7 +91,7 @@ class Tax extends BaseModel
         ];
     }
 
-    public function taxClass()
+    public function taxClass(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(TaxClass::class, 'tax_classes_id');
     }

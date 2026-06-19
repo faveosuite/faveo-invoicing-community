@@ -19,7 +19,7 @@ class FreeTrailController extends Controller
         $this->middleware('auth')->except('getCloudProducts');
     }
 
-    public function startTrial(Request $request)
+    public function startTrial(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'domain' => ['required', 'regex:/^[a-zA-Z0-9]+$/u'],
@@ -50,7 +50,7 @@ class FreeTrailController extends Controller
         }
     }
 
-    public function getCloudProducts()
+    public function getCloudProducts(): \Illuminate\Http\JsonResponse
     {
         $cloudProductIds = cloudPopupProducts();
 

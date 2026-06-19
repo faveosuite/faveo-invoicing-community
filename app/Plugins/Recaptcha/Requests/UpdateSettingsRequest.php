@@ -78,7 +78,7 @@ class UpdateSettingsRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator): void
+    public function withValidator(mixed $validator): void
     {
         $validator->after(function ($validator): void {
             $isV3 = $this->input('captcha_version') === 'v3_invisible';

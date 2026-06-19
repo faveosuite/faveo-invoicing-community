@@ -148,13 +148,16 @@ class Order extends BaseModel
         return $this->invoices();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\OrderInvoiceRelation, $this>
+     */
     public function invoiceRelation(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\App\Model\Order\OrderInvoiceRelation::class, 'order_id');
     }
 
     // The invoice item that generated this order
-    public function invoiceItem()
+    public function invoiceItem(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(InvoiceItem::class, 'invoice_item_id');
     }
@@ -215,7 +218,7 @@ class Order extends BaseModel
         });
     }
 
-    public function get_domain($url): string
+    public function get_domain(mixed $url): string
     {
         $pieces = parse_url((string) $url);
         $domain = $pieces['host'] ?? '';
@@ -230,7 +233,7 @@ class Order extends BaseModel
         return strtolower($domain);
     }
 
-    public static function getOrderLink($orderId, string $url = 'orders'): string
+    public static function getOrderLink(mixed $orderId, string $url = 'orders'): string
     {
         $link = '--';
         $order = Order::where('id', $orderId)->select('id', 'number')->first();

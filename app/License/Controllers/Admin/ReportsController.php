@@ -44,7 +44,7 @@ class ReportsController extends Controller
         return response(['message' => $page_message]);
     }
 
-    protected function whichReportDeleted($whichReport, $action_success, $removed_records, $error_details = ''): \Illuminate\Contracts\Translation\Translator|string|array
+    protected function whichReportDeleted(mixed $whichReport, mixed $action_success, mixed $removed_records, mixed $error_details = ''): \Illuminate\Contracts\Translation\Translator|string|array
     {
         $page_message = '';
         if (! empty($whichReport)) {
@@ -59,7 +59,7 @@ class ReportsController extends Controller
     }
 
     //delete report
-    private function deleteReport($report_id, int $removed_records): int|float
+    private function deleteReport(mixed $report_id, int $removed_records): int|float
     {
         if (LicenseHelper::validateIntegerValue($report_id)) {
             $removed_records += LicenseReport::where('license_reports.id', $report_id)->delete();
@@ -69,7 +69,7 @@ class ReportsController extends Controller
     }
 
     //system1
-    public function reportArraySystem(Request $request)
+    public function reportArraySystem(Request $request): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -105,7 +105,7 @@ class ReportsController extends Controller
         return successResponse(Lang::get('lang.SystemReport_Show'), $reportsQuery, 200);
     }
 
-    public function reportArrayCracking(Request $request)
+    public function reportArrayCracking(Request $request): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -149,7 +149,7 @@ class ReportsController extends Controller
         return successResponse(Lang::get('lang.CrackingReport_Show'), $crakingReports, 200);
     }
 
-    public function reportArrayLicense(Request $request)
+    public function reportArrayLicense(Request $request): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -194,7 +194,7 @@ class ReportsController extends Controller
         return successResponse(Lang::get('lang.LicenseReport_Show'), $LicenseReports, 200);
     }
 
-    public function reportArrayUpdate(Request $request)
+    public function reportArrayUpdate(Request $request): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -234,7 +234,7 @@ class ReportsController extends Controller
         return successResponse(Lang::get('lang.report_update'), $updateReports, 200);
     }
 
-    private function reportStatusFormatter($status)
+    private function reportStatusFormatter(mixed $status): mixed
     {
         if (strtolower($status) === 'success') {
             $status = 'success';

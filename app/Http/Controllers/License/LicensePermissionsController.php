@@ -33,7 +33,7 @@ class LicensePermissionsController extends Controller
     /*
     * Get all the License  and their links with their permissions
     */
-    public function getPermissions(Request $request)
+    public function getPermissions(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -74,7 +74,7 @@ class LicensePermissionsController extends Controller
     /*
     * Add Permission to License
     */
-    public function addPermission(Request $request)
+    public function addPermission(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $licenseType = LicenseType::find($request->input('licenseId'));

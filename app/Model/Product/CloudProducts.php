@@ -68,7 +68,7 @@ class CloudProducts extends BaseModel
         ];
     }
 
-    public function getLogNameColumn()
+    public function getLogNameColumn(): mixed
     {
         return Product::find($this->cloud_product)->name
             ?? $this->cloud_product;

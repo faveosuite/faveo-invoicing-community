@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Lang;
 
 class LicenseViewController extends Controller
 {
-    public function getLicenseDetails($license_id)
+    public function getLicenseDetails(mixed $license_id): \Illuminate\Http\JsonResponse
     {
         $license = License::with(['product:id,name', 'user:id,email'])
             ->withCount(['installations as installation_counts', 'callbacks as call_backs_count'])
@@ -50,7 +50,7 @@ class LicenseViewController extends Controller
         return successResponse(Lang::get('lang.license_details'), (array) $formatted);
     }
 
-    public function getLicenseInstallations(Request $request, $license_id)
+    public function getLicenseInstallations(Request $request, mixed $license_id): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -80,7 +80,7 @@ class LicenseViewController extends Controller
         return successResponse(Lang::get('lang.license_installations'), $licenseInstallations);
     }
 
-    public function getLicenseCallBacks(Request $request, $license_id)
+    public function getLicenseCallBacks(Request $request, mixed $license_id): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -116,7 +116,7 @@ class LicenseViewController extends Controller
         return successResponse(Lang::get('lang.license_callback'), $licenseCallBacks);
     }
 
-    public function getLicenseInstallationLogs(Request $request, $license_id)
+    public function getLicenseInstallationLogs(Request $request, mixed $license_id): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);

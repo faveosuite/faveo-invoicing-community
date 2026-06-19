@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Session;
 
 class LanguageMiddleware
 {
-    public function handle($request, Closure $next)
+    public function handle(mixed $request, Closure $next): mixed
     {
         if (Auth::check()) {
             $user = Auth::user();
@@ -39,7 +39,7 @@ class LanguageMiddleware
         return $next($request);
     }
 
-    protected function setLocale($lang)
+    protected function setLocale(mixed $lang): void
     {
         if ($lang != '' && array_key_exists($lang, Config::get('languages'))) {
             $availableLanguages = array_map(basename(...), File::directories(lang_path()));
@@ -47,7 +47,7 @@ class LanguageMiddleware
         }
     }
 
-    public function getLangFromSessionOrCache()
+    public function getLangFromSessionOrCache(): mixed
     {
         return match (true) {
             Session::has('language') => Session::get('language'),
@@ -57,7 +57,7 @@ class LanguageMiddleware
         };
     }
 
-    public function checkEnabledLanguage($lang)
+    public function checkEnabledLanguage(mixed $lang): mixed
     {
         if (! empty($lang)) {
             $language = Language::where('locale', $lang)->where('status', 1)->first();

@@ -500,7 +500,7 @@ class CartService
      * always valid) — Carbon would otherwise parse "0000-00-00" as year -1 and
      * read every such coupon as expired.
      */
-    private function hasDateBound($value): bool
+    private function hasDateBound(mixed $value): bool
     {
         return ! empty($value) && ! str_starts_with((string) $value, '0000-00-00');
     }

@@ -21,7 +21,7 @@ class GetVersionsController extends Controller
      * Get latest version for product
      * POST /aus_callbacks/download_file.php (type=getVersions) OR POST /api/getVersions.
      */
-    public function getVersions(Request $request)
+    public function getVersions(Request $request): mixed
     {
         $product_id = $request->input('product_id');
         $product_key = $request->input('product_key');

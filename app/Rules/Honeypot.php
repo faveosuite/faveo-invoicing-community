@@ -54,7 +54,7 @@ class Honeypot implements ValidationRule
         }
     }
 
-    private function validateTimeField($value): bool
+    private function validateTimeField(mixed $value): bool
     {
         if (! $value) {
             return false;

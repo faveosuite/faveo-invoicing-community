@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Lang;
 
 class VersionsViewController extends Controller
 {
-    public function getVersionInfo($version_id)
+    public function getVersionInfo(mixed $version_id): \Illuminate\Http\JsonResponse
     {
         $version = ProductUpload::with('product:id,name')
             ->find($version_id);
@@ -35,7 +35,7 @@ class VersionsViewController extends Controller
         ]);
     }
 
-    public function getVersionCallbacks(Request $request, $version_id)
+    public function getVersionCallbacks(Request $request, mixed $version_id): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -55,7 +55,7 @@ class VersionsViewController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $versionInstallation->getCollection()->transform(fn (VersionCallback $cb): array => [
+        $versionInstallation->getCollection()->transform(fn (VersionCallback $cb): array => [ // @phpstan-ignore argument.type
             'id' => $cb->id,
             'version_id' => $cb->version_id,
             'callback_ip' => $cb->callback_ip,

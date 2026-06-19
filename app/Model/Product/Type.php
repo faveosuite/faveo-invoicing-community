@@ -31,7 +31,7 @@ class Type extends BaseModel
 
     protected $fillable = ['name', 'description'];
 
-    public function product()
+    public function product(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Product::class);
     }

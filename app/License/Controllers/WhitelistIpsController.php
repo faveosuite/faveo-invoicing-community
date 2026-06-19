@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Lang;
 
 class WhitelistIpsController extends Controller
 {
-    public function whitelistAdd(whitelistIpsRequest $request)
+    public function whitelistAdd(whitelistIpsRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $whitelist_host_ip = $request->input('whitelist_host_ip');
@@ -41,7 +41,7 @@ class WhitelistIpsController extends Controller
         }
     }
 
-    public function deleteWhitelistIp(Request $request)
+    public function deleteWhitelistIp(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $host_data = LicenseWhitelistIp::where('id', $request->id)->firstOrFail();
@@ -53,14 +53,14 @@ class WhitelistIpsController extends Controller
         }
     }
 
-    public function edit($id)
+    public function edit(mixed $id): \Illuminate\Http\JsonResponse
     {
         $host_data = LicenseWhitelistIp::where('id', $id)->firstOrFail();
 
         return successResponse('data', ['host_data' => $host_data], 200);
     }
 
-    public function view(Request $request)
+    public function view(Request $request): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);

@@ -99,8 +99,6 @@ class ClientController extends BaseClientController
 
     /**
      *  Auto-renew by id and redirect to paynow page.
-     *
-     * @return RedirectResponse
      */
     public function autoRenewbyid(): \Illuminate\Http\RedirectResponse
     {
@@ -132,7 +130,6 @@ class ClientController extends BaseClientController
      *  Get all the invoices in data table.
      *
      * @param  request  $request
-     * @return \Illuminate\Http\JsonResponse
      *
      * @throws Exception
      */
@@ -265,7 +262,7 @@ class ClientController extends BaseClientController
             $downloadPerms[$pid] = $perms['downloadPermission'] == 1;
         }
 
-        $paginated->getCollection()->transform(function ($order) use ($downloadPerms): array { // @phpstan-ignore argument.unresolvableType
+        $paginated->getCollection()->transform(function ($order) use ($downloadPerms): array { // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
             $hasDownload = $downloadPerms[$order->productRelation?->id] ?? false;
             $latestInvoice = $order->invoices->first();
 
@@ -298,7 +295,6 @@ class ClientController extends BaseClientController
      * used by the change-domain / change-agents / upgrade-downgrade modals.
      *
      * @param  $orderId
-     * @return JsonResponse
      */
     public function getCloudSettings(int $orderId): JsonResponse
     {
@@ -390,7 +386,7 @@ class ClientController extends BaseClientController
     }
 
     #[Override]
-    public function getInvoicesByOrderId($orderid, $userid, mixed $admin = null): \Illuminate\Http\JsonResponse
+    public function getInvoicesByOrderId(mixed $orderid, mixed $userid, mixed $admin = null): \Illuminate\Http\JsonResponse
     {
         try {
             if (! authorizeOwnership((int) $userid, allowAdmin: true)) {
@@ -570,7 +566,7 @@ class ClientController extends BaseClientController
         $countVersions = count($allReleases);
         $countExpiry = 0;
 
-        if ($subscription) {
+        if ($subscription instanceof \App\Model\Product\Subscription) {
             foreach ($allReleases as $release) {
                 if (strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at)
                     || $subscription->update_ends_at == '0000-00-00 00:00:00') {
@@ -590,7 +586,7 @@ class ClientController extends BaseClientController
             $canDownload = false;
             $downloadUrl = null;
 
-            if (! $subscription) {
+            if (!$subscription instanceof \App\Model\Product\Subscription) {
                 $canDownload = true;
             } elseif ($allowTillExpiry) {
                 $canDownload = strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at)
@@ -669,7 +665,7 @@ class ClientController extends BaseClientController
         $paginator->getCollection()->transform(function ($version) use ($allowTillExpiry, $countExpiry, $countVersions, $subscription, $order): array {
             $canDownload = false;
 
-            if (! $subscription) {
+            if (!$subscription instanceof \App\Model\Product\Subscription) {
                 $canDownload = true;
             } elseif ($allowTillExpiry) {
                 $canDownload = $version->created_at->toDateTimeString() < $subscription->update_ends_at
@@ -695,8 +691,6 @@ class ClientController extends BaseClientController
 
     /**
      *  Gets all the order details for a particular user.
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function getClientPanelOrdersData(): \Illuminate\Database\Eloquent\Builder
     {
@@ -726,7 +720,7 @@ class ClientController extends BaseClientController
         }
     }
 
-    public function generateMerchantRandomString($length = 10): string
+    public function generateMerchantRandomString(mixed $length = 10): string
     {
         return substr(bin2hex(random_bytes($length)), 0, $length);
     }
@@ -735,7 +729,6 @@ class ClientController extends BaseClientController
      * Get plan name and id ,options for upgrading or downgrading the cloud plan.
      *
      * @param  $product
-     * @return array
      */
     private function planPriceProductRelation(\App\Model\Product\Product $product): array
     {
@@ -759,7 +752,6 @@ class ClientController extends BaseClientController
      * @param  $countryids
      * @param  $userCountry
      * @param  $plans
-     * @return array
      */
     private function planDetails(array $planIds, string $userCountry, array $plans, \App\Model\Product\Product $product): array
     {

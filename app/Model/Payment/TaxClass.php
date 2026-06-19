@@ -61,18 +61,18 @@ class TaxClass extends BaseModel
     }
 
     /** Generic tax rates that belong to this class (joined on slug). */
-    public function rates()
+    public function rates(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(TaxRate::class, 'tax_class', 'slug');
     }
 
     #[Deprecated(message: 'legacy India-GST taxes table; kept for historical data.')]
-    public function tax()
+    public function tax(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Tax::class, 'tax_classes_id');
     }
 
-    public function tax_product_relation()
+    public function tax_product_relation(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(TaxProductRelation::class, 'tax_class_id');
     }

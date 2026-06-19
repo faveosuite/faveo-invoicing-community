@@ -11,7 +11,7 @@ class EncryptDecryptController extends Controller
     /**
      * Encrypts the license data with the generated public key.
      * */
-    public function encrypt($data, string $orderNumber): string
+    public function encrypt(mixed $data, string $orderNumber): string
     {
         $pubkey = Storage::disk('public')->get('publicKey-'.$orderNumber.'.txt');
         if (openssl_public_encrypt($data, $encrypted, $pubkey, OPENSSL_PKCS1_PADDING)) {
@@ -26,7 +26,7 @@ class EncryptDecryptController extends Controller
     /**
      * Decrypts the license data with the generated private key.
      * */
-    public function decrypt(string $orderNo)
+    public function decrypt(string $orderNo): mixed
     {
         $privkey = Storage::disk('public')->get('privateKey-'.$orderNo.'.txt');
         $data = Storage::disk('public')->get('faveo-license-{'.$orderNo.'}.txt');

@@ -229,7 +229,7 @@ class LocalizedLicenseController extends Controller
      * */
     public function tempOrderLink(string $orderNo, int $userID): string|\Illuminate\Http\RedirectResponse
     {
-        if (! empty($userID) && ! empty(Auth::user()->id)) {
+        if ($userID !== 0 && ! empty(Auth::user()->id)) {
             return URL::temporarySignedRoute('event.rsvp', now()->addSeconds(30), [
                 'orderNo' => $orderNo,
             ]);

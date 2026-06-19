@@ -21,7 +21,7 @@ class LicenseSchemeController extends Controller
      * Get license scheme query
      * POST /apl_callbacks/license_scheme.php  OR  POST /api/licenseScheme.
      */
-    public function licenseScheme(Request $request)
+    public function licenseScheme(Request $request): mixed
     {
         $product_id = $request->input('product_id');
         $root_url = $request->input('root_url');

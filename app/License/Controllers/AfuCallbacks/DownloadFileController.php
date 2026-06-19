@@ -23,7 +23,7 @@ class DownloadFileController extends Controller
      * Download version file
      * POST /aus_callbacks/download_file.php  OR  POST /api/downloadFile.
      */
-    public function downloadFile(Request $request)
+    public function downloadFile(Request $request): mixed
     {
         $product_id = $request->input('product_id');
         $product_key = $request->input('product_key');

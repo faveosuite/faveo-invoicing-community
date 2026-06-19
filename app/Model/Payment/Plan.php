@@ -107,7 +107,7 @@ class Plan extends BaseModel
         });
     }
 
-    public function configOptions()
+    public function configOptions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ConfigOption::class);
     }

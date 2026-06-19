@@ -43,7 +43,7 @@ class ForgotPasswordController extends Controller
     /**
      * Send a reset link to the given user.
      */
-    public function sendResetLinkEmail(Request $request)
+    public function sendResetLinkEmail(Request $request): \Illuminate\Http\JsonResponse
     {
         $this->validate($request,
             ['email' => 'required|email|exists:users,email',

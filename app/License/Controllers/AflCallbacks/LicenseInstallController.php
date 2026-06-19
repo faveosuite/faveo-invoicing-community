@@ -21,7 +21,7 @@ class LicenseInstallController extends Controller
      * Register license installation
      * POST /apl_callbacks/license_install.php  OR  POST /api/licenseInstall.
      */
-    public function licenseInstall(Request $request)
+    public function licenseInstall(Request $request): mixed
     {
         $product_id = $request->input('product_id');
         $root_url = $request->input('root_url');

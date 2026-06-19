@@ -15,7 +15,7 @@ use ZipArchive;
 
 trait ChunkUpload
 {
-    public function uploadFile(Request $request)
+    public function uploadFile(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $receiver = new FileReceiver('file', $request, HandlerFactory::classFromRequest($request));

@@ -224,7 +224,7 @@ class TemplateController extends Controller
             }
 
             $plansData = $this->prices($id);
-            if ($plansData instanceof \Illuminate\Http\RedirectResponse || empty($plansData)) {
+            if ($plansData instanceof \Illuminate\Http\RedirectResponse || $plansData === []) {
                 return '';
             }
 
@@ -253,7 +253,7 @@ class TemplateController extends Controller
             $planClass = ($product->status != 1) ? 'stylePlan' : 'planhide';
             $planForm = '<select name="subscription" class="'.$planClass.'">'.$planOptions.'</select>';
 
-            return (string) html()->form('GET', $url)->open() // @phpstan-ignore cast.string
+            return html()->form('GET', $url)->open()->toHtml()
                 .$planForm
                 .html()->input('hidden', 'id')->value((string) $id);
         } catch (Exception $exception) {
@@ -304,10 +304,10 @@ class TemplateController extends Controller
 
         $price1 = currencyFormat($cost, $code = $currency);
         $months = $cost == 0 ? $priceDescription : $months;
-        $priceDescription = $priceDescription == '' ? $months : $priceDescription;
+        $priceDescription = $priceDescription === '' ? $months : $priceDescription;
         $price[$value->id]['cost'] = rounding($cost);
         $price[$value->id]['price'] = $price1.' '.$priceDescription;
-        $price[$value->id]['description'] = $priceDescription != '' ? $priceDescription : '';
+        $price[$value->id]['description'] = $priceDescription;
 
         return $price;
     }

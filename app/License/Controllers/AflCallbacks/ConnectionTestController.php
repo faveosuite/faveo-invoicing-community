@@ -19,7 +19,7 @@ class ConnectionTestController extends Controller
      * Test connection between Faveo and License Manager
      * POST /apl_callbacks/connection_test.php  OR  POST /api/ConnectionTest.
      */
-    public function connection(Request $request)
+    public function connection(Request $request): mixed
     {
         $product_id = $request->input('product_id');
         $connection_hash = $request->input('connection_hash');

@@ -37,7 +37,7 @@ class ConfigOptionValue extends Model
     protected $guarded = [];
 
     // Define the relationship with ConfigOption
-    public function configOption()
+    public function configOption(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ConfigOption::class, 'option_id');
     }

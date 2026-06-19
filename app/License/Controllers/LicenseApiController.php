@@ -19,7 +19,7 @@ class LicenseApiController extends Controller
     /**
      * GET /api/licenseInfo.
      */
-    public function licenseInfo(Request $request)
+    public function licenseInfo(Request $request): \Illuminate\Http\JsonResponse
     {
         $licenseCode = $request->input('license_code');
         $info = $this->licenseService->getLicenseInfo($licenseCode);
@@ -34,7 +34,7 @@ class LicenseApiController extends Controller
     /**
      * GET /api/IndividuallicenseInfo.
      */
-    public function individualLicenseInfo(Request $request)
+    public function individualLicenseInfo(Request $request): \Illuminate\Http\JsonResponse
     {
         $licenseCode = $request->input('license_code');
         $info = $this->licenseService->getIndividualLicenseInfo($licenseCode);
@@ -45,7 +45,7 @@ class LicenseApiController extends Controller
     /**
      * GET /api/getOrder.
      */
-    public function getOrder(Request $request)
+    public function getOrder(Request $request): \Illuminate\Http\JsonResponse
     {
         $licenseCode = $request->input('license_code');
         $orderNumber = $this->licenseService->getOrderNumber($licenseCode);
@@ -56,7 +56,7 @@ class LicenseApiController extends Controller
     /**
      * GET|POST /api/pluginLicense.
      */
-    public function pluginLicense(Request $request)
+    public function pluginLicense(Request $request): \Illuminate\Http\JsonResponse
     {
         $licenseCodes = $request->input('license_code', $request->input('license_codes', []));
 
@@ -72,7 +72,7 @@ class LicenseApiController extends Controller
     /**
      * POST /api/LicenseReissue.
      */
-    public function reissueLicenseCloud(Request $request)
+    public function reissueLicenseCloud(Request $request): \Illuminate\Http\JsonResponse
     {
         $licenseCode = $request->input('license_code');
         $this->licenseService->reissueLicenseCloud($licenseCode);

@@ -44,7 +44,7 @@ class TaxRateResolver
      * Resolve rates for a customer model, honouring the tax_based_on setting
      * and per-customer exemption.
      */
-    public function ratesForCustomer(string $taxClass, $user): array
+    public function ratesForCustomer(string $taxClass, mixed $user): array
     {
         [$country, $state, $postcode, $city] = $this->customerLocation($user);
 
@@ -54,7 +54,7 @@ class TaxRateResolver
     /**
      * @return array{0:string,1:string,2:string,3:string} [country, state, postcode, city]
      */
-    public function customerLocation($user): array
+    public function customerLocation(mixed $user): array
     {
         $basedOn = TaxOption::find(1)?->tax_based_on ?: 'billing';
 

@@ -16,7 +16,7 @@ class AutoUpdateController extends Controller
     /*
     *  Add New Version
     */
-    public function addNewVersion($product_id, $version_number, $upgrade_zip_file, $version_status): void
+    public function addNewVersion(mixed $product_id, mixed $version_number, mixed $upgrade_zip_file, mixed $version_status): void
     {
         $this->versionService->create([ // @phpstan-ignore method.notFound
             'product_id' => $product_id,
@@ -29,7 +29,7 @@ class AutoUpdateController extends Controller
     /*
     *  Edit Version
     */
-    public function editVersion(string $version_number, $product_sku): void
+    public function editVersion(string $version_number, mixed $product_sku): void
     {
         $product = Product::where('product_sku', $product_sku)->first();
         if (! $product) {
@@ -48,7 +48,7 @@ class AutoUpdateController extends Controller
     /*
     *  Search Version
     */
-    public function searchVersion(string $version_number, $product_sku): array
+    public function searchVersion(string $version_number, mixed $product_sku): array
     {
         $product = Product::where('product_sku', $product_sku)->first();
         if (! $product) {

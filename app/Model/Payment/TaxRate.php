@@ -103,7 +103,7 @@ class TaxRate extends BaseModel
         return $this->hasMany(TaxRateLocation::class, 'tax_rate_id');
     }
 
-    public function taxClass()
+    public function taxClass(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(TaxClass::class, 'tax_class', 'slug');
     }

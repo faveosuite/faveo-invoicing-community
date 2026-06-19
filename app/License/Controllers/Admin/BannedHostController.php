@@ -30,9 +30,8 @@ class BannedHostController extends Controller
      * @param  $api_key_secret
      * @param  $banned_host_ip
      * @param  $comments
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function bannedHostAdd(BannedHostRequest $request)
+    public function bannedHostAdd(BannedHostRequest $request): \Illuminate\Http\JsonResponse
     {
         $banned_host_ip = $request->input('banned_host_ip');
         $comments = $request->input('comments', '');
@@ -62,9 +61,8 @@ class BannedHostController extends Controller
      * @param  $api_key_secret
      * @param  $banned_host_ip
      * @param  $comments
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function bannedHostUpdate(Request $request)
+    public function bannedHostUpdate(Request $request): \Illuminate\Http\JsonResponse
     {
         $id = $request->get('id');
         $banned_host_ip = $request->get('banned_host_ip');
@@ -96,9 +94,8 @@ class BannedHostController extends Controller
      *To Delete Banned hosts of License manager.
      *
      * @param  $id
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function deleteBannedHost(Request $request)
+    public function deleteBannedHost(Request $request): \Illuminate\Http\JsonResponse
     {
         $removed_records = 0;
         $id = $request->get('id');
@@ -114,7 +111,7 @@ class BannedHostController extends Controller
     /**
      * Returns the list of all the banned host present for this application.
      */
-    public function show(Request $request)
+    public function show(Request $request): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10); // Number of items per page
         $page = $request->input('page', 1); // Get the current page from the request
@@ -138,7 +135,7 @@ class BannedHostController extends Controller
         return successResponse(Lang::get('lang.Banned_Show'), $banned, 200);
     }
 
-    public function view($id)
+    public function view(mixed $id): \Illuminate\Http\JsonResponse
     {
         $banned_host_data = LicenseBannedHost::where('id', $id)->firstOrFail();
 

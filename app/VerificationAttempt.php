@@ -38,7 +38,7 @@ class VerificationAttempt extends Model
 
     protected $fillable = ['user_id', 'mobile_attempt', 'email_attempt'];
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }

@@ -80,12 +80,12 @@ class Country extends BaseModel
         return $this->belongsTo(Currency::class);
     }
 
-    public function users()
+    public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(User::class, 'country', 'country_code_char2');
     }
 
-    public function states()
+    public function states(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(State::class, 'country_id', 'country_id');
     }

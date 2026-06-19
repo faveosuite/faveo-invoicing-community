@@ -158,7 +158,7 @@ class RouteServiceProvider extends ServiceProvider
         });
     }
 
-    protected function installer()
+    protected function installer(): void
     {
         Route::middleware('isInstalled')
             ->namespace($this->namespace)

@@ -32,14 +32,14 @@ class QueueService extends Model
 
     protected $fillable = ['name', 'short_name', 'status'];
 
-    public function extraFieldRelation()
+    public function extraFieldRelation(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         $related = FaveoQueue::class;
 
         return $this->hasMany($related, 'service_id');
     }
 
-    public function getExtraField($key)
+    public function getExtraField(mixed $key): mixed
     {
         $value = '';
         $setting = $this->extraFieldRelation()->where('key', $key)->first();
@@ -50,7 +50,7 @@ class QueueService extends Model
         return $value;
     }
 
-    public function isActivate()
+    public function isActivate(): mixed
     {
         $check = true;
         $settings = $this->extraFieldRelation()->get();

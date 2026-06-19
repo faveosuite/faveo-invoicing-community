@@ -172,7 +172,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             'product' => $product_details->name,
             'total' => $total ? currencyFormat($total, $code = $currency) : 'N/A',
             'number' => $number,
-            'expiry' => date('d-m-Y', strtotime((string) $end)),
+            'expiry' => date('d-m-Y', strtotime($end)),
             'exception' => $exceptionMessage,
             'url' => $url,
             'contact' => $contact['contact'],

@@ -73,7 +73,6 @@ class LogWriteController
      *
      * @param  Throwable  $e  Exception or Error
      * @param  string  $category  Category to which it belongs
-     * @return ?\Illuminate\Database\Eloquent\Model
      */
     public function exception(Throwable $e, string $category = 'default'): ?\Illuminate\Database\Eloquent\Model
     {
@@ -143,7 +142,7 @@ class LogWriteController
     /**
      * Marks outgoing mail as sent.
      */
-    public function outgoingMailSent($logId): void
+    public function outgoingMailSent(mixed $logId): void
     {
         MailLog::whereId($logId)->update(['status' => 'sent']);
     }
@@ -151,7 +150,7 @@ class LogWriteController
     /**
      * Marks outgoing mail as failed.
      */
-    public function outgoingMailFailed($logId, Exception $e): void
+    public function outgoingMailFailed(mixed $logId, Exception $e): void
     {
         $mailLog = MailLog::select('id', 'exception_log_id')->find($logId);
 
@@ -167,7 +166,7 @@ class LogWriteController
         ]);
     }
 
-    public function deleteLogs(Request $request)
+    public function deleteLogs(Request $request): \Illuminate\Http\JsonResponse
     {
         // Validation
         $validated = $request->validate([

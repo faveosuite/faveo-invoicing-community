@@ -95,14 +95,14 @@ class ZohoOAuthToken extends Model
         return $this->expires_at->isPast();
     }
 
-    public static function findRefreshToken($integrationId): ?ZohoOAuthToken
+    public static function findRefreshToken(mixed $integrationId): ?ZohoOAuthToken
     {
         return static::query()
             ->whereIntegrationId($integrationId)
             ->first();
     }
 
-    public static function findActiveAccessToken($integrationId): ?ZohoOAuthToken
+    public static function findActiveAccessToken(mixed $integrationId): ?ZohoOAuthToken
     {
         return static::query()
             ->whereIntegrationId($integrationId)

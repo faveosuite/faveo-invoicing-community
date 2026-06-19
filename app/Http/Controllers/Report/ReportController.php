@@ -19,7 +19,7 @@ class ReportController extends Controller
         $this->middleware('admin');
     }
 
-    public function addRecords(Request $request)
+    public function addRecords(Request $request): mixed
     {
         $request->validate([
             'records' => ['required', 'integer', 'min:1', 'max:3000'],
@@ -31,7 +31,7 @@ class ReportController extends Controller
         return back()->with('success', __('message.settings_updated_successfully'));
     }
 
-    public function getAllReports(Request $request)
+    public function getAllReports(Request $request): \Illuminate\Http\JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');
@@ -69,7 +69,7 @@ class ReportController extends Controller
         return successResponse('', $reports);
     }
 
-    public function deleteBulkReports(Request $request)
+    public function deleteBulkReports(Request $request): \Illuminate\Http\JsonResponse
     {
         $ids = $request->input('select', []);
 
@@ -98,12 +98,12 @@ class ReportController extends Controller
         }
     }
 
-    public function getReportsSettings(Request $request)
+    public function getReportsSettings(Request $request): \Illuminate\Http\JsonResponse
     {
         return successResponse('', ReportSetting::first());
     }
 
-    public function updateReportsSettings(Request $request)
+    public function updateReportsSettings(Request $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'records' => ['required', 'integer', 'min:1', 'max:3000'],

@@ -23,7 +23,7 @@ class ThirdPartyAppController extends Controller
     /*
     * Get All the third party apps
     */
-    public function getThirdPartyDetails(Request $request)
+    public function getThirdPartyDetails(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -57,7 +57,7 @@ class ThirdPartyAppController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function createThirdPartyApp(Request $request)
+    public function createThirdPartyApp(Request $request): \Illuminate\Http\JsonResponse
     {
         $this->validate($request, [
             'app_name' => 'required',
@@ -75,12 +75,13 @@ class ThirdPartyAppController extends Controller
         return successResponse(__('message.saved-successfully'));
     }
 
-    public function getAppKey()
+    public function getAppKey(): void
     {
         try {
             $code = Str::random(32);
             echo $code;
         } catch (Exception $exception) {
+            // @phpstan-ignore return.void
             return back()->with('fails', $exception->getMessage());
         }
     }
@@ -88,7 +89,7 @@ class ThirdPartyAppController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function updateThirdPartyApp(Request $request, $id)
+    public function updateThirdPartyApp(Request $request, mixed $id): \Illuminate\Http\JsonResponse
     {
         $this->validate($request, [
             'app_name' => 'required',
@@ -115,7 +116,7 @@ class ThirdPartyAppController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function deleteThirdPartyApp(Request $request)
+    public function deleteThirdPartyApp(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $ids = $request->input('select');

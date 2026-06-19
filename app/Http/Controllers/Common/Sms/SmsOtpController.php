@@ -121,7 +121,7 @@ class SmsOtpController extends Controller
      * @param  string  $type  Retry type: 'text' for SMS, 'voice' for voice call
      * @return array{type: string, message: string}
      */
-    public function sendForReOtp(string $mobile, string $type, $userID = null, string $source = 'register', array $mobileInfo = []): array
+    public function sendForReOtp(string $mobile, string $type, mixed $userID = null, string $source = 'register', array $mobileInfo = []): array
     {
         $mobile = $this->sanitizeMobile($mobile);
 
@@ -144,7 +144,7 @@ class SmsOtpController extends Controller
      * @param  string  $mobile  Full mobile number with country code
      * @return array{type: string, message: string}
      */
-    public function sendVerifyOTP(string $otp, string $mobile, $userID = null, string $source = 'register'): array
+    public function sendVerifyOTP(string $otp, string $mobile, mixed $userID = null, string $source = 'register'): array
     {
         $mobile = $this->sanitizeMobile($mobile);
 
@@ -220,7 +220,7 @@ class SmsOtpController extends Controller
      * On 'send': creates a new record with action = 'send'.
      * On 'resend': appends retry attempt to the same record (e.g. 'send, retry_1').
      */
-    protected function trackOtpRequest(array $response, $userID, string $source, string $action, array $mobileInfo = []): void
+    protected function trackOtpRequest(array $response, mixed $userID, string $source, string $action, array $mobileInfo = []): void
     {
         if (! $userID) {
             return;

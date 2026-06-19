@@ -27,7 +27,7 @@ use App\BaseModel;
  */
 class TemplateType extends BaseModel
 {
-    public function selectedTemplate()
+    public function selectedTemplate(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Template::class, 'selected_template_id');
     }

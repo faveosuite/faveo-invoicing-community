@@ -199,7 +199,7 @@ class LogWriteControllerTest extends TestCase
     /**
      * Helper to call protected/private methods.
      */
-    protected function invokeMethod(&$object, $methodName, array $parameters = []): mixed
+    protected function invokeMethod(mixed $object, mixed $methodName, array $parameters = []): mixed
     {
         $reflection = new ReflectionClass($object::class);
         $method = $reflection->getMethod($methodName);

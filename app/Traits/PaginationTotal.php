@@ -58,7 +58,7 @@ trait PaginationTotal
      * Usage:
      *   return $this->paginateResponse($users, $total);
      */
-    protected function paginateResponse($paginator, ?int $total)
+    protected function paginateResponse(mixed $paginator, ?int $total): \Illuminate\Http\JsonResponse
     {
         $response = collect($paginator->toArray())->put('total', $total);
 

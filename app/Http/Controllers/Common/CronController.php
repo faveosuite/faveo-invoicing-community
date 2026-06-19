@@ -72,7 +72,7 @@ class CronController extends BaseCronController
     /**
      * @return array{users: mixed, orders: mixed, subscription: mixed}[]
      */
-    public function getAllDaysExpiryUsers($day): array
+    public function getAllDaysExpiryUsers(int $day): array
     {
         $sub = $this->getAllDaysExpiryInfo($day);
         $users = [];
@@ -159,7 +159,7 @@ class CronController extends BaseCronController
         return $users;
     }
 
-    public function get1DaysSubscription()
+    public function get1DaysSubscription(): mixed
     {
         $users = $this->getOneDayExpiryUsers();
         if ($users !== []) {
@@ -169,7 +169,7 @@ class CronController extends BaseCronController
         return $users;
     }
 
-    public function get0DaysSubscription()
+    public function get0DaysSubscription(): mixed
     {
         $users = $this->getOnDayExpiryUsers();
         if ($users !== []) {
@@ -179,7 +179,7 @@ class CronController extends BaseCronController
         return $users;
     }
 
-    public function getPlus1Subscription()
+    public function getPlus1Subscription(): mixed
     {
         $users = $this->getExpiredUsers();
         if ($users !== []) {
@@ -222,7 +222,7 @@ class CronController extends BaseCronController
      * @return mixed[]
      */
     #[Override]
-    public function getSubscriptions($days): array
+    public function getSubscriptions(mixed $days): array
     {
         $decodedData = json_decode((string) $days[0]);
 
@@ -264,7 +264,7 @@ class CronController extends BaseCronController
     /**
      * @return mixed[]
      */
-    public function getautoSubscriptions($days): array
+    public function getautoSubscriptions(mixed $days): array
     {
         $decodedData = json_decode((string) $days[0]);
 
@@ -305,7 +305,7 @@ class CronController extends BaseCronController
     /**
      * @return mixed[]
      */
-    public function getPostSubscriptions($days): array
+    public function getPostSubscriptions(mixed $days): array
     {
         $decodedData = json_decode((string) $days[0]);
 
@@ -470,7 +470,7 @@ class CronController extends BaseCronController
         return StatusSetting::value('reoon_deletion_status') == 1;
     }
 
-    private function getOldInvoices($days)
+    private function getOldInvoices(mixed $days): mixed
     {
         $date = Date::now()->subDays($days)->toDateString();
 
@@ -480,7 +480,7 @@ class CronController extends BaseCronController
             ->get();
     }
 
-    private function getOldReoonLogs($days)
+    private function getOldReoonLogs(mixed $days): mixed
     {
         $date = Date::now()->subDays($days)->toDateString();
 
@@ -488,7 +488,7 @@ class CronController extends BaseCronController
             ->get();
     }
 
-    private function canDeleteInvoice($invoice): bool
+    private function canDeleteInvoice(mixed $invoice): bool
     {
         $condition1 = $invoice->is_renewed == 0 &&
             ! $invoice->orderRelation()->exists() &&
@@ -501,7 +501,7 @@ class CronController extends BaseCronController
         return $condition1 || $condition2;
     }
 
-    private function deleteInvoice($invoice)
+    private function deleteInvoice(mixed $invoice): mixed
     {
         return DB::transaction(function () use ($invoice): void { // @phpstan-ignore staticMethod.void
             // Delete related InvoiceItem records

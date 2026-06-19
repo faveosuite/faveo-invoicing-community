@@ -36,7 +36,7 @@ class EmailSettingsController extends Controller
         return null;
     }
 
-    public function settingsEmail(Setting $settings)
+    public function settingsEmail(Setting $settings): \Illuminate\Http\JsonResponse
     {
         try {
             $set = $settings->find(1);
@@ -47,7 +47,7 @@ class EmailSettingsController extends Controller
         }
     }
 
-    public function postSettingsEmail(EmailSettingRequest $request)
+    public function postSettingsEmail(EmailSettingRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $emailSettings = $request->all();

@@ -250,7 +250,7 @@ class Setting extends Model
         });
     }
 
-    public function getImage(?string $value, string $path, $default = null)
+    public function getImage(?string $value, string $path, mixed $default = null): mixed
     {
         try {
             return $value
@@ -282,22 +282,22 @@ class Setting extends Model
         });
     }
 
-    public function defaultCurrency()
+    public function defaultCurrency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Currency::class, 'default_currency', 'code');
     }
 
-    public function country()
+    public function country(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Country::class, 'country', 'country_code_char2');
     }
 
-    public function state()
+    public function state(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(State::class, 'state', 'state_subdivision_code');
     }
 
-    public function language()
+    public function language(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Language::class, 'content', 'locale');
     }

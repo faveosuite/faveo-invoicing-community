@@ -26,7 +26,7 @@ class LogViewController
         return view('log::index');
     }
 
-    public function getLogs($type, Request $request)
+    public function getLogs(mixed $type, Request $request): mixed
     {
         // Extract search/sorting/limit parameters once
         $this->applyListFiltersForLogs($request);
@@ -39,9 +39,10 @@ class LogViewController
             case 'mail':
                 return $this->getMailLogs($request);
         }
+        return errorResponse(__('message.invalid_log_type'), 400);
     }
 
-    public function getExceptionLogs(Request $request)
+    public function getExceptionLogs(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'date' => ['required', 'date'],
@@ -76,7 +77,7 @@ class LogViewController
         }
     }
 
-    public function getCronLogs(Request $request)
+    public function getCronLogs(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'date' => ['required', 'date'],
@@ -108,7 +109,7 @@ class LogViewController
         }
     }
 
-    public function getMailLogs(Request $request)
+    public function getMailLogs(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'date' => ['required', 'date'],
@@ -147,7 +148,7 @@ class LogViewController
         }
     }
 
-    public function deleteLogsByDate(array $logTypes, $date = null): void
+    public function deleteLogsByDate(array $logTypes, mixed $date = null): void
     {
         $logModels = [
             'cron' => CronLog::class,

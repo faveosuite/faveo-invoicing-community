@@ -166,7 +166,7 @@ class Install extends LoggableCommand
      * @param  $appUrl
      * @return bool
      */
-    public function appReq($appUrl)
+    public function appReq(mixed $appUrl)
     {
         $canInstall = true;
         $arrayOfRequisites = [];

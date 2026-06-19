@@ -158,7 +158,7 @@ class StatusSetting extends Model
         ];
     }
 
-    public function getLogUrl($id = null): ?string
+    public function getLogUrl(mixed $id = null): ?string
     {
         $fields = ['emailverification_status', 'msg91_status'];
         $cloud = ['cloud_button'];
@@ -190,7 +190,7 @@ class StatusSetting extends Model
         return 'api_key';
     }
 
-    protected static function newFactory()
+    protected static function newFactory(): mixed
     {
         return StatusSettingFactory::new();
     }

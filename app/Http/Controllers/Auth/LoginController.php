@@ -55,7 +55,7 @@ class LoginController extends BaseAuthController
      * JSON config consumed by the Vue guest login/register SPA page.
      * Mirrors the data that showLoginForm() passed to the blade view.
      */
-    public function loginConfig()
+    public function loginConfig(): \Illuminate\Http\JsonResponse
     {
         try {
             $status = StatusSetting::select('msg91_status', 'emailverification_status', 'terms')->first();
@@ -84,7 +84,7 @@ class LoginController extends BaseAuthController
         }
     }
 
-    public function postLoginAndGetToken(LoginRequest $request)
+    public function postLoginAndGetToken(LoginRequest $request): mixed
     {
         Auth::shouldUse('web');
 
@@ -96,7 +96,7 @@ class LoginController extends BaseAuthController
     /**
      * Function returns modified response(if required) for login when called via v3 api.
      */
-    private function returnApiV3LoginResponse($response)
+    private function returnApiV3LoginResponse(mixed $response): \Illuminate\Http\JsonResponse
     {
         // If not v3 API or user not logged in, just return original response
         if (! isV3Api() || ! Auth::check()) {
@@ -116,7 +116,7 @@ class LoginController extends BaseAuthController
     /**
      * Handle a login request to the application.
      */
-    public function login(LoginRequest $request) // 2. Type-hint the LoginRequest
+    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse // 2. Type-hint the LoginRequest
     {
         try {
             // 1. Prepare credentials for both email and username login
@@ -172,7 +172,7 @@ class LoginController extends BaseAuthController
     /**
      * Handle redirection for an unverified user.
      */
-    private function handleUnverifiedUser(User $user)
+    private function handleUnverifiedUser(User $user): \Illuminate\Http\JsonResponse
     {
         Auth::logout();
 
@@ -189,7 +189,7 @@ class LoginController extends BaseAuthController
     /**
      * Prepare the session and redirect for 2FA.
      */
-    private function handleTwoFactorAuthentication(Request $request, User $user)
+    private function handleTwoFactorAuthentication(Request $request, User $user): \Illuminate\Http\JsonResponse
     {
         Auth::logout();
 
@@ -226,7 +226,7 @@ class LoginController extends BaseAuthController
      *
      * @param  $provider
      */
-    public function redirectToGithub($provider)
+    public function redirectToGithub(mixed $provider): \Illuminate\Http\JsonResponse
     {
         $details = SocialLogin::where('type', $provider)->first();
 
@@ -244,7 +244,7 @@ class LoginController extends BaseAuthController
      * @param  $provider
      * @return RedirectResponse
      */
-    public function handler($provider)
+    public function handler(mixed $provider)
     {
         $details = SocialLogin::where('type', $provider)->first();
         Config::set(sprintf('services.%s.redirect', $provider), $details->redirect_url);
@@ -308,7 +308,7 @@ class LoginController extends BaseAuthController
     /**
      * This function stores basic details for social logins.
      */
-    public function storeBasicDetails(Request $request)
+    public function storeBasicDetails(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $this->validate($request, [
@@ -371,7 +371,7 @@ class LoginController extends BaseAuthController
         Cache::forget(sprintf('penalty_applied:%s:%s', $context, $identifier));
     }
 
-    public function logActivityLogin($user): void
+    public function logActivityLogin(mixed $user): void
     {
         if (! $user) {
             return;

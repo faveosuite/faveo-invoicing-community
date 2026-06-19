@@ -132,7 +132,7 @@ class ApiKey extends Model
         ];
     }
 
-    public function getLogUrl($id = null): ?string
+    public function getLogUrl(mixed $id = null): ?string
     {
         $fields = ['verification_preference'];
 

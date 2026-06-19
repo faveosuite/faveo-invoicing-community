@@ -22,7 +22,7 @@ class CacheSettingsController extends Controller
         ['name' => 'DynamoDB',  'short_name' => 'dynamodb'],
     ];
 
-    public function getDriverData()
+    public function getDriverData(): \Illuminate\Http\JsonResponse
     {
         $active = CommonSettings::where('option_name', 'cache')
             ->where('optional_field', 'driver')
@@ -47,7 +47,7 @@ class CacheSettingsController extends Controller
         ]);
     }
 
-    public function getFormByDriver(string $driver)
+    public function getFormByDriver(string $driver): \Illuminate\Http\JsonResponse
     {
         return successResponse('', [
             'driver' => $driver,
@@ -55,7 +55,7 @@ class CacheSettingsController extends Controller
         ]);
     }
 
-    public function update(Request $request, string $driver)
+    public function update(Request $request, string $driver): \Illuminate\Http\JsonResponse
     {
         if ($this->formFields($driver) === []) {
             return errorResponse(__('message.no_fields_to_update'), 422);
@@ -77,7 +77,7 @@ class CacheSettingsController extends Controller
         return successResponse(__('message.updated_successfully'));
     }
 
-    public function activate(string $driver)
+    public function activate(string $driver): \Illuminate\Http\JsonResponse
     {
         if (collect(self::DRIVERS)->pluck('short_name')->doesntContain($driver)) {
             return errorResponse(__('message.invalid_driver'), 422);

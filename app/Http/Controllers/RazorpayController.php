@@ -48,7 +48,7 @@ class RazorpayController extends Controller
      * Verify a Razorpay Checkout handler response for an invoice and fulfil it.
      * The signature is verified server-side; nothing is recorded unless authentic.
      */
-    public function payment($invoice, Request $request)
+    public function payment(mixed $invoice, Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'razorpay_payment_id' => ['required', 'string'],
@@ -82,12 +82,12 @@ class RazorpayController extends Controller
         }
     }
 
-    public function getCurrency()
+    public function getCurrency(): mixed
     {
         return Auth::user()->currency_symbol;
     }
 
-    public function getState($country, $stateCode)
+    public function getState(mixed $country, mixed $stateCode): mixed
     {
         if (Auth::user()->country != 'IN') {
             return State::where('country_code', $country)->where('iso2', $stateCode)->value('state_subdivision_name');
@@ -96,7 +96,7 @@ class RazorpayController extends Controller
         return TaxByState::where('state_code', Auth::user()->state)->value('state');
     }
 
-    public function afterPayment(Request $request)
+    public function afterPayment(Request $request): mixed
     {
         try {
             $stripeSecretKey = ApiKey::value('stripe_secret');
@@ -136,7 +136,7 @@ class RazorpayController extends Controller
      * ->id and ->raw['short_url']. $cost is already in minor units; start_at /
      * expire_by are derived here from the subscription's current period.
      */
-    public function handleRzpAutoPay($cost, $days, $product_name, $invoice, $currency, $subscription, $user, $order, $endDate, $productDetails): \App\Plugins\Payment\Dto\SubscriptionResult
+    public function handleRzpAutoPay(mixed $cost, mixed $days, mixed $product_name, mixed $invoice, mixed $currency, mixed $subscription, mixed $user, mixed $order, mixed $endDate, mixed $productDetails): \App\Plugins\Payment\Dto\SubscriptionResult
     {
         return resolve(SubscriptionService::class)->createSubscription('Razorpay', new SubscriptionRequest(
             amountMinor: (int) $cost,

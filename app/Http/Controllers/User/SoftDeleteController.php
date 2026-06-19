@@ -17,7 +17,7 @@ class SoftDeleteController extends ClientController
         $this->middleware('admin');
     }
 
-    public function softDeletedUsers(Request $request)
+    public function softDeletedUsers(Request $request): \Illuminate\Http\JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');
@@ -48,7 +48,7 @@ class SoftDeleteController extends ClientController
         return successResponse('', $users);
     }
 
-    public function restoreUser($id)
+    public function restoreUser(mixed $id): \Illuminate\Http\JsonResponse
     {
         $user = User::onlyTrashed()->find($id);
 
@@ -61,7 +61,7 @@ class SoftDeleteController extends ClientController
         return successResponse(__('message.user_restored_successfully'));
     }
 
-    public function permanentDeleteUser(Request $request)
+    public function permanentDeleteUser(Request $request): \Illuminate\Http\JsonResponse
     {
         $ids = $request->input('user_ids', []);
 

@@ -50,7 +50,7 @@ class LicenseController extends Controller
             $request->get('license_support_date')
         );
 
-        if (! empty($checks)) {
+        if ($checks instanceof \Illuminate\Http\JsonResponse) {
             return $checks;
         }
 
@@ -106,7 +106,7 @@ class LicenseController extends Controller
             $request->get('license_support_date')
         );
 
-        if (! empty($checks)) {
+        if ($checks instanceof \Illuminate\Http\JsonResponse) {
             return errorResponse($checks->getOriginalContent()['message'], 400);
         }
 
@@ -181,7 +181,7 @@ class LicenseController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $licenses->getCollection()->transform(fn (License $license) => (object) [ // @phpstan-ignore argument.unresolvableType
+        $licenses->getCollection()->transform(fn (License $license) => (object) [ // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
             'id' => $license->id,
             'product_id' => $license->product_id,
             'client_id' => $license->user_id,
@@ -217,7 +217,7 @@ class LicenseController extends Controller
 
     public function formatClient(?string $license_code, ?string $client_email): string
     {
-        if (! empty($license_code)) {
+        if (!in_array($license_code, [null, '', '0'], strict: true)) {
             return $license_code;
         }
 
@@ -226,24 +226,24 @@ class LicenseController extends Controller
 
     protected function licenseChecks(mixed $client_id, ?string $license_code, ?string $license_ip, ?string $license_domain, mixed $license_limit, ?string $license_expire_date, ?string $license_updates_date, ?string $license_support_date): ?\Illuminate\Http\JsonResponse
     {
-        if (! LicenseHelper::validateIntegerValue($client_id) && empty($license_code)) {
+        if (! LicenseHelper::validateIntegerValue($client_id) && in_array($license_code, [null, '', '0'], strict: true)) {
             return errorResponse(Lang::get('license::lang.error_client_or_license_code'), 400);
         }
 
-        if (LicenseHelper::validateIntegerValue($client_id) && ! empty($license_code)) {
+        if (LicenseHelper::validateIntegerValue($client_id) && !in_array($license_code, [null, '', '0'], strict: true)) {
             return errorResponse(Lang::get('license::lang.invalid_licnese'), 400);
         }
 
-        if (! empty($license_ip)) {
-            foreach (explode(',', (string) $license_ip) as $ipToValidate) {
+        if (!in_array($license_ip, [null, '', '0'], strict: true)) {
+            foreach (explode(',', $license_ip) as $ipToValidate) {
                 if (! filter_var($ipToValidate, FILTER_VALIDATE_IP)) {
                     return errorResponse(Lang::get('license::lang.invalid_license_ip'), 400);
                 }
             }
         }
 
-        if (! empty($license_domain)) {
-            foreach (explode(',', (string) $license_domain) as $domain) {
+        if (!in_array($license_domain, [null, '', '0'], strict: true)) {
+            foreach (explode(',', $license_domain) as $domain) {
                 if (! LicenseHelper::validateRawDomain(LicenseHelper::getRawDomain($domain)) || ! ctype_alnum(substr($domain, -1))) {
                     return errorResponse(Lang::get('license::lang.invalid_domain'), 400);
                 }
@@ -254,15 +254,15 @@ class LicenseController extends Controller
             return errorResponse(Lang::get('license::lang.invalid_license_limit'), 400);
         }
 
-        if (! empty($license_expire_date) && ! LicenseHelper::verifyDateTime($license_expire_date, 'Y-m-d')) {
+        if (!in_array($license_expire_date, [null, '', '0'], strict: true) && ! LicenseHelper::verifyDateTime($license_expire_date, 'Y-m-d')) {
             return errorResponse(Lang::get('license::lang.invalid_license_expiry'), 400);
         }
 
-        if (! empty($license_updates_date) && ! LicenseHelper::verifyDateTime($license_updates_date, 'Y-m-d')) {
+        if (!in_array($license_updates_date, [null, '', '0'], strict: true) && ! LicenseHelper::verifyDateTime($license_updates_date, 'Y-m-d')) {
             return errorResponse(Lang::get('license::lang.invalid_license_update_date'), 400);
         }
 
-        if (! empty($license_support_date) && ! LicenseHelper::verifyDateTime($license_support_date, 'Y-m-d')) {
+        if (!in_array($license_support_date, [null, '', '0'], strict: true) && ! LicenseHelper::verifyDateTime($license_support_date, 'Y-m-d')) {
             return errorResponse(Lang::get('license::lang.invalid_license_support_date'), 400);
         }
 
@@ -330,7 +330,7 @@ class LicenseController extends Controller
         $license = License::with(['addonProducts.latestVersion'])->where('license_code', $request->input('license_code'))->firstOrFail();
         $product = Product::find($license->product_id);
 
-        $addons = $license->addonProducts->map(fn ($product): array => [ // @phpstan-ignore argument.unresolvableType
+        $addons = $license->addonProducts->map(fn ($product): array => [ // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
             'id' => $product->id,
             'product_name' => $product->name,
             'product_attributes' => $product->product_attributes, // @phpstan-ignore property.notFound
@@ -376,7 +376,7 @@ class LicenseController extends Controller
             ->get()
             ->keyBy('license_code');
 
-        $result = $licenseCodes->map(function ($licenseCode) use ($licenses) {
+        $result = $licenseCodes->map(function (string $licenseCode) use ($licenses) {
             $license = $licenses->get($licenseCode);
             if (! $license) {
                 return null;
@@ -385,7 +385,7 @@ class LicenseController extends Controller
             $ids = LicensePlugin::where('license_id', $license->id)->pluck('product_id')->toArray();
             $ids = empty($ids) ? [$license->product_id] : $ids;
 
-            return collect($ids)->unique()->map(fn ($id) => $this->generateLicenseData((int) $id, $licenseCode))->filter();
+            return collect($ids)->unique()->map(fn ($id): ?array => $this->generateLicenseData((int) $id, $licenseCode))->filter();
         })->filter()->values();
 
         return successResponse('', $result);

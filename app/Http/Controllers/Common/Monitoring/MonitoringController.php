@@ -15,7 +15,7 @@ class MonitoringController extends Controller
     /**
      * API endpoint: returns JSON indicating whether Pulse/Horizon is accessible.
      */
-    public function checkPulseHorizon(Request $request)
+    public function checkPulseHorizon(Request $request): \Illuminate\Http\JsonResponse
     {
         $type = strtolower((string) $request->get('type', ''));
 

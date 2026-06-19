@@ -426,7 +426,7 @@ class LogViewControllerTest extends DBTestCase
     /**
      * Create activity record with ability to override any field.
      */
-    protected function createActivity(array $overrides = [])
+    protected function createActivity(array $overrides = []): mixed
     {
         $defaults = [
             'log_name' => 'Billing',

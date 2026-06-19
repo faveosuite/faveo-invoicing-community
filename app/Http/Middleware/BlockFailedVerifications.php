@@ -90,7 +90,7 @@ class BlockFailedVerifications
      * @param  string  ...$onlyTypes  Optional — if provided, only these types are checked.
      *                                Used by verify OTP routes to skip OTP send limits.
      */
-    public function handle(Request $request, Closure $next, string $context = 'verify', string ...$onlyTypes)
+    public function handle(Request $request, Closure $next, string $context = 'verify', string ...$onlyTypes): mixed
     {
         $identifier = $this->getIdentifier($context);
 
@@ -130,7 +130,7 @@ class BlockFailedVerifications
      * Checks if the given rate limit type has been exceeded.
      * If yes, applies a progressive penalty (if not already applied) and returns a 429 response.
      */
-    private function enforce(string $context, string $type, string $identifier, int $maxAttempts, Request $request)
+    private function enforce(string $context, string $type, string $identifier, int $maxAttempts, Request $request): mixed
     {
         $key = sprintf('%s:%s', $type, $identifier);
 
@@ -183,7 +183,7 @@ class BlockFailedVerifications
      * Returns a 429 JSON error for AJAX requests, or redirects to login with
      * an error flash message for standard page requests.
      */
-    private function respond(Request $request, string $type, string $waitTime)
+    private function respond(Request $request, string $type, string $waitTime): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $message = __($this->getMessageKey($type), ['time' => $waitTime]);
 

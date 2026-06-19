@@ -22,7 +22,6 @@ class Request implements Stringable
      *
      * @param  string  $httpMethod
      * @param  string  $httpUrl
-     * @param  array  $parameters
      */
     public function __construct(protected $httpMethod, $httpUrl, array $parameters = [])
     {
@@ -74,7 +73,7 @@ class Request implements Stringable
      * @param  $name
      * @return string|null
      */
-    public function getParameter($name)
+    public function getParameter(mixed $name)
     {
         return $this->parameters[$name] ?? null;
     }
@@ -87,7 +86,7 @@ class Request implements Stringable
     /**
      * @param  $name
      */
-    public function removeParameter($name): void
+    public function removeParameter(mixed $name): void
     {
         unset($this->parameters[$name]);
     }

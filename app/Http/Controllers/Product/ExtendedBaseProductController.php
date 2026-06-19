@@ -28,7 +28,7 @@ class ExtendedBaseProductController extends Controller
      *
      * @param  int  $id  Product Upload id
      */
-    public function editProductUpload($id)
+    public function editProductUpload($id): mixed
     {
         try {
             $model = ProductUpload::with('product')->findOrFail($id);
@@ -51,7 +51,7 @@ class ExtendedBaseProductController extends Controller
     }
 
     //Update the File Info
-    public function uploadUpdate($id, Request $request)
+    public function uploadUpdate(mixed $id, Request $request): mixed
     {
         $this->validate($request, [
             'title' => 'required',
@@ -80,7 +80,7 @@ class ExtendedBaseProductController extends Controller
         }
     }
 
-    public function saveTax($taxes, $product_id): void
+    public function saveTax(mixed $taxes, mixed $product_id): void
     {
         TaxProductRelation::where('product_id', $product_id)->delete();
         if ($taxes) {
@@ -129,7 +129,7 @@ class ExtendedBaseProductController extends Controller
         }
     }
 
-    public function adminDownload($id, $release = 'official')
+    public function adminDownload(mixed $id, mixed $release = 'official'): \Symfony\Component\HttpFoundation\Response|\Illuminate\Http\JsonResponse
     {
         try {
             $permissions = LicensePermissionsController::getPermissionsForProduct($id);
@@ -180,7 +180,7 @@ class ExtendedBaseProductController extends Controller
         return Attach::download($path);
     }
 
-    public function checkSubscriptionExpiry($invoice): void
+    public function checkSubscriptionExpiry(mixed $invoice): void
     {
         $checkSubscription = false;
         if ($invoice) {
@@ -211,7 +211,7 @@ class ExtendedBaseProductController extends Controller
      * @param  bool  $can_modify_agent  Whether Agents can be modified by customer
      * @param  bool  $can_modify_quantity  Whether Product Quantity can be modified by Customers
      */
-    public function saveCartValues($input, bool $can_modify_agent, bool $can_modify_quantity, $highlight, $add_to_contact): void
+    public function saveCartValues($input, bool $can_modify_agent, bool $can_modify_quantity, mixed $highlight, mixed $add_to_contact): void
     {
         $this->product->show_agent = $input['show_agent'] == 1; //if Show Agents Selected // @phpstan-ignore property.notFound
         $this->product->highlight = ($highlight == 1) ? 1 : 0; // @phpstan-ignore property.notFound
@@ -230,9 +230,8 @@ class ExtendedBaseProductController extends Controller
      * @param  Request  $input  All the Product Detais Sent from  the form
      * @param  \Illuminate\Http\Request  $request
      * @param  mixed  $product  instance of the Product
-     * @return void
      */
-    public function saveCartDetailsWhileUpdating($input, $request, $product, $highlight, $add_to_contact): void
+    public function saveCartDetailsWhileUpdating($input, $request, $product, mixed $highlight, mixed $add_to_contact): void
     {
         $product->show_agent = $input['show_agent'] == 1 ? 1 : 0; //if Show Agents Selected
         if ($product->show_agent === 1) {

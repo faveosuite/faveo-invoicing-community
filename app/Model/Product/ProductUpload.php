@@ -102,23 +102,23 @@ class ProductUpload extends Model
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
-    public function order()
+    public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
 
-    public function callbacks()
+    public function callbacks(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(VersionCallback::class, 'version_id');
     }
 
-    public function installations()
+    public function installations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(VersionInstallation::class, 'version_id');
     }
 
     #[Scope]
-    protected function active($query)
+    protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where(function ($q): void {
             $q->where('status', 1);

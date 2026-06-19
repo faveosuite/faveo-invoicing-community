@@ -18,7 +18,7 @@ class ZohoOAuthController extends Controller
     /**
      * Return the list of Zoho integrations as JSON for the Vue settings page.
      */
-    public function getIntegrations()
+    public function getIntegrations(): \Illuminate\Http\JsonResponse
     {
         $integrations = ZohoIntegration::with('token')
             ->select('id', 'platform', 'description', 'is_active')
@@ -34,14 +34,14 @@ class ZohoOAuthController extends Controller
         return successResponse('', $integrations);
     }
 
-    public function getOauthClientKeys($integration)
+    public function getOauthClientKeys(mixed $integration): \Illuminate\Http\JsonResponse
     {
         $client = ZohoOAuthClient::where('integration_id', $integration)->first();
 
         return successResponse('', $client);
     }
 
-    public function saveOAuthClientKeys(Request $request)
+    public function saveOAuthClientKeys(Request $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'integration_id' => ['required', 'exists:zoho_integrations,id'],
@@ -236,7 +236,7 @@ class ZohoOAuthController extends Controller
         );
     }
 
-    public function toggleIntegration(Request $request, $id)
+    public function toggleIntegration(Request $request, mixed $id): \Illuminate\Http\JsonResponse
     {
         $newValue = $request->boolean('is_active') ? 1 : 0;
 

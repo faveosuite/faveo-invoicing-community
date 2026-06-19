@@ -35,7 +35,7 @@ class PricingTemplate extends Model
 
     protected $fillable = ['data', 'image', 'name'];
 
-    public function productGroups()
+    public function productGroups(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProductGroup::class);
     }

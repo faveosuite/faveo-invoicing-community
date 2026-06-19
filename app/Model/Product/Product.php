@@ -251,12 +251,12 @@ class Product extends BaseModel
 
     // protected static $recordEvents = ['deleted'];
 
-    public function order()
+    public function order(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Order::class, 'product');
     }
 
-    public function subscription()
+    public function subscription(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Subscription::class);
     }
@@ -269,17 +269,17 @@ class Product extends BaseModel
         return $this->belongsTo(LicenseType::class, 'type');
     }
 
-    public function price()
+    public function price(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Price::class);
     }
 
-    public function PromoRelation()
+    public function PromoRelation(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PromoProductRelation::class, 'product_id');
     }
 
-    public function tax()
+    public function tax(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(TaxProductRelation::class, 'product_id');
     }
@@ -297,7 +297,7 @@ class Product extends BaseModel
         );
     }
 
-    public function productUpload()
+    public function productUpload(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProductUpload::class, 'product_id');
     }
@@ -352,26 +352,26 @@ class Product extends BaseModel
         return $this->belongsTo(ProductGroup::class, 'group', 'id');
     }
 
-    public function plan()
+    public function plan(): mixed
     {
         return $this->planRelation()->first();
     }
 
     // Define the relationship with ProductPluginGroup (as product)
-    public function productPluginGroupsAsProduct()
+    public function productPluginGroupsAsProduct(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProductPluginGroup::class, 'product_id');
     }
 
     // Define the relationship with ProductPluginGroup (as plugin)
-    public function productPluginGroupsAsPlugin()
+    public function productPluginGroupsAsPlugin(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProductPluginGroup::class, 'plugin_id');
     }
 
     // Plugins bundled with this product (config options / order flow)
     /**
-     * @return BelongsToMany<Product, Product, Pivot>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Model\Product\Product, $this, \Illuminate\Database\Eloquent\Relations\Pivot>
      */
     public function bundledPlugins(): BelongsToMany
     {
@@ -380,7 +380,7 @@ class Product extends BaseModel
 
     // Plugins compatible with this product (store display / license lookup)
     /**
-     * @return BelongsToMany<Product, Product, Pivot>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Model\Product\Product, $this, \Illuminate\Database\Eloquent\Relations\Pivot>
      */
     public function compatiblePlugins(): BelongsToMany
     {
@@ -395,18 +395,18 @@ class Product extends BaseModel
         return $this->hasMany(ConfigOption::class, 'product_id');
     }
 
-    public function productCompWith()
+    public function productCompWith(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PluginCompatibleWithProducts::class, 'product_id');
     }
 
     // Define the relationship with Product (as plugin)
-    public function pluginCompWith()
+    public function pluginCompWith(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PluginCompatibleWithProducts::class, 'plugin_id');
     }
 
-    public function versions()
+    public function versions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProductUpload::class, 'product_id');
     }
@@ -419,22 +419,22 @@ class Product extends BaseModel
         return $this->hasOne(ProductUpload::class, 'product_id')->latest();
     }
 
-    public function licenses()
+    public function licenses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(License::class, 'product_id');
     }
 
-    public function installations()
+    public function installations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Installation::class, 'product_id');
     }
 
-    public function licenseReports()
+    public function licenseReports(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(LicenseReport::class, 'product_id');
     }
 
-    public function licenseCallbacks()
+    public function licenseCallbacks(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(LicenseCallback::class, 'product_id');
     }

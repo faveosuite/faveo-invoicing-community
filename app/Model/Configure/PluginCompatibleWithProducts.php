@@ -37,13 +37,13 @@ class PluginCompatibleWithProducts extends Model
     protected $guarded = [];
 
     // Define the relationship with Product (as product)
-    public function productComp()
+    public function productComp(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
 
     // Define the relationship with Product (as plugin)
-    public function pluginComp()
+    public function pluginComp(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class, 'plugin_id');
     }

@@ -16,7 +16,7 @@ class PaymentSettingsController extends Controller
         $this->middleware('admin');
     }
 
-    public function fetchConfig()
+    public function fetchConfig(): array|\Illuminate\Http\JsonResponse
     {
         $configs = $this->readConfigs();
 
@@ -106,7 +106,7 @@ class PaymentSettingsController extends Controller
         return 'null';
     }
 
-    public function statusPlugin(string $slug)
+    public function statusPlugin(string $slug): mixed
     {
         $plugs = new Plugin();
         $plug = $plugs->where('name', $slug)->first();
@@ -155,7 +155,7 @@ class PaymentSettingsController extends Controller
         return back()->with('success', __('message.status_change'));
     }
 
-    public function updatePaymentStatus(Request $request)
+    public function updatePaymentStatus(Request $request): \Illuminate\Http\JsonResponse
     {
         $plugs = new Plugin();
         $name = $request->input('name');
@@ -189,7 +189,7 @@ class PaymentSettingsController extends Controller
         return successResponse(Lang::get('message.status_change'));
     }
 
-    public function getPaymentGatewayList()
+    public function getPaymentGatewayList(): \Illuminate\Http\JsonResponse
     {
         try {
             $configs = $this->fetchConfig();

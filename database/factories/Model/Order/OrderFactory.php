@@ -39,7 +39,7 @@ class OrderFactory extends Factory
         ];
     }
 
-    public function withRelations(array $overrides = [])
+    public function withRelations(array $overrides = []): mixed
     {
         return $this->state(fn (): array => $overrides)
             ->afterCreating(function (Order $order): void {

@@ -37,13 +37,13 @@ class ProductPluginGroup extends Model
     protected $guarded = [];
 
     // Define the relationship with Product (as product)
-    public function product()
+    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
 
     // Define the relationship with Product (as plugin)
-    public function plugin()
+    public function plugin(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class, 'plugin_id');
     }

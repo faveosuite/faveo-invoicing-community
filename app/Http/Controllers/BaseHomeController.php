@@ -20,7 +20,7 @@ class BaseHomeController extends Controller
 {
     public static function decryptByFaveoPrivateKey(string $encrypted): ?string
     {
-        $encrypted = json_decode((string) $encrypted);
+        $encrypted = json_decode($encrypted);
         $sealed_data = $encrypted->seal;
         $envelope = $encrypted->envelope;
         $input = base64_decode((string) $sealed_data);
@@ -105,7 +105,7 @@ class BaseHomeController extends Controller
 
     public function getDomain(string $url): string
     {
-        $pieces = parse_url((string) $url);
+        $pieces = parse_url($url);
         $domain = $pieces['host'] ?? '';
         if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
             return $regs['domain'];
@@ -119,7 +119,7 @@ class BaseHomeController extends Controller
         try {
             if ($order_number && $serial_key) {
                 $order = $this->verifyOrder($order_number, $serial_key);
-                if ($order) {
+                if ($order instanceof \App\Model\Order\Order) {
                     return ['status' => 'success', 'message' => 'this-is-a-valid-request',
                         'order_number' => $order_number, 'serial' => $serial_key, ];
                 }
@@ -330,10 +330,10 @@ class BaseHomeController extends Controller
     public function getLastFourDigistsOfLicenseCode(string $productName): string
     {
         return match (true) {
-            strpos((string) $productName, 'Enterprise') > 0, strpos((string) $productName, 'Company') > 0 => '0000',
-            strpos((string) $productName, 'Freelancer') > 0 => '0002',
-            strpos((string) $productName, 'Startup') > 0 => '0005',
-            strpos((string) $productName, 'SME') > 0 => '0010',
+            strpos($productName, 'Enterprise') > 0, strpos($productName, 'Company') > 0 => '0000',
+            strpos($productName, 'Freelancer') > 0 => '0002',
+            strpos($productName, 'Startup') > 0 => '0005',
+            strpos($productName, 'SME') > 0 => '0010',
             default => throw new Exception(Lang::get('message.product_not_found')),
         };
     }

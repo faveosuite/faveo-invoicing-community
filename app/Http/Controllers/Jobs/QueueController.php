@@ -171,7 +171,7 @@ class QueueController extends Controller
         try {
             $short = $this->getShortNameById($id);
 
-            if (! $short) {
+            if ($short === '' || $short === '0') {
                 return errorResponse(__('message.invalid_queue_id'), 404);
             }
 

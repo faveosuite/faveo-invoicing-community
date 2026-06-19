@@ -81,7 +81,7 @@ class PipedriveController extends Controller
     /**
      * Generic method to fetch API data with error handling.
      */
-    private function fetchApiData(string $apiClient, string $method, ...$args): array
+    private function fetchApiData(string $apiClient, string $method, mixed ...$args): array
     {
         try {
             $result = $this->apiClients[$apiClient]->$method(...$args)->getRawData();
@@ -99,7 +99,7 @@ class PipedriveController extends Controller
     /**
      * Generic method to perform API actions with error handling.
      */
-    private function performApiAction(string $apiClient, string $method, ...$args): mixed
+    private function performApiAction(string $apiClient, string $method, mixed ...$args): mixed
     {
         try {
             $response = $this->apiClients[$apiClient]->$method(...$args);

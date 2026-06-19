@@ -35,7 +35,7 @@ class BaseOrderController extends ExtendedOrderController
     public function getUrl(\App\Model\Order\Order $model, string $status, ?string $subscriptionId, ?int $agents = null): string
     {
         $url = '';
-        if ($model->order_status != 'Terminated' && $status == 'success' && $subscriptionId) {
+        if ($model->order_status != 'Terminated' && $status === 'success' && $subscriptionId) {
             if (! is_null($agents)) {
                 $url = '<a href='.url('renew/'.$subscriptionId.'/'.$agents)." 
                 class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.renew'))."<i class='fas fa-credit-card'
@@ -55,8 +55,6 @@ class BaseOrderController extends ExtendedOrderController
     /**
      * inserting the values to orders table.
      *
-     * @param  int  $invoiceId
-     * @return \Illuminate\Support\Collection
      *
      * @throws Exception
      */
@@ -65,7 +63,7 @@ class BaseOrderController extends ExtendedOrderController
         $userId = Invoice::findOrFail($invoiceId)->user_id;
         $items = InvoiceItem::where('invoice_id', $invoiceId)->get();
 
-        return $items->map(fn ($item): \App\Model\Order\Order => $this->processInvoiceItem($item, $userId));
+        return $items->map(fn (\App\Model\Order\InvoiceItem $item): \App\Model\Order\Order => $this->processInvoiceItem($item, $userId));
     }
 
     private function processInvoiceItem(\App\Model\Order\InvoiceItem $item, int $userId): Order
@@ -109,10 +107,6 @@ class BaseOrderController extends ExtendedOrderController
     /**
      * inserting the values to subscription table.
      *
-     * @param  int  $orderid
-     * @param  int  $planid
-     * @param  string  $version
-     * @param  string  $serial_key
      *
      * @throws Exception
      *
@@ -322,8 +316,6 @@ class BaseOrderController extends ExtendedOrderController
     /**
      * get the price of a product by id.
      *
-     * @param  int  $product_id
-     * @return \App\Model\Product\Price|null
      *
      * @throws Exception
      */

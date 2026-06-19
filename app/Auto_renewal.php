@@ -42,7 +42,7 @@ class Auto_renewal extends Model
 
     protected $fillable = ['user_id', 'customer_id', 'order_id', 'payment_method', 'payment_intent_id'];
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }

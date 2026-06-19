@@ -48,7 +48,7 @@ class ResetPasswordController extends Controller
         $this->middleware(['recaptcha:reset'])->only('reset');
     }
 
-    public function showResetForm(Request $request, $token = null)
+    public function showResetForm(Request $request, mixed $token = null): \Illuminate\Http\JsonResponse
     {
         try {
             $reset = DB::table('password_resets')->select('email', 'created_at')->where('token', $token)->first();

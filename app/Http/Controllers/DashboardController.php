@@ -112,7 +112,7 @@ class DashboardController extends Controller
      *
      * @param  $allowedCurrencies  The currency in which total needs to be calculated
      */
-    public function getTotalSales($allowedCurrencies): float|int
+    public function getTotalSales(mixed $allowedCurrencies): float|int
     {
         $total = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
                  ->where('invoices.currency', $allowedCurrencies)
@@ -127,7 +127,7 @@ class DashboardController extends Controller
      *
      * @param  $allowedCurrencies  The currency in which yearly sales needs to be calculated
      */
-    public function getYearlySales($allowedCurrencies): float|int
+    public function getYearlySales(mixed $allowedCurrencies): float|int
     {
         $currentYear = date('Y');
         $yearlytotal = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
@@ -144,7 +144,7 @@ class DashboardController extends Controller
      *
      * @param  $allowedCurrencies  Currency in which monthly sales needs to be calculated
      */
-    public function getMonthlySales($allowedCurrencies): float|int
+    public function getMonthlySales(mixed $allowedCurrencies): float|int
     {
         $currentMonth = date('m');
         $currentYear = date('Y');
@@ -162,7 +162,7 @@ class DashboardController extends Controller
      *
      * @param  $allowedCurrencies  Currency in which pending payment need to be calculated
      */
-    public function getPendingPayments($allowedCurrencies): float|int
+    public function getPendingPayments(mixed $allowedCurrencies): float|int
     {
         $total = Invoice::where('currency', $allowedCurrencies)
         ->where('status', '=', 'pending')
@@ -174,7 +174,7 @@ class DashboardController extends Controller
     /**
      * Get the list of previous month registered users.
      */
-    public function getAllUsers()
+    public function getAllUsers(): mixed
     {
         $dateBefore = Date::now()->subDays(31)->startOfDay()->setTime(12, 0, 0);
 
@@ -199,7 +199,7 @@ class DashboardController extends Controller
      *
      * @throws Exception
      */
-    public function getSoldProducts(?int $noOfDays = null)
+    public function getSoldProducts(?int $noOfDays = null): mixed
     {
         // ASSUMING THIS CODE WON"T STAY ALIVE TILL year 3000
         $dateBefore = $noOfDays ? new Carbon(sprintf('-%s days', $noOfDays))->toDateTimeString() : Date::now()->startOfMillennium()->toDateTimeString();
@@ -223,7 +223,7 @@ class DashboardController extends Controller
     /**
      * List of orders of past 30 days.
      */
-    public function getRecentOrders()
+    public function getRecentOrders(): mixed
     {
         $dateBefore = new Carbon('-30 days')->toDateTimeString();
 
@@ -252,7 +252,7 @@ class DashboardController extends Controller
      *
      * @throws Exception
      */
-    public function getExpiringSubscriptions($past30Days = false)
+    public function getExpiringSubscriptions($past30Days = false): mixed
     {
         $today = Date::now()->endOfDay();
 
@@ -287,7 +287,7 @@ class DashboardController extends Controller
     /**
      * List of Invoices of past 30 ays.
      */
-    public function getRecentInvoices()
+    public function getRecentInvoices(): mixed
     {
         $dateBefore = Date::now()->subDays(31)->startOfDay()->setTime(12, 0, 0);
 
@@ -337,7 +337,7 @@ class DashboardController extends Controller
         ->get();
     }
 
-    private function getBaseQueryForOrders()
+    private function getBaseQueryForOrders(): mixed
     {
         return Order::leftJoin('subscriptions', 'orders.id', '=', 'subscriptions.order_id')
             ->leftJoin('users', 'orders.client', '=', 'users.id')
@@ -385,7 +385,7 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getUsersWithMobileAndEmailActivation(int $days)
+    private function getUsersWithMobileAndEmailActivation(int $days): mixed
     {
         return User::where('mobile_verified', 1)
             ->where('email_verified', 1)
@@ -396,7 +396,7 @@ class DashboardController extends Controller
             ->get();
     }
 
-    private function getExpiredOrders(int $days)
+    private function getExpiredOrders(int $days): mixed
     {
         return Subscription::select(
             'id',
@@ -419,7 +419,7 @@ class DashboardController extends Controller
             ->get();
     }
 
-    private function getExpiringOrders(int $days)
+    private function getExpiringOrders(int $days): mixed
     {
         return Subscription::select(
             'id',
@@ -442,7 +442,7 @@ class DashboardController extends Controller
             ->get();
     }
 
-    public function getClientsUsingOldVersion()
+    public function getClientsUsingOldVersion(): mixed
     {
         // Fetch subscriptions whose product/version exists in outdated uploads
         return Subscription::select(
@@ -471,7 +471,7 @@ class DashboardController extends Controller
             ->get();
     }
 
-    public function getRecentPaidOrders(int $days)
+    public function getRecentPaidOrders(int $days): mixed
     {
         return Order::select(
             'id',
@@ -494,7 +494,7 @@ class DashboardController extends Controller
             ->get();
     }
 
-    public function getTotalSalesByCurrency()
+    public function getTotalSalesByCurrency(): mixed
     {
         $invoices = Invoice::where('status', '!=', 'pending')
             ->with('payment')
@@ -504,7 +504,7 @@ class DashboardController extends Controller
         return $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(fn ($invoice) => $invoice->payment->sum('amount')));
     }
 
-    public function getYearlySalesByCurrency()
+    public function getYearlySalesByCurrency(): mixed
     {
         $currentYear = Date::now()->year;
 
@@ -518,7 +518,7 @@ class DashboardController extends Controller
         return $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(fn ($invoice) => $invoice->payment->sum('amount')));
     }
 
-    public function getMonthlySalesByCurrency()
+    public function getMonthlySalesByCurrency(): mixed
     {
         // Fetch invoices for the current month that are not pending
         $invoices = Invoice::where('status', '!=', 'pending')
@@ -530,7 +530,7 @@ class DashboardController extends Controller
         return $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(fn ($invoice) => $invoice->payment->sum('amount')));
     }
 
-    public function getAllPendingPayments()
+    public function getAllPendingPayments(): mixed
     {
         // Fetch invoices that are partially paid or unpaid
         $invoices = Invoice::where('status', '!=', 'paid')
@@ -592,7 +592,7 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getAllRecentInvoices(int $days)
+    private function getAllRecentInvoices(int $days): mixed
     {
         $fromDate = Date::now()->subDays($days)->startOfDay();
         $toDate = Date::now()->endOfDay();
@@ -632,7 +632,7 @@ class DashboardController extends Controller
         });
     }
 
-    public function getSoldProduct(?int $days = null)
+    public function getSoldProduct(?int $days = null): mixed
     {
         $fromDate = $days
             ? Date::now()->subDays($days)->startOfDay()

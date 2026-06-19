@@ -41,8 +41,8 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
     public function whenDateNotSet(?string $start, ?string $end): ?string
     {
         //both not set, always true
-        if (($start == null || $start == '0000-00-00 00:00:00') &&
-         ($end == null || $end == '0000-00-00 00:00:00')) {
+        if (($start == null || $start === '0000-00-00 00:00:00') &&
+         ($end == null || $end === '0000-00-00 00:00:00')) {
             return 'success';
         }
 
@@ -55,7 +55,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
             return null;
         }
 
-        if ($end != null && $end != '0000-00-00 00:00:00') {
+        if ($end != null && $end !== '0000-00-00 00:00:00') {
             return null;
         }
 
@@ -72,7 +72,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
             return null;
         }
 
-        if ($start != null && $start != '0000-00-00 00:00:00') {
+        if ($start != null && $start !== '0000-00-00 00:00:00') {
             return null;
         }
 
@@ -168,7 +168,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
     {
         try {
             $total = intval($total);
-            $rates = explode(',', (string) $rate);
+            $rates = explode(',', $rate);
             $rule = new TaxOption();
             $rule = $rule->findOrFail(1);
             if ($rule->inclusive == 0) {

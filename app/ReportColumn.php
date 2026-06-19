@@ -44,7 +44,7 @@ class ReportColumn extends Model
         'default',
     ];
 
-    public function userLinkReports()
+    public function userLinkReports(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(UserLinkReport::class, 'column_id');
     }

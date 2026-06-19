@@ -21,7 +21,7 @@ class ReportExport implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $reportType, protected $selectedColumns, protected $searchParams, protected $email)
+    public function __construct(protected mixed $reportType, protected mixed $selectedColumns, protected mixed $searchParams, protected mixed $email)
     {
         $exportHandleController = new ConcreteExportHandleController($this->reportType, $this->selectedColumns, $this->searchParams, $this->email);
         $this->exportHandleController = $exportHandleController;

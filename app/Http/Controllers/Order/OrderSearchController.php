@@ -111,7 +111,7 @@ class OrderSearchController extends Controller
     {
         if ($domain) {
             $domain = rtrim((string) $domain, '/');
-            $query->whereHas('installation', function ($q) use ($domain): void {
+            $query->whereHas('installation', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($domain): void {
                 $q->where('installation_path', 'like', sprintf('%%%s%%', $domain));
             });
         }
@@ -128,7 +128,7 @@ class OrderSearchController extends Controller
 
         $minus30 = Date::now()->subDays(30);
 
-        $query->whereHas('subscription', function ($q) use ($filter, $minus30): void {
+        $query->whereHas('subscription', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($filter, $minus30): void {
             if ($filter === 'installed') {
                 $q->whereColumn('created_at', '!=', 'updated_at');
             } elseif ($filter === 'not_installed') {
@@ -154,16 +154,16 @@ class OrderSearchController extends Controller
         $now = Date::now();
 
         if ($renewal === 'expired_subscription') {
-            $query->whereHas('subscription', function ($q) use ($now): void {
+            $query->whereHas('subscription', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($now): void {
                 $q->where('update_ends_at', '<', $now);
             });
         } elseif ($renewal === 'active_subscription') {
-            $query->whereHas('subscription', function ($q) use ($now): void {
+            $query->whereHas('subscription', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($now): void {
                 $q->where('update_ends_at', '>=', $now);
             });
         } elseif ($renewal === 'expiring_subscription') {
             $thirtyDaysFromNow = $now->copy()->addDays(30);
-            $query->whereHas('subscription', function ($q) use ($now, $thirtyDaysFromNow): void {
+            $query->whereHas('subscription', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($now, $thirtyDaysFromNow): void {
                 $q->whereBetween('update_ends_at', [$now, $thirtyDaysFromNow]);
             });
         }
@@ -184,7 +184,7 @@ class OrderSearchController extends Controller
             $latest = Subscription::where('product_id', $productId)->orderBy('version', 'desc')->value('version');
         }
 
-        $query->whereHas('subscription', function ($q) use ($version, $latest): void {
+        $query->whereHas('subscription', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($version, $latest): void {
             if ($version === 'Latest') {
                 $q->where('version', $latest);
             } elseif ($version === 'Outdated') {
@@ -202,13 +202,13 @@ class OrderSearchController extends Controller
     public function applyOrdersSearch(\Illuminate\Database\Eloquent\Builder $query, mixed $search): \Illuminate\Database\Eloquent\Builder
     {
         return $query->when($search, function ($q) use ($search): void {
-            $q->where(function ($q) use ($search): void {
+            $q->where(function (\Illuminate\Contracts\Database\Query\Builder $q) use ($search): void {
                 // Search in order-level columns
                 $q->where('number', 'like', sprintf('%%%s%%', $search))
                     ->orWhere('order_status', 'like', sprintf('%%%s%%', $search))
 
                     // Search in user-related fields
-                    ->orWhereHas('user', function ($uq) use ($search): void {
+                    ->orWhereHas('user', function (\Illuminate\Contracts\Database\Query\Builder $uq) use ($search): void {
                         $uq->where('email', 'like', sprintf('%%%s%%', $search))
                             ->orWhere('mobile', 'like', sprintf('%%%s%%', $search))
                             ->orWhere('first_name', 'like', sprintf('%%%s%%', $search))
@@ -218,16 +218,16 @@ class OrderSearchController extends Controller
                     })
 
                     // Search in product relation (product name)
-                    ->orWhereHas('productRelation', function ($pq) use ($search): void {
+                    ->orWhereHas('productRelation', function (\Illuminate\Contracts\Database\Query\Builder $pq) use ($search): void {
                         $pq->where('name', 'like', sprintf('%%%s%%', $search));
                     })
 
                     // Search in subscription & plan
-                    ->orWhereHas('subscription', function ($sq) use ($search): void {
+                    ->orWhereHas('subscription', function (\Illuminate\Contracts\Database\Query\Builder $sq) use ($search): void {
                         $sq->where('version', 'like', sprintf('%%%s%%', $search))
                             ->orWhere('updated_at', 'like', sprintf('%%%s%%', $search))
                             ->orWhere('update_ends_at', 'like', sprintf('%%%s%%', $search))
-                            ->orWhereHas('plan', function ($pq) use ($search): void {
+                            ->orWhereHas('plan', function (\Illuminate\Contracts\Database\Query\Builder $pq) use ($search): void {
                                 $pq->where('name', 'like', sprintf('%%%s%%', $search));
                             });
                     });

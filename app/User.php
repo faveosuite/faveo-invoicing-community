@@ -247,32 +247,50 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     protected $hidden = ['password', 'remember_token'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\Order, $this>
+     */
     public function order(): HasMany
     {
         return $this->hasMany(Order::class, 'client');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Comment, $this>
+     */
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class, 'updated_by_user_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Product\Subscription, $this>
+     */
     public function subscription(): HasMany
     {
         // Return an Eloquent relationship.
         return $this->hasMany(Subscription::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\App\Model\Order\InvoiceItem, \App\Model\Order\Invoice, $this>
+     */
     public function invoiceItem(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(InvoiceItem::class, Invoice::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\App\Model\Order\OrderInvoiceRelation, \App\Model\Order\Invoice, $this>
+     */
     public function orderRelation(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(OrderInvoiceRelation::class, Invoice::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\Invoice, $this>
+     */
     public function invoice(): HasMany
     {
         return $this->hasMany(Invoice::class);
@@ -286,11 +304,17 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->belongsTo(Timezone::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Auto_renewal, $this>
+     */
     public function auto_renewal(): HasMany
     {
         return $this->hasMany(Auto_renewal::class, 'user_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\ExportDetail, $this>
+     */
     public function export_details(): HasMany
     {
         return $this->hasMany(ExportDetail::class, 'user_id');
@@ -307,6 +331,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\Payment, $this>
+     */
     public function payment(): HasMany
     {
         return $this->hasMany(Payment::class);
@@ -455,6 +482,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasMany(VerificationAttempt::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\UserLinkReport, $this>
+     */
     public function userLinkReports(): HasMany
     {
         return $this->hasMany(UserLinkReport::class);
@@ -467,31 +497,49 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Model\Common\Country, $this>
+     */
     public function countryRelation(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Country::class, 'country_code_char2', 'country');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\WhatsappIntegrationUser, $this>
+     */
     public function whatsappUsers(): HasMany
     {
         return $this->hasMany(WhatsappIntegrationUser::class, 'user_id', 'id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\License\Models\License, $this>
+     */
     public function licenses(): HasMany
     {
         return $this->hasMany(License::class, 'user_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\License\Models\Installation, $this>
+     */
     public function installations(): HasMany
     {
         return $this->hasMany(Installation::class, 'user_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\License\Models\LicenseCallback, $this>
+     */
     public function licenseCallbacks(): HasMany
     {
         return $this->hasMany(LicenseCallback::class, 'user_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\License\Models\LicenseReport, $this>
+     */
     public function licenseReports(): HasMany
     {
         return $this->hasMany(LicenseReport::class, 'user_id');

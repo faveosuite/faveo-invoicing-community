@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Date;
 
 trait UpdateDates
 {
-    public function updateLicenseDetails(Request $request)
+    public function updateLicenseDetails(Request $request): \Illuminate\Http\JsonResponse
     {
         $this->validate($request, ['orderid' => 'required']);
 

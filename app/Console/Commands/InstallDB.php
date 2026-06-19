@@ -168,7 +168,7 @@ class InstallDB extends LoggableCommand
         return $match[0];
     }
 
-    public function createAdmin()
+    public function createAdmin(): mixed
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('users')->truncate();
@@ -205,7 +205,7 @@ class InstallDB extends LoggableCommand
     /**
      * Run artisan commands to set up the application environment.
      */
-    protected function runArtisanSetup()
+    protected function runArtisanSetup(): void
     {
         $dotenv = Dotenv::createImmutable(base_path());
         $dotenv->load();
@@ -232,7 +232,7 @@ class InstallDB extends LoggableCommand
     /**
      * Display admin user information in a table format.
      */
-    protected function showAdminInfo()
+    protected function showAdminInfo(): void
     {
         $this->table(['email', 'password'], [
             [

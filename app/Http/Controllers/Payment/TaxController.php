@@ -28,7 +28,7 @@ class TaxController extends Controller
     }
 
     /** Options + tax classes + countries for the settings/forms screens. */
-    public function getTaxOptionsApi()
+    public function getTaxOptionsApi(): \Illuminate\Http\JsonResponse
     {
         try {
             return successResponse('', [
@@ -44,7 +44,7 @@ class TaxController extends Controller
     }
 
     /** Paginated list of tax rates (TaxIndex table). */
-    public function getTax(Request $request)
+    public function getTax(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -87,7 +87,7 @@ class TaxController extends Controller
     }
 
     /** Single rate for the edit form (with its postcode/city locations). */
-    public function editTaxApi($id)
+    public function editTaxApi(mixed $id): \Illuminate\Http\JsonResponse
     {
         try {
             $rate = TaxRate::with('locations')->find($id);
@@ -113,7 +113,7 @@ class TaxController extends Controller
     }
 
     /** Create a tax rate. */
-    public function saveTaxClassSettingApi(Request $request)
+    public function saveTaxClassSettingApi(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             if ($error = $this->validateRate($request)) {
@@ -130,7 +130,7 @@ class TaxController extends Controller
     }
 
     /** Update a tax rate. */
-    public function updateTaxApi($id, Request $request)
+    public function updateTaxApi(mixed $id, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $rate = TaxRate::find($id);
@@ -152,7 +152,7 @@ class TaxController extends Controller
     }
 
     /** Bulk-delete tax rates (locations cascade via FK). */
-    public function deleteTax(Request $request)
+    public function deleteTax(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $ids = array_filter(array_unique(array_map(intval(...), (array) $request->input('select', []))));
@@ -174,7 +174,7 @@ class TaxController extends Controller
     }
 
     /** States for a country (used by the rate form). */
-    public function getState(Request $request, $stateid)
+    public function getState(Request $request, mixed $stateid): \Illuminate\Http\JsonResponse
     {
         try {
             $states = State::where('country_code', $stateid)
@@ -188,7 +188,7 @@ class TaxController extends Controller
     }
 
     /** Save global tax settings. */
-    public function saveTaxOptionSetting(Request $request)
+    public function saveTaxOptionSetting(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $taxOption = TaxOption::find(1);

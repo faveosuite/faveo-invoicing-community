@@ -67,7 +67,7 @@ class PromotionController extends BasePromotionController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(PromotionRequest $request)
+    public function store(PromotionRequest $request): mixed
     {
         try {
             $startdate = date_create($request->input('start'));
@@ -96,7 +96,7 @@ class PromotionController extends BasePromotionController
      *
      * @param  int  $id
      */
-    public function update($id, PromotionRequest $request)
+    public function update($id, PromotionRequest $request): mixed
     {
         try {
             $startdate = date_create($request->input('start'));
@@ -128,7 +128,7 @@ class PromotionController extends BasePromotionController
         }
     }
 
-    public function checkNumberOfUses($code): string
+    public function checkNumberOfUses(mixed $code): string
     {
         try {
             $promotion = $this->promotion->where('code', $code)->first();
@@ -148,7 +148,7 @@ class PromotionController extends BasePromotionController
         }
     }
 
-    public function checkExpiry($code)
+    public function checkExpiry(mixed $code): ?string
     {
         try {
             $promotion = $this->promotion->where('code', $code)->first();
@@ -163,7 +163,7 @@ class PromotionController extends BasePromotionController
         }
     }
 
-    public function getAllPromotions(Request $request)
+    public function getAllPromotions(Request $request): \Illuminate\Http\JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');
@@ -193,22 +193,23 @@ class PromotionController extends BasePromotionController
         return successResponse('', $promotions);
     }
 
-    public function getPromotion($promotionId, Request $request)
+    public function getPromotion(mixed $promotionId, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            return Promotion::with([
+            $promotion = Promotion::with([
                 'promotionType:id,name',
                 'products' => function ($q): void {
                     $q->select('products.id', 'products.name');
                 },
             ])
             ->findOrFail($promotionId);
+            return successResponse('', $promotion);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
 
-    public function updatePromotionCode($promotionId, PromotionRequest $request)
+    public function updatePromotionCode(mixed $promotionId, PromotionRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $promotion = Promotion::findOrFail($promotionId);
@@ -243,7 +244,7 @@ class PromotionController extends BasePromotionController
         }
     }
 
-    public function promotionCodeCreate(PromotionRequest $request)
+    public function promotionCodeCreate(PromotionRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             // Format start and expiry dates
@@ -274,7 +275,7 @@ class PromotionController extends BasePromotionController
         }
     }
 
-    public function deleteBulkPromotions(Request $request)
+    public function deleteBulkPromotions(Request $request): \Illuminate\Http\JsonResponse
     {
         $ids = $request->input('select', []);
 

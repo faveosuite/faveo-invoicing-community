@@ -33,7 +33,7 @@ class MSG91Controller extends Controller
     /**
      * Handle MSG91 webhook delivery reports.
      */
-    public function handleReports(Request $request, $app_key, $app_secret): void
+    public function handleReports(Request $request, mixed $app_key, mixed $app_secret): void
     {
         if (! $this->validateThirdPartyRequest($app_key, $app_secret)) {
             return;
@@ -179,11 +179,11 @@ class MSG91Controller extends Controller
 
             // Search filter
             if (! empty($searchString)) {
-                $baseQuery->where(function ($q) use ($searchString): void {
+                $baseQuery->where(function (\Illuminate\Contracts\Database\Query\Builder $q) use ($searchString): void {
                     $q->where('request_id', 'like', sprintf('%%%s%%', $searchString))
                         ->orWhere('mobile_number', 'like', sprintf('%%%s%%', $searchString))
-                        ->orWhereHas('readableStatus', fn ($q) => $q->where('status_label', 'like', sprintf('%%%s%%', $searchString)))
-                        ->orWhereHas('user', function ($sub) use ($searchString): void {
+                        ->orWhereHas('readableStatus', fn (\Illuminate\Contracts\Database\Query\Builder $q) => $q->where('status_label', 'like', sprintf('%%%s%%', $searchString)))
+                        ->orWhereHas('user', function (\Illuminate\Contracts\Database\Query\Builder $sub) use ($searchString): void {
                             $sub->where('email', 'like', sprintf('%%%s%%', $searchString))
                                 ->orWhere('user_name', 'like', sprintf('%%%s%%', $searchString))
                                 ->orWhere('first_name', 'like', sprintf('%%%s%%', $searchString))
@@ -268,14 +268,14 @@ class MSG91Controller extends Controller
 
             // Full Name Filter
             ->when($request->filled('full_name'), function ($q) use ($request): void {
-                $q->whereHas('user', function ($subQuery) use ($request): void {
+                $q->whereHas('user', function (\Illuminate\Contracts\Database\Query\Builder $subQuery) use ($request): void {
                     $subQuery->whereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ['%'.$request->full_name.'%']);
                 });
             })
 
             // Email Filter
             ->when($request->filled('email'), function ($q) use ($request): void {
-                $q->whereHas('user', function ($subQuery) use ($request): void {
+                $q->whereHas('user', function (\Illuminate\Contracts\Database\Query\Builder $subQuery) use ($request): void {
                     $subQuery->where('email', 'like', '%'.$request->email.'%');
                 });
             })
@@ -289,7 +289,7 @@ class MSG91Controller extends Controller
 
             // Status Filter
             ->when($request->filled('status'), function ($q) use ($request): void {
-                $q->whereHas('readableStatus', function ($subQuery) use ($request): void {
+                $q->whereHas('readableStatus', function (\Illuminate\Contracts\Database\Query\Builder $subQuery) use ($request): void {
                     $subQuery->where('status_label', 'like', '%'.$request->status.'%');
                 });
             })

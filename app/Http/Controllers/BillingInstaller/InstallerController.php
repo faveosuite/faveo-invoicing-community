@@ -31,8 +31,6 @@ class InstallerController extends Controller
     /**
      * Post configurationcheck
      * checking prerequisites.
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function configurationcheck(Request $request): \Illuminate\Http\RedirectResponse
     {

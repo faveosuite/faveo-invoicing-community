@@ -30,7 +30,7 @@ class ThirdPartyApiController extends Controller
         $this->product = $product;
     }
 
-    public function chunkUploadFile(Request $request)
+    public function chunkUploadFile(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             //Put check in this api for valid product id before uploading

@@ -16,7 +16,7 @@ class WelcomeController extends Controller
     /**
      * Get country list with user count.
      */
-    public function getCountry(Request $request)
+    public function getCountry(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchQuery = $request->input('search-query', '');

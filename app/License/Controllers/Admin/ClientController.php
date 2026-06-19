@@ -9,7 +9,7 @@ use Illuminate\Routing\Controller;
 
 class ClientController extends Controller
 {
-    public function viewClients(Request $request)
+    public function viewClients(Request $request): \Illuminate\Http\JsonResponse
     {
         $search = $request->input('search-query', $request->input('search_query', ''));
 
@@ -35,7 +35,7 @@ class ClientController extends Controller
         return response()->json(['data' => $paginated]);
     }
 
-    public function viewProducts()
+    public function viewProducts(): \Illuminate\Http\JsonResponse
     {
         $products = Product::select('id', 'name')
             ->orderBy('name')

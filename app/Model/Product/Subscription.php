@@ -133,7 +133,7 @@ class Subscription extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function getLogUrl($id = null): ?string
+    public function getLogUrl(mixed $id = null): ?string
     {
         return url('orders/'.$this->order_id);
     }

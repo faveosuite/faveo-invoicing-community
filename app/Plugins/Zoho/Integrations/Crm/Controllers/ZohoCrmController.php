@@ -27,7 +27,7 @@ class ZohoCrmController extends ZohoBaseController
         return $this->crm;
     }
 
-    public function syncFields()
+    public function syncFields(): \Illuminate\Http\JsonResponse
     {
         try {
             resolve(ZohoSync::class)->sync(
@@ -48,17 +48,17 @@ class ZohoCrmController extends ZohoBaseController
         }
     }
 
-    public function getCrmMappedFields($module)
+    public function getCrmMappedFields(mixed $module): mixed
     {
         return $this->getMappedFields('crm', ucfirst(strtolower((string) $module)));
     }
 
-    public function getCrmContactsFields()
+    public function getCrmContactsFields(): mixed
     {
         return $this->getModulesFields('crm', 'Contacts');
     }
 
-    public function getCrmAccountsFields()
+    public function getCrmAccountsFields(): mixed
     {
         return $this->getModulesFields('crm', 'Accounts');
     }
@@ -66,7 +66,7 @@ class ZohoCrmController extends ZohoBaseController
     /**
      * Create or update a CRM contact.
      */
-    public function updateToZohoCrm(Request $request)
+    public function updateToZohoCrm(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $data = $request->validate([
@@ -88,7 +88,7 @@ class ZohoCrmController extends ZohoBaseController
         $this->insertModuledata('Accounts', $email);
     }
 
-    protected function insertModuledata(string $module, string $email)
+    protected function insertModuledata(string $module, string $email): void
     {
         $user = User::where('email', $email)->firstOrFail();
 

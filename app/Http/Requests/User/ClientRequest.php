@@ -81,7 +81,7 @@ class ClientRequest extends Request
         ];
     }
 
-    private function getSegmentFromEnd($position_from_end = 1)
+    private function getSegmentFromEnd(mixed $position_from_end = 1): mixed
     {
         $segments = $this->segments();
 

@@ -27,7 +27,7 @@ class CategoryController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function store(Request $request)
+    public function store(Request $request): mixed
     {
         try {
             $productCategory = $this->productCategory->fill($request->input())->save();
@@ -38,7 +38,7 @@ class CategoryController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, mixed $id): mixed
     {
         try {
             $cat_name = $request->input('category_name');

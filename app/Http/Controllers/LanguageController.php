@@ -95,7 +95,7 @@ class LanguageController extends Controller
         return glob($path.DIRECTORY_SEPARATOR.'*.php');
     }
 
-    public function viewLanguage(Request $request)
+    public function viewLanguage(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -124,7 +124,7 @@ class LanguageController extends Controller
         }
     }
 
-    public function toggleLanguageStatus(Request $request)
+    public function toggleLanguageStatus(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $request->validate([
@@ -142,7 +142,7 @@ class LanguageController extends Controller
         }
     }
 
-    public function setDefaultLanguage(Request $request)
+    public function setDefaultLanguage(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $request->validate(['locale' => ['required', 'string', 'exists:languages,locale']]);

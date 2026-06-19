@@ -16,16 +16,14 @@ class SendEmail implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $from, protected $to, protected $template_data, protected $template_name, protected $replace = [], protected $type = '', protected $bcc = [], protected $fromname = '', protected $toname = '', protected $cc = [], protected $attach = [], protected $logIdentifier = null, protected $auto_reply = false)
+    public function __construct(protected mixed $from, protected mixed $to, protected mixed $template_data, protected mixed $template_name, protected mixed $replace = [], protected mixed $type = '', protected mixed $bcc = [], protected mixed $fromname = '', protected mixed $toname = '', protected mixed $cc = [], protected mixed $attach = [], protected mixed $logIdentifier = null, protected mixed $auto_reply = false)
     {
     }
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle(PhpMailController $phpMailController)
+    public function handle(PhpMailController $phpMailController): void
     {
         if (MailLog::whereId($this->logIdentifier)->value('status') == 'sent') {
             $this->job->delete();

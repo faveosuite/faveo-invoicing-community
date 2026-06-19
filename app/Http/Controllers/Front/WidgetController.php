@@ -27,7 +27,7 @@ class WidgetController extends Controller
         $this->widget = $widget;
     }
 
-    public function getWidgetList(Request $request)
+    public function getWidgetList(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -65,7 +65,7 @@ class WidgetController extends Controller
         }
     }
 
-    public function getWidget($id)
+    public function getWidget(mixed $id): \Illuminate\Http\JsonResponse
     {
         try {
             $widget = $this->widget
@@ -92,7 +92,7 @@ class WidgetController extends Controller
         }
     }
 
-    public function createWidget(Request $request)
+    public function createWidget(Request $request): \Illuminate\Http\JsonResponse
     {
         $this->validate($request, [
             'name' => 'required|max:50',
@@ -127,7 +127,7 @@ class WidgetController extends Controller
         }
     }
 
-    public function updateWidget(string $id, Request $request)
+    public function updateWidget(string $id, Request $request): \Illuminate\Http\JsonResponse
     {
         $this->validate($request, [
             'name' => 'required|max:50',
@@ -185,7 +185,7 @@ class WidgetController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function deleteWidget(Request $request)
+    public function deleteWidget(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $ids = $request->input('select', []);
@@ -220,7 +220,7 @@ class WidgetController extends Controller
     /**
      * This function returns the rendered widget.
      */
-    public function footer1()
+    public function footer1(): \Illuminate\Http\JsonResponse
     {
         $set = new Setting();
         $set = $set->findOrFail(1);
@@ -249,7 +249,7 @@ class WidgetController extends Controller
      * @param  $social
      * @param  $mailchimpKey
      */
-    public function renderWidget($widget, $set, $social, $mailchimpKey): string
+    public function renderWidget(mixed $widget, mixed $set, mixed $social, mixed $mailchimpKey): string
     {
         $tweetDetails = $widget->allow_tweets == 1 ? '<div id="tweets" class="twitter"></div>' : '';
 

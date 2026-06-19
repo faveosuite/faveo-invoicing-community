@@ -31,7 +31,7 @@ class AddonController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): mixed
     {
         try {
             return view('themes.default1.product.addon.index'); // @phpstan-ignore argument.type
@@ -43,7 +43,7 @@ class AddonController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): mixed
     {
         try {
             $product = $this->product->pluck('name', 'id')->toArray(); // @phpstan-ignore property.notFound
@@ -59,7 +59,7 @@ class AddonController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(AddonRequest $request)
+    public function store(AddonRequest $request): mixed
     {
         try {
             $this->addon->fill($request->input())->save(); // @phpstan-ignore property.notFound
@@ -94,7 +94,7 @@ class AddonController extends Controller
      *
      * @param  int  $id
      */
-    public function edit($id)
+    public function edit($id): mixed
     {
         try {
             $product = $this->product->pluck('name', 'id')->toArray(); // @phpstan-ignore property.notFound
@@ -114,7 +114,7 @@ class AddonController extends Controller
      *
      * @param  int  $id
      */
-    public function update($id, AddonRequest $request)
+    public function update($id, AddonRequest $request): mixed
     {
         try {
             $addon = $this->addon->where('id', $id)->first(); // @phpstan-ignore property.notFound

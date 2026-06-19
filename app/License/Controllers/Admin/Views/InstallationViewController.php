@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Lang;
 
 class InstallationViewController extends Controller
 {
-    public function getInstallation($id)
+    public function getInstallation(mixed $id): \Illuminate\Http\JsonResponse
     {
         $installation = Installation::with(['product:id,name', 'user:id,email', 'license:id,license_code'])
             ->find($id);
@@ -35,7 +35,7 @@ class InstallationViewController extends Controller
         return successResponse(Lang::get('lang.installation_details'), $installation);
     }
 
-    public function getInstallationCallbacks(Request $request, $id)
+    public function getInstallationCallbacks(Request $request, mixed $id): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);

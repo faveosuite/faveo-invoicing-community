@@ -21,7 +21,7 @@ class GetAllVersionsController extends Controller
      * Get all versions for product
      * POST /api/getAllVersions.
      */
-    public function getAllVersions(Request $request)
+    public function getAllVersions(Request $request): mixed
     {
         $product_id = $request->input('product_id');
         $product_key = $request->input('product_key');

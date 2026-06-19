@@ -178,7 +178,7 @@ class SubscriptionWebhookService
         }
     }
 
-    private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, $user, Plan $plan, float $cost, string $currency): Invoice
+    private function findOrCreateRenewalInvoice(Subscription $subscription, Order $order, Product $product, \App\User $user, Plan $plan, float $cost, string $currency): Invoice
     {
         $latestInvoiceId = DB::table('order_invoice_relations')
             ->where('order_id', $subscription->order_id)

@@ -21,7 +21,7 @@ class ProfileController extends BaseAuthController
         $this->middleware('admin');
     }
 
-    public function profile()
+    public function profile(): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         try {
             $user = Auth::user();
@@ -53,7 +53,7 @@ class ProfileController extends BaseAuthController
         }
     }
 
-    public function updateProfile(ProfileRequest $request)
+    public function updateProfile(ProfileRequest $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         try {
             $user = Auth::user();
@@ -78,7 +78,7 @@ class ProfileController extends BaseAuthController
         }
     }
 
-    public function updatePassword(ProfileRequest $request)
+    public function updatePassword(ProfileRequest $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         try {
             $user = Auth::user();
@@ -114,7 +114,7 @@ class ProfileController extends BaseAuthController
         }
     }
 
-    public function getCountries()
+    public function getCountries(): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $countries = getSupportedCountriesForIntlInput();
         $list = collect($countries)->map(fn ($name, $iso): array => ['id' => $iso, 'name' => $name])->values();
@@ -122,7 +122,7 @@ class ProfileController extends BaseAuthController
         return successResponse('', ['countries' => $list]);
     }
 
-    public function getStatesByCountry($countryCode)
+    public function getStatesByCountry(string $countryCode): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $states = findStateByRegionId($countryCode);
         $list = collect($states)->map(fn ($name, $iso): array => ['id' => $iso, 'name' => $name])->values();

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Lang;
 
 class CallBackController extends Controller
 {
-    public function licneseCallbacks(Request $request)
+    public function licneseCallbacks(Request $request): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -61,7 +61,7 @@ class CallBackController extends Controller
         return successResponse(Lang::get('lang.Callback_Show'), $paginatedCallbacks, 200);
     }
 
-    public function updateCallbacks(Request $request)
+    public function updateCallbacks(Request $request): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10); // Number of items per page
         $page = $request->input('page', 1); // Get the current page from the request
@@ -109,7 +109,7 @@ class CallBackController extends Controller
         return successResponse('', $updateCallbacks);
     }
 
-    public function callbacksDelete(Request $request)
+    public function callbacksDelete(Request $request): \Illuminate\Http\JsonResponse
     {
         $removed_records = 0;
         $error_details = '';
@@ -142,7 +142,7 @@ class CallBackController extends Controller
     }
 
     //delete callback
-    private function deleteCallback($callback_id, $isLicense): int|float
+    private function deleteCallback(mixed $callback_id, mixed $isLicense): int|float
     {
         $removed_records = 0;
         if ($isLicense) {

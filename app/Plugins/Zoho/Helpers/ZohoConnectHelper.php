@@ -10,7 +10,7 @@ use InvalidArgumentException;
 
 class ZohoConnectHelper
 {
-    public static function getModulesFields(string $platform, string $module)
+    public static function getModulesFields(string $platform, string $module): mixed
     {
         return ZohoFields::wherePlatform($platform)
            ->whereModule($module)
@@ -25,7 +25,7 @@ class ZohoConnectHelper
     /**
      * Get only existing mappings (CRM style).
      */
-    public static function getExistingMappings(string $platform, string $module)
+    public static function getExistingMappings(string $platform, string $module): mixed
     {
         $mappings = ZohoFieldMappings::with(['faveoLocalField', 'zohoField'])
             ->whereHas('zohoField', function (Builder $query) use ($platform, $module): void {
@@ -63,7 +63,7 @@ class ZohoConnectHelper
         ->values();
     }
 
-    public static function mergeFields(Collection $zohoFields, Collection $localFields)
+    public static function mergeFields(Collection $zohoFields, Collection $localFields): mixed
     {
         $mappings = ZohoFieldMappings::with('faveoLocalField')
             ->get()

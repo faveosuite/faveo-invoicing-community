@@ -31,7 +31,7 @@ class UserBackupCodes extends Model
 
     protected $fillable = ['user_id', 'backup_codes'];
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }

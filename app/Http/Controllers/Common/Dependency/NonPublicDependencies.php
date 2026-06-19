@@ -17,7 +17,7 @@ use App\User;
 
 class NonPublicDependencies extends BaseDependencyController
 {
-    protected function handleNonPublicDependencies($type)
+    protected function handleNonPublicDependencies(mixed $type): mixed
     {
         switch ($type) {
             case 'managers':
@@ -51,9 +51,10 @@ class NonPublicDependencies extends BaseDependencyController
             case 'users':
                 return $this->allSystemUsers();
         }
+        return null;
     }
 
-    private function currencies()
+    private function currencies(): mixed
     {
         $this->sortField = 'code';
         $this->sortOrder = 'asc';
@@ -67,7 +68,7 @@ class NonPublicDependencies extends BaseDependencyController
         return $this->get('currencies', $baseQuery, fn ($item): array => ['id' => $item->code, 'name' => $item->code]);
     }
 
-    private function managers()
+    private function managers(): mixed
     {
         $this->sortField = 'created_at';
         $this->sortOrder = 'asc';
@@ -91,7 +92,7 @@ class NonPublicDependencies extends BaseDependencyController
         ]);
     }
 
-    private function products()
+    private function products(): mixed
     {
         $this->sortField = 'name';
         $this->sortOrder = 'asc';
@@ -105,7 +106,7 @@ class NonPublicDependencies extends BaseDependencyController
         return $this->get('products', $baseQuery, fn ($item): array => ['id' => $item->id, 'name' => $item->name]);
     }
 
-    private function industries()
+    private function industries(): mixed
     {
         $this->sortField = 'name';
         $this->sortOrder = 'asc';
@@ -137,7 +138,7 @@ class NonPublicDependencies extends BaseDependencyController
         return ['versions' => $special->merge($versions)->values(), 'next_page_url' => null];
     }
 
-    private function productPlans()
+    private function productPlans(): mixed
     {
         $this->sortField = 'name';
         $this->sortOrder = 'asc';
@@ -153,7 +154,7 @@ class NonPublicDependencies extends BaseDependencyController
         return $this->get('plans', $baseQuery, fn ($item): array => ['id' => $item->id, 'name' => $item->name, 'days' => $item->days]);
     }
 
-    private function licenseTypes()
+    private function licenseTypes(): mixed
     {
         $this->sortField = 'name';
         $this->sortOrder = 'asc';
@@ -167,7 +168,7 @@ class NonPublicDependencies extends BaseDependencyController
         return $this->get('license_types', $baseQuery);
     }
 
-    private function productGroups()
+    private function productGroups(): mixed
     {
         $this->sortField = 'name';
         $this->sortOrder = 'asc';
@@ -181,7 +182,7 @@ class NonPublicDependencies extends BaseDependencyController
         return $this->get('product_groups', $baseQuery);
     }
 
-    private function taxClasses()
+    private function taxClasses(): mixed
     {
         $this->sortField = 'name';
         $this->sortOrder = 'asc';
@@ -212,7 +213,7 @@ class NonPublicDependencies extends BaseDependencyController
         return ['promotion_types' => $items, 'next_page_url' => null];
     }
 
-    private function pricingTemplates()
+    private function pricingTemplates(): mixed
     {
         $this->sortField = 'name';
         $this->sortOrder = 'asc';
@@ -226,7 +227,7 @@ class NonPublicDependencies extends BaseDependencyController
         return $this->get('pricing_templates', $baseQuery);
     }
 
-    private function allSystemUsers()
+    private function allSystemUsers(): mixed
     {
         $this->sortField = 'first_name';
         $this->sortOrder = 'asc';
@@ -247,7 +248,7 @@ class NonPublicDependencies extends BaseDependencyController
         ]);
     }
 
-    private function allProducts()
+    private function allProducts(): mixed
     {
         $this->sortField = 'name';
         $this->sortOrder = 'asc';
@@ -261,7 +262,7 @@ class NonPublicDependencies extends BaseDependencyController
         return $this->get('products', $baseQuery, fn ($item): array => ['id' => $item->id, 'name' => $item->name]);
     }
 
-    private function pluginProducts()
+    private function pluginProducts(): mixed
     {
         $this->sortField = 'name';
         $this->sortOrder = 'asc';

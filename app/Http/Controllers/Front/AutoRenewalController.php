@@ -28,7 +28,7 @@ class AutoRenewalController extends Controller
      * Returns client_secret + payment_intent_id + publishable_key.
      * POST auto-renewal/{order}/stripe/session.
      */
-    public function stripeSession(Request $request, int $order)
+    public function stripeSession(Request $request, int $order): \Illuminate\Http\JsonResponse
     {
         $order = $this->authorizedOrder($order);
         $currency = getCurrencyForClient(Auth::user()->country);
@@ -56,7 +56,7 @@ class AutoRenewalController extends Controller
      * and save the payment method for future auto-renewal.
      * POST auto-renewal/{order}/stripe/confirm.
      */
-    public function stripeConfirm(Request $request, int $order)
+    public function stripeConfirm(Request $request, int $order): \Illuminate\Http\JsonResponse
     {
         $order = $this->authorizedOrder($order);
         try {
@@ -91,7 +91,7 @@ class AutoRenewalController extends Controller
      * Create a Razorpay Order and return the Checkout config for the browser.
      * POST auto-renewal/{order}/razorpay/order.
      */
-    public function razorpayOrder(Request $request, int $order)
+    public function razorpayOrder(Request $request, int $order): \Illuminate\Http\JsonResponse
     {
         $order = $this->authorizedOrder($order);
         try {
@@ -108,7 +108,7 @@ class AutoRenewalController extends Controller
      * and save the payment method for future auto-renewal.
      * POST auto-renewal/{order}/razorpay/confirm.
      */
-    public function razorpayConfirm(Request $request, int $order)
+    public function razorpayConfirm(Request $request, int $order): \Illuminate\Http\JsonResponse
     {
         $order = $this->authorizedOrder($order);
         try {
@@ -137,7 +137,7 @@ class AutoRenewalController extends Controller
      * on the gateway if one exists.
      * POST auto-renewal/{order}/disable.
      */
-    public function disable(Request $request, int $order)
+    public function disable(Request $request, int $order): \Illuminate\Http\JsonResponse
     {
         $order = $this->authorizedOrder($order);
         try {

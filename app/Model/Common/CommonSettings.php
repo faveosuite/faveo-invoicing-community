@@ -37,7 +37,7 @@ class CommonSettings extends Model
         'option_name', 'option_value', 'status', 'optional_field',
     ];
 
-    public function getStatus($option_name)
+    public function getStatus(mixed $option_name): mixed
     {
         $status = '';
         $schema = $this->where('option_name', $option_name)->first();
@@ -48,7 +48,7 @@ class CommonSettings extends Model
         return $status;
     }
 
-    public function getOptionValue($option, $field = '')
+    public function getOptionValue(mixed $option, mixed $field = ''): mixed
     {
         $schema = $this->where('option_name', $option);
         if ($field != '') {

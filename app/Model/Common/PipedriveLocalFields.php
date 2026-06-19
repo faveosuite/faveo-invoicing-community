@@ -39,7 +39,7 @@ class PipedriveLocalFields extends Model
         'pipedrive_key',
     ];
 
-    public function pipedrive()
+    public function pipedrive(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(PipedriveField::class, 'pipedrive_key');
     }

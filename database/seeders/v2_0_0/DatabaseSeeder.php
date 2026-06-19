@@ -989,7 +989,7 @@ class PluginSeeder extends Seeder
 
 class UserTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): mixed
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         // DB::table('users')->truncate();

@@ -75,7 +75,7 @@ class ClientController extends AdvanceSearchController
         $this->product = $product;
     }
 
-    public function getActiveLabel($mobileActive, $emailActive, $twoFaActive): string
+    public function getActiveLabel(mixed $mobileActive, mixed $emailActive, mixed $twoFaActive): string
     {
         $emailLabel = "<i class='fas fa-envelope'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top'  title='".Lang::get('message.unverified_email')."'> </label></i>";
         $mobileLabel = "<i class='fas fa-phone'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".Lang::get('message.unverified_mobile')."' >  </label></i>";
@@ -97,8 +97,6 @@ class ClientController extends AdvanceSearchController
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(ClientRequest $request): \Illuminate\Http\RedirectResponse
     {
@@ -165,9 +163,6 @@ class ClientController extends AdvanceSearchController
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(int $id, ClientRequest $request): \Illuminate\Http\RedirectResponse
     {
@@ -821,7 +816,7 @@ class ClientController extends AdvanceSearchController
     private function applyUsersSearch(\Illuminate\Database\Eloquent\Builder $query, string $search): \Illuminate\Database\Eloquent\Builder
     {
         return $query->when($search, function ($q) use ($search): void {
-            $q->where(function ($subQuery) use ($search): void {
+            $q->where(function (\Illuminate\Contracts\Database\Query\Builder $subQuery) use ($search): void {
                 $subQuery->where('email', 'like', '%'.$search.'%')
                     ->orWhere(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.$search.'%')
                     ->orWhere('mobile', 'like', '%'.$search.'%')

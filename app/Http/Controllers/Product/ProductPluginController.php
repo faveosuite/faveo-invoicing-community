@@ -17,7 +17,7 @@ class ProductPluginController extends Controller
         $this->middleware('admin');
     }
 
-    public function index($productId)
+    public function index(mixed $productId): \Illuminate\Http\JsonResponse
     {
         try {
             $product = Product::findOrFail($productId);
@@ -43,7 +43,7 @@ class ProductPluginController extends Controller
         }
     }
 
-    public function sync(Request $request, $productId)
+    public function sync(Request $request, mixed $productId): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'bundled' => ['array'],

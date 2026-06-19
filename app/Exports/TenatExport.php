@@ -11,7 +11,7 @@ class TenatExport implements FromCollection, WithHeadings, WithTitle
 {
     use Exportable;
 
-    public function __construct(protected $selectedColumns, protected $tenantsData, protected $sheetIndex)
+    public function __construct(protected mixed $selectedColumns, protected mixed $tenantsData, protected mixed $sheetIndex)
     {
     }
 

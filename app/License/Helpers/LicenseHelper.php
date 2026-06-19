@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class LicenseHelper
 {
-    public static function validateIntegerValue($number, int $min = 1, int $max = 999999999): bool
+    public static function validateIntegerValue(mixed $number, int $min = 1, int $max = 999999999): bool
     {
         if (is_float($number)) {
             return false;
@@ -54,7 +54,7 @@ class LicenseHelper
         return str_ireplace('www.', '', parse_url($url, PHP_URL_HOST) ?? '');
     }
 
-    public static function logAdminReport(string $reportText, $accountId, int $reportSystem, int $reportStatus): int
+    public static function logAdminReport(string $reportText, mixed $accountId, int $reportSystem, int $reportStatus): int
     {
         if ($reportText === '' || $reportText === '0' || ! self::validateIntegerValue($reportSystem, 0, 1)) {
             return 0;
@@ -88,7 +88,7 @@ class LicenseHelper
         return 'Unknown Client';
     }
 
-    public static function statusFormatter($status)
+    public static function statusFormatter(mixed $status): mixed
     {
         if (strtolower($status) === 'active') {
             return 1;
@@ -101,7 +101,7 @@ class LicenseHelper
         return $status;
     }
 
-    public static function successErrorFormatter($status)
+    public static function successErrorFormatter(mixed $status): mixed
     {
         if (strtolower($status) === 'success') {
             return 1;

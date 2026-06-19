@@ -74,7 +74,7 @@ class Promotion extends BaseModel
         ];
     }
 
-    public function relation()
+    public function relation(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PromoProductRelation::class, 'promotion_id');
     }

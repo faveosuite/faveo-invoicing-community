@@ -14,7 +14,7 @@ class SocialLoginsController extends Controller
         $this->middleware('admin');
     }
 
-    public function getSocialLogin(Request $request)
+    public function getSocialLogin(Request $request): \Illuminate\Http\JsonResponse
     {
         $search = $request->input('search-query', '');
         $sortField = $request->input('sort-field', 'created_at');
@@ -33,14 +33,14 @@ class SocialLoginsController extends Controller
         return successResponse('', $socialLogins);
     }
 
-    public function editSocialLogin($id)
+    public function editSocialLogin(mixed $id): \Illuminate\Http\JsonResponse
     {
         $socialLogins = SocialLogin::where('id', $id)->first();
 
         return successResponse('', $socialLogins);
     }
 
-    public function updateSocialLogin(Request $request)
+    public function updateSocialLogin(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'client_id' => ['required_if:type,Google,Github,Linkedin'],

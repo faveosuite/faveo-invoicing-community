@@ -21,7 +21,7 @@ class SystemManagerController extends Controller
         $this->middleware('admin');
     }
 
-    public function getSystemManagers()
+    public function getSystemManagers(): \Illuminate\Http\JsonResponse
     {
         try {
             $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
@@ -67,7 +67,7 @@ class SystemManagerController extends Controller
         }
     }
 
-    public function searchAdmin(Request $request)
+    public function searchAdmin(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $term = trim($request->input('search-query') ?? '');
@@ -101,10 +101,8 @@ class SystemManagerController extends Controller
      * Validates the request, updates manager assignments, auto-assign settings,
      * and sends notification emails if enabled.
      *
-     * @param  SystemManagerSettingsRequest  $request
-     * @return JsonResponse|RedirectResponse
      */
-    public function updateManagerSettings(SystemManagerSettingsRequest $request)
+    public function updateManagerSettings(SystemManagerSettingsRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $mailer = new AuthController;

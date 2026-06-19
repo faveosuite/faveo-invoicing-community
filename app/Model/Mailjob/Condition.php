@@ -99,7 +99,7 @@ class Condition extends Model
         return $result;
     }
 
-    public function getConditionValue($job): array
+    public function getConditionValue(mixed $job): array
     {
         $value = ['condition' => '', 'at' => ''];
         $condition = $this->where('job', $job)->first();
@@ -114,7 +114,7 @@ class Condition extends Model
         return $value;
     }
 
-    public function checkArray($key, $array)
+    public function checkArray(mixed $key, mixed $array): mixed
     {
         if (is_array($array) && array_key_exists($key, $array)) {
             return $array[$key];

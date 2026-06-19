@@ -182,8 +182,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 ];
 
                 $status = array_key_exists($search, $statusMapping) ? $statusMapping[$search] : $search;
-                $query->where(function ($q) use ($search, $status): void {
-                    $q->whereHas('user', function ($q2) use ($search): void {
+                $query->where(function (\Illuminate\Contracts\Database\Query\Builder $q) use ($search, $status): void {
+                    $q->whereHas('user', function (\Illuminate\Contracts\Database\Query\Builder $q2) use ($search): void {
                         $q2->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', [sprintf('%%%s%%', $search)]);
                     })
                         ->orWhere('number', 'like', sprintf('%%%s%%', $search))
@@ -192,7 +192,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 });
             })->orderBy($sortField, $sortOrder)->simplePaginate($limit);
 
-            $invoice->getCollection()->transform(function ($invoice): array { // @phpstan-ignore argument.unresolvableType
+            $invoice->getCollection()->transform(function ($invoice): array { // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
                 $statusMapping = [
                     'success' => 'Paid',
                     'pending' => 'Unpaid',
@@ -327,7 +327,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             // Persist the tax breakdown so admin- and renewal-created invoices
             // expose tax via invoice_tax_lines like cart invoices do.
             $percent = $this->sumPercent($tax_rate); // @phpstan-ignore argument.type
-            if ($tax_name && strtolower((string) $tax_name) !== 'null' && $percent > 0) {
+            if ($tax_name && strtolower($tax_name) !== 'null' && $percent > 0) {
                 InvoiceTaxLine::create([
                     'invoice_id' => $invoiceid,
                     'invoice_item_id' => $items->id,
@@ -502,7 +502,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     /**
      * Get dynamic invoice totals for a given invoice ID.
      *
-     * @param  int  $invoiceId
      * @param  bool  $formatCurrency  - whether to format currency strings or return numeric
      */
     public static function calculateInvoice(int $invoiceId, bool $formatCurrency = false): array

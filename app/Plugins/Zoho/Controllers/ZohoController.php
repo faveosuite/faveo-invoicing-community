@@ -39,7 +39,7 @@ class ZohoController extends Controller
         }
     }
 
-    public function testEvent(Request $request)
+    public function testEvent(Request $request): \Illuminate\Http\JsonResponse
     {
         $event = $request->get('event');
 

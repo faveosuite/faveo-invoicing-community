@@ -8,7 +8,7 @@ use Log;
 
 class ApiController extends Controller
 {
-    public function logCSP(Request $request)
+    public function logCSP(Request $request): \Illuminate\Http\JsonResponse
     {
         $content = $request->getContent();
 

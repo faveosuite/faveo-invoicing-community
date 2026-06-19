@@ -19,7 +19,7 @@ class GithubController extends Controller
     /**
      * Validate and persist GitHub credentials + integration status.
      */
-    public function postSettings(Request $request)
+    public function postSettings(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $username = $request->input('git_username');
@@ -41,7 +41,7 @@ class GithubController extends Controller
     /**
      * Authenticate this application against the configured GitHub OAuth app.
      */
-    public function authForSpecificApp()
+    public function authForSpecificApp(): mixed
     {
         try {
             return resolve(GithubApiController::class)->authorizeApp();

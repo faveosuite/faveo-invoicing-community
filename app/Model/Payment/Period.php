@@ -31,7 +31,7 @@ class Period extends Model
 
     protected $fillable = ['name', 'days'];
 
-    public function plans()
+    public function plans(): mixed
     {
         return $this->belongstoMany(Plan::class, 'plans_periods_relation')->withTimestamps();
     }

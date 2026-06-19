@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class FileManagerController extends Controller
 {
-    public function previewFile(Request $request)
+    public function previewFile(Request $request): mixed
     {
         $path = $request->input('path');
 

@@ -20,7 +20,7 @@ class ChatScriptController extends Controller
         $this->script = $script; // @phpstan-ignore property.notFound
     }
 
-    public function getScriptList(Request $request)
+    public function getScriptList(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -52,7 +52,7 @@ class ChatScriptController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function createScript(Request $request)
+    public function createScript(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'name' => ['required', 'max:50'],
@@ -81,7 +81,7 @@ class ChatScriptController extends Controller
      *
      * @param  int  $id
      */
-    public function getScript($id)
+    public function getScript($id): \Illuminate\Http\JsonResponse
     {
         try {
             $chat = $this->script->find($id); // @phpstan-ignore property.notFound
@@ -101,7 +101,7 @@ class ChatScriptController extends Controller
      *
      * @param  int  $id
      */
-    public function updateScript(Request $request, $id)
+    public function updateScript(Request $request, $id): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'name' => ['required', 'max:50'],
@@ -136,7 +136,7 @@ class ChatScriptController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function deleteScript(Request $request)
+    public function deleteScript(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $ids = $request->input('select', []);

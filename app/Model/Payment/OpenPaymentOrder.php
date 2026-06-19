@@ -143,7 +143,7 @@ class OpenPaymentOrder extends Model
      * Scope for completed payments.
      */
     #[Scope]
-    protected function completed($query)
+    protected function completed(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where('payment_status', 'completed');
     }
@@ -152,7 +152,7 @@ class OpenPaymentOrder extends Model
      * Scope for pending payments.
      */
     #[Scope]
-    protected function pending($query)
+    protected function pending(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where('payment_status', 'pending');
     }
@@ -161,7 +161,7 @@ class OpenPaymentOrder extends Model
      * Scope for failed payments.
      */
     #[Scope]
-    protected function failed($query)
+    protected function failed(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where('payment_status', 'failed');
     }

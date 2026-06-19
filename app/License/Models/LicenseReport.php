@@ -80,7 +80,7 @@ class LicenseReport extends Model
     }
 
     #[Scope]
-    protected function pending($query)
+    protected function pending(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where('report_status', 0);
     }

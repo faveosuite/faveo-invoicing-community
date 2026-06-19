@@ -14,7 +14,7 @@ class AdvanceSearchController extends AdminOrderInvoiceController
     /**
      * Serach for Registered From,tILL.
      */
-    public function getregFromTill($join, $reg_from, $reg_till)
+    public function getregFromTill(mixed $join, mixed $reg_from, mixed $reg_till): mixed
     {
         if ($reg_from) {
             $fromDateStart = date_create($reg_from)->format('Y-m-d').' 00:00:00';
@@ -29,7 +29,7 @@ class AdvanceSearchController extends AdminOrderInvoiceController
         return $join;
     }
 
-    public function search(Request $request)
+    public function search(Request $request): mixed
     {
         try {
             $term = trim($request->q);
@@ -56,7 +56,7 @@ class AdvanceSearchController extends AdminOrderInvoiceController
         }
     }
 
-    public function getClientDetail($id): array
+    public function getClientDetail(mixed $id): array
     {
         $client = User::where('id', $id)->first();
         $currency = $client->currency;
@@ -67,7 +67,7 @@ class AdvanceSearchController extends AdminOrderInvoiceController
         return ['currency' => $currency, 'client' => $client];
     }
 
-    public function getExtraAmt($userId)
+    public function getExtraAmt(mixed $userId): mixed
     {
         try {
             $amounts = Payment::where('user_id', $userId)->where('invoice_id', 0)->select('amt_to_credit')->get();

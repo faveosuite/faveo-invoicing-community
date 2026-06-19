@@ -77,7 +77,7 @@ class PlanPrice extends Model
         ];
     }
 
-    public function plan()
+    public function plan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Plan::class, 'plan_id', 'id');
     }

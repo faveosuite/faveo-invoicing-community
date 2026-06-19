@@ -13,7 +13,7 @@ use Session;
 
 class BasePromotionController extends Controller
 {
-    public function getCode()
+    public function getCode(): \Illuminate\Http\JsonResponse
     {
         try {
             return successResponse('', strtoupper(Str::random(6)));
@@ -22,7 +22,7 @@ class BasePromotionController extends Controller
         }
     }
 
-    public function findCost($type, $value, $price, $productid): float|int|null
+    public function findCost(mixed $type, mixed $value, mixed $price, mixed $productid): float|int|null
     {
         try {
             $price = intval($price);
@@ -46,7 +46,7 @@ class BasePromotionController extends Controller
         return null;
     }
 
-    public function getPromotionDetails($code)
+    public function getPromotionDetails(mixed $code): mixed
     {
         if (empty($code)) {
             throw new Exception(__('message.no_coupon_code_applied'));
@@ -81,7 +81,7 @@ class BasePromotionController extends Controller
         return $promo;
     }
 
-    public function findCostAfterDiscount($promoid, $productid, $userid): float|int|null
+    public function findCostAfterDiscount(mixed $promoid, mixed $productid, mixed $userid): float|int|null
     {
         try {
             $planid = '';
@@ -96,6 +96,7 @@ class BasePromotionController extends Controller
             if (empty($userPlan['plan'])) {
                 throw new Exception(__('message.no_available_plans_currency'));
             }
+
             $planPrice = $userPlan['plan'];
             $cost = (float) $planPrice->add_price;
             $offer = $planPrice->offer_price ?? 0;

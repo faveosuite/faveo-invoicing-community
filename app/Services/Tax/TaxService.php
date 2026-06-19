@@ -36,7 +36,7 @@ class TaxService
      *   lines: array<int, array{tax_rate_id:int, label:string, rate:float, compound:bool, amount:float}>
      * }
      */
-    public function calculate(float $amount, int $productId, $user): array
+    public function calculate(float $amount, int $productId, mixed $user): array
     {
         $empty = [
             'applicable' => false,
@@ -102,7 +102,7 @@ class TaxService
      * shape: ['name' => 'GST', 'type' => 'tax', 'value' => '18%'] (or a 'null'
      * sentinel when no tax applies).
      */
-    public function legacyCondition(int $productId, $user, bool $fromAdminPanel = false): array
+    public function legacyCondition(int $productId, mixed $user, bool $fromAdminPanel = false): array
     {
         $result = $this->calculate(0.0, $productId, $user); // amount irrelevant for percent/name
 

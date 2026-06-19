@@ -63,7 +63,7 @@ class BaseRenewController extends Controller
                 throw new Exception(__('message.user_removed_database'));
             }
 
-            if (! $product) {
+            if (!$product instanceof \App\Model\Product\Product) {
                 throw new Exception(__('message.product_removed_database'));
             }
 
@@ -134,7 +134,7 @@ class BaseRenewController extends Controller
     {
         try {
             $controller = new InvoiceController();
-            if ($code != '') {
+            if ($code !== '') {
                 $product_cost = $controller->checkCode($code, $product->id, $currency); // @phpstan-ignore method.notFound
             }
 

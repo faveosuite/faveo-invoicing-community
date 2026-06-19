@@ -13,7 +13,7 @@ use Lang;
 
 class DependencyController extends NonPublicDependencies
 {
-    public function handle($type, Request $request)
+    public function handle(mixed $type, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $this->initializeParameterValues($request);
@@ -30,7 +30,7 @@ class DependencyController extends NonPublicDependencies
         }
     }
 
-    public function handleDependencies($type)
+    public function handleDependencies(mixed $type): mixed
     {
         $this->dependencyKey = $type;
 

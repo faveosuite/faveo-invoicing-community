@@ -135,7 +135,7 @@ class PlanController extends ExtendedPlanController
         return back()->with('success', trans('message.updated-successfully'));
     }
 
-    public function getAllPlans(Request $request)
+    public function getAllPlans(Request $request): \Illuminate\Http\JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');
@@ -197,7 +197,7 @@ class PlanController extends ExtendedPlanController
         return null;
     }
 
-    public function planCreate(PlanRequest $request)
+    public function planCreate(PlanRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             // prevent creating duplicate plans for certain products
@@ -239,7 +239,7 @@ class PlanController extends ExtendedPlanController
         }
     }
 
-    public function getPlan($planId)
+    public function getPlan(mixed $planId): \Illuminate\Http\JsonResponse
     {
         try {
             $plan = Plan::with([
@@ -262,7 +262,7 @@ class PlanController extends ExtendedPlanController
         }
     }
 
-    public function updatePlan($planID, PlanRequest $request)
+    public function updatePlan(mixed $planID, PlanRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $plan = Plan::findOrFail($planID);
@@ -299,7 +299,7 @@ class PlanController extends ExtendedPlanController
         }
     }
 
-    public function deleteBulkPlans(Request $request)
+    public function deleteBulkPlans(Request $request): \Illuminate\Http\JsonResponse
     {
         $ids = $request->input('select', []);
 

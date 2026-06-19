@@ -50,7 +50,7 @@ class GroupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(GroupRequest $request)
+    public function store(GroupRequest $request): mixed
     {
         $this->validate($request, [
             'name' => 'required',
@@ -125,14 +125,14 @@ class GroupController extends Controller
         }
     }
 
-    protected function getGroupUrl($url)
+    protected function getGroupUrl(mixed $url): void
     {
         $slug = url('/').'/group/'.Str::slug($url, '-');
         echo $slug;
     }
 
 //    This is for the client panel, change it to the client panel controllers, which does not have middleware admin.
-    public function getProductGroups(Request $request)
+    public function getProductGroups(Request $request): \Illuminate\Http\JsonResponse
     {
         $searchQuery = $request->input('search-query', '');
         $sortOrder = $request->input('sort-order', 'asc');
@@ -148,19 +148,20 @@ class GroupController extends Controller
         return successResponse('', $groups);
     }
 
-    public function getGroup($groupId, Request $request)
+    public function getGroup(mixed $groupId, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            return ProductGroup::with([
+            $group = ProductGroup::with([
                 'pricingTemplate:id,image,name',
                 'product:id,name,group',
             ])->findOrFail($groupId);
+            return successResponse('', $group);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
 
-    public function updateGroup($groupId, GroupRequest $request)
+    public function updateGroup(mixed $groupId, GroupRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $group = ProductGroup::findOrFail($groupId);
@@ -198,7 +199,7 @@ class GroupController extends Controller
         }
     }
 
-    public function groupCreate(GroupRequest $request)
+    public function groupCreate(GroupRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             ProductGroup::create($request->validated());
@@ -209,7 +210,7 @@ class GroupController extends Controller
         }
     }
 
-    public function deleteBulkGroups(Request $request)
+    public function deleteBulkGroups(Request $request): \Illuminate\Http\JsonResponse
     {
         $ids = $request->input('select', []);
 

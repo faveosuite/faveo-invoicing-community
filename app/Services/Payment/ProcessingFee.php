@@ -65,7 +65,7 @@ class ProcessingFee
      * "2.5%" string or numeric percent). grand_total is persisted fee-inclusive,
      * so the fee is the part above the pre-fee total — never a % of subtotal.
      */
-    public static function fromInclusive(float $inclusiveTotal, $fee): float
+    public static function fromInclusive(float $inclusiveTotal, mixed $fee): float
     {
         $pct = is_numeric($fee)
             ? (float) $fee

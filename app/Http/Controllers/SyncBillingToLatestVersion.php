@@ -50,7 +50,7 @@ class SyncBillingToLatestVersion
         return $this->log;
     }
 
-    private function forceInnodbOnUpdate()
+    private function forceInnodbOnUpdate(): \Illuminate\Http\JsonResponse
     {
         try {
             if (isInstall()) {
@@ -62,12 +62,13 @@ class SyncBillingToLatestVersion
                     }
                 }
             }
+            return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
 
-    private function writeToEnvAndRunConfigClear(string $key, string $value)
+    private function writeToEnvAndRunConfigClear(string $key, string $value): \Illuminate\Http\JsonResponse
     {
         try {
             $path = app()->environmentFilePath();
@@ -79,6 +80,7 @@ class SyncBillingToLatestVersion
                 file_get_contents($path)
             ));
             Artisan::call('config:clear');
+            return successResponse(__("message.updated-successfully"));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }

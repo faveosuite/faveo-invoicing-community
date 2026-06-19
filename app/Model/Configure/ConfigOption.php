@@ -47,13 +47,13 @@ class ConfigOption extends Model
     protected $guarded = [];
 
     // Define the relationship with ConfigGroup
-    public function configGroup()
+    public function configGroup(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ConfigGroup::class, 'group_id');
     }
 
     // Define the relationship with Plan
-    public function plan()
+    public function plan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Plan::class);
     }
@@ -67,7 +67,7 @@ class ConfigOption extends Model
         return $this->hasMany(ConfigOptionValue::class, 'option_id');
     }
 
-    public function product()
+    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class);
     }

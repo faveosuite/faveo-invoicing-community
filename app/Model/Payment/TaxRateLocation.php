@@ -36,7 +36,7 @@ class TaxRateLocation extends BaseModel
 
     protected $fillable = ['tax_rate_id', 'location_code', 'location_type'];
 
-    public function taxRate()
+    public function taxRate(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(TaxRate::class, 'tax_rate_id');
     }

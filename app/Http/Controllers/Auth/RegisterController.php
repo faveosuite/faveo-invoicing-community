@@ -33,7 +33,7 @@ class RegisterController extends Controller
         $this->middleware('recaptcha:register')->only('postRegister');
     }
 
-    public function emailVerification($email): array
+    public function emailVerification(mixed $email): array
     {
         try {
             $map = [
@@ -75,7 +75,7 @@ class RegisterController extends Controller
         }
     }
 
-    private function vonagePhoneVerification($provider, string $phone): bool
+    private function vonagePhoneVerification(mixed $provider, string $phone): bool
     {
         ['api_key' => $apikey, 'mode' => $mode,'api_secret' => $apisecret] = EmailMobileValidationProviders::where('provider', $provider)
             ->select('api_key', 'mode', 'api_secret')
@@ -94,7 +94,7 @@ class RegisterController extends Controller
         return $response->json('status_message') == 'Partner quota exceeded';
     }
 
-    private function abstractPhoneVerification($provider, string $phone): bool
+    private function abstractPhoneVerification(mixed $provider, string $phone): bool
     {
         $apikey = EmailMobileValidationProviders::where('provider', $provider)->value('api_key');
 
@@ -119,7 +119,7 @@ class RegisterController extends Controller
         return $this->abstractPhoneVerification($provider, $phone);
     }
 
-    public function postRegister(ProfileRequest $request, User $user)
+    public function postRegister(ProfileRequest $request, User $user): \Illuminate\Http\JsonResponse
     {
         $this->validate($request, [
             'registerForm' => [new Honeypot()],
@@ -202,7 +202,7 @@ class RegisterController extends Controller
         }
     }
 
-    public function getUserDetails($request): array
+    public function getUserDetails(mixed $request): array
     {
         $location = getLocation();
 
@@ -226,7 +226,7 @@ class RegisterController extends Controller
         ];
     }
 
-    public function logActivityRegister($user): void
+    public function logActivityRegister(mixed $user): void
     {
         if (! $user) {
             return;

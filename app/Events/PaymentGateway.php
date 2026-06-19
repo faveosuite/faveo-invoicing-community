@@ -13,7 +13,7 @@ class PaymentGateway extends Event
     /**
      * Create a new event instance.
      */
-    public function __construct(public $para)
+    public function __construct(public mixed $para)
     {
     }
 

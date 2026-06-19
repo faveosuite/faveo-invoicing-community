@@ -135,7 +135,7 @@ class OrderController extends BaseOrderController
                 $user = $order->user;
                 if ($user && $user->country) {
                     $name = getCountryByCode($user->country) ?? $user->country;
-                    $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), true);
+                    $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), sync: true);
                 }
 
                 $installedVersions = $order->installationDetail->pluck('version')->toArray();
@@ -219,7 +219,7 @@ class OrderController extends BaseOrderController
         try {
             $rows = InstallationDetail::where('order_id', $orderId)->get();
 
-            $installationDetails = $rows->map(fn ($row): array => [ // @phpstan-ignore argument.unresolvableType
+            $installationDetails = $rows->map(fn ($row): array => [ // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
                 'path' => $row->installation_path,
                 'ip' => $row->installation_ip,
                 'version' => $row->version ?? null,
@@ -235,8 +235,6 @@ class OrderController extends BaseOrderController
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  int  $id
      */
     public function update(int $id, OrderRequest $request): \Illuminate\Http\RedirectResponse
     {
@@ -326,7 +324,7 @@ class OrderController extends BaseOrderController
     public function expiry(int $orderid): ?string
     {
         $sub = $this->subscription($orderid);
-        if ($sub) {
+        if ($sub instanceof \App\Model\Product\Subscription) {
             return $sub->update_ends_at;
         }
 

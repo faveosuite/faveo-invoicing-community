@@ -73,7 +73,7 @@ class CloudExtraActivities extends Controller
         return Date::now() >= Date::parse($ends_at);
     }
 
-    private function checktheAgent($numberOfAgents, string $domain): mixed
+    private function checktheAgent(mixed $numberOfAgents, string $domain): mixed
     {
         $client = new Client([]);
         $response = $client->request('POST', 'https://'.$domain.'/api/agent-check', [
@@ -328,7 +328,7 @@ class CloudExtraActivities extends Controller
             $currency = userCurrencyAndPrice('', $product->planRelation->find($planId));
             $ends_at = $sub->ends_at;
             $base_price = $currency['plan']?->add_price;
-            $oldAgents = (int) substr((string) $oldLicense, 12, 16);
+            $oldAgents = (int) substr($oldLicense, 12, 16);
             $planDays = (int) $plan->days;
 
             $totalAgents = 0;
@@ -394,7 +394,7 @@ class CloudExtraActivities extends Controller
             $sub = Subscription::where('order_id', $orderId)->first();
             $planIdOld = $sub->plan_id;
             $ends_at = $sub->ends_at;
-            $oldAgents = (int) substr((string) $oldLicense, 12, 16);
+            $oldAgents = (int) substr($oldLicense, 12, 16);
 
             $planOld = Plan::with('productRelation')->find($planIdOld);
             $currencyOld = userCurrencyAndPrice('', $planOld->productRelation->planRelation->find($planIdOld));
@@ -814,7 +814,7 @@ class CloudExtraActivities extends Controller
             return response()->json(['status' => false, 'message' => trans('message.domain_taken')]);
         }
 
-        app(CartService::class)->addItem($request, [
+        resolve(CartService::class)->addItem($request, [
             'product_id' => $request->input('id'),
             'plan_id' => $request->input('subscription'),
             'domain' => $request->input('domain') ? $request->input('domain').'.'.cloudSubDomain() : null,
@@ -900,7 +900,7 @@ class CloudExtraActivities extends Controller
             : $this->getStateCoordinates($city);
         $state = State::where('country_code', strtoupper((string) $request->get('cloud_countries')))->where('iso2', $state)->value('state_subdivision_name');
 
-        if (! empty($geo)) {
+        if ($geo !== null && $geo !== []) {
             CloudDataCenters::create([
                 'cloud_countries' => $countryName,
                 'cloud_state' => $state,

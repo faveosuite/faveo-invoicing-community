@@ -36,7 +36,7 @@ class ConfigGroup extends Model
     protected $guarded = [];
 
     // Define the relationship with ConfigOption
-    public function configOptions()
+    public function configOptions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ConfigOption::class, 'group_id');
     }

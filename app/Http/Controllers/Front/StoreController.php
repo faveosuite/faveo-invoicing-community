@@ -12,7 +12,7 @@ use Illuminate\Contracts\Database\Query\Builder;
 
 class StoreController extends Controller
 {
-    public function getGroups()
+    public function getGroups(): \Illuminate\Http\JsonResponse
     {
         $groups = ProductGroup::where('hidden', '0')
             ->select('id', 'name', 'headline', 'tagline', 'status')
@@ -26,7 +26,7 @@ class StoreController extends Controller
         return successResponse('', $groups);
     }
 
-    public function getProducts(int $groupId)
+    public function getProducts(int $groupId): \Illuminate\Http\JsonResponse
     {
         $group = ProductGroup::findOrFail($groupId);
 
@@ -81,7 +81,7 @@ class StoreController extends Controller
         }
 
         $ip = request()->ip();
-        $iso = cache()->remember('user_location_'.$ip, 60, fn () => getLocation($ip)['iso_code'] ?? null);
+        $iso = cache()->remember('user_location_'.$ip, 60, fn (): mixed => getLocation($ip)['iso_code'] ?? null);
 
         return getCurrencyForClient($iso ? findCountryByGeoip($iso) : null);
     }

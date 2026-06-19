@@ -13,7 +13,7 @@ use Exception;
 
 class BaseAuthController extends Controller
 {
-    public function sendActivation($email, $method): void
+    public function sendActivation(mixed $email, mixed $method): void
     {
         $user = User::where('email', $email)->first();
         $contact = getContactData();

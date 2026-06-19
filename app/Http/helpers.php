@@ -45,7 +45,7 @@ function getLocation(?string $ip = null): mixed
 
 function checkArray(string $key, array $array): mixed
 {
-    if (is_array($array) && array_key_exists($key, $array)) { // @phpstan-ignore function.alreadyNarrowedType
+    if (array_key_exists($key, $array)) { 
         return $array[$key];
     }
 
@@ -54,7 +54,7 @@ function checkArray(string $key, array $array): mixed
 
 function mime(string $type): ?string
 {
-    if (in_array($type, ['jpg', 'png', 'jpeg', 'gif']) ||
+    if (in_array($type, ['jpg', 'png', 'jpeg', 'gif'], strict: true) ||
         \Illuminate\Support\Str::startsWith($type, 'image')) {
         return 'image';
     }
@@ -78,7 +78,6 @@ function isInstall(): bool
  * Format the error message into json error response.
  *
  * @param  string|array  $message  Error message
- * @param  int  $statusCode
  * @return JsonResponse json response
  */
 function errorResponse(string|array $message, int $statusCode = 400): JsonResponse
@@ -91,15 +90,13 @@ function errorResponse(string|array $message, int $statusCode = 400): JsonRespon
  *
  * @param  string  $message  Success message
  * @param  mixed  $data  Data of the response
- * @param  int  $statusCode
- * @return \Illuminate\Http\JsonResponse
  */
 function successResponse(string $message = '', mixed $data = '', int $statusCode = 200): JsonResponse
 {
     $response = ['success' => true];
 
     // if message given
-    if (! empty($message)) {
+    if ($message !== '' && $message !== '0') {
         $response['message'] = $message;
     }
 
@@ -366,7 +363,7 @@ function getCountry(mixed $userid): mixed
         return User::where('id', $userid)->value('country');
     }
 
-    $location = cache()->remember('user_location', 60, fn () => getLocation());
+    $location = cache()->remember('user_location', 60, fn (): mixed => getLocation());
 
     return $location['iso_code'] ? findCountryByGeoip($location['iso_code']) : null;
 }
@@ -630,7 +627,7 @@ function getRootUrl(mixed $url, int $remove_scheme, int $remove_www, int $remove
 
         $url = str_ireplace($url_array['scheme'].'://', '', $url); //make URL without scheme, so no :// is included when searching for first or last /
 
-        if ($remove_path == 1) { //remove everything after FIRST / in URL, so it becomes "real" root URL
+        if ($remove_path === 1) { //remove everything after FIRST / in URL, so it becomes "real" root URL
             $first_slash_position = stripos($url, '/'); //find FIRST slash - the end of root URL
             if ($first_slash_position > 0) { //cut URL up to FIRST slash
                 $url = substr($url, 0, $first_slash_position + 1);
@@ -642,15 +639,15 @@ function getRootUrl(mixed $url, int $remove_scheme, int $remove_www, int $remove
             }
         }
 
-        if ($remove_scheme != 1) { //scheme was already removed, add it again
+        if ($remove_scheme !== 1) { //scheme was already removed, add it again
             $url = $url_array['scheme'].'://'.$url;
         }
 
-        if ($remove_www == 1) { //remove www.
+        if ($remove_www === 1) { //remove www.
             $url = str_ireplace('www.', '', $url);
         }
 
-        if ($remove_last_slash == 1) { //remove / from the end of URL if it exists
+        if ($remove_last_slash === 1) { //remove / from the end of URL if it exists
             while (str_ends_with($url, '/')) { //use cycle in case URL already contained multiple // at the end
                 $url = substr($url, 0, -1);
             }
@@ -797,7 +794,7 @@ function downloadExternalFile(string $url, string $filename): \Symfony\Component
         }
     }, 200, [
         'Content-Type' => 'application/zip',
-        'Content-Disposition' => 'attachment; filename="'.basename((string) $filename).'.zip"',
+        'Content-Disposition' => 'attachment; filename="'.basename($filename).'.zip"',
         'Expires' => 0,
         'Cache-Control' => 'no-cache',
     ]);
@@ -1032,9 +1029,6 @@ function calculateUnitCost(string $currency, int|float $cost): int
 
 /**
  * log the actions in log files.
- *
- * @param  string  $level
- * @param  array  $array
  */
 function loging(string $context, string $message, string $level = 'error', array $array = []): void
 {
@@ -1116,8 +1110,6 @@ function toFormatDateAndTime(?string $datetime): ?Carbon
 
 /**
  * Convert days to human-readable format using match.
- *
- * @return string|null
  */
 function formatDays(int $days): ?string
 {

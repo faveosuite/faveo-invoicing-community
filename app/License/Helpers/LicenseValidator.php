@@ -18,7 +18,7 @@ class LicenseValidator
      * Original checks: valid IP, valid referrer URL, valid integer product_id,
      * and connection_hash must equal hash('sha256', 'connection_test').
      */
-    public function isValidConnection($product_id, ?string $connection_hash): bool
+    public function isValidConnection(mixed $product_id, ?string $connection_hash): bool
     {
         $ip = request()->ip();
         $refer = request()->get('refer', request()->header('referer'));
@@ -36,7 +36,7 @@ class LicenseValidator
      * referrer matches root_url, valid installation_hash, non-empty signature,
      * and at least license_code or valid email is provided.
      */
-    public function isValidLicenseRequest(string $ip, $product_id, ?string $root_url, ?string $license_code = null, ?string $client_email = null): bool
+    public function isValidLicenseRequest(string $ip, mixed $product_id, ?string $root_url, ?string $license_code = null, ?string $client_email = null): bool
     {
         return filter_var($ip, FILTER_VALIDATE_IP) !== false
             && $this->validateIntegerValue($product_id)
@@ -77,7 +77,7 @@ class LicenseValidator
      * Returns product if found (regardless of status), null if not found.
      * Controllers check status separately to distinguish not_found vs inactive.
      */
-    public function validateProduct($product_id): ?Product
+    public function validateProduct(mixed $product_id): ?Product
     {
         return Product::find($product_id);
     }
@@ -171,7 +171,7 @@ class LicenseValidator
     /**
      * Validate integer value (same as aflValidateIntegerValue).
      */
-    public function validateIntegerValue($number, int $min = 1, int $max = 999999999): bool
+    public function validateIntegerValue(mixed $number, int $min = 1, int $max = 999999999): bool
     {
         if (is_float($number)) {
             return false;
@@ -349,7 +349,7 @@ class LicenseValidator
      * Original checks: valid IP, valid integer product_id, non-empty product_key,
      * non-empty user_local_path, non-empty script_signature.
      */
-    public function isValidAfuRequest(string $ip, $product_id, ?string $product_key, ?string $user_local_path, ?string $script_signature): bool
+    public function isValidAfuRequest(string $ip, mixed $product_id, ?string $product_key, ?string $user_local_path, ?string $script_signature): bool
     {
         return filter_var($ip, FILTER_VALIDATE_IP) !== false
             && $this->validateIntegerValue($product_id)

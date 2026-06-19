@@ -33,7 +33,7 @@ abstract class ServiceProvider extends \Illuminate\Support\ServiceProvider
         }
     }
 
-    public function getModule($args)
+    public function getModule(mixed $args): mixed
     {
         return (isset($args[0]) && is_string($args[0])) ? $args[0] : null;
     }

@@ -74,12 +74,12 @@ return new class extends Migration
         DB::table('invoice_tax_lines')->whereNull('tax_rate_id')->delete();
     }
 
-    private function cleanLabel($raw): string
+    private function cleanLabel(mixed $raw): string
     {
         return trim(trim((string) $raw), ", \t\n");
     }
 
-    private function parsePercent($raw): float
+    private function parsePercent(mixed $raw): float
     {
         $raw = str_replace(['[', ']', '%'], '', (string) $raw);
         $sum = 0.0;

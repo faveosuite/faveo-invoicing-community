@@ -16,14 +16,14 @@ class ZohoBaseController extends Controller
     /**
      * Get mapped fields for a specific platform and module.
      */
-    public function getModulesFields(string $platform, string $module)
+    public function getModulesFields(string $platform, string $module): \Illuminate\Http\JsonResponse
     {
         $moduleFields = ZohoConnectHelper::getModulesFields($platform, $module);
 
         return successResponse('', $moduleFields);
     }
 
-    public function getMappedFields(string $platform, string $module)
+    public function getMappedFields(string $platform, string $module): \Illuminate\Http\JsonResponse
     {
         $mappedFields = ZohoConnectHelper::getExistingMappings($platform, $module);
 
@@ -33,7 +33,7 @@ class ZohoBaseController extends Controller
     /**
      * Update mapping for a specific field.
      */
-    public function updateMapping(Request $request)
+    public function updateMapping(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'integration_id' => ['required', 'exists:zoho_integrations,id'],
@@ -78,7 +78,7 @@ class ZohoBaseController extends Controller
     /**
      * Get options for a specific Zoho field.
      */
-    public function getOptions($zohoFieldID): array
+    public function getOptions(mixed $zohoFieldID): array
     {
         $localFields = FaveoLocalFields::get();
 

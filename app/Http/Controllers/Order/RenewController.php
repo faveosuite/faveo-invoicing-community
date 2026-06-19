@@ -192,7 +192,7 @@ class RenewController extends BaseRenewController
     {
         try {
             $product = $this->getProductById($productid);
-            if (! $product) {
+            if (!$product instanceof \App\Model\Product\Product) {
                 throw new Exception(__('message.product_removed_database'));
             }
 
@@ -323,7 +323,7 @@ class RenewController extends BaseRenewController
             $plan = Plan::findOrFail($planId);
 
             $existingUnpaidInvoice = $this->checkExistingUnpaidInvoice($sub, $planId);
-            if ($existingUnpaidInvoice) {
+            if ($existingUnpaidInvoice instanceof \App\Model\Order\InvoiceItem) {
                 return successResponse(trans('message.existings_invoice'), ['invoice_id' => $existingUnpaidInvoice->invoice_id]);
             }
 

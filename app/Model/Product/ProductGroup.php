@@ -67,12 +67,12 @@ class ProductGroup extends BaseModel
         'segments' => ['groups', ':id', 'edit'],
     ];
 
-    public function config()
+    public function config(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ConfigurableOption::class, 'group_id');
     }
 
-    public function features()
+    public function features(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(GroupFeatures::class, 'group_id');
     }

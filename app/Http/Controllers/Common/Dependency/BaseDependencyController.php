@@ -155,7 +155,7 @@ class BaseDependencyController extends Controller
         $this->request->deactivate_id = $request->input('deactivate_id') ?: null;
     }
 
-    protected function baseQuery($model)
+    protected function baseQuery(mixed $model): mixed
     {
         $baseQuery = $model->query();
 
@@ -186,7 +186,7 @@ class BaseDependencyController extends Controller
      *
      * @return array
      */
-    protected function get($dependencyName, $baseQuery, ?Closure $callback = null)
+    protected function get(mixed $dependencyName, mixed $baseQuery, ?Closure $callback = null)
     {
         if ($this->config) {
             $baseQuery->addSelect($baseQuery->getModel()->getTable().'.*');

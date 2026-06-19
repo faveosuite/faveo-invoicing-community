@@ -55,7 +55,7 @@ class InstallationLog extends Model
      * Scope: filter by license code.
      */
     #[Scope]
-    protected function forLicense($query, string $licenseCode)
+    protected function forLicense( \Illuminate\Database\Eloquent\Builder $query, string $licenseCode): mixed
     {
         return $query->where('license_code', $licenseCode);
     }
@@ -64,7 +64,7 @@ class InstallationLog extends Model
      * Scope: order by most recent activity.
      */
     #[Scope]
-    protected function recent($query)
+    protected function recent(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->orderBy('installation_last_active_date', 'desc');
     }

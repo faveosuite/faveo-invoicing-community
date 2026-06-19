@@ -15,7 +15,7 @@ use App\Plugins\Recaptcha\Model\RecaptchaSetting;
  */
 class RecaptchaConfigController extends Controller
 {
-    public function show()
+    public function show(): \Illuminate\Http\JsonResponse
     {
         return successResponse('', RecaptchaSetting::publicConfig());
     }

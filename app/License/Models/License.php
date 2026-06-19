@@ -175,13 +175,13 @@ class License extends Model
     }
 
     #[Scope]
-    protected function active($query)
+    protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where('license_status', 1);
     }
 
     #[Scope]
-    protected function suspended($query)
+    protected function suspended(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where('license_status', 2);
     }

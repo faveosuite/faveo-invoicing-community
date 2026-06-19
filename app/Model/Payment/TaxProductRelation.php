@@ -34,12 +34,12 @@ class TaxProductRelation extends BaseModel
 
     protected $fillable = ['product_id', 'tax_class_id'];
 
-    public function tax()
+    public function tax(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(TaxClass::class, 'tax_class_id');
     }
 
-    public function product()
+    public function product(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Product::class, 'product_id');
     }

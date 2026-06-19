@@ -39,7 +39,7 @@ class SettingsController extends Controller
         $this->middleware('admin', ['except' => []]);
     }
 
-    public function getSettings()
+    public function getSettings(): \Illuminate\Http\JsonResponse
     {
         try {
             $keys = ApiKey::select('stripe_key', 'stripe_secret', 'stripe_webhook_secret')->first();
@@ -58,7 +58,7 @@ class SettingsController extends Controller
         }
     }
 
-    public function updateApiKey(Request $request)
+    public function updateApiKey(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'stripe_secret' => ['required', 'string'],
@@ -105,7 +105,7 @@ class SettingsController extends Controller
      * (OpenPaymentController) flows, which collect a card token client-side and
      * need a server-confirmed charge with 3-D Secure support via $url.
      */
-    public function handlePayment(Request $request, $amount, $currency, $url, $user = null)
+    public function handlePayment(Request $request, mixed $amount, mixed $currency, mixed $url, mixed $user = null): mixed
     {
         $request->validate([
             'stripeToken' => ['required', 'string'],
@@ -160,7 +160,7 @@ class SettingsController extends Controller
     /**
      * Extract Stripe customer data from a User model, array, or object.
      */
-    public function extractCustomerData($user): array
+    public function extractCustomerData(mixed $user): array
     {
         $data = $user instanceof User ? $user->toArray() : (array) $user;
 
@@ -192,7 +192,7 @@ class SettingsController extends Controller
      * {@see \App\Plugins\Payment\Dto\SubscriptionResult} — callers read ->status,
      * ->id and ->raw['latest_invoice']. $unit_cost is already in minor units.
      */
-    public function handleStripeAutoPay($stripe_payment_details, $product_details, $unit_cost, $currency, $plan)
+    public function handleStripeAutoPay(mixed $stripe_payment_details, mixed $product_details, mixed $unit_cost, mixed $currency, mixed $plan): mixed
     {
         try {
             return resolve(SubscriptionService::class)->createSubscription('Stripe', new SubscriptionRequest(
@@ -204,6 +204,7 @@ class SettingsController extends Controller
             ));
         } catch (Exception $exception) {
             Logger::exception($exception);
+            return null;
         }
     }
 }

@@ -766,7 +766,7 @@ class SettingsController extends BaseSettingsController
             $paymentSortColumn = $paymentSortMap[$sortField] ?? 'payment_logs.'.$sortField;
             $logs = $query->orderBy($paymentSortColumn, $sortOrder)->simplePaginate($limit);
 
-            $logs->getCollection()->transform(fn ($row): array => [ // @phpstan-ignore argument.unresolvableType
+            $logs->getCollection()->transform(fn ($row): array => [ // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
                 'id' => $row->id,
                 'date' => $row->date ? Date::parse($row->date)->format('Y-m-d H:i') : '—',
                 'user' => $row->user_name ? trim((string) $row->user_name) : ($row->from ?? '—'), // @phpstan-ignore property.notFound
@@ -790,13 +790,13 @@ class SettingsController extends BaseSettingsController
         /** @phpstan-ignore class.notFound */
         $join = Email_log::select('id', 'from', 'to', 'date', 'subject', 'status');
 
-        if ($from) {
+        if ($from !== '' && $from !== '0') {
             $from = $this->DateFormat($from);
             $tillDate = $this->DateFormat($till ?: $this->DateFormat()); // Use $till if provided, otherwise, use current date
             $join = $join->whereBetween('date', [$from, $tillDate]);
         }
 
-        if ($till) {
+        if ($till !== '' && $till !== '0') {
             $till = $this->DateFormat($till);
             /** @phpstan-ignore class.notFound */
             $fromDate = Email_log::first()->date;
@@ -870,11 +870,11 @@ class SettingsController extends BaseSettingsController
             ->select('payment_logs.id', 'from', 'to', 'date', 'subject', 'status', 'payment_logs.created_at', 'payment_method', 'order', 'exception', 'email', DB::raw("CONCAT(first_name, ' ', last_name) as name"), 'users.id', 'payment_logs.id as count', 'amount', 'payment_type');
 
         if ($from || $till) {
-            $fromDate = $from
+            $fromDate = $from !== '' && $from !== '0'
                 ? Date::parse($this->DateFormat($from))->startOfDay()
                 : Date::parse(Payment_log::oldest('date')->value('date'))->startOfDay();
 
-            $tillDate = $till
+            $tillDate = $till !== '' && $till !== '0'
                 ? Date::parse($this->DateFormat($till))->endOfDay()
                 : Date::now()->endOfDay();
 

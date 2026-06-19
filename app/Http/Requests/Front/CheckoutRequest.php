@@ -19,10 +19,8 @@ class CheckoutRequest extends Request
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         //dd($this->method() );
         if ($this->method() == 'POST') {

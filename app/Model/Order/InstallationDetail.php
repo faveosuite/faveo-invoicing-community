@@ -40,7 +40,7 @@ class InstallationDetail extends Model
 
     protected $fillable = ['installation_path', 'installation_ip', 'version', 'last_active', 'order_id'];
 
-    public function order()
+    public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Order::class);
     }

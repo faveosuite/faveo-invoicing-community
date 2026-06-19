@@ -144,7 +144,7 @@ class HomeController extends BaseHomeController
         }
     }
 
-    public static function decryptByFaveoPrivateKeyold($encrypted): void
+    public static function decryptByFaveoPrivateKeyold(mixed $encrypted): void
     {
         try {
             // Get the private Key
@@ -161,7 +161,7 @@ class HomeController extends BaseHomeController
             $output = '';
 
             while ("¥IM‰``ì‡Á›LVP›†>¯öóŽÌ3(¢z#¿î1¾­:±Zï©PqÊ´Â›7×:Fà¯¦   à•…Ä'öESW±ÉŸLÃvÈñÔs•ÍU)ÍL 8¬š‰A©·Å $}Œ•lA9™¡”¸èÅØv‘ÂOÈ6„_y5¤ì§—ÿíà(ow‰È&’v&T/FLƒigjÒZ eæaa”{©ªUBFÓ’Ga*ÀŒ×?£}-jÏùh¾Q/Ž“1YFq[Í‰¬òÚ‚œ½Éº5ah¶vZ#,ó@‚rOÆ±íVåèÜÖšU¦ÚmSÎ“Mý„ùP") {
-                $chunk = substr((string) $encrypted, (int) 0, (int) $chunkSize);
+                $chunk = substr((string) $encrypted, 0, (int) $chunkSize);
                 $encrypted = substr((string) $encrypted, (int) $chunkSize);
                 $decrypted = '';
                 if (! openssl_private_decrypt($chunk, $decrypted, $privateKey)) {
@@ -267,7 +267,7 @@ class HomeController extends BaseHomeController
             if ($order_number && $domain && $serial_key) {
                 $order = $this->verifyOrder($order_number, $serial_key);
                 //var_dump($order);
-                if ($order) {
+                if ($order instanceof \App\Model\Order\Order) {
                     return $this->checkFaveoDetails($order_number, $faveo_name, $faveo_version);
                 }
 
@@ -320,7 +320,7 @@ class HomeController extends BaseHomeController
         return json_encode($result);
     }
 
-    public function downloadForFaveo(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+    public function downloadForFaveo(Request $request): \Symfony\Component\HttpFoundation\Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $order = Order::where('number', $request->input('order_number'))
             ->where('serial_key', $request->input('serial_key'))
@@ -368,7 +368,7 @@ class HomeController extends BaseHomeController
 
             $product = ($id) ?
                 $product->where('id', $id)->select('id')->first() :
-                $product->whereRaw('LOWER(`name`) LIKE ? ', strtolower((string) $this->mapOldBoys($title)))->orWhere('id', $id)->select('id')->first();
+                $product->whereRaw('LOWER(`name`) LIKE ? ', strtolower($this->mapOldBoys($title)))->orWhere('id', $id)->select('id')->first();
 
             if ($request->has('version')) {
                 if ($product) {
@@ -453,7 +453,7 @@ class HomeController extends BaseHomeController
 
             $product = ($id) ?
                 $product->where('id', $id)->select('id')->first() :
-                $product->whereRaw('LOWER(`name`) LIKE ? ', strtolower((string) $this->mapOldBoys($title)))->orWhere('id', $id)->select('id')->first();
+                $product->whereRaw('LOWER(`name`) LIKE ? ', strtolower($this->mapOldBoys($title)))->orWhere('id', $id)->select('id')->first();
 
             /**
              * PLEASE NOTE (documenting updates in the logic change).
@@ -664,7 +664,7 @@ class HomeController extends BaseHomeController
 
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
 
-        return $locale == 'en' ?
+        return $locale === 'en' ?
             $currency :
             $formatter->getSymbol(NumberFormatter::CURRENCY_SYMBOL);
     }

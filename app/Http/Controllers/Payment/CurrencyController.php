@@ -30,10 +30,8 @@ class CurrencyController extends Controller
 
     /**
      * Get Currency List.
-     *
-     * @return JsonResponse
      */
-    public function getCurrencyList(Request $request)
+    public function getCurrencyList(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $searchString = $request->input('search-query', '');
@@ -105,7 +103,7 @@ class CurrencyController extends Controller
     /**
      * Activate the Currency to be Shown on Dashboard.
      */
-    public function setDashboardCurrency($id)
+    public function setDashboardCurrency(mixed $id): \Illuminate\Http\JsonResponse
     {
         Currency::where('id', $id)->update(['dashboard_currency' => 1]);
         $dashboardStatus = Currency::where('id', '!=', $id)->select('dashboard_currency', 'id')->get();
@@ -119,7 +117,7 @@ class CurrencyController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): mixed
     {
         // dd($request->all());
         // $this->validate($request, [
@@ -171,7 +169,7 @@ class CurrencyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $nicename = Country::where('country_id', $request->editnicename)->value('country_name');
@@ -264,10 +262,10 @@ class CurrencyController extends Controller
             'symbol' => $countryDetails->currency_symbol, 'currency' => $countryDetails->currency_name, ]; // @phpstan-ignore property.notFound, property.notFound
     }
 
-    public function updatecurrency(Request $request)
+    public function updatecurrency(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            return DB::transaction(function () use ($request) {
+            return DB::transaction(function () use ($request): \Illuminate\Http\JsonResponse {
                 $currency = Currency::findOrFail($request->input('current_id'));
 
                 $newStatus = $request->input('current_status') == '1' ? 0 : 1;
@@ -285,7 +283,7 @@ class CurrencyController extends Controller
         }
     }
 
-    public function setDefaultCurrency($id)
+    public function setDefaultCurrency(mixed $id): \Illuminate\Http\JsonResponse
     {
         try {
             $currency = Currency::findOrFail($id);

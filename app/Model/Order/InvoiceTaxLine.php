@@ -49,12 +49,12 @@ class InvoiceTaxLine extends BaseModel
         'label', 'rate', 'compound', 'amount',
     ];
 
-    public function invoice()
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class, 'invoice_id');
     }
 
-    public function item()
+    public function item(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(InvoiceItem::class, 'invoice_item_id');
     }

@@ -27,7 +27,7 @@ class ZohoCampaignsController extends ZohoBaseController
         return $this->campaigns;
     }
 
-    public function syncFields()
+    public function syncFields(): \Illuminate\Http\JsonResponse
     {
         try {
             // Sync Topics
@@ -46,17 +46,17 @@ class ZohoCampaignsController extends ZohoBaseController
         }
     }
 
-    public function getCampaignsMappedFields()
+    public function getCampaignsMappedFields(): mixed
     {
         return $this->getMappedFields('campaigns', 'Contacts');
     }
 
-    public function getCampaignsContactFields()
+    public function getCampaignsContactFields(): mixed
     {
         return $this->getModulesFields('campaigns', 'Contacts');
     }
 
-    public function subscribeCampaign(Request $request)
+    public function subscribeCampaign(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $data = $request->validate([

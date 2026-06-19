@@ -120,7 +120,7 @@ class PageController extends Controller
         }
     }
 
-    public function getPageUrl($slug): void
+    public function getPageUrl(mixed $slug): void
     {
         $url = url('/');
 
@@ -128,13 +128,13 @@ class PageController extends Controller
         echo $url.'/pages'.'/'.$slug;
     }
 
-    public function getSlug($slug): void
+    public function getSlug(mixed $slug): void
     {
         $slug = Str::slug($slug, '-');
         echo $slug;
     }
 
-    public function addSegment($segments = []): string
+    public function addSegment(mixed $segments = []): string
     {
         $segment = '';
         foreach ($segments as $seg) {
@@ -429,8 +429,6 @@ class PageController extends Controller
 
     /**
      * This function returns to the contact us page.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function contactUsInfo(): \Illuminate\Http\JsonResponse
     {
@@ -648,7 +646,7 @@ class PageController extends Controller
         return $offerprices;
     }
 
-    public function YearlyAmount($id): string
+    public function YearlyAmount(mixed $id): string
     {
         $product = Product::find($id);
         $plans = Plan::where('product', $id)->where('status', 1)->get();
@@ -822,7 +820,7 @@ class PageController extends Controller
     /**
      * @return mixed[]
      */
-    public function checkConfigKey($config, array $transform): array
+    public function checkConfigKey(mixed $config, array $transform): array
     {
         $result = [];
         if ($config) {
@@ -839,7 +837,7 @@ class PageController extends Controller
     /**
      * @return mixed[]
      */
-    public function keyArray($array): array
+    public function keyArray(mixed $array): array
     {
         $result = [];
         foreach ($array as $key => $value) {
@@ -852,7 +850,7 @@ class PageController extends Controller
     /**
      * @return mixed[]
      */
-    public function valueArray($array): array
+    public function valueArray(mixed $array): array
     {
         $result = [];
         foreach ($array as $value) {
@@ -918,13 +916,13 @@ class PageController extends Controller
 
     private function containsExcessivePunctuation(string $text): bool
     {
-        return (bool) preg_match('/!{5,}/', (string) $text);
+        return (bool) preg_match('/!{5,}/', $text);
     }
 
     private function containsExcessiveCaps(string $text): bool
     {
-        $uppercaseCount = preg_match_all('/[A-Z]/', (string) $text);
-        $lowercaseCount = preg_match_all('/[a-z]/', (string) $text);
+        $uppercaseCount = preg_match_all('/[A-Z]/', $text);
+        $lowercaseCount = preg_match_all('/[a-z]/', $text);
         $totalCharacters = $uppercaseCount + $lowercaseCount;
         if ($totalCharacters > 0) {
             $percentageCaps = ($uppercaseCount / $totalCharacters) * 100;
@@ -940,7 +938,7 @@ class PageController extends Controller
     {
         $spamKeywords = ['viagra', 'casino', 'lottery', 'free money', 'enlargement', 'promotions'];
 
-        return array_any($spamKeywords, fn ($keyword): bool => stripos((string) $text, (string) $keyword) !== false);
+        return array_any($spamKeywords, fn ($keyword): bool => stripos($text, (string) $keyword) !== false);
     }
 
     public function postDemoReq(ContactRequest $request): \Illuminate\Http\JsonResponse
@@ -1130,7 +1128,7 @@ class PageController extends Controller
             if ($request->filled('created_at')) {
                 $date = DateTime::createFromFormat('m/d/Y', $request->input('created_at'));
                 if ($date) {
-                    $page->created_at = \Illuminate\Support\Carbon::instance($date);
+                    $page->created_at = \Illuminate\Support\Facades\Date::instance($date);
                 }
             }
 

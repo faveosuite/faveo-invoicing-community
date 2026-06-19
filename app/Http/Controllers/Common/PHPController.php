@@ -63,7 +63,7 @@ class PHPController extends Controller
         return $paths;
     }
 
-    public function checkPHPExecutablePath(Request $request)
+    public function checkPHPExecutablePath(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $path = $request->get('path');

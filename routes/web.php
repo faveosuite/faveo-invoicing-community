@@ -142,7 +142,7 @@ Route::middleware('installAgora')->group(function (): void {
     // ==========================================================
 
     // SPA login-form config (honeypot metadata, captcha settings, etc.)
-    Route::get('honeypot', fn () => successResponse('honeypot', honeypotData()));
+    Route::get('honeypot', fn (): \Illuminate\Http\JsonResponse => successResponse('honeypot', honeypotData()));
     Route::get('auth/login-config', [LoginController::class,        'loginConfig']);
     Route::get('auth/reset-validate/{token}', [ResetPasswordController::class, 'showResetForm']);
     Route::get('auth/verify-config', [AuthController::class,          'verifyConfig']);

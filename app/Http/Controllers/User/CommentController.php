@@ -43,7 +43,7 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): mixed
     {
         try {
             $comments = $this->comment->fill($request->input())->save(); // @phpstan-ignore property.notFound

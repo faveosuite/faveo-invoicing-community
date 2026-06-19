@@ -44,12 +44,12 @@ class UserLinkReport extends Model
         'order',
     ];
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function reportColumn()
+    public function reportColumn(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ReportColumn::class, 'column_id');
     }

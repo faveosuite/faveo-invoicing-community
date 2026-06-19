@@ -22,7 +22,7 @@ class SendWhatsappMessage implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $message)
+    public function __construct(protected mixed $message)
     {
     }
 

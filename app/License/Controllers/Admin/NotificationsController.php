@@ -13,7 +13,7 @@ class NotificationsController extends Controller
     /**
      * Get license notifications.
      */
-    public function showLicenseNotifications()
+    public function showLicenseNotifications(): \Illuminate\Http\JsonResponse
     {
         return successResponse('', LicenseNotification::first());
     }
@@ -21,7 +21,7 @@ class NotificationsController extends Controller
     /**
      * Update license notifications.
      */
-    public function updateLicenseNotifications(Request $request, $notification_id)
+    public function updateLicenseNotifications(Request $request, mixed $notification_id): \Illuminate\Http\JsonResponse
     {
         $fields = (new LicenseNotification)->getFillable();
 
@@ -43,7 +43,7 @@ class NotificationsController extends Controller
     /**
      * Get version/update notifications.
      */
-    public function showUpdateNotifications()
+    public function showUpdateNotifications(): \Illuminate\Http\JsonResponse
     {
         return successResponse('', VersionNotification::first());
     }
@@ -51,7 +51,7 @@ class NotificationsController extends Controller
     /**
      * Update version/update notifications.
      */
-    public function updateUpdateNotifications(Request $request, $notification_id)
+    public function updateUpdateNotifications(Request $request, mixed $notification_id): \Illuminate\Http\JsonResponse
     {
         $fields = (new VersionNotification)->getFillable();
 

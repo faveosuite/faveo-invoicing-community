@@ -101,7 +101,7 @@ class PhpMailController extends Controller
         });
     }
 
-    public function NotifyMail($from, $to, $template_data, $template_name): void
+    public function NotifyMail(mixed $from, mixed $to, mixed $template_data, mixed $template_name): void
     {
         $this->setQueue();
         $job = new NotifyMail();
@@ -116,7 +116,7 @@ class PhpMailController extends Controller
         $this->queueManager->setDefaultDriver($this->getActiveQueue()->driver);
     }
 
-    private function getActiveQueue()
+    private function getActiveQueue(): mixed
     {
         return persistentCache('queue_configuration', function () {
             $short = 'database';
@@ -174,7 +174,7 @@ class PhpMailController extends Controller
                 $product = Product::find($data->product_id);
                 $order = $cron->getOrderById($data->order_id);
 
-                if (empty($order)) {
+                if (!$order instanceof \App\Model\Order\Order) {
                     continue;
                 }
 
@@ -299,7 +299,7 @@ class PhpMailController extends Controller
         return null;
     }
 
-    public function payment_log($from, $method, $status, $order, $exception = null, $amount = null, $payment_type = null): void
+    public function payment_log(mixed $from, mixed $method, mixed $status, mixed $order, mixed $exception = null, mixed $amount = null, mixed $payment_type = null): void
     {
         $data = [
             'date' => date('Y-m-d H:i:s'),
@@ -401,7 +401,7 @@ class PhpMailController extends Controller
         });
     }
 
-    protected function autoReplyHeader($message, array $config): void
+    protected function autoReplyHeader(mixed $message, array $config): void
     {
         if (isset($config['auto_reply']) && $config['auto_reply']) {
             $message->getHeaders()->addTextHeader('X-Autoreply', 'true');
@@ -412,7 +412,7 @@ class PhpMailController extends Controller
     /**
      * Add CC recipients to message.
      */
-    protected function addCcRecipients($message, array $cc): void
+    protected function addCcRecipients(mixed $message, array $cc): void
     {
         foreach ($cc as $address) {
             if (is_array($address)) {
@@ -426,7 +426,7 @@ class PhpMailController extends Controller
     /**
      * Add BCC recipients to message.
      */
-    protected function addBccRecipients($message, array $bcc): void
+    protected function addBccRecipients(mixed $message, array $bcc): void
     {
         foreach ($bcc as $address) {
             if (is_array($address)) {
@@ -440,7 +440,7 @@ class PhpMailController extends Controller
     /**
      * Add attachments to message.
      */
-    protected function addAttachments($message, array $attach): void
+    protected function addAttachments(mixed $message, array $attach): void
     {
         foreach ($attach as $file) {
             if (is_array($file)) {

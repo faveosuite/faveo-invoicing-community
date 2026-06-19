@@ -103,12 +103,12 @@ class MailLog extends BaseModel
 
     protected array $htmlAble = ['body'];
 
-    public function exception()
+    public function exception(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ExceptionLog::class, 'exception_log_id');
     }
 
-    public function category()
+    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(LogCategory::class, 'log_category_id');
     }

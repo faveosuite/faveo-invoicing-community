@@ -17,7 +17,7 @@ class BaseSettingsController extends PaymentSettingsController
 {
     use ApiKeySettings;
 
-    protected function filterQuery($baseQuery)
+    protected function filterQuery(mixed $baseQuery): mixed
     {
         $from = request()->input('log_from');
         $till = request()->input('log_till');
@@ -51,7 +51,7 @@ class BaseSettingsController extends PaymentSettingsController
      *
      * @return non-falsy-string[]
      */
-    protected function formatProperties(array $properties, $event): array
+    protected function formatProperties(array $properties, mixed $event): array
     {
         $formatted = [];
 
@@ -90,7 +90,7 @@ class BaseSettingsController extends PaymentSettingsController
         return $formatted;
     }
 
-    public function postSchedular(StatusSetting $status, Request $request)
+    public function postSchedular(StatusSetting $status, Request $request): mixed
     {
         $allStatus = $status->whereId('1')->first();
         $allStatus->expiry_mail = $request->expiry_cron ? $request->expiry_cron : 0;
@@ -120,7 +120,7 @@ class BaseSettingsController extends PaymentSettingsController
     }
 
     //Save the Cron Days for expiry Mails and Activity Log
-    public function saveCronDays(Request $request)
+    public function saveCronDays(Request $request): mixed
     {
         ExpiryMailDay::truncate();
 

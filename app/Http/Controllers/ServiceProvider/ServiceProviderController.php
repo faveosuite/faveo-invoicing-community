@@ -13,14 +13,14 @@ use Exception;
 
 class ServiceProviderController extends Controller
 {
-    public $slaServiceRelation;
+    public mixed $slaServiceRelation = null;
 
     /**
      * @var \App\Model\Product\Service
      */
     public $service;
 
-    public $licence;
+    public mixed $licence = null;
 
     public function __construct()
     {
@@ -51,7 +51,7 @@ class ServiceProviderController extends Controller
         $this->licence = $licence;
     }
 
-    public function orders()
+    public function orders(): mixed
     {
         try {
             return view('themes.default1.serviceprovider.orders'); // @phpstan-ignore argument.type
@@ -60,7 +60,7 @@ class ServiceProviderController extends Controller
         }
     }
 
-    public function sla()
+    public function sla(): mixed
     {
         try {
             return view('themes.default1.serviceprovider.sla'); // @phpstan-ignore argument.type
@@ -69,7 +69,7 @@ class ServiceProviderController extends Controller
         }
     }
 
-    public function pricing()
+    public function pricing(): mixed
     {
         try {
             // @phpstan-ignore class.notFound

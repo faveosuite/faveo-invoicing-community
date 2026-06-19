@@ -65,7 +65,7 @@ class VersionInstallation extends Model
     }
 
     #[Scope]
-    protected function active($query)
+    protected function active(\Illuminate\Database\Eloquent\Builder $query): mixed
     {
         return $query->where('installation_status', 1);
     }

@@ -25,7 +25,7 @@ use Lang;
 
 trait ApiKeySettings
 {
-    public function licenseStatus(Request $request)
+    public function licenseStatus(Request $request): \Illuminate\Http\JsonResponse
     {
         $statusData = collect([
             'mstatus' => ['key' => 'msg91_status',         'lang' => __('message.mobile_status')],
@@ -82,7 +82,7 @@ trait ApiKeySettings
     /*
      * Update Msg91 Details In Database
      */
-    public function updatemobileDetails(Request $request)
+    public function updatemobileDetails(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'msg91_auth_key' => ['required', 'string'],
@@ -179,7 +179,7 @@ trait ApiKeySettings
         return ['message' => 'success', 'update' => Lang::get('message.twitter_setting')];
     }
 
-    public function updatepipedriveDetails(Request $request)
+    public function updatepipedriveDetails(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $pipedriveKey = $request->input('pipedrive_key');
@@ -222,7 +222,7 @@ trait ApiKeySettings
         return ['message' => 'success', 'update' => __('message.mailchimp_is_paid_status_saved')];
     }
 
-    public function updateMailchimpDetails(Request $request)
+    public function updateMailchimpDetails(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $chimp_auth_key = $request->input('mailchimp_auth_key');
@@ -260,7 +260,7 @@ trait ApiKeySettings
         }
     }
 
-    public function updateTermsDetails(Request $request)
+    public function updateTermsDetails(Request $request): \Illuminate\Http\JsonResponse
     {
         $terms_url = $request->input('terms_url');
         try {
@@ -283,7 +283,7 @@ trait ApiKeySettings
     /**
      * Get Date.
      */
-    public function getDate($dbdate)
+    public function getDate(mixed $dbdate): mixed
     {
         $created = new DateTime($dbdate);
         $tz = Auth::user()->timezone()->first()->name;
@@ -294,7 +294,7 @@ trait ApiKeySettings
         return $newDate;
     }
 
-    public function getDateFormat($dbdate = ''): string
+    public function getDateFormat(mixed $dbdate = ''): string
     {
         $created = new DateTime($dbdate);
         $tz = Auth::user()->timezone()->first()->name;
@@ -367,7 +367,7 @@ trait ApiKeySettings
         }
     }
 
-    public function getCommand($command, string $daily_at)
+    public function getCommand(mixed $command, string $daily_at): mixed
     {
         if ($command == 'dailyAt') {
             return 'dailyAt,'.$daily_at;
@@ -392,7 +392,7 @@ trait ApiKeySettings
         }
     }
 
-    public function showFileStorage()
+    public function showFileStorage(): \Illuminate\Http\JsonResponse
     {
         try {
             $fileStorageSettings = FileSystemSettings::first();
@@ -415,7 +415,7 @@ trait ApiKeySettings
         }
     }
 
-    public function updateStoragePath(UpdateStoragePathRequest $request)
+    public function updateStoragePath(UpdateStoragePathRequest $request): \Illuminate\Http\JsonResponse
     {
         $disk = $request->input('disk');
         $fileStorageSettings = FileSystemSettings::first();
@@ -434,7 +434,7 @@ trait ApiKeySettings
         return successResponse(trans('message.setting_updated'));
     }
 
-    protected function updateLocalStorage($request, $fileStorageSettings)
+    protected function updateLocalStorage(mixed $request, mixed $fileStorageSettings): \Illuminate\Http\JsonResponse
     {
         $path = $request->input('path');
 
@@ -448,7 +448,7 @@ trait ApiKeySettings
         return successResponse();
     }
 
-    protected function updateS3Storage($request, $fileStorageSettings)
+    protected function updateS3Storage(mixed $request, mixed $fileStorageSettings): \Illuminate\Http\JsonResponse
     {
         $fileStorageSettings->disk = 's3';
 
@@ -479,7 +479,7 @@ trait ApiKeySettings
         return successResponse();
     }
 
-    protected function updateS3EnvSettings($s3fields)
+    protected function updateS3EnvSettings(mixed $s3fields): void
     {
         foreach ($s3fields as $key => $value) {
             $envKey = match ($key) { // @phpstan-ignore match.unhandled
@@ -496,7 +496,7 @@ trait ApiKeySettings
         }
     }
 
-    protected function validateS3Credentials($s3Region, $s3AccessKey, $s3SecretKey, $s3EndpointUrl, $s3Bucket, $s3Url, $s3PathStyleEndpoint)
+    protected function validateS3Credentials(mixed $s3Region, mixed $s3AccessKey, mixed $s3SecretKey, mixed $s3EndpointUrl, mixed $s3Bucket, mixed $s3Url, mixed $s3PathStyleEndpoint): mixed
     {
         try {
             $s3Client = new S3Client([
@@ -517,7 +517,7 @@ trait ApiKeySettings
         }
     }
 
-    public function showPdfSettings()
+    public function showPdfSettings(): \Illuminate\Http\JsonResponse
     {
         try {
             $settings = FileSystemSettings::first();
@@ -532,7 +532,7 @@ trait ApiKeySettings
         }
     }
 
-    public function updatePdfSettings(Request $request)
+    public function updatePdfSettings(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $settings = FileSystemSettings::firstOrNew([]);

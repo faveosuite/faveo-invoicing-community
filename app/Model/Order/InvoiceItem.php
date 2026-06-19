@@ -68,7 +68,7 @@ class InvoiceItem extends BaseModel
         'regular_price', 'quantity', 'discount', 'tax_name',
         'tax_percentage', 'tax_code', 'tax_rate_id', 'discount_mode', 'subtotal', 'domain', 'plan_id', 'agents', 'billing_pay', 'product_id'];
 
-    public function taxLines()
+    public function taxLines(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(InvoiceTaxLine::class, 'invoice_item_id');
     }
@@ -80,7 +80,7 @@ class InvoiceItem extends BaseModel
         });
     }
 
-    public function get_domain($url): string
+    public function get_domain(mixed $url): string
     {
         $pieces = parse_url((string) $url);
         $domain = $pieces['host'] ?? '';
@@ -111,7 +111,7 @@ class InvoiceItem extends BaseModel
         return $this->belongsTo(Invoice::class, 'invoice_id');
     }
 
-    public function product()
+    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class);
     }

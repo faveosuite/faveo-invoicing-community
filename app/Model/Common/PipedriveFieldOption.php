@@ -36,7 +36,7 @@ class PipedriveFieldOption extends Model
 
     protected $guarded = [];
 
-    public function pipedriveField()
+    public function pipedriveField(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(PipedriveField::class, 'pipedrive_field_id');
     }

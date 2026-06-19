@@ -24,10 +24,8 @@ class SocialMediaController extends Controller
 
     /**
      * Get Social Media List.
-     *
-     * @return JsonResponse
      */
-    public function getSocialList(Request $request)
+    public function getSocialList(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             // Filters & pagination inputs
@@ -61,10 +59,8 @@ class SocialMediaController extends Controller
 
     /**
      * Store a newly created social media account in storage.
-     *
-     * @return JsonResponse
      */
-    public function createSocialMedia(SocialMediaRequest $request)
+    public function createSocialMedia(SocialMediaRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $social = $this->social->fill($request->validated());
@@ -80,9 +76,8 @@ class SocialMediaController extends Controller
      * Display the specified social media account.
      *
      * @param  int  $id
-     * @return JsonResponse
      */
-    public function getSocialMedia($id)
+    public function getSocialMedia($id): \Illuminate\Http\JsonResponse
     {
         try {
             $social = $this->social->find($id);
@@ -99,12 +94,8 @@ class SocialMediaController extends Controller
 
     /**
      * Update the specified social media account in storage.
-     *
-     * @param  SocialMediaRequest  $request
-     * @param  int  $id
-     * @return JsonResponse
      */
-    public function updateSocial(int $id, SocialMediaRequest $request)
+    public function updateSocial(int $id, SocialMediaRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $social = $this->social->find($id);
@@ -123,9 +114,6 @@ class SocialMediaController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function deleteSocialMedia(Request $request): JsonResponse
     {

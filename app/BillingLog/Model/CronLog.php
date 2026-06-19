@@ -41,7 +41,7 @@ class CronLog extends BaseModel
 
     protected $hidden = ['exception_log_id'];
 
-    public function exception()
+    public function exception(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ExceptionLog::class, 'exception_log_id');
     }

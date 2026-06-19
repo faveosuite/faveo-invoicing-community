@@ -22,7 +22,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
 {
     public ?string $rawBody = null;
 
-    public function getAutomationLog(Request $request)
+    public function getAutomationLog(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'date' => ['required', 'date'],
@@ -41,15 +41,17 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
 
             case 'exception':
                 return successResponse('', $this->getExceptionCategoryLog($date));
+            default:
+                return errorResponse('Invalid log type', 400);
         }
     }
 
-    private function parseDate($date)
+    private function parseDate(mixed $date): mixed
     {
         return Date::parse($date ?? Date::today());
     }
 
-    private function getCronCommands(Carbon $date)
+    private function getCronCommands(Carbon $date): mixed
     {
         return CronLog::select('command', 'status', DB::raw('count(id) as status_count'))
             ->whereBetween('created_at', [$date->copy()->startOfDay(), $date->endOfDay()])
@@ -64,7 +66,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ], $logs->pluck('status_count', 'status')->toArray()))->values();
     }
 
-    private function getMailCategoryLog(Carbon $date)
+    private function getMailCategoryLog(Carbon $date): mixed
     {
         $categoryNames = LogCategory::pluck('name', 'id');
 
@@ -82,7 +84,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ], $logs->pluck('status_count', 'status')->toArray()))->values();
     }
 
-    private function getExceptionCategoryLog(Carbon $date)
+    private function getExceptionCategoryLog(Carbon $date): mixed
     {
         $categoryNames = LogCategory::pluck('name', 'id');
 
@@ -90,7 +92,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->whereBetween('created_at', [$date->copy()->startOfDay(), $date->endOfDay()])
             ->groupBy('log_category_id')
             ->get()
-            ->map(fn ($log): array => [ // @phpstan-ignore argument.unresolvableType
+            ->map(fn ($log): array => [ // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
                 'id' => $log->log_category_id,
                 'name' => ($key = $categoryNames[$log->log_category_id] ?? '')
                     ? (Lang::has('log::lang.'.$key) ? __('log::lang.'.$key) : $key)
@@ -99,7 +101,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ]);
     }
 
-    public function dispatchPayload($id)
+    public function dispatchPayload(mixed $id): \Illuminate\Http\JsonResponse
     {
         try {
             $mailLog = MailLog::findOrFail($id);
@@ -118,7 +120,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
         }
     }
 
-    public function getJobId()
+    public function getJobId(): int|string|null
     {
         return null;
     }

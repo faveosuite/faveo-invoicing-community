@@ -48,7 +48,7 @@ class AuthController extends BaseAuthController
         $this->middleware('recaptcha:email_verify')->only('verifyEmail');
     }
 
-    public function requestOtp(Request $request)
+    public function requestOtp(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'eid' => ['required', 'string'],
@@ -85,7 +85,7 @@ class AuthController extends BaseAuthController
         }
     }
 
-    public function retryOTP(Request $request)
+    public function retryOTP(Request $request): mixed
     {
         $default_type = $request->input('default_type');
 
@@ -95,7 +95,7 @@ class AuthController extends BaseAuthController
         };
     }
 
-    public function resendOTP($request)
+    public function resendOTP(mixed $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'eid' => 'required|string',
@@ -133,7 +133,7 @@ class AuthController extends BaseAuthController
         }
     }
 
-    public function sendEmail(Request $request, $method = 'POST')
+    public function sendEmail(Request $request, mixed $method = 'POST'): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'eid' => ['required', 'string'],
@@ -167,7 +167,7 @@ class AuthController extends BaseAuthController
         }
     }
 
-    public function verifyOtp(Request $request)
+    public function verifyOtp(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'eid' => ['required', 'string'],
@@ -218,7 +218,7 @@ class AuthController extends BaseAuthController
         }
     }
 
-    public function verifyEmail(Request $request)
+    public function verifyEmail(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'eid' => ['required', 'string'],
@@ -270,7 +270,7 @@ class AuthController extends BaseAuthController
         }
     }
 
-    public function salesManagerMail($user, array $bcc = []): void
+    public function salesManagerMail(mixed $user, array $bcc = []): void
     {
         $contact = getContactData();
         $manager = $user->manager()
@@ -307,7 +307,7 @@ class AuthController extends BaseAuthController
         $mail->SendEmail($from, $to, $template_data, $template_name, 'sales-manager-mail', $replace, TemplateType::where('id', $template->type)->value('name'), $bcc);
     }
 
-    public function accountManagerMail($user, array $bcc = []): void
+    public function accountManagerMail(mixed $user, array $bcc = []): void
     {
         $contact = getContactData();
         $manager = $user->accountManager()
@@ -348,7 +348,7 @@ class AuthController extends BaseAuthController
      * JSON config consumed by the Vue guest OTP-verify SPA page.
      * Mirrors the data that verify() passed to the blade view.
      */
-    public function verifyConfig()
+    public function verifyConfig(): \Illuminate\Http\JsonResponse
     {
         $userId = Session::get('verification_user_id') ?? Session::get('user')?->id;
         if (! $userId) {
@@ -380,7 +380,7 @@ class AuthController extends BaseAuthController
         ]);
     }
 
-    private function updateVerificationAttempts($user, string $type = 'email'): void
+    private function updateVerificationAttempts(mixed $user, string $type = 'email'): void
     {
         if (! in_array($type, ['email', 'mobile'], strict: true)) {
             return;

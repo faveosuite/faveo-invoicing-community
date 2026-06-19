@@ -41,7 +41,7 @@ class ProductBundle extends BaseModel
 
     protected $fillable = ['name', 'valid_from', 'valid_till', 'uses', 'maximum_uses', 'allow-promotion', 'show'];
 
-    public function relation()
+    public function relation(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProductBundleRelation::class, 'bundle_id');
     }

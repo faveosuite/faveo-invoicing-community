@@ -20,7 +20,7 @@ class SettingsController extends Controller
         $this->middleware('admin');
     }
 
-    public function getSettings()
+    public function getSettings(): \Illuminate\Http\JsonResponse
     {
         try {
             $keys = ApiKey::select('rzp_key', 'rzp_secret', 'apilayer_key', 'razorpay_webhook_secret')->first();
@@ -40,7 +40,7 @@ class SettingsController extends Controller
         }
     }
 
-    public function updateApiKey(Request $request)
+    public function updateApiKey(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'rzp_key' => ['required', 'string'],

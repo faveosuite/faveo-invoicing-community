@@ -39,7 +39,7 @@ class ExceptionLog extends Model
         'created_at',
     ];
 
-    public function category()
+    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(LogCategory::class, 'log_category_id');
     }

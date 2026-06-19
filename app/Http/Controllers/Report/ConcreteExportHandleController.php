@@ -320,7 +320,7 @@ class ConcreteExportHandleController extends ExportHandleController
             $orderSearch = new OrderSearchController();
             $orders = $orderSearch->advanceOrderSearch($searchRequest);
 
-            $orders->orderBy('orders.created_at', 'desc');
+            $orders->latest('orders.created_at');
 
             // Use LazyCollection for efficient memory usage
             $filteredOrders = $orders->lazy()->map(function (Order $order) use ($selectedColumns): array {
@@ -713,16 +713,16 @@ class ConcreteExportHandleController extends ExportHandleController
         if ($version) {
             if ($productId == 'paid' || $productId == 'unpaid') {
                 $latestVersion = ProductUpload::orderBy('version', 'desc')->value('version');
-                if ($version == 'Latest') {
+                if ($version === 'Latest') {
                     $baseQuery->where('subscriptions.version', '=', $latestVersion);
-                } elseif ($version == 'Outdated') {
+                } elseif ($version === 'Outdated') {
                     $baseQuery->where('subscriptions.version', '<', $latestVersion);
                 }
-            } elseif ($version == 'Outdated') {
+            } elseif ($version === 'Outdated') {
                 $latestVersion = Subscription::where('product_id', $productId)
                                              ->orderBy('version', 'desc')
                                              ->value('version');
-                $baseQuery->where('subscriptions.version', '!=', null)
+                $baseQuery->where('subscriptions.version', '!=', value: null)
                           ->where('subscriptions.version', '!=', '')
                           ->where('subscriptions.version', '<', $latestVersion);
             } else {

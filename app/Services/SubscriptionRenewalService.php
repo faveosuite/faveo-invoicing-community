@@ -26,9 +26,9 @@ class SubscriptionRenewalService
         $updatesExpiry = $this->computeExpiry($permissions['generateUpdatesxpiryDate'], $sub->update_ends_at, $days, $fromNowIfExpired);
         $supportExpiry = $this->computeExpiry($permissions['generateSupportExpiryDate'], $sub->support_ends_at, $days, $fromNowIfExpired);
 
-        $sub->ends_at = $licenseExpiry ? \Illuminate\Support\Carbon::parse($licenseExpiry) : null;
-        $sub->update_ends_at = $updatesExpiry ? \Illuminate\Support\Carbon::parse($updatesExpiry) : null;
-        $sub->support_ends_at = $supportExpiry ? \Illuminate\Support\Carbon::parse($supportExpiry) : null;
+        $sub->ends_at = $licenseExpiry ? \Illuminate\Support\Facades\Date::parse($licenseExpiry) : null;
+        $sub->update_ends_at = $updatesExpiry ? \Illuminate\Support\Facades\Date::parse($updatesExpiry) : null;
+        $sub->support_ends_at = $supportExpiry ? \Illuminate\Support\Facades\Date::parse($supportExpiry) : null;
         $sub->save();
 
         $order = Order::find($sub->order_id);
@@ -40,7 +40,7 @@ class SubscriptionRenewalService
         }
     }
 
-    private function computeExpiry(bool $permission, $currentDate, int $days, bool $fromNowIfExpired): ?string
+    private function computeExpiry(bool $permission, mixed $currentDate, int $days, bool $fromNowIfExpired): ?string
     {
         if (! $permission || $days <= 0 || ! $currentDate) {
             return $currentDate;
@@ -118,7 +118,7 @@ class SubscriptionRenewalService
         );
     }
 
-    private function syncLicenseServer(Subscription $sub, $licenseExpiry, $updatesExpiry, $supportExpiry): void
+    private function syncLicenseServer(Subscription $sub, mixed $licenseExpiry, mixed $updatesExpiry, mixed $supportExpiry): void
     {
         $installService = resolve(InstallationService::class);
         $licenseService = resolve(LicenseService::class);

@@ -21,7 +21,7 @@ class LicenseVerifyController extends Controller
      * Verify license for deployed product
      * POST /apl_callbacks/license_verify.php  OR  POST /api/licenseVerify.
      */
-    public function licenseVerify(Request $request)
+    public function licenseVerify(Request $request): mixed
     {
         $product_id = $request->input('product_id');
         $root_url = $request->input('root_url');

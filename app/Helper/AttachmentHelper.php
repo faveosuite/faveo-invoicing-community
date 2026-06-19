@@ -43,7 +43,7 @@ class AttachmentHelper
     {
         $adapter = $this->getStorageAdapter($disk);
 
-        $filename = Str::ascii(basename((string) $path)) ?: basename((string) $path);
+        $filename = Str::ascii(basename($path)) ?: basename($path);
 
         if (isS3Enabled()) {
             return redirect($adapter->temporaryUrl($path, now()->addHour()));

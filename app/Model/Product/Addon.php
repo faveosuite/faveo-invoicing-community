@@ -23,7 +23,7 @@ class Addon extends BaseModel
         'description', 'regular_price', 'selling_price', 'tax_addon',
         'show_on_order', 'auto_active_payment', 'suspend_parent', ];
 
-    public function relation()
+    public function relation(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProductAddonRelation::class);
     }

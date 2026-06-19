@@ -118,7 +118,7 @@ class DatabaseSetupController extends Controller
      * @param  string  $dbUsername  mysql username
      * @param  string  $dbPassword  mysql password
      */
-    private function setupConfig($host, $dbUsername, $dbPassword, $port = '', array $customOptions = [], $dbengine = ''): void
+    private function setupConfig(mixed $host, $dbUsername, $dbPassword, mixed $port = '', array $customOptions = [], mixed $dbengine = ''): void
     {
         $options = array_merge([null, null, null, false], $customOptions);
         Config::set('app.env', 'development');
@@ -208,7 +208,7 @@ class DatabaseSetupController extends Controller
 
 class TestResult
 {
-    public function __construct(public $message, public $status = STATUS_OK) // @phpstan-ignore constant.notFound
+    public function __construct(public mixed $message, public mixed $status = STATUS_OK) // @phpstan-ignore constant.notFound
     {
     }
 }

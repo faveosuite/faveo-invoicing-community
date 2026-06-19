@@ -448,7 +448,7 @@ class TenantController extends Controller
     private function deleteCronForTenant(string $tenantId): void
     {
         $client = new Client();
-        if (strpos((string) $tenantId, (string) cloudSubDomain())) {
+        if (strpos($tenantId, (string) cloudSubDomain())) {
             $client->request('GET', config('custom.cloud_delete_job_url_normal'), [
                 'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
                 'query' => [
@@ -744,7 +744,7 @@ class TenantController extends Controller
 
         $expiry = Date::parse($subscription->ends_at)->format('d M Y');
         $cloud_days = (int) ExpiryMailDay::whereNotNull('cloud_days')->value('cloud_days');
-        $deletion_date = $cloud_days ? Date::parse($expiry)->addDays($cloud_days)->format('d M Y') : null;
+        $deletion_date = $cloud_days !== 0 ? Date::parse($expiry)->addDays($cloud_days)->format('d M Y') : null;
 
         return [
             'subscription_expiry' => $expiry,

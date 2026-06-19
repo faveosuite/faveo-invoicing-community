@@ -14,7 +14,7 @@ class RecaptchaSettingsController extends Controller
         $this->middleware(['auth', 'admin']);
     }
 
-    public function getSettings()
+    public function getSettings(): \Illuminate\Http\JsonResponse
     {
         $status = StatusSetting::first();
         $settings = RecaptchaSetting::firstOrCreate([]);
@@ -34,7 +34,7 @@ class RecaptchaSettingsController extends Controller
         ]);
     }
 
-    public function updateSettings(UpdateSettingsRequest $request)
+    public function updateSettings(UpdateSettingsRequest $request): \Illuminate\Http\JsonResponse
     {
         $status = StatusSetting::findOrFail(1);
         $status->recaptcha_status = (int) $request->boolean('recaptcha_status', default: true);

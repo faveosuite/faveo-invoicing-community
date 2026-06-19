@@ -13,7 +13,7 @@ class ImageUploadHelper
      *
      * @throws Exception
      */
-    public static function saveImageToStorage(UploadedFile $image, $directory, $disk = 'public'): string
+    public static function saveImageToStorage(UploadedFile $image, mixed $directory, mixed $disk = 'public'): string
     {
         $originalName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
         $originalName = str_replace(' ', '_', $originalName);
@@ -26,7 +26,7 @@ class ImageUploadHelper
         return $fileName;
     }
 
-    public static function deleteImage($path, $disk = 'public')
+    public static function deleteImage(mixed $path, mixed $disk = 'public'): mixed
     {
         return Storage::disk($disk)->delete($path);
     }

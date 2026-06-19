@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class VersionsController extends Controller
 {
-    public function show(Request $request)
+    public function show(Request $request): \Illuminate\Http\JsonResponse
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
@@ -35,7 +35,7 @@ class VersionsController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $versions->getCollection()->transform(fn (ProductUpload $version): array => [ // @phpstan-ignore argument.unresolvableType
+        $versions->getCollection()->transform(fn (ProductUpload $version): array => [ // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
             'id' => $version->id,
             'product_id' => $version->product_id,
             'version_number' => $version->version,

@@ -30,7 +30,7 @@ trait TaxCalculation
         try {
             $user = $this->taxUserFromLocation($user_state, $user_country);
 
-            return resolve(TaxService::class)->legacyCondition((int) $productid, $user, (bool) $taxCaluculationFromAdminPanel);
+            return resolve(TaxService::class)->legacyCondition($productid, $user, $taxCaluculationFromAdminPanel);
         } catch (Throwable $throwable) {
             resolve('log')->warning('calculateTax failed: '.$throwable->getMessage());
 
@@ -77,7 +77,7 @@ trait TaxCalculation
                 return 0;
             }
 
-            $rate = floatval(str_replace('%', '', (string) $rate));
+            $rate = floatval(str_replace('%', '', $rate));
 
             return $price * ($rate / 100);
         } catch (Throwable) {
@@ -89,7 +89,7 @@ trait TaxCalculation
     private function sumPercent(string $rate): float
     {
         $percent = 0.0;
-        foreach (explode(',', (string) $rate) as $part) {
+        foreach (explode(',', $rate) as $part) {
             $part = trim(str_replace('%', '', $part));
             if ($part !== '' && is_numeric($part)) {
                 $percent += (float) $part;

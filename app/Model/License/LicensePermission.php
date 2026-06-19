@@ -31,7 +31,7 @@ class LicensePermission extends Model
 
     protected $fillable = ['id', 'permissions'];
 
-    public function licenseTypes()
+    public function licenseTypes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(LicenseType::class, 'license_license_permissions')
             ->using(LicensePermissionPivot::class)

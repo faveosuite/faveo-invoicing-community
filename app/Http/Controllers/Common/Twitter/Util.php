@@ -11,9 +11,8 @@ class Util
 {
     /**
      * @param  $input
-     * @return string|array
      */
-    public static function urlencodeRfc3986($input): string|array
+    public static function urlencodeRfc3986(mixed $input): string|array
     {
         $output = '';
         if (is_array($input)) {
@@ -76,7 +75,7 @@ class Util
     /**
      * @param  $params
      */
-    public static function buildHttpQuery($params): string
+    public static function buildHttpQuery(mixed $params): string
     {
         if (! $params) {
             return '';

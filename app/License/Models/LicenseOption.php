@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  *
- * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption group($group)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption group(mixed $group)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LicenseOption query()
@@ -37,7 +37,7 @@ class LicenseOption extends Model
     ];
 
     #[Scope]
-    protected function group($query, $group)
+    protected function group( \Illuminate\Database\Eloquent\Builder $query, mixed $group): mixed
     {
         return $query->where('option_group', $group);
     }

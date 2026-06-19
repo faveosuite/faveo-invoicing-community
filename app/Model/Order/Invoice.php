@@ -146,6 +146,9 @@ class Invoice extends BaseModel
         );
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Model\Order\OrderInvoiceRelation, $this>
+     */
     public function orderRelation(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\App\Model\Order\OrderInvoiceRelation::class, 'invoice_id');
@@ -160,7 +163,7 @@ class Invoice extends BaseModel
     }
 
     // Subscriptions reached through the pivot: Invoice → order_invoice_relations → subscriptions
-    public function subscriptions()
+    public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(
             Subscription::class,
@@ -172,7 +175,7 @@ class Invoice extends BaseModel
         );
     }
 
-    public function installationDetail()
+    public function installationDetail(): mixed
     {
         $orderIds = $this->orders()->pluck('orders.id');
         $licenseCodes = Order::whereIn('id', $orderIds)->get()->map->serial_key;

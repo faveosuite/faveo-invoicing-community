@@ -53,7 +53,7 @@ class ExtendedOrderController extends Controller
         }
     }
 
-    public function reissueLicense(Request $request)
+    public function reissueLicense(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate(['id' => ['required']]);
 
@@ -107,7 +107,7 @@ class ExtendedOrderController extends Controller
      * Normalise a subscription date into the Y-m-d license format,
      * returning '' when the date is empty/unset.
      */
-    private function toLicenseDate($date): string
+    private function toLicenseDate(mixed $date): string
     {
         return $date && strtotime((string) $date) > 1 ? date('Y-m-d', strtotime((string) $date)) : '';
     }
