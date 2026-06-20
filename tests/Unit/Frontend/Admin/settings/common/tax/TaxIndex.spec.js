@@ -79,3 +79,130 @@ describe('TaxIndex.vue', () => {
         expect(wrapper.findComponent({ name: 'DataTable' }).exists() || wrapper.html().includes('datatable')).toBeTruthy()
     })
 })
+
+describe('TaxIndex.vue — branch coverage', () => {
+    let wrapper
+
+    beforeEach(async () => {
+        global.mockHttp.onGet(/\/tax-options/).reply(200, {
+            data: {
+                options: { tax_enable: 1, inclusive: 0, rounding: 0, tax_based_on: 'billing' },
+                additional_tax_classes: 'ClassA\nClassB',
+                classes: [{ slug: '', name: 'Standard' }, { slug: 'reduced', name: 'Reduced' }],
+            },
+        })
+        global.mockHttp.onPost(/\/taxes\/option/).reply(200, { message: 'Saved' })
+        wrapper = mount(TaxIndex, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: ['AppAlert', 'DataTable', 'SelectField', 'action-button', 'DeleteModal', 'loader', 'inline-loader', 'router-link'],
+            },
+        })
+        wrapper.vm.dtRef = { refresh: jest.fn(), tableData: [] }
+        await flushPromises()
+    })
+
+    // ── allSelected / toggleAll ──────────────────────────────────────
+    it('allSelected is false when tableData is empty', () => {
+        expect(wrapper.vm.allSelected).toBe(false)
+    })
+    it('allSelected is true when all rows are selected', () => {
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }, { id: 2 }], refresh: jest.fn() }
+        wrapper.vm.selected = [1, 2]
+        expect(wrapper.vm.allSelected).toBe(true)
+    })
+    it('toggleAll selects all rows when checked', () => {
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }, { id: 2 }], refresh: jest.fn() }
+        wrapper.vm.toggleAll({ target: { checked: true } })
+        expect(wrapper.vm.selected).toEqual(expect.arrayContaining([1, 2]))
+    })
+    it('toggleAll deselects all when unchecked', () => {
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }], refresh: jest.fn() }
+        wrapper.vm.selected = [1, 99]
+        wrapper.vm.toggleAll({ target: { checked: false } })
+        expect(wrapper.vm.selected).not.toContain(1)
+        expect(wrapper.vm.selected).toContain(99)
+    })
+
+    // ── onClassesChange ─────────────────────────────────────────────
+    it('onClassesChange maps string values to {name} objects', () => {
+        wrapper.vm.onClassesChange(['Standard', 'Reduced'])
+        expect(wrapper.vm.additionalClasses).toEqual([{ name: 'Standard' }, { name: 'Reduced' }])
+    })
+    it('onClassesChange handles null/undefined gracefully', () => {
+        wrapper.vm.onClassesChange(null)
+        expect(wrapper.vm.additionalClasses).toEqual([])
+    })
+    it('onClassesChange filters blank entries', () => {
+        wrapper.vm.onClassesChange(['Standard', '  ', ''])
+        expect(wrapper.vm.additionalClasses).toEqual([{ name: 'Standard' }])
+    })
+
+    // ── setActiveClass ───────────────────────────────────────────────
+    it('setActiveClass updates activeClass and clears selection', () => {
+        wrapper.vm.dtRef = { refresh: jest.fn(), tableData: [] }
+        wrapper.vm.selected = [1, 2]
+        wrapper.vm.setActiveClass('reduced')
+        expect(wrapper.vm.activeClass).toBe('reduced')
+        expect(wrapper.vm.selected).toEqual([])
+    })
+
+    // ── orderedClasses / createTo ───────────────────────────────────
+    it('orderedClasses puts Standard first', () => {
+        const ordered = wrapper.vm.orderedClasses
+        expect(ordered[0].slug).toBe('')
+    })
+    it('createTo includes class query when activeClass is set', () => {
+        wrapper.vm.activeClass = 'reduced'
+        expect(wrapper.vm.createTo.query).toEqual({ class: 'reduced' })
+    })
+    it('createTo has empty query when activeClass is empty string', () => {
+        wrapper.vm.activeClass = ''
+        expect(wrapper.vm.createTo.query).toEqual({})
+    })
+
+    // ── templates ────────────────────────────────────────────────────
+    describe('templates', () => {
+        const tpl = () => wrapper.vm.tableOptions.templates
+        it('name returns — when falsy', () => { expect(tpl().name(null, {})).toBe('—') })
+        it('country returns — when falsy', () => { expect(tpl().country(null, {})).toBe('—') })
+        it('state returns — when falsy', () => { expect(tpl().state(null, {})).toBe('—') })
+        it('rate returns — when undefined', () => { expect(tpl().rate(null, {})).toBe('—') })
+        it('rate returns value when 0', () => { expect(tpl().rate(null, { rate: 0 })).toBe(0) })
+        it('priority returns — when undefined', () => { expect(tpl().priority(null, {})).toBe('—') })
+        it('compound returns — when falsy', () => { expect(tpl().compound(null, {})).toBe('—') })
+        it('active returns — when falsy', () => { expect(tpl().active(null, {})).toBe('—') })
+    })
+
+    // ── requestAdapter ───────────────────────────────────────────────
+    describe('requestAdapter', () => {
+        const adapt = (d) => wrapper.vm.tableOptions.requestAdapter(d)
+        it('defaults sort-field to created_at', () => {
+            expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-field']).toBe('created_at')
+        })
+        it('includes activeClass in tax_class param', () => {
+            wrapper.vm.activeClass = 'reduced'
+            expect(adapt({ ascending: true, query: '', page: 1, limit: 10 }).tax_class).toBe('reduced')
+        })
+        it('sets asc when ascending=true', () => {
+            expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-order']).toBe('asc')
+        })
+        it('sets desc when ascending=false', () => {
+            expect(adapt({ ascending: false, query: '', page: 1, limit: 10 })['sort-order']).toBe('desc')
+        })
+    })
+
+    // ── loadOptions: parses additional_tax_classes ───────────────────
+    it('loadOptions parses additional_tax_classes into name objects', async () => {
+        expect(wrapper.vm.additionalClasses).toEqual(
+            expect.arrayContaining([{ name: 'ClassA' }, { name: 'ClassB' }])
+        )
+    })
+
+    // ── confirmBulkDelete: empty selection ───────────────────────────
+    it('confirmBulkDelete does nothing when selection is empty', () => {
+        wrapper.vm.selected = []
+        wrapper.vm.confirmBulkDelete()
+        expect(wrapper.vm.pendingBulkDelete).toBeNull()
+    })
+})

@@ -71,15 +71,100 @@ describe('PlanIndex.vue', () => {
 
     it('DataTable refresh is called after delete', async () => {
         const refreshMock = jest.fn()
-        // dtRef is a Vue ref; assign via .value proxy then call through the stored mock
         wrapper.vm.dtRef = { refresh: refreshMock, tableData: [] }
         wrapper.vm.selectedPlans = [1]
         wrapper.vm.confirmBulkDelete()
         await wrapper.vm.$nextTick()
-        // Simulate the @deleted event handler
         wrapper.vm.pendingBulkDelete = null
         wrapper.vm.selectedPlans = []
         refreshMock()
         expect(refreshMock).toHaveBeenCalled()
+    })
+
+    // ── toggleRow / toggleAll / allSelected ─────────────────────────
+    it('toggleRow adds an id when not already selected', () => {
+        wrapper.vm.toggleRow(7)
+        expect(wrapper.vm.selectedPlans).toContain(7)
+    })
+
+    it('toggleRow removes an id when already selected', () => {
+        wrapper.vm.selectedPlans = [7]
+        wrapper.vm.toggleRow(7)
+        expect(wrapper.vm.selectedPlans).not.toContain(7)
+    })
+
+    it('toggleAll selects all tableData rows when checked', () => {
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }, { id: 2 }], refresh: jest.fn() }
+        wrapper.vm.toggleAll({ target: { checked: true } })
+        expect(wrapper.vm.selectedPlans).toEqual(expect.arrayContaining([1, 2]))
+    })
+
+    it('toggleAll deselects tableData rows when unchecked, preserving others', () => {
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }, { id: 2 }], refresh: jest.fn() }
+        wrapper.vm.selectedPlans = [1, 2, 99]
+        wrapper.vm.toggleAll({ target: { checked: false } })
+        expect(wrapper.vm.selectedPlans).not.toContain(1)
+        expect(wrapper.vm.selectedPlans).toContain(99)
+    })
+
+    it('allSelected is false when tableData is empty', () => {
+        wrapper.vm.dtRef = { tableData: [], refresh: jest.fn() }
+        expect(wrapper.vm.allSelected).toBe(false)
+    })
+
+    it('allSelected is true when every tableData row is selected', () => {
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }, { id: 2 }], refresh: jest.fn() }
+        wrapper.vm.selectedPlans = [1, 2]
+        expect(wrapper.vm.allSelected).toBe(true)
+    })
+
+    it('allSelected is false when some rows are not selected', () => {
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }, { id: 2 }], refresh: jest.fn() }
+        wrapper.vm.selectedPlans = [1]
+        expect(wrapper.vm.allSelected).toBe(false)
+    })
+
+    // ── templates ────────────────────────────────────────────────────
+    describe('tableOptions.templates', () => {
+        const tpl = () => wrapper.vm.tableOptions.templates
+
+        it('name returns — when falsy', () => { expect(tpl().name(null, {})).toBe('—') })
+        it('name returns name when present', () => { expect(tpl().name(null, { name: 'Monthly' })).toBe('Monthly') })
+
+        it('product returns — when no product', () => { expect(tpl().product(null, {})).toBe('—') })
+        it('product returns plain text when product but no product_id', () => {
+            expect(tpl().product(null, { product: 'MyApp' })).toBe('MyApp')
+        })
+        it('product renders RouterLink when product and product_id are present', () => {
+            const vnode = tpl().product(null, { product: 'MyApp', product_id: 1 })
+            expect(vnode).toBeTruthy()
+            expect(typeof vnode).toBe('object')
+        })
+
+        it('period returns — when falsy', () => { expect(tpl().period(null, {})).toBe('—') })
+        it('period returns value when present', () => { expect(tpl().period(null, { period: 'Monthly' })).toBe('Monthly') })
+
+        it('currencies returns — when empty', () => { expect(tpl().currencies(null, { currencies: [] })).toBe('—') })
+        it('currencies joins array when present', () => { expect(tpl().currencies(null, { currencies: ['USD', 'EUR'] })).toBe('USD, EUR') })
+    })
+
+    // ── requestAdapter ───────────────────────────────────────────────
+    describe('tableOptions.requestAdapter', () => {
+        const adapt = (d) => wrapper.vm.tableOptions.requestAdapter(d)
+        it('maps period to days in sort-field', () => {
+            expect(adapt({ orderBy: 'period', ascending: true, query: '', page: 1, limit: 10 })['sort-field']).toBe('days')
+        })
+        it('defaults sort-field to created_at when orderBy is undefined', () => {
+            expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-field']).toBe('created_at')
+        })
+        it('passes through other orderBy values unchanged', () => {
+            expect(adapt({ orderBy: 'name', ascending: true, query: '', page: 1, limit: 10 })['sort-field']).toBe('name')
+        })
+        it('sets asc sort-order when ascending is true', () => {
+            expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-order']).toBe('asc')
+        })
+        it('sets desc sort-order when ascending is false', () => {
+            expect(adapt({ ascending: false, query: '', page: 1, limit: 10 })['sort-order']).toBe('desc')
+        })
     })
 })

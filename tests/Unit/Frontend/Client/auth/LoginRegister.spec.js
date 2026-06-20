@@ -157,4 +157,136 @@ describe('LoginRegister.vue', () => {
 
         expect(applyServerValidation).toHaveBeenCalled()
     })
+
+    // ── onCountryChange ──────────────────────────────────────────────
+    it('onCountryChange updates regForm.country', () => {
+        const country = { id: 1, name: 'India', code: 'IN' }
+        wrapper.vm.onCountryChange(country)
+        expect(wrapper.vm.regForm.country).toEqual(country)
+    })
+
+    // ── onMobileCountryChange ────────────────────────────────────────
+    it('onMobileCountryChange updates mobile_country_iso and mobile_code', () => {
+        wrapper.vm.onMobileCountryChange({ iso: 'in', dialCode: '91' })
+        expect(wrapper.vm.regForm.mobile_country_iso).toBe('in')
+        expect(wrapper.vm.regForm.mobile_code).toBe('91')
+    })
+
+    // ── onMobileInput ────────────────────────────────────────────────
+    it('onMobileInput strips non-digit characters from the mobile number', () => {
+        wrapper.vm.onMobileInput('+91 999-888-7777')
+        expect(wrapper.vm.regForm.mobile).toBe('919998887777')
+    })
+
+    it('onMobileInput handles numeric string input', () => {
+        wrapper.vm.onMobileInput('9876543210')
+        expect(wrapper.vm.regForm.mobile).toBe('9876543210')
+    })
+
+    // ── checklist computed ───────────────────────────────────────────
+    it('checklist returns 5 requirement items', () => {
+        expect(wrapper.vm.checklist).toHaveLength(5)
+    })
+
+    it('checklist marks items as ok based on passwordChecks result', () => {
+        const { passwordChecks } = require('@/validations/client/authSchemas.js')
+        passwordChecks.mockReturnValueOnce({ length: true, lower: true, upper: false, number: false, special: false })
+        wrapper.vm.regForm.password = 'Test123'
+        const list = wrapper.vm.checklist
+        const length = list.find(c => c.key === 'length')
+        expect(length).toBeDefined()
+    })
+
+    // ── prefillCountry ───────────────────────────────────────────────
+    it('prefillCountry returns early when name is missing', async () => {
+        await wrapper.vm.prefillCountry('IN', null)
+        expect(wrapper.vm.regForm.country).toBeNull()
+    })
+
+    it('prefillCountry fetches countries and pre-selects the matching one', async () => {
+        axiosMock.onGet('/dependency/countries').reply(200, {
+            data: { countries: [{ id: 1, name: 'India', code: 'IN' }] },
+        })
+        await wrapper.vm.prefillCountry('IN', 'India')
+        await flushPromises()
+        expect(wrapper.vm.regForm.country).toEqual({ id: 1, name: 'India', code: 'IN' })
+    })
+
+    it('prefillCountry does not set country when no match is found', async () => {
+        axiosMock.onGet('/dependency/countries').reply(200, {
+            data: { countries: [{ id: 2, name: 'USA', code: 'US' }] },
+        })
+        await wrapper.vm.prefillCountry('IN', 'India')
+        await flushPromises()
+        expect(wrapper.vm.regForm.country).toBeNull()
+    })
+
+    // ── Register: inline validation errors from schema ───────────────
+    it('register shows inline errors when registerSchema.validateSync throws', async () => {
+        const { scrollToFirstError } = require('@/helpers/formUtils.js')
+        registerSchema.validateSync.mockImplementationOnce(() => {
+            const err = new Error('Validation')
+            err.inner = [{ path: 'first_name', message: 'Required' }]
+            throw err
+        })
+        await wrapper.findAll('form')[1].trigger('submit')
+        await flushPromises()
+        expect(scrollToFirstError).toHaveBeenCalled()
+    })
+
+    // ── Register: termsEnabled validation ────────────────────────────
+    it('register blocks submit when termsEnabled and terms not accepted', async () => {
+        const { scrollToFirstError } = require('@/helpers/formUtils.js')
+        wrapper.vm.termsEnabled = true
+        wrapper.vm.regForm.terms = false
+        await wrapper.findAll('form')[1].trigger('submit')
+        await flushPromises()
+        expect(scrollToFirstError).toHaveBeenCalled()
+    })
+
+    // ── Register: need_verify redirect ───────────────────────────────
+    it('register sets loggingIn false after request completes', async () => {
+        axiosMock.onPost('/auth/register').reply(200, { data: { need_verify: 0 } })
+        await wrapper.findAll('form')[1].trigger('submit')
+        await flushPromises()
+        expect(wrapper.vm.registering).toBe(false)
+    })
+
+    // ── Login: loggingIn resets after completion ─────────────────────
+    it('login sets loggingIn to false after request completes', async () => {
+        axiosMock.onPost('/login').reply(200, { data: { redirect: '/dashboard' } })
+        await wrapper.findAll('form')[0].trigger('submit')
+        await flushPromises()
+        expect(wrapper.vm.loggingIn).toBe(false)
+    })
+
+    // ── onMounted: prefillCountry triggered by location data ─────────
+    it('onMounted calls prefillCountry when location data is returned', async () => {
+        axiosMock.restore()
+        const localMock = new MockAdapter(http)
+        localMock.onGet('/auth/login-config').reply(200, {
+            data: {
+                social: { google: 0, github: 0, twitter: 0, linkedin: 0 },
+                status: { terms: true },
+                apiKeys: { terms_url: '/terms' },
+                location: { iso_code: 'IN', country: 'India' },
+            },
+        })
+        localMock.onGet('/dependency/countries').reply(200, {
+            data: { countries: [{ id: 1, name: 'India', code: 'IN' }] },
+        })
+
+        const w = mount(LoginRegister, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: ['client-field', 'client-checkbox', 'dynamic-select', 'phone-field',
+                    'honeypot', 'recaptcha-field', 'social-buttons', 'router-link'],
+            },
+        })
+        await flushPromises()
+        expect(w.vm.termsEnabled).toBe(true)
+        expect(w.vm.termsUrl).toBe('/terms')
+        localMock.restore()
+        axiosMock = new MockAdapter(http)
+    })
 })

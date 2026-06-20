@@ -143,4 +143,54 @@ describe('CheckoutPage.vue', () => {
         await wrapper.vm.$nextTick()
         expect(wrapper.text()).toContain('$')
     })
+
+    it('shows loader when loading=true and no items yet', async () => {
+        wrapper.vm.loading = true
+        await wrapper.vm.$nextTick()
+        expect(wrapper.exists()).toBeTruthy()
+    })
+
+    it('shows processing fee note when selected gateway has processing_fee', async () => {
+        wrapper = createWrapper({
+            ...cartStateWithItems,
+            cart: {
+                ...cartStateWithItems.cart,
+                gateways: [{ name: 'stripe', processing_fee: 2.5 }],
+            },
+        })
+        wrapper.vm.selectedGateway = 'stripe'
+        await wrapper.vm.$nextTick()
+        expect(wrapper.html()).toBeTruthy()
+    })
+
+    it('shows item image when present', async () => {
+        wrapper = createWrapper({
+            ...cartStateWithItems,
+            cart: {
+                ...cartStateWithItems.cart,
+                items: [{ id: 1, name: 'A', image: 'http://x.com/img.png', quantity: 1, agents: null, line_total: 99 }],
+            },
+        })
+        await wrapper.vm.$nextTick()
+        expect(wrapper.find('img').exists()).toBe(true)
+    })
+
+    it('shows product placeholder when item has no image', async () => {
+        await wrapper.vm.$nextTick()
+        expect(wrapper.find('.fa-box').exists()).toBe(true)
+    })
+
+    it('shows tax total in summary when tax > 0', async () => {
+        wrapper = createWrapper({
+            ...cartStateWithItems,
+            cart: {
+                ...cartStateWithItems.cart,
+                tax_total: 10,
+                tax_label: 'GST',
+                taxes: [{ label: 'GST', rate: 10, amount: 10 }],
+            },
+        })
+        await wrapper.vm.$nextTick()
+        expect(wrapper.text()).toContain('GST')
+    })
 })

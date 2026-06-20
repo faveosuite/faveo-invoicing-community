@@ -66,3 +66,57 @@ describe('ProductGroupIndex.vue', () => {
         expect(wrapper.find('delete-modal-stub').exists()).toBe(true)
     })
 })
+
+describe('ProductGroupIndex.vue — branch coverage', () => {
+    let wrapper
+    beforeEach(() => {
+        global.mockHttp.onGet(/\/product-groups/).reply(200, { data: [] })
+        wrapper = mount(ProductGroupIndex, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: ['DataTable', 'AppAlert', 'DeleteModal', 'router-link'],
+            },
+        })
+        wrapper.vm.dtRef = { refresh: jest.fn(), tableData: [] }
+    })
+
+    it('toggleRow adds id', () => { wrapper.vm.toggleRow(9); expect(wrapper.vm.selectedGroups).toContain(9) })
+    it('toggleRow removes id', () => { wrapper.vm.selectedGroups = [9]; wrapper.vm.toggleRow(9); expect(wrapper.vm.selectedGroups).not.toContain(9) })
+    it('toggleAll selects all', () => {
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }, { id: 2 }], refresh: jest.fn() }
+        wrapper.vm.toggleAll({ target: { checked: true } })
+        expect(wrapper.vm.selectedGroups).toEqual(expect.arrayContaining([1, 2]))
+    })
+    it('toggleAll deselects all from tableData', () => {
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }], refresh: jest.fn() }
+        wrapper.vm.selectedGroups = [1, 99]
+        wrapper.vm.toggleAll({ target: { checked: false } })
+        expect(wrapper.vm.selectedGroups).not.toContain(1)
+        expect(wrapper.vm.selectedGroups).toContain(99)
+    })
+    it('allSelected is false when no tableData', () => { expect(wrapper.vm.allSelected).toBe(false) })
+    it('allSelected is true when all selected', () => {
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }], refresh: jest.fn() }
+        wrapper.vm.selectedGroups = [1]
+        expect(wrapper.vm.allSelected).toBe(true)
+    })
+    it('allSelected is false when some not selected', () => {
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }, { id: 2 }], refresh: jest.fn() }
+        wrapper.vm.selectedGroups = [1]
+        expect(wrapper.vm.allSelected).toBe(false)
+    })
+
+    describe('templates', () => {
+        const tpl = () => wrapper.vm.tableOptions.templates
+        it('name returns — when falsy', () => { expect(tpl().name(null, {})).toBe('—') })
+        it('name returns value when set', () => { expect(tpl().name(null, { name: 'Enterprise' })).toBe('Enterprise') })
+    })
+
+    describe('requestAdapter', () => {
+        const adapt = (d) => wrapper.vm.tableOptions.requestAdapter(d)
+        it('defaults sort-field to created_at', () => { expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-field']).toBe('created_at') })
+        it('passes orderBy through', () => { expect(adapt({ orderBy: 'name', ascending: true, query: '', page: 1, limit: 10 })['sort-field']).toBe('name') })
+        it('sets asc when ascending=true', () => { expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-order']).toBe('asc') })
+        it('sets desc when ascending=false', () => { expect(adapt({ ascending: false, query: '', page: 1, limit: 10 })['sort-order']).toBe('desc') })
+    })
+})
