@@ -1,96 +1,162 @@
-import { mount } from '@vue/test-utils';
-import InstallationsView from '../../../../../Resources/js/Pages/Installations/InstallationsView.vue';
-import axios from 'axios';
-import { createStore } from 'vuex';
+jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: jest.fn(() => 1) }))
+jest.mock('@/helpers/responseHandler', () => ({ successHandler: jest.fn(), errorHandler: jest.fn() }))
+jest.mock('@/core/composables/useDateTime', () => ({ useDateTime: () => ({ formatDateTime: (v) => v, formatDate: (v) => v }) }))
 
-jest.mock('axios');
+import { mount } from '@vue/test-utils'
+import { createTestingPinia } from '@pinia/testing'
+import MockAdapter from 'axios-mock-adapter'
+import http from '@/plugins/axios.js'
+import InstallationsView from '../../../../../Resources/js/Pages/Installations/InstallationsView.vue'
+
+const installationFixture = {
+    id: 1, installation_domain: 'example.com', installation_ip: '1.2.3.4',
+    installation_status: 1, product_title: 'Product A',
+    license_code: 'LIC-001', license_id: 5,
+}
 
 describe('InstallationsView.vue', () => {
-    let globalConfig;
-    let store;
+    let wrapper
+    let axiosMock
 
     beforeEach(() => {
-        delete window.location;
-        window.location = { pathname: '/installations/1/view' };
-
-        axios.get.mockResolvedValue({
-            data: {
-                data: {
-                    id: 1,
-                    product_title: 'Test Product',
-                    license_code: 'ABCD1234EFGH5678',
-                    license_id: 10,
-                    installation_date: '2023-01-01',
-                    installation_domain: 'example.com',
-                    installation_ip: '127.0.0.1',
-                    installation_disable_ip_verification: 1,
-                    installation_status: 1
-                }
-            }
-        });
-
-        store = createStore({
-            actions: {
-                unsetValidationError: jest.fn(),
-            }
-        });
-
-        globalConfig = {
-            plugins: [store],
-            stubs: {
-                'custom-loader': true,
-                'alert': true,
-                'data-table': true,
-                'delete-modal': true,
-                'router-link': true,
+        axiosMock = new MockAdapter(http)
+        axiosMock.onGet(/\/api\/admin\/installationView\//).reply(200, { data: installationFixture })
+        wrapper = mount(InstallationsView, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: ['AppAlert', 'DataTable', 'table-actions', 'inline-loader', 'action-button'],
             },
-            mocks: {
-                lang: (msg) => msg,
-                basePath: () => '/admin',
+        })
+    })
+
+    afterEach(() => {
+        axiosMock.restore()
+    })
+
+    it('is a vue instance', () => {
+        expect(wrapper.exists()).toBeTruthy()
+    })
+
+    it('renders the card structure', () => {
+        expect(wrapper.find('.card').exists()).toBe(true)
+    })
+
+    it('fetches installation data on mount', async () => {
+        await flushPromises()
+        expect(axiosMock.history.get.length).toBeGreaterThan(0)
+        expect(axiosMock.history.get[0].url).toContain('/api/admin/installationView/')
+    })
+
+    it('loading is false after data loads', async () => {
+        await flushPromises()
+        expect(wrapper.vm.loading).toBe(false)
+    })
+
+    it('populates installation_domain after fetch', async () => {
+        await flushPromises()
+        expect(wrapper.vm.installation_domain).toBe('example.com')
+    })
+
+    it('populates installation_ip after fetch', async () => {
+        await flushPromises()
+        expect(wrapper.vm.installation_ip).toBe('1.2.3.4')
+    })
+
+    it('populates product_title after fetch', async () => {
+        await flushPromises()
+        expect(wrapper.vm.product_title).toBe('Product A')
+    })
+
+    it('populates license_code after fetch', async () => {
+        await flushPromises()
+        expect(wrapper.vm.license_code).toBe('LIC-001')
+    })
+
+    it('handles fetch error gracefully', async () => {
+        axiosMock.onGet(/\/api\/admin\/installationView\//).reply(500, { message: 'Error' })
+        wrapper = mount(InstallationsView, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: ['AppAlert', 'DataTable', 'table-actions', 'inline-loader', 'action-button'],
             },
-            directives: {
-                tooltip: () => {}
-            }
-        };
-    });
+        })
+        await flushPromises()
+        expect(wrapper.vm.loading).toBe(false)
+    })
 
-    it('fetches and displays installation details', async () => {
-        const wrapper = mount(InstallationsView, {
-            global: globalConfig,
-        });
+    // ── Delete modal ──────────────────────────────────────────────────────────
 
-        await new Promise(resolve => setTimeout(resolve, 0));
-        await wrapper.vm.$nextTick();
+    it('showDeleteModal toggles showModal to true', () => {
+        expect(wrapper.vm.showModal).toBe(false)
+        wrapper.vm.showDeleteModal()
+        expect(wrapper.vm.showModal).toBe(true)
+    })
 
-        expect(wrapper.vm.product_title).toBe('Test Product');
-        expect(wrapper.find('.card-title').text()).toBe('Test Product');
-        expect(wrapper.vm.license_code).toBe('ABCD1234EFGH5678');
-    });
+    it('onClose sets showModal to false', () => {
+        wrapper.vm.showDeleteModal()
+        wrapper.vm.onClose()
+        expect(wrapper.vm.showModal).toBe(false)
+    })
 
-    it('shows and hides delete modal', async () => {
-        const wrapper = mount(InstallationsView, {
-            global: globalConfig,
-        });
+    it('onDeleted can be called without throwing', () => {
+        expect(() => wrapper.vm.onDeleted()).not.toThrow()
+    })
 
-        expect(wrapper.vm.showModal).toBe(false);
-        wrapper.vm.showDeleteModal();
-        expect(wrapper.vm.showModal).toBe(true);
+    // ── Callbacks tab (updateData) ────────────────────────────────────────────
 
-        wrapper.vm.onClose();
-        expect(wrapper.vm.showModal).toBe(false);
-    });
+    it('updateData sets endPoint for callbacks', async () => {
+        await flushPromises()
+        wrapper.vm.updateData('callbacks', 1)
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.endPoint).toContain('/api/admin/installationCallbacks/')
+    })
 
-    it('renders correct status labels', async () => {
-        const wrapper = mount(InstallationsView, {
-            global: globalConfig,
-        });
+    it('updateData sets columns for callbacks', async () => {
+        await flushPromises()
+        wrapper.vm.updateData('callbacks', 1)
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.columns).toContain('callback_status')
+        expect(wrapper.vm.columns).toContain('callback_domain')
+    })
 
-        await new Promise(resolve => setTimeout(resolve, 0));
-        await wrapper.vm.$nextTick();
+    it('callback responseAdapter maps keyVal and idVal', async () => {
+        await flushPromises()
+        wrapper.vm.updateData('callbacks', 1)
+        await wrapper.vm.$nextTick()
+        const rows = [{ id: 4, callback_ip: '1.2.3.4' }]
+        const result = wrapper.vm.tableOptions.responseAdapter({ data: { data: { data: rows, total: 1 } } })
+        expect(result.data[0].keyVal).toBe('id')
+        expect(result.data[0].idVal).toBe(4)
+        expect(result.count).toBe(1)
+    })
 
-        const statusLabels = wrapper.findAll('.text-success');
-        expect(statusLabels.length).toBeGreaterThan(0);
-        expect(statusLabels.at(0).text()).toBe('enabled');
-        expect(statusLabels.at(1).text()).toBe('active');
-    });
-});
+    it('callback template callback_ip returns em dash when null', async () => {
+        await flushPromises()
+        wrapper.vm.updateData('callbacks', 1)
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.tableOptions.templates.callback_ip(null, { callback_ip: null })).toBe('—')
+    })
+
+    it('callback template callback_status returns success badge', async () => {
+        await flushPromises()
+        wrapper.vm.updateData('callbacks', 1)
+        await wrapper.vm.$nextTick()
+        const result = wrapper.vm.tableOptions.templates.callback_status(null, { callback_status: 1 })
+        expect(result.props.class).toContain('bg-success')
+    })
+
+    it('callback template callback_domain returns em dash when null', async () => {
+        await flushPromises()
+        wrapper.vm.updateData('callbacks', 1)
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.tableOptions.templates.callback_domain(null, { callback_domain: null })).toBe('—')
+    })
+
+    it('callback template callback_domain returns anchor when present', async () => {
+        await flushPromises()
+        wrapper.vm.updateData('callbacks', 1)
+        await wrapper.vm.$nextTick()
+        const result = wrapper.vm.tableOptions.templates.callback_domain(null, { callback_domain: 'example.com' })
+        expect(result.props.href).toContain('example.com')
+    })
+})

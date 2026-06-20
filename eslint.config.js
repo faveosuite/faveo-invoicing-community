@@ -67,13 +67,34 @@ export default defineConfig([
     files: [
       "**/tests/**/*.{js,mjs,cjs}",
       "**/*.spec.{js,mjs,cjs}",
+      "jest.setup.js",
     ],
     languageOptions: {
       globals: {
         ...globals.jest,
         ...globals.node,
+        ...globals.browser,   // jest-environment-jsdom provides window/document
+        // jest.setup.js injects these onto global — tell ESLint they exist
         flushPromises: "readonly",
+        mockHttp:      "readonly",
       },
+    },
+    rules: {
+      // Prefer const when a variable is never reassigned
+      "prefer-const": ["error", { destructuring: "all" }],
+
+      // No var — use let / const
+      "no-var": "error",
+
+      // Every imported name must be used (same as source files)
+      "no-unused-vars": ["error", {
+        varsIgnorePattern: "^_",
+        argsIgnorePattern: "^_",
+        caughtErrors: "none",
+      }],
+
+      // Avoid leaving stray console.log in test files
+      "no-console": "warn",
     },
   },
 

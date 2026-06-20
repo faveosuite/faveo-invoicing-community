@@ -51,3 +51,6 @@ storage/rector
 ehthumbs.db
 Thumbs.db
 app/Http/Controllers/Front/GetPageTemplateController.php
+
+# Jest coverage output
+coverage/

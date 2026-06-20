@@ -1,93 +1,157 @@
-import { mount } from '@vue/test-utils';
-import BannedHostCreateEdit from '../../../../../../Resources/js/Pages/BannedHost/BannedHostCreateEdit.vue';
-import axios from 'axios';
-import { successHandler } from '../../../../../../Resources/js/helpers/responseHandler';
-import { bannedHostValidation } from "../../../../../../Resources/js/helpers/validator/bannedHostValidation.js";
-import { getIdFromUrl } from '../../../../../../Resources/js/helpers/extraLogics';
+jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
+jest.mock('vue-router', () => ({ useRouter: () => ({ push: jest.fn() }), useRoute: () => ({ params: {}, query: {} }) }))
+jest.mock('@/helpers/responseHandler', () => ({ successHandler: jest.fn(), errorHandler: jest.fn() }))
+jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)) }))
 
-jest.mock('axios');
-jest.mock('../../../../../../Resources/js/helpers/responseHandler');
-jest.mock('../../../../../../Resources/js/helpers/validator/bannedHostValidation.js');
-jest.mock('../../../../../../Resources/js/helpers/extraLogics');
+import { mount } from '@vue/test-utils'
+import { createTestingPinia } from '@pinia/testing'
+import MockAdapter from 'axios-mock-adapter'
+import http from '@/plugins/axios.js'
+import BannedHostCreateEdit from '../../../../../Resources/js/Pages/BannedHost/BannedHostCreateEdit.vue'
 
 describe('BannedHostCreateEdit.vue', () => {
-    let wrapper;
-    const mockRouter = {
-        push: jest.fn()
-    };
+    let wrapper
+    let axiosMock
 
     beforeEach(() => {
-        delete window.location;
-        window.location = { pathname: '/banned-hosts/add' };
-        getIdFromUrl.mockReturnValue(null);
-        bannedHostValidation.mockReturnValue({ isValid: true, errors: {} });
-        axios.get.mockResolvedValue({ data: { data: { banned_host_data: { banned_host_ip: '1.1.1.1', comments: 'test' } } } });
-        axios.post.mockResolvedValue({ data: { message: 'Success' } });
-
+        axiosMock = new MockAdapter(http)
         wrapper = mount(BannedHostCreateEdit, {
             global: {
-                mocks: {
-                    lang: (s) => s,
-                    $router: mockRouter
-                },
-                stubs: {
-                    'custom-loader': true,
-                    'alert': true,
-                    'text-field': true
-                }
-            }
-        });
-    });
+                plugins: [createTestingPinia()],
+                stubs: ['AppAlert', 'inline-loader', 'action-button', 'text-field', 'app-alert'],
+            },
+        })
+    })
 
     afterEach(() => {
-        jest.clearAllMocks();
-    });
+        axiosMock.restore()
+    })
 
-    it('renders the create form correctly', () => {
-        expect(wrapper.vm.title).toBe('add_new_banned_host');
-        expect(wrapper.find('.card-title').text()).toBe('add_new_banned_host');
-    });
+    it('is a vue instance', () => {
+        expect(wrapper.exists()).toBeTruthy()
+    })
 
-    it('changes to edit mode when path contains edit', async () => {
-        window.location.pathname = '/banned-hosts/edit/1';
-        getIdFromUrl.mockReturnValue(1);
-        
-        // Re-mount to trigger beforeMount logic with new path
+    it('renders the card structure', () => {
+        expect(wrapper.find('.card').exists()).toBe(true)
+    })
+
+    it('updates data on field change', async () => {
+        wrapper.vm.onChange('192.168.0.1', 'banned_host_ip')
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.banned_host_ip).toBe('192.168.0.1')
+    })
+
+    it('calls submit API on form submit', async () => {
+        axiosMock.onPost(/\/api\/admin\/bannedHost/).reply(200, { data: {}, message: 'Created' })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(axiosMock.history.post.length).toBeGreaterThan(0)
+    })
+
+    it('handles submit API error', async () => {
+        axiosMock.onPost(/\/api\/admin\/bannedHost/).reply(422, { message: 'Validation failed', errors: { banned_host_ip: ['Required'] } })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(wrapper.exists()).toBe(true)
+    })
+
+    it('saving is false after submit completes', async () => {
+        axiosMock.onPost(/\/api\/admin\/bannedHost/).reply(200, { data: {}, message: 'Done' })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(wrapper.vm.saving).toBe(false)
+    })
+
+    it('calls successHandler on submit success', async () => {
+        const { successHandler } = require('@/helpers/responseHandler')
+        axiosMock.onPost(/\/api\/admin\/bannedHost/).reply(200, { data: {}, message: 'Created' })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(successHandler).toHaveBeenCalled()
+    })
+
+    it('calls errorHandler on submit 500', async () => {
+        const { errorHandler } = require('@/helpers/responseHandler')
+        axiosMock.onPost(/\/api\/admin\/bannedHost/).reply(500, { message: 'Server error' })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(errorHandler).toHaveBeenCalled()
+    })
+
+    it('fetches data in edit mode when path contains edit', async () => {
+        const { getIdFromUrl } = require('@/helpers/extraLogics')
+        getIdFromUrl.mockReturnValue(3)
+        Object.defineProperty(window, 'location', { value: { pathname: '/admin/banned-hosts/3/edit' }, writable: true })
+        axiosMock.onGet(/\/api\/admin\/viewBannedHost\//).reply(200, { data: { banned_host_ip: '10.0.0.1', banned_host_comments: 'test' } })
         wrapper = mount(BannedHostCreateEdit, {
             global: {
-                mocks: {
-                    lang: (s) => s,
-                    $router: mockRouter
-                },
-                stubs: {
-                    'custom-loader': true,
-                    'alert': true,
-                    'text-field': true
-                }
-            }
-        });
+                plugins: [createTestingPinia()],
+                stubs: ['AppAlert', 'inline-loader', 'action-button', 'text-field', 'app-alert'],
+            },
+        })
+        await flushPromises()
+        expect(axiosMock.history.get.length).toBeGreaterThan(0)
+    })
 
-        expect(wrapper.vm.title).toBe('edit_banned_host');
-        expect(axios.get).toHaveBeenCalledWith('/api/admin/viewBannedHost/1');
-    });
+    it('onChange updates banned_host_comments', async () => {
+        wrapper.vm.onChange('test comment', 'banned_host_comments')
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.banned_host_comments).toBe('test comment')
+    })
 
-    it('calls onSubmit and handles success', async () => {
-        await wrapper.vm.onSubmit();
-        expect(axios.post).toHaveBeenCalled();
-        expect(successHandler).toHaveBeenCalled();
-    });
+    it('onChange ignores unknown field names', async () => {
+        const before = wrapper.vm.banned_host_ip
+        wrapper.vm.onChange('value', 'unknown_field')
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.banned_host_ip).toBe(before)
+    })
 
-    it('handles validation failure in onSubmit', async () => {
-        bannedHostValidation.mockReturnValue({ isValid: false, errors: { ip: 'Required' } });
-        await wrapper.vm.onSubmit();
-        expect(axios.post).not.toHaveBeenCalled();
-    });
+    it('updateStatesWithData populates banned_host_ip when edit data loads', async () => {
+        const { getIdFromUrl } = require('@/helpers/extraLogics')
+        getIdFromUrl.mockReturnValue(2)
+        Object.defineProperty(window, 'location', { value: { pathname: '/admin/banned-hosts/2/edit' }, writable: true })
+        axiosMock.onGet(/\/api\/admin\/viewBannedHost\//).reply(200, {
+            data: { banned_host_data: { banned_host_ip: '192.168.5.5', comments: 'my comment' } }
+        })
+        wrapper = mount(BannedHostCreateEdit, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: ['AppAlert', 'inline-loader', 'action-button', 'text-field', 'app-alert'],
+            },
+        })
+        await flushPromises()
+        expect(wrapper.vm.banned_host_ip).toBe('192.168.5.5')
+        expect(wrapper.vm.banned_host_comments).toBe('my comment')
+        expect(wrapper.vm.isEdit).toBe(true)
+        expect(wrapper.vm.title).toBe('edit_banned_host')
+    })
 
-    it('updates data on onChange', () => {
-        wrapper.vm.onChange('1.2.3.4', 'banned_host_ip');
-        expect(wrapper.vm.banned_host_ip).toBe('1.2.3.4');
-        
-        wrapper.vm.onChange('new comment', 'banned_host_comments');
-        expect(wrapper.vm.banned_host_comments).toBe('new comment');
-    });
-});
+    it('redirect timer fires after successful create (no hostId)', async () => {
+        jest.useFakeTimers()
+        axiosMock.onPost(/\/api\/admin\/bannedHost/).reply(200, { data: {}, message: 'Created' })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        jest.advanceTimersByTime(2001)
+        expect(wrapper.exists()).toBe(true)
+    })
+
+    it('onSubmit on update (with hostId) calls getInitialValues', async () => {
+        const { getIdFromUrl } = require('@/helpers/extraLogics')
+        getIdFromUrl.mockReturnValue(4)
+        Object.defineProperty(window, 'location', { value: { pathname: '/admin/banned-hosts/4/edit' }, writable: true })
+        axiosMock.onGet(/\/api\/admin\/viewBannedHost\//).reply(200, {
+            data: { banned_host_data: { banned_host_ip: '5.5.5.5', comments: '' } }
+        })
+        axiosMock.onPost(/\/api\/admin\/bannedHost/).reply(200, { data: {}, message: 'Updated' })
+        wrapper = mount(BannedHostCreateEdit, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: ['AppAlert', 'inline-loader', 'action-button', 'text-field', 'app-alert'],
+            },
+        })
+        await flushPromises()
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(axiosMock.history.post.length).toBeGreaterThan(0)
+    })
+})

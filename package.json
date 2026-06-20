@@ -5,8 +5,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint resources/assets/js/ app/ && echo 'No errors, no warnings!'",
-    "lint:fix": "eslint resources/assets/js/ app/ --fix",
+    "lint": "eslint resources/assets/js/ app/ tests/Unit/Frontend/ jest.setup.js && echo 'No errors, no warnings!'",
+    "lint:fix": "eslint resources/assets/js/ app/ tests/Unit/Frontend/ jest.setup.js --fix",
+    "lint:tests": "eslint tests/Unit/Frontend/ && echo 'Test files OK'",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -16,6 +17,7 @@
     "@babel/core": "^7.29.0",
     "@babel/preset-env": "^7.29.0",
     "@eslint/js": "^10.0.1",
+    "@pinia/testing": "^1.0.3",
     "@vitejs/plugin-vue": "^6.0.4",
     "@vue/compiler-dom": "^3.5.33",
     "@vue/compiler-sfc": "^3.5.33",
@@ -32,8 +34,10 @@
     "jest-environment-jsdom": "^29.7.0",
     "laravel-vite-plugin": "^2.1.0",
     "lodash": "^4.17.23",
+    "msw": "^2.14.6",
     "postcss": "^8.5.6",
     "sass": "^1.97.0",
+    "undici": "^8.5.0",
     "vite": "^7.3.1",
     "vue-eslint-parser": "^10.4.1"
   },
@@ -82,9 +86,11 @@
     ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/resources/assets/js/$1",
-      "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-      "^.*Resources/js/(.*)$": "<rootDir>/app/License/Resources/js/$1",
-      "^helpers/(.*)$": "<rootDir>/app/License/Resources/js/helpers/$1"
+      "^@recaptcha/(.*)$": "<rootDir>/app/Plugins/Recaptcha/resources/assets/js/vue/$1",
+      "\\.(css|less|scss|sass|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$": "identity-obj-proxy",
+      "^.*Resources/js/Pages/(.*)$": "<rootDir>/app/License/Resources/js/Pages/$1",
+      "^.*Resources/js/(.*)$": "<rootDir>/resources/assets/js/$1",
+      "^helpers/(.*)$": "<rootDir>/resources/assets/js/helpers/$1"
     },
     "moduleDirectories": [
       "node_modules",
@@ -93,9 +99,33 @@
     "transformIgnorePatterns": [
       "node_modules/(?!(@vue|axios)/)"
     ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ],
+    "roots": [
+      "<rootDir>/tests/Unit/Frontend",
+      "<rootDir>/app/License/tests/Frontend"
+    ],
     "testMatch": [
       "**/?(*.)+(spec).js"
     ],
+    "collectCoverageFrom": [
+      "resources/assets/js/**/*.{js,vue}",
+      "app/License/Resources/js/**/*.{js,vue}",
+      "!**/*.spec.js",
+      "!**/tests/**",
+      "!resources/assets/js/admin.js",
+      "!resources/assets/js/client.js"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageThreshold": {
+      "global": {
+        "statements": 0,
+        "branches": 0,
+        "functions": 0,
+        "lines": 0
+      }
+    },
     "globals": {
       "vue": {
         "config": {

@@ -1,53 +1,77 @@
-import { mount } from '@vue/test-utils';
-import ViewUpdateReports from '../../../../../Resources/js/Pages/Report/ViewUpdateReports.vue';
+jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
+jest.mock('@/core/composables/useDateTime', () => ({ useDateTime: () => ({ formatDateTime: (v) => v, formatDate: (v) => v }) }))
+
+import { mount } from '@vue/test-utils'
+import { createTestingPinia } from '@pinia/testing'
+import MockAdapter from 'axios-mock-adapter'
+import http from '@/plugins/axios.js'
+import ViewUpdateReports from '../../../../../Resources/js/Pages/Report/ViewUpdateReports.vue'
 
 describe('ViewUpdateReports.vue', () => {
-    let globalConfig;
+    let wrapper
+    let axiosMock
 
     beforeEach(() => {
-        globalConfig = {
-            stubs: {
-                'custom-loader': true,
-                'alert': true,
-                'data-table': true,
-                'router-link': true,
+        axiosMock = new MockAdapter(http)
+        wrapper = mount(ViewUpdateReports, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: ['AppAlert', 'DataTable', 'table-actions', 'inline-loader'],
             },
-            mocks: {
-                lang: (msg) => msg,
-                basePath: () => '/admin',
-                emitter: {
-                    on: jest.fn(),
-                    off: jest.fn(),
-                    emit: jest.fn(),
-                }
-            }
-        };
-    });
+        })
+    })
 
-    it('renders the component correctly', () => {
-        const wrapper = mount(ViewUpdateReports, {
-            global: globalConfig,
-        });
+    afterEach(() => {
+        axiosMock.restore()
+    })
 
-        expect(wrapper.find('.card-title').text()).toBe('view_update_reports');
-        expect(wrapper.find('data-table-stub').exists()).toBe(true);
-    });
+    it('is a vue instance', () => {
+        expect(wrapper.exists()).toBeTruthy()
+    })
 
-    it('shows loader when loading is true', async () => {
-        const wrapper = mount(ViewUpdateReports, {
-            global: globalConfig,
-        });
-        
-        await wrapper.setData({ loading: true });
-        expect(wrapper.find('custom-loader-stub').exists()).toBe(true);
-    });
+    it('renders the card title', () => {
+        expect(wrapper.find('.card-title').text()).toBe('view_update_reports')
+    })
 
-    it('initializes data table options correctly', () => {
-        const wrapper = mount(ViewUpdateReports, {
-            global: globalConfig,
-        });
+    it('renders DataTable stub', () => {
+        expect(wrapper.find('data-table-stub').exists()).toBe(true)
+    })
 
-        expect(wrapper.vm.options.sortable).toEqual(['report_text', 'report_date_time', 'report_status']);
-        expect(wrapper.vm.columns).toEqual(['report_text', 'product', 'report_date_time', 'report_status']);
-    });
-});
+    it('initializes columns correctly', () => {
+        expect(wrapper.vm.columns).toEqual(['report_text', 'product', 'report_date_time', 'report_status'])
+    })
+
+    it('initializes sortable options', () => {
+        expect(wrapper.vm.options.sortable).toContain('report_text')
+        expect(wrapper.vm.options.sortable).toContain('report_date_time')
+    })
+
+    it('initializes filterable options', () => {
+        expect(wrapper.vm.options.filterable).toEqual(['report_text'])
+    })
+
+    it('endPoint contains reportUpdate', () => {
+        expect(wrapper.vm.endPoint).toContain('/api/admin/reportUpdate')
+    })
+
+    it('requestAdapter falls back to report_date_time when orderBy empty', () => {
+        const result = wrapper.vm.options.requestAdapter({ orderBy: '', ascending: false, query: '', limit: 10, page: 1 })
+        expect(result.sort_field).toBe('report_date_time')
+        expect(result.sort_order).toBe('desc')
+    })
+
+    it('requestAdapter maps correctly with query trim', () => {
+        const result = wrapper.vm.options.requestAdapter({ orderBy: 'report_text', ascending: true, query: '  update  ', limit: 25, page: 3 })
+        expect(result.sort_field).toBe('report_text')
+        expect(result.search_query).toBe('update')
+        expect(result.page).toBe(3)
+    })
+
+    it('responseAdapter maps rows with keyVal and idVal', () => {
+        const rows = [{ id: 8, report_text: 'update check' }]
+        const result = wrapper.vm.options.responseAdapter({ data: { data: { data: rows, total: 1 } } })
+        expect(result.count).toBe(1)
+        expect(result.data[0].keyVal).toBe('id')
+        expect(result.data[0].idVal).toBe(8)
+    })
+})

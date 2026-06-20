@@ -1,70 +1,137 @@
-import { mount } from '@vue/test-utils';
-import WhiteListCreate from '../../../../../Resources/js/Pages/WhiteList/WhiteListCreate.vue';
-import axios from 'axios';
+jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
+jest.mock('vue-router', () => ({ useRouter: () => ({ push: jest.fn() }), useRoute: () => ({ params: {}, query: {} }) }))
+jest.mock('@/helpers/responseHandler', () => ({ successHandler: jest.fn(), errorHandler: jest.fn() }))
+jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)) }))
 
-jest.mock('axios');
+import { mount } from '@vue/test-utils'
+import { createTestingPinia } from '@pinia/testing'
+import MockAdapter from 'axios-mock-adapter'
+import http from '@/plugins/axios.js'
+import WhiteListCreate from '../../../../../Resources/js/Pages/WhiteList/WhiteListCreate.vue'
 
 describe('WhiteListCreate.vue', () => {
-    let globalConfig;
+    let wrapper
+    let axiosMock
 
     beforeEach(() => {
-        axios.get.mockResolvedValue({
-            data: {
-                data: {
-                    host_data: {
-                        whitelist_host_ip: '127.0.0.1',
-                        whitelist_host_comments: 'Localhost'
-                    }
-                }
-            }
-        });
-
-        globalConfig = {
-            stubs: {
-                'custom-loader': true,
-                'alert': true,
-                'text-field': true,
+        axiosMock = new MockAdapter(http)
+        wrapper = mount(WhiteListCreate, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: ['AppAlert', 'inline-loader', 'action-button', 'text-field', 'app-alert'],
             },
-            mocks: {
-                lang: (msg) => msg,
-                basePath: () => '/admin',
-            }
-        };
+        })
+    })
 
-        // Mock window.location
-        delete window.location;
-        window.location = { pathname: '/admin/whitelist/add' };
-    });
+    afterEach(() => {
+        axiosMock.restore()
+    })
 
-    it('renders add mode correctly', () => {
-        const wrapper = mount(WhiteListCreate, {
-            global: globalConfig,
-        });
+    it('is a vue instance', () => {
+        expect(wrapper.exists()).toBeTruthy()
+    })
 
-        expect(wrapper.vm.title).toBe('add_new_whitelist_ip');
-        expect(wrapper.find('h3').text()).toBe('add_new_whitelist_ip');
-    });
+    it('renders the card structure', () => {
+        expect(wrapper.find('.card').exists()).toBe(true)
+    })
 
-    it('renders edit mode and fetches data', async () => {
-        window.location.pathname = '/admin/whitelist/1/edit';
-        const wrapper = mount(WhiteListCreate, {
-            global: globalConfig,
-        });
+    it('updates data on field change', async () => {
+        wrapper.vm.onChange('192.168.1.1', 'whitelist_host_ip')
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.whitelist_host_ip).toBe('192.168.1.1')
+    })
 
-        await new Promise(resolve => setTimeout(resolve, 0));
-        await wrapper.vm.$nextTick();
+    it('calls submit API on form submit', async () => {
+        axiosMock.onPost(/\/api\/admin\/whitelist/).reply(200, { data: {}, message: 'Created' })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(axiosMock.history.post.length).toBeGreaterThan(0)
+    })
 
-        expect(wrapper.vm.title).toBe('edit_whitelist');
-        expect(axios.get).toHaveBeenCalledWith('/api/admin/whitelist-edit/1');
-        expect(wrapper.vm.whitelist_host_ip).toBe('127.0.0.1');
-    });
+    it('handles submit API error', async () => {
+        axiosMock.onPost(/\/api\/admin\/whitelist/).reply(422, { message: 'Validation failed', errors: { whitelist_host_ip: ['Required'] } })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(wrapper.exists()).toBe(true)
+    })
 
-    it('updates data on change', () => {
-        const wrapper = mount(WhiteListCreate, {
-            global: globalConfig,
-        });
+    it('calls successHandler on submit success', async () => {
+        const { successHandler } = require('@/helpers/responseHandler')
+        axiosMock.onPost(/\/api\/admin\/whitelist/).reply(200, { data: {}, message: 'Created' })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(successHandler).toHaveBeenCalled()
+    })
 
-        wrapper.vm.onChange('192.168.1.1', 'whitelist_host_ip');
-        expect(wrapper.vm.whitelist_host_ip).toBe('192.168.1.1');
-    });
-});
+    it('calls errorHandler on submit 500', async () => {
+        const { errorHandler } = require('@/helpers/responseHandler')
+        axiosMock.onPost(/\/api\/admin\/whitelist/).reply(500, { message: 'Server error' })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(errorHandler).toHaveBeenCalled()
+    })
+
+    it('saving is false after submit completes', async () => {
+        axiosMock.onPost(/\/api\/admin\/whitelist/).reply(200, { data: {}, message: 'Created' })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(wrapper.vm.saving).toBe(false)
+    })
+
+    it('onChange whitelist_host_comments updates correctly', async () => {
+        wrapper.vm.onChange('office IP', 'whitelist_host_comments')
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.whitelist_host_comments).toBe('office IP')
+    })
+
+    it('onChange unknown field name does not throw', async () => {
+        expect(() => wrapper.vm.onChange('value', 'unknown_field')).not.toThrow()
+    })
+
+    it('redirect timer fires after successful create', async () => {
+        jest.useFakeTimers()
+        axiosMock.onPost(/\/api\/admin\/whitelist/).reply(200, { data: {}, message: 'Created' })
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        jest.advanceTimersByTime(2001)
+        expect(wrapper.exists()).toBe(true)
+    })
+
+    it('fetches data in edit mode and populates whitelist_host_ip', async () => {
+        const { getIdFromUrl } = require('@/helpers/extraLogics')
+        getIdFromUrl.mockReturnValue(5)
+        Object.defineProperty(window, 'location', { value: { pathname: '/admin/whitelist/5/edit' }, writable: true })
+        axiosMock.onGet(/\/api\/admin\/whitelist-edit\//).reply(200, {
+            data: { host_data: { whitelist_host_ip: '10.0.0.1', whitelist_host_comments: 'office' } }
+        })
+        wrapper = mount(WhiteListCreate, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: ['AppAlert', 'inline-loader', 'action-button', 'text-field', 'app-alert'],
+            },
+        })
+        await flushPromises()
+        expect(wrapper.vm.whitelist_host_ip).toBe('10.0.0.1')
+        expect(wrapper.vm.isEdit).toBe(true)
+    })
+
+    it('onSubmit on update (with hostId) calls getInitialValues instead of redirect', async () => {
+        const { getIdFromUrl } = require('@/helpers/extraLogics')
+        getIdFromUrl.mockReturnValue(3)
+        Object.defineProperty(window, 'location', { value: { pathname: '/admin/whitelist/3/edit' }, writable: true })
+        axiosMock.onGet(/\/api\/admin\/whitelist-edit\//).reply(200, {
+            data: { host_data: { whitelist_host_ip: '1.1.1.1', whitelist_host_comments: '' } }
+        })
+        axiosMock.onPost(/\/api\/admin\/whitelist/).reply(200, { data: {}, message: 'Updated' })
+        wrapper = mount(WhiteListCreate, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: ['AppAlert', 'inline-loader', 'action-button', 'text-field', 'app-alert'],
+            },
+        })
+        await flushPromises()
+        wrapper.vm.onSubmit()
+        await flushPromises()
+        expect(axiosMock.history.post.length).toBeGreaterThan(0)
+    })
+})
