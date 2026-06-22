@@ -36,6 +36,7 @@ class PageController extends Controller
         $page = new FrontendPage;
         $this->page = $page;
     }
+
     /**
      * Public: fetch a single published page by slug for the SPA page view.
      * Returns null data (200) when not found so the client can show a
@@ -73,6 +74,7 @@ class PageController extends Controller
 
         return $result;
     }
+
     public function getPriceDescription(int $productId): string
     {
         try {
