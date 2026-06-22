@@ -72,7 +72,6 @@ use App\License\Controllers\Admin\Views\InstallationViewController;
 use App\Model\Order\Order;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 
 /*
