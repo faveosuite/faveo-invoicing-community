@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Product;
 use App\Facades\Attach;
 use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\License\LicensePermissionsController;
-use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\License\LicenseType;
 use App\Model\Payment\Currency;
@@ -25,7 +24,6 @@ use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Logger;
 
 // use Input;
 

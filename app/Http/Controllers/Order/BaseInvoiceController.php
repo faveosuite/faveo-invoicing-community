@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Model\Order\Invoice;
-use App\Model\Order\InvoiceItem;
 use App\Model\Payment\TaxOption;
 use Exception;
 use Illuminate\Http\RedirectResponse;
