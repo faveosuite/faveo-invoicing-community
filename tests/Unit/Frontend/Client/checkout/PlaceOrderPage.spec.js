@@ -302,3 +302,349 @@ describe('PlaceOrderPage.vue — no invoice param', () => {
         expect(w.find('.fa-file-invoice').exists()).toBeTruthy()
     })
 })
+
+describe('PlaceOrderPage.vue — openStripeModal and payStripe branches', () => {
+    let wrapper
+    let axiosMock
+
+    // Minimal Stripe mock with chainable elements
+    function makeStripeMock() {
+        const fieldMock = () => ({
+            mount: jest.fn(),
+            on: jest.fn(),
+        })
+        const elements = {
+            create: jest.fn(() => fieldMock()),
+        }
+        return {
+            elements: jest.fn(() => elements),
+            confirmCardPayment: jest.fn(),
+        }
+    }
+
+    beforeEach(async () => {
+        axiosMock = new MockAdapter(http)
+        axiosMock.onGet('/invoice/42/pay-init').reply(200, payInitResponse)
+
+        wrapper = mount(PlaceOrderPage, {
+            global: {
+                plugins: [createTestingPinia({ initialState: { alert: {} } })],
+                stubs: ['loader', 'app-modal', 'app-alert'],
+            },
+        })
+        await flushPromises()
+    })
+
+    afterEach(() => {
+        axiosMock.restore()
+        jest.clearAllMocks()
+        delete window.Stripe
+        delete window.Razorpay
+    })
+
+    // ── openStripeModal ───────────────────────────────────────────────────────
+
+    it('openStripeModal posts to /stripe/session and opens modal', async () => {
+        const stripeMock = makeStripeMock()
+        window.Stripe = jest.fn(() => stripeMock)
+
+        axiosMock.onPost('/invoice/42/stripe/session').reply(200, {
+            data: {
+                client_secret: 'cs_test',
+                payment_intent_id: 'pi_test',
+                status: 'requires_payment_method',
+                publishable_key: 'pk_test',
+            },
+        })
+
+        await wrapper.vm.openStripeModal()
+        await flushPromises()
+
+        expect(axiosMock.history.post.some(r => r.url.includes('/stripe/session'))).toBe(true)
+    })
+
+    it('openStripeModal skips card form when status is succeeded', async () => {
+        axiosMock.onPost('/invoice/42/stripe/session').reply(200, {
+            data: {
+                client_secret: 'cs_test',
+                payment_intent_id: 'pi_test',
+                status: 'succeeded',
+                publishable_key: 'pk_test',
+            },
+        })
+        axiosMock.onPost('/invoice/42/stripe/confirm').reply(200, { success: true })
+
+        await wrapper.vm.openStripeModal()
+        await flushPromises()
+
+        // finalizeStripe should have been called → confirm endpoint hit
+        expect(axiosMock.history.post.some(r => r.url.includes('/stripe/confirm'))).toBe(true)
+    })
+
+    it('openStripeModal propagates error on session API failure', async () => {
+        axiosMock.onPost('/invoice/42/stripe/session').reply(500)
+        await expect(wrapper.vm.openStripeModal()).rejects.toBeDefined()
+    })
+
+    // ── payStripe with stripe.confirmCardPayment results ─────────────────────
+
+    it('payStripe calls finalizeStripe when paymentIntent status is succeeded', async () => {
+        const stripeMock = makeStripeMock()
+        stripeMock.confirmCardPayment.mockResolvedValue({
+            paymentIntent: { status: 'succeeded' },
+            error: null,
+        })
+        wrapper.vm.stripe = stripeMock
+        wrapper.vm.cardComplete.number = true
+        wrapper.vm.cardComplete.expiry = true
+        wrapper.vm.cardComplete.cvc = true
+
+        axiosMock.onPost('/invoice/42/stripe/confirm').reply(200, { success: true })
+
+        await wrapper.vm.payStripe()
+        await flushPromises()
+
+        expect(axiosMock.history.post.some(r => r.url.includes('/stripe/confirm'))).toBe(true)
+    })
+
+    it('payStripe sets alert when paymentIntent status is not succeeded', async () => {
+        const stripeMock = makeStripeMock()
+        stripeMock.confirmCardPayment.mockResolvedValue({
+            paymentIntent: { status: 'requires_action' },
+            error: null,
+        })
+        wrapper.vm.stripe = stripeMock
+        wrapper.vm.cardComplete.number = true
+        wrapper.vm.cardComplete.expiry = true
+        wrapper.vm.cardComplete.cvc = true
+
+        await wrapper.vm.payStripe()
+        await flushPromises()
+
+        expect(wrapper.vm.busy).toBe(false)
+    })
+
+    it('payStripe sets alert on confirmError and resets busy', async () => {
+        const stripeMock = makeStripeMock()
+        stripeMock.confirmCardPayment.mockResolvedValue({
+            paymentIntent: null,
+            error: { message: 'Your card was declined', code: 'card_declined' },
+        })
+        wrapper.vm.stripe = stripeMock
+        wrapper.vm.cardComplete.number = true
+        wrapper.vm.cardComplete.expiry = true
+        wrapper.vm.cardComplete.cvc = true
+
+        await wrapper.vm.payStripe()
+        await flushPromises()
+
+        expect(wrapper.vm.busy).toBe(false)
+    })
+
+    it('payStripe calls finalizeStripe on payment_intent_unexpected_state error', async () => {
+        const stripeMock = makeStripeMock()
+        stripeMock.confirmCardPayment.mockResolvedValue({
+            paymentIntent: null,
+            error: { code: 'payment_intent_unexpected_state', message: 'already succeeded' },
+        })
+        wrapper.vm.stripe = stripeMock
+        wrapper.vm.cardComplete.number = true
+        wrapper.vm.cardComplete.expiry = true
+        wrapper.vm.cardComplete.cvc = true
+
+        axiosMock.onPost('/invoice/42/stripe/confirm').reply(200, { success: true })
+
+        await wrapper.vm.payStripe()
+        await flushPromises()
+
+        expect(axiosMock.history.post.some(r => r.url.includes('/stripe/confirm'))).toBe(true)
+    })
+
+    it('payStripe calls finalizeStripe when confirmError.payment_intent.status is succeeded', async () => {
+        const stripeMock = makeStripeMock()
+        stripeMock.confirmCardPayment.mockResolvedValue({
+            paymentIntent: null,
+            error: {
+                code: 'some_code',
+                message: 'odd error',
+                payment_intent: { status: 'succeeded' },
+            },
+        })
+        wrapper.vm.stripe = stripeMock
+        wrapper.vm.cardComplete.number = true
+        wrapper.vm.cardComplete.expiry = true
+        wrapper.vm.cardComplete.cvc = true
+
+        axiosMock.onPost('/invoice/42/stripe/confirm').reply(200, { success: true })
+
+        await wrapper.vm.payStripe()
+        await flushPromises()
+
+        expect(axiosMock.history.post.some(r => r.url.includes('/stripe/confirm'))).toBe(true)
+    })
+
+    it('payStripe resets busy on confirmCardPayment exception', async () => {
+        const stripeMock = makeStripeMock()
+        stripeMock.confirmCardPayment.mockRejectedValue(new Error('network'))
+        wrapper.vm.stripe = stripeMock
+        wrapper.vm.cardComplete.number = true
+        wrapper.vm.cardComplete.expiry = true
+        wrapper.vm.cardComplete.cvc = true
+
+        await wrapper.vm.payStripe()
+        await flushPromises()
+
+        expect(wrapper.vm.busy).toBe(false)
+    })
+
+    // ── payRazorpay ───────────────────────────────────────────────────────────
+
+    it('payRazorpay opens a Razorpay instance', async () => {
+        const openMock = jest.fn()
+        const rzpInstance = { open: openMock }
+        window.Razorpay = jest.fn(() => rzpInstance)
+
+        // Stub loadScript so it resolves immediately without touching the DOM
+        const origAppend = document.head.appendChild.bind(document.head)
+        jest.spyOn(document.head, 'appendChild').mockImplementation((el) => {
+            const node = origAppend(el)
+            if (typeof el.onload === 'function') el.onload()
+            return node
+        })
+
+        const config = { key: 'rzp_test', amount: 9900, currency: 'INR' }
+        await wrapper.vm.payRazorpay(config)
+
+        expect(window.Razorpay).toHaveBeenCalled()
+        expect(openMock).toHaveBeenCalled()
+        document.head.appendChild.mockRestore()
+    })
+
+    it('payRazorpay handler posts to /payment/:id on success', async () => {
+        let capturedHandler = null
+        const openMock = jest.fn()
+        window.Razorpay = jest.fn((opts) => {
+            capturedHandler = opts.handler
+            return { open: openMock }
+        })
+
+        axiosMock.onPost('/payment/42').reply(200, {})
+
+        await wrapper.vm.payRazorpay({ key: 'rzp_test', amount: 9900 })
+
+        await capturedHandler({
+            razorpay_payment_id: 'pay_abc',
+            razorpay_order_id: 'order_abc',
+            razorpay_signature: 'sig_abc',
+        })
+        await flushPromises()
+
+        expect(axiosMock.history.post.some(r => r.url.includes('/payment/42'))).toBe(true)
+    })
+
+    it('payRazorpay handler sets alert on payment POST failure', async () => {
+        let capturedHandler = null
+        const openMock = jest.fn()
+        window.Razorpay = jest.fn((opts) => {
+            capturedHandler = opts.handler
+            return { open: openMock }
+        })
+
+        axiosMock.onPost('/payment/42').reply(500)
+
+        await wrapper.vm.payRazorpay({ key: 'rzp_test', amount: 9900 })
+
+        await capturedHandler({
+            razorpay_payment_id: 'pay_abc',
+            razorpay_order_id: 'order_abc',
+            razorpay_signature: 'sig_abc',
+        })
+        await flushPromises()
+
+        // busy remains false (error path resets nothing, but no throw)
+        expect(wrapper.exists()).toBe(true)
+    })
+
+    it('payRazorpay ondismiss resets busy to false', async () => {
+        let capturedOndismiss = null
+        window.Razorpay = jest.fn((opts) => {
+            capturedOndismiss = opts.modal.ondismiss
+            return { open: jest.fn() }
+        })
+
+        wrapper.vm.busy = true
+        await wrapper.vm.payRazorpay({ key: 'rzp_test', amount: 9900 })
+        capturedOndismiss()
+
+        expect(wrapper.vm.busy).toBe(false)
+    })
+
+    // ── loadScript — new script path ──────────────────────────────────────────
+
+    it('loadScript appends a new script tag and resolves on load', async () => {
+        const uniqueSrc = `https://test-cdn.example.com/lib-${Date.now()}.js`
+
+        // Patch appendChild to fire onload synchronously
+        const origAppend = document.head.appendChild.bind(document.head)
+        jest.spyOn(document.head, 'appendChild').mockImplementation((el) => {
+            const node = origAppend(el)
+            if (el.src === uniqueSrc && el.onload) el.onload()
+            return node
+        })
+
+        await expect(wrapper.vm.loadScript(uniqueSrc)).resolves.toBeUndefined()
+        document.head.appendChild.mockRestore()
+    })
+
+    it('loadScript rejects when script fails to load', async () => {
+        const uniqueSrc = `https://test-cdn.example.com/bad-${Date.now()}.js`
+
+        const origAppend = document.head.appendChild.bind(document.head)
+        jest.spyOn(document.head, 'appendChild').mockImplementation((el) => {
+            const node = origAppend(el)
+            if (el.src === uniqueSrc && el.onerror) el.onerror()
+            return node
+        })
+
+        await expect(wrapper.vm.loadScript(uniqueSrc)).rejects.toThrow('Failed to load')
+        document.head.appendChild.mockRestore()
+    })
+
+    // ── continuePay — stripe success path ────────────────────────────────────
+
+    it('continuePay opens stripe modal on successful session API call', async () => {
+        const stripeMock = makeStripeMock()
+        window.Stripe = jest.fn(() => stripeMock)
+
+        axiosMock.onPost('/invoice/42/stripe/session').reply(200, {
+            data: {
+                client_secret: 'cs_test',
+                payment_intent_id: 'pi_test',
+                status: 'requires_payment_method',
+                publishable_key: 'pk_test',
+            },
+        })
+
+        wrapper.vm.selectedGateway = 'stripe'
+        await wrapper.vm.continuePay()
+        await flushPromises()
+
+        expect(axiosMock.history.post.some(r => r.url.includes('/stripe/session'))).toBe(true)
+    })
+
+    it('continuePay calls razorpay order then payRazorpay on success', async () => {
+        const openMock = jest.fn()
+        window.Razorpay = jest.fn(() => ({ open: openMock }))
+
+        axiosMock.onPost('/invoice/42/razorpay/order').reply(200, {
+            data: { razorpay: { key: 'rzp_test', amount: 9900, currency: 'INR' } },
+        })
+
+        wrapper.vm.selectedGateway = 'razorpay'
+        await wrapper.vm.continuePay()
+        await flushPromises()
+
+        expect(axiosMock.history.post.some(r => r.url.includes('/razorpay/order'))).toBe(true)
+        expect(openMock).toHaveBeenCalled()
+    })
+})

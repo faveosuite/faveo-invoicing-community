@@ -30,12 +30,11 @@ $publishedPages = \App\Model\Front\FrontendPage::where('publish', 1)
     ->orderBy('created_at', 'asc')
     ->get();
 
-$productGroups = \App\Model\Product\ProductGroup::select('id', 'name', 'pricing_templates_id')
+$productGroups = \App\Model\Product\ProductGroup::select('id', 'name')
     ->where('hidden', '!=', 1)
     ->get()
     ->mapWithKeys(fn($g): array => [$g->id => [
         'name' => $g->name,
-        'url'  => url('group/' . $g->pricing_templates_id . '/' . $g->id),
     ]]);
 ?>
 <head>

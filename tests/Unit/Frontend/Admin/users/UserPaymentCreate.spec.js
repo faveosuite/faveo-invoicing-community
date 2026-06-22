@@ -109,4 +109,60 @@ describe('UserPaymentCreate.vue', () => {
         await flushPromises()
         expect(wrapper.find('table').exists()).toBe(true)
     })
+
+    it('onCheck clears payAmount when unchecking', async () => {
+        await flushPromises()
+        const inv = { checked: false, payAmount: '10', pending: '10' }
+        wrapper.vm.onCheck(inv)
+        expect(inv.payAmount).toBe('')
+    })
+
+    it('onCurrencyChange sets form.currency from val.value', async () => {
+        await flushPromises()
+        wrapper.vm.onCurrencyChange({ value: 'USD' })
+        expect(wrapper.vm.form.currency).toBe('USD')
+    })
+
+    it('onCurrencyChange clears currency when val is null', async () => {
+        await flushPromises()
+        wrapper.vm.onCurrencyChange(null)
+        expect(wrapper.vm.form.currency).toBe('')
+    })
+
+    it('submit calls POST /newMultiplePayment/receive on success', async () => {
+        global.mockHttp.onPost(/\/newMultiplePayment\/receive/).reply(200, { message: 'ok' })
+        await flushPromises()
+        wrapper.vm.form.currency       = 'USD'
+        wrapper.vm.form.payment_date   = '2025-01-01'
+        wrapper.vm.form.payment_method = 'cash'
+        wrapper.vm.form.amount         = '100'
+        await wrapper.vm.submit()
+        await flushPromises()
+        expect(global.mockHttp.history.post.some(r => r.url.includes('newMultiplePayment'))).toBe(true)
+    })
+
+    it('submit handles API validation error', async () => {
+        global.mockHttp.onPost(/\/newMultiplePayment\/receive/).reply(422, {
+            errors: { currency: ['Required'] }
+        })
+        await flushPromises()
+        wrapper.vm.form.currency       = 'USD'
+        wrapper.vm.form.payment_date   = '2025-01-01'
+        wrapper.vm.form.payment_method = 'cash'
+        wrapper.vm.form.amount         = '100'
+        await wrapper.vm.submit()
+        await flushPromises()
+        expect(wrapper.vm.submitting).toBe(false)
+    })
+
+    it('submit returns early when validate() fails', async () => {
+        await flushPromises()
+        wrapper.vm.form.currency       = ''
+        wrapper.vm.form.payment_date   = ''
+        wrapper.vm.form.payment_method = ''
+        wrapper.vm.form.amount         = ''
+        const before = global.mockHttp.history.post.length
+        await wrapper.vm.submit()
+        expect(global.mockHttp.history.post.length).toBe(before)
+    })
 })

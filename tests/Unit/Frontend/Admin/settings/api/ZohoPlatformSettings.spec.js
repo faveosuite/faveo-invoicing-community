@@ -137,4 +137,183 @@ describe('ZohoPlatformSettings.vue', () => {
         await flushPromises()
         expect(successHandler).toHaveBeenCalled()
     })
+
+    // ── saveConnection error path ──────────────────────────────────────────
+    it('saveConnection handles 500 error without throwing', async () => {
+        await flushPromises()
+        global.mockHttp.onPost(/\/zoho\/saveKeys/).reply(500)
+        await expect(wrapper.vm.saveConnection()).resolves.not.toThrow()
+    })
+
+    it('saveConnection redirects when redirect_url is present in response', async () => {
+        await flushPromises()
+        const fakeUrl = 'https://accounts.zoho.com/oauth/v2/auth?client_id=x'
+        global.mockHttp.onPost(/\/zoho\/saveKeys/).reply(200, { data: { redirect_url: fakeUrl } })
+        // location.href is set via assignment — ensure the call completes cleanly
+        await expect(wrapper.vm.saveConnection()).resolves.not.toThrow()
+    })
+
+    // ── validateForm returns false guard ───────────────────────────────────
+    it('saveConnection does not POST when validateForm returns false', async () => {
+        const { validateForm } = require('@/helpers/formUtils.js')
+        validateForm.mockResolvedValueOnce(false)
+        await flushPromises()
+        global.mockHttp.reset()
+        await wrapper.vm.saveConnection()
+        await flushPromises()
+        expect(global.mockHttp.history.post.length).toBe(0)
+    })
+
+    // ── saveMapping ────────────────────────────────────────────────────────
+    it('saveMapping handles 500 error without throwing', async () => {
+        await flushPromises()
+        global.mockHttp.onPost(/\/zoho\/mapping\/save/).reply(500)
+        await expect(wrapper.vm.saveMapping()).resolves.not.toThrow()
+    })
+
+    it('saveMapping calls successHandler on success', async () => {
+        await flushPromises()
+        const { successHandler } = require('@/helpers/responseHandler')
+        successHandler.mockClear()
+        await wrapper.vm.saveMapping()
+        await flushPromises()
+        expect(successHandler).toHaveBeenCalled()
+    })
+
+    // ── syncFields ─────────────────────────────────────────────────────────
+    it('syncFields calls GET /zoho/:platform/sync', async () => {
+        await flushPromises()
+        global.mockHttp.onGet(/\/zoho\/crm\/sync/).reply(200, { data: {} })
+        global.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
+        await wrapper.vm.syncFields()
+        await flushPromises()
+        expect(
+            global.mockHttp.history.get.some(r => r.url.includes('/sync'))
+        ).toBe(true)
+    })
+
+    it('syncFields handles 500 error without throwing', async () => {
+        await flushPromises()
+        global.mockHttp.onGet(/\/zoho\/crm\/sync/).reply(500)
+        await expect(wrapper.vm.syncFields()).resolves.not.toThrow()
+    })
+
+    it('syncFields sets syncing to false after completion', async () => {
+        await flushPromises()
+        global.mockHttp.onGet(/\/zoho\/crm\/sync/).reply(200, { data: {} })
+        global.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
+        const promise = wrapper.vm.syncFields()
+        await promise
+        await flushPromises()
+        expect(wrapper.vm.syncing).toBe(false)
+    })
+
+    // ── switchModule ───────────────────────────────────────────────────────
+    it('switchModule does nothing when same tab is selected (early return)', async () => {
+        await flushPromises()
+        const before = wrapper.vm.activeModule
+        global.mockHttp.reset()
+        await wrapper.vm.switchModule(wrapper.vm.activeModule)
+        await flushPromises()
+        expect(wrapper.vm.activeModule).toBe(before)
+        expect(global.mockHttp.history.get.length).toBe(0)
+    })
+
+    it('switchModule changes activeModule and loads new mappings', async () => {
+        await flushPromises()
+        global.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
+        await wrapper.vm.switchModule('accounts')
+        await flushPromises()
+        expect(wrapper.vm.activeModule).toBe('accounts')
+    })
+
+    it('switchModule handles error and resets loadingModule', async () => {
+        await flushPromises()
+        global.mockHttp.onGet(/\/zoho\//).reply(500)
+        await expect(wrapper.vm.switchModule('accounts')).resolves.not.toThrow()
+        expect(wrapper.vm.loadingModule).toBe(false)
+    })
+
+    // ── addRow / removeRow ─────────────────────────────────────────────────
+    it('addRow appends a new empty row', async () => {
+        await flushPromises()
+        const before = wrapper.vm.rows.length
+        wrapper.vm.addRow()
+        expect(wrapper.vm.rows.length).toBe(before + 1)
+        const last = wrapper.vm.rows[wrapper.vm.rows.length - 1]
+        expect(last.zohoId).toBeNull()
+        expect(last.targetValue).toBeNull()
+    })
+
+    it('removeRow removes the row at the given index', async () => {
+        await flushPromises()
+        wrapper.vm.addRow()
+        wrapper.vm.addRow()
+        const before = wrapper.vm.rows.length
+        wrapper.vm.removeRow(before - 1)
+        expect(wrapper.vm.rows.length).toBe(before - 1)
+    })
+
+    // ── onTargetChange ─────────────────────────────────────────────────────
+    it('onTargetChange updates targetValue and targetType', async () => {
+        await flushPromises()
+        wrapper.vm.addRow()
+        const row = wrapper.vm.rows[wrapper.vm.rows.length - 1]
+        wrapper.vm.onTargetChange(row, { id: 'f1', type: 'string' })
+        expect(row.targetValue).toBe('f1')
+        expect(row.targetType).toBe('string')
+    })
+
+    it('onTargetChange clears when val is null', async () => {
+        await flushPromises()
+        wrapper.vm.addRow()
+        const row = wrapper.vm.rows[wrapper.vm.rows.length - 1]
+        wrapper.vm.onTargetChange(row, null)
+        expect(row.targetValue).toBeNull()
+        expect(row.targetType).toBe('')
+    })
+
+    // ── onZohoFieldChange ──────────────────────────────────────────────────
+    it('onZohoFieldChange fetches options when zohoId is set', async () => {
+        await flushPromises()
+        // Reset and re-register so the options route is checked before the generic /zoho/ catch-all
+        global.mockHttp.reset()
+        global.mockHttp.onGet(/\/zoho\/options\//).reply(200, [{ value: 'v1', label: 'Option 1', type: 'string' }])
+        global.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
+        wrapper.vm.addRow()
+        const row = wrapper.vm.rows[wrapper.vm.rows.length - 1]
+        await wrapper.vm.onZohoFieldChange(row, { id: 42 })
+        await flushPromises()
+        expect(row.zohoId).toBe(42)
+        expect(row.targetOptions.length).toBeGreaterThan(0)
+    })
+
+    it('onZohoFieldChange clears targetOptions when val is null', async () => {
+        await flushPromises()
+        wrapper.vm.addRow()
+        const row = wrapper.vm.rows[wrapper.vm.rows.length - 1]
+        row.targetOptions = [{ id: 'x', name: 'X' }]
+        await wrapper.vm.onZohoFieldChange(row, null)
+        expect(row.zohoId).toBeNull()
+        expect(row.targetOptions).toEqual([])
+    })
+
+    // ── mount error path ───────────────────────────────────────────────────
+    it('handles GET /zoho/integrations error on mount without throwing', async () => {
+        global.mockHttp.reset()
+        global.mockHttp.onGet(/\/zoho\/integrations/).reply(500)
+        const w = mount(ZohoPlatformSettings, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: [
+                    'DataTable', 'AppAlert', 'inline-loader', 'action-button', 'DeleteModal',
+                    'DynamicSelect', 'TextField', 'StaticSelect', 'loader', 'ColumnSelector',
+                    'Switch', 'SelectField', 'ZohoCard', 'spinner-loader', 'CurrencyTableActions',
+                ],
+            },
+        })
+        await flushPromises()
+        expect(w.vm.loading).toBe(false)
+        w.unmount()
+    })
 })

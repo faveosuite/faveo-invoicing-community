@@ -12,6 +12,12 @@ import { createTestingPinia } from '@pinia/testing'
 import { errorHandler } from '@/helpers/responseHandler'
 import TaxIndex from '@/pages/admin/settings/common/tax/TaxIndex.vue'
 
+const SelectFieldStub = {
+    name: 'SelectField',
+    props: { name: String, onChange: Function, value: [Object, String, Number, Array], elements: Array, clearable: Boolean, searchable: Boolean, multiple: Boolean, taggable: Boolean },
+    template: '<div class="sf-stub" :data-name="name"></div>',
+}
+
 describe('TaxIndex.vue', () => {
     let wrapper
 
@@ -204,5 +210,73 @@ describe('TaxIndex.vue — branch coverage', () => {
         wrapper.vm.selected = []
         wrapper.vm.confirmBulkDelete()
         expect(wrapper.vm.pendingBulkDelete).toBeNull()
+    })
+})
+
+describe('TaxIndex.vue — SelectField onChange branch coverage', () => {
+    let wrapper
+
+    beforeEach(async () => {
+        global.mockHttp.onGet(/\/tax-options/).reply(200, {
+            data: {
+                options: { tax_enable: 0, inclusive: 0, rounding: 0, tax_based_on: 'billing' },
+                additional_tax_classes: '',
+                classes: [{ slug: '', name: 'Standard' }],
+            },
+        })
+        global.mockHttp.onPost(/\/taxes\/option/).reply(200, { message: 'ok' })
+
+        wrapper = mount(TaxIndex, {
+            global: {
+                plugins: [createTestingPinia()],
+                components: { SelectField: SelectFieldStub },
+                stubs: ['AppAlert', 'DataTable', 'DeleteModal', 'action-button', 'loader', 'router-link', 'TextField'],
+            },
+        })
+        await flushPromises()
+    })
+
+    function getSF(name) {
+        return wrapper.findAllComponents(SelectFieldStub).find(c => c.props('name') === name)
+    }
+
+    it('tax_enable onChange sets options.tax_enable from val.id', () => {
+        getSF('tax_enable')?.props('onChange')({ id: 1 })
+        expect(wrapper.vm.options.tax_enable).toBe(1)
+    })
+
+    it('tax_enable onChange sets 0 when val is null', () => {
+        getSF('tax_enable')?.props('onChange')(null)
+        expect(wrapper.vm.options.tax_enable).toBe(0)
+    })
+
+    it('inclusive onChange sets options.inclusive from val.id', () => {
+        getSF('inclusive')?.props('onChange')({ id: 1 })
+        expect(wrapper.vm.options.inclusive).toBe(1)
+    })
+
+    it('inclusive onChange sets 0 when val is null', () => {
+        getSF('inclusive')?.props('onChange')(null)
+        expect(wrapper.vm.options.inclusive).toBe(0)
+    })
+
+    it('rounding onChange sets options.rounding from val.id', () => {
+        getSF('rounding')?.props('onChange')({ id: 1 })
+        expect(wrapper.vm.options.rounding).toBe(1)
+    })
+
+    it('rounding onChange sets 0 when val is null', () => {
+        getSF('rounding')?.props('onChange')(null)
+        expect(wrapper.vm.options.rounding).toBe(0)
+    })
+
+    it('tax_based_on onChange sets options.tax_based_on from val.id', () => {
+        getSF('tax_based_on')?.props('onChange')({ id: 'base' })
+        expect(wrapper.vm.options.tax_based_on).toBe('base')
+    })
+
+    it('tax_based_on onChange defaults to billing when val is null', () => {
+        getSF('tax_based_on')?.props('onChange')(null)
+        expect(wrapper.vm.options.tax_based_on).toBe('billing')
     })
 })

@@ -208,4 +208,54 @@ describe('ProfileIndex.vue', () => {
 
         expect(wrapper.vm.initials).toBe('JD')
     })
+
+    it('onTimezoneChange sets form.timezone_id from val.id', async () => {
+        await flushPromises()
+        wrapper.vm.onTimezoneChange({ id: 'Asia/Kolkata' })
+        expect(wrapper.vm.form.timezone_id).toBe('Asia/Kolkata')
+    })
+
+    it('onTimezoneChange sets empty string when val is null', async () => {
+        await flushPromises()
+        wrapper.vm.onTimezoneChange(null)
+        expect(wrapper.vm.form.timezone_id).toBe('')
+    })
+
+    it('loadStates resolves without throwing for a given country', async () => {
+        global.mockHttp.onGet(/\/dependency\/states/).replyOnce(200, {
+            data: { states: [{ iso2: 'MH', name: 'Maharashtra' }] }
+        })
+        await flushPromises()
+        await expect(wrapper.vm.loadStates('IN')).resolves.not.toThrow()
+    })
+
+    it('loadStates returns early and clears states when code is empty', async () => {
+        await flushPromises()
+        await wrapper.vm.loadStates('')
+        expect(wrapper.vm.states).toEqual([])
+    })
+
+    it('loadStates handles error gracefully', async () => {
+        global.mockHttp.onGet(/\/dependency\/states/).reply(500)
+        await flushPromises()
+        await expect(wrapper.vm.loadStates('IN')).resolves.not.toThrow()
+    })
+
+    it('onImageChange updates selectedImage and avatarPreview', async () => {
+        await flushPromises()
+        const mockFile = new File(['f'], 'photo.png', { type: 'image/png' })
+        wrapper.vm.onImageChange({ file: mockFile, previewUrl: 'data:image/png;base64,abc' })
+        expect(wrapper.vm.selectedImage).toBe(mockFile)
+        expect(wrapper.vm.avatarPreview).toBe('data:image/png;base64,abc')
+    })
+
+    it('submitProfile handles 422 validation error', async () => {
+        global.mockHttp.onPost(/\/my-profile/).reply(422, {
+            errors: { first_name: ['Required'] }
+        })
+        await flushPromises()
+        await wrapper.vm.submitProfile()
+        await flushPromises()
+        expect(wrapper.vm.savingProfile).toBe(false)
+    })
 })

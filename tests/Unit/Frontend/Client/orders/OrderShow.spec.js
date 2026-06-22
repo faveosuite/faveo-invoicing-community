@@ -600,4 +600,252 @@ describe('OrderShow.vue — modal and state helpers', () => {
     it('paymentBadge returns badge bg-secondary for unknown', () => {
         expect(wrapper.vm.paymentBadge('unknown')).toBe('badge bg-secondary')
     })
+
+    // ── openCloudTab ─────────────────────────────────────────────────────────
+    it('openCloudTab loads cloud data on success', async () => {
+        const cloudData = { plan: 'starter', order_id: 1 }
+        axiosMock.onGet('/get-cloud-settings/1').reply(200, { data: cloudData })
+        await flushPromises()
+        await wrapper.vm.openCloudTab()
+        await flushPromises()
+        expect(wrapper.vm.cloud).toEqual(cloudData)
+        expect(wrapper.vm.cloudLoading).toBe(false)
+        expect(wrapper.vm.cloudLoaded).toBe(true)
+    })
+
+    it('openCloudTab does not re-fetch when cloudLoaded is already true', async () => {
+        axiosMock.resetHistory()
+        wrapper.vm.cloudLoaded = true
+        await wrapper.vm.openCloudTab()
+        await flushPromises()
+        expect(axiosMock.history.get.filter(r => r.url && r.url.includes('cloud-settings')).length).toBe(0)
+    })
+
+    it('openCloudTab sets cloudLoading to false on error', async () => {
+        wrapper.vm.cloudLoaded = false
+        axiosMock.onGet('/get-cloud-settings/1').reply(500)
+        await wrapper.vm.openCloudTab()
+        await flushPromises()
+        expect(wrapper.vm.cloudLoading).toBe(false)
+    })
+
+    // ── Domain modal ──────────────────────────────────────────────────────────
+    it('openDomainModal sets showDomainModal=true', () => {
+        wrapper.vm.openDomainModal()
+        expect(wrapper.vm.showDomainModal).toBe(true)
+    })
+
+    it('closeDomainModal sets showDomainModal=false', () => {
+        wrapper.vm.showDomainModal = true
+        wrapper.vm.closeDomainModal()
+        expect(wrapper.vm.showDomainModal).toBe(false)
+    })
+
+    it('submitDomain returns early when cloud is null', async () => {
+        wrapper.vm.cloud = null
+        axiosMock.resetHistory()
+        await wrapper.vm.submitDomain()
+        expect(axiosMock.history.post.length).toBe(0)
+    })
+
+    it('submitDomain posts new domain and closes modal on success', async () => {
+        axiosMock.onPost('/change/domain').reply(200, { message: 'ok' })
+        wrapper.vm.cloud = { installation_path: '/old', serial_key: 'KEY', product_id: 1, order_id: 1 }
+        wrapper.vm.showDomainModal = true
+        wrapper.vm.domainForm.newDomain = 'new.example.com'
+        await wrapper.vm.submitDomain()
+        await flushPromises()
+        expect(wrapper.vm.showDomainModal).toBe(false)
+        expect(wrapper.vm.domainBusy).toBe(false)
+    })
+
+    it('submitDomain handles API error', async () => {
+        axiosMock.onPost('/change/domain').reply(422, { message: 'Invalid' })
+        wrapper.vm.cloud = { installation_path: '/old', serial_key: 'KEY', product_id: 1, order_id: 1 }
+        wrapper.vm.showDomainModal = true
+        await wrapper.vm.submitDomain()
+        await flushPromises()
+        expect(wrapper.vm.domainBusy).toBe(false)
+    })
+
+    // ── Agents modal ──────────────────────────────────────────────────────────
+    it('openAgentsModal sets showAgentsModal=true', () => {
+        wrapper.vm.openAgentsModal()
+        expect(wrapper.vm.showAgentsModal).toBe(true)
+    })
+
+    it('closeAgentsModal sets showAgentsModal=false', () => {
+        wrapper.vm.showAgentsModal = true
+        wrapper.vm.closeAgentsModal()
+        expect(wrapper.vm.showAgentsModal).toBe(false)
+    })
+
+    it('fetchAgentCost returns early when cloud is null', async () => {
+        wrapper.vm.cloud = null
+        wrapper.vm.agentForm.number = '2'
+        axiosMock.resetHistory()
+        await wrapper.vm.fetchAgentCost()
+        expect(axiosMock.history.post.filter(r => r.url && r.url.includes('agent')).length).toBe(0)
+    })
+
+    it('fetchAgentCost calls the cost API and sets agentCost', async () => {
+        axiosMock.onPost('/get-agent-inc-dec-cost').reply(200, { priceToPay: '$10' })
+        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.agentForm.number = '2'
+        wrapper.vm.agentForm.action = 'increase'
+        await wrapper.vm.fetchAgentCost()
+        await flushPromises()
+        expect(wrapper.vm.agentCost).toBe('$10')
+    })
+
+    it('fetchAgentCost returns early when number is empty', async () => {
+        axiosMock.resetHistory()
+        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.agentForm.number = ''
+        await wrapper.vm.fetchAgentCost()
+        expect(axiosMock.history.post.filter(r => r.url && r.url.includes('agent')).length).toBe(0)
+    })
+
+    it('submitAgents returns early when cloud is null', async () => {
+        wrapper.vm.cloud = null
+        axiosMock.resetHistory()
+        await wrapper.vm.submitAgents()
+        expect(axiosMock.history.post.length).toBe(0)
+    })
+
+    it('submitAgents posts and sets agentBusy=false on success', async () => {
+        axiosMock.onPost('/changeAgents').reply(200, { data: {} })
+        wrapper.vm.cloud = { current_agents: 5, order_id: 1, product_id: 1, sub_id: 'S1' }
+        wrapper.vm.agentForm.number = '3'
+        await wrapper.vm.submitAgents()
+        await flushPromises()
+        expect(wrapper.vm.agentBusy).toBe(false)
+    })
+
+    it('submitAgents handles API error', async () => {
+        axiosMock.onPost('/changeAgents').reply(500)
+        wrapper.vm.cloud = { current_agents: 5, order_id: 1, product_id: 1, sub_id: 'S1' }
+        wrapper.vm.agentForm.number = '3'
+        await wrapper.vm.submitAgents()
+        await flushPromises()
+        expect(wrapper.vm.agentBusy).toBe(false)
+    })
+
+    // ── Plan modal ────────────────────────────────────────────────────────────
+    it('openPlanModal sets showPlanModal=true', () => {
+        wrapper.vm.openPlanModal()
+        expect(wrapper.vm.showPlanModal).toBe(true)
+    })
+
+    it('closePlanModal sets showPlanModal=false', () => {
+        wrapper.vm.showPlanModal = true
+        wrapper.vm.closePlanModal()
+        expect(wrapper.vm.showPlanModal).toBe(false)
+    })
+
+    it('fetchPlanCost returns early when cloud is null', async () => {
+        wrapper.vm.cloud = null
+        wrapper.vm.planForm.planId = '5'
+        axiosMock.resetHistory()
+        await wrapper.vm.fetchPlanCost()
+        expect(axiosMock.history.post.filter(r => r.url && r.url.includes('plan')).length).toBe(0)
+    })
+
+    it('fetchPlanCost calls cost API and sets planCost', async () => {
+        axiosMock.onPost('/get-cloud-upgrade-cost').reply(200, { priceTotal: 100 })
+        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.planForm.planId = '5'
+        await wrapper.vm.fetchPlanCost()
+        await flushPromises()
+        expect(wrapper.vm.planCost).not.toBeNull()
+    })
+
+    it('fetchPlanCost returns early when planId is empty', async () => {
+        axiosMock.resetHistory()
+        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.planForm.planId = ''
+        await wrapper.vm.fetchPlanCost()
+        expect(axiosMock.history.post.filter(r => r.url && r.url.includes('plan')).length).toBe(0)
+    })
+
+    it('submitPlan returns early when cloud is null', async () => {
+        wrapper.vm.cloud = null
+        axiosMock.resetHistory()
+        await wrapper.vm.submitPlan()
+        expect(axiosMock.history.post.length).toBe(0)
+    })
+
+    it('submitPlan posts and sets planBusy=false on success', async () => {
+        axiosMock.onPost('/upgradeDowngradeCloud').reply(200, { data: {} })
+        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.planForm.planId = '5'
+        await wrapper.vm.submitPlan()
+        await flushPromises()
+        expect(wrapper.vm.planBusy).toBe(false)
+    })
+
+    it('submitPlan handles API error', async () => {
+        axiosMock.onPost('/upgradeDowngradeCloud').reply(500)
+        wrapper.vm.cloud = { current_agents: 5, order_id: 1 }
+        wrapper.vm.planForm.planId = '5'
+        await wrapper.vm.submitPlan()
+        await flushPromises()
+        expect(wrapper.vm.planBusy).toBe(false)
+    })
+
+    // ── Computed branches ─────────────────────────────────────────────────────
+    it('showCloudTab is true when order is_cloud and not Terminated', async () => {
+        await flushPromises()
+        wrapper.vm.order = { ...orderFixture, is_cloud: true, status: 'Active' }
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.showCloudTab).toBe(true)
+    })
+
+    it('showCloudTab is false when order status is Terminated', async () => {
+        await flushPromises()
+        wrapper.vm.order = { ...orderFixture, is_cloud: true, status: 'Terminated' }
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.showCloudTab).toBe(false)
+    })
+
+    it('showAutoRenewTab is true when autorenewal_enabled', async () => {
+        await flushPromises()
+        wrapper.vm.order = { ...orderFixture, autorenewal_enabled: true }
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.showAutoRenewTab).toBe(true)
+    })
+
+    it('gatewayOptions returns lowercase gateway list', async () => {
+        await flushPromises()
+        wrapper.vm.order = { ...orderFixture, available_gateways: ['Stripe', 'Razorpay'] }
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.gatewayOptions).toContainEqual(expect.objectContaining({ id: 'stripe' }))
+    })
+
+    it('gatewayOptions returns all gateways when available_gateways is empty', async () => {
+        await flushPromises()
+        wrapper.vm.order = { ...orderFixture, available_gateways: [] }
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.gatewayOptions.length).toBeGreaterThan(0)
+    })
+
+    it('onActionChange sets agentForm.action from object with id', () => {
+        wrapper.vm.onActionChange({ id: 'decrease' })
+        expect(wrapper.vm.agentForm.action).toBe('decrease')
+    })
+
+    it('onActionChange defaults to increase when passed null', () => {
+        wrapper.vm.onActionChange(null)
+        expect(wrapper.vm.agentForm.action).toBe('increase')
+    })
+
+    it('onPlanChange sets planForm.planId from object with id', () => {
+        wrapper.vm.onPlanChange({ id: '7' })
+        expect(wrapper.vm.planForm.planId).toBe('7')
+    })
+
+    it('onPlanChange defaults to empty string when passed null', () => {
+        wrapper.vm.onPlanChange(null)
+        expect(wrapper.vm.planForm.planId).toBe('')
+    })
 })

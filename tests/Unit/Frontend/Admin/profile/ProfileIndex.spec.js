@@ -114,4 +114,74 @@ describe('ProfileIndex.vue', () => {
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
     })
+
+    it('onChange sets form field value by name', async () => {
+        await flushPromises()
+        wrapper.vm.onChange('John Doe', 'first_name')
+        expect(wrapper.vm.form.first_name).toBe('John Doe')
+    })
+
+    it('onPwChange sets password form field value', async () => {
+        await flushPromises()
+        wrapper.vm.onPwChange('secret123', 'current_password')
+        expect(wrapper.vm.pwForm.current_password).toBe('secret123')
+    })
+
+    it('onTimezoneChange sets form.timezone_id from val.id', async () => {
+        await flushPromises()
+        wrapper.vm.onTimezoneChange({ id: 'America/New_York' })
+        expect(wrapper.vm.form.timezone_id).toBe('America/New_York')
+    })
+
+    it('onTimezoneChange sets null when val is null', async () => {
+        await flushPromises()
+        wrapper.vm.onTimezoneChange(null)
+        expect(wrapper.vm.form.timezone_id).toBeNull()
+    })
+
+    it('onCountryChange fetches states for a valid country', async () => {
+        global.mockHttp.onGet(/\/profile\/states\/US/).reply(200, {
+            data: { states: [{ iso2: 'CA', state_subdivision_name: 'California' }] }
+        })
+        await flushPromises()
+        await wrapper.vm.onCountryChange({ id: 'US' })
+        await flushPromises()
+        expect(global.mockHttp.history.get.some(r => r.url.includes('/profile/states/US'))).toBe(true)
+    })
+
+    it('onCountryChange clears form.country and states when val is null', async () => {
+        await flushPromises()
+        await wrapper.vm.onCountryChange(null)
+        expect(wrapper.vm.form.country).toBe('')
+        expect(wrapper.vm.states).toEqual([])
+    })
+
+    it('openEnableModal sets loading and fetches 2FA data on success', async () => {
+        global.mockHttp.onGet(/\/show\/verify-password/).reply(200, { data: {} })
+        global.mockHttp.onPost(/\/2fa-recovery-code/).reply(200, { data: { recovery_codes: ['code1'] } })
+        await flushPromises()
+        await wrapper.vm.openEnableModal()
+        await flushPromises()
+        expect(global.mockHttp.history.get.some(r => r.url.includes('verify-password'))).toBe(true)
+    })
+
+    it('openEnableModal handles error', async () => {
+        global.mockHttp.onGet(/\/show\/verify-password/).reply(500)
+        await flushPromises()
+        await expect(wrapper.vm.openEnableModal()).resolves.not.toThrow()
+    })
+
+    it('closeEnableModal resets modal state', async () => {
+        await flushPromises()
+        wrapper.vm.showEnableModal = true
+        wrapper.vm.closeEnableModal()
+        expect(wrapper.vm.showEnableModal).toBe(false)
+        expect(wrapper.vm.twoFaStep).toBe('password')
+    })
+
+    it('loadStates handles error gracefully', async () => {
+        global.mockHttp.onGet(/\/profile\/states\/IN/).reply(500)
+        await flushPromises()
+        await expect(wrapper.vm.loadStates('IN')).resolves.not.toThrow()
+    })
 })

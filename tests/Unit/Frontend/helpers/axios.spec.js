@@ -136,3 +136,29 @@ describe('axios response error interceptor', () => {
         expect(requests.length).toBe(2)
     })
 })
+
+describe('parseErrorMessage — additional branches', () => {
+    it('returns "Something went wrong." when response is undefined', () => {
+        expect(parseErrorMessage({ response: undefined })).toBe('Something went wrong.')
+    })
+
+    it('returns res.message for 404 (non-validation)', () => {
+        expect(parseErrorMessage({ response: { status: 404, data: { message: 'Not found' } } })).toBe('Not found')
+    })
+
+    it('falls back to "Validation failed." when 412 errors is empty and no message', () => {
+        const err = { response: { status: 412, data: { errors: {}, message: '' } } }
+        expect(parseErrorMessage(err)).toBe('Validation failed.')
+    })
+})
+
+describe('parseValidationErrors — additional branches', () => {
+    it('returns field errors for 412 status', () => {
+        const err = { response: { status: 412, data: { errors: { name: ['Required'] } } } }
+        expect(parseValidationErrors(err)).toEqual({ name: 'Required' })
+    })
+
+    it('returns null when no errors key on 422', () => {
+        expect(parseValidationErrors({ response: { status: 422, data: { message: 'Error' } } })).toBeNull()
+    })
+})

@@ -84,4 +84,51 @@ describe('PaymentLog.vue', () => {
         expect(wrapper.vm.showBulkDeleteModal).toBe(false)
         expect(wrapper.vm.selected).toEqual([])
     })
+
+    it('onFilterApply sets activeFilters and hides filter', () => {
+        wrapper.vm.onFilterApply({ status: 'paid', gateway: 'stripe' })
+        expect(wrapper.vm.activeFilters).toEqual({ status: 'paid', gateway: 'stripe' })
+        expect(wrapper.vm.showFilter).toBe(false)
+    })
+
+    it('onFilterReset clears activeFilters', () => {
+        wrapper.vm.activeFilters = { status: 'paid' }
+        wrapper.vm.onFilterReset()
+        expect(wrapper.vm.activeFilters).toEqual({})
+    })
+
+    it('toggleRow adds id when not selected', () => {
+        wrapper.vm.selected = []
+        wrapper.vm.toggleRow(42)
+        expect(wrapper.vm.selected).toContain(42)
+    })
+
+    it('toggleRow removes id when already selected', () => {
+        wrapper.vm.selected = [42]
+        wrapper.vm.toggleRow(42)
+        expect(wrapper.vm.selected).not.toContain(42)
+    })
+
+    it('toggleAll selects all rows when checked', () => {
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }, { id: 2 }] }
+        wrapper.vm.toggleAll({ target: { checked: true } })
+        expect(wrapper.vm.selected).toContain(1)
+        expect(wrapper.vm.selected).toContain(2)
+    })
+
+    it('toggleAll deselects all rows when unchecked', () => {
+        wrapper.vm.selected = [1, 2]
+        wrapper.vm.dtRef = { tableData: [{ id: 1 }, { id: 2 }] }
+        wrapper.vm.toggleAll({ target: { checked: false } })
+        expect(wrapper.vm.selected).toHaveLength(0)
+    })
+
+    it('copyException copies to clipboard', async () => {
+        Object.assign(navigator, { clipboard: { writeText: jest.fn().mockResolvedValue(undefined) } })
+        wrapper.vm.exceptionContent = 'Error trace'
+        await wrapper.vm.copyException()
+        await flushPromises()
+        expect(navigator.clipboard.writeText).toHaveBeenCalledWith('Error trace')
+        expect(wrapper.vm.copied).toBe(true)
+    })
 })

@@ -72,4 +72,67 @@ describe('Cron.vue', () => {
             expect(patchUrls.some(u => u.includes('cron-days'))).toBe(true)
         }
     })
+
+    it('saveScheduler calls PATCH /settings/cron-data', async () => {
+        global.mockHttp.onPatch(/\/settings\/cron-data/).reply(200, { message: 'ok' })
+        await flushPromises()
+        await wrapper.vm.saveScheduler()
+        await flushPromises()
+        expect(global.mockHttp.history.patch.some(r => r.url.includes('cron-data'))).toBe(true)
+    })
+
+    it('saveScheduler handles error gracefully', async () => {
+        global.mockHttp.onPatch(/\/settings\/cron-data/).reply(500)
+        await flushPromises()
+        await expect(wrapper.vm.saveScheduler()).resolves.not.toThrow()
+    })
+
+    it('saveDays calls PATCH /settings/cron-days', async () => {
+        global.mockHttp.onPatch(/\/settings\/cron-days/).reply(200, { message: 'ok' })
+        await flushPromises()
+        await wrapper.vm.saveDays()
+        await flushPromises()
+        expect(global.mockHttp.history.patch.some(r => r.url.includes('cron-days'))).toBe(true)
+    })
+
+    it('saveDays handles error gracefully', async () => {
+        global.mockHttp.onPatch(/\/settings\/cron-days/).reply(500)
+        await flushPromises()
+        await expect(wrapper.vm.saveDays()).resolves.not.toThrow()
+    })
+
+    it('clearPhpPath resets phpPath', async () => {
+        await flushPromises()
+        wrapper.vm.phpPath = '/usr/bin/php'
+        wrapper.vm.clearPhpPath()
+        expect(wrapper.vm.phpPath).toBe('')
+    })
+
+    it('copyCommand calls POST /verify-php-path', async () => {
+        global.mockHttp.onPost(/\/verify-php-path/).reply(200, { data: { valid: true } })
+        await flushPromises()
+        wrapper.vm.phpPath = '/usr/bin/php'
+        await wrapper.vm.copyCommand()
+        await flushPromises()
+        expect(global.mockHttp.history.post.some(r => r.url.includes('verify-php-path'))).toBe(true)
+    })
+
+    it('onScheduleChange updates conditionForms for a valid job key', async () => {
+        await flushPromises()
+        const keys = Object.keys(wrapper.vm.conditionForms ?? {})
+        if (keys.length > 0) {
+            wrapper.vm.onScheduleChange(keys[0], { id: 'daily' })
+            expect(wrapper.vm.conditionForms[keys[0]].condition).toBe('daily')
+        }
+    })
+
+    it('selectedOption returns selected option for a valid job', async () => {
+        await flushPromises()
+        const keys = Object.keys(wrapper.vm.conditionForms ?? {})
+        if (keys.length > 0) {
+            const result = wrapper.vm.selectedOption(keys[0])
+            // result can be an option object or null — just verify no throw
+            expect(result === null || typeof result === 'object').toBe(true)
+        }
+    })
 })

@@ -445,4 +445,125 @@ describe('OpenPaymentPage.vue — extended coverage', () => {
         axiosMock.onGet('/pay/detect-country').reply(500)
         await expect(wrapper.vm.autoDetectCountry()).resolves.not.toThrow()
     })
+
+    // ── verifyRazorpay ───────────────────────────────────────────────
+    it('verifyRazorpay posts to /pay/verify/razorpay and sets step=result on success', async () => {
+        axiosMock.onPost('/pay/verify/razorpay').reply(200, {
+            success: true,
+            data: { order: { id: 1 } },
+            message: 'ok',
+        })
+        wrapper.vm.order = { id: 1 }
+        await wrapper.vm.verifyRazorpay({ razorpay_payment_id: 'pay_123', razorpay_order_id: 'ord_123', razorpay_signature: 'sig' })
+        await flushPromises()
+        expect(wrapper.vm.step).toBe('result')
+        expect(wrapper.vm.result.success).toBe(true)
+    })
+
+    it('verifyRazorpay sets result.success=false when API returns success=false', async () => {
+        axiosMock.onPost('/pay/verify/razorpay').reply(200, {
+            success: false,
+            data: {},
+            message: 'Verification failed',
+        })
+        wrapper.vm.order = { id: 1 }
+        await wrapper.vm.verifyRazorpay({ razorpay_payment_id: 'pay_123' })
+        await flushPromises()
+        expect(wrapper.vm.step).toBe('result')
+        expect(wrapper.vm.result.success).toBe(false)
+    })
+
+    it('verifyRazorpay handles API error and sets step=result', async () => {
+        axiosMock.onPost('/pay/verify/razorpay').reply(500)
+        wrapper.vm.order = { id: 1 }
+        await wrapper.vm.verifyRazorpay({ razorpay_payment_id: 'pay_123' })
+        await flushPromises()
+        expect(wrapper.vm.step).toBe('result')
+        expect(wrapper.vm.result.success).toBe(false)
+    })
+
+    // ── verifyStripe ─────────────────────────────────────────────────
+    it('verifyStripe posts to /pay/verify/stripe and sets step=result on success', async () => {
+        axiosMock.onPost('/pay/verify/stripe').reply(200, {
+            success: true,
+            data: { order: { id: 1 } },
+            message: 'ok',
+        })
+        wrapper.vm.order = { id: 1 }
+        await wrapper.vm.verifyStripe('pi_test123')
+        await flushPromises()
+        expect(wrapper.vm.step).toBe('result')
+        expect(wrapper.vm.result.success).toBe(true)
+    })
+
+    it('verifyStripe sets result.success=false on API failure', async () => {
+        axiosMock.onPost('/pay/verify/stripe').reply(500, { message: 'Failed' })
+        wrapper.vm.order = { id: 1 }
+        await wrapper.vm.verifyStripe('pi_test123')
+        await flushPromises()
+        expect(wrapper.vm.step).toBe('result')
+        expect(wrapper.vm.result.success).toBe(false)
+    })
+
+    it('verifyStripe sets result.success=false when API returns success=false', async () => {
+        axiosMock.onPost('/pay/verify/stripe').reply(200, {
+            success: false,
+            data: {},
+            message: 'Verification failed',
+        })
+        wrapper.vm.order = { id: 1 }
+        await wrapper.vm.verifyStripe('pi_test123')
+        await flushPromises()
+        expect(wrapper.vm.step).toBe('result')
+        expect(wrapper.vm.result.success).toBe(false)
+    })
+
+    // ── payNow additional branches ───────────────────────────────────
+    it('payNow with existing order routes to Stripe when gateway is Stripe', async () => {
+        axiosMock.onPost('/pay/stripe/card-session').reply(500) // initStripe will fail but that's ok
+        wrapper.vm.order = { id: 1, amount: '100.00' }
+        wrapper.vm.form.gateway = 'Stripe'
+        await wrapper.vm.payNow()
+        await flushPromises()
+        expect(wrapper.vm.paying).toBe(false)
+    })
+
+    it('payNow routes to Razorpay when gateway is not Stripe', async () => {
+        axiosMock.onPost('/pay/prepare').reply(200, { data: { key: 'rzp_key' } })
+        wrapper.vm.order = { id: 1, amount: '100.00' }
+        wrapper.vm.calculation = { total: '100.00' }
+        wrapper.vm.form.gateway = 'Razorpay'
+        await wrapper.vm.payNow()
+        await flushPromises()
+        expect(wrapper.vm.paying).toBe(false)
+    })
+
+    it('payNow handles 429 rate-limit error on createOrder', async () => {
+        axiosMock.onPost('/pay/create').reply(429, { message: 'Too many attempts' })
+        wrapper.vm.captchaRef = { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'tok' }), disabled: false }
+        wrapper.vm.order = null
+        await wrapper.vm.payNow()
+        await flushPromises()
+        expect(wrapper.vm.paying).toBe(false)
+    })
+
+    it('payNow handles generic server error on createOrder', async () => {
+        axiosMock.onPost('/pay/create').reply(500, { message: 'Server error' })
+        wrapper.vm.captchaRef = { getPayload: () => Promise.resolve({ 'g-recaptcha-response': 'tok' }), disabled: false }
+        wrapper.vm.order = null
+        await wrapper.vm.payNow()
+        await flushPromises()
+        expect(wrapper.vm.paying).toBe(false)
+    })
+
+    // ── onStripeModalClose ───────────────────────────────────────────
+    it('onStripeModalClose resets Stripe state', () => {
+        wrapper.vm.showStripeModal = true
+        wrapper.vm.stripeLoading = true
+        wrapper.vm.stripeSubmitting = true
+        wrapper.vm.onStripeModalClose()
+        expect(wrapper.vm.showStripeModal).toBe(false)
+        expect(wrapper.vm.stripeLoading).toBe(false)
+        expect(wrapper.vm.stripeSubmitting).toBe(false)
+    })
 })

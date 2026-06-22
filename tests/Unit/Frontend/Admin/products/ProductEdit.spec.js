@@ -117,4 +117,75 @@ describe('ProductEdit.vue', () => {
         jest.runAllTimers()
         expect(mockPush).toHaveBeenCalledWith('/products')
     })
+
+    it('onChange sets form.type and typeObj for type field', async () => {
+        await flushPromises()
+        wrapper.vm.onChange({ id: 'cloud' }, 'type')
+        expect(wrapper.vm.form.type).toBe('cloud')
+        expect(wrapper.vm.form.typeObj).toEqual({ id: 'cloud' })
+    })
+
+    it('onChange sets form.type to null when val is null', async () => {
+        await flushPromises()
+        wrapper.vm.onChange(null, 'type')
+        expect(wrapper.vm.form.type).toBeNull()
+    })
+
+    it('onChange sets form.group for group field', async () => {
+        await flushPromises()
+        wrapper.vm.onChange({ id: 5 }, 'group')
+        expect(wrapper.vm.form.group).toBe(5)
+    })
+
+    it('onChange sets form.parent for parent field', async () => {
+        await flushPromises()
+        wrapper.vm.onChange({ id: 3 }, 'parent')
+        expect(wrapper.vm.form.parent).toBe(3)
+    })
+
+    it('onChange sets arbitrary form field', async () => {
+        await flushPromises()
+        wrapper.vm.onChange('test-sku', 'product_sku')
+        expect(wrapper.vm.form.product_sku).toBe('test-sku')
+    })
+
+    it('onImageChange sets selectedImage and currentImage', async () => {
+        await flushPromises()
+        wrapper.vm.onImageChange({ image: 'data:image/png;base64,abc', name: 'test.png' })
+        expect(wrapper.vm.form.currentImage).toBe('data:image/png;base64,abc')
+    })
+
+    it('onImageChange clears selectedImage when null', async () => {
+        await flushPromises()
+        wrapper.vm.onImageChange(null)
+        expect(wrapper.vm.selectedImage).toBeNull()
+    })
+
+    it('toggleVersion adds id when not selected', async () => {
+        await flushPromises()
+        wrapper.vm.selectedVersions = []
+        wrapper.vm.toggleVersion(99)
+        expect(wrapper.vm.selectedVersions).toContain(99)
+    })
+
+    it('toggleVersion removes id when already selected', async () => {
+        await flushPromises()
+        wrapper.vm.selectedVersions = [99]
+        wrapper.vm.toggleVersion(99)
+        expect(wrapper.vm.selectedVersions).not.toContain(99)
+    })
+
+    it('confirmBulkDeleteVersions sets pending when versions selected', async () => {
+        await flushPromises()
+        wrapper.vm.selectedVersions = [1, 2]
+        wrapper.vm.confirmBulkDeleteVersions()
+        expect(wrapper.vm.pendingDeleteVersions).not.toBeNull()
+    })
+
+    it('confirmBulkDeleteVersions does nothing when no versions selected', async () => {
+        await flushPromises()
+        wrapper.vm.selectedVersions = []
+        wrapper.vm.confirmBulkDeleteVersions()
+        expect(wrapper.vm.pendingDeleteVersions).toBeNull()
+    })
 })

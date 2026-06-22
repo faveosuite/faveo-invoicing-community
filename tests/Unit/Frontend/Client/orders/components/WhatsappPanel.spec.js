@@ -155,4 +155,59 @@ describe('WhatsappPanel.vue', () => {
         w.unmount()
         expect(removeSpy).toHaveBeenCalledWith('message', expect.any(Function))
     })
+
+    it('copyValue copies text to clipboard and sets copiedId', async () => {
+        Object.assign(navigator, { clipboard: { writeText: jest.fn().mockResolvedValue(undefined) } })
+        await wrapper.vm.copyValue(42, 'https://example.com')
+        await flushPromises()
+        expect(navigator.clipboard.writeText).toHaveBeenCalledWith('https://example.com')
+        expect(wrapper.vm.copiedId).toBe(42)
+    })
+
+    it('isValidUrl returns true for valid URL', () => {
+        expect(wrapper.vm.isValidUrl('https://example.com/webhook')).toBe(true)
+    })
+
+    it('isValidUrl returns false for invalid URL', () => {
+        expect(wrapper.vm.isValidUrl('not-a-url')).toBe(false)
+    })
+
+    it('openEdit fetches webhook URL and sets showEditModal', async () => {
+        axiosMock.onGet('/get-webhook-url').reply(200, { data: { url: 'https://hook.io' } })
+        await wrapper.vm.openEdit({ id: 5, phone: '9876543210' })
+        await flushPromises()
+        expect(wrapper.vm.showEditModal).toBe(true)
+    })
+
+    it('openEdit handles error gracefully', async () => {
+        axiosMock.onGet('/get-webhook-url').reply(500)
+        await expect(wrapper.vm.openEdit({ id: 5, phone: '9876543210' })).resolves.not.toThrow()
+    })
+
+    it('submitEdit calls POST /webhook-url-edit on success with valid URL', async () => {
+        axiosMock.onPost('/webhook-url-edit').reply(200, { message: 'Updated' })
+        wrapper.vm.editId = 5
+        wrapper.vm.editUrl = 'https://new-hook.io/endpoint'
+        await wrapper.vm.submitEdit()
+        await flushPromises()
+        expect(axiosMock.history.post.some(r => r.url.includes('webhook-url-edit'))).toBe(true)
+    })
+
+    it('submitEdit sets editError for invalid URL', async () => {
+        wrapper.vm.editUrl = 'not-a-url'
+        await wrapper.vm.submitEdit()
+        expect(wrapper.vm.editError).toBeTruthy()
+    })
+
+    it('closeDeleteModal resets delete state', () => {
+        wrapper.vm.showDeleteModal = true
+        wrapper.vm.closeDeleteModal()
+        expect(wrapper.vm.showDeleteModal).toBe(false)
+    })
+
+    it('closeEditModal resets edit modal', () => {
+        wrapper.vm.showEditModal = true
+        wrapper.vm.closeEditModal()
+        expect(wrapper.vm.showEditModal).toBe(false)
+    })
 })

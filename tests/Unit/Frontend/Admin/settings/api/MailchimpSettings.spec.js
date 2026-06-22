@@ -111,4 +111,126 @@ describe('MailchimpSettings.vue', () => {
         await flushPromises()
         expect(successHandler).toHaveBeenCalled()
     })
+
+    // ── addFieldRow / removeFieldRow ──────────────────────────────────────────
+    it('addFieldRow appends a new empty row', async () => {
+        await flushPromises()
+        const before = wrapper.vm.fieldRows.length
+        wrapper.vm.addFieldRow()
+        expect(wrapper.vm.fieldRows.length).toBe(before + 1)
+        expect(wrapper.vm.fieldRows.at(-1)).toEqual({ faveoFieldId: null, mergeTagId: null })
+    })
+
+    it('removeFieldRow removes the row at index', async () => {
+        await flushPromises()
+        wrapper.vm.fieldRows = [{ faveoFieldId: 1, mergeTagId: 2 }, { faveoFieldId: 3, mergeTagId: 4 }]
+        wrapper.vm.removeFieldRow(0)
+        expect(wrapper.vm.fieldRows.length).toBe(1)
+        expect(wrapper.vm.fieldRows[0].faveoFieldId).toBe(3)
+    })
+
+    // ── addProductRow / removeProductRow ──────────────────────────────────────
+    it('addProductRow appends a new empty product row', async () => {
+        await flushPromises()
+        const before = wrapper.vm.productRows.length
+        wrapper.vm.addProductRow()
+        expect(wrapper.vm.productRows.length).toBe(before + 1)
+    })
+
+    it('removeProductRow removes the product row at index', async () => {
+        wrapper.vm.productRows = [{ productId: 1, groupId: 2 }, { productId: 3, groupId: 4 }]
+        wrapper.vm.removeProductRow(1)
+        expect(wrapper.vm.productRows.length).toBe(1)
+    })
+
+    // ── loadMappingData ───────────────────────────────────────────────────────
+    it('loadMappingData fetches mapping data on success', async () => {
+        global.mockHttp.onGet(/\/mailchimp\/mapping-data/).reply(200, {
+            data: { faveo_fields: [], products: [], tags: [], merge_tags: [] }
+        })
+        await wrapper.vm.loadMappingData()
+        await flushPromises()
+        expect(global.mockHttp.history.get.some(r => r.url.includes('mapping-data'))).toBe(true)
+    })
+
+    it('loadMappingData calls errorHandler on failure', async () => {
+        global.mockHttp.onGet(/\/mailchimp\/mapping-data/).reply(500)
+        await expect(wrapper.vm.loadMappingData()).resolves.not.toThrow()
+    })
+
+    // ── syncFields ────────────────────────────────────────────────────────────
+    it('syncFields calls POST /mailchimp/sync-fields on success', async () => {
+        global.mockHttp.onPost(/\/mailchimp\/sync-fields/).reply(200, { message: 'ok' })
+        await wrapper.vm.syncFields()
+        await flushPromises()
+        expect(global.mockHttp.history.post.some(r => r.url.includes('sync-fields'))).toBe(true)
+    })
+
+    it('syncFields calls errorHandler on failure', async () => {
+        global.mockHttp.onPost(/\/mailchimp\/sync-fields/).reply(500)
+        await expect(wrapper.vm.syncFields()).resolves.not.toThrow()
+    })
+
+    // ── saveMapping ───────────────────────────────────────────────────────────
+    it('saveMapping calls PATCH /mail-chimp/mapping on success', async () => {
+        global.mockHttp.onPatch(/\/mail-chimp\/mapping/).reply(200, { message: 'ok' })
+        await wrapper.vm.saveMapping()
+        await flushPromises()
+        expect(global.mockHttp.history.patch.some(r => r.url.includes('mapping'))).toBe(true)
+    })
+
+    it('saveMapping calls errorHandler on failure', async () => {
+        global.mockHttp.onPatch(/\/mail-chimp\/mapping/).reply(500)
+        await expect(wrapper.vm.saveMapping()).resolves.not.toThrow()
+    })
+
+    // ── syncGroups ────────────────────────────────────────────────────────────
+    it('syncGroups calls POST /mailchimp/sync-groups on success', async () => {
+        global.mockHttp.onPost(/\/mailchimp\/sync-groups/).reply(200, { message: 'ok' })
+        await wrapper.vm.syncGroups()
+        await flushPromises()
+        expect(global.mockHttp.history.post.some(r => r.url.includes('sync-groups'))).toBe(true)
+    })
+
+    it('syncGroups calls errorHandler on failure', async () => {
+        global.mockHttp.onPost(/\/mailchimp\/sync-groups/).reply(500)
+        await expect(wrapper.vm.syncGroups()).resolves.not.toThrow()
+    })
+
+    // ── saveInterestGroups ────────────────────────────────────────────────────
+    it('saveInterestGroups calls multiple POSTs on success', async () => {
+        global.mockHttp.onPost(/\/mailchimp-prod-status/).reply(200, { message: 'ok' })
+        global.mockHttp.onPost(/\/mailchimp-paid-status/).reply(200, { message: 'ok' })
+        await wrapper.vm.saveInterestGroups()
+        await flushPromises()
+        expect(global.mockHttp.history.post.some(r => r.url.includes('mailchimp'))).toBe(true)
+    })
+
+    it('saveInterestGroups calls errorHandler on failure', async () => {
+        global.mockHttp.onPost(/\/mailchimp-prod-status/).reply(500)
+        global.mockHttp.onPost(/\/mailchimp-paid-status/).reply(500)
+        await expect(wrapper.vm.saveInterestGroups()).resolves.not.toThrow()
+    })
+
+    // ── loadMoreLists ─────────────────────────────────────────────────────────
+    it('loadMoreLists fetches next page of lists when listsHasMore is true', async () => {
+        global.mockHttp.onGet(/\/mailchimp\/lists/).reply(200, { data: { lists: [], has_more: false } })
+        wrapper.vm.listsHasMore = true
+        await wrapper.vm.loadMoreLists()
+        await flushPromises()
+        expect(global.mockHttp.history.get.some(r => r.url.includes('lists'))).toBe(true)
+    })
+
+    it('loadMoreLists returns early when listsHasMore is false', async () => {
+        global.mockHttp.reset()
+        wrapper.vm.listsHasMore = false
+        await wrapper.vm.loadMoreLists()
+        expect(global.mockHttp.history.get.length).toBe(0)
+    })
+
+    it('loadMoreLists handles error gracefully', async () => {
+        global.mockHttp.onGet(/\/mailchimp\/lists/).reply(500)
+        wrapper.vm.listsHasMore = true
+        await expect(wrapper.vm.loadMoreLists()).resolves.not.toThrow()
+    })
 })

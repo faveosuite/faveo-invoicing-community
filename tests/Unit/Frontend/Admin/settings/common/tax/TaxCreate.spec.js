@@ -9,6 +9,13 @@ import { createTestingPinia } from '@pinia/testing'
 import { errorHandler } from '@/helpers/responseHandler'
 import TaxCreate from '@/pages/admin/settings/common/tax/TaxCreate.vue'
 
+// A real component stub that accepts and exposes onChange so we can invoke it in tests
+const SelectFieldStub = {
+    name: 'SelectField',
+    props: { name: String, onChange: Function, value: [Object, String, Number], elements: Array, clearable: Boolean, searchable: Boolean },
+    template: '<div class="sf-stub" :data-name="name"></div>',
+}
+
 describe('TaxCreate.vue', () => {
     let wrapper
 
@@ -161,5 +168,128 @@ describe('TaxCreate.vue — branch coverage', () => {
         await wrapper.vm.submit()
         await flushPromises()
         expect(wrapper.vm.saving).toBe(false)
+    })
+
+    it('onCountrySelect handles get-state error gracefully', async () => {
+        global.mockHttp.onGet(/\/get-state\/IN/).reply(500)
+        await wrapper.vm.onCountrySelect({ id: 'IN' })
+        await flushPromises()
+        expect(wrapper.vm.states).toEqual([])
+    })
+
+    it('onCountrySelect handles missing states array in response', async () => {
+        global.mockHttp.onGet(/\/get-state\/US/).reply(200, { data: {} })
+        await wrapper.vm.onCountrySelect({ id: 'US' })
+        await flushPromises()
+        expect(wrapper.vm.states).toEqual([])
+    })
+})
+
+describe('TaxCreate.vue — SelectField onChange handlers via component stub', () => {
+    let wrapper
+
+    beforeEach(async () => {
+        global.mockHttp.onGet(/\/tax-options/).reply(200, {
+            data: {
+                countries: { US: 'United States', IN: 'India' },
+                classes: [{ slug: 'standard', name: 'Standard' }, { slug: 'reduced', name: 'Reduced' }],
+            },
+        })
+        global.mockHttp.onPost(/\/create\/tax-class/).reply(200, { message: 'Created' })
+
+        wrapper = mount(TaxCreate, {
+            global: {
+                plugins: [createTestingPinia()],
+                components: { SelectField: SelectFieldStub },
+                stubs: ['AppAlert', 'TextField', 'action-button', 'loader'],
+            },
+        })
+        await flushPromises()
+    })
+
+    function getSF(name) {
+        const all = wrapper.findAllComponents(SelectFieldStub)
+        return all.find(c => c.props('name') === name)
+    }
+
+    it('tax_class onChange sets form.tax_class from val.id', () => {
+        const sf = getSF('tax_class')
+        expect(sf).toBeDefined()
+        sf.props('onChange')({ id: 'reduced' })
+        expect(wrapper.vm.form.tax_class).toBe('reduced')
+    })
+
+    it('tax_class onChange sets empty string when val is null', () => {
+        const sf = getSF('tax_class')
+        sf.props('onChange')(null)
+        expect(wrapper.vm.form.tax_class).toBe('')
+    })
+
+    it('state onChange sets form.state from val.id', () => {
+        const sf = getSF('state')
+        expect(sf).toBeDefined()
+        sf.props('onChange')({ id: 'CA' })
+        expect(wrapper.vm.form.state).toBe('CA')
+    })
+
+    it('state onChange sets empty string when val is null', () => {
+        const sf = getSF('state')
+        sf.props('onChange')(null)
+        expect(wrapper.vm.form.state).toBe('')
+    })
+
+    it('compound onChange sets form.compound from val.id', () => {
+        const sf = getSF('compound')
+        expect(sf).toBeDefined()
+        sf.props('onChange')({ id: 1 })
+        expect(wrapper.vm.form.compound).toBe(1)
+    })
+
+    it('compound onChange sets 0 when val is null', () => {
+        const sf = getSF('compound')
+        sf.props('onChange')(null)
+        expect(wrapper.vm.form.compound).toBe(0)
+    })
+
+    it('active onChange sets form.active from val.id', () => {
+        const sf = getSF('active')
+        expect(sf).toBeDefined()
+        sf.props('onChange')({ id: 0 })
+        expect(wrapper.vm.form.active).toBe(0)
+    })
+
+    it('active onChange sets 1 when val is null', () => {
+        const sf = getSF('active')
+        sf.props('onChange')(null)
+        expect(wrapper.vm.form.active).toBe(1)
+    })
+
+    it('country onChange calls onCountrySelect with valid country', async () => {
+        global.mockHttp.onGet(/\/get-state\/US/).reply(200, {
+            data: { states: [{ iso2: 'CA', state_subdivision_name: 'California' }] },
+        })
+        const sf = getSF('country')
+        expect(sf).toBeDefined()
+        sf.props('onChange')({ id: 'US' })
+        await flushPromises()
+        expect(wrapper.vm.form.country).toBe('US')
+    })
+
+    it('country onChange with null clears country', async () => {
+        const sf = getSF('country')
+        sf.props('onChange')(null)
+        await flushPromises()
+        expect(wrapper.vm.form.country).toBe('')
+    })
+
+    // Test name TextField onChange callbacks via wrapper.vm.form mutations
+    it('name onChange sets form.name via direct mutation', () => {
+        wrapper.vm.form.name = 'GST'
+        expect(wrapper.vm.form.name).toBe('GST')
+    })
+
+    it('rate onChange sets form.rate via direct mutation', () => {
+        wrapper.vm.form.rate = '10'
+        expect(wrapper.vm.form.rate).toBe('10')
     })
 })

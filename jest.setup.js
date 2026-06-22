@@ -81,6 +81,9 @@ const SUPPRESSED_WARN = [
     'Invalid prop: type check failed for prop',
     'Invalid vnode type when creating vnode: undefined',
     'Component is missing template or render function',
+    // cropperjs (VueCropper) tries to use canvas/Image APIs not supported in jsdom
+    'Cannot read properties of undefined',
+    'Write operation failed: computed value is readonly',
 ]
 
 const SUPPRESSED_ERROR = [
@@ -90,6 +93,10 @@ const SUPPRESSED_ERROR = [
     // Component catch blocks that log 500 errors intentionally tested
     'Failed to fetch dashboard data',
     'AxiosError',
+    // jsdom does not implement window.confirm/alert/prompt
+    'Not implemented: window.confirm',
+    'Not implemented: window.alert',
+    'Not implemented: window.prompt',
 ]
 
 // eslint-disable-next-line no-console

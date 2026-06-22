@@ -15,7 +15,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
+    "@babel/plugin-transform-runtime": "^7.29.7",
     "@babel/preset-env": "^7.29.0",
+    "@babel/runtime": "^7.29.7",
     "@eslint/js": "^10.0.1",
     "@pinia/testing": "^1.0.3",
     "@vitejs/plugin-vue": "^6.0.4",
@@ -120,10 +122,10 @@
     "coverageDirectory": "coverage",
     "coverageThreshold": {
       "global": {
-        "statements": 0,
-        "branches": 0,
-        "functions": 0,
-        "lines": 0
+        "statements": 86,
+        "branches": 64,
+        "functions": 48,
+        "lines": 86
       }
     },
     "globals": {

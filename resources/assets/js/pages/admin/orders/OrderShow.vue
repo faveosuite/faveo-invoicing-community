@@ -383,11 +383,6 @@ const userName = computed(() => {
     return `${u.first_name ?? ''} ${u.last_name ?? ''}`.trim() || '—'
 })
 
-const userInitial = computed(() => {
-    const u = order.value?.user
-    if (!u) return '?'
-    return (u.first_name?.[0] ?? u.last_name?.[0] ?? '?').toUpperCase()
-})
 
 const statusBadgeClass = computed(() => {
     const s = (order.value?.order_status ?? '').toLowerCase()

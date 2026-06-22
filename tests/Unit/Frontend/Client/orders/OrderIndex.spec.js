@@ -110,4 +110,24 @@ describe('OrderIndex.vue', () => {
         wrapper.vm.downloadRow = { id: 99 }
         expect(wrapper.vm.downloadVersionsUrl).toContain('/get-versions/99')
     })
+
+    it('confirmDelete redirects when deleteRow has a number', () => {
+        const { location } = window
+        delete window.location
+        window.location = { href: '' }
+        wrapper.vm.deleteRow = { number: 'ORD-001' }
+        wrapper.vm.confirmDelete()
+        expect(window.location.href).toContain('/delete/domain/ORD-001/1')
+        window.location = location
+    })
+
+    it('confirmDelete does nothing when deleteRow has no number', () => {
+        const { location } = window
+        delete window.location
+        window.location = { href: 'http://original.test' }
+        wrapper.vm.deleteRow = { number: null }
+        wrapper.vm.confirmDelete()
+        expect(window.location.href).toBe('http://original.test')
+        window.location = location
+    })
 })

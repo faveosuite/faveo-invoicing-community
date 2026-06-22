@@ -78,4 +78,28 @@ describe('ActivityLogs.vue', () => {
         await wrapper.vm.confirmDelete()
         expect(wrapper.vm.deleteError).toBeTruthy()
     })
+
+    it('onFilterApply sets activeFilters', () => {
+        wrapper.vm.dtRef = { refresh: jest.fn() }
+        wrapper.vm.onFilterApply({ user_id: 1, action: 'login' })
+        expect(wrapper.vm.activeFilters).toEqual({ user_id: 1, action: 'login' })
+    })
+
+    it('onFilterReset clears activeFilters', () => {
+        wrapper.vm.dtRef = { refresh: jest.fn() }
+        wrapper.vm.activeFilters = { user_id: 1 }
+        wrapper.vm.onFilterReset()
+        expect(wrapper.vm.activeFilters).toEqual({})
+    })
+
+    it('openReadMore sets details and shows modal', () => {
+        wrapper.vm.openReadMore({ action: 'login', user: 'admin' })
+        expect(wrapper.vm.showReadMoreModal).toBe(true)
+    })
+
+    it('closeDeleteModal resets delete state', () => {
+        wrapper.vm.showDeleteModal = true
+        wrapper.vm.closeDeleteModal()
+        expect(wrapper.vm.showDeleteModal).toBe(false)
+    })
 })

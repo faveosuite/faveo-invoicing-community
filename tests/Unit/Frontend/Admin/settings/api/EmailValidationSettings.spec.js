@@ -92,4 +92,107 @@ describe('EmailValidationSettings.vue', () => {
     it('saving is false by default', () => {
         expect(wrapper.vm.saving).toBe(false)
     })
+
+    // ── save: validateForm returns false guard ─────────────────────────────
+    it('save does not POST when validateForm returns false', async () => {
+        const { validateForm } = require('@/helpers/formUtils.js')
+        validateForm.mockResolvedValueOnce(false)
+        await flushPromises()
+        global.mockHttp.reset()
+        await wrapper.vm.save()
+        await flushPromises()
+        expect(global.mockHttp.history.post.length).toBe(0)
+    })
+
+    it('save sets saving to false after completion', async () => {
+        await flushPromises()
+        await wrapper.vm.save()
+        await flushPromises()
+        expect(wrapper.vm.saving).toBe(false)
+    })
+
+    // ── save with power mode includes accepted_output ──────────────────────
+    it('save includes accepted_output in payload when mode is power', async () => {
+        await flushPromises()
+        wrapper.vm.form.mode = 'power'
+        wrapper.vm.selectedBits = [2, 4]
+        global.mockHttp.onPost(/\/email-settings-save/).reply(200, { data: {} })
+        await wrapper.vm.save()
+        await flushPromises()
+        const postCall = global.mockHttp.history.post.find(r => r.url.includes('/email-settings-save'))
+        const body = JSON.parse(postCall.data)
+        expect(body).toHaveProperty('accepted_output')
+        expect(body.accepted_output).toBe(6) // 2 | 4
+    })
+
+    it('save does NOT include accepted_output in payload when mode is quick', async () => {
+        await flushPromises()
+        wrapper.vm.form.mode = 'quick'
+        global.mockHttp.onPost(/\/email-settings-save/).reply(200, { data: {} })
+        await wrapper.vm.save()
+        await flushPromises()
+        const postCall = global.mockHttp.history.post.find(r => r.url.includes('/email-settings-save'))
+        const body = JSON.parse(postCall.data)
+        expect(body).not.toHaveProperty('accepted_output')
+    })
+
+    // ── mount error path ───────────────────────────────────────────────────
+    it('handles GET /settings/email-validation error on mount without throwing', async () => {
+        global.mockHttp.reset()
+        global.mockHttp.onGet(/\/settings\/email-validation/).reply(500)
+        const w = mount(EmailValidationSettings, {
+            global: { plugins: [createTestingPinia()], stubs: STUBS },
+        })
+        await flushPromises()
+        expect(w.vm.loading).toBe(false)
+        w.unmount()
+    })
+
+    // ── statusOptions and selectedBits populated from response ─────────────
+    it('populates statusOptions and selectedBits from API response', async () => {
+        global.mockHttp.reset()
+        global.mockHttp.onGet(/\/settings\/email-validation/).reply(200, {
+            data: {
+                provider: 'reoon',
+                api_key: 'k',
+                mode: 'power',
+                status_options: [{ bit: 1, name: 'Valid' }, { bit: 2, name: 'Invalid' }],
+                selected_bits: [1],
+            },
+        })
+        const w = mount(EmailValidationSettings, {
+            global: { plugins: [createTestingPinia()], stubs: STUBS },
+        })
+        await flushPromises()
+        expect(w.vm.statusOptions.length).toBe(2)
+        expect(w.vm.selectedBits).toEqual([1])
+        w.unmount()
+    })
+
+    // ── acceptedOutput computed ────────────────────────────────────────────
+    it('acceptedOutput computes bitwise OR of selectedBits', async () => {
+        await flushPromises()
+        wrapper.vm.selectedBits = [1, 4, 8]
+        expect(wrapper.vm.acceptedOutput).toBe(13) // 1 | 4 | 8
+    })
+
+    it('acceptedOutput is 0 when selectedBits is empty', async () => {
+        await flushPromises()
+        wrapper.vm.selectedBits = []
+        expect(wrapper.vm.acceptedOutput).toBe(0)
+    })
+
+    // ── form.provider reactive update ──────────────────────────────────────
+    it('form.provider updates when changed programmatically', async () => {
+        await flushPromises()
+        wrapper.vm.form.provider = 'reoon'
+        expect(wrapper.vm.form.provider).toBe('reoon')
+    })
+
+    // ── form.mode reactive update ──────────────────────────────────────────
+    it('form.mode updates when changed programmatically', async () => {
+        await flushPromises()
+        wrapper.vm.form.mode = 'power'
+        expect(wrapper.vm.form.mode).toBe('power')
+    })
 })

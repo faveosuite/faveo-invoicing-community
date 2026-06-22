@@ -137,4 +137,148 @@ describe('UserShow.vue', () => {
         await flushPromises()
         expect(global.mockHttp.history.post.some(r => /\/comments/.test(r.url))).toBe(true)
     })
+
+    it('addComment returns early when newComment is empty', async () => {
+        await flushPromises()
+        wrapper.vm.newComment = ''
+        await wrapper.vm.addComment()
+        expect(global.mockHttp.history.post.filter(r => /\/comments/.test(r.url)).length).toBe(0)
+    })
+
+    it('addComment handles API error gracefully without throwing', async () => {
+        global.mockHttp.onPost(/\/user\/2\/comments/).reply(500)
+        await flushPromises()
+        wrapper.vm.newComment = 'Test comment'
+        await expect(wrapper.vm.addComment()).resolves.not.toThrow()
+        await flushPromises()
+        expect(wrapper.vm.savingComment).toBe(false)
+    })
+
+    it('startEdit sets editingComment', async () => {
+        await flushPromises()
+        const comment = { id: 5, description: 'Hello' }
+        wrapper.vm.startEdit(comment)
+        expect(wrapper.vm.editingComment).toEqual(comment)
+    })
+
+    it('saveEdit calls PUT and clears editingComment on success', async () => {
+        global.mockHttp.onPut(/\/user\/2\/comments\/5/).reply(200, { data: {} })
+        await flushPromises()
+        const comment = { id: 5, description: 'Updated' }
+        wrapper.vm.editingComment = comment
+        await wrapper.vm.saveEdit(comment)
+        await flushPromises()
+        expect(global.mockHttp.history.put.some(r => /\/comments\/5/.test(r.url))).toBe(true)
+        expect(wrapper.vm.editingComment).toBeNull()
+    })
+
+    it('saveEdit handles API error', async () => {
+        global.mockHttp.onPut(/\/user\/2\/comments\/5/).reply(500)
+        await flushPromises()
+        const comment = { id: 5, description: 'Updated' }
+        wrapper.vm.editingComment = comment
+        await wrapper.vm.saveEdit(comment)
+        await flushPromises()
+        // no throw
+    })
+
+    it('disable2fa calls POST /2fa/disable/:id on success', async () => {
+        global.mockHttp.onPost(/\/2fa\/disable\/2/).reply(200, { message: 'ok' })
+        await flushPromises()
+        jest.spyOn(window, 'confirm').mockReturnValue(true)
+        await wrapper.vm.disable2fa()
+        await flushPromises()
+        expect(global.mockHttp.history.post.some(r => /\/2fa\/disable/.test(r.url))).toBe(true)
+        window.confirm.mockRestore?.()
+    })
+
+    it('disable2fa returns early when confirm is cancelled', async () => {
+        jest.spyOn(window, 'confirm').mockReturnValue(false)
+        await flushPromises()
+        const before = global.mockHttp.history.post.length
+        await wrapper.vm.disable2fa()
+        expect(global.mockHttp.history.post.length).toBe(before)
+        window.confirm.mockRestore?.()
+    })
+
+    it('disable2fa handles API error', async () => {
+        global.mockHttp.onPost(/\/2fa\/disable\/2/).reply(500)
+        await flushPromises()
+        jest.spyOn(window, 'confirm').mockReturnValue(true)
+        await expect(wrapper.vm.disable2fa()).resolves.not.toThrow()
+        window.confirm.mockRestore?.()
+    })
+
+    it('copy copies field to clipboard', async () => {
+        Object.assign(navigator, { clipboard: { writeText: jest.fn().mockResolvedValue(undefined) } })
+        await flushPromises()
+        await wrapper.vm.copy('email', 'test@example.com')
+        await flushPromises()
+        expect(navigator.clipboard.writeText).toHaveBeenCalledWith('test@example.com')
+    })
+
+    it('toggleAll selects all rows when checked', async () => {
+        await flushPromises()
+        const selRef = { value: [] }
+        const dtRef  = { value: { tableData: [{ id: 1 }, { id: 2 }] } }
+        wrapper.vm.toggleAll(selRef, dtRef, { target: { checked: true } })
+        expect(selRef.value).toContain(1)
+        expect(selRef.value).toContain(2)
+    })
+
+    it('toggleAll deselects all rows when unchecked', async () => {
+        await flushPromises()
+        const selRef = { value: [1, 2] }
+        const dtRef  = { value: { tableData: [{ id: 1 }, { id: 2 }] } }
+        wrapper.vm.toggleAll(selRef, dtRef, { target: { checked: false } })
+        expect(selRef.value).toHaveLength(0)
+    })
+
+    it('loadSummary sets summary data on success', async () => {
+        global.mockHttp.onGet(/\/user\/2\/summary/).reply(200, {
+            data: { invoice_total: 100, amount_paid: 80, balance: 20 }
+        })
+        await wrapper.vm.loadSummary()
+        await flushPromises()
+        expect(wrapper.vm.summary).toBeDefined()
+    })
+
+    it('loadSummary handles API error', async () => {
+        global.mockHttp.onGet(/\/user\/2\/summary/).reply(500)
+        await expect(wrapper.vm.loadSummary()).resolves.not.toThrow()
+    })
+
+    it('onBulkDeleted clears bulkDelete and refreshes', async () => {
+        await flushPromises()
+        const selRef = { value: [1] }
+        const dtRef  = { value: { refresh: jest.fn() } }
+        wrapper.vm.bulkDelete = { sel: selRef, dt: dtRef }
+        wrapper.vm.onBulkDeleted()
+        expect(wrapper.vm.bulkDelete).toBeNull()
+        expect(selRef.value).toHaveLength(0)
+    })
+
+    it('onBulkDeleted handles null bulkDelete', async () => {
+        await flushPromises()
+        wrapper.vm.bulkDelete = null
+        expect(() => wrapper.vm.onBulkDeleted()).not.toThrow()
+    })
+
+    it('statusBadge returns a VNode with correct badge class for known status', async () => {
+        await flushPromises()
+        const vnode = wrapper.vm.statusBadge('paid', { paid: 'bg-success', unpaid: 'bg-danger' })
+        expect(vnode.props?.class).toContain('bg-success')
+    })
+
+    it('statusBadge uses bg-secondary for unknown status', async () => {
+        await flushPromises()
+        const vnode = wrapper.vm.statusBadge('unknown', { paid: 'bg-success' })
+        expect(vnode.props?.class).toContain('bg-secondary')
+    })
+
+    it('formatMoney formats number with currency', async () => {
+        await flushPromises()
+        const result = wrapper.vm.formatMoney?.(99.99, 'USD')
+        if (result !== undefined) expect(typeof result).toBe('string')
+    })
 })

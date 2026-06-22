@@ -126,4 +126,61 @@ describe('UserPaymentEdit.vue', () => {
         await flushPromises()
         expect(wrapper.find('table').exists()).toBe(true)
     })
+
+    it('submit calls POST /newMultiplePayment/update when canSubmit and validate pass', async () => {
+        global.mockHttp.onPost(/\/newMultiplePayment\/update/).reply(200, { message: 'ok' })
+        await flushPromises()
+        wrapper.vm.form.payment_date   = '2025-01-01'
+        wrapper.vm.form.payment_method = 'cash'
+        // Set up canSubmit: totalApplied > 0 and <= availableCredit
+        wrapper.vm.availableCredit = '200'
+        wrapper.vm.invoices.forEach(inv => { inv.checked = true; inv.payAmount = 10 })
+        await wrapper.vm.submit()
+        await flushPromises()
+        expect(wrapper.vm.submitting).toBe(false)
+    })
+
+    it('submit handles API error', async () => {
+        global.mockHttp.onPost(/\/newMultiplePayment\/update/).reply(500, { message: 'Server error' })
+        await flushPromises()
+        wrapper.vm.form.payment_date   = '2025-01-01'
+        wrapper.vm.form.payment_method = 'cash'
+        wrapper.vm.availableCredit = '200'
+        wrapper.vm.invoices.forEach(inv => { inv.checked = true; inv.payAmount = 10 })
+        await wrapper.vm.submit()
+        await flushPromises()
+        expect(wrapper.vm.submitting).toBe(false)
+    })
+
+    it('submit returns early when validate() fails', async () => {
+        await flushPromises()
+        wrapper.vm.form.payment_date   = ''
+        wrapper.vm.form.payment_method = ''
+        const before = global.mockHttp.history.post.length
+        await wrapper.vm.submit()
+        expect(global.mockHttp.history.post.length).toBe(before)
+    })
+
+    it('validate returns false when required fields are missing', async () => {
+        await flushPromises()
+        wrapper.vm.form.payment_date   = ''
+        wrapper.vm.form.payment_method = ''
+        const result = wrapper.vm.validate()
+        expect(result).toBe(false)
+    })
+
+    it('validate returns true when all fields are present', async () => {
+        await flushPromises()
+        wrapper.vm.form.payment_date   = '2025-01-01'
+        wrapper.vm.form.payment_method = 'cash'
+        const result = wrapper.vm.validate()
+        expect(result).toBe(true)
+    })
+
+    it('clampRow clamps payAmount to pending when amount exceeds pending', async () => {
+        await flushPromises()
+        const inv = { payAmount: 200, pending: 100, checked: true }
+        wrapper.vm.clampRow(inv)
+        expect(parseFloat(inv.payAmount)).toBe(100)
+    })
 })
