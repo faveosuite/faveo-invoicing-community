@@ -411,8 +411,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('user/restore/{id}', [SoftDeleteController::class, 'restoreUser']);
     Route::delete('permanent-delete-client', [SoftDeleteController::class, 'permanentDeleteUser']);
 
-    // Legacy client detail endpoints (admin panels still reference these)
-    Route::get('getClientDetail/{id}', [User\ClientController::class, 'getClientDetail']);
     Route::post('/save-columns', [User\ClientController::class, 'saveColumns'])->name('save-columns');
     Route::get('/get-columns', [User\ClientController::class, 'getColumns'])->name('get-columns');
     Route::get('export-users', [User\ClientController::class, 'exportUsers'])->name('export-users');
@@ -443,14 +441,9 @@ Route::middleware('installAgora')->group(function (): void {
     Route::patch('product/upload/{productUploadId}', [ProductController::class, 'updateProductUpload']);
     Route::put('product/upload/{productId}/', [ProductController::class, 'productUploadCreate']);
 
-    // Legacy product action endpoints
-    Route::get('get-subscription/{id}', [ProductController::class, 'getSubscriptionCheck']);
-    Route::delete('uploads-delete', [ProductController::class, 'fileDestroy'])->name('uploads-delete');
     Route::post('get-price', [ProductController::class, 'getPrice']);
-    Route::post('upload/save', [ProductController::class, 'save'])->name('upload/save');
     Route::post('chunkupload', [ProductController::class, 'uploadFile']);
     Route::patch('upload/{id}', [ProductController::class, 'uploadUpdate']);
-    Route::post('upload-image', [ProductController::class, 'uploadImage'])->name('upload-image');
 
     // RESTful plan endpoints
     Route::get('plans', [PlanController::class, 'getAllPlans']);
@@ -496,7 +489,6 @@ Route::middleware('installAgora')->group(function (): void {
     // Legacy invoice endpoints
     Route::post('invoice/edit/{id}', [InvoiceController::class, 'postEdit']);
     Route::post('generate/invoice/{user_id?}', [InvoiceController::class, 'invoiceGenerateByForm']);
-    Route::post('change-invoiceTotal', [InvoiceController::class, 'invoiceTotalChange'])->name('change-invoiceTotal');
     Route::get('export-invoices', [InvoiceController::class, 'exportInvoices'])->name('export-invoices');
 
     // Admin payment forms (legacy blade views — still referenced from admin OrderShow)

@@ -149,22 +149,6 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         return null;
     }
 
-    /*
-    *Edit Invoice Total.
-    */
-    public function invoiceTotalChange(Request $request): void
-    {
-        $total = $request->input('total');
-        if ($total == '') {
-            $total = 0;
-        }
-
-        $number = $request->input('number');
-        $invoiceId = Invoice::where('number', $number)->value('id');
-        InvoiceItem::where('invoice_id', $invoiceId)->update(['subtotal' => $total]);
-        Invoice::where('number', $number)->update(['grand_total' => $total]);
-    }
-
     public function calculateTotal(string $rate, int|float $total): float
     {
         try {

@@ -115,54 +115,6 @@ class BaseProductController extends ExtendedBaseProductController
         return $product->can_modify_agent == 1;
     }
 
-    /**
-     * Get the Subscription and Price Based on the Product Selected while generating Invoice (Admin Panel).
-     */
-    public function getSubscriptionCheck(int $productid, Request $request): JsonResponse
-    {
-        try {
-            /** @var User $authUser */
-            $authUser = Auth::user();
-            $useID = $request->input('user_id') ?: $authUser->id;
-            /** @var User $userForCountry */
-            $userForCountry = User::find($useID);
-            $userCountry = $userForCountry->country;
-            $currency = getCurrencyForClient($userCountry);
-            $plans = Plan::where('product', $productid)
-                ->whereHas('planPrice', function ($query) use ($currency): void {
-                    $query->where('currency', $currency);
-                })
-                ->pluck('name', 'id')
-                ->toArray();
-
-            if (empty($plans)) { // If Plans Exist For A Product, Display Dropdown for Plans
-                return errorResponse(__('message.no_available_plans_for_user_currency'));
-            }
-
-            $field = html()->div()
-                ->class('form-group')
-                ->children([
-                    html()->label()
-                        ->class('required')
-                        ->text(__('message.subscription')), // Translated label
-                    html()->select('plan', ['' => __('message.Select'), 'Plans' => $plans])
-                        ->class('form-control')
-                        ->id('plan')
-                        ->attribute('onchange', 'getPrice(this.value)'),
-                    html()->div()
-                        ->class('error-message')
-                        ->id('subscription-msg'),
-                ])
-                ->toHtml();
-
-            return successResponse('', $field);
-        } catch (Exception $exception) {
-            Logger::exception($exception);
-
-            return errorResponse($exception->getMessage());
-        }
-    }
-
     public function userDownload(mixed $order_id, mixed $version_id = ''): Response|JsonResponse
     {
         try {

@@ -57,20 +57,6 @@ class AdvanceSearchController extends AdminOrderInvoiceController
         }
     }
 
-    /**
-     * @return array<mixed>
-     */
-    public function getClientDetail(mixed $id): array
-    {
-        /** @var User $client */
-        $client = User::where('id', $id)->firstOrFail();
-        $currency = $client->currency;
-        $client->state = getStateByCode((string) $client->country, (string) $client->state)['name'];
-
-        $client->country = ucwords(strtolower((string) getCountryByCode($client->country)));
-
-        return ['currency' => $currency, 'client' => $client];
-    }
 
     public function getExtraAmt(mixed $userId): mixed
     {

@@ -23,10 +23,8 @@ use App\Model\Product\Subscription;
 use App\Traits\Upload\ChunkUpload;
 use DB;
 use Exception;
-use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Logger;
 
 // use Input;
@@ -130,124 +128,6 @@ class ProductController extends BaseProductController
 
         $product_upload = new ProductUpload;
         $this->product_upload = $product_upload;
-    }
-
-    // Save file Info in Modal popup
-    public function save(Request $request): JsonResponse
-    {
-        $this->validate(
-            $request,
-            [
-                'producttitle' => 'required',
-                'version' => 'required',
-                'filename' => 'required',
-                'dependencies' => 'required',
-            ],
-            [
-                'version.required' => __('validation.product_validate.version_required'),
-                'filename.required' => __('validation.product_validate.filename_required'),
-                'dependencies.required' => __('validation.product_validate.dependencies_required'),
-
-            ]
-        );
-
-        try {
-            /** @var Product $product_id */
-            $product_id = Product::find($request->input('product_id'));
-
-            $this->product_upload->product_id = $product_id->id;
-            $this->product_upload->title = $request->input('producttitle');
-            $this->product_upload->description = $request->input('description');
-            $this->product_upload->version = $request->input('version');
-            $this->product_upload->file = $request->input('filename');
-
-            $this->product_upload->is_private = $request->input('is_private');
-            $this->product_upload->release_type = $request->input('release_type');
-            $this->product_upload->is_restricted = $request->input('is_restricted');
-            $this->product_upload->dependencies = json_encode($request->input('dependencies'));
-
-            $this->product_upload->save();
-
-            $this->product->where('id', $product_id->id)->update(['version' => $request->input('version')]);
-
-            return successResponse(__('message.product_uploaded_successfully'));
-        } catch (Exception $exception) {
-            Logger::exception($exception);
-
-            return errorResponse($exception->getMessage());
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function fileDestroy(Request $request): JsonResponse
-    {
-        try {
-            $ids = $request->input('select');
-            $storagePath = Setting::findOrFail(1)->value('file_storage');
-            if (empty($ids)) {
-                return successResponse(__('message.select-a-row'));
-            }
-
-            foreach ($ids as $id) {
-                /** @var ProductUpload|null $product */
-                $product = $this->product_upload->find($id);
-                if ($product) {
-                    $filePath = $storagePath.'/'.$product->file;
-                    if (Attach::exists($filePath)) {
-                        Attach::delete($filePath);
-                    }
-
-                    $product->delete();
-                }
-            }
-
-            return successResponse(__('message.deleted-successfully'));
-        } catch (Exception $exception) {
-            return errorResponse(__('message.errors_occurs_delete_product').$exception->getMessage());
-        }
-    }
-
-    public function getSubscriptionCheckScript(): void
-    {
-        url('get-price');
-    }
-
-    public function uploadImage(Request $request): JsonResponse
-    {
-        try {
-            $setting = Setting::find(1);
-
-            if ($request->hasFile('file')) {
-                $file = $request->file('file');
-                $filename = time().'_'.$file->getClientOriginalName();
-                $path = $file->storeAs('public/uploads/tinymce', $filename);
-            }
-
-            $path = '';
-            if ($request->input('url')) {
-                $url = $request->input('url');
-                $client = new Client;
-                $response = $client->get($url, [
-                    'headers' => [
-                        'User-Agent' => 'Mozilla/5.0', // Some servers require User-Agent
-                    ],
-                ]);
-                $contents = $response->getBody()->getContents();
-
-                $ext = pathinfo((string) parse_url((string) $url, PHP_URL_PATH), PATHINFO_EXTENSION);
-                $filename = 'tinymce/'.uniqid().'.'.($ext ?: 'jpg');
-                Storage::put('public/uploads/'.$filename, $contents);
-                $path = Storage::url('public/uploads/'.$filename);
-            }
-
-            return response()->json([
-                'location' => asset(str_replace('public/', 'storage/', $path)),
-            ]);
-        } catch (Exception) {
-            return response()->json(['error' => 'No file uploaded.'], 500);
-        }
     }
 
     public function getProductDropdown(Request $request): JsonResponse

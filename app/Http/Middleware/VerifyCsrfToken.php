@@ -25,7 +25,6 @@ class VerifyCsrfToken extends BaseVerifier
         'group/data',
         'api/csp-report',
         'faveo-whatsapp',
-        'upload-image',
         'api/v3/*',
         'v3/api/*',
     ];
