@@ -57,7 +57,6 @@ class AdvanceSearchController extends AdminOrderInvoiceController
         }
     }
 
-
     public function getExtraAmt(mixed $userId): mixed
     {
         try {
