@@ -14,8 +14,10 @@ return [
 
     'css' => [
         'bootstrap' => 'themes/default/common/bootstrap/css/bootstrap.min.css',
+        'bootstrap-rtl' => 'themes/default/common/bootstrap/css/bootstrap.rtl.min.css',
         'fontawesome' => 'themes/default/common/fontawesome/css/all.min.css',
         'AdminLTE' => 'themes/default/admin/adminlte/css/adminlte.css',
+        'AdminLTE-rtl' => 'themes/default/admin/adminlte/css/adminlte.rtl.min.css',
         'overlayscrollbars' => 'themes/default/common/overlayscrollbars/css/overlayscrollbars.min.css',
         'apexcharts' => 'themes/default/common/apexcharts/css/apexcharts.css',
         'jsvectormap' => 'themes/default/common/jsvectormap/css/jsvectormap.min.css',
@@ -28,9 +30,13 @@ return [
         'porto-magnific' => 'themes/default/client/porto/vendor/magnific-popup/magnific-popup.min.css',
         // bootstrap + fontawesome reuse common/ keys (no duplication)
         'porto-theme' => 'themes/default/client/porto/css/theme.css',
+        'porto-theme-rtl' => 'themes/default/client/porto/css/rtl-theme.css',
         'porto-elements' => 'themes/default/client/porto/css/theme-elements.css',
+        'porto-elements-rtl' => 'themes/default/client/porto/css/rtl-theme-elements.css',
         'porto-blog' => 'themes/default/client/porto/css/theme-blog.css',
+        'porto-blog-rtl' => 'themes/default/client/porto/css/rtl-theme-blog.css',
         'porto-shop' => 'themes/default/client/porto/css/theme-shop.css',
+        'porto-shop-rtl' => 'themes/default/client/porto/css/rtl-theme-shop.css',
         'porto-skin' => 'themes/default/client/porto/css/skins/default.css',
         'porto-custom' => 'themes/default/client/porto/css/custom.css',
     ],

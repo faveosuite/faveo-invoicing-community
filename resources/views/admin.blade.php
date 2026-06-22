@@ -1,6 +1,6 @@
+<?php $set = \App\Model\Common\Setting::findOrFail(1); $rtl = isRtlForLang(); ?>
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
-<?php $set = \App\Model\Common\Setting::findOrFail(1); ?>
+<html lang="{{ app()->getLocale() }}" dir="{{ $rtl ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,9 +12,9 @@
     @endif
 
     {{-- Critical CSS — render-blocking, needed before first paint --}}
-    <link rel="stylesheet" href="{{ assetLink('css', 'bootstrap') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', $rtl ? 'bootstrap-rtl' : 'bootstrap') }}">
     <link rel="stylesheet" href="{{ assetLink('css', 'fontawesome') }}">
-    <link rel="stylesheet" href="{{ assetLink('css', 'AdminLTE') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', $rtl ? 'AdminLTE-rtl' : 'AdminLTE') }}">
 
     {{-- Non-critical CSS — async, zero render-blocking --}}
     <link rel="stylesheet" href="{{ assetLink('css', 'overlayscrollbars') }}" media="print" onload="this.media='all'">

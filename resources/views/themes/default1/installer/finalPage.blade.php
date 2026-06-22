@@ -38,7 +38,7 @@ use Illuminate\Support\Facades\Artisan;
     ?>
     <div class="card">
         <div class="card-body">
-            <p class="text-center lead text-bold">{{ trans('installer_messages.final_setup') }}!</p>
+            <p class="text-center lead fw-bold">{{ trans('installer_messages.final_setup') }}!</p>
             <div class="row">
                 <div class="col-6">
                     <p class="lead">{{ trans('installer_messages.learn_more') }}</p>

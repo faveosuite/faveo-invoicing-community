@@ -23,46 +23,46 @@
 
     <div class="card">
         <div class="card-body">
-            <p class="text-center lead text-bold">{{trans('installer_messages.getting_started')}}</p>
+            <p class="text-center lead fw-bold">{{trans('installer_messages.getting_started')}}</p>
 
             <div class="card card-light">
                 <div class="card-header">
                     <h3 class="card-title">{{trans('installer_messages.sign_up_as_admin')}}</h3>
                 </div>
                 <div class="card-body">
-                    <div class="form-group row">
+                    <div class="row mb-3">
                         <label class="col-sm-2 col-form-label">{{trans('installer_messages.first_name')}} <span style="color: red;">*</span></label>
-                        <div class="col-sm-10 mb-2">
+                        <div class="col-sm-10">
                             <input type="text" id="admin_first_name" class="form-control" placeholder="{{trans('installer_messages.first_name')}}">
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    <div class="row mb-3">
                         <label class="col-sm-2 col-form-label">{{trans('installer_messages.last_name')}} <span style="color: red;">*</span></label>
-                        <div class="col-sm-10 mb-2">
+                        <div class="col-sm-10">
                             <input type="text" id="admin_last_name" class="form-control" placeholder="{{trans('installer_messages.last_name')}}">
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    <div class="row mb-3">
                         <label class="col-sm-2 col-form-label">{{trans('installer_messages.username')}} <span style="color: red;">*</span>
-                            <i class="fas fa-question-circle text-primary" data-toggle="tooltip" data-placement="top" title="{{trans('installer_messages.username_info')}}"></i>
+                            <i class="fas fa-question-circle text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{trans('installer_messages.username_info')}}"></i>
                         </label>
-                        <div class="col-sm-10 mb-2">
+                        <div class="col-sm-10">
                             <input type="text" id="admin_username" class="form-control" placeholder="{{trans('installer_messages.username')}}">
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    <div class="row mb-3">
                         <label class="col-sm-2 col-form-label">{{trans('installer_messages.email')}} <span style="color: red;">*</span></label>
-                        <div class="col-sm-10 mb-2">
+                        <div class="col-sm-10">
                             <input type="email" id="email" class="form-control" placeholder="{{trans('installer_messages.email')}}">
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    <div class="row mb-3">
                         <label class="col-sm-2 col-form-label">{{trans('installer_messages.password')}} <span style="color: red;">*</span></label>
-                        <div class="col-sm-10 mb-2">
+                        <div class="col-sm-10">
                         <div class="input-group">
                             <input type="password" id="admin_password" class="form-control" placeholder="{{trans('installer_messages.password')}}">
                             <span class="input-group-text toggle-password cursor-pointer"><i class="fa fa-eye-slash"></i></span>
@@ -79,9 +79,9 @@
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    <div class="row mb-3">
                         <label class="col-sm-2 col-form-label">{{trans('installer_messages.confirm_password')}} <span style="color: red;">*</span></label>
-                        <div class="col-sm-10 mb-2">
+                        <div class="col-sm-10">
                             <div class="input-group">
                             <input type="password" id="admin_confirm_password" class="form-control" placeholder="{{trans('installer_messages.confirm_password')}}">
                             <span class="input-group-text toggle-confirm-password cursor-pointer"><i class="fa fa-eye-slash"></i></span>
@@ -99,13 +99,13 @@
 
                 <div class="card-body">
                     {{-- Timezone --}}
-                    <div class="form-group row mb-2">
+                    <div class="row mb-3">
                         <label class="col-sm-2 col-form-label">
                             {{ trans('installer_messages.timezone') }}
                             <span class="text-danger">*</span>
                             &nbsp;<i class="fas fa-question-circle text-primary"
-                                     data-toggle="tooltip"
-                                     data-placement="top"
+                                     data-bs-toggle="tooltip"
+                                     data-bs-placement="top"
                                      title="{{ trans('installer_messages.tooltip_timezone') }}"
                                      data-content="@{{Hostcontent}}"></i>&nbsp;
                         </label>
@@ -144,13 +144,13 @@
                     </div>
 
                     {{-- Language --}}
-                    <div class="form-group row mb-2">
+                    <div class="row mb-3">
                         <label class="col-sm-2 col-form-label">
                             {{ trans('installer_messages.language') }}
                             <span class="text-danger">*</span>
                             &nbsp;<i class="fas fa-question-circle text-primary"
-                                     data-toggle="tooltip"
-                                     data-placement="top"
+                                     data-bs-toggle="tooltip"
+                                     data-bs-placement="top"
                                      title="{{ trans('installer_messages.tooltip_language') }}"
                                      data-content="@{{Hostcontent}}"></i>&nbsp;
                         </label>
@@ -172,7 +172,7 @@
                     </div>
 
                     {{-- Environment --}}
-                    <div class="form-group row align-items-center mb-2">
+                    <div class="row mb-3 align-items-center">
                         <label class="col-sm-2 col-form-label mb-0">
                             {{ trans('installer_messages.environment') }}
                             <span class="text-danger">*</span>
@@ -187,7 +187,7 @@
                     </div>
 
                     {{-- Cache Driver --}}
-                    <div class="form-group row align-items-center mb-2">
+                    <div class="row mb-3 align-items-center">
                         <label class="col-sm-2 col-form-label mb-0">
                             {{ trans('installer_messages.cache_driver') }}
                             <span class="text-danger">*</span>
@@ -208,21 +208,21 @@
                     <h3 class="card-title">{{trans('installer_messages.redis_setup')}}</h3>
                 </div>
                 <div class="card-body">
-                    <div class="form-group row align-items-center">
+                    <div class="row mb-3 align-items-center">
                         <label class="col-sm-2 col-form-label mb-0">{{trans('installer_messages.redis_host')}}<span style="color: red;">*</span></label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="redis_host" placeholder="{{trans('installer_messages.redis_host')}}">
                         </div>
                     </div>
 
-                    <div class="form-group row align-items-center">
+                    <div class="row mb-3 align-items-center">
                         <label class="col-sm-2 col-form-label mb-0">{{trans('installer_messages.redis_port')}}<span style="color: red;">*</span></label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="redis_port" placeholder="{{trans('installer_messages.redis_port')}}">
                         </div>
                     </div>
 
-                    <div class="form-group row align-items-center">
+                    <div class="row mb-3 align-items-center">
                         <label class="col-sm-2 col-form-label mb-0">{{trans('installer_messages.redis_password')}}</label>
                         <div class="col-sm-10">
                             <input type="password" class="form-control" id="redis_password" placeholder="{{trans('installer_messages.redis_password')}}">
@@ -233,227 +233,141 @@
         </div>
 
         <div class="card-footer">
-            <button class="btn btn-primary float-right" onclick="submitForm()">{{trans('installer_messages.continue')}} &nbsp;
+            <button class="btn btn-primary float-end" onclick="submitForm()">{{trans('installer_messages.continue')}} &nbsp;
                 <i class="fas {{ in_array(app()->getLocale(), ['ar', 'he']) ? 'fa-arrow-left' : 'fa-arrow-right' }}"></i>
             </button>
         </div>
     </div>
-    <script src="{{ asset('admin/js/jquery.min.js') }}"></script>
-
-
-    <script type="text/javascript">
-        document.getElementById('admin_username').addEventListener('input',function (){
+    <script>
+        document.getElementById('admin_username').addEventListener('input', function () {
             this.value = this.value.toLowerCase();
         });
-        document.getElementById('email').addEventListener('input',function (){
+        document.getElementById('email').addEventListener('input', function () {
             this.value = this.value.toLowerCase();
         });
-        $(document).ready(function(){
-            $('[data-toggle="tooltip"]').tooltip();
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
         });
-        $(document).ready(function() {
-            // Cache the selectors for better performance
-            var $pswdInfo = $('#pswd_info');
-            var $newPassword = $('#admin_password');
-            var $length = $('#length');
-            var $letter = $('#letter');
-            var $capital = $('#capital');
-            var $number = $('#number');
-            var $special = $('#space');
+        (function () {
+            const pswdInfo  = document.getElementById('pswd_info');
+            const pwdInput  = document.getElementById('admin_password');
+            const els = {
+                length:  document.getElementById('length'),
+                letter:  document.getElementById('letter'),
+                capital: document.getElementById('capital'),
+                number:  document.getElementById('number'),
+                special: document.getElementById('space'),
+            };
 
-            // Function to update validation classes
-            function updateClass(condition, $element) {
-                $element.toggleClass('text-success', condition).toggleClass('text-danger', !condition);
+            function setClass(el, ok) {
+                if (!el) return;
+                el.classList.toggle('text-success', ok);
+                el.classList.toggle('text-danger', !ok);
             }
 
-            // Initially hide the password requirements
-            $pswdInfo.hide();
-
-            // Show password requirements on focus
-            $newPassword.focus(function() {
-                $pswdInfo.show();
+            pwdInput.addEventListener('focus', () => pswdInfo.style.display = '');
+            pwdInput.addEventListener('keyup', function () {
+                const v = this.value;
+                const checks = {
+                    length:  v.length >= 8 && v.length <= 16,
+                    letter:  /[a-z]/.test(v),
+                    capital: /[A-Z]/.test(v),
+                    number:  /\d/.test(v),
+                    special: /[~*!@$#%_+.?:,{ }]/.test(v),
+                };
+                Object.keys(checks).forEach(k => setClass(els[k], checks[k]));
+                pswdInfo.style.display = Object.values(checks).every(Boolean) ? 'none' : '';
             });
-
-            // Perform real-time validation on keyup
-            $newPassword.on('keyup', function() {
-                var pswd = $(this).val();
-
-                // Validate the length (8 to 16 characters)
-                var lengthValid = pswd.length >= 8 && pswd.length <= 16;
-                updateClass(lengthValid, $length);
-
-                // Validate lowercase letter
-                var letterValid = /[a-z]/.test(pswd);
-                updateClass(letterValid, $letter);
-
-                // Validate uppercase letter
-                var capitalValid = /[A-Z]/.test(pswd);
-                updateClass(capitalValid, $capital);
-
-                // Validate number
-                var numberValid = /\d/.test(pswd);
-                updateClass(numberValid, $number);
-
-                // Validate special character
-                var specialValid = /[~*!@$#%_+.?:,{ }]/.test(pswd);
-                updateClass(specialValid, $special);
-
-                // Show or hide password requirements based on validation
-                if (lengthValid && letterValid && capitalValid && numberValid && specialValid) {
-                    $pswdInfo.hide();
-                } else {
-                    $pswdInfo.show();
-                }
-            });
-        });
+        })();
 
         function submitForm() {
-            // Cache input elements
-            const fields = {
-                firstName: $('#admin_first_name'),
-                lastName: $('#admin_last_name'),
-                username: $('#admin_username'),
-                email: $('#email'),
-                password: $('#admin_password'),
-                confirmPassword: $('#admin_confirm_password'),
-                environment: $('#environment'),
-                driver: $('#driver'),
-                redisHost: $('#redis_host'),
-                redisPort: $('#redis_port'),
-                redisPassword: $('#redis_password'),
-                language: $('#language'),
-                timezone: $('#timezone')
-            };
+            const get = id => document.getElementById(id);
+            const val = id => get(id)?.value ?? '';
 
             // Clear previous errors
-            $('input').removeClass('is-invalid');
-            $('.error').remove();
+            document.querySelectorAll('input.is-invalid, select.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('.error.invalid-feedback').forEach(el => el.remove());
 
-            // Helper function to add error messages
-            const showError = (field, message) => {
-                field.addClass('is-invalid');
-                if (field[0].id === 'admin_password' || field[0].id === 'admin_confirm_password') {
-                    field.next('span').after(`<span class="error invalid-feedback">${message}</span>`);
+            const showError = (el, message) => {
+                el.classList.add('is-invalid');
+                const span = document.createElement('span');
+                span.className = 'error invalid-feedback';
+                span.textContent = message;
+                if (el.id === 'admin_password' || el.id === 'admin_confirm_password') {
+                    el.nextElementSibling?.after(span);
                 } else {
-                    field.after(`<span class="error invalid-feedback">${message}</span>`);
+                    el.after(span);
                 }
             };
 
-            // Validate fields
             let isValid = true;
-            const requiredFields = {
-                firstName: '{{__('installer_messages.firstname')}}',
-                lastName: '{{__('installer_messages.lastname')}}',
-                username: '{{__('installer_messages.username')}}',
-                email: '{{__('installer_messages.email')}}',
-                password: '{{__('installer_messages.password')}}',
-                confirmPassword: '{{__('installer_messages.confirm_password')}}'
+            const required = {
+                admin_first_name:    '{{__("installer_messages.firstname")}}',
+                admin_last_name:     '{{__("installer_messages.lastname")}}',
+                admin_username:      '{{__("installer_messages.username")}}',
+                email:               '{{__("installer_messages.email")}}',
+                admin_password:      '{{__("installer_messages.password")}}',
+                admin_confirm_password: '{{__("installer_messages.confirm_password")}}',
             };
-
-            Object.keys(requiredFields).forEach(field => {
-                if (!fields[field].val()) {
-                    showError(fields[field], `${requiredFields[field]} {{__('installer_messages.is_required')}}`);
-                    isValid = false;
-                }
+            Object.entries(required).forEach(([id, label]) => {
+                if (!val(id)) { showError(get(id), `${label} {{__('installer_messages.is_required')}}`); isValid = false; }
             });
 
             const username_regex = /^[a-zA-Z0-9 _\-@.]{3,20}$/;
-            const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const email_regex    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const password_regex = /^(?=\S*[a-z])(?=\S*[A-Z])(?=\S*\d)(?=\S*[^\w\s])\S{8,}/;
 
-            if (!username_regex.test(fields.username.val())) {
-                showError(fields.username, '{{trans('installer_messages.user_name_regex')}}');
-                isValid = false;
-            }
-            if (fields.email.val() && !email_regex.test(fields.email.val())) {
-                showError(fields.email, '{{trans('installer_messages.invalid_email')}}');
-                isValid = false;
-            }
-            if (!password_regex.test(fields.password.val())) {
-                showError(fields.password, '{{trans('installer_messages.your_password_invalid')}}');
-                isValid = false;
-            }
+            if (!username_regex.test(val('admin_username'))) { showError(get('admin_username'), '{{trans("installer_messages.user_name_regex")}}'); isValid = false; }
+            if (val('email') && !email_regex.test(val('email'))) { showError(get('email'), '{{trans("installer_messages.invalid_email")}}'); isValid = false; }
+            if (!password_regex.test(val('admin_password'))) { showError(get('admin_password'), '{{trans("installer_messages.your_password_invalid")}}'); isValid = false; }
+            if (val('admin_password') !== val('admin_confirm_password')) { showError(get('admin_confirm_password'), '{{trans("installer_messages.password_not_match")}}'); isValid = false; }
 
-            // Validate passwords match
-            if (fields.password.val() !== fields.confirmPassword.val()) {
-                showError(fields.confirmPassword, '{{trans('installer_messages.password_not_match')}}');
-                isValid = false;
-            }
-
-            // Validate Redis fields if driver is set to 'redis'
-            if (fields.driver.val() === 'redis') {
-                const redisFields = {
-                    redisHost: 'Redis Host',
-                    redisPort: 'Redis Port',
-                };
-
-                Object.keys(redisFields).forEach(field => {
-                    if (!fields[field].val()) {
-                        showError(fields[field], `${redisFields[field]} {{__('installer_messages.is_required')}}`);
-                        isValid = false;
-                    }
+            if (val('driver') === 'redis') {
+                ['redis_host', 'redis_port'].forEach(id => {
+                    if (!val(id)) { showError(get(id), `${id.replace('_', ' ')} {{__('installer_messages.is_required')}}`); isValid = false; }
                 });
             }
 
-            if (!isValid) return; // Stop if validation fails
+            if (!isValid) return;
 
-            // Collect data
             const data = {
-                first_name: fields.firstName.val(),
-                last_name: fields.lastName.val(),
-                user_name: fields.username.val(),
-                email: fields.email.val(),
-                password: fields.password.val(),
-                environment: fields.environment.val(),
-                cache_driver: fields.driver.val(),
-                timezone: fields.timezone.val(),
-                language: fields.language.val()
+                _token:       '{{ csrf_token() }}',
+                first_name:   val('admin_first_name'),
+                last_name:    val('admin_last_name'),
+                user_name:    val('admin_username'),
+                email:        val('email'),
+                password:     val('admin_password'),
+                environment:  val('environment'),
+                cache_driver: val('driver'),
+                timezone:     val('timezone'),
+                language:     val('language'),
             };
-
-            if (fields.driver.val() === 'redis') {
-                data.redis_host = fields.redisHost.val();
-                data.redis_port = fields.redisPort.val();
-                data.redis_password = fields.redisPassword.val();
+            if (val('driver') === 'redis') {
+                data.redis_host     = val('redis_host');
+                data.redis_port     = val('redis_port');
+                data.redis_password = val('redis_password');
             }
 
-            // Send AJAX request
-            const url = '{{ route("accountcheck") }}';
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: data,
-                success: function(response) {
-                    console.log('Form submitted successfully');
-                    window.location.href = '{{ url("/final") }}';
-                },
-                error: function(error) {
-                    let errors = error.responseJSON.message;
-                    const fieldMapping = {
-                        first_name: '#admin_first_name',
-                        last_name: '#admin_last_name',
-                        user_name: '#admin_username',
-                        email: '#email',
-                        password: '#admin_password',
-                        redis_host: '#redis_host',
-                        redis_port: '#redis_port',
-                        redis_password: '#redis_password',
-                        environment: '#environment',
-                        cache_driver: '#driver',
-                        language: '#language',
-                        timezone: '#timezone'
-                    };
+            const fieldMap = {
+                first_name: 'admin_first_name', last_name: 'admin_last_name',
+                user_name: 'admin_username', email: 'email', password: 'admin_password',
+                redis_host: 'redis_host', redis_port: 'redis_port', redis_password: 'redis_password',
+                environment: 'environment', cache_driver: 'driver', language: 'language', timezone: 'timezone',
+            };
 
-                    // Loop through the errors and display them on the corresponding fields
-                    Object.keys(errors).forEach(field => {
-                        const errorMessages = errors[field];
-                        const fieldElement = $(fieldMapping[field]); // Use the mapped field ID
-                        if (fieldElement.length) {
-                            showError(fieldElement, errorMessages.join(', '));
-                        }
+            fetch('{{ route("accountcheck") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(data),
+            })
+            .then(r => r.ok ? r.json() : r.json().then(j => Promise.reject({ status: r.status, json: j })))
+            .then(() => { window.location.href = '{{ url("/final") }}'; })
+            .catch(err => {
+                if (err?.json?.message) {
+                    Object.entries(err.json.message).forEach(([field, msgs]) => {
+                        const el = get(fieldMap[field]);
+                        if (el) showError(el, Array.isArray(msgs) ? msgs.join(', ') : msgs);
                     });
-                    if (error.status === 400) {
-                        showAlert(error.responseJSON.message, 'danger', true, 5000);
-                    }
                 }
             });
         }
@@ -478,30 +392,20 @@
             driverSelect.addEventListener('change', toggleRedisSetup);
         });
 
-        $('.toggle-password').click(function() {
-            const input = $('#admin_password');
-            const icon = $(this).find('i');
-
-            if (input.attr('type') === 'password') {
-                input.attr('type', 'text');
-                icon.removeClass('fa-eye-slash').addClass('fa-eye');
-            } else {
-                input.attr('type', 'password');
-                icon.removeClass('fa-eye').addClass('fa-eye-slash');
-            }
+        document.querySelector('.toggle-password').addEventListener('click', function () {
+            const input = document.getElementById('admin_password');
+            const icon = this.querySelector('i');
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            icon.className = isPassword ? 'fa fa-eye' : 'fa fa-eye-slash';
         });
 
-        $('.toggle-confirm-password').click(function() {
-            const input = $('#admin_confirm_password');
-            const icon = $(this).find('i');
-
-            if (input.attr('type') === 'password') {
-                input.attr('type', 'text');
-                icon.removeClass('fa-eye-slash').addClass('fa-eye');
-            } else {
-                input.attr('type', 'password');
-                icon.removeClass('fa-eye').addClass('fa-eye-slash');
-            }
+        document.querySelector('.toggle-confirm-password').addEventListener('click', function () {
+            const input = document.getElementById('admin_confirm_password');
+            const icon = this.querySelector('i');
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            icon.className = isPassword ? 'fa fa-eye' : 'fa fa-eye-slash';
         });
     </script>
 

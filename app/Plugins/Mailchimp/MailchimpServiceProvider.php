@@ -53,8 +53,12 @@ class MailchimpServiceProvider extends ServiceProvider
         Event::listen(UserRegisteredEvent::class, SubscribeUserOnRegister::class);
         Event::listen(OrderPlacedEvent::class, UpdateSubscriberOnPurchase::class);
 
-        resolve(NewsletterManager::class)->register(
-            new MailchimpNewsletterProvider(resolve(MailchimpService::class))
-        );
+        try {
+            resolve(NewsletterManager::class)->register(
+                new MailchimpNewsletterProvider(resolve(MailchimpService::class))
+            );
+        } catch (\Throwable $e) {
+            // DB unavailable (e.g., fresh install) — skip Mailchimp registration
+        }
     }
 }

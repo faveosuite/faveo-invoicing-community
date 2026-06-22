@@ -79,13 +79,16 @@ class FaveoBrowserShot
             return;
         }
 
-        $settings = FileSystemSettings::query()->first();
-
-        self::$bins = [
-            'node' => $settings->node_path ?? null,
-            'npm' => $settings->npm_path ?? null,
-            'chrome' => $settings->chrome_path ?? null,
-        ];
+        try {
+            $settings = FileSystemSettings::query()->first();
+            self::$bins = [
+                'node'   => $settings->node_path ?? null,
+                'npm'    => $settings->npm_path ?? null,
+                'chrome' => $settings->chrome_path ?? null,
+            ];
+        } catch (\Throwable $e) {
+            self::$bins = ['node' => null, 'npm' => null, 'chrome' => null];
+        }
     }
 
     /**

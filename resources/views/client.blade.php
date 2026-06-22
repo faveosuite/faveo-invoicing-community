@@ -1,7 +1,6 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
 <?php
 $set = \App\Model\Common\Setting::findOrFail(1);
+$rtl = isRtlForLang();
 $cloudBtn = \App\Model\Common\StatusSetting::where('id', 1)->value('cloud_button');
 $demoPage = App\Demo_page::first();
 
@@ -37,6 +36,8 @@ $productGroups = \App\Model\Product\ProductGroup::select('id', 'name')
         'name' => $g->name,
     ]]);
 ?>
+<!DOCTYPE html>
+<html lang="{{ app()->getLocale() }}" dir="{{ $rtl ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no">
@@ -60,12 +61,12 @@ $productGroups = \App\Model\Product\ProductGroup::select('id', 'name')
     <link rel="stylesheet" href="{{ assetLink('css', 'porto-magnific') }}">
 
     {{-- Reuse common vendors (same as admin panel) --}}
-    <link rel="stylesheet" href="{{ assetLink('css', 'bootstrap') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', $rtl ? 'bootstrap-rtl' : 'bootstrap') }}">
     <link rel="stylesheet" href="{{ assetLink('css', 'fontawesome') }}">
-    <link rel="stylesheet" href="{{ assetLink('css', 'porto-theme') }}">
-    <link rel="stylesheet" href="{{ assetLink('css', 'porto-elements') }}">
-    <link rel="stylesheet" href="{{ assetLink('css', 'porto-blog') }}">
-    <link rel="stylesheet" href="{{ assetLink('css', 'porto-shop') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', $rtl ? 'porto-theme-rtl' : 'porto-theme') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', $rtl ? 'porto-elements-rtl' : 'porto-elements') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', $rtl ? 'porto-blog-rtl' : 'porto-blog') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', $rtl ? 'porto-shop-rtl' : 'porto-shop') }}">
     <link rel="stylesheet" href="{{ assetLink('css', 'porto-skin') }}">
     <link rel="stylesheet" href="{{ assetLink('css', 'porto-custom') }}">
 
@@ -84,7 +85,7 @@ $productGroups = \App\Model\Product\ProductGroup::select('id', 'name')
      data-client-url="{{ url('/') }}"
      data-asset-url="{{ asset('') }}"
      data-locale="{{ app()->getLocale() }}"
-     data-locale-rtl="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'true' : 'false' }}"
+     data-locale-rtl="{{ $rtl ? 'true' : 'false' }}"
      data-page-title="{{ $set->favicon_title_client }}"
      data-app-logo="{{ $set->logo }}"
      data-company="{{ $set->company }}"

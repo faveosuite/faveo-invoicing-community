@@ -2,6 +2,7 @@
 
 namespace App\Policies\Csp;
 
+use Illuminate\Support\Facades\Vite;
 use Spatie\Csp\Directive;
 use Spatie\Csp\Keyword;
 use Spatie\Csp\Policy;
@@ -11,6 +12,10 @@ class CspPolicy implements Preset
 {
     public function configure(Policy $policy): void
     {
+        if (Vite::isRunningHot()) {
+            return;
+        }
+
         $policy
             ->add(Directive::DEFAULT, Keyword::SELF)
             ->add(Directive::SCRIPT, [

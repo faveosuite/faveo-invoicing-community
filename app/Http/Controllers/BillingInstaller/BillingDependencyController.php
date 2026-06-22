@@ -367,7 +367,7 @@ class BillingDependencyController extends Controller
     {
         $color = 'green';
         $infoString = 'Valid';
-        if (! filter_var('https://'.(string) (Request::server('HTTP_HOST') ?? '').(string) (Request::server('REQUEST_URI') ?? ''), FILTER_VALIDATE_URL)) { // @phpstan-ignore cast.string, cast.string
+        if (! filter_var('https://'.(string) ($_SERVER['HTTP_HOST'] ?? '').(string) ($_SERVER['REQUEST_URI'] ?? ''), FILTER_VALIDATE_URL)) { // @phpstan-ignore cast.string, cast.string
             $errorCount += 1;
             $color = 'red';
             $infoString = "Invalid URL found <p>Make sure your domain/IP doesn't contain any special character other than dash( '-' ) and dot ( '.' )<p>";
@@ -412,8 +412,8 @@ class BillingDependencyController extends Controller
             $stream = stream_context_create(['ssl' => ['capture_peer_cert' => true]]);
             $sslHost = $cliAppUrl.'/cron-test.php';
             if (! $cliAppUrl) {
-                $url = preg_replace('#probe.php|api/check-updates#', 'cron-test.php', (string) (Request::server('REQUEST_URI') ?? '')); // @phpstan-ignore cast.string
-                $sslHost = 'https://'.(string) (Request::server('HTTP_HOST') ?? '').$url; // @phpstan-ignore cast.string
+                $url = preg_replace('#probe.php|api/check-updates#', 'cron-test.php', (string) ($_SERVER['REQUEST_URI'] ?? '')); // @phpstan-ignore cast.string
+                $sslHost = 'https://'.(string) ($_SERVER['HTTP_HOST'] ?? '').$url; // @phpstan-ignore cast.string
             }
 
             $oldError = error_reporting();
