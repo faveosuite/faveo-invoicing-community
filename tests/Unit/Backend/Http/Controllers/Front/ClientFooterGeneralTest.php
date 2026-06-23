@@ -3,7 +3,6 @@
 namespace Tests\Unit\Backend\Http\Controllers\Front;
 
 use App\Model\Common\PricingTemplate;
-use App\Model\Order\Invoice;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;

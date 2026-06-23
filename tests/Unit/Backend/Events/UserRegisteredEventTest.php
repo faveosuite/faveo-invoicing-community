@@ -25,7 +25,7 @@ class UserRegisteredEventTest extends TestCase
 
     public function test_stores_custom_trigger(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $event = new UserRegisteredEvent($user, 'verify');
 
         $this->assertSame('verify', $event->trigger);
@@ -33,7 +33,7 @@ class UserRegisteredEventTest extends TestCase
 
     public function test_stores_admin_create_trigger(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $event = new UserRegisteredEvent($user, 'admin_create');
 
         $this->assertSame('admin_create', $event->trigger);
@@ -41,7 +41,7 @@ class UserRegisteredEventTest extends TestCase
 
     public function test_user_and_trigger_are_readonly(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $event = new UserRegisteredEvent($user, 'register');
 
         try {
@@ -52,6 +52,4 @@ class UserRegisteredEventTest extends TestCase
             $this->assertTrue(true);
         }
     }
-
-    
 }

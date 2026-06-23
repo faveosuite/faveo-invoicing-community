@@ -43,5 +43,4 @@ class DownloadApiTest extends DBTestCase
         $cont = new ExtendedBaseProductController;
         $this->getPrivateMethod($cont, 'downloadValidation', ['true', $product->id, $invoice->number, false]);
     }
-
 }

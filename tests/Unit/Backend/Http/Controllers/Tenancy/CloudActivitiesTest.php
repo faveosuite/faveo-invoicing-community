@@ -3,12 +3,9 @@
 namespace Tests\Unit\Backend\Http\Controllers\Tenancy;
 
 use App\Http\Controllers\Common\PhpMailController;
-use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\License\Models\License;
-use App\License\Services\LicenseService;
 use App\Model\Common\FaveoCloud;
-use App\Model\Common\StatusSetting;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Mailjob\ExpiryMailDay;
@@ -23,13 +20,10 @@ use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
-use Auth;
 use DB;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Date;
-use Mockery;
 use PHPUnit\Framework\Attributes\Group;
-use Session;
 use Tests\DBTestCase;
 
 class CloudActivitiesTest extends DBTestCase

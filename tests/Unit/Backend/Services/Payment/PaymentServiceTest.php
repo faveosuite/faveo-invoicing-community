@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Services\Payment;
 
 use App\Plugins\Payment\Contracts\PaymentGateway;
+use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Plugins\Payment\PaymentGatewayManager;
 use App\Services\Payment\PaymentService;
-use App\Plugins\Payment\Dto\PaymentRequest;
 use Mockery;
 use Mockery\MockInterface;
 use Tests\DBTestCase;
@@ -58,7 +58,7 @@ class PaymentServiceTest extends DBTestCase
     public function test_manager_registers_stripe_and_razorpay(): void
     {
         $real = new PaymentService();
-        $mgr  = $real->manager();
+        $mgr = $real->manager();
 
         $this->assertTrue($mgr->has('stripe'));
         $this->assertTrue($mgr->has('razorpay'));
@@ -69,7 +69,7 @@ class PaymentServiceTest extends DBTestCase
     public function test_publishable_key_returns_string(): void
     {
         $real = new PaymentService();
-        $key  = $real->publishableKey();
+        $key = $real->publishableKey();
 
         $this->assertIsString($key);
     }
@@ -136,6 +136,4 @@ class PaymentServiceTest extends DBTestCase
 
         $this->assertTrue($result);
     }
-
-    
 }

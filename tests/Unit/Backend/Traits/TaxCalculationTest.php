@@ -82,7 +82,8 @@ class TaxCalculationTest extends DBTestCase
 
     private function subject(): object
     {
-        return new class {
+        return new class
+        {
             use TaxCalculation;
         };
     }
@@ -125,7 +126,7 @@ class TaxCalculationTest extends DBTestCase
     public function test_sum_percent_parses_single_rate(): void
     {
         $subject = $this->subject();
-        $result  = $this->getPrivateMethod($subject, 'sumPercent', ['18%']);
+        $result = $this->getPrivateMethod($subject, 'sumPercent', ['18%']);
 
         $this->assertEqualsWithDelta(18.0, $result, 0.001);
     }
@@ -133,7 +134,7 @@ class TaxCalculationTest extends DBTestCase
     public function test_sum_percent_parses_compound_rates(): void
     {
         $subject = $this->subject();
-        $result  = $this->getPrivateMethod($subject, 'sumPercent', ['9%,9%']);
+        $result = $this->getPrivateMethod($subject, 'sumPercent', ['9%,9%']);
 
         $this->assertEqualsWithDelta(18.0, $result, 0.001);
     }
@@ -141,7 +142,7 @@ class TaxCalculationTest extends DBTestCase
     public function test_sum_percent_returns_zero_for_empty_rate(): void
     {
         $subject = $this->subject();
-        $result  = $this->getPrivateMethod($subject, 'sumPercent', ['']);
+        $result = $this->getPrivateMethod($subject, 'sumPercent', ['']);
 
         $this->assertEqualsWithDelta(0.0, $result, 0.001);
     }
@@ -149,10 +150,8 @@ class TaxCalculationTest extends DBTestCase
     public function test_sum_percent_ignores_non_numeric_parts(): void
     {
         $subject = $this->subject();
-        $result  = $this->getPrivateMethod($subject, 'sumPercent', ['10%,abc']);
+        $result = $this->getPrivateMethod($subject, 'sumPercent', ['10%,abc']);
 
         $this->assertEqualsWithDelta(10.0, $result, 0.001);
     }
-
-    
 }

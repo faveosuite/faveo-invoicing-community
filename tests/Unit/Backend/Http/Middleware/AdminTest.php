@@ -10,7 +10,6 @@ use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Mockery;
-use Mockery\MockInterface;
 use Tests\DBTestCase;
 
 class AdminTest extends DBTestCase
@@ -117,6 +116,4 @@ class AdminTest extends DBTestCase
             $this->assertTrue(true, 'Exception expected when user is null: '.$e->getMessage());
         }
     }
-
-    
 }

@@ -145,9 +145,9 @@ class TaxRateResolverTest extends DBTestCase
 
     public function test_postcode_empty_string_returns_false_for_any_code(): void
     {
-        $exact    = $this->getPrivateMethod($this->resolver, 'postcodeMatches', ['', '12345']);
+        $exact = $this->getPrivateMethod($this->resolver, 'postcodeMatches', ['', '12345']);
         $wildcard = $this->getPrivateMethod($this->resolver, 'postcodeMatches', ['', '12*']);
-        $range    = $this->getPrivateMethod($this->resolver, 'postcodeMatches', ['', '12000...12999']);
+        $range = $this->getPrivateMethod($this->resolver, 'postcodeMatches', ['', '12000...12999']);
 
         $this->assertFalse($exact);
         $this->assertFalse($wildcard);
@@ -174,10 +174,10 @@ class TaxRateResolverTest extends DBTestCase
         // Fake a user object with billing fields; tax_based_on must be 'billing'.
         // This only works when real TaxOption::find(1)->tax_based_on = 'billing'.
         $user = (object) [
-            'country'  => 'GB',
-            'state'    => 'ENG',
-            'zip'      => 'SW1A1AA',
-            'city'     => 'London',
+            'country' => 'GB',
+            'state' => 'ENG',
+            'zip' => 'SW1A1AA',
+            'city' => 'London',
         ];
 
         $location = $this->resolver->customerLocation($user);
@@ -190,6 +190,4 @@ class TaxRateResolverTest extends DBTestCase
             $this->assertIsString($part);
         }
     }
-
-    
 }

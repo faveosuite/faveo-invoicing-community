@@ -102,6 +102,4 @@ class StrongPasswordTest extends TestCase
         // The pattern only allows ASCII chars in [A-Za-z\d~*!@$#%_+.?:,{ }]
         $this->assertTrue($this->fails('Sécure@Pass1'));
     }
-
-    
 }

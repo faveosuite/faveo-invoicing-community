@@ -36,7 +36,7 @@ class PostPaymentServiceTest extends DBTestCase
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
             'grand_total' => 100.00,
-            'status'      => 'pending',
+            'status' => 'pending',
         ]);
 
         $paymentsBefore = Payment::where('invoice_id', $invoice->id)->count();
@@ -57,7 +57,7 @@ class PostPaymentServiceTest extends DBTestCase
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
             'grand_total' => 50.00,
-            'status'      => 'pending',
+            'status' => 'pending',
         ]);
 
         $this->getPrivateMethod($this->service, 'recordPayment', [$invoice, 'Razorpay']);
@@ -71,14 +71,14 @@ class PostPaymentServiceTest extends DBTestCase
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
             'grand_total' => 100.00,
-            'status'      => 'success',
+            'status' => 'success',
         ]);
 
         // Pre-create a successful payment covering the full amount.
         Payment::create([
-            'invoice_id'     => $invoice->id,
-            'user_id'        => $invoice->user_id,
-            'amount'         => 100.00,
+            'invoice_id' => $invoice->id,
+            'user_id' => $invoice->user_id,
+            'amount' => 100.00,
             'payment_method' => 'Stripe',
             'payment_status' => 'success',
         ]);
@@ -97,14 +97,14 @@ class PostPaymentServiceTest extends DBTestCase
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
             'grand_total' => 100.00,
-            'status'      => 'pending',
+            'status' => 'pending',
         ]);
 
         // A prior payment of 60.00 already recorded.
         Payment::create([
-            'invoice_id'     => $invoice->id,
-            'user_id'        => $invoice->user_id,
-            'amount'         => 60.00,
+            'invoice_id' => $invoice->id,
+            'user_id' => $invoice->user_id,
+            'amount' => 60.00,
             'payment_method' => 'Stripe',
             'payment_status' => 'success',
         ]);
@@ -133,18 +133,18 @@ class PostPaymentServiceTest extends DBTestCase
         // Create a cart for this user.
         /** @var Cart $cart */
         $cart = Cart::create([
-            'user_id'          => $invoice->user_id,
-            'coupon_code'      => 'PROMO10',
-            'coupon_discount'  => 10.0,
-            'currency'         => 'USD',
+            'user_id' => $invoice->user_id,
+            'coupon_code' => 'PROMO10',
+            'coupon_discount' => 10.0,
+            'currency' => 'USD',
         ]);
 
         // Add items to the cart.
         CartItem::create([
-            'cart_id'    => $cart->id,
+            'cart_id' => $cart->id,
             'product_id' => 1,
-            'quantity'   => 1,
-            'agents'     => 1,
+            'quantity' => 1,
+            'agents' => 1,
         ]);
 
         $this->getPrivateMethod($this->service, 'clearCart', [$invoice]);
@@ -165,6 +165,4 @@ class PostPaymentServiceTest extends DBTestCase
 
         $this->assertTrue(true); // Reached here without exception
     }
-
-    
 }

@@ -1,6 +1,5 @@
 <?php
 
-use App\CloudPopUp;
 use App\FileSystemSettings;
 use App\Http\Controllers\Common\PaymentSettingsController;
 use App\License\Models\Installation;
@@ -16,7 +15,6 @@ use App\Model\Payment\TaxOption;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
-use App\Traits\TaxCalculation;
 use App\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
@@ -212,7 +210,6 @@ function getVersionAndLabel(mixed $productVersion, string $productId, ?string $p
     // Return version value or '--' if not available
     return $productVersion ?? $latestVersion ?? null;
 }
-
 
 function tooltip(string $tootipText = ''): string
 {
@@ -515,9 +512,6 @@ function userCountryId(): mixed
 //    return \DB::table('format_currencies')->where('code', $currency)->value('symbol');
 // }
 
-
-
-
 /**
  * sets mail config and reloads the config into the container
  * NOTE: this is getting used outside the class to set service config.
@@ -666,7 +660,6 @@ function cloudCentralDomain(): string
 
     return str_replace('https://', '', (string) ($cloudSubDomain ? $cloudSubDomain->cloud_central_domain : ''));
 }
-
 
 /**
  * @return array<mixed>
@@ -1016,7 +1009,6 @@ function calculateUnitCost(string $currency, int|float $cost): int
     return ($decimals === 0) ? (int) round($cost) : (int) round($cost * 10 ** $decimals);
 }
 
-
 /**
  * Deletes all user sessions except the current session.
  *
@@ -1143,7 +1135,6 @@ function logActivity(
     $log->log($message);
 }
 
-
 /**
  *Get Supported Countries for IntlInput Plugins.
  *
@@ -1165,7 +1156,6 @@ function isV3Api(): bool
 {
     return str_contains(str_replace(Request::root().'/', '', URL::current()), 'v3/');
 }
-
 
 function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds = 60, bool $perSite = true): void
 {
@@ -1251,7 +1241,6 @@ function assetLink(string $type, string $key): string
     // if request is language, it should append & language to it
     return asset(Config::get('link.'.$type.'.'.$key));
 }
-
 
 function commonSettings(string $option, string $optionField, string $returnColumn = 'option_value'): mixed
 {

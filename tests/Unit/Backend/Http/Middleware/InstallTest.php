@@ -99,6 +99,4 @@ class InstallTest extends TestCase
         $this->assertFalse($passed);
         $this->assertContains($response->getStatusCode(), [301, 302]);
     }
-
-    
 }

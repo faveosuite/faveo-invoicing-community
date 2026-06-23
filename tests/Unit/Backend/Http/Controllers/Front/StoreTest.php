@@ -6,7 +6,6 @@ use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Front\PageController;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
-use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
 use App\User;
