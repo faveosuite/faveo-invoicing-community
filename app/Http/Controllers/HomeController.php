@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Common\CronController;
-use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Order\RenewController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Requests\ProductRenewalRequest;
@@ -19,19 +18,16 @@ use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
-use App\Model\Product\ProductGroup;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\User;
 use DB;
 use Exception;
-use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Log;
 use Logger;
-use NumberFormatter;
 use Symfony\Component\HttpFoundation\Response;
 use Validator;
 

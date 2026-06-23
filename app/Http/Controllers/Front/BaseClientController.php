@@ -6,7 +6,6 @@ use App\Facades\Attach;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
 use App\Model\Order\Invoice;
-use App\Model\Order\Order;
 use App\User;
 use Auth;
 use DB;

@@ -269,5 +269,4 @@ class SettingsController extends Controller
 
         return successResponse(__('message.updated-successfully'));
     }
-
 }

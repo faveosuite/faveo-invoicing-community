@@ -15,7 +15,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Date;
 use ParagonIE\ConstantTime\Base32;
 use PragmaRX\Google2FAQRCode\Google2FA;
 use RateLimiter;
@@ -233,5 +232,4 @@ class Google2FAController extends Controller
 
         return successResponse('', ['redirect' => $loginController->redirectPath()]);
     }
-
 }

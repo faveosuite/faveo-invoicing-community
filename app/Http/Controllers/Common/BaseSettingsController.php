@@ -3,14 +3,8 @@
 namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Common\PHPController as PaymentSettingsController;
-use App\Model\Common\StatusSetting;
-use App\Model\Mailjob\ActivityLogDay;
-use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
-use DB;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
-use Lang;
 use Spatie\Activitylog\Models\Activity;
 
 class BaseSettingsController extends PaymentSettingsController
@@ -90,5 +84,4 @@ class BaseSettingsController extends PaymentSettingsController
 
         return $formatted;
     }
-
 }

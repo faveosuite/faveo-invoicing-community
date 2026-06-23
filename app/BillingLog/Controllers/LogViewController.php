@@ -8,8 +8,6 @@ use App\BillingLog\Model\LogCategory;
 use App\BillingLog\Model\MailLog;
 use DB;
 use Exception;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;

@@ -5,14 +5,12 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Common\SettingsController;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
-use App\Http\Controllers\Order\RenewController;
 use App\License\Models\Installation;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
 use App\Model\Order\Invoice;
-use App\Model\Order\InvoiceItem;
 use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
@@ -26,15 +24,12 @@ use App\Services\Payment\ProcessingFee;
 use App\User;
 use App\WhatsappIntegration;
 use Auth;
-use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Logger;
-use Override;
 
 class ClientController extends BaseClientController
 {
@@ -866,5 +861,4 @@ class ClientController extends BaseClientController
                 ->count(),
         ]);
     }
-
 }

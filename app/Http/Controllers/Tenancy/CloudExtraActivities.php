@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Tenancy;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Front\Cart\CartService;
 use App\Http\Controllers\Order\InvoiceController as InvoiceCtrl;
 use App\Http\Controllers\Order\RenewController;
 use App\License\Models\Installation;
