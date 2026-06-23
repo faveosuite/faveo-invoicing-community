@@ -4,7 +4,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Subscription;
 
 use App\ApiKey;
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Subscription\SubscriptionController;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
@@ -12,14 +11,9 @@ use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
-use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
-use Artisan;
-use DB;
-use Illuminate\Support\Facades\Date;
-use Mail;
 use Tests\DBTestCase;
 
 class SubscriptionControllerTest extends DBTestCase
@@ -117,5 +111,4 @@ class SubscriptionControllerTest extends DBTestCase
         $response = $controller->calculateUnitCost($currency, $cost);
         $this->assertEquals(100.0, $response);
     }
-
 }

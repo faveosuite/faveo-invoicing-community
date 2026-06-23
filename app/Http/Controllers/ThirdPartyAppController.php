@@ -48,6 +48,7 @@ class ThirdPartyAppController extends Controller
 
             $thirdPartyApps->getCollection()->transform(function ($app) {
                 $app->app_secret = str_repeat('*', 5);
+
                 return $app;
             });
 

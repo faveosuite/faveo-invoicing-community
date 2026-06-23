@@ -6,9 +6,6 @@ use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
-use App\Model\Payment\Plan;
-use App\Model\Payment\PlanPrice;
-use App\Model\Product\Product;
 use App\User;
 use Illuminate\Http\Request;
 use Mockery;
@@ -142,5 +139,4 @@ class ClientInvoiceControllerTest extends DBTestCase
         $content = $response->json();
         $this->assertEquals($content['message'], 'No invoice id');
     }
-
 }

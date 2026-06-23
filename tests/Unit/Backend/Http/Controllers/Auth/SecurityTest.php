@@ -21,5 +21,4 @@ class SecurityTest extends DBTestCase
         'password/reset',
         'group/1/1',
     ];
-
 }

@@ -32,8 +32,8 @@ class AuthControllerTest extends DBTestCase
 
         $response = $this->postJson('/login', [
             'email_username' => $user->email,
-            'password1'      => 'P@ssw0rd!',
-            'login'          => $this->honeypot(),
+            'password1' => 'P@ssw0rd!',
+            'login' => $this->honeypot(),
         ]);
 
         $response->assertStatus(200);
@@ -53,8 +53,8 @@ class AuthControllerTest extends DBTestCase
 
         $response = $this->postJson('/login', [
             'email_username' => $user->email,
-            'password1'      => 'wrong',
-            'login'          => $this->honeypot(),
+            'password1' => 'wrong',
+            'login' => $this->honeypot(),
         ]);
 
         $response->assertStatus(400);
@@ -73,8 +73,8 @@ class AuthControllerTest extends DBTestCase
     {
         $response = $this->postJson('/login', [
             'email_username' => 'nobody@example.com',
-            'password1'      => 'password',
-            'login'          => $this->honeypot(),
+            'password1' => 'password',
+            'login' => $this->honeypot(),
         ]);
 
         $response->assertStatus(400);
@@ -94,7 +94,7 @@ class AuthControllerTest extends DBTestCase
     {
         $response = $this->postJson('/login', [
             'email_username' => 'user@test.com',
-            'login'          => $this->honeypot(),
+            'login' => $this->honeypot(),
         ]);
 
         $response->assertStatus(422);
@@ -112,7 +112,7 @@ class AuthControllerTest extends DBTestCase
         // This test documents the bug so any accidental fix is caught.
         $response = $this->postJson('/login', [
             'password1' => 'secret',
-            'login'     => $this->honeypot(),
+            'login' => $this->honeypot(),
         ]);
 
         $response->assertStatus(500); // BUG — should be 422
@@ -126,8 +126,8 @@ class AuthControllerTest extends DBTestCase
     {
         $response = $this->postJson('/login', [
             'email_username' => 'user@test.com',
-            'password1'      => 'pass',
-            'login'          => ['pTestKey' => 'bot-filled', 'tTestKey' => Crypt::encrypt(time() - 2)],
+            'password1' => 'pass',
+            'login' => ['pTestKey' => 'bot-filled', 'tTestKey' => Crypt::encrypt(time() - 2)],
         ]);
 
         $response->assertStatus(422);

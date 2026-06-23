@@ -34,8 +34,7 @@ class AddUserToExternalServiceTest extends TestCase
 
         (new AddUserToExternalService($user, 'register'))->handle();
 
-        Event::assertDispatched(UserRegisteredEvent::class, fn (UserRegisteredEvent $e): bool =>
-            $e->trigger === 'register'
+        Event::assertDispatched(UserRegisteredEvent::class, fn (UserRegisteredEvent $e): bool => $e->trigger === 'register'
         );
     }
 
@@ -47,8 +46,7 @@ class AddUserToExternalServiceTest extends TestCase
 
         (new AddUserToExternalService($user, false))->handle();
 
-        Event::assertDispatched(UserRegisteredEvent::class, fn (UserRegisteredEvent $e): bool =>
-            $e->trigger === 'admin_create'
+        Event::assertDispatched(UserRegisteredEvent::class, fn (UserRegisteredEvent $e): bool => $e->trigger === 'admin_create'
         );
     }
 
@@ -59,8 +57,7 @@ class AddUserToExternalServiceTest extends TestCase
 
         (new AddUserToExternalService($user))->handle();
 
-        Event::assertDispatched(UserRegisteredEvent::class, fn (UserRegisteredEvent $e): bool =>
-            $e->trigger === 'register'
+        Event::assertDispatched(UserRegisteredEvent::class, fn (UserRegisteredEvent $e): bool => $e->trigger === 'register'
         );
     }
 
@@ -86,8 +83,7 @@ class AddUserToExternalServiceTest extends TestCase
 
         (new AddUserToExternalService($user, false))->handle();
 
-        Event::assertDispatched(UserRegisteredEvent::class, fn (UserRegisteredEvent $e): bool =>
-            $e->trigger === 'admin_create'
+        Event::assertDispatched(UserRegisteredEvent::class, fn (UserRegisteredEvent $e): bool => $e->trigger === 'admin_create'
         );
     }
 
@@ -103,6 +99,4 @@ class AddUserToExternalServiceTest extends TestCase
         // Job has no idempotency guard — both calls fire the event
         Event::assertDispatchedTimes(UserRegisteredEvent::class, 2);
     }
-
-    
 }

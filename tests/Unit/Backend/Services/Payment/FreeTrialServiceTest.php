@@ -44,9 +44,9 @@ class FreeTrialServiceTest extends DBTestCase
 
         // Insert a free_trial_allowed row within the transaction (rolled back after test).
         DB::table('free_trial_allowed')->insert([
-            'user_id'    => $this->user->id,
+            'user_id' => $this->user->id,
             'product_id' => $cloudProduct->cloud_product,
-            'domain'     => 'used-trial.example.com',
+            'domain' => 'used-trial.example.com',
         ]);
 
         $this->expectException(RuntimeException::class);
@@ -60,9 +60,9 @@ class FreeTrialServiceTest extends DBTestCase
 
         // User used trial for product 99998 but NOT 99999.
         DB::table('free_trial_allowed')->insert([
-            'user_id'    => $this->user->id,
+            'user_id' => $this->user->id,
             'product_id' => 99998,
-            'domain'     => 'other-product.example.com',
+            'domain' => 'other-product.example.com',
         ]);
 
         $cloudProduct = new CloudProducts();
@@ -85,9 +85,9 @@ class FreeTrialServiceTest extends DBTestCase
 
         // Other user used trial — not this user.
         DB::table('free_trial_allowed')->insert([
-            'user_id'    => $otherUser->id,
+            'user_id' => $otherUser->id,
             'product_id' => $cloudProduct->cloud_product,
-            'domain'     => 'other-user.example.com',
+            'domain' => 'other-user.example.com',
         ]);
 
         // Should NOT throw for this user.
@@ -100,6 +100,4 @@ class FreeTrialServiceTest extends DBTestCase
     // provision() orchestrates OrderController + TenantController (external HTTP) +
     // Invoice creation, making it unsuitable for unit testing. Integration tests
     // covering the full cloud provisioning flow belong in Feature tests.
-
-    
 }

@@ -5,7 +5,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Common\Stripe;
 use App\ApiKey;
 use App\Facades\Attach;
 use App\FileSystemSettings;
-use App\Http\Controllers\Common\BaseSettingsController;
 use App\Http\Controllers\RazorpayController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;

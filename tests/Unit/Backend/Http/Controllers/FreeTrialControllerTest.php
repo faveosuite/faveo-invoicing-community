@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Backend\Http\Controllers;
 
+use App\Model\Payment\Plan;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
-use App\Model\Payment\Plan;
 use App\User;
 use DB;
 use Tests\DBTestCase;

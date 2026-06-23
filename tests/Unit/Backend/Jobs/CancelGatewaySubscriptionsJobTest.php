@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Jobs;
 
 use App\Jobs\CancelGatewaySubscriptionsJob;
-use App\Model\Product\Subscription;
 use App\Services\Payment\SubscriptionService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -66,15 +65,15 @@ class CancelGatewaySubscriptionsJobTest extends TestCase
     public function test_handle_cancels_active_stripe_subscriptions_and_zeroes_out_status(): void
     {
         $product = \App\Model\Product\Product::factory()->create();
-        $user    = \App\User::factory()->create();
-        $subId   = (int) \DB::table('subscriptions')->insertGetId([
-            'product_id'       => $product->id,
-            'user_id'          => $user->id,
+        $user = \App\User::factory()->create();
+        $subId = (int) \DB::table('subscriptions')->insertGetId([
+            'product_id' => $product->id,
+            'user_id' => $user->id,
             'autoRenew_status' => 3,
-            'is_subscribed'    => 1,
-            'subscribe_id'     => 'sub_stripe_test_123',
-            'created_at'       => now(),
-            'updated_at'       => now(),
+            'is_subscribed' => 1,
+            'subscribe_id' => 'sub_stripe_test_123',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         /** @var SubscriptionService&MockInterface $service */
@@ -100,6 +99,4 @@ class CancelGatewaySubscriptionsJobTest extends TestCase
     // Note: "handle() continues after exception" test is skipped because the job's
     // catch block calls Logger::warning() which is an undefined method on the Logger
     // facade in this project. That is a bug in the job code — not covered here.
-
-    
 }

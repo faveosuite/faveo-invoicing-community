@@ -13,7 +13,8 @@ class PaginationTotalTest extends DBTestCase
 {
     private function subject(): object
     {
-        return new class {
+        return new class
+        {
             use PaginationTotal;
 
             public function total(string|object $model, Request $req, array $keys = []): ?int
@@ -34,7 +35,7 @@ class PaginationTotalTest extends DBTestCase
 
     public function test_cached_total_returns_integer_when_no_filters(): void
     {
-        $req    = Request::create('/', 'GET', []);
+        $req = Request::create('/', 'GET', []);
         $result = $this->subject()->total(User::class, $req, ['role']);
 
         $this->assertIsInt($result);
@@ -43,7 +44,7 @@ class PaginationTotalTest extends DBTestCase
 
     public function test_cached_total_returns_null_when_search_is_active(): void
     {
-        $req    = Request::create('/', 'GET', ['search-query' => 'John']);
+        $req = Request::create('/', 'GET', ['search-query' => 'John']);
         $result = $this->subject()->total(User::class, $req);
 
         // Search active → skip cache → return null (caller counts live)
@@ -52,7 +53,7 @@ class PaginationTotalTest extends DBTestCase
 
     public function test_cached_total_returns_null_when_filter_key_present(): void
     {
-        $req    = Request::create('/', 'GET', ['role' => 'admin']);
+        $req = Request::create('/', 'GET', ['role' => 'admin']);
         $result = $this->subject()->total(User::class, $req, ['role']);
 
         $this->assertNull($result);
@@ -64,7 +65,7 @@ class PaginationTotalTest extends DBTestCase
         $this->getLoggedInUser('user');
         User::factory()->count(3)->create();
 
-        $req    = Request::create('/', 'GET', []);
+        $req = Request::create('/', 'GET', []);
         $result = $this->subject()->total(User::class, $req);
 
         $this->assertSame(User::count(), $result);
@@ -98,6 +99,4 @@ class PaginationTotalTest extends DBTestCase
 
         $this->assertSame(200, $response->getStatusCode());
     }
-
-    
 }

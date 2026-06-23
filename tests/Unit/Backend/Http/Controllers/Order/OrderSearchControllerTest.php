@@ -76,7 +76,7 @@ class OrderSearchControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $base     = $this->controller->advanceOrderSearch(new \Illuminate\Http\Request());
+        $base = $this->controller->advanceOrderSearch(new \Illuminate\Http\Request());
         $filtered = $this->controller->applyOrdersSearch($base, null);
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $filtered);
@@ -86,7 +86,7 @@ class OrderSearchControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $base     = $this->controller->advanceOrderSearch(new \Illuminate\Http\Request());
+        $base = $this->controller->advanceOrderSearch(new \Illuminate\Http\Request());
         $filtered = $this->controller->applyOrdersSearch($base, 'executed');
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $filtered);
@@ -96,8 +96,8 @@ class OrderSearchControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $base    = $this->controller->advanceOrderSearch(new \Illuminate\Http\Request());
-        $all     = $base->count();
+        $base = $this->controller->advanceOrderSearch(new \Illuminate\Http\Request());
+        $all = $base->count();
         $filtered = $this->controller->applyOrdersSearch(
             $this->controller->advanceOrderSearch(new \Illuminate\Http\Request()),
             'status_that_does_not_exist_xyz'
@@ -106,6 +106,4 @@ class OrderSearchControllerTest extends DBTestCase
         // Filtering on a nonexistent status must return ≤ total (never more)
         $this->assertLessThanOrEqual($all, $filtered->count());
     }
-
-    
 }

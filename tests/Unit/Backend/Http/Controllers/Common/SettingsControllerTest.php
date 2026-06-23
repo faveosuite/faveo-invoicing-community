@@ -4,7 +4,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Common;
 
 use App\ApiKey;
 use App\Http\Controllers\Common\SettingsController;
-use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\StatusSetting;
 use App\Model\Payment\Plan;
 use App\Model\Product\CloudProducts;
