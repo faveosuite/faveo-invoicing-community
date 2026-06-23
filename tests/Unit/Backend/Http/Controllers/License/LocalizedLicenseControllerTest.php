@@ -16,6 +16,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->withoutMiddleware();
         $this->getLoggedInUser('admin');
     }
 

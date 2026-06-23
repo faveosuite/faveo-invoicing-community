@@ -46,16 +46,12 @@ class SyncUserToPipedriveTest extends TestCase
         // We test this by verifying handle() completes without calling the external service.
         // Since we can't mock the DB call in isEnabled() without alias mocking,
         // we test the actual DB state: if pipedrive_status = 0, nothing happens.
-        $currentStatus = (int) StatusSetting::value('pipedrive_status');
+        // Force pipedrive disabled for this test
+        StatusSetting::where('id', 1)->update(['pipedrive_status' => 0]);
 
-        if ($currentStatus === 0) {
-            $listener->handle($event);
-            // No exception thrown, no sync happened (no outbound call)
-            $this->assertTrue(true);
-        } else {
-            // pipedrive is enabled in this env — skip rather than trigger real sync
-            $this->markTestSkipped('pipedrive_status is enabled in DB — cannot safely test disabled path');
-        }
+        $listener->handle($event);
+        // No exception thrown, no sync happened (no outbound call)
+        $this->assertTrue(true);
     }
 
     // --- handle(): trigger != 'register' and verification not required → skip ---

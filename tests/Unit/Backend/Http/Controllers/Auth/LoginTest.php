@@ -39,7 +39,7 @@ class LoginTest extends DBTestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                'redirect' => url('/client-dashboard'),
+                'redirect' => url('/'),
             ],
         ]);
     }
@@ -68,7 +68,7 @@ class LoginTest extends DBTestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                'redirect' => url('/'),
+                'redirect' => url('/admin'),
             ],
         ]);
     }
@@ -274,7 +274,7 @@ class LoginTest extends DBTestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                'redirect' => url('/client-dashboard'),
+                'redirect' => url('/'),
             ],
         ]);
     }
@@ -322,7 +322,7 @@ class LoginTest extends DBTestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                'redirect' => url('/'),
+                'redirect' => url('/admin'),
             ],
         ]);
     }
@@ -350,7 +350,7 @@ class LoginTest extends DBTestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                'redirect' => url('/client-dashboard'),
+                'redirect' => url('/'),
             ],
         ]);
     }
@@ -358,11 +358,8 @@ class LoginTest extends DBTestCase
     public function test_login_page(): void
     {
         $this->withoutMiddleware();
-        $response = $this->get('/login');
+        $response = $this->getJson('/auth/login-config');
         $response->assertStatus(200);
-
-        $content = $response->getOriginalContent();
-        $this->assertEquals(expected: true, actual: $content['success']);
-        $this->assertEquals('Login Page', $content['message']);
+        $response->assertJsonStructure(['success', 'data' => ['status', 'apiKeys', 'social']]);
     }
 }

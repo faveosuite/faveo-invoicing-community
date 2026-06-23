@@ -552,7 +552,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::delete('delete-license-type', [LicenseSettingsController::class, 'deleteLicense'])->name('license-type-delete');
 
     Route::get('get-license-permission', [LicensePermissionsController::class, 'getPermissions'])->name('get-license-permission');
-    Route::delete('add-permission', [LicensePermissionsController::class, 'addPermission'])->name('add-permission');
+    Route::post('add-permission', [LicensePermissionsController::class, 'addPermission'])->name('add-permission');
 
     // --------------------------------------------------------
     // Email Templates

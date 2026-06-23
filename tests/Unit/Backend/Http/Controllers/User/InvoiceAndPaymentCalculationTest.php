@@ -5,7 +5,9 @@ namespace Tests\Unit\Backend\Http\Controllers\User;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\DBTestCase;
 
 class InvoiceAndPaymentCalculationTest extends DBTestCase
@@ -16,17 +18,17 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
     public function test_change_invoice_total_when_invoice_is_updated(): void
     {
         $this->withoutMiddleware();
-        $this->getLoggedInUser();
-        $user = $this->user;
-        $user_id = $user->id;
-        $invoice = Invoice::factory()->create(['user_id' => $user_id, 'grand_total' => '10000']);
-        $response = $this->call('POST', 'change-invoiceTotal', [
+        $this->getLoggedInUser('admin');
+        $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'grand_total' => '10000']);
+
+        $response = $this->postJson("invoice/edit/{$invoice->id}", [
             'total' => '12000',
-            'number' => $invoice->number,
-            'user_id' => $user_id,
+            'date' => now()->format('Y-m-d'),
+            'status' => 'Active',
         ]);
 
         $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
     }
 
     #[Group('InvoiceAndPayment')]
@@ -34,8 +36,7 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
     {
         $this->getLoggedInUser();
         $user = $this->user;
-        $user_id = $user->id;
-        $invoice = Invoice::factory()->create(['user_id' => $user_id]);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $invoiceItem = InvoiceItem::create([
             'invoice_id' => $invoice->id,
             'product_name' => 'Helpdesk Advance',
@@ -47,14 +48,10 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
             'domain' => 'faveo.com',
             'plan_id' => 1,
         ]);
-        Order::factory()->create(['invoice_id' => $invoice->id,
-            'invoice_item_id' => $invoiceItem->id, 'client' => $user_id, ]);
+        $order = Order::factory()->create(['invoice_item_id' => $invoiceItem->id, 'client' => $user->id]);
+        OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
 
-        $response = $this->call('GET', 'clients/'.$user_id, [
-            'total' => '12000',
-            'number' => $invoice->number,
-            'user_id' => $user_id,
-        ]);
+        $response = $this->call('GET', 'clients/'.$user->id);
         $this->assertStringContainsSubstring($response->content(), '<!DOCTYPE html>');
     }
 }

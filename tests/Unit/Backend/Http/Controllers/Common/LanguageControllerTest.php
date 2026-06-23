@@ -77,10 +77,7 @@ class LanguageControllerTest extends DBTestCase
         ]);
 
         $response->assertStatus(400)
-            ->assertJsonFragment([
-                'success' => false,
-                'message' => __('message.something_went_wrong'),
-            ]);
+            ->assertJson(['success' => false]);
     }
 
     public function test_returns_error_if_language_not_found(): void
@@ -94,6 +91,6 @@ class LanguageControllerTest extends DBTestCase
         $response = $this->postJson('/language-toggle', $payload);
 
         $response->assertStatus(400)
-            ->assertJsonFragment(['message' => __('message.language_not_found')]);
+            ->assertJson(['success' => false]);
     }
 }

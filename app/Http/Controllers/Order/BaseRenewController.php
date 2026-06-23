@@ -171,7 +171,7 @@ class BaseRenewController extends Controller
             ]);
             $renewController = new RenewController;
             $renewController->createOrderInvoiceRelation($orderid, $invoice->id);
-            $items = $controller->createInvoiceItemsByAdmin($invoice->id, (string) $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, $tax_rate, $renewalPrice); // @phpstan-ignore argument.type
+            $items = $controller->createInvoiceItemsByAdmin($invoice->id, (string) $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, (float) $tax_rate, $renewalPrice); // @phpstan-ignore argument.type
             if (in_array($product->id, cloudPopupProducts())) {
                 $license_code = Order::where('id', $orderid)->value('serial_key');
                 $installation_path = Installation::where('license_code', Order::find($orderid)?->serial_key)

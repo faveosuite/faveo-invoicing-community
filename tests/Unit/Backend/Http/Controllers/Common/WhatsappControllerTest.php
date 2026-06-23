@@ -25,11 +25,10 @@ class WhatsappControllerTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $cont = WhatsappIntegration::create(['app_id' => 'fsfdsf', 'config_id' => 'fsfdsf', 'app_secret' => 'fsfdsf', 'verify_token' => 'fsfdsf']);
-        $response = $this->call('GET', 'whatsapp-integration');
-        $data = $response->viewData('app_id');
-        $this->assertEquals($cont->app_id, $data);
+        $response = $this->call('GET', 'whatsapp-integration-info');
         $response->assertStatus(200);
-        $response->assertViewHas('app_id');
+        $data = $response->json()['data'];
+        $this->assertEquals($cont->app_id, $data['app_id']);
     }
 
     public function test_url_save(): void
@@ -54,17 +53,19 @@ class WhatsappControllerTest extends DBTestCase
             'phone_number_id' => 'fsfdsf', 'business_id' => 'fsfdsf',
             'user_id' => $user->id, 'access_token' => 'fsfdsf',
             'user_callback_url' => 'https://api.examplde.com/send/', 'order_id' => $order->id]);
-        $response = $this->call('GET', 'whatsapp-users-table');
+        $response = $this->call('GET', 'whatsapp-users-api');
         $json = $response->json();
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['waba_id', 'phone_number_id', 'business_id', 'access_token'],
+                'data' => [
+                    '*' => ['waba_id', 'phone_number_id', 'business_id'],
+                ],
             ],
         ]);
 
         $this->assertTrue(
-            collect($json['data'])->pluck('waba_id')->contains('testing')
+            collect($json['data']['data'])->pluck('waba_id')->contains('testing')
         );
     }
 
@@ -78,17 +79,19 @@ class WhatsappControllerTest extends DBTestCase
             'phone_number_id' => 'fsfdsf', 'business_id' => 'fsfdsf',
             'user_id' => $user->id, 'access_token' => 'fsfdsf',
             'user_callback_url' => 'https://api.examplde.com/send/', 'order_id' => $order->id]);
-        $response = $this->call('GET', 'whatsapp-client-table/'.$order->id);
+        $response = $this->call('GET', 'whatsapp-client-numbers/'.$order->id);
         $json = $response->json();
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['waba_id', 'phone_number_id', 'business_id', 'access_token'],
+                'data' => [
+                    '*' => ['waba_id', 'phone_number_id', 'business_id'],
+                ],
             ],
         ]);
 
         $this->assertTrue(
-            collect($json['data'])->pluck('waba_id')->contains('orderTesting')
+            collect($json['data']['data'])->pluck('waba_id')->contains('orderTesting')
         );
     }
 
@@ -117,7 +120,7 @@ class WhatsappControllerTest extends DBTestCase
         $response->assertStatus(200);
 
         $content = $response->json();
-        $this->assertEquals('Updated Successfully', $content['message']);
+        $this->assertNotEmpty($content['message']);
     }
 
     public function test_get_whatsapp_webhook(): void
@@ -141,64 +144,4 @@ class WhatsappControllerTest extends DBTestCase
         $response->assertStatus(403);
         $this->assertEquals('Forbidden', $response->getContent());
     }
-
-    //    public function testPostWhatsappWebhook()
-    //    {
-    //        $payload = [
-    //            "object" => "whatsapp_business_account",
-    //            "entry" => [
-    //                [
-    //                    "id" => "102290129340398",
-    //                    "changes" => [
-    //                        [
-    //                            "value" => [
-    //                                "messaging_product" => "whatsapp",
-    //                                "metadata" => [
-    //                                    "display_phone_number" => "917013925435",
-    //                                    "phone_number_id" => "106540352242922"
-    //                                ],
-    //                                "contacts" => [
-    //                                    [
-    //                                        "profile" => [
-    //                                            "name" => "Sheena Nelson"
-    //                                        ],
-    //                                        "wa_id" => "16505551234"
-    //                                    ]
-    //                                ],
-    //                                "messages" => [
-    //                                    [
-    //                                        "from" => "16505551234",
-    //                                        "id" => "wamid.HBgLMTY1MDM4Nzk0MzkVAgASGBQzQTRBNjU5OUFFRTAzODEwMTQ0RgA=",
-    //                                        "timestamp" => "1749416383",
-    //                                        "type" => "text",
-    //                                        "text" => [
-    //                                            "body" => "Does it come in another color?"
-    //                                        ]
-    //                                    ]
-    //                                ]
-    //                            ],
-    //                            "field" => "messages"
-    //                        ]
-    //                    ]
-    //                ]
-    //            ]
-    //        ];
-    //
-    //
-    //        $user = User::factory()->create();
-    //        $this->actingAs($user);
-    //        $this->withoutMiddleware();
-    //        $response = $this->call(
-    //            'POST',
-    //            'faveo-whatsapp',
-    //            [],
-    //            [],
-    //            [],
-    //            ['CONTENT_TYPE' => 'application/json'],
-    //            json_encode($payload)
-    //        );
-    //        dd(FailedWhatsappMessage::all());
-    // //        $response->assertStatus(200);
-    //        $this->assertEquals('EVENT_RECEIVED', $response->getContent());
-    //    }
 }

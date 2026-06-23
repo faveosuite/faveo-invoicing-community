@@ -2,26 +2,37 @@
 
 namespace Tests\Unit\Backend\Http\Controllers;
 
-use App\Http\Controllers\FreeTrailController;
+use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
+use App\Model\Payment\Plan;
 use App\User;
-use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use DB;
 use Tests\DBTestCase;
 
 class FreeTrialControllerTest extends DBTestCase
 {
     public function test_first_login_attempt_return_exception_when_not_first_time_register_users(): void
     {
-        $this->expectException(Exception::class);
+        $this->withoutMiddleware();
         $user = User::factory()->create(['role' => 'user', 'country' => 'IN']);
-        Product::factory()->create();
-        Auth::loginUsingId($user->id);
         $this->actingAs($user);
-        $response = new FreeTrailController()->firstLoginAttempt(new Request(['id' => $user->id, 'first_time_login' => 1]));
-        $this->expectExceptionMessage('Can not Generate Freetrial Cloud instance');
-        $response->getOriginalContent();
-        $this->assertFalse(auth()->check());
+
+        $product = Product::create(['name' => 'Helpdesk']);
+        $plan = Plan::create(['name' => 'Trial Plan', 'product' => $product->id, 'days' => 30]);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
+
+        // Simulate user already used free trial for this product
+        DB::table('free_trial_allowed')->insert([
+            'user_id' => $user->id,
+            'product_id' => $product->id,
+        ]);
+
+        $response = $this->postJson('free-trial/start', [
+            'domain' => 'testdomain',
+            'product_id' => $product->id,
+        ]);
+
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
     }
 }

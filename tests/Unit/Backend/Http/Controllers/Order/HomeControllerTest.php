@@ -29,7 +29,7 @@ class HomeControllerTest extends DBTestCase
     public function test_renewurl_return_orderid_(): void
     {
         // Create test data
-        $orderid = '12345';
+        $orderid = 12345;
         $product = Product::factory()->create([
             'id' => '1',
             'name' => 'Test Product',

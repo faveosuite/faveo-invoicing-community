@@ -26,14 +26,12 @@ class TenantControllerTest extends TestCase
 
     public function test_get_tenants_success(): void
     {
-        // Mock ThirdPartyApp data
         ThirdPartyApp::create([
             'app_name' => 'faveo_app_key',
             'app_key' => 'test_key',
             'app_secret' => 'test_secret',
         ]);
 
-        // Mock Guzzle Client response
         $mock = new MockHandler([
             new Response(200, [], json_encode([
                 'message' => [
@@ -60,80 +58,73 @@ class TenantControllerTest extends TestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        // Mock cloud central domain
         $cloud = FaveoCloud::create([
             'cloud_central_domain' => 'https://cloud.example.com',
             'cloud_cname' => 'test.example.com',
         ]);
 
-        // Instantiate controller and call method
         $controller = new TenantController($client, $cloud);
         $request = new Request;
         $response = $controller->getTenants($request);
 
-        // Assert response
         $responseData = json_decode((string) $response->getContent(), associative: true);
 
-        $this->assertCount(2, $responseData['data']);
-        $this->assertEquals('test_db', $responseData['data'][0]['db_name']);
-        $this->assertEquals('test_user', $responseData['data'][0]['db_username']);
+        // Response: {success, message, data: {current_page, data: [...], ...}}
+        $this->assertTrue($responseData['success']);
+        $this->assertCount(2, $responseData['data']['data']);
+        $this->assertEquals('test_db', $responseData['data']['data'][0]['database']['name']);
+        $this->assertEquals('test_user', $responseData['data']['data'][0]['database']['username']);
     }
 
     public function test_get_tenants_invalid_app_key(): void
     {
-        // Mock ThirdPartyApp with invalid app key
         ThirdPartyApp::create([
             'app_name' => 'faveo_app_key',
-            'app_key' => null, // Invalid key
+            'app_key' => null,
             'app_secret' => 'test_secret',
         ]);
 
-        // Mock Guzzle Client (not actually used due to exception)
         $mock = new MockHandler([]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        // Mock cloud central domain
         $cloud = FaveoCloud::create([
             'cloud_central_domain' => 'https://cloud.example.com',
         ]);
 
-        // Instantiate controller and call method
         $controller = new TenantController($client, $cloud);
         $request = new Request;
-        $controller->getTenants($request);
+        $response = $controller->getTenants($request);
 
-        // Assert redirect and error message
-        $this->assertEquals('Invalid App key provided. Please contact admin.', session('fails'));
+        $body = json_decode((string) $response->getContent(), associative: true);
+        $this->assertFalse($body['success']);
+        $this->assertNotEmpty($body['message']);
     }
 
     public function test_get_tenants_guzzle_exception(): void
     {
-        // Mock ThirdPartyApp data
         ThirdPartyApp::create([
             'app_name' => 'faveo_app_key',
             'app_key' => 'test_key',
             'app_secret' => 'test_secret',
         ]);
 
-        // Mock Guzzle Client to throw exception
         $mock = new MockHandler([
             new ConnectException('Connection error', new \GuzzleHttp\Psr7\Request('GET', 'test')),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        // Mock cloud central domain
         $cloud = FaveoCloud::create([
             'cloud_central_domain' => 'https://cloud.example.com',
         ]);
 
-        // Instantiate controller and call method
         $controller = new TenantController($client, $cloud);
         $request = new Request;
-        $controller->getTenants($request);
+        $response = $controller->getTenants($request);
 
-        // Assert redirect and error message
-        $this->assertEquals('Connection error', session('fails'));
+        $body = json_decode((string) $response->getContent(), associative: true);
+        $this->assertFalse($body['success']);
+        $this->assertNotEmpty($body['message']);
     }
 }

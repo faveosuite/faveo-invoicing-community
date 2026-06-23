@@ -46,6 +46,11 @@ class ThirdPartyAppController extends Controller
             $thirdPartyApps = $query->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
+            $thirdPartyApps->getCollection()->transform(function ($app) {
+                $app->app_secret = str_repeat('*', 5);
+                return $app;
+            });
+
             return successResponse(__('message.third_party_apps_fetched'), [
                 'third_party_apps' => $thirdPartyApps,
                 'total' => $total,

@@ -4,6 +4,7 @@ namespace Tests\Unit\Backend\Http\Controllers\Payment;
 
 use App\Model\Payment\TaxOption;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class TaxOptionTest extends TestCase
@@ -18,7 +19,8 @@ class TaxOptionTest extends TestCase
         $response = $this->call('POST', 'taxes/option', [
             'Gst_no' => '2323244',
         ]);
-        $response->assertSessionHas('success');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
     }
 
     #[Group('taxController')]
@@ -26,14 +28,13 @@ class TaxOptionTest extends TestCase
     {
         $this->withoutMiddleware();
         $response = $this->call('POST', 'taxes/option', [
-            'name' => 'Others',
-            'tax-name' => 'VAT',
-            'active' => 1,
-            'country' => 'AU',
-            'state' => 'QLD',
-            'rate' => '20',
+            'tax_enable' => '1',
+            'inclusive' => '0',
+            'tax_based_on' => 'billing',
+            'rounding' => '2',
         ]);
-        $response->assertSessionHas('success');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
     }
 
     #[Group('taxController')]
@@ -41,13 +42,10 @@ class TaxOptionTest extends TestCase
     {
         $this->withoutMiddleware();
         $response = $this->call('POST', 'taxes/option', [
-            'name' => 'Inter State GST',
-            'tax-name' => 'CGST',
-            'active' => 1,
-            'country' => 'IN',
-            'state' => 'IN-MH',
-            'rate' => '20',
+            'tax_enable' => '1',
+            'Gst_no' => 'GST123456',
         ]);
-        $response->assertSessionHas('success');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
     }
 }

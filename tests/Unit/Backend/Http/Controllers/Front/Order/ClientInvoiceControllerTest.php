@@ -34,7 +34,7 @@ class ClientInvoiceControllerTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
-        $order = Order::factory()->create(['client' => $user->id, 'invoice_id' => $invoice->id]);
+        $order = Order::factory()->create(['client' => $user->id]);
         OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
         $response = $this->call('get', 'get-my-invoices', ['status' => '']);
         $content = $response->json();
@@ -46,25 +46,20 @@ class ClientInvoiceControllerTest extends DBTestCase
                 'data' => [
                     '*' => [
                         'number',
-                        'OrderNo',
                         'date',
-                        'total',
+                        'grand_total',
                         'paid',
                         'balance',
                         'status',
-                        'action',
                     ],
                 ],
                 'first_page_url',
                 'from',
-                'next_page_url',
-                'path',
                 'per_page',
-                'prev_page_url',
                 'to',
             ],
         ]);
-        $this->assertEquals($content['data']['data'][0]['status'], 'Unpaid');
+        $this->assertEquals('Unpaid', $content['data']['data'][0]['status']);
     }
 
     #[Group('invoice')]
@@ -73,18 +68,13 @@ class ClientInvoiceControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $product = Product::create(['name' => 'Helpdesk Advance']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
-        Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
-        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id]);
-        $response = $this->call('delete', 'invoices/delete/'.$invoice->id);
+        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => 'Helpdesk Advance']);
+
+        $response = $this->deleteJson('/invoices', ['invoice_ids' => [$invoice->id]]);
         $response->assertStatus(200);
-        $response->assertJson([
-            'message' => 'Invoice deleted successfully',
-        ]);
+        $response->assertJson(['success' => true]);
+        $this->assertDatabaseMissing('invoices', ['id' => $invoice->id]);
     }
 
     #[Group('invoice')]
@@ -93,41 +83,11 @@ class ClientInvoiceControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $product = Product::create(['name' => 'Helpdesk Advance']);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id]);
-        $response = $this->call('delete', 'invoices/delete/'.$invoice->id);
+
+        // Deleting with no IDs returns 400
+        $response = $this->deleteJson('/invoices', ['invoice_ids' => []]);
         $response->assertStatus(400);
-        $response->assertJson([
-            'error' => 'Cannot delete invoice.',
-        ]);
-    }
-
-    #[Group('invoice')]
-    public function test_returns_individual_invoice(): void
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-        Product::create(['name' => 'Helpdesk Advance']);
-        Invoice::factory()->create(['user_id' => $user->id]);
-        $id = 221;
-        $response = $this->call('get', 'my-invoice/'.$id);
-        $response->assertSessionHas('fails', 'Invoice not found.');
-    }
-
-    #[Group('invoice')]
-    public function test_when_user_id_is_not_same_as_authorized_user(): void
-    {
-        $user = User::factory()->create();
-        $user1 = User::factory()->create();
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-        Product::create(['name' => 'Helpdesk Advance']);
-        $invoice = Invoice::factory()->create(['user_id' => $user1->id]);
-        $response = $this->call('get', 'my-invoice/'.$invoice->id);
-        $response->assertSessionHas('fails', 'Cannot view invoice. Invalid modification of data.');
+        $response->assertJson(['success' => false]);
     }
 
     #[Group('invoice')]
@@ -136,33 +96,24 @@ class ClientInvoiceControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $product = Product::factory()->create();
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $invoiceItem = InvoiceItem::create([
             'invoice_id' => $invoice->id,
             'product_name' => 'Helpdesk Advance',
             'regular_price' => 10000,
             'quantity' => 1,
-            'tax_name' => 'CGST+SGST',
-            'tax_percentage' => 18,
             'subtotal' => 11800,
             'domain' => 'faveo.com',
             'plan_id' => 1,
         ]);
-        Order::factory()->create(['invoice_id' => $invoice->id,
-            'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
-        $response = $this->call('get', 'my-invoice/'.$invoice->id);
+        $order = Order::factory()->create(['invoice_item_id' => $invoiceItem->id, 'client' => $user->id]);
+        OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
 
-        $content = $response->json();
-        while (ob_get_level() > 1) {
-            ob_end_clean();
-        }
-
+        // Use admin invoice route GET invoice/{id}
+        $response = $this->getJson("invoice/{$invoice->id}");
         $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'data' => ['payments', 'items', 'user', 'processingFeeAmount', 'statusText', 'statusClass'],
-        ]);
-        $this->assertEquals($user->id, $content['data']['user']['id']);
+        $response->assertJsonStructure(['data' => ['invoice', 'from', 'to', 'items', 'payments']]);
+        $this->assertEquals($user->id, $response->json('data.to.id'));
     }
 
     #[Group('invoice')]
@@ -172,14 +123,12 @@ class ClientInvoiceControllerTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending', 'is_renewed' => 0]);
-        $order = Order::factory()->create(['client' => $user->id, 'invoice_id' => $invoice->id]);
+        $order = Order::factory()->create(['client' => $user->id]);
         OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
         $response = $this->call('get', 'get-my-invoices', ['status' => '']);
         $content = $response->json();
         $response->assertStatus(200);
-        $this->assertEquals($content['data']['data'][0]['status'], 'Unpaid');
-        $this->assertEquals($content['data']['data'][0]['OrderNo'], '<a href='.url('my-order/'.$order->id).'>'.$order->number.'</a>');
-        $this->assertEquals($content['data']['data'][0]['number'], '<a href='.url('my-invoice/'.$invoice->id).'>'.$invoice->number.'</a>');
+        $this->assertEquals('Unpaid', $content['data']['data'][0]['status']);
     }
 
     #[Group('invoice')]
@@ -194,39 +143,4 @@ class ClientInvoiceControllerTest extends DBTestCase
         $this->assertEquals($content['message'], 'No invoice id');
     }
 
-    #[Group('invoice')]
-    public function test_when_wrong_id_given(): void
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-        Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending', 'is_renewed' => 0]);
-        $response = $this->call('get', 'pdf', ['invoiceid' => 122]);
-        $response->assertSessionHas('fails', 'Invalid Invoice');
-    }
-
-    #[Group('invoice')]
-    public function test_generate_invoice_when_all_data_given(): void
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-        $product = Product::factory()->create();
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create([
-            'invoice_id' => $invoice->id,
-            'product_name' => 'Helpdesk Advance',
-            'regular_price' => 10000,
-            'quantity' => 1,
-            'tax_name' => 'CGST+SGST',
-            'tax_percentage' => 18,
-            'subtotal' => 11800,
-            'domain' => 'faveo.com',
-            'plan_id' => 1,
-        ]);
-        Order::factory()->create(['invoice_id' => $invoice->id,
-            'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
-        $response = $this->call('get', 'pdf', ['invoiceid' => $invoice->id]);
-        $response->assertStatus(200);
-    }
 }

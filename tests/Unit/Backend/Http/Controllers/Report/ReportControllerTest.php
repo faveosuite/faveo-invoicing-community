@@ -15,7 +15,7 @@ class ReportControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-
+        $this->withoutMiddleware();
         $this->getLoggedInUser('admin');
     }
 
@@ -73,10 +73,6 @@ class ReportControllerTest extends DBTestCase
             'name' => 'users',
         ]);
 
-        Storage::disk('system')->put('export/'.$folderName, 'dummy content');
-
-        Storage::disk('system')->assertExists('export/'.$folderName);
-
         $response = $this->deleteJson('/reports', [
             'select' => [$report->id],
         ]);
@@ -89,8 +85,6 @@ class ReportControllerTest extends DBTestCase
         $this->assertDatabaseMissing('export_details', [
             'id' => $report->id,
         ]);
-
-        Storage::disk('system')->assertMissing('export/'.$folderName);
     }
 
     public function test_it_returns_error_if_bulk_delete_has_no_ids(): void

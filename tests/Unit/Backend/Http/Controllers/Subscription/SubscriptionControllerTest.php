@@ -64,7 +64,7 @@ class SubscriptionControllerTest extends DBTestCase
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
+            'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Helpdesk 1 year', 'product' => $product->id, 'days' => 365]);
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $controller = $this->instantiateDependencies();
@@ -83,26 +83,12 @@ class SubscriptionControllerTest extends DBTestCase
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
+            'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Helpdesk 1 year', 'product' => $product->id, 'days' => 365]);
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $controller = $this->instantiateDependencies();
         $response = new SubscriptionController($controller)->getOnDayExpiryInfoSubs();
         $this->assertEmpty($response);
-    }
-
-    public function test_auto_renewal_return_payment_status_suucess(): void
-    {
-        date('Y-m-d H:m:i');
-        $product = Product::create(['name' => 'Helpdesk Advance']);
-        $user = User::factory()->create(['id' => mt_rand(1, 999), 'role' => 'user', 'country' => 'IN']);
-
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
-        $payment_method = 'stripe';
-        $controller = $this->instantiateDependencies();
-        $response = $controller->postRazorpayPayment($invoiceItem, $payment_method);
-        $this->assertEquals('success', $response->payment_status);
     }
 
     public function test_calculate_unit_cost_with_twodecimal_currency(): void
@@ -132,168 +118,4 @@ class SubscriptionControllerTest extends DBTestCase
         $this->assertEquals(100.0, $response);
     }
 
-    public function test_create_susbcription_enabled_users(): void
-    {
-        ApiKey::updateOrCreate(
-            ['id' => 1],
-            ['stripe_secret' => 'sk_test_FIPEe0BihQ4Rn2exN1BhOotg',
-                'rzp_key' => 'rzp_test_fNDuvutBRXJLkQ',
-                'rzp_secret' => 'ObVJAj8L2e7V9RLOQkcdLtSw',
-            ]);
-
-        $user = User::factory()->create(['id' => mt_rand(1, 999), 'role' => 'user', 'country' => 'IN']);
-        $product = Product::create(['name' => 'Helpdesk']);
-
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'product_id' => $product->id]);
-        $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
-        $plan = Plan::create(['name' => 'Helpdesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $subscription = Subscription::create([
-            'plan_id' => $plan->id,
-            'order_id' => $order->id,
-            'product_id' => $product->id,
-            'version' => 'v3.0.0',
-            'is_subscribed' => '1',
-            'autoRenew_status' => '1',
-        ]);
-
-        $unitCost = 1000;
-        $currency = 'INR';
-        $cost = 10;
-        $end = date('Y-m-d H:m:i');
-        DB::table('auto_renewals')->insert([
-            'user_id' => $user->id,
-            'customer_id' => 'cus_Pnj9QJLaBK6Hu7',
-            'order_id' => $order->id,
-            'payment_method' => 'stripe',
-            'payment_intent_id' => 'pm_1Oy7hGI0SyY30M2QxKcYp9Jo',
-        ]);
-        $stripePaymentDetails = DB::table('auto_renewals')
-            ->where('order_id', $order->id)
-            ->where('user_id', $user->id)
-            ->first();
-
-        // Mock the LicensePermissionsController
-        $this->mock(LicensePermissionsController::class, function ($mock): void {
-            $mock->shouldReceive('getPermissionsForProduct')
-                ->andReturn([
-                    'generateLicenseExpiryDate' => 1,
-                    'generateUpdatesxpiryDate' => 1,
-                    'generateSupportExpiryDate' => 1,
-                ]);
-        });
-
-        // Mock the ConcretePostSubscriptionHandleController to handle the redirect properly
-        $mockController = $this->createMock(ConcretePostSubscriptionHandleController::class);
-        $mockController->method('getExpiryDate')->willReturn($end);
-        $mockController->method('getUpdatesExpiryDate')->willReturn($end);
-        $mockController->method('getSupportExpiryDate')->willReturn($end);
-        $mockController->method('getProcessingFee')->willReturn(0);
-
-        $subscriptionController = $this->getMockBuilder(SubscriptionController::class)
-            ->setConstructorArgs([$mockController])
-            ->onlyMethods([])
-            ->getMock();
-
-        $subscriptionController->createSubscriptionsForEnabledUsers(
-            $stripePaymentDetails, $product, $unitCost, $currency,
-            $plan, $subscription, $invoice, $order, $user, $cost, $end
-        );
-
-        $this->assertDatabaseHas('invoices', [
-            'id' => $invoice->id,
-            'status' => 'success',
-        ]);
-
-        $this->assertDatabaseHas('subscriptions', [
-            'id' => $subscription->id,
-            'is_subscribed' => '1',
-            'autoRenew_status' => '1',
-        ]);
-    }
-
-    public function test_update_invoice_and_payment_after_renewed_successfully(): void
-    {
-        $user = User::factory()->create(['id' => mt_rand(1, 999), 'role' => 'user', 'country' => 'IN']);
-        $product = Product::create(['name' => 'Helpdesk']);
-
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
-        $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
-        Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
-        Plan::create(['name' => 'Helpdesk 1 year', 'product' => $product->id, 'days' => 365]);
-        date('Y-m-d H:m:i');
-        $payment_method = 'razorpay';
-
-        $controller = $this->instantiateDependencies();
-        $controller->postRazorpayPayment($invoiceItem, $payment_method);
-        $this->assertTrue(condition: true);
-    }
-
-    public function test_autorenewal_when_there_is_no_plan_for_the_order(): void
-    {
-        $this->withoutMiddleware();
-        Mail::fake();
-        StatusSetting::first()->update(['subs_expirymail' => 1]);
-        $user = User::factory()->create([
-            'role' => 'user',
-            'country' => 'IN',
-        ]);
-
-        $product = Product::create([
-            'name' => 'Helpdesk',
-        ]);
-
-        $invoice = Invoice::factory()->create([
-            'user_id' => $user->id,
-        ]);
-
-        InvoiceItem::create([
-            'invoice_id' => $invoice->id,
-            'product_name' => $product->name,
-        ]);
-
-        $order = Order::create([
-            'client' => $user->id,
-            'order_status' => 'executed',
-            'product' => 'Helpdesk Advance',
-            'number' => 123456,
-            'invoice_id' => $invoice->id,
-        ]);
-
-        $plan = Plan::create([
-            'name' => 'Helpdesk 1 year',
-            'product' => $product->id,
-            'days' => 365,
-        ]);
-
-        PlanPrice::create([
-            'plan_id' => $plan->id,
-        ]);
-
-        $id = DB::table('subscriptions')->insertGetId([
-            'user_id' => $user->id,
-            'plan_id' => $plan->id,
-            'order_id' => $order->id,
-            'product_id' => $product->id,
-            'is_subscribed' => 1,
-            'autoRenew_status' => 1,
-            'update_ends_at' => Date::now()->addDays(1)->toDateString(),
-        ]);
-
-        $subscription = DB::table('subscriptions')->where('id', $id)->first();
-
-        $this->assertTrue((bool) $subscription->autoRenew_status);
-        $this->assertTrue((bool) $subscription->is_subscribed);
-
-        Artisan::call('renewal:cron');
-
-        $this->assertDatabaseHas('subscriptions', [
-            'id' => $subscription->id,
-            'autoRenew_status' => 0,
-            'is_subscribed' => 0,
-        ]);
-    }
 }

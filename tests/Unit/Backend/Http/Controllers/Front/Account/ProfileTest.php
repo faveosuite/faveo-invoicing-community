@@ -160,10 +160,9 @@ class ProfileTest extends DBTestCase
         $response = $this->call('POST', '2fa-recovery-code');
         $content = $response->json();
         $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'success', 'message']);
+        $response->assertJsonStructure(['success', 'data']);
         $this->assertEquals(expected: true, actual: $content['success']);
-        $this->assertTrue(strlen((string) $content['message']['code']) === 20);
+        $this->assertTrue(strlen($content['data']['code'][0]) === 20);
     }
 
     public function test_when_2fa_verify_password(): void
@@ -171,7 +170,7 @@ class ProfileTest extends DBTestCase
         $user = User::factory()->create(['password' => Hash::make('password')]);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $response = $this->call('GET', 'verify-password', ['user_password' => 'password', 'login_type' => 'login']);
+        $response = $this->call('POST', 'verify-password', ['user_password' => 'password', 'login_type' => 'login']);
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success', 'message']);
@@ -182,7 +181,7 @@ class ProfileTest extends DBTestCase
         $user = User::factory()->create(['password' => Hash::make('password')]);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $response = $this->call('GET', 'verify-password', ['user_password' => 'passwor', 'login_type' => 'login']);
+        $response = $this->call('POST', 'verify-password', ['user_password' => 'passwor', 'login_type' => 'login']);
         $content = $response->json();
         $response->assertStatus(400);
         $this->assertEquals('password_incorrect', $content['message']);

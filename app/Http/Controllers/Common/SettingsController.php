@@ -610,7 +610,7 @@ class SettingsController extends BaseSettingsController
                 'module' => $row->log_name ?? '—',
                 'event' => ucfirst($row->event ?? '—'),
                 'description' => $row->description ?? '—',
-                'detailed_properties' => $this->formatProperties($row->properties, $row->event),
+                'detailed_properties' => $this->formatProperties(is_array($row->properties) ? $row->properties : $row->properties->toArray(), $row->event),
                 'performed_by' => $row->first_name ? trim($row->first_name.' '.$row->last_name) : __('message.system'),
                 'performed_by_id' => $row->causer_id ?? null,
                 'email' => $row->email ?? '',
@@ -687,7 +687,9 @@ class SettingsController extends BaseSettingsController
                     $q->where('payment_logs.order', 'like', sprintf('%%%s%%', $searchString))
                         ->orWhere('payment_logs.status', 'like', sprintf('%%%s%%', $searchString))
                         ->orWhere('payment_logs.payment_method', 'like', sprintf('%%%s%%', $searchString))
-                        ->orWhere('payment_logs.from', 'like', sprintf('%%%s%%', $searchString));
+                        ->orWhere('payment_logs.from', 'like', sprintf('%%%s%%', $searchString))
+                        ->orWhereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", [sprintf('%%%s%%', $searchString)])
+                        ->orWhere('payment_logs.payment_type', 'like', sprintf('%%%s%%', $searchString));
                 });
             }
 

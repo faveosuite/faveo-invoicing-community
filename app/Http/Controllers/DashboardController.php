@@ -218,7 +218,7 @@ class DashboardController extends Controller
             ->orderBy('orders.created_at', 'desc')
             ->groupBy('products.id')
             ->get()->map(function ($element) {
-                $element->product_image = new Product()->getImageAttribute($element->product_image); // @phpstan-ignore method.notFound, property.notFound, property.notFound
+                $element->product_image = $element->product_image; // @phpstan-ignore property.notFound
                 $element->order_created_at = getTimeInLoggedInUserTimeZone($element->order_created_at); // @phpstan-ignore property.notFound, property.notFound
 
                 return $element;

@@ -225,11 +225,11 @@ class MSG91ControllerTest extends DBTestCase
         $this->createMsg91Log();
         $this->createMsg91Log();
 
-        $response = $this->getJson('/sms/reports');
+        $response = $this->getJson('/getMsgReports');
 
         $response->assertStatus(200)
             ->assertJsonFragment(['message' => __('message.msg91_reports_fetched')])
-            ->assertJsonCount(2, 'data.logs.data');
+            ->assertJsonCount(2, 'data.data');
     }
 
     public function test_get_msg91_logs_search_filter(): void
@@ -241,24 +241,24 @@ class MSG91ControllerTest extends DBTestCase
         ]);
 
         // Search by request_id
-        $response1 = $this->getJson('/sms/reports?search-query=REQ-123');
+        $response1 = $this->getJson('/getMsgReports?search-query=REQ-123');
         $response1->assertStatus(200)
-            ->assertJsonCount(1, 'data.logs.data');
+            ->assertJsonCount(1, 'data.data');
 
         // Search by user full name
-        $response2 = $this->getJson('/sms/reports?search-query=Test User');
+        $response2 = $this->getJson('/getMsgReports?search-query=Test User');
         $response2->assertStatus(200)
-            ->assertJsonCount(1, 'data.logs.data');
+            ->assertJsonCount(1, 'data.data');
 
         // Search by email
-        $response3 = $this->getJson('/sms/reports?search-query='.$user->email);
+        $response3 = $this->getJson('/getMsgReports?search-query='.$user->email);
         $response3->assertStatus(200)
-            ->assertJsonCount(1, 'data.logs.data');
+            ->assertJsonCount(1, 'data.data');
 
         // Search by status
-        $response4 = $this->getJson('/sms/reports?search-query=pending');
+        $response4 = $this->getJson('/getMsgReports?search-query=pending');
         $response4->assertStatus(200)
-            ->assertJsonCount(1, 'data.logs.data');
+            ->assertJsonCount(1, 'data.data');
     }
 
     public function test_msg91_filter_by_request_id(): void
@@ -267,11 +267,11 @@ class MSG91ControllerTest extends DBTestCase
         $this->createMsg91Log(['request_id' => 'REQ12345']);
         $this->createMsg91Log();
 
-        $response = $this->getJson('/sms/reports?request_id=REQ12345');
+        $response = $this->getJson('/getMsgReports?request_id=REQ12345');
 
         $response->assertStatus(200)
             ->assertJsonFragment(['request_id' => 'REQ12345'])
-            ->assertJsonCount(1, 'data.logs.data');
+            ->assertJsonCount(1, 'data.data');
     }
 
     public function test_msg91_filter_by_full_name(): void
@@ -282,11 +282,11 @@ class MSG91ControllerTest extends DBTestCase
         $this->createMsg91Log(['user_id' => $user->id]);
         $this->createMsg91Log();
 
-        $response = $this->getJson('/sms/reports?full_name=John Doe');
+        $response = $this->getJson('/getMsgReports?full_name=John Doe');
 
         $response->assertStatus(200)
             ->assertJsonFragment(['user_fullname' => 'John Doe'])
-            ->assertJsonCount(1, 'data.logs.data');
+            ->assertJsonCount(1, 'data.data');
     }
 
     public function test_msg91_filter_by_email(): void
@@ -295,7 +295,7 @@ class MSG91ControllerTest extends DBTestCase
         $user = User::factory()->create(['email' => 'john@example.com']);
         $this->createMsg91Log(['user_id' => $user->id]);
 
-        $response = $this->getJson('/sms/reports?email=john@example.com');
+        $response = $this->getJson('/getMsgReports?email=john@example.com');
 
         $response->assertStatus(200)
             ->assertJsonFragment(['user_email' => 'john@example.com']);
@@ -307,11 +307,11 @@ class MSG91ControllerTest extends DBTestCase
         $this->createMsg91Log(['mobile_number' => '7894561230', 'country_iso' => 'US']);
         $this->createMsg91Log(['mobile_number' => '9999999999', 'country_iso' => 'IN']); // excluded
 
-        $response = $this->getJson('/sms/reports?mobile_number=789456&country_iso=US');
+        $response = $this->getJson('/getMsgReports?mobile_number=789456&country_iso=US');
 
         $response->assertStatus(200)
             ->assertJsonFragment(['mobile_number' => '7894561230'])
-            ->assertJsonCount(1, 'data.logs.data');
+            ->assertJsonCount(1, 'data.data');
     }
 
     public function test_msg91_filter_by_failure_reason(): void
@@ -320,7 +320,7 @@ class MSG91ControllerTest extends DBTestCase
         $this->createMsg91Log(['failure_reason' => 'Route not found']);
         $this->createMsg91Log();
 
-        $response = $this->getJson('/sms/reports?failure_reason=Route');
+        $response = $this->getJson('/getMsgReports?failure_reason=Route');
 
         $response->assertStatus(200)
             ->assertJsonFragment(['failure_reason' => 'Route not found']);
@@ -335,10 +335,10 @@ class MSG91ControllerTest extends DBTestCase
         $log1->forceFill([
             'created_at' => Date::create(2025, 7, 12)->startOfDay(),
         ])->saveQuietly();
-        $response = $this->getJson('/sms/reports?log_from=2025-07-12&log_till=2025-07-12');
+        $response = $this->getJson('/getMsgReports?date_from=2025-07-12&date_to=2025-07-12');
 
         $response->assertStatus(200)
-            ->assertJsonCount(1, 'data.logs.data');
+            ->assertJsonCount(1, 'data.data');
     }
 
     public function test_msg91_filter_by_multiple_date_range(): void
@@ -357,10 +357,10 @@ class MSG91ControllerTest extends DBTestCase
             'created_at' => Date::create(2025, 10, 12)->startOfDay(),
         ])->saveQuietly();
 
-        $response = $this->getJson('/sms/reports?log_from=2025-07-12&log_till=2025-10-12');
+        $response = $this->getJson('/getMsgReports?date_from=2025-07-12&date_to=2025-10-12');
 
         $response->assertStatus(200)
-            ->assertJsonCount(3, 'data.logs.data');
+            ->assertJsonCount(3, 'data.data');
     }
 
     public function test_msg91_filter_by_without_give_till_date(): void
@@ -374,9 +374,9 @@ class MSG91ControllerTest extends DBTestCase
             'created_at' => Date::create(2025, 7, 12)->startOfDay(),
         ])->saveQuietly();
 
-        $response = $this->getJson('/sms/reports?log_from=2025-07-12');
+        $response = $this->getJson('/getMsgReports?date_from=2025-07-12');
         $response->assertStatus(200)
-            ->assertJsonCount(3, 'data.logs.data');
+            ->assertJsonCount(3, 'data.data');
     }
 
     public function test_msg91_filters_all_conditions_together(): void
@@ -406,13 +406,13 @@ class MSG91ControllerTest extends DBTestCase
             'email' => $user->email,
             'mobile_number' => '987654',
             'status' => 'Pending',
-            'log_from' => now()->subDays(2)->toDateString(),
-            'log_till' => now()->toDateString(),
+            'date_from' => now()->subDays(2)->toDateString(),
+            'date_to' => now()->toDateString(),
         ]);
 
-        $response = $this->getJson('/sms/reports?'.$qs);
+        $response = $this->getJson('/getMsgReports?'.$qs);
 
         $response->assertStatus(200)
-            ->assertJsonCount(2, 'data.logs.data');
+            ->assertJsonCount(2, 'data.data');
     }
 }

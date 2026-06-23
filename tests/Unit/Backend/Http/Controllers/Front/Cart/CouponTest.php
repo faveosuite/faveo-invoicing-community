@@ -2,172 +2,56 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Front\Cart;
 
-use App\Facades\Cart;
-use App\Http\Controllers\Payment\PromotionController;
-use App\Model\Order\Invoice;
-use App\Model\Payment\Plan;
-use App\Model\Payment\PlanPrice;
-use App\Model\Payment\PromoProductRelation;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Product\Product;
-use Exception;
+use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\DBTestCase;
 
 class CouponTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    public $cart;
-
     protected function setUp(): void
     {
         parent::setUp();
-        $this->cart = new Cart;
+        $this->withoutMiddleware();
     }
-
-    #[Group('coupon')]
-    // public function test_addCouponUpdate_whenCouponProvided()
-    // {
-    //     $this->withoutMiddleware();
-    //     $this->getLoggedInUser();
-    //     $user = $this->user;
-    //     $invoice = Invoice::factory()->create(['user_id'=>$user->id]);
-    //     $product = Product::factory()->create();
-
-    //     $promotionType = PromotionType::create(['name'=>'Fixed Amount']);
-    //     $promotion = Promotion::create(['code'=> 'FAVEOCOUPON',
-    //         'type'                            => $promotionType->id,
-    //         'uses'                            => '1',
-    //         'value'                           => '100',
-    //         'start'                           => '2018-06-30 00:00:00',
-    //         'expiry'                          => '2018-07-30 00:00:00',
-    //     ]);
-    //     \Cart::add([
-    //         'id'         => $product->id,
-    //         'name'       => $product->name,
-    //         'price'      => $invoice->grand_total,
-    //         'quantity'   => 1,
-    //         'attributes' => [],
-    //     ]);
-    //     $response = $this->call('POST', 'pricing/update', [
-    //     'coupon' => 'FAVEOCOUPON',
-    //     ]);
-    //     $response->assertStatus(302);
-    // }
-
-    #[Group('coupon')]
-    // public function test_checkCode_whenValidCouponProvided()
-    // {
-    //     $this->withoutMiddleware();
-    //     $this->getLoggedInUser();
-    //     $user = $this->user;
-    //     $currency = $user->currency;
-    //     $invoice = Invoice::factory()->create(['user_id'=>$user->id]);
-    //     $promotionTypeName = PromotionType::find(2);
-    //     $promotionType = $promotionTypeName->name;
-    //     $product = Product::factory()->create();
-    //     $promotion = Promotion::create(['code'=> 'FAVEOCOUPON',
-    //         'type'                            => $promotionTypeName->id,
-    //         'uses'                            => '100',
-    //         'value'                           => '100',
-    //         'start'                           => '2018-06-30 00:00:00',
-    //         'expiry'                          => '2019-07-30 00:00:00',
-    //     ]);
-
-    //     $promotion = PromoProductRelation::create(['promotion_id'=> $promotion->id,
-    //         'product_id'                                         => $product->id,
-    //     ]);
-    //     \Cart::add([
-    //         'id'         => $product->id,
-    //         'name'       => $product->name,
-    //         'price'      => $invoice->grand_total,
-    //         'quantity'   => 1,
-    //         'attributes' => [],
-    //     ]);
-    //     $controller = new \App\Http\Controllers\Payment\PromotionController();
-    //     $response = $controller->checkCode('FAVEOCOUPON', $product->id);
-    //     $this->assertEquals($response, 'success');
-    // }
 
     #[Group('coupon')]
     public function test_check_code_when_expired_coupon_provided(): void
     {
-        $this->expectException(Exception::class);
-        $this->withoutMiddleware();
+        $user = User::factory()->create();
+        $this->actingAs($user);
 
-        $this->getLoggedInUser();
-        $user = $this->user;
-        $currency = $user->currency;
-        Invoice::factory()->create(['user_id' => $user->id]);
-        $promotionTypeName = PromotionType::find(2);
+        $promotionType = PromotionType::first() ?? PromotionType::create(['name' => 'Fixed Amount']);
         $product = Product::factory()->create();
-        $promotion = Promotion::create(['code' => 'FAVEOCOUPON',
-            'type' => $promotionTypeName->id,
+        Promotion::create([
+            'code' => 'EXPIREDCOUPON',
+            'type' => $promotionType->id,
             'uses' => '100',
             'value' => '100',
             'start' => '2017-06-30 00:00:00',
             'expiry' => '2017-07-30 00:00:00',
-
-        ]);
-        $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
-        $currency = 'INR';
-        PromoProductRelation::create(['promotion_id' => $promotion->id,
-            'product_id' => $product->id,
         ]);
 
-        //        \Cart::add([
-        //            'id' => $product->id,
-        //            'name' => $product->name,
-        //            'price' => $invoice->grand_total,
-        //            'quantity' => 1,
-        //            'attributes' => [],
-        //        ]);
+        $response = $this->postJson('cart/coupon', ['code' => 'EXPIREDCOUPON']);
 
-        $this->cart->add(
-            $plan->id, $product->name,
-            1000,
-            1,
-            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-        );
-        $controller = new PromotionController;
-        $controller->checkCode('FAVEOCOUPON');
+        $response->assertStatus(422);
+        $response->assertJson(['success' => false]);
     }
 
     #[Group('coupon')]
     public function test_check_code_when_invalid_coupon_provided(): void
     {
-        $this->expectException(Exception::class);
-        $this->withoutMiddleware();
-        $this->getLoggedInUser();
-        $user = $this->user;
-        $currency = $user->currency;
-        Invoice::factory()->create(['user_id' => $user->id]);
-        $promotionTypeName = PromotionType::find(2);
-        $product = Product::factory()->create();
-        $promotion = Promotion::create(['code' => 'FAVEOCOUPON',
-            'type' => $promotionTypeName->id,
-            'uses' => '100',
-            'value' => '100',
-            'start' => '2018-06-30 00:00:00',
-            'expiry' => '2018-07-30 00:00:00',
-        ]);
+        $user = User::factory()->create();
+        $this->actingAs($user);
 
-        PromoProductRelation::create(['promotion_id' => $promotion->id,
-            'product_id' => $product->id,
-        ]);
-        $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
-        PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
-        $currency = 'INR';
-        $this->cart->add(
-            $plan->id, $product->name,
-            1000,
-            1,
-            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-        );
-        $controller = new PromotionController;
-        $controller->checkCode('FAVEOCOUPON123');
+        $response = $this->postJson('cart/coupon', ['code' => 'NONEXISTENTCODE99999']);
+
+        $response->assertStatus(422);
+        $response->assertJson(['success' => false]);
     }
 }

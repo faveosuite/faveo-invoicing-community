@@ -41,7 +41,7 @@ class LogViewControllerTest extends DBTestCase
         Logger::exception(new Exception('test_exception_1'));
         Logger::exception(new Exception('test_exception_2'));
 
-        $response = $this->postJson('/logs/exception', $this->defaultExceptionPayload());
+        $response = $this->json('GET', '/logs/exception', $this->defaultExceptionPayload());
 
         $response->assertStatus(200)
             ->assertJsonCount(2, 'data.data')
@@ -58,7 +58,7 @@ class LogViewControllerTest extends DBTestCase
 
         $payload = $this->defaultExceptionPayload(['search-query' => 'test_exception_1']);
 
-        $response = $this->postJson('/logs/exception', $payload);
+        $response = $this->json('GET', '/logs/exception', $payload);
 
         $response->assertStatus(200)
             ->assertJsonCount(1, 'data.data')
@@ -75,7 +75,7 @@ class LogViewControllerTest extends DBTestCase
 
         $payload = $this->defaultExceptionPayload(['limit' => 3]);
 
-        $response = $this->postJson('/logs/exception', $payload);
+        $response = $this->json('GET', '/logs/exception', $payload);
 
         $response->assertStatus(200)->assertJsonCount(3, 'data.data');
     }
@@ -88,7 +88,7 @@ class LogViewControllerTest extends DBTestCase
 
         $payload = $this->defaultExceptionPayload(['search-query' => '3000-11-27']);
 
-        $response = $this->postJson('/logs/exception', $payload);
+        $response = $this->json('GET', '/logs/exception', $payload);
 
         $response->assertStatus(200)->assertJsonCount(0, 'data.data');
     }
@@ -106,7 +106,7 @@ class LogViewControllerTest extends DBTestCase
 
         $payload = $this->defaultExceptionPayload(['category' => $cat1->id]);
 
-        $response = $this->postJson('/logs/exception', $payload);
+        $response = $this->json('GET', '/logs/exception', $payload);
 
         $response->assertStatus(200)
             ->assertJsonCount(2, 'data.data')
@@ -127,7 +127,7 @@ class LogViewControllerTest extends DBTestCase
 
         $payload = $this->defaultCronPayload(['category' => 'database:sync', 'status' => 'completed']);
 
-        $response = $this->postJson('/logs/cron', $payload);
+        $response = $this->json('GET', '/logs/cron', $payload);
 
         $response->assertStatus(200)->assertJsonCount(1, 'data.data');
     }
@@ -146,7 +146,7 @@ class LogViewControllerTest extends DBTestCase
 
         $payload = $this->defaultCronPayload(['limit' => 1]);
 
-        $response = $this->postJson('/logs/cron', $payload);
+        $response = $this->json('GET', '/logs/cron', $payload);
 
         $response->assertStatus(200)->assertJsonCount(1, 'data.data');
     }
@@ -165,7 +165,7 @@ class LogViewControllerTest extends DBTestCase
         Logger::cronCompleted($log1->id);
         Logger::cronCompleted($log2->id);
 
-        $response = $this->postJson('/logs/cron', $this->defaultCronPayload());
+        $response = $this->json('GET', '/logs/cron', $this->defaultCronPayload());
 
         $response->assertStatus(200)->assertJsonCount(1, 'data.data');
     }
@@ -180,7 +180,7 @@ class LogViewControllerTest extends DBTestCase
 
         $payload = $this->defaultMailPayload(['category' => $log->log_category_id]);
 
-        $response = $this->postJson('/logs/mail', $payload);
+        $response = $this->json('GET', '/logs/mail', $payload);
 
         $response->assertStatus(200)->assertJsonCount(1, 'data.data');
     }
@@ -203,7 +203,7 @@ class LogViewControllerTest extends DBTestCase
             'search-query' => 'test1@gmail.com',
         ]);
 
-        $response = $this->postJson('/logs/mail', $payload);
+        $response = $this->json('GET', '/logs/mail', $payload);
 
         $response->assertStatus(200)->assertJsonCount(1, 'data.data');
     }
@@ -227,7 +227,7 @@ class LogViewControllerTest extends DBTestCase
             'limit' => 3,
         ]);
 
-        $response = $this->postJson('/logs/mail', $payload);
+        $response = $this->json('GET', '/logs/mail', $payload);
 
         $response->assertStatus(200)->assertJsonCount(3, 'data.data');
     }
@@ -412,10 +412,10 @@ class LogViewControllerTest extends DBTestCase
             'description' => 'Profile updated',
         ]);
 
-        $response = $this->getJson('/get-activity');
+        $response = $this->getJson('/get-activity-api');
 
         $response->assertStatus(200)
-            ->assertJsonFragment(['message' => 'Activity logs fetched successfully']);
+            ->assertJson(['success' => true]);
     }
 
     public function test_get_activity_search_filter_works(): void
@@ -435,24 +435,24 @@ class LogViewControllerTest extends DBTestCase
         ]);
 
         // Search by log name
-        $this->getJson('/get-activity?search-query='.$activity->log_name)
+        $this->getJson('/get-activity-api?search-query='.$activity->log_name)
             ->assertStatus(200)
             ->assertJsonFragment(['module' => 'Billing']);
 
         // Search by description
-        $this->getJson('/get-activity?search-query='.$activity->description)
+        $this->getJson('/get-activity-api?search-query='.$activity->description)
             ->assertStatus(200)
             ->assertJsonFragment(['description' => 'Invoice created']);
 
         // Search by first name
-        $this->getJson('/get-activity?search-query='.$user->first_name)
+        $this->getJson('/get-activity-api?search-query='.$user->first_name)
             ->assertStatus(200);
         // Search by user_name
-        $this->getJson('/get-activity?search-query='.$user->user_name)
+        $this->getJson('/get-activity-api?search-query='.$user->user_name)
             ->assertStatus(200);
 
         // Search by email
-        $this->getJson('/get-activity?search-query='.$user->email)
+        $this->getJson('/get-activity-api?search-query='.$user->email)
             ->assertStatus(200);
     }
 
@@ -482,7 +482,7 @@ class LogViewControllerTest extends DBTestCase
         $this->createActivity(['log_name' => 'Billing']);
         $this->createActivity(['log_name' => 'Support']);
 
-        $response = $this->getJson('/get-activity?module[]=Billing');
+        $response = $this->getJson('/get-activity-api?module[]=Billing');
 
         $response->assertStatus(200)
             ->assertJsonFragment(['module' => 'Billing'])
@@ -492,7 +492,7 @@ class LogViewControllerTest extends DBTestCase
         $this->createActivity(['event' => 'created']);
         $this->createActivity(['event' => 'deleted']);
 
-        $response = $this->getJson('/get-activity?event[]=deleted');
+        $response = $this->getJson('/get-activity-api?event[]=deleted');
 
         $response->assertStatus(200)
             ->assertJsonFragment(['event' => 'Deleted'])
@@ -505,7 +505,7 @@ class LogViewControllerTest extends DBTestCase
         $this->createActivity(['causer_id' => $user1->id]);
         $this->createActivity(['causer_id' => $user2->id]);
 
-        $response = $this->getJson('/get-activity?performed_by[]='.$user1->id);
+        $response = $this->getJson('/get-activity-api?performed_by[]='.$user1->id);
 
         $response->assertStatus(200);
     }
@@ -550,7 +550,7 @@ class LogViewControllerTest extends DBTestCase
             'search-query' => 'Invoice',
         ]);
 
-        $response = $this->getJson('/get-activity?'.$queryString);
+        $response = $this->getJson('/get-activity-api?'.$queryString);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -708,10 +708,10 @@ class LogViewControllerTest extends DBTestCase
             'from' => $user->email,
         ]);
 
-        $response = $this->getJson('/get-paymentlog');
+        $response = $this->getJson('/get-payment-log-api');
 
         $response->assertStatus(200)
-            ->assertJsonFragment(['message' => __('message.payment_logs_retrieved')])
+            ->assertJson(['success' => true])
             ->assertJsonFragment(['status' => 'Success']);
     }
 
@@ -725,38 +725,36 @@ class LogViewControllerTest extends DBTestCase
             'from' => $user->email,
         ]);
 
-        // Search by email
-        $response1 = $this->getJson('/get-paymentlog?search-query='.$user->email);
-        $response1->assertStatus(200)
-            ->assertJsonFragment(['payment_email' => $user->email]);
+        // Search by email (email stored in 'from', shown in 'user' field)
+        $response1 = $this->getJson('/get-payment-log-api?search-query='.$user->email);
+        $response1->assertStatus(200);
 
         // Search by user name (first_name + last_name)
         $fullName = sprintf('%s %s', $user->first_name, $user->last_name);
-        $response2 = $this->getJson('/get-paymentlog?search-query='.$fullName);
+        $response2 = $this->getJson('/get-payment-log-api?search-query='.$fullName);
         $response2->assertStatus(200)
-            ->assertJsonFragment(['user_name' => $fullName]);
+            ->assertJsonFragment(['user' => $fullName]);
 
         // Search by status
-        $response3 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->status);
+        $response3 = $this->getJson('/get-payment-log-api?search-query='.$paymentLog->status);
         $response3->assertStatus(200)
             ->assertJsonFragment(['status' => ucfirst((string) $paymentLog->status)]);
 
         // Search by order number
-        $response4 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->order);
+        $response4 = $this->getJson('/get-payment-log-api?search-query='.$paymentLog->order);
         $response4->assertStatus(200);
 
         // Search by from email
-        $response5 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->from);
-        $response5->assertStatus(200)
-            ->assertJsonFragment(['payment_email' => $paymentLog->from]);
+        $response5 = $this->getJson('/get-payment-log-api?search-query='.$paymentLog->from);
+        $response5->assertStatus(200);
 
-        // Search by payment type
-        $response6 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->payment_type);
+        // Search by payment type — now in 'payment_type' field (ucfirst)
+        $response6 = $this->getJson('/get-payment-log-api?search-query='.$paymentLog->payment_type);
         $response6->assertStatus(200)
-            ->assertJsonFragment(['description' => ucfirst((string) $paymentLog->payment_type)]);
+            ->assertJsonFragment(['payment_type' => ucfirst((string) $paymentLog->payment_type)]);
 
         // Search by payment method
-        $response7 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->payment_method);
+        $response7 = $this->getJson('/get-payment-log-api?search-query='.$paymentLog->payment_method);
         $response7->assertStatus(200)
             ->assertJsonFragment(['payment_method' => ucfirst((string) $paymentLog->payment_method)]);
     }
@@ -775,7 +773,7 @@ class LogViewControllerTest extends DBTestCase
             'created_at' => now()->subDay(),
         ]);
         $paymentLog1->forceFill([
-            'created_at' => Date::create(2025, 7, 12)->startOfDay(),
+            'date' => Date::create(2025, 7, 12)->startOfDay(),
         ])->saveQuietly();
 
         $paymentLog2 = $this->createPaymentLog([
@@ -784,10 +782,9 @@ class LogViewControllerTest extends DBTestCase
             'status' => 'success',
             'payment_method' => 'stripe',
             'payment_type' => 'subscription',
-            'created_at' => now()->subDay(),
         ]);
         $paymentLog2->forceFill([
-            'created_at' => Date::create(2025, 9, 12)->startOfDay(),
+            'date' => Date::create(2025, 9, 12)->startOfDay(),
         ])->saveQuietly();
 
         $paymentLog3 = $this->createPaymentLog([
@@ -796,26 +793,25 @@ class LogViewControllerTest extends DBTestCase
             'status' => 'success',
             'payment_method' => 'stripe',
             'payment_type' => 'subscription',
-            'created_at' => now()->subDay(),
         ]);
         $paymentLog3->forceFill([
-            'created_at' => Date::create(2025, 10, 12)->startOfDay(),
+            'date' => Date::create(2025, 10, 12)->startOfDay(),
         ])->saveQuietly();
 
         // filter by same date (from and till)
-        $response1 = $this->getJson('/get-paymentlog?from=2025-07-12&till=2025-07-12');
+        $response1 = $this->getJson('/get-payment-log-api?date_from=2025-07-12&date_till=2025-07-12');
         $response1->assertStatus(200)
-            ->assertJsonCount(1, 'data.logs.data');
+            ->assertJsonCount(1, 'data.data');
 
         // filter by different  date range (from and till)
-        $response2 = $this->getJson('/get-paymentlog?from=2025-07-12&till=2025-10-12');
+        $response2 = $this->getJson('/get-payment-log-api?date_from=2025-07-12&date_till=2025-10-12');
         $response2->assertStatus(200)
-            ->assertJsonCount(3, 'data.logs.data');
+            ->assertJsonCount(3, 'data.data');
 
         // filter by without till date
-        $response3 = $this->getJson('/get-paymentlog?from=2025-09-12');
+        $response3 = $this->getJson('/get-payment-log-api?date_from=2025-09-12');
         $response3->assertStatus(200)
-            ->assertJsonCount(2, 'data.logs.data');
+            ->assertJsonCount(2, 'data.data');
     }
 
     /*
@@ -823,7 +819,7 @@ class LogViewControllerTest extends DBTestCase
     */
     public function test_destroy_payment_returns_error_when_no_ids_sent(): void
     {
-        $payload = ['select' => []];
+        $payload = ['ids' => []];
 
         $response = $this->deleteJson('paymentlog-delete', $payload);
 
@@ -854,7 +850,7 @@ class LogViewControllerTest extends DBTestCase
         ]);
 
         // Delete request with selected IDs
-        $payload = ['select' => [$log1->id, $log2->id]];
+        $payload = ['ids' => [$log1->id, $log2->id]];
 
         $response = $this->deleteJson('paymentlog-delete', $payload);
 

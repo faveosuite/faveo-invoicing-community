@@ -27,14 +27,12 @@ class SettingsControllerTest extends DBTestCase
         $this->app->instance(Html::class, $this->html);
     }
 
-    /**
-     * A basic unit test example.
-     */
     public function test_validation_when_company_not_given(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
-        $response = $this->patch('/settings/system', [
+        $this->withoutMiddleware();
+        $response = $this->patchJson('settings/system-data', [
             'company' => '',
             'company_email' => 'demo@gmail.com',
             'website' => 'https://lws.com',
@@ -44,43 +42,45 @@ class SettingsControllerTest extends DBTestCase
             'default_currency' => 'USD',
             'country' => 'IN',
         ]);
-        session('errors');
-        $response->assertStatus(302);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['company']);
     }
 
     public function test_returns_mobile_verification_details(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
-        $apikey = ApiKey::factory()->create([
+        $this->withoutMiddleware();
+        ApiKey::factory()->create([
             'msg91_auth_key' => 'dummy_auth_key',
             'msg91_sender' => 'dummy_sender',
             'msg91_template_id' => 'dummy_template',
         ]);
-        $methodResponse = $this->getPrivateMethod($this->classObject, 'mobileVerification', [$apikey]);
-        $this->assertNotEmpty($methodResponse->content());
+        $response = $this->getJson('/settings/msg91');
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['success', 'data']);
     }
 
     public function test_returns_terms_url_from_apikeys(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
-        $apiKey = ApiKey::factory()->create([
-            'terms_url' => 'https://example.com/terms',
-        ]);
-        $methodResponse = $this->getPrivateMethod($this->classObject, 'termsUrl', [$apiKey]);
-        $this->assertNotEmpty($methodResponse->content());
+        $this->withoutMiddleware();
+        ApiKey::factory()->create(['terms_url' => 'https://example.com/terms']);
+        $response = $this->getJson('/settings/terms');
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['success', 'data']);
     }
 
     public function test_returns_pipedrive_api_key(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
-        $apiKey = ApiKey::factory()->create([
-            'pipedrive_api_key' => 'fake-pipedrive-key-123',
-        ]);
-        $methodResponse = $this->getPrivateMethod($this->classObject, 'pipedrivekeys', [$apiKey]);
-        $this->assertNotEmpty($methodResponse->content());
+        $this->withoutMiddleware();
+        ApiKey::factory()->create(['pipedrive_api_key' => 'fake-pipedrive-key-123']);
+        $response = $this->getJson('/settings/pipedrive');
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['success', 'data']);
     }
 
     public function test_get_email_data(): void
@@ -88,12 +88,9 @@ class SettingsControllerTest extends DBTestCase
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        EmailMobileValidationProviders::where('provider', 'reoon')->update(['to_use' => 1, 'api_key' => 'dummy_api_key', 'mode' => 'quick']);
-        $response = $this->call('post', 'emailData', ['value' => 'reoon']);
+        $response = $this->getJson('settings/email-validation');
         $response->assertStatus(200);
-
-        $content = $response->original;
-        $this->assertEquals(expected: true, actual: $content['success']);
+        $response->assertJson(['success' => true]);
     }
 
     public function test_get_mobile_data(): void
@@ -101,13 +98,9 @@ class SettingsControllerTest extends DBTestCase
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        EmailMobileValidationProviders::where('provider', 'vonage')->update(['to_use' => 1, 'api_key' => 'dummy_api_key',
-            'mode' => 'standard', 'api_secret' => 'dummy_api_secret']);
-        $response = $this->call('post', 'mobileData', ['value' => 'vonage']);
+        $response = $this->getJson('settings/mobile-validation');
         $response->assertStatus(200);
-
-        $content = $response->original;
-        $this->assertEquals(expected: true, actual: $content['success']);
+        $response->assertJson(['success' => true]);
     }
 
     public function test_when_api_key_is_wrong(): void
@@ -115,10 +108,11 @@ class SettingsControllerTest extends DBTestCase
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $response = $this->call('post', 'email-settings-save', ['apikey' => 'dummy_api_key']);
-        $content = $response->original;
-        $this->assertEquals(expected: false, actual: $content['success']);
-        $this->assertEquals('Please enter a valid Reoon Api key.', $content['message']);
+        \Illuminate\Support\Facades\Http::fake([
+            'emailverifier.reoon.com/*' => \Illuminate\Support\Facades\Http::response(['status' => 'error'], 200),
+        ]);
+        $response = $this->postJson('email-settings-save', ['apikey' => 'dummy_api_key']);
+        $response->assertJson(['success' => false]);
     }
 
     public function test_post_contact_option_successfully_updates_settings(): void
@@ -177,12 +171,12 @@ class SettingsControllerTest extends DBTestCase
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $status = 1;
-        $product = Product::factory()->create(['name' => 'good']);
+        $product = Product::factory()->create(['name' => 'good', 'hidden' => 0]);
         $plan = Plan::factory()->create();
-        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => 12345, 'trial_status' => $status]);
-        $response = $this->post('trial-cloud-products');
-        $content = $response->getContent();
-        $this->assertEquals('{"success":true,"message":"Products","data":{"12345":"good"}}', $content);
+        CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => 12345, 'trial_status' => 1]);
+        $response = $this->getJson('store/cloud-products');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $response->assertJsonStructure(['data' => ['products']]);
     }
 }

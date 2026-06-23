@@ -32,7 +32,7 @@ class WhatsappController extends Controller
 
     protected string $api_version;
 
-    protected string $endpoint;
+    protected array $endpoint;
 
     public function __construct()
     {

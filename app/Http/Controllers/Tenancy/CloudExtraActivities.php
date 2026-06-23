@@ -72,7 +72,7 @@ class CloudExtraActivities extends Controller
 
     private function daysRemaining(string $ends_at): int
     {
-        return $this->daysRemaining($ends_at);
+        return (int) Date::now()->diffInDays(Date::parse($ends_at), absolute: false);
     }
 
     private function isExpired(string $ends_at): bool
@@ -321,7 +321,7 @@ class CloudExtraActivities extends Controller
             $invoiceCtrl->createInvoiceItemsByAdmin(
                 $invoice->id, $productNew->id, $price, $currencyNew,
                 1, $agents, $planId, $user->id,
-                $tax['name'], $tax['value'], $price // @phpstan-ignore argument.type
+                $tax['name'], (float) $tax['value'], $price // @phpstan-ignore argument.type
             );
 
             return successResponse('success', ['invoice_id' => $invoice->id]);

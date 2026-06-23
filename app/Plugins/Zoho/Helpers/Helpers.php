@@ -38,12 +38,11 @@ function zohoMappedFields(
 
         if ($selected !== null && $selected['type'] === 'local') {
             $updateKey = $mapping->faveoLocalField->field_key;
-            $value = data_get($source, $updateKey, $mapping->default_value);
-        }
-
-        $value = null;
-        if ($selected !== null && $selected['type'] === 'zoho') {
+            $value = data_get($source, $updateKey, $mapping->default_value ?? null);
+        } elseif ($selected !== null && $selected['type'] === 'zoho') {
             $value = json_decode((string) $selected['value'], associative: true)['value'] ?? null;
+        } else {
+            $value = null;
         }
 
         if ($value === null) {
