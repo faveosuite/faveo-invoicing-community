@@ -148,7 +148,7 @@ async function subscribeNewsletter() {
             return
         }
         const baseUrl = el?.dataset?.baseUrl ?? ''
-        const res = await http.post(`${baseUrl}/mail-chimp/subscribe`, { email: newsletterEmail.value, ...captchaPayload })
+        const res = await http.post(`${baseUrl}/newsletter/subscribe`, { newsletterEmail: newsletterEmail.value, ...captchaPayload })
         newsletterSuccess.value = true
         newsletterCaptchaRef.value?.reset()
         alertStore.setAlert({

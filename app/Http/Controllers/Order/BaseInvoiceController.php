@@ -99,40 +99,6 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
         return null;
     }
 
-    public function postPayment(int $invoiceid, Request $request): RedirectResponse
-    {
-        $this->validate($request, [
-            'payment_method' => 'required',
-            'amount' => 'required|numeric',
-            'payment_date' => 'required|date_format:Y-m-d',
-        ],
-            [
-                'payment_method.required' => __('validation.payment.payment_method_required'),
-                'amount.required' => __('validation.payment.amount_required'),
-                'amount.numeric' => __('validation.amt_numeric'),
-                'payment_date.required' => __('validation.payment.payment_date_required'),
-                'payment_date.date_format' => __('message.payment-date-format'),
-            ]);
-
-        try {
-            $payment_method = $request->input('payment_method');
-            $payment_status = 'success';
-            $payment_date = $request->input('payment_date');
-            $amount = $request->input('amount');
-            $payment = $this->updateInvoicePayment( // @phpstan-ignore method.notFound
-                $invoiceid,
-                $payment_method,
-                $payment_status,
-                $payment_date,
-                $amount
-            );
-
-            return back()->with('success', __('message.payment_accepted_succcessfully'));
-        } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
-        }
-    }
-
     public function domain(string $id): ?string
     {
         try {

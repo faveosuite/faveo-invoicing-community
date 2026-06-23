@@ -48,7 +48,7 @@ class CloudExtraActivities extends Controller
     public function __construct(Client $client, FaveoCloud $cloud) // @phpstan-ignore constructor.unusedParameter
     {
         $this->cloud = $cloud->first();
-        $this->middleware('auth', ['except' => ['verifyThirdPartyToken', 'storeTenantTillPurchase']]);
+        $this->middleware('auth', ['except' => ['verifyThirdPartyToken']]);
     }
 
     /**
@@ -98,20 +98,6 @@ class CloudExtraActivities extends Controller
         $company = substr(strtolower(str_replace(' ', '', $company)), 0, 28);
 
         return response()->json(['data' => $company]);
-    }
-
-    public function orderDomainCloudAutofill(Request $request): JsonResponse
-    {
-        $order = Order::find($request->orderId);
-        if (! $order instanceof Order) {
-            return successResponse('', ['url' => '']);
-        }
-        $path = Installation::where('license_code', $order->serial_key)
-            ->where('installation_path', '!=', cloudCentralDomain())
-            ->latest('updated_at')
-            ->value('installation_path');
-
-        return successResponse('', ['url' => $path ?? '']);
     }
 
     /**
@@ -858,11 +844,6 @@ class CloudExtraActivities extends Controller
         return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => $discount];
     }
 
-    public function processFormat(Request $request): string
-    {
-        return currencyFormat($request->get('totalPrice'), getCurrencyForClient($this->authUser()->country), includeSymbol: true);
-    }
-
     /**
      * @return array<mixed>
      */
@@ -917,24 +898,6 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    public function storeTenantTillPurchase(Request $request): JsonResponse
-    {
-        $request->validate(['domain' => ['required', 'alpha_num']]);
-
-        // @phpstan-ignore booleanNot.alwaysFalse (checkDomain returns object but may represent a falsy API response)
-        if (! $this->checkDomain($request->input('domain'))) {
-            return response()->json(['status' => false, 'message' => trans('message.domain_taken')]);
-        }
-
-        resolve(CartService::class)->addItem($request, [
-            'product_id' => $request->input('id'),
-            'plan_id' => $request->input('subscription'),
-            'domain' => $request->input('domain') ? $request->input('domain').'.'.cloudSubDomain() : null,
-        ]);
-
-        return response()->json(['redirectTo' => url('/show/cart')]);
-    }
-
     public function checkDomain(string $domain): object
     {
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->first(['app_key', 'app_secret']);
@@ -986,14 +949,6 @@ class CloudExtraActivities extends Controller
 
             return errorResponse(is_array($msg) ? '' : $msg);
         }
-    }
-
-    public function trialCloudProducts(): JsonResponse
-    {
-        $cloud = CloudProducts::where('trial_status', '1')->with('product')->get();
-        $product = $cloud->pluck('product.name', 'cloud_product_key')->filter()->all();
-
-        return successResponse('Products', $product);
     }
 
     public function DeleteProductConfig(Request $request): JsonResponse

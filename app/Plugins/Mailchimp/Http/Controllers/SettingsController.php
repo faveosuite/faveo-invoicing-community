@@ -270,22 +270,4 @@ class SettingsController extends Controller
         return successResponse(__('message.updated-successfully'));
     }
 
-    // ── Newsletter widget subscribe (client panel) ────────────────────────────
-
-    public function subscribeFromWidget(Request $request): JsonResponse
-    {
-        $request->validate(['newsletterEmail' => ['required', 'email']]);
-
-        try {
-            resolve(MailchimpService::class)->subscribeEmail($request->input('newsletterEmail'));
-
-            return successResponse(__('message.email_added_to_mailchimp'));
-        } catch (MailchimpApiException $mailchimpApiException) {
-            if ($mailchimpApiException->isMemberExists()) {
-                return errorResponse(__('message.member_exist'));
-            }
-
-            return errorResponse($mailchimpApiException->getMessage());
-        }
-    }
 }

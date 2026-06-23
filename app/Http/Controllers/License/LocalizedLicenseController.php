@@ -27,7 +27,7 @@ class LocalizedLicenseController extends Controller
     public function __construct(protected InstallationService $installationService)
     {
         $this->middleware('auth');
-        $this->middleware('admin', ['except' => ['downloadFile', 'downloadPrivate', 'storeFile']]);
+        $this->middleware('admin', ['except' => ['downloadFile', 'downloadPrivate']]);
     }
 
     /**
@@ -167,67 +167,6 @@ class LocalizedLicenseController extends Controller
     }
 
     /**
-     * Stores the license file after the client has entered a domain and downloads the license.
-     * */
-    public function storeFile(LocalizedLicenseRequest $request): RedirectResponse
-    {
-        if (Auth::check()) {
-            $userID = $request->input('userId');
-            if (! empty($userID) && ! empty(Auth::user()->id)) {
-                $domain = $request->input('domain');
-                $orderNo = $request->input('orderNo');
-                $licenseCode = Order::where('number', $orderNo)->value('serial_key');
-                $id = Order::where('number', $orderNo)->value('id');
-                $productId = DB::table('subscriptions')->where('order_id', $id)->value('product_id');
-                $Latestversion = DB::table('product_uploads')->where('product_id', $productId)->latest()->value('version');
-
-                $licenseExpiry = DB::table('subscriptions')->where('order_id', $id)->value('ends_at');
-                $updatesExpiry = DB::table('subscriptions')->where('order_id', $id)->value('update_ends_at');
-                $supportExpiry = DB::table('subscriptions')->where('order_id', $id)->value('support_ends_at');
-                if (Date::parse($licenseExpiry)->format('Y-m-d') < 1) {
-                    $licenseExpiry = '--';
-                } else {
-                    $licenseExpiry = Date::parse($licenseExpiry)->format('Y-m-d');
-                }
-
-                if (Date::parse($updatesExpiry)->format('Y-m-d') < 1) {
-                    $updatesExpiry = '--';
-                } else {
-                    $updatesExpiry = Date::parse($updatesExpiry)->format('Y-m-d');
-                }
-
-                if (Date::parse($supportExpiry)->format('Y-m-d') < 1) {
-                    $supportExpiry = '--';
-                } else {
-                    $supportExpiry = Date::parse($supportExpiry)->format('Y-m-d');
-                }
-
-                Installation::updateOrCreate(
-                    ['license_code' => $licenseCode, 'installation_domain' => $domain],
-                    ['installation_path' => $domain, 'version' => $Latestversion, 'installation_status' => 1]
-                );
-                $this->localizedLicenseInstallLM($orderNo);
-
-                $userData = '<root_url>'.$domain.'</root_url><license_code>'.$licenseCode.'</license_code><license_expiry>'.$licenseExpiry.'</license_expiry><updates_expiry>'.$updatesExpiry.'</updates_expiry><support_expiry>'.$supportExpiry.'</support_expiry>';
-
-                $encrypt = new EncryptDecryptController;
-                $encryptData = $encrypt->encrypt($userData, $orderNo);
-
-                $fileName = 'faveo-license-{'.$orderNo.'}.txt';
-                Storage::disk('public')->put($fileName, $encryptData);
-
-                $link = $this->tempOrderLink($orderNo, $userID);
-
-                return Redirect::to($link);
-            }
-
-            return redirect(url('login'));
-        }
-
-        return redirect(url('login'));
-    }
-
-    /**
      * Generates a temporary link to download the license file with a time constraint.
      * */
     public function tempOrderLink(string $orderNo, int $userID): string|RedirectResponse
@@ -290,16 +229,6 @@ class LocalizedLicenseController extends Controller
        @fclose($handle);
        return redirect()->back()->with('success', Lang::get('License data is updated'.$orderNo));
     }*/
-
-    /**
-     * Deletes the license file.
-     * */
-    public function deleteFile(string $fileName): RedirectResponse
-    {
-        Storage::disk('public')->delete($fileName);
-
-        return back()->with('success', Lang::get('message.license_file_deleted', ['file' => $fileName]));
-    }
 
     // return an array with license data
     /**

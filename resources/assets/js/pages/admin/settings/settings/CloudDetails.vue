@@ -139,6 +139,16 @@
                         <div class="card card-light">
                             <div class="card-header">
                                 <h4 class="card-title">{{ __('message.tenants') }}</h4>
+                                <div class="card-tools">
+                                    <button
+                                        class="btn btn-tool"
+                                        v-tooltip="__('message.export')"
+                                        :disabled="exportingTenants"
+                                        @click="exportTenants"
+                                    >
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <DataTable
@@ -146,7 +156,17 @@
                                     :url="`${baseUrl}/get-tenants`"
                                     :dataColumns="tenantColumns"
                                     :option="tenantTableOptions"
-                                />
+                                >
+                                    <template #table-tools>
+                                        <ColumnSelector
+                                            entityType="tenats"
+                                            :labels="tenantColumnLabels"
+                                            :pinStart="[]"
+                                            componentName="cloud-details"
+                                            @change="onTenantColumnsChange"
+                                        />
+                                    </template>
+                                </DataTable>
                             </div>
                         </div>
                     </div>
@@ -265,6 +285,7 @@ import TextField from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { cloudSettingsSchema, cloudProductSchema } from '@/validations/admin/cloudValidations'
+import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
 
 const COMPONENT = 'cloud-details'
 const el        = document.getElementById('app-root')
@@ -527,16 +548,69 @@ const productTableOptions = reactive({
 // ── Tenants DataTable ─────────────────────────────────────────────────────────
 
 const tenantDtRef = ref(null)
+const exportingTenants = ref(false)
+
+async function exportTenants() {
+    if (exportingTenants.value) return
+    exportingTenants.value = true
+    try {
+        const res = await http.get(`${baseUrl}/export-tenats`)
+        successHandler(res, COMPONENT)
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        exportingTenants.value = false
+    }
+}
 
 function confirmDeleteTenant(tenantId, orderNumber) {
     pendingDeleteTenant.value = { tenantId, orderNumber }
 }
 
-const tenantColumns = [
+// report_columns.key (type 'tenats') ↔ DataTable column names
+const TENANT_REPORT_TO_COL = {
+    Order:          'order',
+    name:           'user',
+    email:          'email',
+    mobile:         'mobile',
+    country:        'country',
+    'Expiry day':   'expiry',
+    'Deletion day': 'deletion',
+    plan:           'plan',
+    tenants:        'tenant',
+    domain:         'domain',
+    db_name:        'db_name',
+    db_username:    'db_username',
+    action:         'action',
+}
+
+const tenantColumnLabels = {
+    Order:          __('message.order'),
+    name:           __('message.user'),
+    email:          __('message.email'),
+    mobile:         __('message.mobile'),
+    country:        __('message.country'),
+    'Expiry day':   __('message.expiry_day'),
+    'Deletion day': __('message.deletion_day'),
+    plan:           __('message.plan_status'),
+    tenants:        __('message.tenant'),
+    domain:         __('message.admin_domain'),
+    db_name:        __('message.db_name'),
+    db_username:    __('message.db_username'),
+}
+
+const DEFAULT_TENANT_COLUMNS = [
     'order', 'user', 'email', 'mobile', 'country',
     'expiry', 'deletion', 'plan', 'tenant', 'domain',
     'db_name', 'db_username', 'action',
 ]
+
+const tenantColumns = ref([...DEFAULT_TENANT_COLUMNS])
+
+function onTenantColumnsChange(reportKeys) {
+    const mapped = reportKeys.map(k => TENANT_REPORT_TO_COL[k]).filter(Boolean)
+    tenantColumns.value = mapped.length ? mapped : [...DEFAULT_TENANT_COLUMNS]
+}
 
 const tenantTableOptions = reactive({
     headings: {

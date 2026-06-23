@@ -163,8 +163,6 @@ Route::middleware('installAgora')->group(function (): void {
 
     // 2FA — login-time validation
     Route::middleware(['blockFailedVerifications:2fa', 'session.timeout:10,2fa'])->group(function (): void {
-        Route::get('2fa/session-check', [Google2FAController::class, 'verifySession'])->name('2fa.session.check');
-        Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
         Route::get('verify-2fa', [Google2FAController::class, 'verify2fa']);
         Route::get('auth/2fa-check', [Google2FAController::class, 'verify2fa']);
         Route::post('2fa/loginValidate', [Google2FAController::class, 'postLoginValidateToken'])->name('2fa/loginValidate');
@@ -180,8 +178,6 @@ Route::middleware('installAgora')->group(function (): void {
     });
     Route::post('2fa/disable/{userId?}', [Google2FAController::class, 'disableTwoFactor']);
     Route::post('verify-password', [Google2FAController::class, 'verifyPassword']);
-    Route::get('get-recovery-code', [Google2FAController::class, 'getRecoveryCode']);
-    Route::post('verify-2fa-admin', [Google2FAController::class, 'postSetupValidateToken'])->name('verify.2fa.admin');
 
     // OTP / email verification
     Route::middleware(['blockFailedVerifications:verify', 'session.timeout:10,verify'])->group(function (): void {
@@ -255,8 +251,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('client-dashboard-details', [ClientController::class, 'clientDetails']);
 
     // --- Store / Public pages (withoutMiddleware so guests can browse) ---
-    Route::get('pricing/data', [HomeController::class,     'getPricingData']);
-    Route::get('group/data', [HomeController::class,     'getGroupDatails']);
     Route::get('store/groups', [StoreController::class, 'getGroups'])->name('store.groups');
     Route::get('store/{groupId}/products', [StoreController::class, 'getProducts'])
         ->where('groupId', '[0-9]+')
@@ -293,10 +287,8 @@ Route::middleware('installAgora')->group(function (): void {
             ->middleware('throttle:20,1');
         Route::post('webhook/stripe', [PaymentController::class, 'stripeWebhook'])->name('webhook.stripe');
         Route::post('webhook/razorpay', [PaymentController::class, 'razorpayWebhook'])->name('webhook.razorpay');
-        Route::get('stripe/callback', [OpenPaymentController::class, 'handleStripeCallback'])->name('open-payment.stripe.callback');
         // Admin-only open-payment views
         Route::get('list', [OpenPaymentController::class, 'listOrders'])->name('open-payment.list');
-        Route::get('admin/{id}', [OpenPaymentController::class, 'getOrder'])->name('open-payment.admin.get');
     });
 
     // DB-backed shopping cart (Vue SPA)
@@ -316,8 +308,7 @@ Route::middleware('installAgora')->group(function (): void {
 
     // --- Invoices (client) ---
     Route::get('get-my-invoices', [ClientController::class, 'getInvoices'])->name('get-my-invoices');
-    Route::get('paynow/{id}', [ClientController::class, 'payNow'])->middleware(['auth']);
-    Route::post('store-basic-details', [LoginController::class, 'storeBasicDetails'])->name('store-basic-details');
+
 
     // --- Orders (client) ---
     Route::get('get-my-orders', [ClientController::class, 'getClientOrder'])->name('get-my-orders');
@@ -329,14 +320,10 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('get-versions/{orderid}', [ClientController::class, 'getVersionList'])->name('get-versions');
 
     // --- Renew (client) ---
-    Route::post('renew/{id}', [RenewController::class, 'renew']);
     Route::get('get-renew-cost', [RenewController::class, 'getCost']);
     Route::post('client/renew/{id}', [RenewController::class, 'renewByClient']);
-    Route::get('autopaynow/{id}', [ClientController::class, 'autoRenewbyid']);
 
     // --- Payments (client) ---
-    Route::post('payment/{invoice}', [RazorpayController::class,    'payment'])->name('payment');
-    Route::get('confirm/payment', [RazorpayController::class,    'afterPayment']);
     Route::middleware('auth')->group(function (): void {
         Route::get('invoice/{invoice}/pay-init', [PaymentController::class, 'payInit'])->name('invoice.pay.init');
         Route::get('invoice/{invoice}/pay-success', [PaymentController::class, 'paySuccess'])->name('invoice.pay.success');
@@ -369,15 +356,11 @@ Route::middleware('installAgora')->group(function (): void {
     Route::post('profile/mobile/verify-otp', [ProfileVerificationController::class, 'verifyMobileOtp']);
 
     // --- Cloud (client self-service) ---
-    Route::post('trial-cloud-products', [CloudExtraActivities::class, 'trialCloudProducts']);
-    Route::post('create/tenant/purchase', [CloudExtraActivities::class, 'storeTenantTillPurchase']);
     Route::post('get-cloud-upgrade-cost', [CloudExtraActivities::class, 'getUpgradeCost']);
     Route::post('changeAgents', [CloudExtraActivities::class, 'agentAlteration']);
     Route::post('upgradeDowngradeCloud', [CloudExtraActivities::class, 'upgradeDowngradeCloud']);
-    Route::get('processFormat', [CloudExtraActivities::class, 'processFormat']);
     Route::post('get-agent-inc-dec-cost', [CloudExtraActivities::class, 'getThePaymentCalculationDisplay']);
     Route::get('api/domain', [CloudExtraActivities::class, 'domainCloudAutofill']);
-    Route::post('api/takeCloudDomain', [CloudExtraActivities::class, 'orderDomainCloudAutofill']); // Not in use
 
     // --- WhatsApp (client webhook info) ---
     Route::get('get-webhook-url', [WhatsappController::class, 'getWebhookUrl']);
@@ -494,7 +477,6 @@ Route::middleware('installAgora')->group(function (): void {
     // Admin payment forms (legacy blade views — still referenced from admin OrderShow)
     Route::get('newPayment/receive', [InvoiceController::class, 'newPayment']);
     Route::post('newPayment/receive/{clientid}', [InvoiceController::class, 'postNewPayment']);
-    Route::post('payment/receive/{id}', [InvoiceController::class, 'postPayment']);
     Route::post('newMultiplePayment/receive/{clientid}', [InvoiceController::class, 'postNewMultiplePayment']);
     Route::post('newMultiplePayment/update/{clientid}', [InvoiceController::class, 'updateNewMultiplePayment']);
 
@@ -583,8 +565,6 @@ Route::middleware('installAgora')->group(function (): void {
         Route::get('edit/{id}', [TemplateController::class, 'showTemplate']);
         Route::put('update/{id}', [TemplateController::class, 'updateTemplate']);
     });
-    Route::post('store_toggle_state', [TemplateController::class, 'toggle'])
-        ->withoutMiddleware(['auth', 'admin']);
     Route::get('/email-log/body/{id}', [SettingsController::class, 'getBody'])->name('email-log.body');
 
     // --------------------------------------------------------
@@ -604,20 +584,15 @@ Route::middleware('installAgora')->group(function (): void {
     // Email settings
     Route::get('settings/email', [EmailSettingsController::class, 'settingsEmail'])->middleware('auth');
     Route::patch('settings/email', [EmailSettingsController::class, 'postSettingsEmail']);
-    Route::post('emailCheckboxData', [SettingsController::class, 'emailCheckboxData']);
     Route::post('email-settings-save', [SettingsController::class, 'emailSettingsSave']);
     Route::get('settings/email-validation', [SettingsController::class, 'getEmailValidationSettings']);
     Route::get('settings/email-validation-logs', [SettingsController::class, 'listEmailValidationLogs']);
     Route::get('get-email-validation-results', [SettingsController::class, 'getEmailValidationResults']);
-    Route::get('get-email-validation-user-results', [SettingsController::class, 'getEmailValidationUserResults']);
 
     // Cron / scheduler settings
     Route::get('settings/cron-data', [SettingsController::class, 'getCronSettingsData']);
     Route::patch('settings/cron-data', [SettingsController::class, 'updateCronSettingsData']);
     Route::patch('settings/cron-days', [SettingsController::class, 'updateCronDaysData']);
-    Route::get('job-scheduler', [SettingsController::class, 'getScheduler'])->name('get.job.scheduler');
-    Route::patch('post-scheduler', [SettingsController::class, 'postSchedular'])->name('post-scheduler');
-    Route::patch('cron-days', [SettingsController::class, 'saveCronDays'])->name('cron-days');
     Route::post('verify-php-path', [SettingsController::class, 'checkPHPExecutablePath'])->name('verify-cron');
 
     // Cloud / tenancy settings
@@ -626,7 +601,6 @@ Route::middleware('installAgora')->group(function (): void {
     // Pipedrive settings
     Route::get('settings/pipedrive', [SettingsController::class, 'getPipedriveSettings']);
     Route::patch('settings/pipedrive', [SettingsController::class, 'updatePipedriveSettings']);
-    Route::post('pipedrivekeys', [SettingsController::class, 'pipedrivekeys']);
     Route::post('updatepipedriveDetails', [BaseSettingsController::class, 'updatepipedriveDetails'])->name('updatepipedriveDetails');
     Route::get('getPipedriveFields/{group_id}', [PipedriveController::class, 'getLocalFields']);
     Route::get('pipedrive/mapping/{group_id}', [PipedriveController::class, 'getMapFields']);
@@ -637,29 +611,19 @@ Route::middleware('installAgora')->group(function (): void {
     // MSG91 / mobile settings
     Route::get('settings/msg91', [SettingsController::class, 'getMsg91Settings']);
     Route::post('mobile-settings-save', [SettingsController::class, 'mobileSettingsSave']);
-    Route::post('mobileVerification', [SettingsController::class, 'mobileVerification']);
     Route::get('settings/mobile-validation', [SettingsController::class, 'getMobileValidationSettings']);
     Route::post('updatemobileDetails', [BaseSettingsController::class, 'updateMobileDetails'])->name('updatemobileDetails');
 
     // GitHub settings
     Route::get('settings/github', [SettingsController::class, 'getGithubSettings']);
-    Route::post('githubkeys', [SettingsController::class, 'githubkeys']);
     Route::post('github-setting', [GithubController::class,   'postSettings']);
 
     // Terms settings
     Route::get('settings/terms', [SettingsController::class, 'getTermsSettings']);
-    Route::post('termsUrl', [SettingsController::class, 'termsUrl']);
     Route::post('updateTermsDetails', [BaseSettingsController::class, 'updateTermsDetails'])->name('updateTermsDetails');
-
-    // Captcha / recaptcha
-    Route::post('v3captchaDetails', [SettingsController::class, 'v3captchaDetails'])->name('v3captchaDetails');
 
     // License / encryption
     Route::post('licenseStatus', [SettingsController::class, 'licenseStatus'])->name('licenseStatus');
-    Route::get('generate-keys', [HomeController::class, 'createEncryptionKeys']);
-    Route::get('version', [HomeController::class, 'getVersion']);
-    Route::post('verification', [HomeController::class, 'faveoVerification']);
-    Route::get('encryption', [HomeController::class, 'getEncryptedData']);
 
     // Contact / verification settings
     Route::get('contact-option', [SettingsController::class, 'contactOption'])->name('contact-option');
@@ -678,7 +642,6 @@ Route::middleware('installAgora')->group(function (): void {
 
     // Module settings / API keys
     Route::get('module-settings', [SettingsController::class, 'getModuleSettings']);
-    Route::patch('apikeys', [SettingsController::class, 'postKeys']);
 
     // Debug API
     Route::get('debugg', [SettingsController::class, 'debugSettings']);
@@ -746,8 +709,6 @@ Route::middleware('installAgora')->group(function (): void {
     // Cloud / Tenancy (Admin)
     // --------------------------------------------------------
 
-    Route::post('create/tenant', [TenantController::class, 'createTenant']);
-    Route::get('view/tenant', [TenantController::class, 'viewTenant'])->middleware('admin');
     Route::get('get-tenants', [TenantController::class, 'getTenants'])->name('get-tenants')->middleware('admin');
     Route::delete('delete-tenant', [TenantController::class, 'destroyTenant'])->name('delete-tenant')->middleware('admin');
     Route::get('delete/domain/{orderNumber}/{isDelete}', [TenantController::class, 'DeleteCloudInstanceForClient']);
@@ -763,12 +724,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('export-tenats', [TenantController::class, 'exportTenats'])->middleware('admin')->name('export-tenats');
 
     // --------------------------------------------------------
-    // GitHub Integration
-    // --------------------------------------------------------
-
-    Route::get('github-auth-app', [GithubController::class, 'authForSpecificApp']);
-
-    // --------------------------------------------------------
     // Reports
     // --------------------------------------------------------
 
@@ -778,9 +733,6 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('reports/setting', [ReportController::class, 'getReportsSettings']);
     Route::patch('reports/setting', [ReportController::class, 'updateReportsSettings']);
     Route::get('download-exported-file/{id}', [User\ClientController::class, 'downloadExportedFile'])->name('download.exported.file');
-
-    // Legacy report endpoints
-    Route::post('add_records', [ReportController::class, 'addRecords']);
 
     // --------------------------------------------------------
     // MSG91 Reports
@@ -824,14 +776,10 @@ Route::middleware('installAgora')->group(function (): void {
     // Localized License (file downloads)
     // --------------------------------------------------------
 
-    Route::get('uploadFile', [LocalizedLicenseController::class, 'storeFile']);
     Route::get('downloadLicenseFile', [LocalizedLicenseController::class, 'downloadFile'])->name('event.rsvp')->middleware('signed');
     Route::get('downloadPrivate/{orderNo}', [LocalizedLicenseController::class, 'downloadPrivate']);
     Route::get('LocalizedLicense/downloadLicense/{fileName}', [LocalizedLicenseController::class, 'downloadFileAdmin']);
-    Route::get('request', [LocalizedLicenseController::class, 'tempOrderLink']);
     Route::get('LocalizedLicense/downloadPrivateKey/{fileName}', [LocalizedLicenseController::class, 'downloadPrivateKeyAdmin']);
-    Route::post('choose', [LocalizedLicenseController::class, 'chooseLicenseMode']);
-    Route::get('LocalizedLicense/delete/{fileName}', [LocalizedLicenseController::class, 'deleteFile']);
     Route::get('localized-license/files', [LocalizedLicenseController::class, 'filesApi']);
     Route::delete('localized-license/files', [LocalizedLicenseController::class, 'deleteFileApi']);
 

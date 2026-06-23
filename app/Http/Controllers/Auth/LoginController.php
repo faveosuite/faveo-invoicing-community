@@ -49,7 +49,7 @@ class LoginController extends BaseAuthController
      */
     public function __construct()
     {
-        $this->middleware('guest')->except(['logout', 'store-basic-details', 'loginConfig']);
+        $this->middleware('guest')->except(['logout', 'loginConfig']);
         $this->middleware(['blockFailedVerifications:login', 'recaptcha:login'])->only('login');
     }
 
@@ -310,35 +310,6 @@ class LoginController extends BaseAuthController
         }
 
         return back();
-    }
-
-    /**
-     * This function stores basic details for social logins.
-     */
-    public function storeBasicDetails(Request $request): JsonResponse
-    {
-        try {
-            $this->validate($request, [
-                'company' => 'required|string',
-                'address' => 'required|string',
-            ],
-                [
-                    'company.required' => __('validation.company_validation.company_required'),
-                    'company.string' => __('validation.company_validation.company_string'),
-                    'address.required' => __('validation.company_validation.address_required'),
-                    'address.string' => __('validation.company_validation.company_string'),
-                ]);
-
-            /** @var User $user */
-            $user = Auth::user();
-            $user->company = $request->company;
-            $user->address = $request->address;
-            $user->save();
-
-            return successResponse(__('message.updated-successfully'));
-        } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
     }
 
     /**

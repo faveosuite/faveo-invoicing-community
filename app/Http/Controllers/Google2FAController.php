@@ -31,7 +31,7 @@ class Google2FAController extends Controller
     public function __construct()
     {
         $this->middleware('web');
-        $this->middleware('auth', ['only' => ['enableTwoFactor', 'disableTwoFactor', 'generateRecoveryCode', 'getRecoveryCode', 'showRecoveryCode', 'postSetupValidateToken']]);
+        $this->middleware('auth', ['only' => ['enableTwoFactor', 'disableTwoFactor', 'generateRecoveryCode']]);
         $this->middleware('recaptcha:login_2fa')->only('postLoginValidateToken');
         $this->middleware('recaptcha:login_recovery')->only('verifyRecoveryCode');
     }
@@ -119,26 +119,6 @@ class Google2FAController extends Controller
         return errorResponse('password_incorrect');
     }
 
-    public function postSetupValidateToken(Request $request): JsonResponse
-    {
-        /** @var User $user */
-        $user = $request->user();
-        $google2fa = new Google2FA;
-        $secret = Crypt::decrypt((string) $user->google2fa_secret);
-
-        $valid = $google2fa->verifyKey($secret, $request->totp);
-
-        if ($valid == true) {
-            $user->is_2fa_enabled = 1;
-            $user->google2fa_activation_date = Date::now();
-            $user->save();
-
-            return successResponse(__('message.valid_passcode'));
-        }
-
-        return errorResponse(__('message.invalid_code_2fa'));
-    }
-
     /**
      * Disables 2FA for a user/agent, wipes out all the details related to 2FA from the Database.
      */
@@ -177,23 +157,6 @@ class Google2FAController extends Controller
         return successResponse('', ['code' => $codes]);
     }
 
-    public function getRecoveryCode(): JsonResponse
-    {
-        /** @var User $authUser */
-        $authUser = Auth::user();
-        $userId = $authUser->id;
-        $codes = UserBackupCodes::where('user_id', $userId)->pluck('backup_codes')->toArray();
-
-        if (empty($codes)) {
-            $codes = $this->createCodes();
-            foreach ($codes as $code) {
-                UserBackupCodes::create(['user_id' => $userId, 'backup_codes' => $code]);
-            }
-        }
-
-        return successResponse('', ['code' => $codes]);
-    }
-
     /**
      * @return array<mixed>
      */
@@ -205,16 +168,6 @@ class Google2FAController extends Controller
         }
 
         return $codes;
-    }
-
-    public function showRecoveryCode(): JsonResponse
-    {
-        if (session('2fa:user:id')) {
-            return successResponse('Redirect to RecoveryCode');
-            //            return view('themes.default1.front.recoveryCode');
-        }
-
-        return successResponse('Login page', ['redirect' => url('login')]);
     }
 
     public function verifyRecoveryCode(Request $request): JsonResponse
@@ -281,8 +234,4 @@ class Google2FAController extends Controller
         return successResponse('', ['redirect' => $loginController->redirectPath()]);
     }
 
-    public function verifySession(): JsonResponse
-    {
-        return successResponse('active');
-    }
 }

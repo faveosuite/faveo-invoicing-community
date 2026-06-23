@@ -24,11 +24,6 @@ class LogViewController
 
     private int $limit = 10;
 
-    public function getSystemLogs(): Factory|View
-    {
-        return view('log::index');
-    }
-
     public function getLogs(mixed $type, Request $request): mixed
     {
         // Extract search/sorting/limit parameters once

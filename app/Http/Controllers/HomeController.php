@@ -56,27 +56,6 @@ class HomeController extends BaseHomeController
         $this->middleware('admin', ['only' => ['index']]);
     }
 
-    public function getVersion(Request $request, Product $product): string
-    {
-        $this->validate($request, [
-            'title' => 'required',
-        ],
-            [
-                'title.required' => __('validation.extend_product.title_required'),
-            ]);
-        $title = $request->input('title');
-        $product = $product->where('name', $title)->first();
-        if ($product) {
-            $version = $product->version;
-        } else {
-            $res = json_encode(['message' => 'Product not found']);
-
-            return $res !== false ? $res : '';
-        }
-
-        return (string) str_replace('v', '', (string) $product->version);
-    }
-
     public function serialV2(Request $request, Order $order): string
     {
         try {
@@ -194,82 +173,6 @@ class HomeController extends BaseHomeController
             dd($output);
         } catch (Exception $exception) {
             dd($exception);
-        }
-    }
-
-    public function createEncryptionKeys(): void
-    {
-        try {
-            $privateKey = openssl_pkey_new([
-                'private_key_bits' => 2048, // Size of Key.
-                'private_key_type' => OPENSSL_KEYTYPE_RSA,
-            ]);
-            if ($privateKey === false) {
-                throw new Exception('Failed to generate key');
-            }
-            // dd($privateKey);
-            // Save the private key to private.key file. Never share this file with anyone.
-            openssl_pkey_export_to_file($privateKey, 'private.key');
-
-            // Generate the public key for the private key
-            $a_key = openssl_pkey_get_details($privateKey);
-            if ($a_key === false) {
-                throw new Exception('Failed to get details');
-            }
-            // dd($a_key);
-            // Save the public key in public.key file. Send this file to anyone who want to send you the encrypted data.
-            file_put_contents('public.key', $a_key['key']);
-
-            // Free the private Key.
-            openssl_free_key($privateKey);
-        } catch (Exception $exception) {
-            dd($exception);
-        }
-    }
-
-    public function faveoVerification(Request $request): string
-    {
-        try {
-            $data = $request->input('data');
-            $json = self::decryptByFaveoPrivateKey((string) $data);
-            $decodedData = json_decode((string) $json);
-            if (! is_object($decodedData)) {
-                throw new Exception('Invalid payload');
-            }
-
-            $domain = isset($decodedData->url) ? (string) $decodedData->url : '';
-            $faveo_encrypted_order_number = isset($decodedData->order_number) ? (string) $decodedData->order_number : '';
-            $faveo_encrypted_key = isset($decodedData->serial_key) ? (string) $decodedData->serial_key : '';
-            $request_type = isset($decodedData->request_type) ? (string) $decodedData->request_type : '';
-            $faveo_name = isset($decodedData->name) ? (string) $decodedData->name : '';
-            $faveo_version = isset($decodedData->version) ? (string) $decodedData->version : '';
-
-            $order_number = $this->checkOrder($faveo_encrypted_order_number); // @phpstan-ignore method.notFound
-
-            $domain = $this->checkDomain($domain);
-
-            $serial_key = $this->checkSerialKey($faveo_encrypted_key, $order_number);
-            // dd($serial_key);
-            // return $serial_key;
-            $result = [];
-            if ($request_type == 'install') {
-                $result = $this->verificationResult($order_number, (string) $serial_key);
-            }
-
-            if ($request_type == 'check_update') {
-                $result = $this->checkUpdate($order_number, (string) $serial_key, $domain, $faveo_name, $faveo_version);
-            }
-
-            $jsonResult = json_encode($result);
-
-            return self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
-        } catch (Exception $exception) {
-            $result = ['status' => 'error', 'message' => $exception->getMessage().'  
-            file=> '.$exception->getFile().' Line=>'.$exception->getLine()];
-
-            $jsonResult = json_encode($result);
-
-            return self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
         }
     }
 
@@ -615,7 +518,7 @@ class HomeController extends BaseHomeController
             }
             $invoiceid = $invoiceItems->invoice_id;
 
-            return url('autopaynow/'.$invoiceid);
+            return url('my-invoices');
         } catch (Exception $exception) {
             $message = ['error' => $exception->getMessage()];
 
@@ -641,104 +544,6 @@ class HomeController extends BaseHomeController
             'ServiceDesk Company (Recurring)' => 'ServiceDesk Enterprise (Recurring)',
             default => $title
         };
-    }
-
-    public function getPricingData(Request $request): JsonResponse
-    {
-        $validator = Validator::make($request->query(), [
-            'group' => 'required|integer|exists:product_groups,id',
-            'ipAddress' => 'required|ip',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error' => $validator->errors()->first(),
-            ], 422);
-        }
-
-        try {
-            $groupId = $request->query('group');
-            $ip = $request->query('ipAddress');
-
-            $location = getLocation($ip);
-            $country = findCountryByGeoip($location['iso_code']);
-
-            $currencyAndSymbol = getCurrencyForClient($country);
-
-            $productsRelatedToGroup = Product::query()
-                ->join('plans', 'products.id', '=', 'plans.product')
-                ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
-
-                ->where('products.group', $groupId)
-                ->where('products.hidden', '!=', 1)
-
-                ->where('plan_prices.currency', $currencyAndSymbol)
-
-                ->where(function (Builder $query) use ($currencyAndSymbol): void {
-                    $query->where('products.status', '!=', 1)
-                        ->orWhere(function (Builder $active) use ($currencyAndSymbol): void {
-                            $active->where('products.status', 1)
-                                ->whereExists(function ($m) use ($currencyAndSymbol): void {
-                                    $m->select(DB::raw(1))
-                                        ->from('plans as p1')
-                                        ->join('plan_prices as pp1', 'pp1.plan_id', '=', 'p1.id')
-                                        ->whereColumn('p1.product', 'products.id')
-                                        ->whereIn('p1.days', [30, 31])
-                                        ->where('pp1.currency', $currencyAndSymbol);
-                                })
-                                ->whereExists(function ($y) use ($currencyAndSymbol): void {
-                                    $y->select(DB::raw(1))
-                                        ->from('plans as p2')
-                                        ->join('plan_prices as pp2', 'pp2.plan_id', '=', 'p2.id')
-                                        ->whereColumn('p2.product', 'products.id')
-                                        ->whereIn('p2.days', [365, 366])
-                                        ->where('pp2.currency', $currencyAndSymbol);
-                                });
-                        });
-                })
-                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10,2)) ASC')
-                ->oldest('products.created_at')
-                ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
-                ->get();
-
-            $pageController = new PageController;
-
-            $productsRelatedToGroup->transform(function ($product) use ($pageController) {
-                if ((int) $product->status === 1) {
-                    if (in_array((int) $product->days, [30, 31], strict: true)) { // @phpstan-ignore property.notFound
-                        $product->price_description = // @phpstan-ignore property.notFound
-                            $pageController->getMonthPriceDescription($product->id);
-                    } elseif (in_array((int) $product->days, [365, 366], strict: true)) { // @phpstan-ignore property.notFound
-                        $product->price_description = // @phpstan-ignore property.notFound
-                            $pageController->getPriceDescription($product->id);
-                    }
-                }
-
-                return $product;
-            });
-
-            return response()->json(['products' => $productsRelatedToGroup, 'currency' => $currencyAndSymbol, 'currency_symbol' => $this->getCurrencySymbol($currencyAndSymbol)]);
-        } catch (Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 500);
-        }
-    }
-
-    private function getCurrencySymbol(string $currency): string
-    {
-        $locale = getLocalesByCurrency($currency);
-
-        $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
-
-        return $locale === 'en' ?
-            $currency :
-            $formatter->getSymbol(NumberFormatter::CURRENCY_SYMBOL);
-    }
-
-    public function getGroupDatails(): JsonResponse
-    {
-        $group = ProductGroup::where('hidden', '0')->pluck('id', 'name');
-
-        return response()->json(['group' => $group]);
     }
 
     public function getDetailedBillingInfo(Request $request): JsonResponse

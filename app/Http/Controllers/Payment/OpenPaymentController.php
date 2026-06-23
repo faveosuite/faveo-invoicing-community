@@ -340,45 +340,4 @@ class OpenPaymentController extends Controller
         }
     }
 
-    /**
-     * Get order by ID (Admin).
-     */
-    public function getOrder(mixed $id): JsonResponse
-    {
-        try {
-            $order = OpenPaymentOrder::select('open_payment_orders.*')
-                ->leftJoin('currencies', 'open_payment_orders.currency', '=', 'currencies.code')
-                ->addSelect('currencies.symbol as currency_symbol')
-                ->where('open_payment_orders.id', $id)
-                ->firstOrFail();
-
-            return successResponse('', ['order' => $order]);
-        } catch (ModelNotFoundException) {
-            return errorResponse('Order not found', 404);
-        } catch (Exception $e) {
-            return errorResponse('Failed to get order: '.$e->getMessage());
-        }
-    }
-
-    /**
-     * Stripe return URL.
-     *
-     * Embedded Checkout completes in-page (redirect_on_completion = never), so the
-     * gateway no longer redirects here; this remains only as a safety net that
-     * reflects the order's current status back to the open-payment page.
-     */
-    public function handleStripeCallback(Request $request): Redirector|RedirectResponse
-    {
-        $orderId = $request->query('order_id');
-
-        /** @var OpenPaymentOrder|null $order */
-        $order = $orderId ? OpenPaymentOrder::find($orderId) : null;
-        if (! $orderId || ! $order) {
-            return redirect('/open-payment?status=error&message=Order not found');
-        }
-
-        $status = $order->isPaid() ? 'success' : ($order->isFailed() ? 'failed' : 'pending');
-
-        return redirect('/open-payment?order_id='.urlencode((string) $orderId).'&status='.$status); // @phpstan-ignore cast.string
-    }
 }

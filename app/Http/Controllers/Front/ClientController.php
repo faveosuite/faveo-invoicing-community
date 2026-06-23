@@ -98,41 +98,6 @@ class ClientController extends BaseClientController
     }
 
     /**
-     *  Auto-renew by id and redirect to paynow page.
-     */
-    public function autoRenewbyid(): RedirectResponse
-    {
-        try {
-            $id = request()->route('id');
-            $order_id = DB::table('order_invoice_relations')->where('invoice_id', $id)->value('order_id');
-            $sub = Subscription::where('order_id', $order_id)->first();
-            if (! $sub instanceof Subscription) {
-                throw new Exception('Subscription not found.');
-            }
-            $planid = $sub->plan_id;
-            $plan = Plan::find($planid);
-            $planDetails = userCurrencyAndPrice($sub->user_id, $plan);
-            if (is_null($planDetails['plan'])) {
-                throw new Exception(__('message.no_available_plans_currency'));
-            }
-
-            $cost = $planDetails['plan']->renew_price;
-            $currency = $planDetails['currency'];
-            $controller = new RenewController;
-            $items = InvoiceItem::where('invoice_id', $id)->first();
-            if (! $items instanceof InvoiceItem) {
-                throw new Exception('Invoice item not found.');
-            }
-            $invoiceid = $items->invoice_id;
-            // $this->setSession($id, $planid);
-
-            return redirect('paynow/'.$id);
-        } catch (Exception $exception) {
-            return redirect('my-orders')->with('fails', $exception->getMessage());
-        }
-    }
-
-    /**
      *  Get all the invoices in data table.
      *
      *
@@ -398,7 +363,6 @@ class ClientController extends BaseClientController
         }
     }
 
-    #[Override]
     public function getInvoicesByOrderId(mixed $orderid, mixed $userid, mixed $admin = null): JsonResponse
     {
         try {
@@ -903,39 +867,4 @@ class ClientController extends BaseClientController
         ]);
     }
 
-    public function payNow(int $invoiceid): JsonResponse
-    {
-        try {
-            $paid = 0;
-            $invoice = Invoice::find($invoiceid);
-            if (! $invoice instanceof Invoice) {
-                return errorResponse('Invoice not found.', 404);
-            }
-            $user = Auth::user();
-            if (! $user instanceof User || $invoice->user_id != $user->id) {
-                return errorResponse(__('message.invalid_payment_modification'));
-            }
-
-            if (count($invoice->payment()->get()) > 0) {
-                $paid = array_sum($invoice->payment()->pluck('amount')->toArray());
-                $invoice->grand_total -= $paid; // @phpstan-ignore assignOp.invalid
-            }
-
-            $items = collect();
-            $product = null;
-            $items = $invoice->invoiceItem()->get();
-            if (count($items) > 0) {
-                $invoiceItem = InvoiceItem::where('invoice_id', $invoiceid)->first();
-                if ($invoiceItem instanceof InvoiceItem) {
-                    $product = Product::find($invoiceItem->product_id);
-                }
-            }
-
-            return successResponse('', ['invoice' => $invoice, 'items' => $items, 'paid' => $paid, 'product' => $product]);
-        } catch (Exception $exception) {
-            Logger::exception($exception);
-
-            return errorResponse($exception->getMessage());
-        }
-    }
 }

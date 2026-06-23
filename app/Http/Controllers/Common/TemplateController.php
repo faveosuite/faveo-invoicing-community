@@ -387,13 +387,6 @@ class TemplateController extends Controller
         }
     }
 
-    public function toggle(Request $request): JsonResponse
-    {
-        Session::put('toggleState', $request->toggleState === 'selected' ? 'yearly' : 'monthly');
-
-        return successResponse('');
-    }
-
     /**
      * @return array<mixed>
      */

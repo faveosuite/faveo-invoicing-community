@@ -141,14 +141,6 @@ class BaseHomeController extends Controller
         }
     }
 
-    public function getEncryptedData(Request $request): JsonResponse
-    {
-        $enc = $request->input('en');
-        $result = self::decryptByFaveoPrivateKey($enc);
-
-        return response()->json($result);
-    }
-
     /**
      * @return array<mixed>
      */

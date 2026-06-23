@@ -1,31 +1,10 @@
 <?php
 
-use App\Model\Order\InvoiceItem;
-use App\Model\Product\Product;
-use App\Plugins\Zoho\Controllers\ZohoController;
 use App\Plugins\Zoho\Controllers\ZohoOAuthController;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\ZohoCampaignsController;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\ZohoCrmController;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 
 Route::prefix('zoho')->group(function (): void {
-    Route::get('demo', function (): Factory|View {
-        $freeProducts = Product::whereIn(
-            'id',
-            InvoiceItem::where('subtotal', 0)->distinct()->pluck('product_id')
-        )->get();
-
-        $paidProducts = Product::whereIn(
-            'id',
-            InvoiceItem::where('subtotal', '!=', 0)->distinct()->pluck('product_id')
-        )->get();
-
-        return view('zoho::demo', compact('freeProducts', 'paidProducts'));
-    });
-
-    Route::post('testEvent', [ZohoController::class, 'testEvent']);
-
     // Oauth 2.0 connect
     Route::get('integrations', [ZohoOAuthController::class, 'getIntegrations']);
     Route::get('getKeys/{integrationId}', [ZohoOAuthController::class, 'getOauthClientKeys']);

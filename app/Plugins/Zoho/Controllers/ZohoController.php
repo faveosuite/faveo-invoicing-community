@@ -40,44 +40,4 @@ class ZohoController extends Controller
             Logger::exception($throwable);
         }
     }
-
-    public function testEvent(Request $request): JsonResponse
-    {
-        $event = $request->get('event');
-
-        $productId = $request->get('product_id');
-
-        $productType = $request->get('product_type');
-
-        $user = User::where('email', 'sadha8122@gmail.com')->first();
-
-        if (! $user) {
-            return errorResponse('Demo user not found');
-        }
-
-        $productType === 'free'
-            ? InvoiceItem::where('product_id', $productId)
-                ->where('subtotal', 0)
-                ->first()
-            : InvoiceItem::where('product_id', $productId)
-                ->where('subtotal', '>', 0)
-                ->first();
-
-        match ($event) {
-            'register' => dispatch(new AddUserToExternalService($user, 'register')),
-
-            'newsletter' => $this->campaignsController
-                ->subscribeCampaign(new Request([
-                    'email' => $user->email,
-                ])),
-
-            'purchase' => event(new OrderPlacedEvent(
-                Invoice::whereHas('invoiceItem', fn (Builder $q) => $q->where('product_id', $productId))->latest()->firstOrFail()
-            )),
-
-            default => abort(400, 'Invalid event type'),
-        };
-
-        return successResponse(sprintf("Event '%s' triggered successfully", $event));
-    }
 }

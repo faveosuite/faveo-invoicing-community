@@ -47,49 +47,6 @@ class RazorpayController extends Controller
         $this->invoiceItem = $invoiceItem;
     }
 
-    /*
-     * Verify a Razorpay Checkout handler response for an invoice and fulfil it.
-     * The signature is verified server-side; nothing is recorded unless authentic.
-     */
-    public function payment(mixed $invoice, Request $request): JsonResponse
-    {
-        $request->validate([
-            'razorpay_payment_id' => ['required', 'string'],
-            'razorpay_order_id' => ['required', 'string'],
-            'razorpay_signature' => ['required', 'string'],
-        ]);
-
-        /** @var Invoice|null $model */
-        $model = Invoice::find($invoice);
-        abort_if(! $model, 404, 'Invoice not found.');
-        /** @var User $authUser */
-        $authUser = Auth::user();
-        if ($authUser->role != 'admin' && (int) $model->user_id !== (int) Auth::id()) {
-            return errorResponse(__('message.invalid_modification'));
-        }
-
-        try {
-            $paid = resolve(InvoicePaymentService::class)
-                ->confirm($model, 'Razorpay', $request->only([
-                    'razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature',
-                ]));
-
-            return $paid
-                ? successResponse('success', [])
-                : errorResponse(__('message.payment_declined_try_other_gateway'));
-        } catch (SignatureVerificationException $e) {
-            if (emailSendingStatus()) {
-                /** @var User $authUser4 */
-                $authUser4 = Auth::user();
-                $this->sendFailedPaymenttoAdmin($model, $model->grand_total, (string) $model->invoiceItem()->first()?->product_name, $e->getMessage(), $authUser4); // @phpstan-ignore argument.type
-            }
-
-            return errorResponse(__('message.payment_declined_try_other_gateway'));
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
-        }
-    }
-
     public function getCurrency(): mixed
     {
         /** @var User $authUser2 */
@@ -107,37 +64,6 @@ class RazorpayController extends Controller
         }
 
         return TaxByState::where('state_code', $authUser3->state)->value('state');
-    }
-
-    public function afterPayment(Request $request): mixed
-    {
-        try {
-            $stripeSecretKey = ApiKey::value('stripe_secret');
-            $stripe = new StripeClient($stripeSecretKey);
-            // SPA flow carries the invoice id on the return URL (stateless);
-            // legacy flow still falls back to the session-stored invoice.
-            $invoice = $request->query('invoice')
-                ? Invoice::find($request->query('invoice'))
-                : Session::get('invoice');
-            $paymentIntent = $stripe->paymentIntents->retrieve($request->input('payment_intent'));
-            if ($paymentIntent->status === 'succeeded') {
-                $currency = strtolower((string) $invoice->currency);
-                $controller = new SettingsController;
-                $result = $controller->processPaymentSuccess($invoice, $currency); // @phpstan-ignore method.notFound
-                Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
-
-                return redirect('checkout')->with($result['status'], $result['message']);
-            }
-
-            $control = new RenewController;
-            if (! $control->checkRenew($invoice->is_renewed)) {
-                return redirect('checkout')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
-            }
-
-            return redirect('paynow/'.$invoice->id)->with('fails', 'Your Payment was declined. Please try with another card or gateway');
-        } catch (Exception) {
-            return redirect('checkout')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
-        }
     }
 
     /**

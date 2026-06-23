@@ -70,86 +70,6 @@ class SettingsController extends BaseSettingsController
         $this->statusSetting = $status;
     }
 
-    public function mobileVerification(ApiKey $apikeys): JsonResponse
-    {
-        $apiKeyRecord = $apikeys->select('msg91_auth_key', 'msg91_sender', 'msg91_template_id', 'msg91_third_party_id')->first();
-        if (! $apiKeyRecord) {
-            return successResponse('', []);
-        }
-        [$mobileauthkey,$msg91Sender,$msg91TemplateId,$msg91ThirdPartyId] = array_values($apiKeyRecord->toArray());
-
-        $data = [
-            'mobileauthkey' => $mobileauthkey,
-            'msg91Sender' => $msg91Sender,
-            'msg91TemplateId' => $msg91TemplateId,
-            'selectedApp' => $msg91ThirdPartyId,
-        ];
-
-        return successResponse('', $data);
-    }
-
-    public function termsUrl(ApiKey $apikeys): JsonResponse
-    {
-        $termsUrl = $apikeys->value('terms_url');
-
-        $data = [
-            'termsUrl' => $termsUrl,
-        ];
-
-        return successResponse('', $data);
-    }
-
-    public function pipedrivekeys(ApiKey $apikeys): JsonResponse
-    {
-        $pipedriveKey = $apikeys->value('pipedrive_api_key');
-
-        $data = [
-            'pipedriveKey' => $pipedriveKey,
-
-        ];
-
-        return successResponse('', $data);
-    }
-
-    public function githubkeys(ApiKey $apikeys): JsonResponse
-    {
-        $model = new Github;
-        try {
-            $github = $model->firstOrFail();
-            $statusSetting = StatusSetting::first();
-            $githubStatus = $statusSetting ? $statusSetting->github_status : null;
-            $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
-            $data = [
-                'githubFileds' => $githubFileds,
-
-            ];
-
-            return successResponse('', $data);
-        } catch (Exception) {
-            $data = [
-                'githubFileds' => '',
-
-            ];
-
-            return successResponse('', $data);
-        }
-    }
-
-    public function postKeys(ApiKey $apikeys, Request $request): RedirectResponse
-    {
-        try {
-            $keys = $apikeys->find(1);
-            if (! $keys instanceof ApiKey) {
-                return back()->with('fails', trans('message.something_went_wrong'));
-            }
-            $keys->fill($request->input())->save();
-
-            return back()->with('success', $this->langStr('message.updated-successfully'));
-        } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
-        }
-    }
-
     /**
      * PAyment Gateway that is shown on the basis of currency.
      *
@@ -960,20 +880,6 @@ class SettingsController extends BaseSettingsController
         return successResponse(__('message.contact_setting_update'));
     }
 
-    public function emailCheckboxData(): JsonResponse
-    {
-        $current = EmailMobileValidationProviders::where('provider', 'reoon')->value('accepted_output') ?? 1;
-        $statusOptions = $this->setStatus($current);
-
-        $response = '<div class="form-group">
-            <label for="allowed_statuses" class="required">'.__('message.allowed_estatus').'</label>'
-            .$statusOptions.
-            '</div>
-            <span class="error invalid-feedback d-block" id="checkboxErrorMessage"></span>';
-
-        return successResponse(trans('message.success'), $response);
-    }
-
     public function listEmailValidationLogs(Request $request): JsonResponse
     {
         try {
@@ -1025,29 +931,6 @@ class SettingsController extends BaseSettingsController
             $final = ($result->first_name && $result->last_name) ? array_merge($cont2, $cont1) : $cont1;
 
             return successResponse(trans('message.success'), $final);
-        } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
-    }
-
-    public function getEmailValidationUserResults(Request $request): JsonResponse
-    {
-        try {
-            $id = $request->input('id');
-            $result = EmailValidationResults::where('id', $id)->first();
-            if (! $result instanceof EmailValidationResults) {
-                return errorResponse(trans('message.something_went_wrong'));
-            }
-            $content = ['name' => $result->first_name.' '.$result->last_name,
-                'mobile Number' => '+'.$result->mobile_code.$result->mobile,
-                'email' => $result->email,
-                'company Name' => $result->company,
-                'address' => $result->address,
-                'country' => Country::where('country_code_char2', $result->country)->value('nicename'),
-                'state' => State::where('state_subdivision_code', $result->state)->value('state_subdivision_name'),
-                'city' => $result->town, ];
-
-            return successResponse(trans('message.success'), $content);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }

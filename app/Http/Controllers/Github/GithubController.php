@@ -38,15 +38,4 @@ class GithubController extends Controller
         }
     }
 
-    /**
-     * Authenticate this application against the configured GitHub OAuth app.
-     */
-    public function authForSpecificApp(): mixed
-    {
-        try {
-            return resolve(GithubApiController::class)->authorizeApp();
-        } catch (Exception $exception) {
-            return redirect('/')->with('fails', $exception->getMessage());
-        }
-    }
 }

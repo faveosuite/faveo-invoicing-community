@@ -236,59 +236,6 @@ class RenewController extends BaseRenewController
     }
 
     /*
-        Renew From Admin Panel
-     */
-    public function renew(int $id, Request $request): JsonResponse
-    {
-        $this->validate($request, [
-            'plan' => 'required',
-            'payment_method' => 'required',
-            'cost' => 'required',
-            'code' => 'exists:promotions,code',
-        ],
-            [
-                'plan.required' => __('validation.plan_renewal.plan_required'),
-                'payment_method.required' => __('validation.plan_renewal.payment_method_required'),
-                'cost.required' => __('validation.plan_renewal.cost_required'),
-                'code.exists' => __('validation.plan_renewal.code_not_valid'),
-            ]);
-
-        try {
-            $agents = null;
-            $planid = $request->input('plan');
-            $payment_method = $request->input('payment_method');
-            $code = $request->input('code');
-            $cost = $request->input('cost');
-            /** @var Subscription $sub */
-            $sub = Subscription::find($id);
-            $order_id = $sub->order_id;
-            if ($request->has('agents')) {
-                $agents = $request->input('agents');
-                /** @var Order $orderForInstall */
-                $orderForInstall = Order::find($order_id);
-                $installation_path = Installation::where('license_code', $orderForInstall->serial_key)->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
-                if (empty($installation_path)) {
-                    return response()->json(['status' => false, 'message' => trans('message.no_installation_found')]);
-                }
-
-                if ($this->checktheAgent($agents, $installation_path)) {
-                    return response()->json(['status' => false, 'message' => trans('message.agent_reduce')]);
-                }
-
-                $license = Order::where('id', $order_id)->value('serial_key');
-                new CloudExtraActivities(new Client, new FaveoCloud)->doTheAgentAltering($agents, $license, $order_id, $installation_path, $sub->product_id);
-            }
-
-            $renew = $this->renewBySubId($id, $planid, $payment_method, $cost, $code = '', isAgentIncrease: true, agents: $agents);
-
-            Subscription::where('order_id', $order_id)->update(['plan_id' => $planid]);
-
-            return successResponse(__('message.renewed_successfully'));
-        } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
-    }
-
     /**
      * Show the Renew Page from by clicking onRenew in All Orders (Admin Panel).
      *

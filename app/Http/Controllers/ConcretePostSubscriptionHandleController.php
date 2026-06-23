@@ -201,7 +201,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         if (! $template instanceof Template) {
             return;
         }
-        $url = url('autopaynow/'.$invoice->invoice_id); // @phpstan-ignore property.notFound
+        $url = url('my-invoices');
         $expiryTime = strtotime($end);
         $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'product' => $product_details->name,

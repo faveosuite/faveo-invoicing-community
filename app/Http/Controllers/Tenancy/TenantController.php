@@ -52,64 +52,6 @@ class TenantController extends Controller
         $this->middleware('auth', ['except' => ['verifyThirdPartyToken']]);
     }
 
-    public function viewTenant(): JsonResponse
-    {
-        try {
-            if ($this->cloud && $this->cloud->cloud_central_domain) {
-                $app_key = null;
-                $cloud = $this->cloud;
-                $cloudPopUp = CloudPopUp::find(1);
-                $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-
-                throw_if($keys && ! $keys->app_key, Exception::class, Lang::get('message.cloud_invalid_message'));
-
-                $app_key = $keys?->app_key;
-
-                if ($response = $this->client->request( // @phpstan-ignore property.notFound
-                    'GET',
-                    $this->cloud->cloud_central_domain.'/tenants',
-                    [
-                        'query' => [
-                            'key' => $app_key,
-                        ],
-                    ]
-                )) {
-                    $responseBody = (string) $response->getBody();
-                    $responseData = json_decode($responseBody, associative: true);
-                    $de = collect((array) ($responseData['message'] ?? []))->paginate(5);
-                }
-            } else {
-                $de = null;
-                $cloudButton = null;
-                $cloud = null;
-                $cloudPopUp = null;
-            }
-
-            $de ??= null;
-            $cloudButton = StatusSetting::value('cloud_button');
-            $cloudDataCenters = CloudDataCenters::all();
-
-            // Format the results as per the specified format
-            $regions = $cloudDataCenters->map(fn ($center): array => [
-                'name' => empty($center->cloud_city) ? $center->cloud_state.', '.$center->cloud_countries : $center->cloud_city.', '.$center->cloud_countries,
-                'latitude' => $center->latitude,
-                'longitude' => $center->longitude,
-            ]);
-
-            return successResponse('', [
-                'de' => $de,
-                'cloudButton' => $cloudButton,
-                'cloud' => $cloud,
-                'regions' => $regions,
-                'cloudPopUp' => $cloudPopUp,
-            ]);
-        } catch (Exception $exception) {
-            Logger::exception($exception);
-
-            return errorResponse(__('message.cloud_error_message'));
-        }
-    }
-
     public function enableCloud(Request $request): JsonResponse
     {
         try {
@@ -718,20 +660,22 @@ class TenantController extends Controller
             $selectedColumns = $request->input('selected_columns', []);
             $searchParams = $request->input('search_params', []);
             $email = $this->authUser()->email;
-            $driver = QueueService::where('status', '1')->first();
 
-            if ($driver && $driver->name != 'Sync') {
-                resolve('queue')->setDefaultDriver($driver->short_name);
-                dispatch(new ReportExport('tenats', $selectedColumns, $searchParams, $email))->onQueue('reports');
+            /** @var QueueService $driver */
+            $driver = QueueService::where('status', '1')->firstOrFail();
 
-                return response()->json(['message' => __('message.report_generation_in_progress')], 200);
+            if ($driver->name === 'Sync') {
+                return errorResponse(__('message.cannot_sync_queue_driver'));
             }
 
-            return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
+            resolve('queue')->setDefaultDriver($driver->short_name);
+            dispatch(new ReportExport('tenats', $selectedColumns, $searchParams, $email))->onQueue('reports');
+
+            return successResponse(__('message.system_generating_report'));
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return errorResponse($exception->getMessage(), 500);
+            return errorResponse($exception->getMessage());
         }
     }
 

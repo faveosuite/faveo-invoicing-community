@@ -20,19 +20,6 @@ class ReportController extends Controller
         $this->middleware('admin');
     }
 
-    public function addRecords(Request $request): mixed
-    {
-        $request->validate([
-            'records' => ['required', 'integer', 'min:1', 'max:3000'],
-        ]);
-        /** @var ReportSetting $settings */
-        $settings = ReportSetting::firstOrFail();
-        $settings->records = $request->records;
-        $settings->save();
-
-        return back()->with('success', __('message.settings_updated_successfully'));
-    }
-
     public function getAllReports(Request $request): JsonResponse
     {
         $searchQuery = $request->input('search-query', '');

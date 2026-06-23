@@ -10,10 +10,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('mailchimp/webhook', [WebhookController::class, 'verify']);
 Route::post('mailchimp/webhook', [WebhookController::class, 'handle']);
 
-// ── Newsletter widget subscribe (public — recaptcha protected) ────────────────
-Route::post('mail-chimp/subscribe', [SettingsController::class, 'subscribeFromWidget'])
-    ->middleware('recaptcha:mailChimp');
-
 // ── Admin settings (auth + admin middleware inherited from web.php group) ──────
 Route::middleware(['auth', 'admin'])->group(function (): void {
     // Settings page — replaces GET settings/mailchimp
