@@ -184,22 +184,6 @@ function getDateHtml(?string $dateTimeString = null): string
     }
 }
 
-function getDateHtmlcopy(?string $dateTimeString = null): string
-{
-    try {
-        if (! $dateTimeString) {
-            return '--';
-        }
-
-        $date = getTimeInLoggedInUserTimeZone($dateTimeString, 'M j, Y');
-        $dateTime = getTimeInLoggedInUserTimeZone($dateTimeString);
-
-        return "<label data-toggle='tooltip' style='font-weight:500; margin: 0px' data-placement='top' title='".$dateTimeString."'>".$date.'</label>';
-    } catch (Exception) {
-        return '--';
-    }
-}
-
 /**
  * @return array<mixed>
  */
@@ -229,10 +213,6 @@ function getVersionAndLabel(mixed $productVersion, string $productId, ?string $p
     return $productVersion ?? $latestVersion ?? null;
 }
 
-function getInstallationDetail(string $ip): ?Installation
-{
-    return Installation::where('installation_path', 'like', '%'.$ip.'%')->first();
-}
 
 function tooltip(string $tootipText = ''): string
 {
@@ -535,78 +515,8 @@ function userCountryId(): mixed
 //    return \DB::table('format_currencies')->where('code', $currency)->value('symbol');
 // }
 
-/**
- * @param  array<mixed>  $number
- */
-function getIndianCurrencyFormat(array $number): string
-{
-    $explrestunits = '';
-    $number = explode('.', (string) $number); // @phpstan-ignore cast.string
-    $num = $number[0];
-    if (strlen($num) > 3) {
-        $lastthree = substr($num, strlen($num) - 3, strlen($num));
-        $restunits = substr($num, 0, strlen($num) - 3); // extracts the last three digits
-        $restunits = (strlen($restunits) % 2 === 1) ? '0'.$restunits : $restunits; // explodes the remaining digits in 2's formats, adds a zero in the beginning to maintain the 2's grouping.
-        $expunit = str_split($restunits, 2);
-        $counter = count($expunit);
-        for ($i = 0; $i < $counter; $i++) {
-            // creates each of the 2's group and adds a comma to the end
-            if ($i === 0) {
-                $explrestunits .= (int) $expunit[$i].','; // if is first value , convert into integer
-            } else {
-                $explrestunits .= $expunit[$i].',';
-            }
-        }
 
-        $thecash = $explrestunits.$lastthree;
-    } else {
-        $thecash = $num;
-    }
 
-    if (isset($number[1]) && ($number[1] !== '' && $number[1] !== '0')) {
-        if (strlen($number[1]) === 1) {
-            return $thecash.'.'.$number[1].'0';
-        }
-
-        if (strlen($number[1]) === 2) {
-            return $thecash.'.'.$number[1];
-        }
-
-        return 'cannot handle decimal values more than two digits...';
-    }
-
-    return $thecash;
-}
-
-/**
- * Render a single tax for display. Tax is now a generic named rate (no
- * CGST/SGST/IGST split), so this simply formats name@rate and the amount.
- *
- * @return array<mixed>
- */
-function bifurcateTax(string $taxName, string $taxValue, mixed $currency, string $state = '', mixed $price = ''): array
-{
-    $html = $taxName.'@'.$taxValue;
-    $tax_value = currencyFormat(TaxCalculation::taxValue($taxValue, $price), $currency);
-
-    return ['html' => $html, 'tax' => $tax_value];
-}
-
-/**
- * Structured tax breakdown for display. One generic entry per tax.
- *
- * @return array<mixed>
- */
-function bifurcate(string $taxName, string $taxValue, mixed $currency, string $state = '', mixed $price = ''): array
-{
-    return [
-        [
-            'name' => $taxName,
-            'rate' => $taxValue,
-            'value' => TaxCalculation::taxValue($taxValue, $price, round: false),
-        ],
-    ];
-}
 
 /**
  * sets mail config and reloads the config into the container
@@ -757,10 +667,6 @@ function cloudCentralDomain(): string
     return str_replace('https://', '', (string) ($cloudSubDomain ? $cloudSubDomain->cloud_central_domain : ''));
 }
 
-function cloudPopUpDetails(): ?CloudPopUp
-{
-    return CloudPopUp::find(1);
-}
 
 /**
  * @return array<mixed>
@@ -1110,15 +1016,6 @@ function calculateUnitCost(string $currency, int|float $cost): int
     return ($decimals === 0) ? (int) round($cost) : (int) round($cost * 10 ** $decimals);
 }
 
-/**
- * log the actions in log files.
- *
- * @param  array<mixed>  $array
- */
-function loging(string $context, string $message, string $level = 'error', array $array = []): void
-{
-    Log::$level($message.':-:-:-'.$context, $array);
-}
 
 /**
  * Deletes all user sessions except the current session.
@@ -1246,15 +1143,6 @@ function logActivity(
     $log->log($message);
 }
 
-function getUserStateWithCountry(?string $country = null, ?string $state = null): string
-{
-    $user = auth()->user();
-
-    $country ??= $user->country ?? '';
-    $state ??= $user->state ?? '';
-
-    return trim(sprintf('%s-%s', $country, $state), '-');
-}
 
 /**
  *Get Supported Countries for IntlInput Plugins.
@@ -1278,25 +1166,6 @@ function isV3Api(): bool
     return str_contains(str_replace(Request::root().'/', '', URL::current()), 'v3/');
 }
 
-/**
- * Resolve a named theme asset to its URL (local or CDN).
- *
- * Usage in Blade:
- *   themeAsset('adminlte-css')   → public/themes/adminlte/css/adminlte.min.css (local)
- *                                → https://cdn.example.com/themes/... (CDN)
- *
- * Asset aliases are defined in config/theme.php under 'assets'.
- */
-function themeAsset(string $key): string
-{
-    $path = config('theme.assets.'.$key, '');
-
-    if (config('theme.use_cdn')) {
-        return rtrim((string) config('theme.cdn_base', ''), '/').'/'.ltrim((string) $path, '/');
-    }
-
-    return asset($path);
-}
 
 function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds = 60, bool $perSite = true): void
 {
@@ -1383,25 +1252,6 @@ function assetLink(string $type, string $key): string
     return asset(Config::get('link.'.$type.'.'.$key));
 }
 
-/**
- * Gives the bundle URL after appending the version number to it.
- */
-function bundleLink(string $url): string
-{
-    $baseUrl = asset($url).'?version='.Config::get('app.tags');
-
-    // if the call is for a language file, we should append language too in the url
-    // REASON: we are sending cache headers while sending language response, which will improve performance since the browser
-    // will cache it. But as soon as the language changes, language in cache will be the same and will cause conflicts
-    // adding language to argument will cause the browser to request a fresh response as soon as the language changes
-    // appending all activated plugin names too with the URL, so that if a plugin is activated, it requests a new
-    // language file
-    if (str_contains($url, 'js/lang')) {
-        return $baseUrl.'&lang='.App::getLocale();
-    }
-
-    return $baseUrl;
-}
 
 function commonSettings(string $option, string $optionField, string $returnColumn = 'option_value'): mixed
 {
