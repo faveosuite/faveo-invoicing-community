@@ -27,7 +27,7 @@ class TaxServiceTest extends DBTestCase
         /** @var TaxRateResolver&MockInterface $resolver */
         $resolver = Mockery::mock(TaxRateResolver::class);
         $this->resolver = $resolver;
-        $this->engine  = new TaxEngine();
+        $this->engine = new TaxEngine();
         $this->service = new TaxService($this->resolver, $this->engine);
     }
 
@@ -159,6 +159,4 @@ class TaxServiceTest extends DBTestCase
         $this->assertArrayHasKey('name', $result);
         $this->assertArrayHasKey('value', $result);
     }
-
-    
 }

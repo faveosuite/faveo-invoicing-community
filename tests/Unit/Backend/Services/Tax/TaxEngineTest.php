@@ -53,7 +53,7 @@ class TaxEngineTest extends TestCase
         $taxes = $this->engine->calc(100.0, $rates, false);
 
         $this->assertEqualsWithDelta(10.0, $taxes[1], 0.001);
-        $this->assertEqualsWithDelta(5.5,  $taxes[2], 0.001);
+        $this->assertEqualsWithDelta(5.5, $taxes[2], 0.001);
     }
 
     public function test_exclusive_multiple_compound_rates_stack_sequentially(): void
@@ -67,7 +67,7 @@ class TaxEngineTest extends TestCase
 
         $this->assertEqualsWithDelta(10.0, $taxes[1], 0.001);
         // compound 1: (100 + 10) * 5% = 5.5; running = 15.5
-        $this->assertEqualsWithDelta(5.5,  $taxes[2], 0.001);
+        $this->assertEqualsWithDelta(5.5, $taxes[2], 0.001);
         // compound 2: (100 + 15.5) * 2% = 2.31
         $this->assertEqualsWithDelta(2.31, $taxes[3], 0.001);
     }
@@ -237,6 +237,4 @@ class TaxEngineTest extends TestCase
         $this->assertEqualsWithDelta($taxes[1], $taxes[2], 0.001);
         $this->assertEqualsWithDelta(20.0, array_sum($taxes), 0.01);
     }
-
-    
 }

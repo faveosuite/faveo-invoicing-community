@@ -84,10 +84,10 @@ class ClientControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $client = User::factory()->create([
-            'role'       => 'user',
+            'role' => 'user',
             'first_name' => 'Jane',
-            'last_name'  => 'Doe',
-            'email'      => 'jane.doe@example.com',
+            'last_name' => 'Doe',
+            'email' => 'jane.doe@example.com',
         ]);
 
         $response = $this->getJson("/user/{$client->id}");

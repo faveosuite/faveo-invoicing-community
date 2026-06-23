@@ -95,6 +95,4 @@ class SendWhatsappMessageTest extends TestCase
         $record = FailedWhatsappMessage::latest()->first();
         $this->assertSame($payload, $record->message);
     }
-
-    
 }

@@ -44,6 +44,4 @@ class NotifyMailTest extends TestCase
         (new NotifyMail())->handle($mailer);
         $this->addToAssertionCount(1);
     }
-
-    
 }

@@ -79,7 +79,7 @@ class SendEmailTest extends TestCase
     public function test_handle_skips_mailing_when_mail_log_already_sent(): void
     {
         $logId = (int) \DB::table('mail_logs')->insertGetId([
-            'status'     => 'sent',
+            'status' => 'sent',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -96,7 +96,7 @@ class SendEmailTest extends TestCase
     public function test_handle_calls_mailing_when_log_status_is_pending(): void
     {
         $logId = (int) \DB::table('mail_logs')->insertGetId([
-            'status'     => 'pending',
+            'status' => 'pending',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -113,7 +113,7 @@ class SendEmailTest extends TestCase
     public function test_handle_called_twice_only_sends_once_when_first_call_marks_sent(): void
     {
         $logId = (int) \DB::table('mail_logs')->insertGetId([
-            'status'     => 'pending',
+            'status' => 'pending',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -157,6 +157,4 @@ class SendEmailTest extends TestCase
         ))->handle($mailer);
         $this->addToAssertionCount(1); // Mockery verifies ->once() + withArgs in tearDown
     }
-
-    
 }

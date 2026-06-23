@@ -13,7 +13,8 @@ class RequestJsonValidationTest extends TestCase
 {
     private function subject(): object
     {
-        return new class {
+        return new class
+        {
             use RequestJsonValidation;
 
             public function callFailedValidation(\Illuminate\Contracts\Validation\Validator $v): void
@@ -107,6 +108,4 @@ class RequestJsonValidationTest extends TestCase
             $this->assertSame(400, $e->getResponse()->getStatusCode());
         }
     }
-
-    
 }

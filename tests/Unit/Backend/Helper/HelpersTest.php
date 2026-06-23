@@ -388,6 +388,4 @@ class HelpersTest extends DBTestCase
 
         $this->assertIsString($result);
     }
-
-    
 }

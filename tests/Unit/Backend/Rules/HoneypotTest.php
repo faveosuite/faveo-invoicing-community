@@ -18,7 +18,7 @@ class HoneypotTest extends TestCase
         $this->rule = new Honeypot(minTime: 0); // minTime=0 so time check passes immediately
     }
 
-    private function validPayload(string|null $potValue = '', int $secondsAgo = 1): array
+    private function validPayload(?string $potValue = '', int $secondsAgo = 1): array
     {
         return [
             'pAbcXyz' => $potValue,
@@ -200,6 +200,4 @@ class HoneypotTest extends TestCase
     {
         $this->assertTrue($this->rule->implicit);
     }
-
-    
 }

@@ -85,6 +85,4 @@ class SecurityEnforcerTest extends TestCase
 
         $this->assertSame(200, $response->getStatusCode());
     }
-
-    
 }

@@ -14,7 +14,6 @@ use Tests\DBTestCase as TestCase;
 
 class SyncUserToPipedriveTest extends TestCase
 {
-
     protected function tearDown(): void
     {
         Mockery::close();
@@ -38,8 +37,8 @@ class SyncUserToPipedriveTest extends TestCase
     public function test_handle_skips_when_pipedrive_is_disabled(): void
     {
         // Ensure pipedrive_status = 0 (disabled) in real DB (read-only, no write needed)
-        $user    = User::factory()->create();
-        $event   = new UserRegisteredEvent($user, 'register');
+        $user = User::factory()->create();
+        $event = new UserRegisteredEvent($user, 'register');
         $listener = new SyncUserToPipedrive();
 
         // When isEnabled() returns false, sync() must never be called.
@@ -66,8 +65,8 @@ class SyncUserToPipedriveTest extends TestCase
         // This path doesn't call isEnabled() at all — it checks trigger first.
         // Wait, actually it checks isEnabled() FIRST, then trigger.
         // So we test: if enabled, but trigger is admin_create and verification not required → skipped.
-        $user    = User::factory()->create();
-        $event   = new UserRegisteredEvent($user, 'admin_create');
+        $user = User::factory()->create();
+        $event = new UserRegisteredEvent($user, 'admin_create');
 
         // We can't easily mock the static DB calls inside isEnabled()/requiresVerification()
         // without alias mocking. Instead, check the serviceKey() returns 'pipedrive'.
@@ -88,10 +87,8 @@ class SyncUserToPipedriveTest extends TestCase
     public function test_is_enabled_returns_bool(): void
     {
         $listener = new SyncUserToPipedrive();
-        $result   = $this->getPrivateMethod($listener, 'isEnabled');
+        $result = $this->getPrivateMethod($listener, 'isEnabled');
 
         $this->assertIsBool($result);
     }
-
-    
 }

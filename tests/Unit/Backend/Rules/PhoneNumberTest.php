@@ -139,6 +139,4 @@ class PhoneNumberTest extends TestCase
         // No assertion on outcome — just verify no exception is thrown.
         $this->assertTrue(true);
     }
-
-    
 }

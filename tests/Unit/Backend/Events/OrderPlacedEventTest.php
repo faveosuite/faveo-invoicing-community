@@ -40,6 +40,4 @@ class OrderPlacedEventTest extends TestCase
             $this->assertTrue(true); // readonly enforced
         }
     }
-
-    
 }

@@ -116,6 +116,4 @@ class ProcessingFeeTest extends DBTestCase
 
         $this->assertGreaterThanOrEqual(50.0, $result);
     }
-
-    
 }

@@ -30,7 +30,7 @@ class SubscriptionServiceTest extends TestCase
         /** @var PaymentService&MockInterface $payments */
         $payments = Mockery::mock(PaymentService::class);
         $this->payments = $payments;
-        $this->service  = new SubscriptionService($this->payments);
+        $this->service = new SubscriptionService($this->payments);
     }
 
     protected function tearDown(): void
@@ -109,7 +109,7 @@ class SubscriptionServiceTest extends TestCase
     public function test_create_subscription_delegates_to_subscription_gateway(): void
     {
         $subGateway = $this->makeSubGateway();
-        $expected   = $this->makeResult('active');
+        $expected = $this->makeResult('active');
 
         $subGateway->shouldReceive('createSubscription')
             ->once()
@@ -182,7 +182,7 @@ class SubscriptionServiceTest extends TestCase
     public function test_cancel_subscription_delegates_to_gateway(): void
     {
         $subGateway = $this->makeSubGateway();
-        $cancelled  = $this->makeResult('cancelled');
+        $cancelled = $this->makeResult('cancelled');
 
         $subGateway->shouldReceive('cancelSubscription')
             ->once()
@@ -219,7 +219,7 @@ class SubscriptionServiceTest extends TestCase
     public function test_update_subscription_price_delegates_to_gateway(): void
     {
         $subGateway = $this->makeSubGateway();
-        $updated    = $this->makeResult('active');
+        $updated = $this->makeResult('active');
 
         $subGateway->shouldReceive('updateSubscriptionPrice')
             ->once()
@@ -234,6 +234,4 @@ class SubscriptionServiceTest extends TestCase
 
         $this->assertSame('active', $result->status);
     }
-
-    
 }

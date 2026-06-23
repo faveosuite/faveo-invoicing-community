@@ -76,10 +76,10 @@ class InvoiceControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
-            'user_id'     => $this->user->id,
+            'user_id' => $this->user->id,
             'grand_total' => 299.99,
-            'status'      => 'pending',
-            'currency'    => 'USD',
+            'status' => 'pending',
+            'currency' => 'USD',
         ]);
 
         $response = $this->getJson("/invoice/{$invoice->id}");

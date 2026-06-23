@@ -78,7 +78,7 @@ class MergeGuestCartOnLoginTest extends TestCase
     public function test_handle_passes_event_user_not_a_different_user(): void
     {
         $targetUser = User::factory()->create();
-        $otherUser  = User::factory()->create();
+        $otherUser = User::factory()->create();
 
         /** @var CartService&MockInterface $cartService */
         $cartService = Mockery::mock(CartService::class);
@@ -89,6 +89,4 @@ class MergeGuestCartOnLoginTest extends TestCase
         (new MergeGuestCartOnLogin($cartService))->handle(new Login('web', $targetUser, false));
         $this->addToAssertionCount(1);
     }
-
-    
 }
