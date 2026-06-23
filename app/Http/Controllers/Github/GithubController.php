@@ -37,5 +37,4 @@ class GithubController extends Controller
             return errorResponse(__('message.github_invalid'));
         }
     }
-
 }

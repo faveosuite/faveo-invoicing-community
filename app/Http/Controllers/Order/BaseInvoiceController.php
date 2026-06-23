@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Order;
 
 use App\Model\Payment\TaxOption;
 use Exception;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Logger;
 use Session;

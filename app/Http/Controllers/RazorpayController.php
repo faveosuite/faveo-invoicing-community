@@ -2,27 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiKey;
-use App\Http\Controllers\Order\RenewController;
 use App\Model\Common\State;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Payment\TaxByState;
 use App\Plugins\Payment\Dto\SubscriptionRequest;
 use App\Plugins\Payment\Dto\SubscriptionResult;
-use App\Plugins\Payment\Exceptions\SignatureVerificationException;
-use App\Plugins\Stripe\Controllers\SettingsController;
-use App\Services\Payment\InvoicePaymentService;
 use App\Services\Payment\SubscriptionService;
 use App\Traits\Payment\PostPaymentHandle;
 use App\User;
 use Auth;
-use Exception;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
-use Session;
-use Stripe\StripeClient;
 
 class RazorpayController extends Controller
 {

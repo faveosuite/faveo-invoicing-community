@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Http\Controllers\Tenancy\CloudExtraActivities;
-use App\License\Models\Installation;
 use App\License\Services\InstallationService;
 use App\License\Services\LicenseService;
-use App\Model\Common\FaveoCloud;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;

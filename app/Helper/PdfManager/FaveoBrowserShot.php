@@ -82,8 +82,8 @@ class FaveoBrowserShot
         try {
             $settings = FileSystemSettings::query()->first();
             self::$bins = [
-                'node'   => $settings->node_path ?? null,
-                'npm'    => $settings->npm_path ?? null,
+                'node' => $settings->node_path ?? null,
+                'npm' => $settings->npm_path ?? null,
                 'chrome' => $settings->chrome_path ?? null,
             ];
         } catch (\Throwable $e) {

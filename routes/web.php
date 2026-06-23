@@ -57,7 +57,6 @@ use App\Http\Controllers\Product\GroupController;
 use App\Http\Controllers\Product\PlanController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Product\ProductPluginController;
-use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\SocialLoginsController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
@@ -308,7 +307,6 @@ Route::middleware('installAgora')->group(function (): void {
 
     // --- Invoices (client) ---
     Route::get('get-my-invoices', [ClientController::class, 'getInvoices'])->name('get-my-invoices');
-
 
     // --- Orders (client) ---
     Route::get('get-my-orders', [ClientController::class, 'getClientOrder'])->name('get-my-orders');
