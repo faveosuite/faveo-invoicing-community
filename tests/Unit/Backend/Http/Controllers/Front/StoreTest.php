@@ -84,6 +84,45 @@ class StoreTest extends DBTestCase
         $this->assertEquals($response, $planPrice->price_description);
     }
 
+    public function test_store_products_for_guest_uses_ip_based_currency(): void
+    {
+        // Covers lines 88-91: guest user → IP-based currency resolution
+        $group = ProductGroup::create(['name' => 'guest-group', 'hidden' => 0, 'pricing_templates_id' => 1]);
+
+        $response = $this->getJson('store/'.$group->id.'/products');
+        $response->assertStatus(200);
+    }
+
+    public function test_store_product_with_contact_sales_flag(): void
+    {
+        // Covers lines 191-196: product->add_to_contact == 1 → contact button
+        $user = User::factory()->create(['country' => 'US']);
+        $this->actingAs($user);
+        $group = ProductGroup::create(['name' => 'contact-group-'.uniqid(), 'hidden' => 0, 'pricing_templates_id' => 1]);
+        $product = Product::factory()->create(['group' => $group->id, 'hidden' => 0]);
+        // add_to_contact not in fillable — use direct DB update
+        \DB::table('products')->where('id', $product->id)->update(['add_to_contact' => 1]);
+        Plan::factory()->create(['product' => $product->id, 'days' => 365, 'status' => 1]);
+        PlanPrice::factory()->create(['plan_id' => Plan::where('product', $product->id)->value('id'), 'add_price' => 100, 'currency' => 'USD']);
+
+        $response = $this->getJson('store/'.$group->id.'/products');
+        $response->assertStatus(200);
+    }
+
+    public function test_store_plan_without_plan_price_is_skipped(): void
+    {
+        // Covers line 141: plan without planPrice → continue
+        $user = User::factory()->create(['country' => 'US']);
+        $this->actingAs($user);
+        $group = ProductGroup::create(['name' => 'no-price-group-'.uniqid(), 'hidden' => 0, 'pricing_templates_id' => 1]);
+        $product = Product::factory()->create(['group' => $group->id, 'hidden' => 0]);
+        // Create plan with status=1 but NO PlanPrice
+        \DB::table('plans')->insert(['name' => 'no-price-plan', 'product' => $product->id, 'days' => 365, 'status' => 1, 'created_at' => now(), 'updated_at' => now()]);
+
+        $response = $this->getJson('store/'.$group->id.'/products');
+        $response->assertStatus(200);
+    }
+
     public function test_wordpress_plugin_url(): void
     {
         $user = User::factory()->create(['country' => 'US']);

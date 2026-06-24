@@ -353,7 +353,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             return $items;
         } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 

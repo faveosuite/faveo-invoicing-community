@@ -53,7 +53,7 @@ class ProfileController extends BaseAuthController
             return successResponse('', ['bussinesses' => $bussinesses, 'user' => $user, 'timezones' => $timezones, 'state' => $state, 'states' => $states, 'is2faEnabled' => $is2faEnabled, 'dateSinceEnabled' => $dateSinceEnabled]);
             //            return view('themes.default1.user.profile', compact('bussinesses', 'user', 'timezones', 'state', 'states', 'is2faEnabled', 'dateSinceEnabled'));
         } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -73,13 +73,13 @@ class ProfileController extends BaseAuthController
                 return successResponse(__('message.updated-successfully'));
             }
 
-            return back()->with('success', Lang::get('message.updated-successfully'));
+            return successResponse(Lang::get('message.updated-successfully'));
         } catch (Exception $exception) {
             if ($request->expectsJson()) {
                 return errorResponse($exception->getMessage());
             }
 
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -103,20 +103,20 @@ class ProfileController extends BaseAuthController
                     return successResponse(__('message.updated-successfully'));
                 }
 
-                return back()->with('success1', Lang::get('message.updated-successfully'));
+                return successResponse(Lang::get('message.updated-successfully'));
             }
 
             if ($request->expectsJson()) {
                 return errorResponse(__('message.incorrect_old_password'));
             }
 
-            return back()->with('fails1', __('message.incorrect_old_password'));
+            return errorResponse(__('message.incorrect_old_password'));
         } catch (Exception $exception) {
             if ($request->expectsJson()) {
                 return errorResponse($exception->getMessage());
             }
 
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 

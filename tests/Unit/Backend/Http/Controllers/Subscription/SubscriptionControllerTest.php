@@ -169,11 +169,24 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_get_created_subscription_returns_empty_when_both_gateways_disabled(): void
     {
-        // No StatusSetting row → both values are falsy → returns []
         $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
         $result = $subController->getCreatedSubscription();
         $this->assertIsArray($result);
         $this->assertEmpty($result);
+    }
+
+    public function test_get_price_for_cloud_returns_calculated_price(): void
+    {
+        // Covers line 408-411: getPriceforCloud
+        $controller = $this->instantiateDependencies();
+        $subController = new SubscriptionController($controller);
+
+        $order = \App\Model\Order\Order::factory()->withRelations()->create([
+            'serial_key' => '00000000000000000005', // last 4 = '0005' → 5
+        ]);
+
+        $result = $subController->getPriceforCloud($order, 10.0);
+        $this->assertEqualsWithDelta(50.0, $result, 0.01);
     }
 }

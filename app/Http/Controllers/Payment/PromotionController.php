@@ -15,8 +15,6 @@ use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
-use Lang;
-
 class PromotionController extends BasePromotionController
 {
     /**
@@ -63,66 +61,6 @@ class PromotionController extends BasePromotionController
 
         $invoice = new Invoice;
         $this->invoice = $invoice;
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(PromotionRequest $request): mixed
-    {
-        try {
-            $start = Date::parse($request->input('start'))->format('Y-m-d H:m:i');
-            $expiry = Date::parse($request->input('expiry'))->format('Y-m-d H:m:i');
-            $this->promotion->code = $request->input('code');
-            $this->promotion->type = $request->input('type');
-            $this->promotion->value = $request->input('type') == 1 ? intval($request->input('value')).'%' : (string) intval($request->input('value'));
-            $this->promotion->uses = $request->input('uses');
-            $this->promotion->start = $start;
-            $this->promotion->expiry = $expiry;
-            $this->promotion->save();
-            $product = $request->input('applied');
-
-            $this->promoRelation->create(['product_id' => $product, 'promotion_id' => $this->promotion->id]);
-
-            return back()->with('success', Lang::get('message.saved-successfully'));
-        } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     */
-    public function update($id, PromotionRequest $request): mixed
-    {
-        try {
-            $start = Date::parse($request->input('start'))->format('Y-m-d H:m:i');
-            $expiry = Date::parse($request->input('expiry'))->format('Y-m-d H:m:i');
-            $promotion = $this->promotion->where('id', $id)->firstOrFail();
-            $promotion->update([
-                'code' => $request->input('code'),
-                'type' => $request->input('type'),
-                'value' => $request->input('type') == 2 ? intval($request->input('value')) : intval($request->input('value')).'%',
-                'uses' => $request->input('uses'),
-                'start' => $start,
-                'expiry' => $expiry,
-            ]);
-            /* Delete the products has this id */
-            $deletes = $this->promoRelation->where('promotion_id', $id)->get();
-            foreach ($deletes as $delete) {
-                $delete->delete();
-            }
-
-            /* Update the realtion details */
-            $product = $request->input('applied');
-            $this->promoRelation->create(['product_id' => $product, 'promotion_id' => $id]);
-
-            return back()->with('success', Lang::get('message.updated-successfully'));
-        } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
-        }
     }
 
     public function checkNumberOfUses(mixed $code): string

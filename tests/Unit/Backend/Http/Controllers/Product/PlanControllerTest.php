@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Product;
 
+use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
+use App\Model\Product\Product;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
 class PlanControllerTest extends DBTestCase
 {
+    use DatabaseTransactions;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -140,6 +146,62 @@ class PlanControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $response = $this->getJson('/plans?search-query=monthly');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_plan_create_with_valid_data_returns_200(): void
+    {
+        // Covers lines 205-246: planCreate
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+
+        $response = $this->putJson('/plans', [
+            'name' => 'Monthly Plan',
+            'product' => $product->id,
+            'days' => 30,
+            'status' => 1,
+            'add_price' => [99],
+            'currency' => ['USD'],
+            'renew_price' => [99],
+            'offer_price' => [null],
+            'no_of_agents' => 5,
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_update_plan_with_valid_data_returns_200(): void
+    {
+        // Covers lines 271-308: updatePlan
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+        $plan = Plan::factory()->create(['product' => $product->id, 'status' => 1]);
+        PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'add_price' => 50]);
+
+        $response = $this->patchJson('/plan/'.$plan->id, [
+            'name' => 'Updated Plan',
+            'product' => $product->id,
+            'days' => 365,
+            'status' => 1,
+            'add_price' => [199],
+            'currency' => ['USD'],
+            'renew_price' => [199],
+            'offer_price' => [null],
+            'no_of_agents' => 5,
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_delete_bulk_plans_with_ids_returns_200(): void
+    {
+        // Covers lines 309+: deleteBulkPlans
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+        $plan = Plan::factory()->create(['product' => $product->id]);
+
+        $response = $this->deleteJson('/plans', ['select' => [$plan->id]]);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
     }

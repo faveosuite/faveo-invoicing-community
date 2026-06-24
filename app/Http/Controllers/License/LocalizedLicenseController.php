@@ -223,7 +223,7 @@ class LocalizedLicenseController extends Controller
        $data=$encrypt->encrypt($fileName,$orderNo);
        Storage::disk('public')->put($fileName,$data);
        @fclose($handle);
-       return redirect()->back()->with('success', Lang::get('License data is updated'.$orderNo));
+       return successResponse(Lang::get('License data is updated'.$orderNo));
     }*/
 
     // return an array with license data

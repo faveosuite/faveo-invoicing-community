@@ -99,6 +99,42 @@ class ResetPasswordControllerTest extends DBTestCase
         $response->assertJson(['success' => false]);
     }
 
+    public function test_show_reset_form_redirects_to_2fa_when_user_has_2fa_enabled(): void
+    {
+        // Covers lines 60-65: user with 2FA enabled gets redirected to verify-2fa
+        $user = User::factory()->create(['is_2fa_enabled' => 1]);
+        $token = \Str::random(40);
+        Password::create(['email' => $user->email, 'token' => $token, 'created_at' => now()]);
+
+        $response = $this->getJson('/password/reset/'.$token);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        // Response should contain redirect to 2fa verification
+        $this->assertStringContainsString('verify-2fa', json_encode($response->json()));
+    }
+
+    public function test_reset_returns_400_when_email_has_no_matching_user(): void
+    {
+        // Covers line 113: user not found after valid token
+        $email = 'ghost_'.uniqid().'@example.com';
+        $token = \Str::random(40);
+
+        // Create a Password reset record but NOT the user
+        Password::create(['email' => $email, 'token' => $token, 'created_at' => now()]);
+
+        $response = $this->postJson('/password/reset', [
+            'token' => $token,
+            'email' => $email,
+            'password' => 'NewPass@1234',
+            'password_confirmation' => 'NewPass@1234',
+            'reset' => $this->honeypot(),
+        ]);
+
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
     public function test_reset_with_valid_token_changes_password_and_returns_200(): void
     {
         $user = User::factory()->create();

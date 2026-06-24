@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Traits;
 
+use App\Model\Payment\TaxOption;
 use App\Traits\TaxCalculation;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
 class TaxCalculationTest extends DBTestCase
 {
+    use DatabaseTransactions;
+
     // Use an anonymous class that uses the trait.
     // taxValue() is static so we call it directly.
 
@@ -153,5 +157,27 @@ class TaxCalculationTest extends DBTestCase
         $result = $this->getPrivateMethod($subject, 'sumPercent', ['10%,abc']);
 
         $this->assertEqualsWithDelta(10.0, $result, 0.001);
+    }
+
+    public function test_calculate_tax_returns_array_with_logged_in_user(): void
+    {
+        $this->getLoggedInUser('user');
+
+        $result = $this->subject()->calculateTax(1, 'CA', 'US');
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('name', $result);
+    }
+
+    public function test_calculate_total_returns_original_when_tax_inclusive(): void
+    {
+        $this->getLoggedInUser('user');
+        TaxOption::where('id', 1)->update(['inclusive' => 1]);
+
+        $result = $this->subject()->calculateTotal('18%', 100.0);
+
+        TaxOption::where('id', 1)->update(['inclusive' => 0]);
+
+        $this->assertEqualsWithDelta(100.0, $result, 0.001);
     }
 }

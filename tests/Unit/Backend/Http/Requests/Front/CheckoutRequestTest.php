@@ -76,4 +76,35 @@ class CheckoutRequestTest extends TestCase
         $v = validator(['anything' => 'value'], $request->rules());
         $this->assertFalse($v->fails());
     }
+
+    public function test_patch_rules_contain_expected_keys(): void
+    {
+        $request = new CheckoutRequest();
+        $request->setMethod('PATCH');
+        $rules = $request->rules();
+
+        $this->assertArrayHasKey('first_name', $rules);
+        $this->assertArrayHasKey('email', $rules);
+        $this->assertArrayHasKey('zip', $rules);
+    }
+
+    public function test_patch_email_does_not_require_uniqueness(): void
+    {
+        $request = new CheckoutRequest();
+        $request->setMethod('PATCH');
+        $rules = $request->rules();
+
+        // PATCH email rule is 'required|email' without unique constraint
+        $this->assertStringNotContainsString('unique', implode('|', (array) $rules['email']));
+    }
+
+    public function test_messages_returns_expected_keys(): void
+    {
+        $messages = (new CheckoutRequest())->messages();
+
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('first_name.required', $messages);
+        $this->assertArrayHasKey('email.required', $messages);
+        $this->assertArrayHasKey('zip.required', $messages);
+    }
 }

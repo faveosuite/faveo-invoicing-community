@@ -13,10 +13,7 @@ use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use Lang;
 use Throwable;
 
 class PlanController extends ExtendedPlanController
@@ -50,94 +47,6 @@ class PlanController extends ExtendedPlanController
 
         $product = new Product;
         $this->product = $product;
-    }
-
-    /**
-     * Store the Plans Details While Plan Creation.
-     *
-     * @param  PlanRequest  $request  Plan Form Details
-     * @return mixed
-     *
-     * @throws ValidationException
-     *
-     * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
-     *
-     * @date   2019-01-08T13:32:57+0530
-     */
-    public function store(PlanRequest $request)
-    {
-        try {
-            $add_prices = $request->add_price;
-            $renew_prices = $request->renew_price;
-            $offer_prices = $request->offer_price;
-            $this->plan->fill($request->input())->save(); // @phpstan-ignore property.notFound
-            if ($request->input('days') != '') {
-                /** @var Period $periodObj */
-                $periodObj = Period::where('days', $request->input('days'))->first();
-                $period = $periodObj->id;
-                $this->plan->periods()->attach($period); // @phpstan-ignore property.notFound
-            }
-
-            if (count($add_prices) > 0) {
-                $dataForCreating = [];
-                foreach ($add_prices as $key => $value) {
-                    $dataForCreating[] = [
-                        'plan_id' => $this->plan->id, // @phpstan-ignore property.notFound
-                        'currency' => $request->input('currency')[$key],
-                        'add_price' => $value,
-                        'renew_price' => $renew_prices[$key],
-                        'offer_price' => $offer_prices[$key] !== '' ? $offer_prices[$key] : null,
-                        'price_description' => $request->input('price_description'),
-                        'product_quantity' => $request->input('product_quantity'),
-                        'no_of_agents' => $request->no_of_agents,
-                    ];
-                }
-
-                $this->plan->planPrice()->insert($dataForCreating); // @phpstan-ignore property.notFound
-            }
-
-            return back()->with('success', Lang::get('message.saved-successfully'));
-        } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @return RedirectResponse
-     */
-    public function update(Plan $plan, PlanRequest $request)
-    {
-        $add_prices = $request->add_price;
-        $renew_prices = $request->renew_price;
-        $plan->fill($request->input())->save();
-        // To change the plan days,whenever we update plan
-        if ($request->input('days') != '') {
-            /** @var Period $periodObj2 */
-            $periodObj2 = Period::where('days', $request->input('days'))->first();
-            $period = $periodObj2->id;
-            $plan->periods()->sync($period);
-        }
-
-        if (count($add_prices) > 0) {
-            $plan->planPrice->each->delete();
-
-            foreach ($add_prices as $key => $value) {
-                $plan->planPrice()->create([
-                    'plan_id' => $plan->id,
-                    'currency' => $request->currency[$key],
-                    'add_price' => $value,
-                    'renew_price' => $renew_prices[$key],
-                    'offer_price' => $request->offer_price[$key] ?? null,
-                    'price_description' => $request->price_description,
-                    'product_quantity' => $request->product_quantity,
-                    'no_of_agents' => $request->no_of_agents,
-                ]);
-            }
-        }
-
-        return back()->with('success', trans('message.updated-successfully'));
     }
 
     public function getAllPlans(Request $request): JsonResponse

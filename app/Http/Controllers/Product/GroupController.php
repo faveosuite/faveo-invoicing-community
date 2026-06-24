@@ -12,10 +12,8 @@ use App\Model\Product\ProductGroup;
 use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Lang;
 
 class GroupController extends Controller
 {
@@ -47,85 +45,6 @@ class GroupController extends Controller
 
         $config = new ConfigurableOption;
         $this->config = $config;
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(GroupRequest $request): mixed
-    {
-        $this->validate($request, [
-            'name' => 'required',
-            'pricing_templates_id' => 'required',
-        ], [
-            'pricing_templates_id.required' => __('message.please_select_template'),
-            'name.required' => __('validation.bundle.name.required'),
-        ]);
-
-        try {
-            $data = $request->input();
-            $this->group->fill($request->input())->save();
-            $this->group->refresh();
-
-            return back()->with('success', Lang::get('message.saved-successfully'));
-        } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     * @return RedirectResponse
-     */
-    public function update($id, GroupRequest $request)
-    {
-        try {
-            /** @var ProductGroup $group */
-            $group = $this->group->where('id', $id)->firstOrFail();
-            $products = Product::where('group', $id)->where('hidden', '0')->where('add_to_contact', '0')->get();
-
-            // Check if all products have both monthly and yearly plans
-            $allProductsHavePlans = true;
-
-            foreach ($products as $product) {
-                $monthlyPlan = Plan::where('product', $product->id)->where('status', 1)->where('days', 30)->first();
-                $yearlyPlan = Plan::where('product', $product->id)->where('status', 1)->where(function ($q): void {
-                    $q->where('days', 365)->orWhere('days', 366);
-                })->first();
-
-                if (! $monthlyPlan || ! $yearlyPlan) {
-                    $allProductsHavePlans = false;
-                    break; // No need to continue checking
-                }
-            }
-
-            if (! $products->isEmpty() && $allProductsHavePlans) {
-                if ($request->status == 1) {
-                    $group->fill($request->input())->save();
-                    Product::where('group', $id)->update(['status' => 1]);
-
-                    return back()->with('success', Lang::get('message.updated-successfully'));
-                }
-
-                if ($request->status == 0) {
-                    $group->fill($request->input())->save();
-                    Product::where('group', $id)->update(['status' => 0]);
-
-                    return back()->with('success', Lang::get('message.updated-successfully'));
-                }
-            } elseif ($request->status == 0) {
-                $group->fill($request->input())->save();
-                Product::where('group', $id)->update(['status' => 0]);
-
-                return back()->with('success', Lang::get('message.updated-successfully'));
-            }
-
-            return back()->with('fails', __('message.all_products_monthly_yearly_plan'));
-        } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
-        }
     }
 
     protected function getGroupUrl(mixed $url): void

@@ -17,7 +17,6 @@ use App\User;
 use Exception;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Lang;
 
 class TaxRatesAndCodeExpiryController extends BaseInvoiceController
@@ -57,27 +56,6 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         }
 
         return ['fails' => Lang::get('message.can-not-generate-invoice')];
-    }
-
-    public function checkExecution(int $invoiceid): bool|RedirectResponse
-    {
-        try {
-            $response = false;
-            $invoice = Invoice::find($invoiceid);
-
-            $order = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'));
-            $order_invoice_relation = $invoice?->orderRelation()->first();
-
-            if ($order_invoice_relation) {
-                $response = true;
-            } elseif ($order->count() > 0) {
-                $response = true;
-            }
-
-            return $response;
-        } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
-        }
     }
 
     public function invoiceContent(int $invoiceid): string
@@ -160,29 +138,6 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
     public function invoiceUrl(int $invoiceid): UrlGenerator|string
     {
         return url('my-invoice/'.$invoiceid);
-    }
-
-    public function paymentDeleleById(int $id): RedirectResponse
-    {
-        try {
-            $invoice_no = '';
-            $payment = Payment::find($id);
-            if ($payment) {
-                $invoice_id = $payment->invoice_id;
-                $invoice = Invoice::find($invoice_id);
-                if ($invoice) {
-                    $invoice_no = $invoice->number;
-                }
-
-                $payment->delete();
-            } else {
-                return back()->with('fails', __('message.cannot_delete'));
-            }
-
-            return back()->with('success', __('message.payment_deleted_successfully', ['invoice_no' => $invoice_no]));
-        } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
-        }
     }
 
     public function paymentEditById(int $id): JsonResponse

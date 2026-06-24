@@ -9,6 +9,7 @@ use App\Jobs\SendWhatsappMessage;
 use App\WhatsappIntegrationUser;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class SendWhatsappMessageTest extends TestCase
@@ -77,6 +78,25 @@ class SendWhatsappMessageTest extends TestCase
     {
         // phone_number_id=nonexistent → WhatsappIntegrationUser::value returns null → no HTTP call
         (new SendWhatsappMessage($this->validPayload('nonexistent-phone-id')))->handle();
+        $this->assertTrue(true);
+    }
+
+    public function test_handle_logs_error_when_http_call_fails(): void
+    {
+        Log::shouldReceive('error')->once()->withArgs(fn ($msg) => str_contains($msg, 'Whatsapp Message Failure'));
+
+        // Create a user with an unreachable callback URL → Guzzle throws → catch block runs
+        $user = \App\User::factory()->create();
+        WhatsappIntegrationUser::create([
+            'phone_number_id' => 'phone-error-test',
+            'user_callback_url' => 'http://127.0.0.1:1/callback',
+            'waba_id' => 'waba-test',
+            'user_id' => $user->id,
+        ]);
+
+        $payload = $this->validPayload('phone-error-test');
+        (new SendWhatsappMessage($payload))->handle();
+
         $this->assertTrue(true);
     }
 

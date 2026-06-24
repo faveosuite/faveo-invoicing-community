@@ -53,7 +53,7 @@ class AdvanceSearchController extends AdminOrderInvoiceController
             return Response::json($formatted_users);
         } catch (Exception $exception) {
             // returns if try fails with exception meaagse
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -70,7 +70,7 @@ class AdvanceSearchController extends AdminOrderInvoiceController
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 }

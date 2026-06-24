@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Order;
 
+use App\Model\Order\Order;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
 class OrderControllerTest extends DBTestCase
 {
+    use DatabaseTransactions;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -247,7 +251,41 @@ class OrderControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $response = $this->getJson('/get-installation-details/999999');
-        // No installation details found → 200 with empty data array
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_orders_list_includes_order_transform_data(): void
+    {
+        // Covers lines 127-167: transform closure in getOrders
+        $this->getLoggedInUser('admin');
+        Order::factory()->withRelations()->create();
+
+        $response = $this->getJson('/orders');
+        $response->assertStatus(200);
+        $data = $response->json('data.data');
+        $this->assertNotEmpty($data);
+        $this->assertArrayHasKey('number', $data[0]);
+    }
+
+    public function test_delete_bulk_orders_with_ids_returns_200(): void
+    {
+        // Covers lines 263-280: deleteBulkOrders with actual IDs
+        $this->getLoggedInUser('admin');
+        $order = Order::factory()->withRelations()->create();
+
+        $response = $this->deleteJson('/orders', ['order_ids' => [$order->id]]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_order_returns_full_order_data(): void
+    {
+        // Covers lines 189+: getOrder response transform
+        $this->getLoggedInUser('admin');
+        $order = Order::factory()->withRelations()->create();
+
+        $response = $this->getJson('/order/'.$order->id);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
     }

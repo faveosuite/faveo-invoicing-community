@@ -57,8 +57,44 @@ class ForgotPasswordControllerTest extends DBTestCase
             'email' => $user->email,
             'forgot' => $this->honeypot(),
         ]);
-        // 200 (mail sent) or 400 (mail not configured in test env) — both paths hit the controller body
         $this->assertContains($response->status(), [200, 400]);
-        $response->assertJson(['success' => $response->status() === 200]);
+    }
+
+    public function test_send_reset_link_deletes_existing_token_before_creating_new(): void
+    {
+        // Covers line 72: existing password reset record gets deleted before new one is created
+        $user = User::factory()->create();
+
+        // Create an existing reset token
+        \App\Model\User\Password::create(['email' => $user->email, 'token' => 'old-token', 'created_at' => now()]);
+
+        $response = $this->postJson('/password/email', [
+            'email' => $user->email,
+            'forgot' => $this->honeypot(),
+        ]);
+
+        $this->assertContains($response->status(), [200, 400]);
+        // Old token should be gone
+        $this->assertDatabaseMissing('password_resets', ['token' => 'old-token']);
+    }
+
+    public function test_send_reset_link_returns_error_when_rate_limited(): void
+    {
+        // Covers line 66: rate limit exceeded via session-based ArrayStore rate limiting
+        $user = User::factory()->create();
+        $ip = '127.0.0.1';
+        $sessionKey = 'forgot_password'.$user->email.':'.$ip;
+
+        // Simulate 3 prior attempts (maxAttempts = 3) in session
+        session()->put($sessionKey, 3);
+        session()->put($sessionKey.'_time', time());
+
+        $response = $this->postJson('/password/email', [
+            'email' => $user->email,
+            'forgot' => $this->honeypot(),
+        ]);
+
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
     }
 }

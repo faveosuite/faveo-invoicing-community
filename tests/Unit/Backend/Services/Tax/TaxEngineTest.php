@@ -237,4 +237,16 @@ class TaxEngineTest extends TestCase
         $this->assertEqualsWithDelta($taxes[1], $taxes[2], 0.001);
         $this->assertEqualsWithDelta(20.0, array_sum($taxes), 0.01);
     }
+
+    public function test_inclusive_compound_rate_extracted_correctly(): void
+    {
+        // Covers lines 81, 91-93: compound rate in inclusive mode
+        $rates = [
+            ['id' => 1, 'rate' => 18.0, 'label' => 'GST', 'compound' => true],
+        ];
+        $taxes = $this->engine->calcInclusive(118.0, $rates);
+
+        // 118 price with 18% included: tax = 118 - (118/1.18) ≈ 18.0
+        $this->assertEqualsWithDelta(18.0, $taxes[1], 0.01);
+    }
 }

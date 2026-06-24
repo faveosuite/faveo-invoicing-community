@@ -88,7 +88,7 @@ class ThirdPartyAppController extends Controller
             $code = Str::random(32);
             echo $code;
         } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
 
         return null;

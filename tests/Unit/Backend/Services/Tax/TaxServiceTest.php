@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Services\Tax;
 
+use App\Model\Payment\TaxClass;
+use App\Model\Payment\TaxOption;
+use App\Model\Payment\TaxProductRelation;
 use App\Services\Tax\TaxEngine;
 use App\Services\Tax\TaxRateResolver;
 use App\Services\Tax\TaxService;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
 use Mockery\MockInterface;
 use Tests\DBTestCase;
 
 class TaxServiceTest extends DBTestCase
 {
+    use DatabaseTransactions;
     /** @var TaxRateResolver&MockInterface */
     private TaxRateResolver $resolver;
 
@@ -158,5 +163,123 @@ class TaxServiceTest extends DBTestCase
         $this->assertIsArray($result);
         $this->assertArrayHasKey('name', $result);
         $this->assertArrayHasKey('value', $result);
+    }
+
+    public function test_calculate_returns_empty_for_tax_exempt_user(): void
+    {
+        TaxOption::where('id', 1)->update(['tax_enable' => 1]);
+
+        $user = (object) ['is_tax_exempt' => true];
+        $result = $this->service->calculate(100.0, 1, $user);
+
+        TaxOption::where('id', 1)->update(['tax_enable' => 0]);
+
+        $this->assertFalse($result['applicable']);
+    }
+
+    public function test_calculate_returns_full_breakdown_when_rates_apply(): void
+    {
+        TaxOption::where('id', 1)->update(['tax_enable' => 1, 'inclusive' => 0]);
+
+        // Create a tax class and product relation
+        $taxClass = TaxClass::create(['name' => 'Test Standard', 'slug' => 'test-standard-'.uniqid()]);
+        $productRelation = TaxProductRelation::create(['product_id' => 9999, 'tax_class_id' => $taxClass->id]);
+
+        $rates = [
+            ['id' => 99, 'rate' => 10.0, 'label' => 'VAT', 'compound' => false, 'priority' => 1],
+        ];
+        $this->resolver->shouldReceive('ratesForCustomer')->andReturn($rates);
+
+        $user = (object) ['is_tax_exempt' => false];
+        $result = $this->service->calculate(100.0, 9999, $user);
+
+        TaxOption::where('id', 1)->update(['tax_enable' => 0]);
+
+        $this->assertTrue($result['applicable']);
+        $this->assertEqualsWithDelta(10.0, $result['total'], 0.01);
+        $this->assertSame('VAT', $result['name']);
+        $this->assertCount(1, $result['lines']);
+    }
+
+    public function test_legacy_condition_returns_applicable_result(): void
+    {
+        TaxOption::where('id', 1)->update(['tax_enable' => 1, 'inclusive' => 0]);
+
+        $taxClass = TaxClass::create(['name' => 'Legacy Class', 'slug' => 'legacy-'.uniqid()]);
+        TaxProductRelation::create(['product_id' => 8888, 'tax_class_id' => $taxClass->id]);
+
+        $this->resolver->shouldReceive('ratesForCustomer')->andReturn([
+            ['id' => 88, 'rate' => 18.0, 'label' => 'GST', 'compound' => false, 'priority' => 1],
+        ]);
+
+        $user = (object) ['is_tax_exempt' => false];
+        $result = $this->service->legacyCondition(8888, $user);
+
+        TaxOption::where('id', 1)->update(['tax_enable' => 0]);
+
+        $this->assertSame('GST', $result['name']);
+        $this->assertStringContainsString('%', $result['value']);
+        $this->assertArrayHasKey('type', $result);
+    }
+
+    public function test_tax_class_for_returns_slug_when_relation_exists(): void
+    {
+        $taxClass = TaxClass::create(['name' => 'Slug Test', 'slug' => 'slug-test-'.uniqid()]);
+        TaxProductRelation::create(['product_id' => 7777, 'tax_class_id' => $taxClass->id]);
+
+        $slug = $this->service->taxClassFor(7777);
+
+        $this->assertSame($taxClass->slug, $slug);
+    }
+
+    public function test_calculate_returns_empty_when_no_product_tax_relation(): void
+    {
+        // Tax enabled but product 6666 has no tax relation → taxClassFor returns null → line 62
+        TaxOption::where('id', 1)->update(['tax_enable' => 1]);
+
+        $user = (object) ['is_tax_exempt' => false];
+        $result = $this->service->calculate(100.0, 6666, $user);
+
+        TaxOption::where('id', 1)->update(['tax_enable' => 0]);
+
+        $this->assertFalse($result['applicable']);
+    }
+
+    public function test_calculate_returns_empty_when_resolver_returns_no_rates_with_enabled_tax(): void
+    {
+        TaxOption::where('id', 1)->update(['tax_enable' => 1]);
+
+        $taxClass = TaxClass::create(['name' => 'No Rates', 'slug' => 'no-rates-'.uniqid()]);
+        TaxProductRelation::create(['product_id' => 5555, 'tax_class_id' => $taxClass->id]);
+
+        // Resolver returns empty → line 67
+        $this->resolver->shouldReceive('ratesForCustomer')->andReturn([]);
+
+        $user = (object) ['is_tax_exempt' => false];
+        $result = $this->service->calculate(100.0, 5555, $user);
+
+        TaxOption::where('id', 1)->update(['tax_enable' => 0]);
+
+        $this->assertFalse($result['applicable']);
+    }
+
+    public function test_legacy_condition_admin_panel_with_applicable_result(): void
+    {
+        TaxOption::where('id', 1)->update(['tax_enable' => 1, 'inclusive' => 0]);
+
+        $taxClass = TaxClass::create(['name' => 'Admin Class', 'slug' => 'admin-'.uniqid()]);
+        TaxProductRelation::create(['product_id' => 4444, 'tax_class_id' => $taxClass->id]);
+
+        $this->resolver->shouldReceive('ratesForCustomer')->andReturn([
+            ['id' => 44, 'rate' => 10.0, 'label' => 'Tax', 'compound' => false, 'priority' => 1],
+        ]);
+
+        // fromAdminPanel: true → line 120 covered
+        $result = $this->service->legacyCondition(4444, (object) ['is_tax_exempt' => false], fromAdminPanel: true);
+
+        TaxOption::where('id', 1)->update(['tax_enable' => 0]);
+
+        $this->assertSame('Tax', $result['name']);
+        $this->assertArrayNotHasKey('type', $result);
     }
 }

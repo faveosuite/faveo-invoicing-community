@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Services\Payment;
 
+use App\Plugins\Payment\Contracts\CardPaymentGateway;
 use App\Plugins\Payment\Contracts\PaymentGateway;
 use App\Plugins\Payment\Dto\PaymentRequest;
+use App\Plugins\Payment\Dto\PaymentSession;
 use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Plugins\Payment\PaymentGatewayManager;
 use App\Services\Payment\PaymentService;
@@ -85,6 +87,27 @@ class PaymentServiceTest extends DBTestCase
         $this->expectExceptionMessageMatches('/does not support a custom card UI/');
 
         $this->service->startCardPayment('BasicGateway', $request);
+    }
+
+    public function test_start_card_payment_delegates_to_gateway(): void
+    {
+        $request = new PaymentRequest(amount: 100.0, currency: 'USD', reference: 'test-ref');
+        $session = new PaymentSession(gateway: 'CardGateway', id: 'sess_123', clientConfig: []);
+
+        /** @var CardPaymentGateway&PaymentGateway&MockInterface $cardGateway */
+        $cardGateway = Mockery::mock(CardPaymentGateway::class, PaymentGateway::class);
+        $cardGateway->shouldReceive('createCardPayment')->with($request)->andReturn($session);
+
+        $manager = (new PaymentGatewayManager)
+            ->register('CardGateway', fn () => $cardGateway);
+
+        /** @var PaymentService&MockInterface $service */
+        $service = Mockery::mock(PaymentService::class)->makePartial();
+        $service->shouldReceive('manager')->andReturn($manager);
+
+        $result = $service->startCardPayment('CardGateway', $request);
+
+        $this->assertSame($session, $result);
     }
 
     // --- start() ---

@@ -105,7 +105,7 @@ class BaseClientController extends Controller
         try {
             return view('themes.default1.front.clients.subscription'); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -121,7 +121,7 @@ class BaseClientController extends Controller
         try {
             return view('themes.default1.front.clients.order1', compact('request')); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 

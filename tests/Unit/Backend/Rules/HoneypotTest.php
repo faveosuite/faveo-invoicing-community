@@ -194,6 +194,22 @@ class HoneypotTest extends TestCase
         $this->assertTrue($fails);
     }
 
+    // --- V3 API bypass ---
+
+    public function test_skips_validation_for_v3_api_request(): void
+    {
+        $request = \Illuminate\Http\Request::create(config('app.url').'/api/v3/test', 'GET');
+        $this->app->instance('request', $request);
+
+        $fails = false;
+        $rule = new Honeypot();
+        $rule->validate('honeypot', null, function () use (&$fails): void {
+            $fails = true;
+        });
+
+        $this->assertFalse($fails);
+    }
+
     // --- implicit flag ---
 
     public function test_rule_is_implicit(): void

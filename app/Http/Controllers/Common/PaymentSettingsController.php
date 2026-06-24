@@ -127,7 +127,7 @@ class PaymentSettingsController extends Controller
             file_put_contents($app, implode("\n", $lines));
             $plugs->create(['name' => $slug, 'path' => $slug, 'status' => 1]);
 
-            return back()->with('success', __('message.status_change'));
+            return successResponse(__('message.status_change'));
         }
 
         $status = $plug->status;
@@ -158,7 +158,7 @@ class PaymentSettingsController extends Controller
 
         $plug->save();
 
-        return back()->with('success', __('message.status_change'));
+        return successResponse(__('message.status_change'));
     }
 
     public function updatePaymentStatus(Request $request): JsonResponse

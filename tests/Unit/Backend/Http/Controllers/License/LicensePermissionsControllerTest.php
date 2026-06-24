@@ -144,4 +144,29 @@ class LicensePermissionsControllerTest extends DBTestCase
         $response->assertStatus(404)
             ->assertJsonFragment(['success' => false]);
     }
+
+    public function test_get_permissions_for_product_returns_zeros_for_unknown_product(): void
+    {
+        $result = \App\Http\Controllers\License\LicensePermissionsController::getPermissionsForProduct(999999);
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('generateLicenseExpiryDate', $result);
+        $this->assertSame(0, $result['generateLicenseExpiryDate']);
+        $this->assertArrayHasKey('downloadPermission', $result);
+    }
+
+    public function test_get_permissions_for_product_returns_mapped_permissions_when_product_has_license(): void
+    {
+        // Covers lines 160-168: product with license type and permissions
+        $perm = LicensePermission::create(['permissions' => 'Generate License Expiry Date']);
+        $type = LicenseType::create(['name' => 'test-type-'.uniqid()]);
+        $type->permissions()->attach($perm->id);
+
+        $product = \App\Model\Product\Product::factory()->create(['type' => $type->id]);
+
+        $result = \App\Http\Controllers\License\LicensePermissionsController::getPermissionsForProduct($product->id);
+
+        $this->assertIsArray($result);
+        $this->assertSame(1, $result['generateLicenseExpiryDate']);
+    }
 }

@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Product;
 
+use App\Model\Product\ProductGroup;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
 class GroupControllerTest extends DBTestCase
 {
+    use DatabaseTransactions;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -137,5 +141,58 @@ class GroupControllerTest extends DBTestCase
         ]);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+    }
+
+    public function test_update_group_returns_200(): void
+    {
+        // Covers lines 172-186: updateGroup
+        $this->getLoggedInUser('admin');
+        $group = ProductGroup::create(['name' => 'Update Me '.uniqid(), 'hidden' => 0, 'pricing_templates_id' => 1]);
+
+        $response = $this->patchJson('/group/'.$group->id, [
+            'name' => 'Updated Group',
+            'pricing_templates_id' => 1,
+            'hidden' => 0,
+            'status' => 0,
+        ]);
+        $response->assertStatus(200);
+    }
+
+    public function test_delete_bulk_groups_with_ids_returns_200(): void
+    {
+        // Covers lines 213-214: deleteBulkGroups
+        $this->getLoggedInUser('admin');
+        $group = ProductGroup::create(['name' => 'Delete Me '.uniqid(), 'hidden' => 0, 'pricing_templates_id' => 1]);
+
+        $response = $this->deleteJson('/group', ['select' => [$group->id]]);
+        $response->assertStatus(200);
+    }
+
+    public function test_get_group_by_id_returns_200(): void
+    {
+        // Covers getGroup (line 154+)
+        $this->getLoggedInUser('admin');
+        $group = ProductGroup::create(['name' => 'Get Me '.uniqid(), 'hidden' => 0, 'pricing_templates_id' => 1]);
+
+        $response = $this->getJson('/group/'.$group->id);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_update_group_with_status_enabled_and_products_missing_plans(): void
+    {
+        // Covers lines 182-186: status == 1 with products but no plans
+        $this->getLoggedInUser('admin');
+        $group = ProductGroup::create(['name' => 'Status Group '.uniqid(), 'hidden' => 0, 'pricing_templates_id' => 1]);
+        \App\Model\Product\Product::factory()->create(['group' => $group->id, 'hidden' => 0]);
+
+        $response = $this->patchJson('/group/'.$group->id, [
+            'name' => $group->name,
+            'pricing_templates_id' => 1,
+            'hidden' => 0,
+            'status' => 1, // enabling with products that have no monthly/yearly plans
+        ]);
+        // Either succeeds or returns error about missing plans
+        $this->assertContains($response->status(), [200, 400]);
     }
 }

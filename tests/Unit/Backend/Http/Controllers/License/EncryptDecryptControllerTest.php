@@ -46,17 +46,31 @@ class EncryptDecryptControllerTest extends TestCase
         $this->assertEquals($plaintext, $decrypted);
     }
 
-    public function test_decrypt_with_no_key_file_returns_empty_string_or_throws(): void
+    public function test_decrypt_returns_string_when_decryption_fails(): void
     {
         Storage::fake('public');
         $controller = new EncryptDecryptController;
-        // No keys generated → Storage returns null → openssl may warn/return false
-        try {
-            $result = $controller->decrypt('NO_SUCH_ORDER');
-            $this->assertSame('', $result);
-        } catch (\Throwable) {
-            // Acceptable — openssl issues a warning that becomes an ErrorException
-            $this->assertTrue(true);
-        }
+        $orderNo = 'TEST003';
+
+        // Use mismatched keys — generate new keys but store data encrypted with different keys
+        $controller->generateKeys($orderNo);
+        // Store garbage that won't decrypt with these keys
+        Storage::disk('public')->put("faveo-license-{{$orderNo}}.txt", base64_encode(str_repeat('X', 512)));
+
+        // Either returns '' (line 37) or decrypted garbage
+        $result = $controller->decrypt($orderNo);
+        $this->assertIsString($result);
+    }
+
+    public function test_encrypt_throws_when_public_key_is_invalid(): void
+    {
+        Storage::fake('public');
+        // Store an invalid (non-RSA) public key
+        Storage::disk('public')->put('publicKey-BADORDER.txt', 'not-a-valid-key');
+
+        $controller = new EncryptDecryptController;
+
+        $this->expectException(\Exception::class);
+        $controller->encrypt('some data', 'BADORDER');
     }
 }

@@ -89,7 +89,7 @@ class SettingsController extends BaseSettingsController
 
             return $allAcivePluginName;
         } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
+            return [];
         }
     }
 

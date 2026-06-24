@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Product;
 
+use App\Model\Product\Product;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
 class ProductControllerTest extends DBTestCase
 {
+    use DatabaseTransactions;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -135,8 +139,74 @@ class ProductControllerTest extends DBTestCase
     public function test_get_product_uploads_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $product = \App\Model\Product\Product::factory()->create();
+        $product = Product::factory()->create();
         $response = $this->getJson("/product/uploads/{$product->id}");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_product_by_id_returns_200(): void
+    {
+        // Covers lines 238+: getProduct
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+
+        $response = $this->getJson('/product/'.$product->id);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_product_create_with_valid_data_returns_200(): void
+    {
+        // Covers lines 423+: productCreate
+        $this->getLoggedInUser('admin');
+
+        $product = Product::factory()->make();
+        $response = $this->putJson('/product', [
+            'name' => 'Test Product '.uniqid(),
+            'type' => $product->type ?? 1,
+            'group' => $product->group ?? 1,
+            'require_domain' => 0,
+            'description' => 'Test description',
+            'product_description' => 'Full description',
+            'product_sku' => 'SKU-'.uniqid(),
+            'show_agent' => 0,
+            'can_modify_agent' => 0,
+            'can_modify_quantity' => 0,
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_update_product_with_valid_data_returns_200(): void
+    {
+        // Covers lines 477+: updateProduct
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+
+        $response = $this->patchJson('/product/'.$product->id, [
+            'name' => 'Updated Product',
+            'type' => $product->type ?? 1,
+            'group' => $product->group ?? 1,
+            'require_domain' => 0,
+            'description' => 'Updated description',
+            'product_description' => 'Updated full description',
+            'product_sku' => 'SKU-UPDT-'.uniqid(),
+            'show_agent' => 0,
+            'can_modify_agent' => 0,
+            'can_modify_quantity' => 0,
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_delete_bulk_products_with_ids_returns_200(): void
+    {
+        // Covers lines 215+: deleteBulkProducts
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+
+        $response = $this->deleteJson('/products', ['product_ids' => [$product->id]]);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
     }

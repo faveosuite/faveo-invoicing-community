@@ -24,9 +24,7 @@ use Auth;
 use Exception;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Lang;
 use Logger;
 
 class OrderController extends BaseOrderController
@@ -233,21 +231,6 @@ class OrderController extends BaseOrderController
             return successResponse('', $installationDetails);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(int $id, OrderRequest $request): RedirectResponse
-    {
-        try {
-            $order = $this->order->where('id', $id)->firstOrFail();
-            $order->fill($request->input())->save();
-
-            return back()->with('success', Lang::get('message.updated-successfully'));
-        } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
         }
     }
 

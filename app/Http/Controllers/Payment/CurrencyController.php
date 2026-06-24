@@ -140,9 +140,9 @@ class CurrencyController extends Controller
 
             // $this->currency->fill($request->input())->save();
 
-            return back()->with('success', Lang::get('message.saved-successfully'));
+            return successResponse(Lang::get('message.saved-successfully'));
         } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 

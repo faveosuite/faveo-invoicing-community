@@ -265,4 +265,14 @@ class BaseOrderControllerTest extends DBTestCase
 
         $this->assertNotEquals(405, $response->getStatusCode());
     }
+
+    public function test_update_license_details_returns_error_when_subscription_not_found(): void
+    {
+        $response = $this->postJson('/update-license-details', [
+            'orderid' => 999999999,
+            'limit' => 10,
+        ]);
+
+        $response->assertJson(['success' => false]);
+    }
 }

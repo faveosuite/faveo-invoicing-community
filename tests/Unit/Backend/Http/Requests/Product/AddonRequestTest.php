@@ -51,4 +51,14 @@ class AddonRequestTest extends TestCase
         $data = array_merge($this->valid(), ['selling_price' => 'free']);
         $this->assertArrayHasKey('selling_price', validator($data, $this->rules())->errors()->toArray());
     }
+
+    public function test_messages_returns_expected_keys(): void
+    {
+        $messages = (new AddonRequest())->messages();
+
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('name.required', $messages);
+        $this->assertArrayHasKey('regular_price.numeric', $messages);
+        $this->assertArrayHasKey('products.required', $messages);
+    }
 }

@@ -87,7 +87,7 @@ class TemplateController extends Controller
 
             return view('themes.default1.common.template.create', compact('type', 'cartUrl')); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -103,9 +103,9 @@ class TemplateController extends Controller
         try {
             $this->template->fill($request->input())->save();
 
-            return back()->with('success', __('message.saved-successfully'));
+            return successResponse(__('message.saved-successfully'));
         } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -261,7 +261,7 @@ class TemplateController extends Controller
                 .$planForm
                 .html()->input('hidden', 'id')->value((string) $id);
         } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -296,7 +296,7 @@ class TemplateController extends Controller
 
             return $cost;
         } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
@@ -382,7 +382,7 @@ class TemplateController extends Controller
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 

@@ -5,10 +5,25 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Services\Payment;
 
 use App\Services\Payment\ProcessingFee;
+use Illuminate\Support\Facades\DB;
+use Mockery;
 use Tests\DBTestCase;
 
 class ProcessingFeeTest extends DBTestCase
 {
+    // --- store() ---
+
+    public function test_store_updates_processing_fee_for_gateway(): void
+    {
+        $mockBuilder = Mockery::mock();
+        $mockBuilder->shouldReceive('update')->with(['processing_fee' => 2.5])->once();
+        DB::shouldReceive('table')->with('stripe')->andReturn($mockBuilder);
+
+        ProcessingFee::store('Stripe', 2.5);
+
+        $this->assertTrue(true); // assertion is the mock expectation above
+    }
+
     // --- percent() ---
 
     public function test_percent_returns_zero_for_null_gateway(): void

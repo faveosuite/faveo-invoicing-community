@@ -700,7 +700,9 @@ function createDB(string $dbName): mixed
         // populated
         DB::disconnect('mysql');
     } catch (Exception $exception) {
-        return back()->with('fails', $exception->getMessage());
+        Logger::exception($exception);
+
+        return null;
     }
 
     return null;

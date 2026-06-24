@@ -320,7 +320,7 @@ APP_ENV='.$environment;
             $timeZoneId = Timezone::where('name', $timezone)->value('id');
 
             if (! $changed) {
-                return back()->with('fails', 'Invalid language');
+                return errorResponse('Invalid language');
             }
 
             $user = User::where('id', 1)->update([

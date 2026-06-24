@@ -4,14 +4,33 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Payment;
 
+use App\Model\Payment\Promotion;
+use App\Model\Payment\PromotionType;
+use App\Model\Product\Product;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
 class PromotionControllerTest extends DBTestCase
 {
+    use DatabaseTransactions;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->withoutMiddleware(\App\Http\Middleware\Install::class);
+    }
+
+    private function validPromoPayload(string $suffix = ''): array
+    {
+        return [
+            'code' => 'PROMO'.$suffix.uniqid(),
+            'type' => 1,
+            'value' => 10,
+            'uses' => 5,
+            'start' => '2025-01-01',
+            'expiry' => '2025-12-31',
+            'applied' => Product::factory()->create()->id,
+        ];
     }
 
     // =========================================================================
@@ -141,5 +160,59 @@ class PromotionControllerTest extends DBTestCase
     public function test_bulk_delete_unauthenticated_returns_401(): void
     {
         $this->deleteJson('/promotions', ['ids' => [1]])->assertStatus(401);
+    }
+
+    public function test_get_all_promotions_with_search_returns_200(): void
+    {
+        // Covers lines 179-192: searchable promotion list
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/promotions?search-query=TEST&sort-field=code&sort-order=asc');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_promotion_returns_data(): void
+    {
+        // Covers lines 194-208: getPromotion
+        $this->getLoggedInUser('admin');
+        $type = PromotionType::first() ?? PromotionType::create(['name' => 'Percent']);
+        $promo = Promotion::create(['code' => 'GETME'.uniqid(), 'type' => $type->id, 'value' => '10%', 'uses' => 5, 'start' => '2025-01-01', 'expiry' => '2025-12-31']);
+
+        $response = $this->getJson('/promotion/'.$promo->id);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_promotion_code_create_creates_promotion(): void
+    {
+        // Covers lines 248-271: promotionCodeCreate
+        $this->getLoggedInUser('admin');
+        $response = $this->putJson('/promotionCreate', $this->validPromoPayload());
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_update_promotion_code_updates_promotion(): void
+    {
+        // Covers lines 212-244: updatePromotionCode
+        $this->getLoggedInUser('admin');
+        $type = PromotionType::first() ?? PromotionType::create(['name' => 'Percent']);
+        $promo = Promotion::create(['code' => 'UPDME'.uniqid(), 'type' => $type->id, 'value' => '10%', 'uses' => 5, 'start' => '2025-01-01', 'expiry' => '2025-12-31']);
+
+        $response = $this->patchJson('/updatePromotion/'.$promo->id, $this->validPromoPayload());
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_bulk_delete_with_ids_returns_200(): void
+    {
+        // Covers lines 280-290: deleteBulkPromotions with IDs
+        $this->getLoggedInUser('admin');
+        $type = PromotionType::first() ?? PromotionType::create(['name' => 'Percent']);
+        $promo = Promotion::create(['code' => 'DELME'.uniqid(), 'type' => $type->id, 'value' => '5%', 'uses' => 3, 'start' => '2025-01-01', 'expiry' => '2025-12-31']);
+
+        $response = $this->deleteJson('/promotions', ['select' => [$promo->id]]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
     }
 }

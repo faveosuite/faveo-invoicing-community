@@ -511,13 +511,13 @@ class TenantController extends Controller
 
                         $this->googleChat('Hello, it has come to my notice that '.$user.' has deleted this cloud instance '.$installation_path);
 
-                        return back()->with('success', __('message.cloud_deleted_successfully'));
+                        return successResponse(__('message.cloud_deleted_successfully'));
                     }
 
                     Logger::exception(new Exception($response->message));
                     $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
 
-                    return back()->with('fails', __('message.cloud_deleted_failed   '));
+                    return errorResponse(__('message.cloud_deleted_failed   '));
                 }
             }
 

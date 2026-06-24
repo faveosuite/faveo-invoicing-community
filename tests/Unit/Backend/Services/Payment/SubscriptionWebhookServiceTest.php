@@ -2,8 +2,11 @@
 
 namespace Tests\Unit\Backend\Services\Payment;
 
+use App\Http\Controllers\ConcretePostSubscriptionHandleController;
+use App\Services\Payment\SubscriptionWebhookService;
 use App\Services\Payment\WebhookDispatcher;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Mockery;
 use Tests\DBTestCase;
 
 class SubscriptionWebhookServiceTest extends DBTestCase
@@ -127,6 +130,117 @@ class SubscriptionWebhookServiceTest extends DBTestCase
                     ],
                 ],
             ],
+        ]);
+        $this->assertTrue(true);
+    }
+
+    // =========================================================================
+    // SubscriptionWebhookService
+    // =========================================================================
+
+    private function makeWebhookService(): SubscriptionWebhookService
+    {
+        $handler = Mockery::mock(ConcretePostSubscriptionHandleController::class);
+        return new SubscriptionWebhookService($handler);
+    }
+
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
+    }
+
+    public function test_handle_stripe_event_with_unknown_type(): void
+    {
+        $service = $this->makeWebhookService();
+        $service->handleStripeEvent(['type' => 'unknown.event', 'data' => ['object' => []]]);
+        $this->assertTrue(true);
+    }
+
+    public function test_handle_stripe_invoice_paid_skips_non_cycle(): void
+    {
+        $service = $this->makeWebhookService();
+        $service->handleStripeEvent([
+            'type' => 'invoice.payment_succeeded',
+            'data' => ['object' => ['billing_reason' => 'manual']],
+        ]);
+        $this->assertTrue(true);
+    }
+
+    public function test_handle_stripe_invoice_paid_cycle_with_no_subscription_id(): void
+    {
+        \Logger::shouldReceive('warning')->andReturn(null);
+
+        $service = $this->makeWebhookService();
+        $service->handleStripeEvent([
+            'type' => 'invoice.payment_succeeded',
+            'data' => ['object' => ['billing_reason' => 'subscription_cycle', 'amount_paid' => 100]],
+        ]);
+        $this->assertTrue(true);
+    }
+
+    public function test_handle_stripe_invoice_paid_cycle_with_nonexistent_subscription(): void
+    {
+        \Logger::shouldReceive('warning')->andReturn(null);
+
+        $service = $this->makeWebhookService();
+        $service->handleStripeEvent([
+            'type' => 'invoice.payment_succeeded',
+            'data' => ['object' => ['billing_reason' => 'subscription_cycle', 'subscription' => 'sub_nonexistent_'.uniqid(), 'amount_paid' => 100]],
+        ]);
+        $this->assertTrue(true);
+    }
+
+    public function test_handle_stripe_invoice_failed_with_no_subscription_id(): void
+    {
+        $service = $this->makeWebhookService();
+        $service->handleStripeEvent([
+            'type' => 'invoice.payment_failed',
+            'data' => ['object' => []],
+        ]);
+        $this->assertTrue(true);
+    }
+
+    public function test_handle_stripe_invoice_failed_with_nonexistent_subscription(): void
+    {
+        $service = $this->makeWebhookService();
+        $service->handleStripeEvent([
+            'type' => 'invoice.payment_failed',
+            'data' => ['object' => ['subscription' => 'sub_nonexistent_'.uniqid()]],
+        ]);
+        $this->assertTrue(true);
+    }
+
+    public function test_handle_stripe_subscription_deleted_with_no_id(): void
+    {
+        $service = $this->makeWebhookService();
+        $service->handleStripeEvent([
+            'type' => 'customer.subscription.deleted',
+            'data' => ['object' => []],
+        ]);
+        $this->assertTrue(true);
+    }
+
+    public function test_handle_razorpay_subscription_charged_with_no_match(): void
+    {
+        \Logger::shouldReceive('warning')->andReturn(null);
+
+        $service = $this->makeWebhookService();
+        $service->handleRazorpayEvent([
+            'event' => 'subscription.charged',
+            'payload' => ['subscription' => ['entity' => ['id' => 'sub_nonexistent_xyz_'.uniqid()]]],
+        ]);
+        $this->assertTrue(true);
+    }
+
+    public function test_handle_razorpay_subscription_halted_with_no_match(): void
+    {
+        \Logger::shouldReceive('warning')->andReturn(null);
+
+        $service = $this->makeWebhookService();
+        $service->handleRazorpayEvent([
+            'event' => 'subscription.halted',
+            'payload' => ['subscription' => ['entity' => ['id' => 'sub_nonexistent_xyz_'.uniqid()]]],
         ]);
         $this->assertTrue(true);
     }

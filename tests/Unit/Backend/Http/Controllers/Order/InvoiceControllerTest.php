@@ -174,6 +174,54 @@ class InvoiceControllerTest extends DBTestCase
         $this->deleteJson('/invoices', ['ids' => [1]])->assertStatus(401);
     }
 
+    public function test_bulk_delete_invoices_with_ids_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $invoice = Invoice::factory()->create(['user_id' => $this->user->id]);
+
+        $response = $this->deleteJson('/invoices', ['invoice_ids' => [$invoice->id]]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_bulk_delete_payments_without_ids_returns_400(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->deleteJson('/payments', []);
+
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_bulk_delete_payments_with_ids_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        // Non-existent IDs — still returns success (no records to delete is fine)
+        $response = $this->deleteJson('/payments', ['payment_ids' => [999999]]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_invoices_with_name_filter_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/invoices?name=John');
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_invoices_with_date_range_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/invoices?from_date=01/01/2025&to_date=12/31/2025');
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
     // =========================================================================
     // GET /invoices — search and sort params
     // =========================================================================

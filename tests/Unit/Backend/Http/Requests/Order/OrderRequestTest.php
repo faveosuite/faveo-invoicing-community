@@ -54,4 +54,14 @@ class OrderRequestTest extends TestCase
         $data = array_merge($this->valid(), ['qty' => 'two']);
         $this->assertArrayHasKey('qty', validator($data, $this->rules())->errors()->toArray());
     }
+
+    public function test_messages_returns_expected_keys(): void
+    {
+        $messages = (new OrderRequest())->messages();
+
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('client.required', $messages);
+        $this->assertArrayHasKey('price_override.numeric', $messages);
+        $this->assertArrayHasKey('subscription.required', $messages);
+    }
 }

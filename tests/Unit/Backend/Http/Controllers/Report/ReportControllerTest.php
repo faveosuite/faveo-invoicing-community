@@ -86,6 +86,26 @@ class ReportControllerTest extends DBTestCase
         ]);
     }
 
+    public function test_it_deletes_report_and_removes_existing_file(): void
+    {
+        // Covers lines 76-77: file_exists is true → Storage::delete called
+        $filePath = storage_path('app/test_report_'.uniqid().'.xlsx');
+        file_put_contents($filePath, 'dummy');
+
+        $report = ExportDetail::create([
+            'user_id' => auth()->id(),
+            'file_path' => $filePath,
+            'file' => basename($filePath),
+            'name' => 'users',
+        ]);
+
+        $response = $this->deleteJson('/reports', ['select' => [$report->id]]);
+
+        @unlink($filePath);
+
+        $response->assertStatus(200)->assertJson(['success' => true]);
+    }
+
     public function test_it_returns_error_if_bulk_delete_has_no_ids(): void
     {
         $response = $this->deleteJson('/reports', [

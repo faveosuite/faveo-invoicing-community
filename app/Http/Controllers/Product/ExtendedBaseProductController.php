@@ -74,13 +74,13 @@ class ExtendedBaseProductController extends Controller
             $updateClassObj = new AutoUpdateController; // @phpstan-ignore arguments.count
             $updateClassObj->editVersion($request->input('version'), $productSku);
 
-            return back()->with('success', __('message.product_updated_successfully'));
+            return successResponse(__('message.product_updated_successfully'));
         } catch (Exception $exception) {
             Logger::exception($exception);
             $message = [$exception->getMessage()];
             $response = ['success' => 'false', 'message' => $message];
 
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 

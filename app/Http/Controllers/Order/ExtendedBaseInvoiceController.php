@@ -91,9 +91,9 @@ class ExtendedBaseInvoiceController extends Controller
             $payment->user_id = $clientid;
             $paymentReceived = $payment->fill($request->all())->save();
 
-            return back()->with('success', Lang::get('message.saved-successfully'));
+            return successResponse(Lang::get('message.saved-successfully'));
         } catch (Exception $exception) {
-            return back()->with('fails', $exception->getMessage());
+            return errorResponse($exception->getMessage());
         }
     }
 
