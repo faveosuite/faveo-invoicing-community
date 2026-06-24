@@ -204,7 +204,7 @@ class TaxControllerTest extends DBTestCase
             'tax_enable' => 1,
             'inclusive' => 0,
             'tax_based_on' => 'billing',
-            'additional_tax_classes' => "New Class",
+            'additional_tax_classes' => 'New Class',
         ]);
         $response->assertStatus(200);
     }

@@ -141,6 +141,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     private function makeWebhookService(): SubscriptionWebhookService
     {
         $handler = Mockery::mock(ConcretePostSubscriptionHandleController::class);
+
         return new SubscriptionWebhookService($handler);
     }
 

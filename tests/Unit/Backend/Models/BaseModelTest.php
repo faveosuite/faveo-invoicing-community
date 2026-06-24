@@ -16,7 +16,8 @@ class BaseModelTest extends TestCase
         File::shouldReceive('exists')->once()->andReturn(false);
         File::shouldReceive('makeDirectory')->once()->andReturn(true);
 
-        $model = new class extends BaseModel {
+        $model = new class extends BaseModel
+        {
             protected $table = 'users';
         };
 
@@ -28,7 +29,8 @@ class BaseModelTest extends TestCase
 
     public function test_set_attribute_purifies_html_value(): void
     {
-        $model = new class extends BaseModel {
+        $model = new class extends BaseModel
+        {
             protected $table = 'users';
         };
 
@@ -40,7 +42,8 @@ class BaseModelTest extends TestCase
 
     public function test_set_attribute_skips_purify_for_excluded_properties(): void
     {
-        $model = new class extends BaseModel {
+        $model = new class extends BaseModel
+        {
             protected $table = 'products';
         };
 

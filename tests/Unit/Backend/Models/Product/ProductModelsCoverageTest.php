@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Models\Product;
 
-use App\Model\Configure\PluginCompatibleWithProducts;
-use App\Model\Configure\ProductPluginGroup;
-use App\Model\Payment\Plan;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\ProductCategory;
@@ -15,9 +12,7 @@ use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Model\Product\Type;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Tests\TestCase;
 
 class ProductModelsCoverageTest extends TestCase

@@ -47,7 +47,7 @@ class BlockFailedVerificationsTest extends TestCase
         $this->actingAs($user);
 
         // Exhaust the email-verify rate limit
-        $key = 'email-verify:' . $user->id;
+        $key = 'email-verify:'.$user->id;
         for ($i = 0; $i <= 3; $i++) {
             RateLimiter::hit($key, 60);
         }
@@ -67,7 +67,7 @@ class BlockFailedVerificationsTest extends TestCase
         $this->actingAs($user);
 
         // Exhaust email-verify but only check mobile-verify — should pass
-        $key = 'email-verify:' . $user->id;
+        $key = 'email-verify:'.$user->id;
         for ($i = 0; $i <= 3; $i++) {
             RateLimiter::hit($key, 60);
         }
@@ -107,8 +107,8 @@ class BlockFailedVerificationsTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $key = 'email-verify:' . $user->id;
-        $appliedKey = 'penalty_applied:verify:email-verify:' . $user->id;
+        $key = 'email-verify:'.$user->id;
+        $appliedKey = 'penalty_applied:verify:email-verify:'.$user->id;
 
         // Mark penalty as already applied
         \Illuminate\Support\Facades\Cache::put($appliedKey, true, now()->addMinutes(30));
@@ -133,7 +133,7 @@ class BlockFailedVerificationsTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $key = 'email-verify:' . $user->id;
+        $key = 'email-verify:'.$user->id;
         for ($i = 0; $i <= 3; $i++) {
             RateLimiter::hit($key, 60);
         }

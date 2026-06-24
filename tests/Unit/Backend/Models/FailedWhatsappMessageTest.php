@@ -29,5 +29,4 @@ class FailedWhatsappMessageTest extends TestCase
         // get accessor tries Crypt::decrypt → throws DecryptException → returns raw value
         $this->assertSame('not-encrypted', $model->message);
     }
-
 }

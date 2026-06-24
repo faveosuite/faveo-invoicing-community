@@ -23,7 +23,8 @@ class SystemActivityLogsTraitTest extends DBTestCase
     {
         parent::setUp();
 
-        $this->subject = new class extends Model {
+        $this->subject = new class extends Model
+        {
             use SystemActivityLogsTrait;
 
             public static string $logName = 'user';
@@ -108,8 +109,12 @@ class SystemActivityLogsTraitTest extends DBTestCase
         $subject = (object) [];
 
         $activity = Mockery::mock(Activity::class)->makePartial();
-        $activity->subject = new class {
-            public function isForceDeleting(): bool { return false; }
+        $activity->subject = new class
+        {
+            public function isForceDeleting(): bool
+            {
+                return false;
+            }
         };
 
         $result = $this->getPrivateMethod($this->subject, 'resolveDeletedEventName', [$activity, 'deleted']);
@@ -120,8 +125,12 @@ class SystemActivityLogsTraitTest extends DBTestCase
     public function test_resolve_deleted_event_name_returns_deleted_for_force_delete(): void
     {
         $activity = Mockery::mock(Activity::class)->makePartial();
-        $activity->subject = new class {
-            public function isForceDeleting(): bool { return true; }
+        $activity->subject = new class
+        {
+            public function isForceDeleting(): bool
+            {
+                return true;
+            }
         };
 
         $result = $this->getPrivateMethod($this->subject, 'resolveDeletedEventName', [$activity, 'deleted']);
@@ -148,7 +157,8 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
     public function test_get_log_url_builds_url_from_segments(): void
     {
-        $subject = new class extends Model {
+        $subject = new class extends Model
+        {
             use SystemActivityLogsTrait;
 
             public static string $logName = 'user';
@@ -159,7 +169,10 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
             public array $logUrl = ['segments' => ['users', ':id'], 'params' => []];
 
-            protected function getMappings(): array { return []; }
+            protected function getMappings(): array
+            {
+                return [];
+            }
         };
 
         $url = $this->getPrivateMethod($subject, 'getLogUrl', [42]);
@@ -222,7 +235,8 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
     public function test_format_logging_attributes_with_non_callable_transform(): void
     {
-        $subject = new class extends Model {
+        $subject = new class extends Model
+        {
             use SystemActivityLogsTrait;
 
             public static string $logName = 'user';
@@ -250,7 +264,8 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
     public function test_get_log_url_builds_url_with_params(): void
     {
-        $subject = new class extends Model {
+        $subject = new class extends Model
+        {
             use SystemActivityLogsTrait;
 
             public static string $logName = 'user';
@@ -261,7 +276,10 @@ class SystemActivityLogsTraitTest extends DBTestCase
 
             public array $logUrl = ['segments' => ['users'], 'params' => ['tab' => 'details']];
 
-            protected function getMappings(): array { return []; }
+            protected function getMappings(): array
+            {
+                return [];
+            }
         };
 
         $url = $this->getPrivateMethod($subject, 'getLogUrl', [1]);
