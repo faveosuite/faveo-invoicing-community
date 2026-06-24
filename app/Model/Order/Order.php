@@ -271,12 +271,11 @@ class Order extends BaseModel
 
     public static function getOrderLink(mixed $orderId, string $url = 'orders'): string
     {
-        $link = '--';
         $order = Order::where('id', $orderId)->select('id', 'number')->first();
         if ($order) {
-            return '<a href='.url($url.'/'.$order->id).'>'.$order->number.'</a>';
+            return url($url.'/'.$order->id);
         }
 
-        return $link;
+        return '--';
     }
 }

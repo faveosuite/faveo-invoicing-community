@@ -389,103 +389,6 @@ class ClientController extends BaseClientController
     }
 
     /**
-     * @return array<mixed>
-     */
-    public function prepareInvoiceData(Invoice $invoice, ?User $user = null): array
-    {
-        $payments = $invoice->payment;
-        $user ??= Auth::user();
-        $items = $invoice->invoiceItem()->get();
-
-        $orderIDs = $invoice->orderRelation()->pluck('order_id')->toArray();
-
-        $items->each(function ($item) use ($orderIDs): void {
-            $order = Order::whereIn('id', $orderIDs)
-                ->where('product', $item->product_id)
-                ->first();
-
-            $item->order = $order; // @phpstan-ignore assign.propertyReadOnly
-        });
-        $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
-        $set = Setting::find(1);
-        $date = getDateHtml($invoice->date);
-        $symbol = $invoice->currency;
-
-        switch ($invoice->status) {
-            case 'Success':
-                $statusClass = 'text-success';
-                $statusText = 'PAID';
-                break;
-            case 'partially paid':
-                $statusClass = 'text-warning';
-                $statusText = 'Partially paid';
-                break;
-            default:
-                $statusClass = 'text-fail';
-                $statusText = 'Unpaid';
-        }
-
-        // ==== CALCULATIONS ====
-
-        $itemsSubtotal = 0;
-        $taxAmt = 0;
-
-        foreach ($items as $item) {
-            $itemsSubtotal += floatval($item->subtotal);
-
-            if ($item->tax_name != 'null') {
-                $taxAmt += floatval($item->subtotal);
-            }
-        }
-
-        // Tax breakdown from the persisted invoice_tax_lines, grouped per tax.
-        $gstSplit = [];
-
-        foreach (InvoiceTaxLine::where('invoice_id', $invoice->id)->get()->groupBy('label') as $label => $lines) {
-            $amount = (float) $lines->sum('amount');
-            $firstLine = $lines->first();
-            $rate = $firstLine instanceof InvoiceTaxLine ? (float) $firstLine->rate : 0.0;
-            $percentage = rtrim(rtrim(number_format($rate, 2, '.', ''), '0'), '.').'%';
-
-            $gstSplit[] = [
-                'name' => $label,
-                'percentage' => $percentage,
-                'labels' => [$label.'@'.$percentage],
-                'values' => [currencyFormat($amount, $invoice->currency)],
-            ];
-        }
-
-        // grand_total is stored fee-inclusive, so the fee is the part of it above
-        // the pre-fee total — reverse it out (matches Order\InvoiceController).
-        $processingFeeAmount = ProcessingFee::fromInclusive((float) $invoice->grand_total, $invoice->processing_fee);
-        $base64 = '';
-        if ($set && $set->logo) {
-            $type = pathinfo((string) $set->logo, PATHINFO_EXTENSION);
-            $logoData = file_get_contents($set->logo);
-            if ($logoData !== false) {
-                $base64 = 'data:image/'.$type.';base64,'.base64_encode($logoData);
-            }
-        }
-
-        return compact(
-            'payments',
-            'user',
-            'items',
-            'order',
-            'set',
-            'date',
-            'symbol',
-            'statusClass',
-            'statusText',
-            'itemsSubtotal',
-            'taxAmt',
-            'gstSplit',
-            'processingFeeAmount',
-            'base64'
-        );
-    }
-
-    /**
      * Get list of all the versions from Filesystem.
      */
     public function getVersionList(Request $request, int $orderid): JsonResponse
@@ -665,7 +568,8 @@ class ClientController extends BaseClientController
             }
 
             return [
-                'version' => ucfirst((string) $version->version).' '.getPreReleaseStatusLabel($version->release_type),
+                'version' => ucfirst((string) $version->version),
+                'release_type' => getPreReleaseStatusLabel($version->release_type),
                 'name' => ucfirst((string) $version->title),
                 'description' => ucfirst($version->description ?? ''),
                 'created_at' => $version->created_at,
@@ -710,11 +614,6 @@ class ClientController extends BaseClientController
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
-    }
-
-    public function generateMerchantRandomString(mixed $length = 10): string
-    {
-        return substr(bin2hex(random_bytes($length)), 0, $length);
     }
 
     /**

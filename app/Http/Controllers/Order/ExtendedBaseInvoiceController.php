@@ -10,8 +10,6 @@ use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use App\User;
 use Exception;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -95,20 +93,6 @@ class ExtendedBaseInvoiceController extends Controller
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
-    }
-
-    public function edit(int $invoiceid, Request $request): Factory|View
-    {
-        $totalSum = '0';
-        /** @var Invoice $invoice */
-        $invoice = Invoice::where('id', $invoiceid)->first();
-        $date = date('m/d/Y', (int) strtotime((string) $invoice->date));
-        $payment = Payment::where('invoice_id', $invoiceid)->pluck('amount')->toArray();
-        if ($payment) {
-            $totalSum = array_sum($payment);
-        }
-
-        return view('themes.default1.invoice.editInvoice', compact('date', 'invoiceid', 'invoice', 'totalSum')); // @phpstan-ignore argument.type
     }
 
     public function postEdit(int $invoiceid, Request $request): JsonResponse
@@ -248,34 +232,6 @@ class ExtendedBaseInvoiceController extends Controller
      * live in a SINGLE row it reads/decrements via ->value(). This helper keeps
      * that one row intact, so internal grants (e.g. product downgrades) stay
      * compatible with how that balance is later consumed.
-     */
-    public function mergeCreditBalance(int $userId, float|int $amount, Carbon $payment_date, string $payment_status = 'pending'): Payment
-    {
-        $existing = Payment::where('user_id', $userId)
-            ->where('invoice_id', 0)
-            ->where('payment_method', 'Credit Balance');
-
-        $current = (float) (clone $existing)->sum('amt_to_credit');
-        $currency = (clone $existing)->orderBy('id', 'desc')->value('currency')
-            ?: User::where('id', $userId)->value('currency');
-        $existing->delete();
-
-        $total = $current + (float) $amount;
-
-        return Payment::create([
-            'invoice_id' => 0,
-            'user_id' => $userId,
-            'amount' => $total,
-            'amt_to_credit' => $total,
-            'payment_method' => 'Credit Balance',
-            'payment_status' => $payment_status,
-            'created_at' => $payment_date,
-            'currency' => $currency,
-        ]);
-    }
-
-    /*
-     * Apply a client's accumulated credit balance to their pending invoices.
      */
     public function updateNewMultiplePayment(int $clientid, Request $request): JsonResponse
     {

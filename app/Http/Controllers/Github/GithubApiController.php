@@ -111,17 +111,4 @@ class GithubApiController
         return $response->successful() && $response->json('login') === $username;
     }
 
-    /**
-     * Authorize this app against the configured GitHub OAuth application.
-     */
-    public function authorizeApp(): ?string
-    {
-        $github = Github::firstOrFail();
-
-        return $this->http
-            ->put('/authorizations/clients/'.$github->client_id, [
-                'client_secret' => $github->client_secret,
-            ])
-            ->json('hashed_token');
-    }
 }

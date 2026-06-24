@@ -15,19 +15,6 @@ class AutoUpdateController extends Controller
     }
 
     /*
-    *  Add New Version
-    */
-    public function addNewVersion(mixed $product_id, mixed $version_number, mixed $upgrade_zip_file, mixed $version_status): void
-    {
-        $this->versionService->create([ // @phpstan-ignore method.notFound
-            'product_id' => $product_id,
-            'version_number' => $version_number,
-            'version_upgrade_file' => $upgrade_zip_file,
-            'version_status' => $version_status ?? 'active',
-        ]);
-    }
-
-    /*
     *  Edit Version
     */
     public function editVersion(string $version_number, mixed $product_sku): void
@@ -46,24 +33,4 @@ class AutoUpdateController extends Controller
         // This method should be expanded with proper update logic
     }
 
-    /*
-    *  Search Version
-    */
-    /**
-     * @return array<mixed>
-     */
-    public function searchVersion(string $version_number, mixed $product_sku): array
-    {
-        $product = Product::where('product_sku', $product_sku)->first();
-        if (! $product) {
-            return ['version_id' => '', 'product_id' => ''];
-        }
-
-        $version = $this->versionService->getVersionByNumber($product->id, $version_number);
-
-        return [
-            'version_id' => $version instanceof ProductUpload ? $version->id : '',
-            'product_id' => $product->id,
-        ];
-    }
 }

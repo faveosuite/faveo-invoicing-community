@@ -89,19 +89,6 @@ class HelpersBoostTest extends DBTestCase
         $this->assertArrayNotHasKey('message', $data);
     }
 
-    public function test_tooltip_wraps_text_in_html(): void
-    {
-        $result = tooltip('Help text here');
-        $this->assertIsString($result);
-        $this->assertStringContainsString('Help text here', $result);
-    }
-
-    public function test_tooltip_empty_returns_string(): void
-    {
-        $result = tooltip();
-        $this->assertIsString($result);
-    }
-
     public function test_get_status_label_active_returns_string(): void
     {
         $result = getStatusLabel(1);
@@ -225,12 +212,11 @@ class HelpersBoostTest extends DBTestCase
         $this->assertFalse($data['success']);
     }
 
-    public function test_hyper_link_generator_returns_html_anchor(): void
+    public function test_hyper_link_generator_returns_url(): void
     {
-        $result = hyperLinkGenerator('https://example.com', 'Click Here');
-        $this->assertStringContainsString('<a', $result);
-        $this->assertStringContainsString('https://example.com', $result);
-        $this->assertStringContainsString('Click Here', $result);
+        $result = hyperLinkGenerator('https://example.com');
+        $this->assertIsString($result);
+        $this->assertStringContainsString('example.com', $result);
     }
 
     public function test_format_days_less_than_30_returns_days(): void

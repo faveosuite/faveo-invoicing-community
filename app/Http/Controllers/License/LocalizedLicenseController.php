@@ -7,7 +7,6 @@ use App\License\Services\InstallationService;
 use App\Model\Order\Order;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -28,17 +27,17 @@ class LocalizedLicenseController extends Controller
     /**
      * Downloads the license file.
      * */
-    public function downloadFile(Request $request): BinaryFileResponse|RedirectResponse
+    public function downloadFile(Request $request): BinaryFileResponse
     {
-        if (Auth::check()) {
-            $orderNo = $request->get('orderNo');
-            $fileName = 'faveo-license-{'.$orderNo.'}.txt';
-            $filePath = storage_path('app/public/'.$fileName);
-
-            return response()->download($filePath);
+        if (! Auth::check()) {
+            abort(401);
         }
 
-        return redirect(url('login'));
+        $orderNo = $request->get('orderNo');
+        $fileName = 'faveo-license-{'.$orderNo.'}.txt';
+        $filePath = storage_path('app/public/'.$fileName);
+
+        return response()->download($filePath);
     }
 
     /**
@@ -164,15 +163,15 @@ class LocalizedLicenseController extends Controller
     /**
      * Generates a temporary link to download the license file with a time constraint.
      * */
-    public function tempOrderLink(string $orderNo, int $userID): string|RedirectResponse
+    public function tempOrderLink(string $orderNo, int $userID): string
     {
-        if ($userID !== 0 && ! empty(Auth::user()->id)) {
-            return URL::temporarySignedRoute('event.rsvp', now()->addSeconds(30), [
-                'orderNo' => $orderNo,
-            ]);
+        if ($userID === 0 || empty(Auth::user()?->id)) {
+            abort(401);
         }
 
-        return redirect(url('login'));
+        return URL::temporarySignedRoute('event.rsvp', now()->addSeconds(30), [
+            'orderNo' => $orderNo,
+        ]);
     }
 
     private function localizedLicenseInstallLM(string $orderNo): void

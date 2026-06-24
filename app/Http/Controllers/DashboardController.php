@@ -14,67 +14,10 @@ use Carbon\CarbonImmutable;
 use DateTime;
 use DB;
 use Exception;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 
 class DashboardController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth', ['only' => ['index']]);
-        $this->middleware('admin', ['only' => ['index']]);
-    }
-
-    /**
-     * The method returns all the data required to be displayed on the dashboard.
-     *
-     * $allowedCurrencies1 The default currency of the system. This can be changed from Admin system  settings
-     * $allowedCurrencies2 The currency that is activated from currency settings.
-     *
-     * Only two currencies are allowed to be displayed on the dashboard. One is system deafult currency. Other is the activated
-     * currency from the system.
-     */
-    public function index(Request $request): Factory|View
-    {
-        $allowedCurrencies1 = Setting::where('id', 1)->value('default_currency');
-        $currency1Symbol = Setting::where('id', 1)->value('default_symbol');
-        $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->value('code');
-        $currency2Symbol = Currency::where('dashboard_currency', 1)->value('symbol');
-        $totalSalesCurrency1 = $this->getTotalSales($allowedCurrencies1);
-        $totalSalesCurrency2 = $this->getTotalSales($allowedCurrencies2);
-        $yearlySalesCurrency2 = $this->getYearlySales($allowedCurrencies2);
-        $yearlySalesCurrency1 = $this->getYearlySales($allowedCurrencies1);
-        $monthlySalesCurrency2 = $this->getMonthlySales($allowedCurrencies2);
-        $monthlySalesCurrency1 = $this->getMonthlySales($allowedCurrencies1);
-        $pendingPaymentCurrency2 = $this->getPendingPayments($allowedCurrencies2);
-        $pendingPaymentCurrency1 = $this->getPendingPayments($allowedCurrencies1);
-        $getLast30DaysInstallation = $this->getLast30DaysInstallation();
-
-        $users = $this->getAllUsers();
-        $productSoldInLast30Days = $this->getSoldProducts(30);
-        $recentOrders = $this->getRecentOrders();
-        $subscriptions = $this->getExpiringSubscriptions();
-
-        $expiredSubscriptions = $this->getExpiringSubscriptions(past30Days: true);
-
-        $invoices = $this->getRecentInvoices();
-        $allSoldProducts = $this->getSoldProducts();
-
-        $clientsUsingOldVersion = $this->getClientsUsingOldVersions();
-
-        $startSubscriptionDate = date('Y-m-d');
-        $endSubscriptionDate = date('Y-m-d', strtotime('+3 months'));
-        $status = $request->input('status');
-        $conversionRate = $this->getConversionRate();
-
-        return view('themes.default1.common.dashboard', compact('allowedCurrencies1', 'allowedCurrencies2', // @phpstan-ignore argument.type
-            'currency1Symbol', 'currency2Symbol', 'totalSalesCurrency2', 'totalSalesCurrency1', 'yearlySalesCurrency2',
-            'yearlySalesCurrency1', 'monthlySalesCurrency2', 'monthlySalesCurrency1', 'users', 'productSoldInLast30Days', 'recentOrders', 'subscriptions', 'expiredSubscriptions', 'invoices', 'allSoldProducts', 'pendingPaymentCurrency2',
-            'pendingPaymentCurrency1', 'status', 'startSubscriptionDate', 'endSubscriptionDate', 'clientsUsingOldVersion', 'getLast30DaysInstallation', 'conversionRate'));
-    }
-
     /**
      * Get all the orders that got converted into paid orders in last 30 days.
      *

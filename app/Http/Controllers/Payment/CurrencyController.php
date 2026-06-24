@@ -10,8 +10,6 @@ use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Lang;
-use Session;
 
 class CurrencyController extends Controller
 {
@@ -78,29 +76,6 @@ class CurrencyController extends Controller
     }
 
     /**
-     * Get the Color of the button when the currency is allowed to show on dashboard.
-     *
-     * @param  string  $id  Currrency id
-     */
-    public function getButtonColor(string $id): string
-    {
-        $defaultCurrency = Setting::value('default_currency');
-        $currencyCode = Currency::where('id', $id)->value('code'); // If default currency is equal to the currency code then make that button as Disabled as it would always be shown on dashboard and cannot be modified
-        if ($defaultCurrency == $currencyCode) {
-            return '<a class="btn btn-sm btn-warning btn-xs disabled" style="background-color:#f39c12;">&nbsp;&nbsp;'.__('message.default-currency').'</a>';
-        }
-
-        $currency = Currency::where('id', $id)->value('dashboard_currency');
-        if ($currency == 1) {
-            return '<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.Session::token().'>'.'
-                                    <button type="submit" class="btn btn-sm btn-success btn-xs"><i class="fa fa-check" style="color:white;"></i>&nbsp;&nbsp; '.__('message.show_on_dashboard').'</button></form>';
-        }
-
-        return '<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.Session::token().'>'.'
-                                    <button type="submit" class="btn btn-sm btn-danger btn-xs"><i class="fa fa-times" style="color:white;"></i>&nbsp;&nbsp; '.__('message.show_on_dashboard').'</button></form>';
-    }
-
-    /**
      * Activate the Currency to be Shown on Dashboard.
      */
     public function setDashboardCurrency(mixed $id): JsonResponse
@@ -112,38 +87,6 @@ class CurrencyController extends Controller
         }
 
         return successResponse(__('message.updated-successfully'));
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): mixed
-    {
-        // dd($request->all());
-        // $this->validate($request, [
-        //     'code'            => 'required',
-        //     'name'            => 'required',
-        // ]);
-
-        try {
-            $nicename = Country::where('country_id', $request->name)->value('country_name');
-            $codeChar2 = Country::where('country_id', $request->name)->value('country_code_char2');
-            $currency = new Currency;
-
-            $currency->code = $request->code;
-            $currency->symbol = $request->symbol;
-            $currency->name = $request->currency_name;
-            $currency->base_conversion = '1.0'; // @phpstan-ignore property.notFound
-            $currency->country_code_char2 = $codeChar2; // @phpstan-ignore property.notFound
-            $currency->nicename = $nicename; // @phpstan-ignore property.notFound
-            $currency->save();
-
-            // $this->currency->fill($request->input())->save();
-
-            return successResponse(Lang::get('message.saved-successfully'));
-        } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
     }
 
     /**
@@ -191,98 +134,6 @@ class CurrencyController extends Controller
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Request $request): void
-    {
-        try {
-            $ids = $request->input('select');
-            if (! empty($ids)) {
-                $alert = is_string($t = Lang::get('message.alert')) ? $t : '';
-                $failed = is_string($t = Lang::get('message.failed')) ? $t : '';
-                $success = is_string($t = Lang::get('message.success')) ? $t : '';
-                $noRecord = is_string($t = Lang::get('message.no-record')) ? $t : '';
-                $deletedSuccess = is_string($t = Lang::get('message.deleted-successfully')) ? $t : '';
-                $cannotDeleteDefault = is_string($t = Lang::get('message.can-not-delete-default')) ? $t : '';
-
-                foreach ($ids as $id) {
-                    if ($id != 1) {
-                        $currency = $this->currency->where('id', $id)->first();
-                        if ($currency) {
-                            $currency->delete();
-                        } else {
-                            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>".$alert.'!</b> '.
-                    $failed.'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$noRecord.'
-                </div>';
-                        }
-
-                        echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-
-                    <b>".$alert.'!</b> '.
-                    $success.'
-
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$deletedSuccess.'
-                </div>';
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>".$alert.'!</b> '.
-                    $failed.'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$cannotDeleteDefault.'
-                </div>';
-                    }
-                }
-            } else {
-                $alert = is_string($t = Lang::get('message.alert')) ? $t : '';
-                $failed = is_string($t = Lang::get('message.failed')) ? $t : '';
-                $selectRow = is_string($t = Lang::get('message.select-a-row')) ? $t : '';
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>".$alert.'!</b> '.
-                    $failed.'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$selectRow.'
-                </div>';
-            }
-        } catch (Exception $exception) {
-            $alert = is_string($t = Lang::get('message.alert')) ? $t : '';
-            $failed = is_string($t = Lang::get('message.failed')) ? $t : '';
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>".$alert.'!</b> '.
-                    $failed.'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$exception->getMessage().'
-                </div>';
-        }
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function countryDetails(Request $request): array
-    {
-        $countryDetails = Country::where('country_id', $request->id)->select('currency_code', 'currency_symbol', 'currency_name')->first();
-        if (is_null($countryDetails)) {
-            return ['code' => '', 'symbol' => '', 'currency' => ''];
-        }
-        /** @var mixed $countryDetails */
-
-        return [
-            'code' => $countryDetails->currency_code,
-            'symbol' => $countryDetails->currency_symbol,
-            'currency' => $countryDetails->currency_name,
-        ];
     }
 
     public function updatecurrency(Request $request): JsonResponse

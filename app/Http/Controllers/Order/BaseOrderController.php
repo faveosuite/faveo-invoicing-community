@@ -34,26 +34,6 @@ class BaseOrderController extends ExtendedOrderController
 
     use UpdateDates;
 
-    public function getUrl(Order $model, string $status, ?string $subscriptionId, ?int $agents = null): string
-    {
-        $url = '';
-        if ($model->order_status != 'Terminated' && $status === 'success' && $subscriptionId) {
-            if (! is_null($agents)) {
-                $url = '<a href='.url('renew/'.$subscriptionId.'/'.$agents)." 
-                class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.renew'))."<i class='fas fa-credit-card'
-                 style='color:white;'> </i></a>";
-            } else {
-                $url = '<a href='.url('renew/'.$subscriptionId)." 
-                class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.renew'))."<i class='fas fa-credit-card'
-                 style='color:white;'> </i></a>";
-            }
-        }
-
-        return '<p><a href='.url('orders/'.$model->id)." 
-        class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."<i class='fas fa-eye'
-         style='color:white;'> </i></a> {$url}</p>";
-    }
-
     /**
      * inserting the values to orders table.
      *

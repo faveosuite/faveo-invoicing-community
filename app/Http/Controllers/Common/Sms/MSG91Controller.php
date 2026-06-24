@@ -10,8 +10,6 @@ use App\Model\Common\StatusSetting;
 use App\ThirdPartyApp;
 use Carbon\CarbonImmutable;
 use Exception;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,7 +23,7 @@ class MSG91Controller extends Controller
     {
         $this->middleware(function ($request, $next) {
             if (StatusSetting::value('msg91_status') != 1) {
-                return redirect()->to('settings')->with('fails', __('message.sms_service_disabled'));
+                abort(403, (string) __('message.sms_service_disabled'));
             }
 
             return $next($request);
@@ -152,27 +150,6 @@ class MSG91Controller extends Controller
             'source' => $source,
             'action' => 'retry_'.$retryCount,
         ]);
-    }
-
-    public function msg91Reports(): Factory|View
-    {
-        $status = Msg91Status::orderBy('status_label')->get();
-        $sources = MsgDeliveryReports::query()
-            ->whereNotNull('source')
-            ->where('source', '!=', '')
-            ->select('source')
-            ->distinct()
-            ->orderBy('source')
-            ->pluck('source');
-        $actions = MsgDeliveryReports::query()
-            ->whereNotNull('action')
-            ->where('action', '!=', '')
-            ->select('action')
-            ->distinct()
-            ->orderBy('action')
-            ->pluck('action');
-
-        return view('themes.default1.common.sms.msgReports', compact('status', 'sources', 'actions')); // @phpstan-ignore argument.type
     }
 
     public function getMsg91Reports(Request $request): JsonResponse

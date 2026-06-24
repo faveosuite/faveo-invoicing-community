@@ -208,12 +208,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     use CanResetPassword;
     use HasApiTokens;
-    use HasApiTokens;
     /**
      * @use HasFactory<Factory>
      */
     use HasFactory;
-    use Notifiable;
     use Notifiable;
     use SoftDeletes;
     use SystemActivityLogsTrait;

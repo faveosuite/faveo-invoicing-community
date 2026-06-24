@@ -20,11 +20,11 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
     }
 
-    public function test_download_file_redirects_when_not_authenticated(): void
+    public function test_download_file_returns_401_when_not_authenticated(): void
     {
         auth()->logout();
         $response = $this->get('/downloadLicenseFile?orderNo=ORD001');
-        $response->assertStatus(302);
+        $response->assertStatus(401);
     }
 
     public function test_download_file_returns_file_when_authenticated(): void
@@ -97,16 +97,18 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $this->assertStringContainsString('downloadLicenseFile', $url);
     }
 
-    public function test_temp_order_link_redirects_when_user_id_is_zero(): void
+    public function test_temp_order_link_aborts_401_when_user_id_is_zero(): void
     {
-        // Covers line 176: redirect when userID = 0
         $controller = new \App\Http\Controllers\License\LocalizedLicenseController(
             $this->app->make(\App\License\Services\InstallationService::class)
         );
 
-        $result = $controller->tempOrderLink('ORD001', 0);
-
-        $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $result);
+        try {
+            $controller->tempOrderLink('ORD001', 0);
+            $this->fail('Expected HttpException was not thrown');
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            $this->assertEquals(401, $e->getStatusCode());
+        }
     }
 
     public function test_localized_license_install_lm_runs_without_exception(): void

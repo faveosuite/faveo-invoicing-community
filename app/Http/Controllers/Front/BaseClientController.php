@@ -11,11 +11,7 @@ use Auth;
 use DB;
 use Exception;
 use Hash;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Logger;
 
 class BaseClientController extends Controller
@@ -100,40 +96,4 @@ class BaseClientController extends Controller
         return 'my-invoice/'.$invoiceId;
     }
 
-    public function subscriptions(): mixed
-    {
-        try {
-            return view('themes.default1.front.clients.subscription'); // @phpstan-ignore argument.type
-        } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
-    }
-
-    /**
-     *  This returns to the client panel orders page.
-     *
-     * @return View|RedirectResponse
-     *
-     * @throws Exception
-     */
-    public function orders(Request $request)
-    {
-        try {
-            return view('themes.default1.front.clients.order1', compact('request')); // @phpstan-ignore argument.type
-        } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
-    }
-
-    /**
-     *  This returns to the cloud popup deletion.
-     *
-     * @return View
-     *
-     * @throws Exception
-     */
-    public function deleteCloudPopup(mixed $orderNumber): Factory|View
-    {
-        return view('themes.default1.front.clients.delete-cloud-popup', compact('orderNumber')); // @phpstan-ignore argument.type
-    }
 }

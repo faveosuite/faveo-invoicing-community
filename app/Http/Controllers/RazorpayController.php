@@ -37,14 +37,6 @@ class RazorpayController extends Controller
         $this->invoiceItem = $invoiceItem;
     }
 
-    public function getCurrency(): mixed
-    {
-        /** @var User $authUser2 */
-        $authUser2 = Auth::user();
-
-        return $authUser2->currency_symbol;
-    }
-
     public function getState(mixed $country, mixed $stateCode): mixed
     {
         /** @var User $authUser3 */

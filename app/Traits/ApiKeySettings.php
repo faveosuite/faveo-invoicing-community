@@ -7,14 +7,8 @@ use App\FileSystemSettings;
 use App\Http\Requests\UpdateStoragePathRequest;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\StatusSetting;
-use App\Model\Common\Timezone;
-use App\Model\Mailjob\Condition;
-use App\User;
-use Auth;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
-use DateTime;
-use DateTimeZone;
 use DrewM\MailChimp\MailChimp;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -63,11 +57,6 @@ trait ApiKeySettings
         } catch (Exception) {
             return errorResponse(__('message.invalid_key'));
         }
-    }
-
-    public function mobileStatus(Request $request): void
-    {
-        $request->input('status');
     }
 
     // Save Auto Update status in Database
@@ -301,133 +290,6 @@ trait ApiKeySettings
             return successResponse(__('message.terms_setting'));
         } catch (Exception) {
             return errorResponse(__('message.terms_error'));
-        }
-    }
-
-    /**
-     * Get Date.
-     */
-    public function getDate(mixed $dbdate): mixed
-    {
-        $created = new DateTime($dbdate);
-        $user = Auth::user();
-        if (! $user instanceof User) {
-            $tz = 'UTC';
-        } else {
-            $timezone = $user->timezone()->first();
-            $tz = $timezone instanceof Timezone ? $timezone->name : 'UTC';
-        }
-        $created->setTimezone(new DateTimeZone($tz));
-        $date = $created->format('M j, Y, g:i a '); // 5th October, 2018, 11:17PM
-        $newDate = $date;
-
-        return $newDate;
-    }
-
-    public function getDateFormat(mixed $dbdate = ''): string
-    {
-        $created = new DateTime($dbdate);
-        $user = Auth::user();
-        if (! $user instanceof User) {
-            $tz = 'UTC';
-        } else {
-            $timezone = $user->timezone()->first();
-            $tz = $timezone instanceof Timezone ? $timezone->name : 'UTC';
-        }
-        $created->setTimezone(new DateTimeZone($tz));
-
-        return $created->format('Y-m-d H:m:i');
-    }
-
-    public function saveConditions(Request $request): void
-    {
-        if (\Request::get('expiry-commands') && \Request::get('activity-commands')) {
-            $expiry_commands = \Request::get('expiry-commands');
-            $expiry_dailyAt = \Request::get('expiry-dailyAt');
-            $activity_commands = \Request::get('activity-commands');
-            $activity_dailyAt = \Request::get('activity-dailyAt');
-            $subexpiry_commands = \Request::get('subexpiry-commands');
-            $subexpiry_dailyAt = \Request::get('subexpiry-dailyAt');
-            $postexpiry_commands = \Request::get('postsubexpiry-commands');
-            $postexpiry_dailyAt = \Request::get('postsubexpiry-dailyAt');
-            $cloud_commands = \Request::get('cloud-commands');
-            $cloud_dailyAt = \Request::get('cloud-dailyAt');
-            $invoice_commands = \Request::get('invoice-commands');
-            $invoice_dailyAt = \Request::get('invoice-dailyAt');
-            $msg91_commands = \Request::get('msg91-commands');
-            $msg91_dailyAt = \Request::get('msg91-dailyAt');
-            $reoon_commands = \Request::get('reoon-commands');
-            $reoon_dailyAt = \Request::get('reoon-dailyAt');
-
-            $system_commands = \Request::get('systemlogs-commands');
-            $system_dailyAt = \Request::get('systemlogs-dailyAt');
-            $installationlogs_commands = \Request::get('installationlogs-commands');
-            $installationlogs_dailyAt = \Request::get('installationlogs-dailyAt');
-            $licensereports_commands = \Request::get('licensereports-commands');
-            $licensereports_dailyAt = \Request::get('licensereports-dailyAt');
-            $licensecallbacks_commands = \Request::get('licensecallbacks-commands');
-            $licensecallbacks_dailyAt = \Request::get('licensecallbacks-dailyAt');
-            $licensecrack_commands = \Request::get('licensecrack-commands');
-            $licensecrack_dailyAt = \Request::get('licensecrack-dailyAt');
-            $licensesystem_commands = \Request::get('licensesystem-commands');
-            $licensesystem_dailyAt = \Request::get('licensesystem-dailyAt');
-            $licenseversions_commands = \Request::get('licenseversions-commands');
-            $licenseversions_dailyAt = \Request::get('licenseversions-dailyAt');
-
-            $activity_command = $this->getCommand($activity_commands, $activity_dailyAt);
-            $expiry_command = $this->getCommand($expiry_commands, $expiry_dailyAt);
-            $subexpiry_command = $this->getCommand($subexpiry_commands, $subexpiry_dailyAt);
-            $postexpiry_command = $this->getCommand($postexpiry_commands, $postexpiry_dailyAt);
-            $expiry_command = $this->getCommand($expiry_commands, $expiry_dailyAt);
-            $cloud_command = $this->getCommand($cloud_commands, $cloud_dailyAt);
-            $invoice_command = $this->getCommand($invoice_commands, $invoice_dailyAt);
-            $msg91_command = $this->getCommand($msg91_commands, $msg91_dailyAt);
-            $reoon_command = $this->getCommand($reoon_commands, $reoon_dailyAt);
-            $system_command = $this->getCommand($system_commands, $system_dailyAt);
-            $installationlogs_command = $this->getCommand($installationlogs_commands, $installationlogs_dailyAt);
-            $licensereports_command = $this->getCommand($licensereports_commands, $licensereports_dailyAt);
-            $licensecallbacks_command = $this->getCommand($licensecallbacks_commands, $licensecallbacks_dailyAt);
-            $licensecrack_command = $this->getCommand($licensecrack_commands, $licensecrack_dailyAt);
-            $licensesystem_command = $this->getCommand($licensesystem_commands, $licensesystem_dailyAt);
-            $licenseversions_command = $this->getCommand($licenseversions_commands, $licenseversions_dailyAt);
-
-            $jobs = [
-                'expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_command, 'postExpirymail' => $postexpiry_command,
-                'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command, 'reoon' => $reoon_command, 'systemLogs' => $system_command,
-                'installationLogs' => $installationlogs_command, 'licenseReportsCleanup' => $licensereports_command,
-                'licenseCallbacksCleanup' => $licensecallbacks_command, 'licenseCrackReportsCleanup' => $licensecrack_command,
-                'licenseSystemReportsCleanup' => $licensesystem_command, 'licenseVersionsCleanup' => $licenseversions_command,
-            ];
-
-            $this->storeCommand($jobs);
-        }
-    }
-
-    public function getCommand(mixed $command, string $daily_at): mixed
-    {
-        if ($command == 'dailyAt') {
-            return 'dailyAt,'.$daily_at;
-        }
-
-        return $command;
-    }
-
-    /**
-     * @param  array<mixed>  $jobs
-     */
-    public function storeCommand(array $jobs = []): void
-    {
-        $model = new Condition;
-
-        // Clear all previous commands
-        Condition::truncate();
-
-        // Insert all new commands
-        foreach ($jobs as $job => $value) {
-            $model->create([
-                'job' => $job,
-                'value' => $value,
-            ]);
         }
     }
 

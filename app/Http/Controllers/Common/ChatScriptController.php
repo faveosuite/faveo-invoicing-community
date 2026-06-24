@@ -41,7 +41,7 @@ class ChatScriptController extends Controller
                 'id' => $script->id,
                 'name' => $script->name,
                 'checkbox' => $script->id,
-                'action' => hyperLinkGenerator('chat/show/'.$script->id, __('message.edit')),
+                'action' => hyperLinkGenerator('chat/show/'.$script->id),
             ]);
 
             return successResponse(__('message.scripts_fetched'), $scripts);

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\License\Services\InstallationService;
-use App\License\Services\LicenseService;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -119,35 +117,6 @@ class RenewController extends BaseRenewController
         }
     }
 
-    public function editDateInAPL(Subscription $sub, ?string $updatesExpiry, ?string $licenseExpiry, ?string $supportExpiry): void
-    {
-        /** @var Order $subOrder */
-        $subOrder = $sub->order;
-        $domain = $subOrder->domain;
-        $orderNo = $subOrder->number;
-        $licenseCode = $subOrder->serial_key;
-        $expiryDate = $updatesExpiry ? Date::parse($updatesExpiry)->format('Y-m-d') : '';
-        $licenseExpiry = $licenseExpiry ? Date::parse($licenseExpiry)->format('Y-m-d') : '';
-        $supportExpiry = $supportExpiry ? Date::parse($supportExpiry)->format('Y-m-d') : '';
-        $installService = resolve(InstallationService::class);
-        $licenseService = resolve(LicenseService::class);
-        $noOfAllowedInstallation = $installService->countActiveInstallations($licenseCode);
-        $ipAndDomain = LicenseService::parseIpAndDomain($domain);
-        $existingLicense = $licenseService->findByCode($licenseCode);
-        if ($existingLicense) {
-            $licenseService->update($existingLicense->id, [
-                'license_order_number' => $orderNo,
-                'license_domain' => $ipAndDomain['domain'],
-                'license_ip' => $ipAndDomain['ip'],
-                'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_expire_date' => $licenseExpiry,
-                'license_updates_date' => $expiryDate,
-                'license_support_date' => $supportExpiry,
-                'license_limit' => $noOfAllowedInstallation ?: 2,
-            ]);
-        }
-    }
-
     // Tuesday, June 13, 2017 08:06 AM
 
     public function getProductById(int $id): ?Product
@@ -216,54 +185,6 @@ class RenewController extends BaseRenewController
         }
     }
 
-    public function tax(Product $product, float|int $cost, User $user): float|int|null
-    {
-        try {
-            $controller = new InvoiceController;
-            $tax = $this->calculateTax($product->id, (string) $user->state, (string) $user->country);
-            $tax_name = $tax['name'];
-            $tax_rate = $tax['value'];
-
-            $grand_total = $controller->calculateTotal($tax_rate, $cost);
-
-            return rounding($grand_total);
-        } catch (Exception $exception) {
-            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
-        }
-    }
-
-    /*
-    /**
-     * Show the Renew Page from by clicking onRenew in All Orders (Admin Panel).
-     *
-     * @param  int  $id  Subscription id for the order
-     */
-    public function renewForm(int $id, ?int $agents = null): JsonResponse
-    {
-        try {
-            /** @var Subscription $sub */
-            $sub = $this->sub->find($id);
-            $userid = $sub->user_id;
-            if (User::onlyTrashed()->find($userid)) {// If User is soft deleted for this order
-                throw new Exception(__('message.user_order_suspended'));
-            }
-
-            $productid = $sub->product_id;
-            $plans = $this->plan->pluck('name', 'id')->toArray();
-            $data = ['id' => $id,
-                'productid' => $productid,
-                'plans' => $plans,
-                'userid' => $userid,
-                'agents' => $agents];
-
-            return successResponse('', $data);
-            //            return view('themes.default1.renew.renew', compact('id', 'productid', 'plans', 'userid', 'agents'));
-        } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
-            // return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
     public function renewByClient(int $id, Request $request): JsonResponse
     {
         try {
@@ -324,18 +245,6 @@ class RenewController extends BaseRenewController
     {
         Session::put('subscription_id', $sub_id);
         Session::put('plan_id', $planid);
-    }
-
-    public function removeSession(): void
-    {
-        Session::forget('subscription_id');
-        Session::forget('plan_id');
-        Session::forget('invoiceid');
-    }
-
-    public function checkRenew(int $flag = 1): bool
-    {
-        return Session::has('subscription_id') && Session::has('plan_id') && $flag;
     }
 
     // Update License Expiry Date

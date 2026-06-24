@@ -12,8 +12,6 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use Crypt;
 use Exception;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -99,13 +97,6 @@ class BaseHomeController extends Controller
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
-    }
-
-    public function index(): Factory|View
-    {
-        $this->getTotalSales();
-
-        return view('themes.default1.common.dashboard'); // @phpstan-ignore argument.type
     }
 
     public function getDomain(string $url): string

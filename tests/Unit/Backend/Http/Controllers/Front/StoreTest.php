@@ -46,32 +46,6 @@ class StoreTest extends DBTestCase
     }
 
     #[Group('store')]
-    public function test_store_get_monthly_price(): void
-    {
-        $user = User::factory()->create(['country' => 'US']);
-        $this->actingAs($user);
-        $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
-        $product = Product::factory()->create(['group' => $group->id]);
-        $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => 200, 'currency' => 'USD']);
-        $response = $this->con->leastAmount($product->id);
-        $this->assertEquals($response, '<span class="price-unit">$</span>200.00');
-    }
-
-    #[Group('store')]
-    public function test_store_monthly_price_more_days(): void
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-        $group = ProductGroup::create(['name' => 'consumer-products-days', 'hidden' => 0, 'pricing_templates_id' => 1]);
-        $product = Product::factory()->create(['group' => $group->id]);
-        Plan::factory()->create(['product' => $product->id]);
-        // No PlanPrice created — leastAmount returns 'Free'
-        $response = $this->getPrivateMethod($this->con, 'leastAmount', [$product->id]);
-        $this->assertEquals('Free', $response);
-    }
-
-    #[Group('store')]
     public function test_store_get_price_description(): void
     {
         $user = User::factory()->create();

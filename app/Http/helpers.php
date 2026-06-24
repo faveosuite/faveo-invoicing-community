@@ -173,10 +173,7 @@ function getDateHtml(?string $dateTimeString = null): string
             return '--';
         }
 
-        $date = getTimeInLoggedInUserTimeZone($dateTimeString, 'M j, Y');
-        $dateTime = getTimeInLoggedInUserTimeZone($dateTimeString);
-
-        return "<label data-toggle='tooltip'style='font-weight:500; margin: 0px' data-placement='top' title='".$dateTime."'>".$date.'</label>';
+        return getTimeInLoggedInUserTimeZone($dateTimeString, 'M j, Y');
     } catch (Exception) {
         return '--';
     }
@@ -209,12 +206,6 @@ function getVersionAndLabel(mixed $productVersion, string $productId, ?string $p
 
     // Return version value or '--' if not available
     return $productVersion ?? $latestVersion ?? null;
-}
-
-function tooltip(string $tootipText = ''): string
-{
-    return '<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title='.$tootipText.'>
-             </label>';
 }
 
 /**
@@ -666,20 +657,14 @@ function cloudPopupProducts(): array
     return CloudProducts::pluck('cloud_product')->toArray();
 }
 
-function getPreReleaseStatusLabel(mixed $status, string $badge = 'badge'): ?string
+function getPreReleaseStatusLabel(mixed $status): ?string
 {
-    switch ($status) {
-        case 'official':
-            return '<span class="'.$badge.' '.$badge.'-success">'.__('message.official_release').'</span>';
-
-        case 'pre_release':
-            return '<span class="'.$badge.' '.$badge.'-warning">'.__('message.pre_release').'</span>';
-
-        case 'beta':
-            return '<span class="'.$badge.' '.$badge.'-info">'.__('message.beta').'</span>';
-    }
-
-    return null;
+    return match ($status) {
+        'official' => 'official',
+        'pre_release' => 'pre_release',
+        'beta' => 'beta',
+        default => null,
+    };
 }
 
 /**
@@ -1094,16 +1079,9 @@ function formatDays(int $days): ?string
     };
 }
 
-/**
- * Generate an HTML hyperlink.
- *
- * @param  string  $href  The URL for the hyperlink.
- * @param  string  $value  The display text for the hyperlink.
- * @return string The generated HTML anchor tag.
- */
-function hyperLinkGenerator(string $href, string $value): string
+function hyperLinkGenerator(string $href): string
 {
-    return "<a href='".url($href)."'>".$value.'</a>';
+    return url($href);
 }
 
 /**

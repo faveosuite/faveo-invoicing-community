@@ -172,15 +172,6 @@ class HomeController extends BaseHomeController
         }
     }
 
-    public function submit(string $result, string $url): void
-    {
-        echo sprintf('<form action=%s method=post name=redirect>', $url);
-        echo '<input type=hidden name=_token value=csrf_token()/>';
-        echo '<input type=hidden name=result value='.$result.'/>';
-        echo '</form>';
-        echo "<script language='javascript'>document.redirect.submit();</script>";
-    }
-
     /**
      * @return array<mixed>
      */

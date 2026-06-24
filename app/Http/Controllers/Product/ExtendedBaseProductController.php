@@ -14,7 +14,6 @@ use App\User;
 use Auth;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Logger;
@@ -22,35 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExtendedBaseProductController extends Controller
 {
-    /**
-     * Go to edit Product Upload Page.
-     *
-     * @date   2019-03-07T13:15:58+0530
-     *
-     * @param  int  $id  Product Upload id
-     */
-    public function editProductUpload($id): mixed
-    {
-        try {
-            $model = ProductUpload::with('product')->findOrFail($id);
-
-            $selectedProduct = $model->product?->name;
-
-            if (! $selectedProduct) {
-                return back()
-                    ->with('fails', __('message.product_not_found'));
-            }
-
-            return view(
-                'themes.default1.product.product.edit-upload-option', // @phpstan-ignore argument.type
-                compact('model', 'selectedProduct')
-            );
-        } catch (ModelNotFoundException) {
-            return redirect()->to('products')
-                ->with('fails', __('message.product_not_found'));
-        }
-    }
-
     // Update the File Info
     public function uploadUpdate(mixed $id, Request $request): mixed
     {
@@ -94,42 +64,6 @@ class ExtendedBaseProductController extends Controller
                 $newTax->tax_class_id = $tax;
                 $newTax->save();
             }
-        }
-    }
-
-    /**
-     * Whether the Product Requires the domain to be entered.
-     */
-    public function getProductField(int $productid): string
-    {
-        try {
-            $field = '';
-            /** @var Product $product */
-            $product = Product::find($productid);
-            if ($product->require_domain == 1) {
-                $field .= '<div>
-                        <label>'.(string) __('message.domain')."</label>
-                        <input type='text' name='domain' class='form-control' 
-                        id='domain' placeholder='domain.com or sub.domain.com'>
-                </div>";
-            }
-
-            if (in_array($product->id, cloudPopupProducts())) {
-                $field .= '<div>
-    <div class="form-group">
-        <label class="required">'.(string) __('message.cloud_domain').'</label>
-        <div class="input-group">
-            <input type="text" name="cloud_domain" class="form-control" id="cloud_domain" placeholder="'.__('message.admin_domain').'" required >
-            <input type="text" class="form-control" value=".'.cloudSubDomain().'" disabled="true" style="background-color: #4081B5; color:white; border-color: #0088CC">
-        </div>
-            <span class="error-message" id="cloud-msg"></span>
-    </div>
-</div>';
-            }
-
-            return $field;
-        } catch (Exception $exception) {
-            return $exception->getMessage();
         }
     }
 
