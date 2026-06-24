@@ -160,4 +160,95 @@ class OrderControllerTest extends DBTestCase
     {
         $this->deleteJson('/orders', [])->assertStatus(401);
     }
+
+    // =========================================================================
+    // GET /orders — search and sort
+    // =========================================================================
+
+    public function test_get_orders_with_search_query_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/orders?search-query=test');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_orders_sort_by_number_asc_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/orders?sort-field=number&sort-order=asc');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    // =========================================================================
+    // GET /order/{id} — existing order
+    // =========================================================================
+
+    public function test_get_order_existing_returns_200_with_order_data(): void
+    {
+        $this->getLoggedInUser('admin');
+        $user  = \App\User::factory()->create(['role' => 'user']);
+        $order = \App\Model\Order\Order::factory()->create(['client' => $user->id]);
+
+        $response = $this->getJson("/order/{$order->id}");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $this->assertEquals($order->id, $response->json('data.order.id'));
+    }
+
+    // =========================================================================
+    // GET /getOrderPayments/{orderId}
+    // =========================================================================
+
+    public function test_get_payments_for_existing_order_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $user  = \App\User::factory()->create(['role' => 'user']);
+        $order = \App\Model\Order\Order::factory()->create(['client' => $user->id]);
+
+        $response = $this->getJson("/getOrderPayments/{$order->id}");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    // =========================================================================
+    // GET /getOrderInvoices/{orderId}
+    // =========================================================================
+
+    public function test_get_invoices_for_existing_order_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $user  = \App\User::factory()->create(['role' => 'user']);
+        $order = \App\Model\Order\Order::factory()->create(['client' => $user->id]);
+
+        $response = $this->getJson("/getOrderInvoices/{$order->id}");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    // =========================================================================
+    // GET /export-orders — requires queue
+    // =========================================================================
+
+    public function test_export_orders_without_queue_returns_400(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/export-orders');
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // GET /get-installation-details/{orderId}
+    // =========================================================================
+
+    public function test_get_installation_details_nonexistent_order_returns_200_with_empty_array(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/get-installation-details/999999');
+        // No installation details found → 200 with empty data array
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
 }

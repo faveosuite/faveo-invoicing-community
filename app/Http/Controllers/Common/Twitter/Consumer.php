@@ -11,6 +11,9 @@ namespace App\Http\Controllers\Common\Twitter;
 
 use Stringable;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Consumer implements Stringable
 {
     /**

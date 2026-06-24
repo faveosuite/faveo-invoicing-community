@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Auth;
 
+use App\Model\Common\StatusSetting;
 use App\User;
+use App\VerificationAttempt;
 use Crypt;
 use Tests\DBTestCase;
 
@@ -131,6 +133,218 @@ class AuthControllerTest extends DBTestCase
         ]);
 
         $response->assertStatus(422);
+    }
+
+    // =========================================================================
+    // POST /otp/send — AuthController::requestOtp
+    // =========================================================================
+
+    public function test_request_otp_missing_eid_returns_422(): void
+    {
+        $this->withoutMiddleware();
+        $response = $this->postJson('/otp/send', []);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['eid']);
+    }
+
+    public function test_request_otp_with_invalid_encrypted_value_returns_400(): void
+    {
+        $this->withoutMiddleware();
+        // Not a valid Crypt value — Crypt::decrypt throws, caught → errorResponse
+        $response = $this->postJson('/otp/send', ['eid' => 'not-a-valid-crypt-value']);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_request_otp_for_already_verified_mobile_returns_400(): void
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create(['mobile_verified' => 1]);
+        $response = $this->postJson('/otp/send', ['eid' => Crypt::encrypt($user->email)]);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_request_otp_for_nonexistent_user_returns_400(): void
+    {
+        $this->withoutMiddleware();
+        $response = $this->postJson('/otp/send', [
+            'eid' => Crypt::encrypt('ghost_'.uniqid().'@example.com'),
+        ]);
+        // ModelNotFoundException caught → errorResponse 400
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // POST /resend_otp — AuthController::retryOTP → resendOTP (mobile path)
+    // =========================================================================
+
+    public function test_resend_otp_missing_eid_returns_422(): void
+    {
+        $this->withoutMiddleware();
+        $response = $this->postJson('/resend_otp', ['default_type' => 'mobile', 'type' => 'text']);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['eid']);
+    }
+
+    public function test_resend_otp_missing_type_returns_422(): void
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create();
+        $response = $this->postJson('/resend_otp', [
+            'default_type' => 'mobile',
+            'eid' => Crypt::encrypt($user->email),
+        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['type']);
+    }
+
+    public function test_resend_otp_invalid_type_value_returns_422(): void
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create();
+        $response = $this->postJson('/resend_otp', [
+            'default_type' => 'mobile',
+            'eid' => Crypt::encrypt($user->email),
+            'type' => 'fax',
+        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['type']);
+    }
+
+    public function test_resend_otp_with_invalid_encrypted_eid_returns_400(): void
+    {
+        $this->withoutMiddleware();
+        $response = $this->postJson('/resend_otp', [
+            'default_type' => 'mobile',
+            'eid' => 'bad-crypt',
+            'type' => 'text',
+        ]);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // POST /send-email — AuthController::sendEmail
+    // =========================================================================
+
+    public function test_send_email_missing_eid_returns_422(): void
+    {
+        $this->withoutMiddleware();
+        $response = $this->postJson('/send-email', []);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['eid']);
+    }
+
+    public function test_send_email_for_nonexistent_user_returns_400(): void
+    {
+        $this->withoutMiddleware();
+        $response = $this->postJson('/send-email', [
+            'eid' => Crypt::encrypt('nobody_'.uniqid().'@example.com'),
+        ]);
+        // ModelNotFoundException caught → errorResponse 400
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_send_email_with_invalid_encrypted_eid_returns_400(): void
+    {
+        $this->withoutMiddleware();
+        $response = $this->postJson('/send-email', ['eid' => 'not-encrypted']);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // POST /otp/verify — AuthController::verifyOtp
+    // =========================================================================
+
+    public function test_verify_otp_missing_fields_returns_422(): void
+    {
+        $this->withoutMiddleware();
+        $response = $this->postJson('/otp/verify', []);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['eid', 'otp']);
+    }
+
+    public function test_verify_otp_wrong_length_otp_returns_422(): void
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create(['mobile_verified' => 0]);
+        $response = $this->postJson('/otp/verify', [
+            'eid' => Crypt::encrypt($user->email),
+            'otp' => '123',   // must be exactly 6 chars
+        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['otp']);
+    }
+
+    public function test_verify_otp_non_numeric_otp_returns_400(): void
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create(['mobile_verified' => 0]);
+        $response = $this->postJson('/otp/verify', [
+            'eid' => Crypt::encrypt($user->email),
+            'otp' => 'abcdef',  // 6 chars but non-numeric → controller returns errorResponse
+        ]);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // POST /email/verify — AuthController::verifyEmail
+    // =========================================================================
+
+    public function test_verify_email_missing_fields_returns_422(): void
+    {
+        $this->withoutMiddleware();
+        $response = $this->postJson('/email/verify', []);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['eid', 'otp']);
+    }
+
+    public function test_verify_email_wrong_length_otp_returns_422(): void
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create(['active' => 0]);
+        $response = $this->postJson('/email/verify', [
+            'eid' => Crypt::encrypt($user->email),
+            'otp' => '12',
+        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['otp']);
+    }
+
+    public function test_verify_email_with_wrong_token_returns_400(): void
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create(['active' => 0]);
+        // No AccountActivate record → firstOrFail throws, caught → errorResponse
+        $response = $this->postJson('/email/verify', [
+            'eid' => Crypt::encrypt($user->email),
+            'otp' => '123456',
+        ]);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // GET /auth/verify-config — AuthController::verifyConfig
+    // =========================================================================
+
+    public function test_verify_config_returns_200_with_success(): void
+    {
+        $this->withoutMiddleware();
+        StatusSetting::create([
+            'emailverification_status' => 1,
+            'msg91_status' => 0,
+            'recaptcha_status' => 0,
+        ]);
+        $response = $this->getJson('/auth/verify-config');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $response->assertJsonStructure(['success', 'data']);
     }
 
     // =========================================================================

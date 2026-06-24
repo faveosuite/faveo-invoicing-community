@@ -150,21 +150,25 @@ class CartService
      */
     public function checkoutExtras(Cart $cart, Authenticatable $user): array
     {
-        $summary = $this->summary($cart, $user);
+        $summary  = $this->summary($cart, $user);
+        $currency = $cart->currency ?? 'USD';
 
         $pricesIncludeTax = (int) TaxOption::find(1)?->inclusive === 1;
-        $subtotalExTax = $pricesIncludeTax
-            ? round($summary['subtotal'] - $summary['tax_total'], 2)
-            : round($summary['subtotal'], 2);
+        $subtotalExTax    = $pricesIncludeTax
+            ? currencyFormat($summary['subtotal'] - $summary['tax_total'], $currency, includeSymbol: false)
+            : currencyFormat($summary['subtotal'], $currency, includeSymbol: false);
 
         return [
-            'taxes' => $summary['taxes'],
-            'tax_total' => $summary['tax_total'],
-            'subtotal_ex_tax' => $subtotalExTax,
+            'taxes' => array_map(
+                fn (array $t): array => array_merge($t, ['amount' => currencyFormat($t['amount'], $currency, includeSymbol: false)]),
+                $summary['taxes']
+            ),
+            'tax_total'          => currencyFormat($summary['tax_total'], $currency, includeSymbol: false),
+            'subtotal_ex_tax'    => $subtotalExTax,
             'prices_include_tax' => $pricesIncludeTax,
-            'tax_label' => collect($summary['taxes'])->pluck('label')->unique()->implode(' + '),
-            'gateways' => $this->activeGateways($cart->currency ?? 'USD'),
-            'grand_total' => $summary['grand_total'],
+            'tax_label'          => collect($summary['taxes'])->pluck('label')->unique()->implode(' + '),
+            'gateways'           => $this->activeGateways($currency),
+            'grand_total'        => currencyFormat($summary['grand_total'], $currency, includeSymbol: false),
         ];
     }
 
@@ -369,7 +373,7 @@ class CartService
 
         $taxes = [];
         foreach ($grouped as $g) {
-            $taxes[] = ['label' => $g['label'], 'rate' => $g['rate'], 'amount' => round($g['amount'], 2)];
+            $taxes[] = ['label' => $g['label'], 'rate' => $g['rate'], 'amount' => $g['amount']];
         }
 
         $subtotal = $cart->subtotal();
@@ -387,8 +391,8 @@ class CartService
             'subtotal' => $subtotal,
             'discount' => $discount,
             'taxes' => $taxes,
-            'tax_total' => round($taxTotal, 2),
-            'grand_total' => rounding($payable),
+            'tax_total' => $taxTotal,
+            'grand_total' => rounding($payable, $cart->currency ?? 'USD'),
         ];
     }
 

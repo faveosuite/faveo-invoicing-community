@@ -63,12 +63,12 @@ class StoreTest extends DBTestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user);
-        $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
+        $group = ProductGroup::create(['name' => 'consumer-products-days', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
-        $plan = Plan::factory()->create(['product' => $product->id]);
-        PlanPrice::factory()->create(['plan_id' => $plan->id]);
+        Plan::factory()->create(['product' => $product->id]);
+        // No PlanPrice created — leastAmount returns 'Free'
         $response = $this->getPrivateMethod($this->con, 'leastAmount', [$product->id]);
-        $this->assertEquals($response, 'Free');
+        $this->assertEquals('Free', $response);
     }
 
     #[Group('store')]

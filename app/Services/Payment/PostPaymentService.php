@@ -221,7 +221,7 @@ class PostPaymentService
             Payment::create([
                 'invoice_id' => $invoice->id,
                 'user_id' => $invoice->user_id,
-                'amount' => rounding($outstanding),
+                'amount' => rounding($outstanding, $invoice->currency),
                 'payment_method' => $gateway,
                 'payment_status' => 'success',
                 'created_at' => Date::now(),

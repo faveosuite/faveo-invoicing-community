@@ -146,4 +146,106 @@ class ClientControllerTest extends DBTestCase
     {
         $this->deleteJson('/users', ['ids' => [1]])->assertStatus(401);
     }
+
+    // =========================================================================
+    // GET /user/{id} — edit user
+    // =========================================================================
+
+    public function test_get_edit_user_existing_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $client = User::factory()->create(['role' => 'user']);
+        $response = $this->getJson("/user/{$client->id}");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $this->assertEquals($client->id, $response->json('data.id'));
+    }
+
+    public function test_get_edit_user_nonexistent_returns_404(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/user/999999');
+        $response->assertStatus(404);
+    }
+
+    // =========================================================================
+    // GET /user/{id}/payments
+    // =========================================================================
+
+    public function test_get_user_payments_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $client = User::factory()->create(['role' => 'user']);
+        $response = $this->getJson("/user/{$client->id}/payments");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    // =========================================================================
+    // GET /user/{id}/comments
+    // =========================================================================
+
+    public function test_get_user_comments_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $client = User::factory()->create(['role' => 'user']);
+        $response = $this->getJson("/user/{$client->id}/comments");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    // =========================================================================
+    // POST /user/{id}/comments — store comment
+    // =========================================================================
+
+    public function test_store_user_comment_for_nonexistent_user_returns_404(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->postJson('/user/999999/comments', ['description' => 'test']);
+        $response->assertStatus(404);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_store_user_comment_with_valid_data_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $client = User::factory()->create(['role' => 'user']);
+        $response = $this->postJson("/user/{$client->id}/comments", [
+            'description' => 'Test comment for this user',
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $response->assertJsonPath('data.description', 'Test comment for this user');
+    }
+
+    // =========================================================================
+    // PUT /users — user create
+    // =========================================================================
+
+    public function test_user_create_missing_required_fields_returns_422(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->putJson('/users', []);
+        $response->assertStatus(422);
+    }
+
+    // =========================================================================
+    // GET /get-columns and POST /save-columns
+    // =========================================================================
+
+    public function test_get_columns_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/get-columns?report-key=users');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_export_users_without_queue_returns_400(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/export-users');
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
 }

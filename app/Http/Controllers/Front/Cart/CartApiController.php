@@ -104,7 +104,7 @@ class CartApiController extends Controller
         return successResponse('', [
             'invoice_id' => $invoice->id,
             'gateway' => $request->input('gateway'),
-            'grand_total' => (float) $invoice->grand_total,
+            'grand_total' => currencyFormat($invoice->grand_total, $currency, includeSymbol: false),
             'currency' => $currency,
         ]);
     }

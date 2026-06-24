@@ -124,4 +124,23 @@ class PlanControllerTest extends DBTestCase
     {
         $this->deleteJson('/plans', ['ids' => [1]])->assertStatus(401);
     }
+
+    public function test_get_existing_plan_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = \App\Model\Product\Product::factory()->create();
+        $plan    = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
+        $response = $this->getJson("/plan/{$plan->id}");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $this->assertEquals($plan->id, $response->json('data.id'));
+    }
+
+    public function test_get_all_plans_with_search_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/plans?search-query=monthly');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
 }

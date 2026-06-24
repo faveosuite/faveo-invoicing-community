@@ -47,7 +47,7 @@ class AutoRenewalController extends Controller
             $session = $this->payments->startCardPayment('Stripe', $paymentRequest);
 
             return successResponse('', array_merge($session->clientConfig, [
-                'display_amount' => $amount,
+                'display_amount' => currencyFormat($amount, $currency, includeSymbol: false),
                 'currency_symbol' => $symbol,
             ]));
         } catch (Exception $exception) {

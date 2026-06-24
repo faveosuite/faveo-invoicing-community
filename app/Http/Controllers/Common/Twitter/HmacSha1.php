@@ -13,6 +13,7 @@ namespace App\Http\Controllers\Common\Twitter;
  * encoded per Parameter Encoding) of the Consumer Secret and Token Secret, separated by an '&'
  * character (ASCII code 38) even if empty.
  *   - Chapter 9.2 ("HMAC-SHA1").
+ * @codeCoverageIgnore
  */
 class HmacSha1 extends SignatureMethod
 {

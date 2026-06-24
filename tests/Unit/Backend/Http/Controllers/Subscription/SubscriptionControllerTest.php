@@ -111,4 +111,69 @@ class SubscriptionControllerTest extends DBTestCase
         $response = $controller->calculateUnitCost($currency, $cost);
         $this->assertEquals(100.0, $response);
     }
+
+    // =========================================================================
+    // getPriceforCloud — calculates agent * pricePerAgent
+    // =========================================================================
+
+    public function test_get_price_for_cloud_calculates_agent_count_from_serial_key(): void
+    {
+        $user  = User::factory()->create(['role' => 'user']);
+        $order = Order::create([
+            'client'       => $user->id,
+            'order_status' => 'executed',
+            'product'      => 'Helpdesk',
+            'number'       => mt_rand(100000, 999999),
+            'serial_key'   => 'ABC0025',  // last 4 digits stripped of leading zeros = 25
+        ]);
+        $controller = $this->instantiateDependencies();
+        $subController = new SubscriptionController($controller);
+        $result = $subController->getPriceforCloud($order, 10.0);
+        $this->assertEquals(250.0, $result);
+    }
+
+    // =========================================================================
+    // calculateReverseUnitCost — converts Stripe amount back to display amount
+    // =========================================================================
+
+    public function test_calculate_reverse_unit_cost_standard_two_decimal_currency(): void
+    {
+        $controller = $this->instantiateDependencies();
+        $subController = new SubscriptionController($controller);
+        // USD: divide by 100
+        $result = $subController->calculateReverseUnitCost('USD', 1000);
+        $this->assertEquals(10.0, $result);
+    }
+
+    public function test_calculate_reverse_unit_cost_zero_decimal_currency(): void
+    {
+        $controller = $this->instantiateDependencies();
+        $subController = new SubscriptionController($controller);
+        // JPY: no division
+        $result = $subController->calculateReverseUnitCost('JPY', 1000);
+        $this->assertEquals(1000.0, $result);
+    }
+
+    public function test_calculate_reverse_unit_cost_three_decimal_currency(): void
+    {
+        $controller = $this->instantiateDependencies();
+        $subController = new SubscriptionController($controller);
+        // KWD: divide by 1000
+        $result = $subController->calculateReverseUnitCost('KWD', 1000);
+        $this->assertEquals(1.0, $result);
+    }
+
+    // =========================================================================
+    // getCreatedSubscription — returns empty when stripe/razorpay disabled
+    // =========================================================================
+
+    public function test_get_created_subscription_returns_empty_when_both_gateways_disabled(): void
+    {
+        // No StatusSetting row → both values are falsy → returns []
+        $controller = $this->instantiateDependencies();
+        $subController = new SubscriptionController($controller);
+        $result = $subController->getCreatedSubscription();
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
+    }
 }

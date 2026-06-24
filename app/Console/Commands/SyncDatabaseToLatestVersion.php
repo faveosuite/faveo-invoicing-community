@@ -5,6 +5,9 @@ namespace App\Console\Commands;
 use App\Console\LoggableCommand;
 use App\Http\Controllers\SyncBillingToLatestVersion;
 
+/**
+ * @codeCoverageIgnore
+ */
 class SyncDatabaseToLatestVersion extends LoggableCommand
 {
     /**

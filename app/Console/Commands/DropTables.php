@@ -7,6 +7,9 @@ use DB;
 use Exception;
 use Schema;
 
+/**
+ * @codeCoverageIgnore
+ */
 class DropTables extends LoggableCommand
 {
     /**

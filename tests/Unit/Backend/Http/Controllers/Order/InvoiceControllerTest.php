@@ -173,4 +173,99 @@ class InvoiceControllerTest extends DBTestCase
     {
         $this->deleteJson('/invoices', ['ids' => [1]])->assertStatus(401);
     }
+
+    // =========================================================================
+    // GET /invoices — search and sort params
+    // =========================================================================
+
+    public function test_get_invoices_with_search_query_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/invoices?search-query=paid');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_invoices_sort_by_number_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/invoices?sort-field=number&sort-order=asc');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_invoices_invalid_sort_field_falls_back_to_created_at(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/invoices?sort-field=nonexistent');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_invoices_with_custom_limit_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/invoices?limit=5');
+        $response->assertStatus(200);
+        $this->assertCount(
+            min(5, count($response->json('data.data'))),
+            $response->json('data.data')
+        );
+    }
+
+    // =========================================================================
+    // GET /pdf — pdf endpoint validation
+    // =========================================================================
+
+    public function test_pdf_without_invoice_id_returns_400(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/pdf');
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_pdf_with_invalid_invoice_id_returns_400(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/pdf?invoiceid=999999');
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // GET /export-invoices — export requires queue
+    // =========================================================================
+
+    public function test_export_invoices_without_queue_returns_400(): void
+    {
+        $this->getLoggedInUser('admin');
+        // No QueueService row configured → errorResponse 400
+        $response = $this->getJson('/export-invoices');
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // GET /newPayment/receive — new payment form (requires client query param)
+    // =========================================================================
+
+    public function test_new_payment_without_client_param_returns_400(): void
+    {
+        $this->getLoggedInUser('admin');
+        // newPayment requires a valid client — without it the controller returns errorResponse
+        $response = $this->getJson('/newPayment/receive');
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_new_payment_with_valid_clientid_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $client = \App\User::factory()->create(['role' => 'user']);
+        $response = $this->getJson("/newPayment/receive?clientid={$client->id}");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $response->assertJsonStructure(['success', 'data' => ['invoices', 'currencies']]);
+    }
 }

@@ -407,23 +407,18 @@ function getCurrencyForClient(string $countryCode): mixed
 function currencyFormat(mixed $amount = null, ?string $currency = null, bool $includeSymbol = true, bool $shouldRound = false): mixed
 {
     try {
-        if ($shouldRound) {
-            $amount = rounding($amount);
-        }
-
         if ($currency === null) {
             $currency = (string) Setting::value('default_currency');
         }
 
-        $locale = getLocalesByCurrency($currency);
+        $locale    = getLocalesByCurrency($currency);
         $precision = getCurrencyPrecision($currency);
+        $amount    = $shouldRound
+            ? rounding((float) $amount, $currency)
+            : round((float) $amount, $precision);
 
         if (! $includeSymbol) {
-            return Number::format(
-                $amount,
-                precision: $precision,
-                locale: $locale
-            );
+            return Number::format($amount, precision: $precision, locale: $locale);
         }
 
         return Number::currency($amount, $currency, $locale);
@@ -457,7 +452,8 @@ function getLocalesByCurrency(string $currencyCode): string
             }
         }
 
-        return $firstMatch ?? 'en';
+        // No en_ locale found — fall back to 'en' so callers always get Western digits.
+        return 'en';
     });
 }
 
@@ -469,21 +465,23 @@ function getCurrencyPrecision(string $currency): int
     return $formatter->getAttribute(NumberFormatter::FRACTION_DIGITS);
 }
 
-function rounding(mixed $price): ?float
+
+function rounding(mixed $price, ?string $currency = null): float
 {
     try {
         $tax_rule = new TaxOption;
         $rule = $tax_rule->findOrFail(1);
-        $rounding = $rule->rounding;
-        if ($rounding) {
-            return round($price);
+        if ($rule->rounding) {
+            return round((float) $price);
         }
 
-        return round($price, 2);
+        $decimals = $currency !== null ? getCurrencyPrecision($currency) : 2;
+
+        return round((float) $price, $decimals);
     } catch (Exception) {
     }
 
-    return null;
+    return round((float) $price, 2);
 }
 
 function userCountryId(): mixed

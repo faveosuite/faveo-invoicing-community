@@ -77,7 +77,7 @@ class CloudActivitiesTest extends DBTestCase
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => '']);
         $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 5, 'oldAgents' => 3, 'orderId' => $order->id, 'agentAction' => 'increase']);
-        $priceToPay = currencyFormat($planPrice->add_price * 8, 'INR', includeSymbol: true);
+        $priceToPay = currencyFormat($planPrice->add_price * 8, 'INR', includeSymbol: false);
         $content = $response->json();
         $response->assertStatus(200);
         $this->assertEquals($content['priceToPay'], $priceToPay);
@@ -149,7 +149,7 @@ class CloudActivitiesTest extends DBTestCase
         Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => '']);
         $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 3, 'oldAgents' => 5, 'orderId' => $order->id, 'agentAction' => 'decrease']);
-        $priceToPay = currencyFormat($planPrice->add_price * (5 - 3), 'INR', includeSymbol: true);
+        $priceToPay = currencyFormat($planPrice->add_price * (5 - 3), 'INR', includeSymbol: false);
         $content = $response->json();
         $response->assertStatus(200);
         $this->assertEquals($content['priceToPay'], $priceToPay);
@@ -187,7 +187,7 @@ class CloudActivitiesTest extends DBTestCase
         $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 3, 'oldAgents' => 5, 'orderId' => $order->id, 'agentAction' => 'decrease']);
         $content = $response->json();
         $response->assertStatus(200);
-        $this->assertEquals($content['priceToPay'], '₹0.00');
+        $this->assertEquals($content['priceToPay'], '0.00');
     }
 
     #[Group('Cloud domain Change')]
@@ -263,9 +263,9 @@ class CloudActivitiesTest extends DBTestCase
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(130)]);
         $response = $this->call('POST', 'get-cloud-upgrade-cost', ['agents' => 5, 'plan' => $plan2->id, 'orderId' => $order->id]);
         $content = $response->json();
-        $this->assertEquals('₹10,038.46', $content['price_to_be_paid']);
-        $this->assertEquals('₹24,807.69', $content['pricenewplan']);
-        $this->assertEquals('₹5,000.00', $content['priceperagent']);
+        $this->assertEquals('10,038.46', $content['price_to_be_paid']);
+        $this->assertEquals('24,807.69', $content['pricenewplan']);
+        $this->assertEquals('5,000.00', $content['priceperagent']);
     }
 
     #[Group('Cloud plan Change')]
@@ -305,9 +305,9 @@ class CloudActivitiesTest extends DBTestCase
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(130)]);
         $response = $this->call('POST', 'get-cloud-upgrade-cost', ['agents' => 5, 'plan' => $plan2->id, 'orderId' => $order->id]);
         $content = $response->json();
-        $this->assertEquals('₹0.00', $content['price_to_be_paid']);
-        $this->assertEquals('₹0.00', $content['pricenewplan']);
-        $this->assertEquals('₹3,000.00', $content['priceperagent']);
+        $this->assertEquals('0.00', $content['price_to_be_paid']);
+        $this->assertEquals('0.00', $content['pricenewplan']);
+        $this->assertEquals('3,000.00', $content['priceperagent']);
     }
 
     #[Group('Cloud plan Change')]
@@ -346,7 +346,7 @@ class CloudActivitiesTest extends DBTestCase
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Date::now()->addDays(130)]);
         $response = $this->call('POST', 'get-cloud-upgrade-cost', ['agents' => 5, 'plan' => $plan2->id, 'orderId' => $order->id]);
         $content = $response->json();
-        $this->assertEquals('₹9,730.77', $content['discount']);
+        $this->assertEquals('9,730.77', $content['discount']);
     }
 
     #[Group('Cloud plan Change')]
@@ -517,6 +517,102 @@ class CloudActivitiesTest extends DBTestCase
         // cloudPopupProducts() depends on ExpiryMailDay.cloud_days being seeded
         // Just assert the query ran without errors
         $this->assertIsArray($sub->toArray());
+    }
+
+    public function test_domain_cloud_autofill_returns_company_domain(): void
+    {
+        $user = User::factory()->create(['role' => 'user', 'company' => 'My Test Company']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->getJson('/api/domain');
+        $response->assertStatus(200);
+        $this->assertEquals('mytestcompany', $response->json('data'));
+    }
+
+    public function test_change_domain_with_both_domains_but_invalid_order_returns_400(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        // Provide both required fields but no valid order → returns 400
+        $response = $this->postJson('/change/domain', [
+            'currentDomain' => 'old.example.com',
+            'newDomain'     => 'new.example.com',
+            'order_id'      => 999999,
+        ]);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_fetch_data_returns_paginated_200(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->getJson('/fetch-data');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $response->assertJsonStructure(['success', 'data' => ['data', 'current_page']]);
+    }
+
+    public function test_fetch_data_with_search_returns_200(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->getJson('/fetch-data?search-query=helpdesk');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_update_trial_status_with_nonexistent_id_returns_400(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->postJson('/update-trial-status', ['id' => 999999, 'status' => 1]);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_delete_product_config_with_nonexistent_id_returns_400(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->deleteJson('/delete-cloud-product', ['id' => 999999]);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_store_cloud_data_center_missing_countries_returns_422(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->postJson('/cloud-data-center-store', ['cloud_state' => 'TN']);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['cloud_countries']);
+    }
+
+    public function test_store_cloud_data_center_missing_state_returns_422(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->postJson('/cloud-data-center-store', ['cloud_countries' => 'IN']);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['cloud_state']);
+    }
+
+    public function test_remove_location_with_data_returns_200(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->deleteJson('/remove-location', ['location_id' => 'NonexistentCity, TN']);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
     }
 
     public function test_get_cloud_products(): void

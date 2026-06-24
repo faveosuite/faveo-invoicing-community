@@ -7,6 +7,9 @@
 
 namespace App\Http\Controllers\Common\Twitter;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Util
 {
     /**

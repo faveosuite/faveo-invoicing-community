@@ -438,15 +438,15 @@
                     <template v-if="planCost">
                         <div class="d-flex justify-content-between align-items-center mt-2 mb-1">
                             <span class="text-muted">{{ __('message.total_credits_remaining') }}</span>
-                            <span class="fw-bold text-dark">{{ planCost.priceoldplan }}</span>
+                            <span class="fw-bold text-dark">{{ planCost.currency_symbol }}{{ planCost.priceoldplan }}</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-muted">{{ __('message.price_for_new_plan') }}</span>
-                            <span class="fw-bold text-dark">{{ planCost.pricenewplan }}</span>
+                            <span class="fw-bold text-dark">{{ planCost.currency_symbol }}{{ planCost.pricenewplan }}</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2">
                             <span class="text-muted">{{ __('message.price_to_be_paid') }}</span>
-                            <span class="fw-bold text-dark fs-6">{{ planCost.price_to_be_paid }}</span>
+                            <span class="fw-bold text-dark fs-6">{{ planCost.currency_symbol }}{{ planCost.price_to_be_paid }}</span>
                         </div>
                     </template>
                 </template>
@@ -1013,7 +1013,7 @@ async function fetchAgentCost() {
             agentAction: agentForm.action,
         })
         // raw (un-wrapped) array response: { pricePerAgent, totalPrice, priceToPay }
-        agentCost.value = res.data?.priceToPay ?? ''
+        agentCost.value = (res.data?.currency_symbol ?? '') + (res.data?.priceToPay ?? '')
     } catch (e) {
         agentCost.value = ''
         errorHandler(e, 'agents-modal')

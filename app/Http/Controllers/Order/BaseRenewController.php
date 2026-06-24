@@ -110,7 +110,10 @@ class BaseRenewController extends Controller
             if (! $planId) {
                 $currency = getCurrencyForClient($authUser->country);
 
-                return successResponse('', ['formatted_price' => currencyFormat(0, $currency)]);
+                return successResponse('', [
+                    'formatted_price' => currencyFormat(0, $currency),
+                    'renewalPrice'    => currencyFormat(0, $currency, includeSymbol: false),
+                ]);
             }
 
             $plan = Plan::find($planId);
@@ -133,7 +136,7 @@ class BaseRenewController extends Controller
 
             return successResponse('', [
                 'formatted_price' => $formattedCurrency,
-                'renewalPrice' => $renewalPrice,
+                'renewalPrice'    => currencyFormat($renewalPrice, $currency, includeSymbol: false),
             ]);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());

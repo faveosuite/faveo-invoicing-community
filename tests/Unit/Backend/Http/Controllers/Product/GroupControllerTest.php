@@ -104,4 +104,38 @@ class GroupControllerTest extends DBTestCase
     {
         $this->deleteJson('/group', ['ids' => [1]])->assertStatus(401);
     }
+
+    public function test_get_existing_group_returns_200_with_group_data(): void
+    {
+        $this->getLoggedInUser('admin');
+        $group = \App\Model\Product\ProductGroup::create([
+            'name' => 'Test Group '.uniqid(),
+            'hidden' => 0,
+            'pricing_templates_id' => 1,
+        ]);
+        $response = $this->getJson("/group/{$group->id}");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $this->assertEquals($group->id, $response->json('data.id'));
+    }
+
+    public function test_get_groups_with_search_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/groups?search-query=test');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_create_group_with_valid_data_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->putJson('/group', [
+            'name'                  => 'New Group '.uniqid(),
+            'pricing_templates_id'  => 1,
+            'hidden'                => 0,
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
 }

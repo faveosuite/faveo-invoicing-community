@@ -54,15 +54,15 @@ class PaymentController extends Controller
         // Each gateway carries its processing fee; surface the fee amount and the
         // resulting payable total so the pay page shows exactly what's charged.
         $gateways = array_map(fn (array $gateway): array => $gateway + [
-            'fee_amount' => ProcessingFee::amount($outstanding, $gateway['name']),
-            'payable' => ProcessingFee::addTo($outstanding, $gateway['name']),
+            'fee_amount' => currencyFormat(ProcessingFee::amount($outstanding, $gateway['name']), $model->currency, includeSymbol: false),
+            'payable'    => currencyFormat(ProcessingFee::addTo($outstanding, $gateway['name']), $model->currency, includeSymbol: false),
         ], $this->invoices->gatewaysFor($model->currency));
 
         return successResponse('', [
             'invoice' => [
                 'id' => $model->id,
                 'number' => $model->number,
-                'grand_total' => (float) $model->grand_total,
+                'grand_total' => currencyFormat($model->grand_total, $model->currency, includeSymbol: false),
                 'currency' => $model->currency,
                 'status' => $model->status,
             ],
@@ -73,8 +73,8 @@ class PaymentController extends Controller
                 return $data;
             }),
             'summary' => $this->invoiceSummary($model, $items),
-            'paid' => (float) $model->payment()->sum('amount'),
-            'amount' => $outstanding,
+            'paid'   => currencyFormat($model->payment()->sum('amount'), $model->currency, includeSymbol: false),
+            'amount' => currencyFormat($outstanding, $model->currency, includeSymbol: false),
             'currency' => $model->currency,
             'currency_symbol' => Currency::where('code', $model->currency)->value('symbol'),
             'gateways' => $gateways,
@@ -91,29 +91,40 @@ class PaymentController extends Controller
      */
     private function invoiceSummary(Invoice $model, mixed $items): array
     {
-        $subtotal = round((float) $items->sum(fn ($i): float => (float) $i->subtotal), 2);
+        $currency = $model->currency;
 
-        $taxes = InvoiceTaxLine::where('invoice_id', $model->id)->get()
+        $subtotal = (float) $items->sum(fn ($i): float => (float) $i->subtotal);
+
+        // Keep amounts as raw floats so $taxTotal can be summed numerically.
+        $taxLines = InvoiceTaxLine::where('invoice_id', $model->id)->get()
             ->groupBy('label')
             ->map(fn ($group): array => [
-                'label' => $group->first()?->label,
-                'rate' => (float) $group->first()?->rate,
-                'amount' => round((float) $group->sum('amount'), 2),
+                'label'  => $group->first()?->label,
+                'rate'   => (float) $group->first()?->rate,
+                'amount' => (float) $group->sum('amount'),
             ])->values()->all();
 
-        $taxTotal = round((float) collect($taxes)->sum('amount'), 2);
+        $taxTotal         = (float) collect($taxLines)->sum('amount');
         $pricesIncludeTax = (int) TaxOption::find(1)?->inclusive === 1;
 
+        // Format only at the response boundary.
+        $taxes = array_map(
+            fn (array $t): array => array_merge($t, ['amount' => currencyFormat($t['amount'], $currency, includeSymbol: false)]),
+            $taxLines
+        );
+
         return [
-            'subtotal' => $subtotal,
-            'subtotal_ex_tax' => $pricesIncludeTax ? round($subtotal - $taxTotal, 2) : $subtotal,
+            'subtotal'           => currencyFormat($subtotal, $currency, includeSymbol: false),
+            'subtotal_ex_tax'    => $pricesIncludeTax
+                ? currencyFormat($subtotal - $taxTotal, $currency, includeSymbol: false)
+                : currencyFormat($subtotal, $currency, includeSymbol: false),
             'prices_include_tax' => $pricesIncludeTax,
-            'tax_label' => collect($taxes)->pluck('label')->unique()->implode(' + '),
-            'taxes' => $taxes,
-            'tax_total' => $taxTotal,
-            'discount' => round((float) $model->discount, 2),
-            'coupon_code' => $model->coupon_code,
-            'grand_total' => (float) $model->grand_total,
+            'tax_label'          => collect($taxLines)->pluck('label')->unique()->implode(' + '),
+            'taxes'              => $taxes,
+            'tax_total'          => currencyFormat($taxTotal, $currency, includeSymbol: false),
+            'discount'           => currencyFormat($model->discount, $currency, includeSymbol: false),
+            'coupon_code'        => $model->coupon_code,
+            'grand_total'        => currencyFormat($model->grand_total, $currency, includeSymbol: false),
         ];
     }
 
@@ -131,7 +142,7 @@ class PaymentController extends Controller
         $permissions = resolve(LicensePermissionsController::class);
         $cloudProducts = cloudPopupProducts();
 
-        $orders = Order::whereIn('id', $orderIds)->get()->map(function ($order) use ($permissions, $cloudProducts): array {
+        $orders = Order::whereIn('id', $orderIds)->get()->map(function ($order) use ($permissions, $cloudProducts, $model): array {
             $product = Product::select('id', 'name', 'type')->find($order->product);
 
             $downloadable = false;
@@ -148,7 +159,7 @@ class PaymentController extends Controller
                 'product_id' => $product?->id,
                 'product_name' => $product?->name,
                 'qty' => $order->qty,
-                'price' => (float) $order->price_override,
+                'price' => currencyFormat($order->price_override, $model->currency, includeSymbol: false),
                 'downloadable' => $downloadable,
                 'download_url' => $downloadable ? url('product/download/'.$order->product) : null,
             ];
@@ -157,7 +168,7 @@ class PaymentController extends Controller
         return successResponse('', [
             'invoice' => [
                 'number' => $model->number,
-                'grand_total' => (float) $model->grand_total,
+                'grand_total' => currencyFormat($model->grand_total, $model->currency, includeSymbol: false),
                 'currency' => $model->currency,
                 'currency_symbol' => Currency::where('code', $model->currency)->value('symbol'),
                 'status' => $model->status,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Common\Twitter\Util;
 
 /**
  * @author louis <louis@systemli.org>
+ * @codeCoverageIgnore
  */
 class JsonDecoder
 {

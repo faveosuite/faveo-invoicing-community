@@ -181,4 +181,13 @@ async function subscribeNewsletter() {
 .footer-widget-content :deep(ul li) {
     break-inside: avoid;
 }
+.footer-widget-content :deep(a:hover) {
+    color: var(--default) !important;
+}
+a.text-color-default:hover {
+    color: var(--default) !important;
+}
+a.text-color-primary:hover {
+    color: var(--primary) !important;
+}
 </style>

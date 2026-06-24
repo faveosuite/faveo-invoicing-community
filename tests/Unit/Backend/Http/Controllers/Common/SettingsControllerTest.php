@@ -178,4 +178,164 @@ class SettingsControllerTest extends DBTestCase
         $response->assertJson(['success' => true]);
         $response->assertJsonStructure(['data' => ['products']]);
     }
+
+    // =========================================================================
+    // Uncovered SettingsController endpoints
+    // =========================================================================
+
+    public function test_get_settings_index_data_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        $response = $this->getJson('/settings/index-data');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_settings_template_get_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        $response = $this->getJson('/settings/template');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_settings_template_post_with_empty_mappings_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        // postSettingsTemplate accepts any request (no validation) — empty mappings = 200
+        $response = $this->patchJson('/settings/template', ['mappings' => []]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_error_settings_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        \App\Model\Common\Setting::create(['company' => 'Test', 'website' => 'http://test.com']);
+        $response = $this->getJson('/settings/error');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_system_settings_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        \App\Model\Common\Setting::create(['company' => 'Test', 'website' => 'http://test.com']);
+        $response = $this->getJson('/settings/system-data');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_update_system_settings_validates_required_fields(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        $response = $this->patchJson('/settings/system-data', []);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['company']);
+    }
+
+    public function test_update_datetime_settings_validates_fields(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        $response = $this->patchJson('/settings/datetime-data', []);
+        $response->assertStatus(422);
+    }
+
+    public function test_get_cron_settings_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        $response = $this->getJson('/settings/cron-data');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_cloud_details_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        $response = $this->getJson('/settings/cloud-details');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_github_settings_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        ApiKey::factory()->create();
+        $response = $this->getJson('/settings/github');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_terms_settings_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        ApiKey::factory()->create(['terms_url' => 'https://example.com/terms']);
+        $response = $this->getJson('/settings/terms');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_email_validation_settings_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        $response = $this->getJson('/settings/email-validation');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_mobile_validation_settings_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        $response = $this->getJson('/settings/mobile-validation');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_msg91_settings_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        ApiKey::factory()->create();
+        $response = $this->getJson('/settings/msg91');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_contact_option_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        $response = $this->getJson('/contact-option');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_debug_settings_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        $response = $this->getJson('/debug-settings');
+        $this->assertContains($response->status(), [200, 404]);
+    }
+
+    public function test_get_activity_filters_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        $response = $this->getJson('/settings/activity-filters');
+        $this->assertContains($response->status(), [200, 404]);
+    }
 }

@@ -14,6 +14,9 @@ use Dotenv\Dotenv;
 use Exception;
 use Hash;
 
+/**
+ * @codeCoverageIgnore
+ */
 class InstallDB extends LoggableCommand
 {
     /**

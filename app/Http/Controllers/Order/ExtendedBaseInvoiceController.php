@@ -47,8 +47,8 @@ class ExtendedBaseInvoiceController extends Controller
                         'id' => $inv->id,
                         'number' => $inv->number,
                         'date' => $inv->date,
-                        'grand_total' => $inv->grand_total,
-                        'pending' => max(0, (float) $inv->grand_total - $paid),
+                        'grand_total' => currencyFormat($inv->grand_total, $inv->currency, includeSymbol: false),
+                        'pending'     => currencyFormat(max(0, (float) $inv->grand_total - $paid), $inv->currency, includeSymbol: false),
                         'status' => $inv->status,
                         'currency' => $inv->currency,
                     ];

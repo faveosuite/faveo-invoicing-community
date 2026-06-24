@@ -26,10 +26,10 @@ class CartResource extends JsonResource
             'currency_symbol' => Currency::where('code', $this->currency)->value('symbol'), // @phpstan-ignore property.notFound
             'items' => CartItemResource::collection($this->whenLoaded('items')),
             'item_count' => $this->itemCount(), // @phpstan-ignore method.notFound
-            'subtotal' => $this->subtotal(), // @phpstan-ignore method.notFound
+            'subtotal' => currencyFormat($this->subtotal(), $this->currency, includeSymbol: false), // @phpstan-ignore method.notFound,property.notFound
             'coupon_code' => $this->coupon_code, // @phpstan-ignore property.notFound
-            'coupon_discount' => (float) $this->coupon_discount, // @phpstan-ignore property.notFound
-            'total' => $this->total(), // @phpstan-ignore method.notFound
+            'coupon_discount' => currencyFormat($this->coupon_discount, $this->currency, includeSymbol: false), // @phpstan-ignore property.notFound
+            'total' => currencyFormat($this->total(), $this->currency, includeSymbol: false), // @phpstan-ignore method.notFound,property.notFound
         ];
     }
 }

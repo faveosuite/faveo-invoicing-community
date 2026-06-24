@@ -114,4 +114,30 @@ class ProductControllerTest extends DBTestCase
     {
         $this->deleteJson('/products', ['ids' => [1]])->assertStatus(401);
     }
+
+    public function test_get_existing_product_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = \App\Model\Product\Product::factory()->create();
+        $response = $this->getJson("/product/{$product->id}");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_products_with_search_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/products?search-query=helpdesk');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_product_uploads_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = \App\Model\Product\Product::factory()->create();
+        $response = $this->getJson("/product/uploads/{$product->id}");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
 }
