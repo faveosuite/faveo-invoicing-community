@@ -8,7 +8,6 @@ use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
-use App\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;

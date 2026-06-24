@@ -32,5 +32,4 @@ class AutoUpdateController extends Controller
         // Version editing would require additional parameters
         // This method should be expanded with proper update logic
     }
-
 }
