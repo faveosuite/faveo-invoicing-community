@@ -6,7 +6,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Auth;
 
 use App\Model\Common\StatusSetting;
 use App\User;
-use App\VerificationAttempt;
 use Crypt;
 use Tests\DBTestCase;
 

@@ -27,17 +27,17 @@ class PaymentModelsTest extends DBTestCase
     {
         $tax = Tax::create([
             'tax_classes_id' => 1,
-            'level'          => 1,
-            'active'         => 1,
-            'name'           => 'Test Tax',
-            'country'        => 'US',
-            'state'          => '',
-            'rate'           => '10',
-            'compound'       => 0,
-            'c_gst'          => '',
-            's_gst'          => '',
-            'i_gst'          => '',
-            'ut_gst'         => '',
+            'level' => 1,
+            'active' => 1,
+            'name' => 'Test Tax',
+            'country' => 'US',
+            'state' => '',
+            'rate' => '10',
+            'compound' => 0,
+            'c_gst' => '',
+            's_gst' => '',
+            'i_gst' => '',
+            'ut_gst' => '',
         ]);
 
         $this->assertNotNull($tax->id);
@@ -48,17 +48,17 @@ class PaymentModelsTest extends DBTestCase
     {
         $tax = Tax::create([
             'tax_classes_id' => 1,
-            'level'          => 1,
-            'active'         => 1,
-            'name'           => 'Relation Tax',
-            'country'        => 'US',
-            'state'          => '',
-            'rate'           => '5',
-            'compound'       => 0,
-            'c_gst'          => '',
-            's_gst'          => '',
-            'i_gst'          => '',
-            'ut_gst'         => '',
+            'level' => 1,
+            'active' => 1,
+            'name' => 'Relation Tax',
+            'country' => 'US',
+            'state' => '',
+            'rate' => '5',
+            'compound' => 0,
+            'c_gst' => '',
+            's_gst' => '',
+            'i_gst' => '',
+            'ut_gst' => '',
         ]);
 
         $relation = $tax->taxClass();

@@ -112,7 +112,7 @@ class BaseRenewController extends Controller
 
                 return successResponse('', [
                     'formatted_price' => currencyFormat(0, $currency),
-                    'renewalPrice'    => currencyFormat(0, $currency, includeSymbol: false),
+                    'renewalPrice' => currencyFormat(0, $currency, includeSymbol: false),
                 ]);
             }
 
@@ -136,7 +136,7 @@ class BaseRenewController extends Controller
 
             return successResponse('', [
                 'formatted_price' => $formattedCurrency,
-                'renewalPrice'    => currencyFormat($renewalPrice, $currency, includeSymbol: false),
+                'renewalPrice' => currencyFormat($renewalPrice, $currency, includeSymbol: false),
             ]);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());

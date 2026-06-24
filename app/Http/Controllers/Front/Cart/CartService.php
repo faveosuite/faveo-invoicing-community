@@ -150,11 +150,11 @@ class CartService
      */
     public function checkoutExtras(Cart $cart, Authenticatable $user): array
     {
-        $summary  = $this->summary($cart, $user);
+        $summary = $this->summary($cart, $user);
         $currency = $cart->currency ?? 'USD';
 
         $pricesIncludeTax = (int) TaxOption::find(1)?->inclusive === 1;
-        $subtotalExTax    = $pricesIncludeTax
+        $subtotalExTax = $pricesIncludeTax
             ? currencyFormat($summary['subtotal'] - $summary['tax_total'], $currency, includeSymbol: false)
             : currencyFormat($summary['subtotal'], $currency, includeSymbol: false);
 
@@ -163,12 +163,12 @@ class CartService
                 fn (array $t): array => array_merge($t, ['amount' => currencyFormat($t['amount'], $currency, includeSymbol: false)]),
                 $summary['taxes']
             ),
-            'tax_total'          => currencyFormat($summary['tax_total'], $currency, includeSymbol: false),
-            'subtotal_ex_tax'    => $subtotalExTax,
+            'tax_total' => currencyFormat($summary['tax_total'], $currency, includeSymbol: false),
+            'subtotal_ex_tax' => $subtotalExTax,
             'prices_include_tax' => $pricesIncludeTax,
-            'tax_label'          => collect($summary['taxes'])->pluck('label')->unique()->implode(' + '),
-            'gateways'           => $this->activeGateways($currency),
-            'grand_total'        => currencyFormat($summary['grand_total'], $currency, includeSymbol: false),
+            'tax_label' => collect($summary['taxes'])->pluck('label')->unique()->implode(' + '),
+            'gateways' => $this->activeGateways($currency),
+            'grand_total' => currencyFormat($summary['grand_total'], $currency, includeSymbol: false),
         ];
     }
 

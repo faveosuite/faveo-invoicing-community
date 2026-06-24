@@ -220,8 +220,8 @@ class HelpersBoostTest extends DBTestCase
     public function test_exception_response_returns_json_with_failure(): void
     {
         $exception = new \RuntimeException('Test error message', 500);
-        $response  = exceptionResponse($exception);
-        $data      = json_decode($response->getContent(), true);
+        $response = exceptionResponse($exception);
+        $data = json_decode($response->getContent(), true);
         $this->assertFalse($data['success']);
     }
 
@@ -328,7 +328,7 @@ class HelpersBoostTest extends DBTestCase
 
     public function test_authorize_ownership_for_different_user_returns_false(): void
     {
-        $user  = User::factory()->create(['role' => 'user']);
+        $user = User::factory()->create(['role' => 'user']);
         $user2 = User::factory()->create(['role' => 'user']);
         $this->actingAs($user);
         $result = authorizeOwnership($user2->id, false);
@@ -338,7 +338,7 @@ class HelpersBoostTest extends DBTestCase
     public function test_authorize_ownership_admin_with_allow_admin_returns_true(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $user  = User::factory()->create(['role' => 'user']);
+        $user = User::factory()->create(['role' => 'user']);
         $this->actingAs($admin);
         $result = authorizeOwnership($user->id, true);
         $this->assertTrue($result);

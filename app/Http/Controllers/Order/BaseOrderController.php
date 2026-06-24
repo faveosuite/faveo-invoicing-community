@@ -263,7 +263,7 @@ class BaseOrderController extends ExtendedOrderController
         $this->getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $order->serial_key);
     }
 
-    public function getMail(Setting $setting, User $user, string $downloadurl, string $invoiceurl, Order $order, int|null $productId, string $orderid, string $myaccounturl, string $licenseCode): void
+    public function getMail(Setting $setting, User $user, string $downloadurl, string $invoiceurl, Order $order, ?int $productId, string $orderid, string $myaccounturl, string $licenseCode): void
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();

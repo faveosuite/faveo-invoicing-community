@@ -14,6 +14,7 @@ use App\Http\Controllers\Common\Twitter\Util\JsonDecoder;
  * TwitterOAuth class for interacting with the Twitter API.
  *
  * @author Abraham Williams <abraham@abrah.am>
+ *
  * @codeCoverageIgnore
  */
 class TwitterOAuth extends Config

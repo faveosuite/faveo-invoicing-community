@@ -8,6 +8,7 @@ namespace App\Http\Controllers\Common\Twitter;
  * Handle setting and storing config for TwitterOAuth.
  *
  * @author Abraham Williams <abraham@abrah.am>
+ *
  * @codeCoverageIgnore
  */
 class Config

@@ -29,10 +29,10 @@ class TemplateControllerTest extends DBTestCase
     private function makeTemplate(int $typeId): Template
     {
         return Template::create([
-            'name'    => 'Test Template '.uniqid(),
-            'type'    => $typeId,
+            'name' => 'Test Template '.uniqid(),
+            'type' => $typeId,
             'subject' => 'Subject',
-            'data'    => '<p>Body</p>',
+            'data' => '<p>Body</p>',
         ]);
     }
 

@@ -10,6 +10,7 @@ namespace App\Http\Controllers\Common\Twitter;
 /**
  * A class for implementing a Signature Method
  * See section 9 ("Signing Requests") in the spec.
+ *
  * @codeCoverageIgnore
  */
 abstract class SignatureMethod
