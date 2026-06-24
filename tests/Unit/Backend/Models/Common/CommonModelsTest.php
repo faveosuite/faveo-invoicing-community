@@ -21,7 +21,6 @@ use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\Common\Website;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Tests\TestCase;
 

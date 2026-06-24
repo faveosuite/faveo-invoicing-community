@@ -5,7 +5,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Auth;
 use App\SocialLogin;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class SocialLoginTest extends TestCase
@@ -45,5 +44,4 @@ class SocialLoginTest extends TestCase
             'status' => 1,
         ]);
     }
-
 }

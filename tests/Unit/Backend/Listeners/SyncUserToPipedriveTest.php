@@ -18,6 +18,7 @@ use Tests\DBTestCase as TestCase;
 class SyncUserToPipedriveTest extends TestCase
 {
     use DatabaseTransactions;
+
     protected function tearDown(): void
     {
         Mockery::close();

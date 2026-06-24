@@ -43,7 +43,6 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Str;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use ZipArchive;
 
 class ClientController extends AdvanceSearchController

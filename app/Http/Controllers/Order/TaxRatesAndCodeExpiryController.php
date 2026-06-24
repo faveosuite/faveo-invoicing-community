@@ -9,8 +9,6 @@ use App\Model\Common\Setting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Order\Invoice;
-use App\Model\Order\Order;
-use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use App\User;

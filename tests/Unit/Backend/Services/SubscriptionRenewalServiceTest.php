@@ -7,7 +7,6 @@ namespace Tests\Unit\Backend\Services;
 use App\Model\Product\Subscription;
 use App\Services\SubscriptionRenewalService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Date;
 use Tests\DBTestCase;
 
 class SubscriptionRenewalServiceTest extends DBTestCase

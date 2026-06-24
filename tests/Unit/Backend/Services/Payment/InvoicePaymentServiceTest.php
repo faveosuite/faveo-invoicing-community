@@ -7,7 +7,6 @@ namespace Tests\Unit\Backend\Services\Payment;
 use App\Model\Order\Invoice;
 use App\Plugins\Payment\Dto\PaymentResult;
 use App\Plugins\Payment\Dto\PaymentSession;
-use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Services\Payment\InvoicePaymentService;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\PostPaymentService;

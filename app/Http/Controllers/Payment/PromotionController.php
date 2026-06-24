@@ -15,6 +15,7 @@ use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
+
 class PromotionController extends BasePromotionController
 {
     /**

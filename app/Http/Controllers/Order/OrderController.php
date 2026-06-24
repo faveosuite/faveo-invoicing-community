@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Order;
 
 use App\Events\UserOrderDelete;
-use App\Http\Requests\Order\OrderRequest;
 use App\Jobs\ReportExport;
 use App\License\Services\LicenseService;
 use App\Model\Mailjob\QueueService;

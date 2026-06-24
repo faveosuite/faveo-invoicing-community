@@ -15,6 +15,7 @@ use Tests\TestCase;
 class WebhookDispatcherTest extends TestCase
 {
     use DatabaseTransactions;
+
     public function test_on_registers_single_event_handler(): void
     {
         $dispatcher = new WebhookDispatcher();
