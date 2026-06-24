@@ -188,7 +188,7 @@ class OrderControllerTest extends DBTestCase
     public function test_get_order_existing_returns_200_with_order_data(): void
     {
         $this->getLoggedInUser('admin');
-        $user  = \App\User::factory()->create(['role' => 'user']);
+        $user = \App\User::factory()->create(['role' => 'user']);
         $order = \App\Model\Order\Order::factory()->create(['client' => $user->id]);
 
         $response = $this->getJson("/order/{$order->id}");
@@ -204,7 +204,7 @@ class OrderControllerTest extends DBTestCase
     public function test_get_payments_for_existing_order_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $user  = \App\User::factory()->create(['role' => 'user']);
+        $user = \App\User::factory()->create(['role' => 'user']);
         $order = \App\Model\Order\Order::factory()->create(['client' => $user->id]);
 
         $response = $this->getJson("/getOrderPayments/{$order->id}");
@@ -219,7 +219,7 @@ class OrderControllerTest extends DBTestCase
     public function test_get_invoices_for_existing_order_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $user  = \App\User::factory()->create(['role' => 'user']);
+        $user = \App\User::factory()->create(['role' => 'user']);
         $order = \App\Model\Order\Order::factory()->create(['client' => $user->id]);
 
         $response = $this->getJson("/getOrderInvoices/{$order->id}");

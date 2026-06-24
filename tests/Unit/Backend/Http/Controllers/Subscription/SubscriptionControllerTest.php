@@ -118,13 +118,13 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_get_price_for_cloud_calculates_agent_count_from_serial_key(): void
     {
-        $user  = User::factory()->create(['role' => 'user']);
+        $user = User::factory()->create(['role' => 'user']);
         $order = Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'product'      => 'Helpdesk',
-            'number'       => mt_rand(100000, 999999),
-            'serial_key'   => 'ABC0025',  // last 4 digits stripped of leading zeros = 25
+            'product' => 'Helpdesk',
+            'number' => mt_rand(100000, 999999),
+            'serial_key' => 'ABC0025',  // last 4 digits stripped of leading zeros = 25
         ]);
         $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);

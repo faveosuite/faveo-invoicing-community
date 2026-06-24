@@ -33,8 +33,8 @@ class ApiKeySettingsTest extends DBTestCase
     {
         StatusSetting::create([
             'emailverification_status' => 0,
-            'msg91_status'             => 0,
-            'recaptcha_status'         => 0,
+            'msg91_status' => 0,
+            'recaptcha_status' => 0,
         ]);
         $response = $this->postJson('/licenseStatus', ['mstatus' => 1]);
         $response->assertStatus(200);
@@ -45,8 +45,8 @@ class ApiKeySettingsTest extends DBTestCase
     {
         StatusSetting::create([
             'emailverification_status' => 0,
-            'msg91_status'             => 0,
-            'recaptcha_status'         => 0,
+            'msg91_status' => 0,
+            'recaptcha_status' => 0,
         ]);
         $response = $this->postJson('/licenseStatus', ['gcaptchastatus' => 1]);
         $response->assertStatus(200);
@@ -57,8 +57,8 @@ class ApiKeySettingsTest extends DBTestCase
     {
         StatusSetting::create([
             'emailverification_status' => 0,
-            'msg91_status'             => 0,
-            'recaptcha_status'         => 0,
+            'msg91_status' => 0,
+            'recaptcha_status' => 0,
         ]);
         $response = $this->postJson('/licenseStatus', ['pipedrivestatus' => 1]);
         $response->assertStatus(200);
@@ -69,8 +69,8 @@ class ApiKeySettingsTest extends DBTestCase
     {
         StatusSetting::create([
             'emailverification_status' => 0,
-            'msg91_status'             => 0,
-            'recaptcha_status'         => 0,
+            'msg91_status' => 0,
+            'recaptcha_status' => 0,
         ]);
         $response = $this->postJson('/licenseStatus', ['termsStatus' => 1]);
         $response->assertStatus(200);
@@ -81,8 +81,8 @@ class ApiKeySettingsTest extends DBTestCase
     {
         StatusSetting::create([
             'emailverification_status' => 0,
-            'msg91_status'             => 0,
-            'recaptcha_status'         => 0,
+            'msg91_status' => 0,
+            'recaptcha_status' => 0,
         ]);
         $response = $this->postJson('/licenseStatus', ['mailchimpstatus' => 1]);
         $response->assertStatus(200);
@@ -111,7 +111,7 @@ class ApiKeySettingsTest extends DBTestCase
         ApiKey::factory()->create();
         $response = $this->postJson('/updatepipedriveDetails', [
             'pipedrive_key' => 'invalid-test-key',
-            'status'        => 0,
+            'status' => 0,
         ]);
         // Pipedrive API rejects invalid key → errorResponse 400
         $response->assertStatus(400);
@@ -126,7 +126,7 @@ class ApiKeySettingsTest extends DBTestCase
     {
         ApiKey::factory()->create();
         $response = $this->postJson('/updateTermsDetails', [
-            'terms_url'   => 'https://example.com/terms',
+            'terms_url' => 'https://example.com/terms',
             'privacy_url' => 'https://example.com/privacy',
         ]);
         $response->assertStatus(200);
@@ -140,7 +140,7 @@ class ApiKeySettingsTest extends DBTestCase
     public function test_update_mobile_details_missing_auth_key_returns_422(): void
     {
         $response = $this->postJson('/updatemobileDetails', [
-            'msg91_sender'      => 'SENDER',
+            'msg91_sender' => 'SENDER',
             'msg91_template_id' => 'TMPL123',
         ]);
         $response->assertStatus(422);
@@ -152,8 +152,8 @@ class ApiKeySettingsTest extends DBTestCase
         // MSG91 rejects invalid authkey → errorResponse 400
         ApiKey::factory()->create();
         $response = $this->postJson('/updatemobileDetails', [
-            'msg91_auth_key'    => 'invalid-key-xyz',
-            'msg91_sender'      => 'SENDER',
+            'msg91_auth_key' => 'invalid-key-xyz',
+            'msg91_sender' => 'SENDER',
             'msg91_template_id' => 'TMPL123',
         ]);
         $response->assertStatus(400);

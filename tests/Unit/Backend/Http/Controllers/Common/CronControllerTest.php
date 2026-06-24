@@ -3,7 +3,6 @@
 namespace Tests\Unit\Backend\Http\Controllers\Common;
 
 use App\Http\Controllers\Common\CronController;
-use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 

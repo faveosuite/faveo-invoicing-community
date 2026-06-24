@@ -8,6 +8,7 @@ namespace App\Http\Controllers\Common\Twitter;
  * The result of the most recent API request.
  *
  * @author Abraham Williams <abraham@abrah.am>
+ *
  * @codeCoverageIgnore
  */
 class Response

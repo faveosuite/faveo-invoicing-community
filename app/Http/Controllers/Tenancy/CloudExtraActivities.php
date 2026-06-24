@@ -744,11 +744,11 @@ class CloudExtraActivities extends Controller
             }
 
             return [
-                'priceoldplan'    => currencyFormat($variables['priceRemaining'], $currencyNew['currency'], includeSymbol: false),
-                'pricenewplan'    => currencyFormat($variables['priceToBePaid'], $currencyNew['currency'], includeSymbol: false),
-                'price_to_be_paid'=> currencyFormat(abs($variables['price']), $currencyNew['currency'], includeSymbol: false),
-                'discount'        => currencyFormat($discount, $currencyNew['currency'], includeSymbol: false),
-                'priceperagent'   => currencyFormat($pricePerAgent, $currencyNew['currency'], includeSymbol: false),
+                'priceoldplan' => currencyFormat($variables['priceRemaining'], $currencyNew['currency'], includeSymbol: false),
+                'pricenewplan' => currencyFormat($variables['priceToBePaid'], $currencyNew['currency'], includeSymbol: false),
+                'price_to_be_paid' => currencyFormat(abs($variables['price']), $currencyNew['currency'], includeSymbol: false),
+                'discount' => currencyFormat($discount, $currencyNew['currency'], includeSymbol: false),
+                'priceperagent' => currencyFormat($pricePerAgent, $currencyNew['currency'], includeSymbol: false),
                 'currency_symbol' => \App\Model\Payment\Currency::where('code', $currencyNew['currency'])->value('symbol') ?? $currencyNew['currency'],
             ];
         } catch (Exception $exception) {
@@ -871,9 +871,9 @@ class CloudExtraActivities extends Controller
 
             if (empty($newAgents)) {
                 return [
-                    'pricePerAgent'   => currencyFormat($base_price, $currency['currency'], includeSymbol: false),
-                    'totalPrice'      => 0,
-                    'priceToPay'      => 0,
+                    'pricePerAgent' => currencyFormat($base_price, $currency['currency'], includeSymbol: false),
+                    'totalPrice' => 0,
+                    'priceToPay' => 0,
                     'currency_symbol' => \App\Model\Payment\Currency::where('code', $currency['currency'])->value('symbol') ?? $currency['currency'],
                 ];
             }
@@ -892,9 +892,9 @@ class CloudExtraActivities extends Controller
             }
 
             return [
-                'pricePerAgent'   => currencyFormat($base_price, $currency['currency'], includeSymbol: false),
-                'totalPrice'      => currencyFormat($base_price * $totalAgents, $currency['currency'], includeSymbol: false),
-                'priceToPay'      => currencyFormat($price, $currency['currency'], includeSymbol: false),
+                'pricePerAgent' => currencyFormat($base_price, $currency['currency'], includeSymbol: false),
+                'totalPrice' => currencyFormat($base_price * $totalAgents, $currency['currency'], includeSymbol: false),
+                'priceToPay' => currencyFormat($price, $currency['currency'], includeSymbol: false),
                 'currency_symbol' => \App\Model\Payment\Currency::where('code', $currency['currency'])->value('symbol') ?? $currency['currency'],
             ];
         } catch (Exception $exception) {

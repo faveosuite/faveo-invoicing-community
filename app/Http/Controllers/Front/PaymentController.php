@@ -55,7 +55,7 @@ class PaymentController extends Controller
         // resulting payable total so the pay page shows exactly what's charged.
         $gateways = array_map(fn (array $gateway): array => $gateway + [
             'fee_amount' => currencyFormat(ProcessingFee::amount($outstanding, $gateway['name']), $model->currency, includeSymbol: false),
-            'payable'    => currencyFormat(ProcessingFee::addTo($outstanding, $gateway['name']), $model->currency, includeSymbol: false),
+            'payable' => currencyFormat(ProcessingFee::addTo($outstanding, $gateway['name']), $model->currency, includeSymbol: false),
         ], $this->invoices->gatewaysFor($model->currency));
 
         return successResponse('', [
@@ -73,7 +73,7 @@ class PaymentController extends Controller
                 return $data;
             }),
             'summary' => $this->invoiceSummary($model, $items),
-            'paid'   => currencyFormat($model->payment()->sum('amount'), $model->currency, includeSymbol: false),
+            'paid' => currencyFormat($model->payment()->sum('amount'), $model->currency, includeSymbol: false),
             'amount' => currencyFormat($outstanding, $model->currency, includeSymbol: false),
             'currency' => $model->currency,
             'currency_symbol' => Currency::where('code', $model->currency)->value('symbol'),
@@ -99,12 +99,12 @@ class PaymentController extends Controller
         $taxLines = InvoiceTaxLine::where('invoice_id', $model->id)->get()
             ->groupBy('label')
             ->map(fn ($group): array => [
-                'label'  => $group->first()?->label,
-                'rate'   => (float) $group->first()?->rate,
+                'label' => $group->first()?->label,
+                'rate' => (float) $group->first()?->rate,
                 'amount' => (float) $group->sum('amount'),
             ])->values()->all();
 
-        $taxTotal         = (float) collect($taxLines)->sum('amount');
+        $taxTotal = (float) collect($taxLines)->sum('amount');
         $pricesIncludeTax = (int) TaxOption::find(1)?->inclusive === 1;
 
         // Format only at the response boundary.
@@ -114,17 +114,17 @@ class PaymentController extends Controller
         );
 
         return [
-            'subtotal'           => currencyFormat($subtotal, $currency, includeSymbol: false),
-            'subtotal_ex_tax'    => $pricesIncludeTax
+            'subtotal' => currencyFormat($subtotal, $currency, includeSymbol: false),
+            'subtotal_ex_tax' => $pricesIncludeTax
                 ? currencyFormat($subtotal - $taxTotal, $currency, includeSymbol: false)
                 : currencyFormat($subtotal, $currency, includeSymbol: false),
             'prices_include_tax' => $pricesIncludeTax,
-            'tax_label'          => collect($taxLines)->pluck('label')->unique()->implode(' + '),
-            'taxes'              => $taxes,
-            'tax_total'          => currencyFormat($taxTotal, $currency, includeSymbol: false),
-            'discount'           => currencyFormat($model->discount, $currency, includeSymbol: false),
-            'coupon_code'        => $model->coupon_code,
-            'grand_total'        => currencyFormat($model->grand_total, $currency, includeSymbol: false),
+            'tax_label' => collect($taxLines)->pluck('label')->unique()->implode(' + '),
+            'taxes' => $taxes,
+            'tax_total' => currencyFormat($taxTotal, $currency, includeSymbol: false),
+            'discount' => currencyFormat($model->discount, $currency, includeSymbol: false),
+            'coupon_code' => $model->coupon_code,
+            'grand_total' => currencyFormat($model->grand_total, $currency, includeSymbol: false),
         ];
     }
 

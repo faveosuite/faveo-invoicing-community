@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Order;
 
-use App\Model\Order\Invoice;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
@@ -27,7 +26,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         $client = User::factory()->create(['role' => 'user']);
         $response = $this->postJson("/newMultiplePayment/receive/{$client->id}", [
             'payment_method' => 'cash',
-            'totalAmt'       => 100,
+            'totalAmt' => 100,
         ]);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['payment_date']);
@@ -39,7 +38,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         $client = User::factory()->create(['role' => 'user']);
         $response = $this->postJson("/newMultiplePayment/receive/{$client->id}", [
             'payment_date' => '2025-01-15',
-            'totalAmt'     => 100,
+            'totalAmt' => 100,
         ]);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['payment_method']);
@@ -50,9 +49,9 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user']);
         $response = $this->postJson("/newMultiplePayment/receive/{$client->id}", [
-            'payment_date'   => '2025-01-15',
+            'payment_date' => '2025-01-15',
             'payment_method' => 'cash',
-            'totalAmt'       => 0,
+            'totalAmt' => 0,
         ]);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['totalAmt']);
@@ -63,9 +62,9 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $client = User::factory()->create(['role' => 'user']);
         $response = $this->postJson("/newMultiplePayment/receive/{$client->id}", [
-            'payment_date'   => '2025-01-15',
+            'payment_date' => '2025-01-15',
             'payment_method' => 'cash',
-            'totalAmt'       => 100,
+            'totalAmt' => 100,
             'invoiceChecked' => [],
         ]);
         $response->assertStatus(200);

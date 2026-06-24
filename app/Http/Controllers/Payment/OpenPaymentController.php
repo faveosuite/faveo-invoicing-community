@@ -71,9 +71,9 @@ class OpenPaymentController extends Controller
 
             return successResponse('Order created successfully', [
                 'order' => array_merge($order->toArray(), [
-                    'amount'              => currencyFormat($order->amount, $currency, includeSymbol: false),
-                    'base_amount'         => currencyFormat($order->base_amount, $currency, includeSymbol: false),
-                    'processing_fee'      => currencyFormat($order->processing_fee, $currency, includeSymbol: false),
+                    'amount' => currencyFormat($order->amount, $currency, includeSymbol: false),
+                    'base_amount' => currencyFormat($order->base_amount, $currency, includeSymbol: false),
+                    'processing_fee' => currencyFormat($order->processing_fee, $currency, includeSymbol: false),
                     'processing_fee_rate' => $order->processing_fee_rate,
                 ]),
             ]);
@@ -250,17 +250,17 @@ class OpenPaymentController extends Controller
             'gateway' => ['required', 'string'],
         ]);
 
-        $feeRate    = (float) (DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
+        $feeRate = (float) (DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
         $baseAmount = round((float) $request->amount, 2);
-        $fee        = round($baseAmount * $feeRate / 100, 2);
-        $total      = round($baseAmount + $fee, 2);
-        $currency   = $request->input('currency');
+        $fee = round($baseAmount * $feeRate / 100, 2);
+        $total = round($baseAmount + $fee, 2);
+        $currency = $request->input('currency');
 
         return successResponse('', [
-            'base_amount'         => currencyFormat($baseAmount, $currency, includeSymbol: false),
-            'processing_fee'      => currencyFormat($fee, $currency, includeSymbol: false),
+            'base_amount' => currencyFormat($baseAmount, $currency, includeSymbol: false),
+            'processing_fee' => currencyFormat($fee, $currency, includeSymbol: false),
             'processing_fee_rate' => $feeRate,
-            'total'               => currencyFormat($total, $currency, includeSymbol: false),
+            'total' => currencyFormat($total, $currency, includeSymbol: false),
         ]);
     }
 

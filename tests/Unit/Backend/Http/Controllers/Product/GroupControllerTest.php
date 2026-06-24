@@ -131,9 +131,9 @@ class GroupControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $response = $this->putJson('/group', [
-            'name'                  => 'New Group '.uniqid(),
-            'pricing_templates_id'  => 1,
-            'hidden'                => 0,
+            'name' => 'New Group '.uniqid(),
+            'pricing_templates_id' => 1,
+            'hidden' => 0,
         ]);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);

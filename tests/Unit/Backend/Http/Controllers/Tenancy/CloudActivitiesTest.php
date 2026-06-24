@@ -537,8 +537,8 @@ class CloudActivitiesTest extends DBTestCase
         // Provide both required fields but no valid order → returns 400
         $response = $this->postJson('/change/domain', [
             'currentDomain' => 'old.example.com',
-            'newDomain'     => 'new.example.com',
-            'order_id'      => 999999,
+            'newDomain' => 'new.example.com',
+            'order_id' => 999999,
         ]);
         $response->assertStatus(400);
         $response->assertJson(['success' => false]);

@@ -411,9 +411,9 @@ function currencyFormat(mixed $amount = null, ?string $currency = null, bool $in
             $currency = (string) Setting::value('default_currency');
         }
 
-        $locale    = getLocalesByCurrency($currency);
+        $locale = getLocalesByCurrency($currency);
         $precision = getCurrencyPrecision($currency);
-        $amount    = $shouldRound
+        $amount = $shouldRound
             ? rounding((float) $amount, $currency)
             : round((float) $amount, $precision);
 
@@ -464,7 +464,6 @@ function getCurrencyPrecision(string $currency): int
 
     return $formatter->getAttribute(NumberFormatter::FRACTION_DIGITS);
 }
-
 
 function rounding(mixed $price, ?string $currency = null): float
 {

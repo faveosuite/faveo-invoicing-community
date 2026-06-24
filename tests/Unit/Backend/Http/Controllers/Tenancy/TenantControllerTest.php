@@ -109,17 +109,17 @@ class TenantControllerTest extends TestCase
     {
         \App\Model\Common\StatusSetting::create([
             'emailverification_status' => 0,
-            'msg91_status'             => 0,
-            'recaptcha_status'         => 0,
+            'msg91_status' => 0,
+            'recaptcha_status' => 0,
         ]);
-        $mock         = new MockHandler([new Response(200, [], json_encode(['success' => true]))]);
+        $mock = new MockHandler([new Response(200, [], json_encode(['success' => true]))]);
         $handlerStack = HandlerStack::create($mock);
-        $client       = new Client(['handler' => $handlerStack]);
-        $cloud        = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
-        $controller   = new TenantController($client, $cloud);
-        $request      = new Request(['debug' => 'true']);
-        $response     = $controller->enableCloud($request);
-        $data         = json_decode((string) $response->getContent(), true);
+        $client = new Client(['handler' => $handlerStack]);
+        $cloud = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
+        $controller = new TenantController($client, $cloud);
+        $request = new Request(['debug' => 'true']);
+        $response = $controller->enableCloud($request);
+        $data = json_decode((string) $response->getContent(), true);
         $this->assertTrue($data['success']);
     }
 
@@ -130,21 +130,21 @@ class TenantControllerTest extends TestCase
     public function test_cloud_popup_missing_fields_throws_validation_exception(): void
     {
         $this->expectException(\Illuminate\Validation\ValidationException::class);
-        $mock         = new MockHandler([]);
-        $client       = new Client(['handler' => HandlerStack::create($mock)]);
-        $cloud        = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
-        $controller   = new TenantController($client, $cloud);
-        $request      = new Request([]);
+        $mock = new MockHandler([]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+        $cloud = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
+        $controller = new TenantController($client, $cloud);
+        $request = new Request([]);
         $controller->cloudPopUp($request);
     }
 
     public function test_cloud_popup_with_valid_data_returns_200(): void
     {
-        $mock         = new MockHandler([]);
-        $client       = new Client(['handler' => HandlerStack::create($mock)]);
-        $cloud        = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
-        $controller   = new TenantController($client, $cloud);
-        $request      = new Request([
+        $mock = new MockHandler([]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+        $cloud = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
+        $controller = new TenantController($client, $cloud);
+        $request = new Request([
             'cloud_top_message' => 'Try our cloud!',
             'cloud_label_field' => 'Domain',
             'cloud_label_radio' => 'Region',
@@ -161,29 +161,29 @@ class TenantControllerTest extends TestCase
     public function test_cloud_product_store_missing_fields_throws_validation_exception(): void
     {
         $this->expectException(\Illuminate\Validation\ValidationException::class);
-        $mock       = new MockHandler([]);
-        $client     = new Client(['handler' => HandlerStack::create($mock)]);
-        $cloud      = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
+        $mock = new MockHandler([]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+        $cloud = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
         $controller = new TenantController($client, $cloud);
-        $request    = new Request([]);
+        $request = new Request([]);
         $controller->cloudProductStore($request);
     }
 
     public function test_cloud_product_store_with_valid_data_returns_200(): void
     {
-        $mock       = new MockHandler([]);
-        $client     = new Client(['handler' => HandlerStack::create($mock)]);
-        $cloud      = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
+        $mock = new MockHandler([]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+        $cloud = FaveoCloud::create(['cloud_central_domain' => 'https://cloud.example.com', 'cloud_cname' => 'test.example.com']);
         $controller = new TenantController($client, $cloud);
-        $product    = \App\Model\Product\Product::factory()->create();
-        $plan       = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
-        $request    = new Request([
-            'cloud_product'     => $product->id,
-            'cloud_free_plan'   => $plan->id,
+        $product = \App\Model\Product\Product::factory()->create();
+        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
+        $request = new Request([
+            'cloud_product' => $product->id,
+            'cloud_free_plan' => $plan->id,
             'cloud_product_key' => 'HELPDESK_KEY',
         ]);
         $response = $controller->cloudProductStore($request);
-        $data     = json_decode((string) $response->getContent(), true);
+        $data = json_decode((string) $response->getContent(), true);
         $this->assertTrue($data['success']);
     }
 

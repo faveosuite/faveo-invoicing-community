@@ -37,7 +37,9 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         $count = 0;
         $dispatcher = (new WebhookDispatcher)->on(
             ['event.a', 'event.b'],
-            function () use (&$count): void { $count++; }
+            function () use (&$count): void {
+                $count++;
+            }
         );
         $dispatcher->dispatch('event.a', []);
         $dispatcher->dispatch('event.b', []);
@@ -87,8 +89,8 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         $dispatcher->dispatch('checkout.session.completed', [
             'data' => [
                 'object' => [
-                    'metadata'        => ['invoice_id' => 999999],
-                    'payment_intent'  => 'pi_test123',
+                    'metadata' => ['invoice_id' => 999999],
+                    'payment_intent' => 'pi_test123',
                 ],
             ],
         ]);
@@ -99,12 +101,12 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $dispatcher = WebhookDispatcher::razorpay();
         $dispatcher->dispatch('payment.captured', [
-            'event'   => 'payment.captured',
+            'event' => 'payment.captured',
             'payload' => [
                 'payment' => [
                     'entity' => [
                         'notes' => ['invoice_id' => 999999],
-                        'id'    => 'pay_test123',
+                        'id' => 'pay_test123',
                     ],
                 ],
             ],
@@ -116,12 +118,12 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $dispatcher = WebhookDispatcher::razorpay();
         $dispatcher->dispatch('payment.failed', [
-            'event'   => 'payment.failed',
+            'event' => 'payment.failed',
             'payload' => [
                 'payment' => [
                     'entity' => [
                         'notes' => ['order_id' => 999999],
-                        'id'    => 'pay_fail123',
+                        'id' => 'pay_fail123',
                     ],
                 ],
             ],

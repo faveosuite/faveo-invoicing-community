@@ -67,8 +67,8 @@ class ProductModelsTest extends DBTestCase
     public function test_addon_can_be_created_and_persisted(): void
     {
         $addon = Addon::create([
-            'name'         => 'Test Addon',
-            'product'      => '1',
+            'name' => 'Test Addon',
+            'product' => '1',
             'subscription' => '0',
         ]);
 
@@ -79,7 +79,7 @@ class ProductModelsTest extends DBTestCase
     public function test_addon_relation_returns_has_many(): void
     {
         $addon = Addon::create([
-            'name'    => 'Relation Addon',
+            'name' => 'Relation Addon',
             'product' => '0',
         ]);
 
@@ -91,7 +91,7 @@ class ProductModelsTest extends DBTestCase
     public function test_addon_delete_removes_record_from_database(): void
     {
         $addon = Addon::create([
-            'name'    => 'Delete Addon',
+            'name' => 'Delete Addon',
             'product' => '0',
         ]);
 
@@ -108,13 +108,13 @@ class ProductModelsTest extends DBTestCase
     public function test_product_bundle_can_be_created_and_persisted(): void
     {
         $bundle = ProductBundle::create([
-            'name'             => 'Test Bundle',
-            'valid_from'       => now(),
-            'valid_till'       => now()->addYear(),
-            'uses'             => 0,
-            'maximum_uses'     => 100,
-            'allow-promotion'  => 0,
-            'show'             => 1,
+            'name' => 'Test Bundle',
+            'valid_from' => now(),
+            'valid_till' => now()->addYear(),
+            'uses' => 0,
+            'maximum_uses' => 100,
+            'allow-promotion' => 0,
+            'show' => 1,
         ]);
 
         $this->assertNotNull($bundle->id);
@@ -124,13 +124,13 @@ class ProductModelsTest extends DBTestCase
     public function test_product_bundle_relation_returns_has_many(): void
     {
         $bundle = ProductBundle::create([
-            'name'            => 'Relation Bundle',
-            'valid_from'      => now(),
-            'valid_till'      => now()->addYear(),
-            'uses'            => 0,
-            'maximum_uses'    => 10,
+            'name' => 'Relation Bundle',
+            'valid_from' => now(),
+            'valid_till' => now()->addYear(),
+            'uses' => 0,
+            'maximum_uses' => 10,
             'allow-promotion' => 0,
-            'show'            => 1,
+            'show' => 1,
         ]);
 
         $relation = $bundle->relation();
@@ -141,13 +141,13 @@ class ProductModelsTest extends DBTestCase
     public function test_product_bundle_delete_removes_record_from_database(): void
     {
         $bundle = ProductBundle::create([
-            'name'            => 'Delete Bundle',
-            'valid_from'      => now(),
-            'valid_till'      => now()->addYear(),
-            'uses'            => 0,
-            'maximum_uses'    => 10,
+            'name' => 'Delete Bundle',
+            'valid_from' => now(),
+            'valid_till' => now()->addYear(),
+            'uses' => 0,
+            'maximum_uses' => 10,
             'allow-promotion' => 0,
-            'show'            => 1,
+            'show' => 1,
         ]);
 
         $id = $bundle->id;

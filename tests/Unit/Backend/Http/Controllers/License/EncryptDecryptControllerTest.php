@@ -27,8 +27,8 @@ class EncryptDecryptControllerTest extends TestCase
     {
         Storage::fake('public');
         $controller = new EncryptDecryptController;
-        $orderNo    = 'TEST002';
-        $plaintext  = 'license-data-12345';
+        $orderNo = 'TEST002';
+        $plaintext = 'license-data-12345';
 
         // Generate keys first
         $controller->generateKeys($orderNo);

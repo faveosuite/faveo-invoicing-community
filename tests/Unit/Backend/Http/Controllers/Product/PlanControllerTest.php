@@ -129,7 +129,7 @@ class PlanControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
         $product = \App\Model\Product\Product::factory()->create();
-        $plan    = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
+        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
         $response = $this->getJson("/plan/{$plan->id}");
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
