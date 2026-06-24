@@ -124,5 +124,4 @@ class TemplateController extends Controller
             return errorResponse(__('message.template_update_error'));
         }
     }
-
 }

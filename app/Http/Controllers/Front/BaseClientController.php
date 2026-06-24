@@ -95,5 +95,4 @@ class BaseClientController extends Controller
 
         return 'my-invoice/'.$invoiceId;
     }
-
 }

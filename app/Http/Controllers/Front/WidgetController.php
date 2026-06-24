@@ -3,9 +3,6 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
-use App\Model\Common\Mailchimp\MailchimpSetting;
-use App\Model\Common\Setting;
-use App\Model\Common\SocialMedia;
 use App\Model\Common\StatusSetting;
 use App\Model\Front\Widgets;
 use Exception;
@@ -217,5 +214,4 @@ class WidgetController extends Controller
             return errorResponse($exception->getMessage());
         }
     }
-
 }

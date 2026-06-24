@@ -110,5 +110,4 @@ class GithubApiController
 
         return $response->successful() && $response->json('login') === $username;
     }
-
 }
