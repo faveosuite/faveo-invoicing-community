@@ -6,8 +6,8 @@ namespace Tests\Unit\Backend\Models;
 
 use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
-use App\Model\Payment\Promotion;
 use App\Model\Payment\PromoProductRelation;
+use App\Model\Payment\Promotion;
 use App\Model\Payment\Tax;
 use App\Model\Payment\TaxClass;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

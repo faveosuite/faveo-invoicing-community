@@ -46,10 +46,20 @@ class ConsoleCommandsTest extends DBTestCase
         // Mockery proxies enforce original type hints, so use an anonymous class
         // with relaxed (mixed) type hints to accept null.
         $this->app->bind('Log', function () {
-            return new class {
-                public function cron(mixed $signature = null, mixed $description = ''): mixed { return null; }
-                public function cronCompleted(mixed $id = null): void {}
-                public function cronFailed(mixed $id = null, mixed $exception = null): void {}
+            return new class
+            {
+                public function cron(mixed $signature = null, mixed $description = ''): mixed
+                {
+                    return null;
+                }
+
+                public function cronCompleted(mixed $id = null): void
+                {
+                }
+
+                public function cronFailed(mixed $id = null, mixed $exception = null): void
+                {
+                }
             };
         });
 
@@ -190,7 +200,8 @@ class ConsoleCommandsTest extends DBTestCase
     {
         // Create a concrete command that throws in handleAndLog()
         // to cover the catch block in LoggableCommand::handle()
-        $throwingCommand = new class extends LoggableCommand {
+        $throwingCommand = new class extends LoggableCommand
+        {
             protected $signature = 'test:throwing-command-'.PHP_INT_MAX;
 
             protected $description = 'Testing error handling';

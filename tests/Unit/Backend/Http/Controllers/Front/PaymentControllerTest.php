@@ -6,7 +6,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Front;
 
 use App\Services\Payment\InvoicePaymentService;
 use App\Services\Payment\OpenPaymentService;
-use App\Services\Payment\PaymentService;
 use Mockery;
 use Tests\DBTestCase;
 
