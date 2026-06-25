@@ -18,15 +18,50 @@ use Tests\DBTestCase;
  */
 class ConcreteCronStub extends BaseCronController
 {
-    public function getAllDaysExpiryUsers(int $day): array { return []; }
-    public function get15DaysExpiryUsers(): array { return []; }
-    public function getOneDayExpiryUsers(): array { return []; }
-    public function getOnDayExpiryUsers(): array { return []; }
-    public function getExpiredUsers(): array { return []; }
-    public function get30DaysExpiryUsers(): array { return []; }
-    public function get1DaysSubscription(): mixed { return []; }
-    public function get0DaysSubscription(): mixed { return []; }
-    public function getPlus1Subscription(): mixed { return []; }
+    public function getAllDaysExpiryUsers(int $day): array
+    {
+        return [];
+    }
+
+    public function get15DaysExpiryUsers(): array
+    {
+        return [];
+    }
+
+    public function getOneDayExpiryUsers(): array
+    {
+        return [];
+    }
+
+    public function getOnDayExpiryUsers(): array
+    {
+        return [];
+    }
+
+    public function getExpiredUsers(): array
+    {
+        return [];
+    }
+
+    public function get30DaysExpiryUsers(): array
+    {
+        return [];
+    }
+
+    public function get1DaysSubscription(): mixed
+    {
+        return [];
+    }
+
+    public function get0DaysSubscription(): mixed
+    {
+        return [];
+    }
+
+    public function getPlus1Subscription(): mixed
+    {
+        return [];
+    }
 }
 
 /**
@@ -35,17 +70,52 @@ class ConcreteCronStub extends BaseCronController
 class ConcreteCronStubWithUsers extends BaseCronController
 {
     private array $fakeSubscription = [['subscription' => ['id' => 1, 'plan' => 'Pro']]];
-    private array $fakeUsers        = [['users' => [['id' => 1, 'name' => 'Test']]]];
+    private array $fakeUsers = [['users' => [['id' => 1, 'name' => 'Test']]]];
 
-    public function getAllDaysExpiryUsers(int $day): array { return $this->fakeSubscription; }
-    public function get15DaysExpiryUsers(): array { return $this->fakeUsers; }
-    public function getOneDayExpiryUsers(): array { return $this->fakeUsers; }
-    public function getOnDayExpiryUsers(): array { return $this->fakeUsers; }
-    public function getExpiredUsers(): array { return $this->fakeUsers; }
-    public function get30DaysExpiryUsers(): array { return $this->fakeUsers; }
-    public function get1DaysSubscription(): mixed { return ['sub1']; }
-    public function get0DaysSubscription(): mixed { return ['sub0']; }
-    public function getPlus1Subscription(): mixed { return ['subplus']; }
+    public function getAllDaysExpiryUsers(int $day): array
+    {
+        return $this->fakeSubscription;
+    }
+
+    public function get15DaysExpiryUsers(): array
+    {
+        return $this->fakeUsers;
+    }
+
+    public function getOneDayExpiryUsers(): array
+    {
+        return $this->fakeUsers;
+    }
+
+    public function getOnDayExpiryUsers(): array
+    {
+        return $this->fakeUsers;
+    }
+
+    public function getExpiredUsers(): array
+    {
+        return $this->fakeUsers;
+    }
+
+    public function get30DaysExpiryUsers(): array
+    {
+        return $this->fakeUsers;
+    }
+
+    public function get1DaysSubscription(): mixed
+    {
+        return ['sub1'];
+    }
+
+    public function get0DaysSubscription(): mixed
+    {
+        return ['sub0'];
+    }
+
+    public function getPlus1Subscription(): mixed
+    {
+        return ['subplus'];
+    }
 }
 
 class BaseCronControllerTest extends DBTestCase
@@ -63,8 +133,8 @@ class BaseCronControllerTest extends DBTestCase
 
         // Create reusable product and plan so no test needs to skip
         $this->product = Product::create(['name' => 'BaseCron Test Product '.uniqid()]);
-        $this->plan    = Plan::create(['name' => 'BaseCron Plan '.uniqid(), 'product' => $this->product->id, 'days' => 30]);
-        $this->order   = Order::create(['client' => $this->user->id, 'product' => $this->product->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+        $this->plan = Plan::create(['name' => 'BaseCron Plan '.uniqid(), 'product' => $this->product->id, 'days' => 30]);
+        $this->order = Order::create(['client' => $this->user->id, 'product' => $this->product->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
         $this->invoice = Invoice::factory()->create(['user_id' => $this->user->id]);
         InvoiceItem::create(['invoice_id' => $this->invoice->id, 'product_name' => $this->product->name]);
     }
@@ -328,7 +398,7 @@ class BaseCronControllerTest extends DBTestCase
     public function test_mail_returns_early_when_product_not_found(): void
     {
         $order = $this->order;
-        $sub   = new Subscription;
+        $sub = new Subscription;
 
         // Product 999999 doesn't exist → early return (void)
         $this->cron->mail($this->user, date('Y-m-d'), 999999, $order, $sub);
@@ -341,7 +411,7 @@ class BaseCronControllerTest extends DBTestCase
         $product = $this->product;
 
         $order = $this->order;
-        $sub   = new Subscription;
+        $sub = new Subscription;
 
         // TemplateType::getSelectedTemplate may return null → early return
         // Either way, the method should not throw
@@ -355,7 +425,7 @@ class BaseCronControllerTest extends DBTestCase
         $product = $this->product;
 
         $order = $this->order;
-        $sub   = new Subscription;
+        $sub = new Subscription;
 
         // Passing an empty string for $end; date_create('') returns false → early return
         $this->cron->mail($this->user, '', $product->id, $order, $sub);
@@ -413,7 +483,7 @@ class BaseCronControllerTest extends DBTestCase
         $product = $this->product;
 
         $order = $this->order;
-        $sub   = new \App\Model\Product\Subscription;
+        $sub = new \App\Model\Product\Subscription;
 
         // Attempt to send mail — will exit early if Setting/template not configured
         try {
@@ -430,7 +500,7 @@ class BaseCronControllerTest extends DBTestCase
         $product = $this->product; // created in setUp
 
         $order = $this->order;
-        $sub   = new \App\Model\Product\Subscription;
+        $sub = new \App\Model\Product\Subscription;
 
         try {
             $this->cron->mail($this->user, date('Y-m-d H:i:s'), $product->id, $order, $sub);
@@ -450,20 +520,20 @@ class BaseCronControllerTest extends DBTestCase
         $product = $this->product;
         $plan = $this->plan;
 
-        $user  = \App\User::factory()->create(['role' => 'user', 'country' => 'IN']);
+        $user = \App\User::factory()->create(['role' => 'user', 'country' => 'IN']);
         $order = Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'product'      => $product->id,
-            'number'       => mt_rand(10000000, 99999999),
+            'product' => $product->id,
+            'number' => mt_rand(10000000, 99999999),
         ]);
 
         $sub = \App\Model\Product\Subscription::create([
-            'order_id'       => $order->id,
-            'product_id'     => $product->id,
-            'plan_id'        => $plan->id,
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
             'update_ends_at' => now()->addDays(3)->toDateTimeString(),
-            'version'        => '1.0.0',
+            'version' => '1.0.0',
         ]);
 
         try {
@@ -503,7 +573,7 @@ class BaseCronControllerTest extends DBTestCase
         $product = $this->product;
 
         $order = $this->order;
-        $sub   = new \App\Model\Product\Subscription;
+        $sub = new \App\Model\Product\Subscription;
 
         // Pass non-parseable date to hit the date_create() false branch
         $this->cron->mail($this->user, '0000-00-00 00:00:00', $product->id, $order, $sub);

@@ -4,7 +4,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Order;
 
 use App\Http\Controllers\Order\TaxRatesAndCodeExpiryController;
 use App\Model\Order\Invoice;
-use App\Model\Order\InvoiceItem;
 use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use App\User;
@@ -41,10 +40,10 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
         );
 
         $invoice = Invoice::factory()->create([
-            'user_id'     => $this->user->id,
-            'currency'    => 'USD',
+            'user_id' => $this->user->id,
+            'currency' => 'USD',
             'grand_total' => 100.00,
-            'status'      => 'unpaid',
+            'status' => 'unpaid',
         ]);
 
         $result = $this->controller->currency($invoice->id);
@@ -56,8 +55,8 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
     public function test_currency_returns_space_when_grand_total_is_zero(): void
     {
         $invoice = Invoice::factory()->create([
-            'user_id'     => $this->user->id,
-            'currency'    => 'USD',
+            'user_id' => $this->user->id,
+            'currency' => 'USD',
             'grand_total' => 0,
         ]);
 
@@ -75,8 +74,8 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
         );
 
         $invoice = Invoice::factory()->create([
-            'user_id'     => $this->user->id,
-            'currency'    => 'XTS',
+            'user_id' => $this->user->id,
+            'currency' => 'XTS',
             'grand_total' => 50.00,
         ]);
 
@@ -102,7 +101,7 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
         $this->expectException(\ErrorException::class);
 
         $invoice = Invoice::factory()->create([
-            'user_id'     => $this->user->id,
+            'user_id' => $this->user->id,
             'grand_total' => 100.00,
         ]);
 
@@ -127,16 +126,16 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
         // paymentEditById references $this->user->where() but $user is not a defined
         // class property. The ErrorException is caught → returns errorResponse 400.
         $invoice = Invoice::factory()->create([
-            'user_id'     => $this->user->id,
-            'currency'    => 'USD',
+            'user_id' => $this->user->id,
+            'currency' => 'USD',
             'grand_total' => 200.00,
-            'status'      => 'pending',
+            'status' => 'pending',
         ]);
 
         $payment = Payment::create([
-            'invoice_id'     => $invoice->id,
-            'user_id'        => $this->user->id,
-            'amount'         => 100.00,
+            'invoice_id' => $invoice->id,
+            'user_id' => $this->user->id,
+            'amount' => 100.00,
             'payment_method' => 'stripe',
             'payment_status' => 'success',
         ]);
@@ -161,10 +160,10 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
         );
 
         $invoice = Invoice::factory()->create([
-            'user_id'     => $this->user->id,
-            'currency'    => 'EUR',
+            'user_id' => $this->user->id,
+            'currency' => 'EUR',
             'grand_total' => 75.00,
-            'status'      => 'pending',
+            'status' => 'pending',
         ]);
 
         $result = $this->controller->currency($invoice->id);
@@ -181,8 +180,8 @@ class TaxRatesAndCodeExpiryControllerDBTest extends DBTestCase
     {
         // No Currency row for 'ZZZ' — controller should fall through to returning ' '
         $invoice = Invoice::factory()->create([
-            'user_id'     => $this->user->id,
-            'currency'    => 'ZZZ',
+            'user_id' => $this->user->id,
+            'currency' => 'ZZZ',
             'grand_total' => 25.00,
         ]);
 

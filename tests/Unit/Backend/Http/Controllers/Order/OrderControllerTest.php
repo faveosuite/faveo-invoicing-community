@@ -399,7 +399,7 @@ class OrderControllerTest extends DBTestCase
     public function test_get_payment_by_order_id_with_search_query_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $user  = \App\User::factory()->create(['role' => 'user']);
+        $user = \App\User::factory()->create(['role' => 'user']);
         $order = Order::factory()->create(['client' => $user->id]);
 
         $response = $this->getJson("/getOrderPayments/{$order->id}?search-query=stripe");
@@ -411,7 +411,7 @@ class OrderControllerTest extends DBTestCase
     public function test_get_payment_by_order_id_with_sort_params_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $user  = \App\User::factory()->create(['role' => 'user']);
+        $user = \App\User::factory()->create(['role' => 'user']);
         $order = Order::factory()->create(['client' => $user->id]);
 
         $response = $this->getJson("/getOrderPayments/{$order->id}?sort-field=amount&sort-order=desc&limit=5");
@@ -443,7 +443,7 @@ class OrderControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         // Create order with associated paid invoice
-        $order   = Order::factory()->withRelations()->create();
+        $order = Order::factory()->withRelations()->create();
         $invoice = $order->getRelation('invoice');
         if ($invoice) {
             $invoice->status = 'Success';
@@ -495,9 +495,9 @@ class OrderControllerTest extends DBTestCase
         $invoice = $order->getRelation('invoice');
         if ($invoice) {
             \App\Model\Order\Payment::create([
-                'invoice_id'     => $invoice->id,
-                'user_id'        => $order->client,
-                'amount'         => 100.0,
+                'invoice_id' => $invoice->id,
+                'user_id' => $order->client,
+                'amount' => 100.0,
                 'payment_method' => 'stripe',
                 'payment_status' => 'success',
             ]);
@@ -512,4 +512,3 @@ class OrderControllerTest extends DBTestCase
         $this->assertArrayHasKey('data', $data);
     }
 }
-

@@ -135,7 +135,7 @@ class OrderSearchControllerTest extends DBTestCase
         $request = new \Illuminate\Http\Request;
         $request->merge([
             'from_date' => '2020-01-01',
-            'to_date'   => '2020-12-31',
+            'to_date' => '2020-12-31',
         ]);
         $result = $this->controller->advanceOrderSearch($request);
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $result);

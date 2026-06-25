@@ -271,15 +271,15 @@ class RegistrationTest extends DBTestCase
 
         $request = new \Illuminate\Http\Request;
         $request->merge([
-            'email'              => 'test@example.com',
-            'first_name'         => 'Test',
-            'last_name'          => 'User',
-            'mobile'             => '9876543210',
-            'mobile_code'        => '91',
+            'email' => 'test@example.com',
+            'first_name' => 'Test',
+            'last_name' => 'User',
+            'mobile' => '9876543210',
+            'mobile_code' => '91',
             'mobile_country_iso' => 'IN',
-            'country'            => 'IN',
-            'company'            => 'Test Co',
-            'address'            => '123 Main St',
+            'country' => 'IN',
+            'company' => 'Test Co',
+            'address' => '123 Main St',
         ]);
 
         $result = $controller->getUserDetails($request);

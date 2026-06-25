@@ -103,16 +103,16 @@ class ProfileControllerTest extends DBTestCase
         $this->withoutMiddleware();
 
         $response = $this->patchJson('/profile', [
-            'first_name'          => 'Admin',
-            'last_name'           => 'Updated',
-            'user_name'           => $this->user->user_name,
-            'email'               => $this->user->email,
-            'company'             => 'Test Co',
-            'address'             => '123 St',
-            'mobile'              => '9876543210',
-            'mobile_country_iso'  => 'IN',
-            'timezone_id'         => 1,
-            'country'             => $this->user->country ?? 'IN',
+            'first_name' => 'Admin',
+            'last_name' => 'Updated',
+            'user_name' => $this->user->user_name,
+            'email' => $this->user->email,
+            'company' => 'Test Co',
+            'address' => '123 St',
+            'mobile' => '9876543210',
+            'mobile_country_iso' => 'IN',
+            'timezone_id' => 1,
+            'country' => $this->user->country ?? 'IN',
         ]);
 
         $this->assertContains($response->status(), [200, 422]);

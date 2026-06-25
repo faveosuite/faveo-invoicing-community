@@ -93,10 +93,10 @@ class ExtendedOrderControllerTest extends DBTestCase
     {
         // Must have serial_key for reissueLicense to call LicenseService::findByCode(string)
         $order = Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(10000000, 99999999),
-            'serial_key'   => 'REISSUE'.mt_rand(100000, 999999),
+            'number' => mt_rand(10000000, 99999999),
+            'serial_key' => 'REISSUE'.mt_rand(100000, 999999),
         ]);
 
         $response = $this->patchJson('/reissue-license', ['id' => $order->id]);

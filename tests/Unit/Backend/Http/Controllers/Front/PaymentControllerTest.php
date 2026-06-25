@@ -72,13 +72,13 @@ class PaymentControllerTest extends DBTestCase
         $this->app->instance(OpenPaymentService::class, Mockery::mock(OpenPaymentService::class));
 
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $this->user->id,
-            'currency'    => 'USD',
+            'user_id' => $this->user->id,
+            'currency' => 'USD',
             'grand_total' => 100.00,
-            'status'      => 'pending',
+            'status' => 'pending',
         ]);
 
-        $response = $this->getJson('/invoice/' . $invoice->id . '/pay-init');
+        $response = $this->getJson('/invoice/'.$invoice->id.'/pay-init');
 
         $response->assertStatus(200)
             ->assertJson(['success' => true])
@@ -98,13 +98,13 @@ class PaymentControllerTest extends DBTestCase
         $this->app->instance(OpenPaymentService::class, Mockery::mock(OpenPaymentService::class));
 
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $this->user->id,
-            'currency'    => 'USD',
+            'user_id' => $this->user->id,
+            'currency' => 'USD',
             'grand_total' => 100.00,
-            'status'      => 'success',
+            'status' => 'success',
         ]);
 
-        $response = $this->getJson('/invoice/' . $invoice->id . '/pay-success');
+        $response = $this->getJson('/invoice/'.$invoice->id.'/pay-success');
 
         $response->assertStatus(200)
             ->assertJson(['success' => true])
@@ -121,14 +121,14 @@ class PaymentControllerTest extends DBTestCase
         $this->app->instance(OpenPaymentService::class, Mockery::mock(OpenPaymentService::class));
 
         $otherUser = \App\User::factory()->create(['email' => 'other-pay-'.uniqid().'@test.local']);
-        $invoice   = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $otherUser->id,
-            'currency'    => 'USD',
+        $invoice = \App\Model\Order\Invoice::factory()->create([
+            'user_id' => $otherUser->id,
+            'currency' => 'USD',
             'grand_total' => 50.00,
-            'status'      => 'pending',
+            'status' => 'pending',
         ]);
 
-        $response = $this->getJson('/invoice/' . $invoice->id . '/pay-init');
+        $response = $this->getJson('/invoice/'.$invoice->id.'/pay-init');
 
         $response->assertStatus(403);
     }
@@ -143,13 +143,13 @@ class PaymentControllerTest extends DBTestCase
         $this->app->instance(OpenPaymentService::class, Mockery::mock(OpenPaymentService::class));
 
         $otherUser = \App\User::factory()->create(['email' => 'stripe-pay-'.uniqid().'@test.local']);
-        $invoice   = \App\Model\Order\Invoice::factory()->create([
+        $invoice = \App\Model\Order\Invoice::factory()->create([
             'user_id' => $otherUser->id,
             'currency' => 'USD',
-            'status'   => 'pending',
+            'status' => 'pending',
         ]);
 
-        $response = $this->postJson('/invoice/' . $invoice->id . '/stripe/session');
+        $response = $this->postJson('/invoice/'.$invoice->id.'/stripe/session');
 
         $response->assertStatus(403);
     }

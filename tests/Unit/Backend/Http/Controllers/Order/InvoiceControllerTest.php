@@ -448,7 +448,7 @@ class InvoiceControllerTest extends DBTestCase
     public function test_delete_bulk_invoices_deletes_specified_invoices(): void
     {
         $this->getLoggedInUser('admin');
-        $user    = \App\User::factory()->create(['email' => 'del-bulk-inv-'.uniqid().'@test.local']);
+        $user = \App\User::factory()->create(['email' => 'del-bulk-inv-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
 
         $response = $this->deleteJson('/invoices', ['invoice_ids' => [$invoice->id]]);
@@ -515,12 +515,12 @@ class InvoiceControllerTest extends DBTestCase
     public function test_calculate_invoice_returns_array_with_expected_keys(): void
     {
         $this->getLoggedInUser('admin');
-        $user    = \App\User::factory()->create(['email' => 'calc-inv-'.uniqid().'@test.local']);
+        $user = \App\User::factory()->create(['email' => 'calc-inv-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $user->id,
+            'user_id' => $user->id,
             'grand_total' => 200.0,
-            'currency'    => 'USD',
-            'status'      => 'pending',
+            'currency' => 'USD',
+            'status' => 'pending',
         ]);
 
         $result = \App\Http\Controllers\Order\InvoiceController::calculateInvoice($invoice->id);
@@ -537,13 +537,13 @@ class InvoiceControllerTest extends DBTestCase
     public function test_calculate_invoice_with_format_currency_returns_strings(): void
     {
         $this->getLoggedInUser('admin');
-        $user    = \App\User::factory()->create(['email' => 'calc-fmt-'.uniqid().'@test.local']);
+        $user = \App\User::factory()->create(['email' => 'calc-fmt-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $user->id,
+            'user_id' => $user->id,
             'grand_total' => 150.0,
-            'currency'    => 'USD',
-            'status'      => 'pending',
-            'discount'    => 10.0,
+            'currency' => 'USD',
+            'status' => 'pending',
+            'discount' => 10.0,
         ]);
 
         $result = \App\Http\Controllers\Order\InvoiceController::calculateInvoice($invoice->id, formatCurrency: true);
@@ -557,12 +557,12 @@ class InvoiceControllerTest extends DBTestCase
     public function test_calculate_invoice_without_format_currency_returns_numerics(): void
     {
         $this->getLoggedInUser('admin');
-        $user    = \App\User::factory()->create(['email' => 'calc-num-'.uniqid().'@test.local']);
+        $user = \App\User::factory()->create(['email' => 'calc-num-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $user->id,
+            'user_id' => $user->id,
             'grand_total' => 300.0,
-            'currency'    => 'USD',
-            'status'      => 'pending',
+            'currency' => 'USD',
+            'status' => 'pending',
         ]);
 
         $result = \App\Http\Controllers\Order\InvoiceController::calculateInvoice($invoice->id, formatCurrency: false);
@@ -586,12 +586,12 @@ class InvoiceControllerTest extends DBTestCase
             \App\Model\Common\Setting::factory()->create(['id' => 1]);
         }
 
-        $user    = \App\User::factory()->create(['email' => 'inv-setting-'.uniqid().'@test.local']);
+        $user = \App\User::factory()->create(['email' => 'inv-setting-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $user->id,
+            'user_id' => $user->id,
             'grand_total' => 250.0,
-            'currency'    => 'USD',
-            'status'      => 'pending',
+            'currency' => 'USD',
+            'status' => 'pending',
         ]);
 
         $response = $this->getJson('/invoice/'.$invoice->id);
@@ -652,11 +652,11 @@ class InvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $user    = \App\User::factory()->create(['email' => 'soft-del-'.uniqid().'@test.local']);
+        $user = \App\User::factory()->create(['email' => 'soft-del-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $user->id,
+            'user_id' => $user->id,
             'grand_total' => 100.0,
-            'status'      => 'pending',
+            'status' => 'pending',
         ]);
 
         // Soft-delete the user
@@ -678,9 +678,9 @@ class InvoiceControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         $product = \App\Model\Product\Product::factory()->create();
-        $user    = \App\User::factory()->create(['email' => 'ci-admin-'.uniqid().'@test.local']);
+        $user = \App\User::factory()->create(['email' => 'ci-admin-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'  => $user->id,
+            'user_id' => $user->id,
             'currency' => 'USD',
         ]);
 

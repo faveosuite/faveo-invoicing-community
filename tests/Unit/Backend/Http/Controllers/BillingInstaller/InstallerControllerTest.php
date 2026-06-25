@@ -225,9 +225,9 @@ class InstallerControllerTest extends DBTestCase
         // If admin user already exists, accountcheck may redirect
         $response = $this->postJson('/install/accountcheck', [
             'firstname' => 'Test',
-            'lastname'  => 'Admin',
-            'email'     => 'existing@test.local',
-            'password'  => 'Secret1234!',
+            'lastname' => 'Admin',
+            'email' => 'existing@test.local',
+            'password' => 'Secret1234!',
         ]);
 
         $this->assertContains($response->status(), [200, 302, 405, 422]);
@@ -254,13 +254,13 @@ class InstallerControllerTest extends DBTestCase
         $controller = new InstallerController;
         $request = new \Illuminate\Http\Request;
         $request->merge([
-            'first_name'   => 'Test',
-            'last_name'    => 'User',
-            'user_name'    => 'testuser99',
-            'email'        => 'installer-'.uniqid().'@test.local',
-            'password'     => 'weak', // fails regex
+            'first_name' => 'Test',
+            'last_name' => 'User',
+            'user_name' => 'testuser99',
+            'email' => 'installer-'.uniqid().'@test.local',
+            'password' => 'weak', // fails regex
             'cache_driver' => 'file',
-            'environment'  => 'production',
+            'environment' => 'production',
         ]);
 
         $response = $controller->accountcheck($request);
@@ -324,13 +324,13 @@ class InstallerControllerTest extends DBTestCase
         $controller = new InstallerController;
         $request = new \Illuminate\Http\Request;
         $request->merge([
-            'first_name'   => 'Admin',
-            'last_name'    => 'Install',
-            'user_name'    => 'install_admin_'.uniqid(),
-            'email'        => 'install-'.uniqid().'@test.local',
-            'password'     => 'Secret@1234',
+            'first_name' => 'Admin',
+            'last_name' => 'Install',
+            'user_name' => 'install_admin_'.uniqid(),
+            'email' => 'install-'.uniqid().'@test.local',
+            'password' => 'Secret@1234',
             'cache_driver' => 'file',
-            'environment'  => 'production',
+            'environment' => 'production',
         ]);
 
         // changeLanguage(null) may fail → 400 error
@@ -410,7 +410,7 @@ class InstallerControllerTest extends DBTestCase
     public function test_db_setup_with_zero_count_redirects_to_db_setup(): void
     {
         $controller = new InstallerController;
-        $request    = new Request;
+        $request = new Request;
         $request->merge(['count' => '0']);
 
         $response = $controller->dbsetup($request);
@@ -420,7 +420,7 @@ class InstallerControllerTest extends DBTestCase
     public function test_db_setup_with_nonzero_count_redirects_back(): void
     {
         $controller = new InstallerController;
-        $request    = new Request;
+        $request = new Request;
         $request->merge(['count' => '5']);
 
         $response = $controller->dbsetup($request);
@@ -435,7 +435,7 @@ class InstallerControllerTest extends DBTestCase
     {
         \Illuminate\Support\Facades\Cache::forget('config-check');
         $controller = new InstallerController;
-        $request    = new Request;
+        $request = new Request;
 
         $response = $controller->database($request);
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -445,7 +445,7 @@ class InstallerControllerTest extends DBTestCase
     {
         \Illuminate\Support\Facades\Cache::forever('config-check', 'config-check');
         $controller = new InstallerController;
-        $request    = new Request;
+        $request = new Request;
 
         $response = $controller->database($request);
         // May return View or redirect depending on cache
@@ -462,7 +462,7 @@ class InstallerControllerTest extends DBTestCase
     public function test_store_language_for_users_unauthenticated_returns_success(): void
     {
         $controller = new InstallerController;
-        $request    = \Illuminate\Http\Request::create('/store-language', 'POST', ['language' => 'en']);
+        $request = \Illuminate\Http\Request::create('/store-language', 'POST', ['language' => 'en']);
 
         try {
             $response = $controller->storeLanguageForUsers(new \App\Http\Requests\StoreLanguageRequest(['language' => 'en']));
@@ -480,18 +480,18 @@ class InstallerControllerTest extends DBTestCase
     public function test_account_check_redis_driver_fails_connection_returns_400(): void
     {
         $controller = new InstallerController;
-        $request    = new Request;
+        $request = new Request;
         $request->merge([
-            'first_name'     => 'Admin',
-            'last_name'      => 'Install',
-            'user_name'      => 'install_admin_'.uniqid(),
-            'email'          => 'install-redis-'.uniqid().'@test.local',
-            'password'       => 'Secret@1234',
-            'cache_driver'   => 'redis',
-            'redis_host'     => '127.0.0.1',
+            'first_name' => 'Admin',
+            'last_name' => 'Install',
+            'user_name' => 'install_admin_'.uniqid(),
+            'email' => 'install-redis-'.uniqid().'@test.local',
+            'password' => 'Secret@1234',
+            'cache_driver' => 'redis',
+            'redis_host' => '127.0.0.1',
             'redis_password' => null,
-            'redis_port'     => 9999, // non-existent port → connection failure
-            'environment'    => 'production',
+            'redis_port' => 9999, // non-existent port → connection failure
+            'environment' => 'production',
         ]);
 
         $response = $controller->accountcheck($request);
@@ -543,7 +543,7 @@ class InstallerControllerTest extends DBTestCase
     public function test_language_list_returns_sorted_by_name(): void
     {
         $controller = new InstallerController;
-        $response   = $controller->languageList();
+        $response = $controller->languageList();
 
         $body = json_decode($response->getContent(), true);
         $this->assertTrue($body['success']);
@@ -571,7 +571,7 @@ class InstallerControllerTest extends DBTestCase
             ->andReturn(0);
 
         $controller = new InstallerController;
-        $response   = $controller->checkPreInstall();
+        $response = $controller->checkPreInstall();
 
         $this->assertEquals(200, $response->getStatusCode());
         $body = json_decode($response->getContent(), true);

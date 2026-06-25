@@ -39,17 +39,19 @@ class TaxModelTest extends DBTestCase
     public function test_tax_can_be_created_and_retrieved(): void
     {
         $taxClass = TaxClass::first();
-        if (! $taxClass) { $taxClass = \App\Model\Payment\TaxClass::create(['name' => 'Test Tax Class '.uniqid()]); }
+        if (! $taxClass) {
+            $taxClass = \App\Model\Payment\TaxClass::create(['name' => 'Test Tax Class '.uniqid()]);
+        }
 
         $tax = Tax::create([
-            'name'          => 'Test Tax '.uniqid(),
-            'rate'          => '10.00',
-            'country'       => 'US',
-            'active'        => 1,
-            'tax_classes_id'=> $taxClass->id,
-            'level'         => 1,
-            'priority'      => 1,
-            'compound'      => 0,
+            'name' => 'Test Tax '.uniqid(),
+            'rate' => '10.00',
+            'country' => 'US',
+            'active' => 1,
+            'tax_classes_id' => $taxClass->id,
+            'level' => 1,
+            'priority' => 1,
+            'compound' => 0,
             'apply_to_shipping' => 0,
         ]);
 

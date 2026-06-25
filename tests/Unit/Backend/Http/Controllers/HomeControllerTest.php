@@ -286,11 +286,11 @@ class HomeControllerTest extends DBTestCase
     public function test_renewurl_returns_json_error_when_subscription_not_found(): void
     {
         $response = $this->postJson('/renewurl', [
-            'domain'         => 'nonexistent-domain-xyzzy.test',
-            'order_number'   => 'INVALID-ORDER-XYZ',
-            'serial_key'     => 'INVALID-SERIAL',
-            'faveo_name'     => 'HelpDesk',
-            'faveo_version'  => '1.0.0',
+            'domain' => 'nonexistent-domain-xyzzy.test',
+            'order_number' => 'INVALID-ORDER-XYZ',
+            'serial_key' => 'INVALID-SERIAL',
+            'faveo_name' => 'HelpDesk',
+            'faveo_version' => '1.0.0',
         ]);
 
         // Subscription not found → exception → JSON error response
@@ -304,11 +304,11 @@ class HomeControllerTest extends DBTestCase
 
     public function test_get_detailed_billing_info_returns_email_for_existing_order(): void
     {
-        $user  = \App\User::factory()->create(['email' => 'billing-info-'.uniqid().'@test.local']);
+        $user = \App\User::factory()->create(['email' => 'billing-info-'.uniqid().'@test.local']);
         $order = \App\Model\Order\Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'number'       => 'BILLING-'.uniqid(),
+            'number' => 'BILLING-'.uniqid(),
         ]);
 
         $response = $this->getJson('/api/billingInfo?order='.$order->number);
@@ -359,24 +359,24 @@ class HomeControllerTest extends DBTestCase
 
     public function test_check_updates_expiry_returns_success_when_order_found_and_not_expired(): void
     {
-        $user    = \App\User::factory()->create();
+        $user = \App\User::factory()->create();
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
         $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = \App\Model\Order\Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'product'      => $product->id,
-            'number'       => 'CUE-'.uniqid(),
+            'product' => $product->id,
+            'number' => 'CUE-'.uniqid(),
         ]);
 
         // subscription with future expiry
         \App\Model\Product\Subscription::create([
-            'order_id'       => $order->id,
-            'product_id'     => $product->id,
-            'plan_id'        => $plan->id,
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
             'update_ends_at' => now()->addYear()->toDateTimeString(),
-            'version'        => '1.0.0',
+            'version' => '1.0.0',
         ]);
 
         $response = $this->postJson('/v1/checkUpdatesExpiry', [
@@ -392,23 +392,23 @@ class HomeControllerTest extends DBTestCase
 
     public function test_check_updates_expiry_with_license_code_found(): void
     {
-        $user    = \App\User::factory()->create();
+        $user = \App\User::factory()->create();
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
         $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
         $licenseCode = 'TEST-'.uniqid();
         $order = \App\Model\Order\Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'product'      => $product->id,
-            'number'       => 'LC-'.uniqid(),
-            'serial_key'   => $licenseCode,
+            'product' => $product->id,
+            'number' => 'LC-'.uniqid(),
+            'serial_key' => $licenseCode,
         ]);
         \App\Model\Product\Subscription::create([
-            'order_id'       => $order->id,
-            'product_id'     => $product->id,
-            'plan_id'        => $plan->id,
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
             'update_ends_at' => now()->addYear()->toDateTimeString(),
-            'version'        => '1.0.0',
+            'version' => '1.0.0',
         ]);
 
         $response = $this->postJson('/v1/checkUpdatesExpiry', [
@@ -443,12 +443,12 @@ class HomeControllerTest extends DBTestCase
         $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $subscription = new \App\Model\Product\Subscription;
-        $subscription->product_id     = $product->id;
-        $subscription->plan_id        = $plan->id;
+        $subscription->product_id = $product->id;
+        $subscription->plan_id = $plan->id;
         $subscription->update_ends_at = now()->addYear()->toDateTimeString();
-        $subscription->version        = '5.0.0';
+        $subscription->version = '5.0.0';
         $subscription->support_ends_at = null;
-        $subscription->ends_at        = null;
+        $subscription->ends_at = null;
 
         $controller = new \App\Http\Controllers\BaseHomeController;
         $result = $controller->getData($subscription);
@@ -466,10 +466,10 @@ class HomeControllerTest extends DBTestCase
         $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $subscription = new \App\Model\Product\Subscription;
-        $subscription->product_id     = $product->id;
-        $subscription->plan_id        = $plan->id;
+        $subscription->product_id = $product->id;
+        $subscription->plan_id = $plan->id;
         $subscription->update_ends_at = now()->subYear()->toDateTimeString();
-        $subscription->version        = '4.0.0';
+        $subscription->version = '4.0.0';
 
         $controller = new \App\Http\Controllers\BaseHomeController;
         $result = $controller->getData($subscription);
@@ -490,12 +490,12 @@ class HomeControllerTest extends DBTestCase
 
     public function test_check_domain_returns_domain_when_found(): void
     {
-        $user  = \App\User::factory()->create();
+        $user = \App\User::factory()->create();
         $order = \App\Model\Order\Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'number'       => 'DOM-'.uniqid(),
-            'domain'       => 'checkabledomain-'.uniqid().'.test',
+            'number' => 'DOM-'.uniqid(),
+            'domain' => 'checkabledomain-'.uniqid().'.test',
         ]);
 
         $controller = new \App\Http\Controllers\BaseHomeController;
@@ -509,12 +509,12 @@ class HomeControllerTest extends DBTestCase
 
     public function test_check_serial_key_returns_key_when_matches(): void
     {
-        $user  = \App\User::factory()->create();
+        $user = \App\User::factory()->create();
         $order = \App\Model\Order\Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'number'       => 'SER-'.uniqid(),
-            'serial_key'   => 'MYKEY12345',
+            'number' => 'SER-'.uniqid(),
+            'serial_key' => 'MYKEY12345',
         ]);
 
         $controller = new \App\Http\Controllers\BaseHomeController;
@@ -524,12 +524,12 @@ class HomeControllerTest extends DBTestCase
 
     public function test_check_serial_key_returns_null_when_mismatch(): void
     {
-        $user  = \App\User::factory()->create();
+        $user = \App\User::factory()->create();
         $order = \App\Model\Order\Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'number'       => 'SER2-'.uniqid(),
-            'serial_key'   => 'REALKEY99',
+            'number' => 'SER2-'.uniqid(),
+            'serial_key' => 'REALKEY99',
         ]);
 
         $controller = new \App\Http\Controllers\BaseHomeController;
@@ -543,11 +543,11 @@ class HomeControllerTest extends DBTestCase
 
     public function test_verification_result_returns_success_for_existing_order(): void
     {
-        $user  = \App\User::factory()->create();
+        $user = \App\User::factory()->create();
         $order = \App\Model\Order\Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'number'       => 'VER-'.uniqid(),
+            'number' => 'VER-'.uniqid(),
         ]);
 
         $controller = new \App\Http\Controllers\BaseHomeController;
@@ -601,12 +601,12 @@ class HomeControllerTest extends DBTestCase
     public function test_check_faveo_details_returns_success_when_order_has_product(): void
     {
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
-        $user  = \App\User::factory()->create();
+        $user = \App\User::factory()->create();
         $order = \App\Model\Order\Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'product'      => $product->id,
-            'number'       => 'CFD-'.uniqid(),
+            'product' => $product->id,
+            'number' => 'CFD-'.uniqid(),
         ]);
 
         $controller = new \App\Http\Controllers\HomeController;
@@ -671,11 +671,11 @@ class HomeControllerTest extends DBTestCase
 
     public function test_get_expiry_dates_return_values_for_order_without_subscription(): void
     {
-        $user  = \App\User::factory()->create();
+        $user = \App\User::factory()->create();
         $order = \App\Model\Order\Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'number'       => 'EXP-'.uniqid(),
+            'number' => 'EXP-'.uniqid(),
         ]);
 
         $controller = new \App\Http\Controllers\BaseHomeController;
@@ -709,7 +709,7 @@ class HomeControllerTest extends DBTestCase
         $request = new \Illuminate\Http\Request;
         $request->merge([
             'licenseCode' => 'NONEXISTENT-LICENSE-'.uniqid(),
-            'product'     => 'HelpDesk Enterprise',
+            'product' => 'HelpDesk Enterprise',
         ]);
 
         $controller = new \App\Http\Controllers\HomeController;
@@ -757,9 +757,9 @@ class HomeControllerTest extends DBTestCase
     {
         // Create order with a client ID that has no matching user
         $order = \App\Model\Order\Order::create([
-            'client'       => 999999,
+            'client' => 999999,
             'order_status' => 'executed',
-            'number'       => 'NOBILL-'.uniqid(),
+            'number' => 'NOBILL-'.uniqid(),
         ]);
 
         $response = $this->getJson('/api/billingInfo?order='.$order->number);

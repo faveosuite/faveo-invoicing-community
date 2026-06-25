@@ -216,16 +216,16 @@ class PostPaymentServiceTest extends DBTestCase
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
             'grand_total' => 50.0,
-            'status'      => 'pending',
-            'is_renewed'  => 0,
-            'metadata'    => [
-                'type'                => 'agent_alteration',
-                'sub_id'              => 999999,
-                'new_agents'          => 5,
-                'order_id'            => 999999,
-                'installation_path'   => 'test.example.com',
-                'product_id'          => 1,
-                'old_license'         => '123456789012',
+            'status' => 'pending',
+            'is_renewed' => 0,
+            'metadata' => [
+                'type' => 'agent_alteration',
+                'sub_id' => 999999,
+                'new_agents' => 5,
+                'order_id' => 999999,
+                'installation_path' => 'test.example.com',
+                'product_id' => 1,
+                'old_license' => '123456789012',
                 'agent_increase_date' => false,
             ],
         ]);
@@ -246,16 +246,16 @@ class PostPaymentServiceTest extends DBTestCase
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
             'grand_total' => 50.0,
-            'status'      => 'pending',
-            'is_renewed'  => 0,
-            'metadata'    => [
-                'type'                => 'agent_alteration',
-                'sub_id'              => 999999,
-                'new_agents'          => 3,
-                'order_id'            => 999999,
-                'installation_path'   => 'test.example.com',
-                'product_id'          => 1,
-                'old_license'         => '123456789012',
+            'status' => 'pending',
+            'is_renewed' => 0,
+            'metadata' => [
+                'type' => 'agent_alteration',
+                'sub_id' => 999999,
+                'new_agents' => 3,
+                'order_id' => 999999,
+                'installation_path' => 'test.example.com',
+                'product_id' => 1,
+                'old_license' => '123456789012',
                 'agent_increase_date' => true, // triggers successRenew branch
             ],
         ]);
@@ -277,14 +277,14 @@ class PostPaymentServiceTest extends DBTestCase
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
             'grand_total' => 200.0,
-            'status'      => 'pending',
-            'is_renewed'  => 0,
-            'metadata'    => [
-                'type'              => 'upgrade_downgrade',
-                'old_order_id'      => 999999,
-                'old_license'       => '123456789012',
+            'status' => 'pending',
+            'is_renewed' => 0,
+            'metadata' => [
+                'type' => 'upgrade_downgrade',
+                'old_order_id' => 999999,
+                'old_license' => '123456789012',
                 'installation_path' => 'test.example.com',
-                'discount'          => null,
+                'discount' => null,
             ],
         ]);
 
@@ -306,9 +306,9 @@ class PostPaymentServiceTest extends DBTestCase
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
             'grand_total' => 100.0,
-            'status'      => 'pending',
-            'is_renewed'  => 0,
-            'cloud_domain'=> 'testdomain.cloud',
+            'status' => 'pending',
+            'is_renewed' => 0,
+            'cloud_domain' => 'testdomain.cloud',
         ]);
 
         try {
@@ -329,19 +329,19 @@ class PostPaymentServiceTest extends DBTestCase
 
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
-            'user_id'     => $this->user->id,
+            'user_id' => $this->user->id,
             'grand_total' => 100.0,
-            'status'      => 'pending',
+            'status' => 'pending',
             'billing_pay' => 50.0,
-            'currency'    => 'USD',
+            'currency' => 'USD',
         ]);
 
         // Create a Credit Balance payment for the auth user
         Payment::create([
-            'invoice_id'     => $invoice->id,
-            'user_id'        => $this->user->id,
-            'amount'         => 200.0,
-            'amt_to_credit'  => 200.0,
+            'invoice_id' => $invoice->id,
+            'user_id' => $this->user->id,
+            'amount' => 200.0,
+            'amt_to_credit' => 200.0,
             'payment_method' => 'Credit Balance',
             'payment_status' => 'success',
         ]);
@@ -351,7 +351,7 @@ class PostPaymentServiceTest extends DBTestCase
 
         // After doTheDeed, billing_pay_balance should be 0
         $this->assertDatabaseHas('users', [
-            'id'                  => $this->user->id,
+            'id' => $this->user->id,
             'billing_pay_balance' => 0,
         ]);
     }
@@ -362,11 +362,11 @@ class PostPaymentServiceTest extends DBTestCase
 
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
-            'user_id'     => $this->user->id,
+            'user_id' => $this->user->id,
             'grand_total' => 50.0,
-            'status'      => 'pending',
+            'status' => 'pending',
             'billing_pay' => 0,
-            'currency'    => 'USD',
+            'currency' => 'USD',
         ]);
 
         // No Credit Balance payment → doTheDeed does nothing
@@ -390,13 +390,13 @@ class PostPaymentServiceTest extends DBTestCase
         // Create an order already executed (exists = true) linked via OrderInvoiceRelation
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'PPSvc '.uniqid()]);
         $order = \App\Model\Order\Order::create([
-            'client'       => $this->user->id,
-            'product'      => $product?->id ?? 1,
+            'client' => $this->user->id,
+            'product' => $product?->id ?? 1,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
         \App\Model\Order\OrderInvoiceRelation::create([
-            'order_id'   => $order->id,
+            'order_id' => $order->id,
             'invoice_id' => $invoice->id,
         ]);
 
@@ -443,24 +443,22 @@ class PostPaymentServiceTest extends DBTestCase
         $this->getLoggedInUser('user');
 
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'PPSvc '.uniqid()]);
-        $plan    = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'PPPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
-
-        
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'PPPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'grand_total' => 50.0, 'currency' => 'USD']);
         $order = \App\Model\Order\Order::create([
-            'client'       => $this->user->id,
-            'product'      => $product->id,
+            'client' => $this->user->id,
+            'product' => $product->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
         \App\Model\Product\Subscription::create([
-            'order_id'        => $order->id,
-            'product_id'      => $product->id,
-            'plan_id'         => $plan->id,
-            'is_subscribed'   => 0, // not subscribed → early return
-            'autoRenew_status'=> 0,
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'is_subscribed' => 0, // not subscribed → early return
+            'autoRenew_status' => 0,
         ]);
 
         // is_subscribed != '1' → returns early before price lookup
@@ -478,10 +476,10 @@ class PostPaymentServiceTest extends DBTestCase
 
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
-            'user_id'     => $this->user->id,
+            'user_id' => $this->user->id,
             'grand_total' => 100.0,
-            'status'      => 'pending',
-            'is_renewed'  => 0,
+            'status' => 'pending',
+            'is_renewed' => 0,
             // No cloud_domain
         ]);
 
@@ -504,7 +502,7 @@ class PostPaymentServiceTest extends DBTestCase
         /** @var Invoice $invoice */
         $invoice = Invoice::factory()->create([
             'grand_total' => 0.0,
-            'status'      => 'pending',
+            'status' => 'pending',
         ]);
 
         $countBefore = Payment::where('invoice_id', $invoice->id)->count();

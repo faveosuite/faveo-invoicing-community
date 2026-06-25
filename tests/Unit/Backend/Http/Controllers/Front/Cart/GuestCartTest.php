@@ -4,7 +4,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Front\Cart;
 
 use App\Http\Controllers\Front\Cart\GuestCart;
 use App\Model\Cart\Cart;
-use App\Model\Cart\CartItem;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 

@@ -47,8 +47,8 @@ class CloudActivitiesTest extends DBTestCase
      */
     private function bindMockClientWithResponses(array $responses): void
     {
-        $mock    = new \GuzzleHttp\Handler\MockHandler($responses);
-        $client  = new Client(['handler' => \GuzzleHttp\HandlerStack::create($mock)]);
+        $mock = new \GuzzleHttp\Handler\MockHandler($responses);
+        $client = new Client(['handler' => \GuzzleHttp\HandlerStack::create($mock)]);
         $this->app->bind(Client::class, fn () => $client);
     }
 
@@ -847,8 +847,8 @@ class CloudActivitiesTest extends DBTestCase
 
         $response = $this->postJson('/change/domain', [
             'currentDomain' => 'old.test.com',
-            'newDomain'     => 'new.test.com',
-            'order_id'      => 999999, // non-existent
+            'newDomain' => 'new.test.com',
+            'order_id' => 999999, // non-existent
         ]);
 
         $response->assertStatus(400)
@@ -862,15 +862,15 @@ class CloudActivitiesTest extends DBTestCase
         $this->withoutMiddleware();
 
         $order = Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
 
         $response = $this->postJson('/change/domain', [
             'currentDomain' => 'same.domain.com',
-            'newDomain'     => 'same.domain.com',  // identical → nothing_changed
-            'order_id'      => $order->id,
+            'newDomain' => 'same.domain.com',  // identical → nothing_changed
+            'order_id' => $order->id,
         ]);
 
         $response->assertStatus(400)
@@ -884,7 +884,7 @@ class CloudActivitiesTest extends DBTestCase
     public function test_domain_cloud_autofill_returns_truncated_company_name(): void
     {
         $user = User::factory()->create([
-            'email'   => 'autofill-'.uniqid().'@test.local',
+            'email' => 'autofill-'.uniqid().'@test.local',
             'company' => 'My Long Company Name That Exceeds Limit',
         ]);
         $this->actingAs($user);
@@ -907,20 +907,20 @@ class CloudActivitiesTest extends DBTestCase
     public function test_update_trial_status_returns_success_with_existing_cloud_product(): void
     {
         // $this->user is set by getLoggedInUser('user') in setUp()
-        $product      = Product::create(['name' => 'Test Cloud Product '.uniqid()]);
+        $product = Product::create(['name' => 'Test Cloud Product '.uniqid()]);
         $plan = Plan::firstOrCreate(
             ['name' => 'Trial Test Plan'],
             ['product' => $product->id, 'days' => 30]
         );
         $cloudProduct = \App\Model\Product\CloudProducts::create([
-            'cloud_product'     => $product->id,
+            'cloud_product' => $product->id,
             'cloud_product_key' => 'TRIAL_TEST_'.uniqid(),
-            'trial_status'      => 0,
-            'cloud_free_plan'   => $plan->id,
+            'trial_status' => 0,
+            'cloud_free_plan' => $plan->id,
         ]);
 
         $response = $this->postJson('/update-trial-status', [
-            'id'     => $cloudProduct->id,
+            'id' => $cloudProduct->id,
             'status' => 1,
         ]);
 
@@ -929,7 +929,7 @@ class CloudActivitiesTest extends DBTestCase
 
         // Verify the trial_status was actually updated to 1
         $this->assertDatabaseHas('cloud_products', [
-            'id'           => $cloudProduct->id,
+            'id' => $cloudProduct->id,
             'trial_status' => 1,
         ]);
     }
@@ -943,14 +943,14 @@ class CloudActivitiesTest extends DBTestCase
         // Create an order owned by a DIFFERENT user
         $otherUser = User::factory()->create(['email' => 'other-'.uniqid().'@test.local']);
         $order = Order::create([
-            'client'       => $otherUser->id,
+            'client' => $otherUser->id,
             'order_status' => 'executed',
-            'number'       => 'ALT-OWN-' . uniqid(),
+            'number' => 'ALT-OWN-'.uniqid(),
         ]);
 
         $response = $this->postJson('/changeAgents', [
-            'newAgents'   => 5,
-            'order_id'    => $order->id,
+            'newAgents' => 5,
+            'order_id' => $order->id,
             'agentAction' => 'increase',
         ]);
 
@@ -963,16 +963,16 @@ class CloudActivitiesTest extends DBTestCase
     {
         // Create order owned by authUser with serial_key that decodes to 3 agents
         $order = Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => 'ALT-DEC-' . uniqid(),
-            'serial_key'   => '1234567890120003', // 12 prefix chars + '0003' = 3 agents
+            'number' => 'ALT-DEC-'.uniqid(),
+            'serial_key' => '1234567890120003', // 12 prefix chars + '0003' = 3 agents
         ]);
 
         // decrease by 5 but only have 3 → invalid (oldAgents <= newAgents in decrease)
         $response = $this->postJson('/changeAgents', [
-            'newAgents'   => 5,
-            'order_id'    => $order->id,
+            'newAgents' => 5,
+            'order_id' => $order->id,
             'agentAction' => 'decrease',
         ]);
 
@@ -984,15 +984,15 @@ class CloudActivitiesTest extends DBTestCase
     {
         // Order with no installation record → installationPath empty → 400
         $order = Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => 'ALT-NO-INST-' . uniqid(),
-            'serial_key'   => '1234567890120003',
+            'number' => 'ALT-NO-INST-'.uniqid(),
+            'serial_key' => '1234567890120003',
         ]);
 
         $response = $this->postJson('/changeAgents', [
-            'newAgents'   => 2,
-            'order_id'    => $order->id,
+            'newAgents' => 2,
+            'order_id' => $order->id,
             'agentAction' => 'increase',
         ]);
 
@@ -1009,19 +1009,19 @@ class CloudActivitiesTest extends DBTestCase
     {
         // Create an Installation record so installationPath is found
         $order = Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => 'ALT-MOCK-' . uniqid(),
-            'serial_key'   => '1234567890120005', // 5 agents
+            'number' => 'ALT-MOCK-'.uniqid(),
+            'serial_key' => '1234567890120005', // 5 agents
         ]);
         $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
 
         \App\License\Models\Installation::create([
-            'license_code'      => $order->serial_key,
+            'license_code' => $order->serial_key,
             'installation_path' => 'customer.test.faveo.com',
-            'installation_ip'   => '127.0.0.1',
-            'version_number'    => '1.0.0',
-            'product_id'        => $product->id,
+            'installation_ip' => '127.0.0.1',
+            'version_number' => '1.0.0',
+            'product_id' => $product->id,
         ]);
 
         // Mock checktheAgent: returns a truthy object → "agent_reduce" error
@@ -1030,8 +1030,8 @@ class CloudActivitiesTest extends DBTestCase
         ]);
 
         $response = $this->postJson('/changeAgents', [
-            'newAgents'   => 2,
-            'order_id'    => $order->id,
+            'newAgents' => 2,
+            'order_id' => $order->id,
             'agentAction' => 'increase',
         ]);
 
@@ -1048,15 +1048,15 @@ class CloudActivitiesTest extends DBTestCase
     {
         $otherUser = User::factory()->create(['email' => 'cdomain-owner-'.uniqid().'@test.local']);
         $order = Order::create([
-            'client'       => $otherUser->id,
+            'client' => $otherUser->id,
             'order_status' => 'executed',
-            'number'       => 'DOM-OWN-' . uniqid(),
+            'number' => 'DOM-OWN-'.uniqid(),
         ]);
 
         $response = $this->postJson('/change/domain', [
             'currentDomain' => 'current.example.com',
-            'newDomain'     => 'new.example.com',
-            'order_id'      => $order->id,
+            'newDomain' => 'new.example.com',
+            'order_id' => $order->id,
         ]);
 
         $response->assertStatus(400)
@@ -1073,7 +1073,7 @@ class CloudActivitiesTest extends DBTestCase
 
         $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname'          => 'test',
+            'cloud_cname' => 'test',
         ]);
 
         $this->bindMockClientWithResponses([]);
@@ -1095,12 +1095,12 @@ class CloudActivitiesTest extends DBTestCase
 
         $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname'          => 'test',
+            'cloud_cname' => 'test',
         ]);
 
         // Mock two requests: LicenseService.updateLicenseCode may call Guzzle, plus the cloud API call
         $this->bindMockClientWithResponses([
-            new \GuzzleHttp\Psr7\Response(200, [], '{' . json_encode(['status' => 'success']) . '}'),
+            new \GuzzleHttp\Psr7\Response(200, [], '{'.json_encode(['status' => 'success']).'}'),
         ]);
 
         $controller = new CloudExtraActivities(new Client, $cloud);
@@ -1126,12 +1126,12 @@ class CloudActivitiesTest extends DBTestCase
 
         $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname'          => 'test',
+            'cloud_cname' => 'test',
         ]);
 
         // API returns 'fails' status
         $this->bindMockClientWithResponses([
-            new \GuzzleHttp\Psr7\Response(200, [], '{' . json_encode(['status' => 'fails', 'message' => 'error']) . '}'),
+            new \GuzzleHttp\Psr7\Response(200, [], '{'.json_encode(['status' => 'fails', 'message' => 'error']).'}'),
         ]);
 
         $controller = new CloudExtraActivities(new Client, $cloud);
@@ -1154,7 +1154,7 @@ class CloudActivitiesTest extends DBTestCase
     {
         $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname'          => 'test',
+            'cloud_cname' => 'test',
         ]);
 
         $controller = new CloudExtraActivities(new Client, $cloud);
@@ -1172,29 +1172,29 @@ class CloudActivitiesTest extends DBTestCase
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
 
         $order1 = Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
         $order2 = Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
 
         // Create a successful Credit Balance payment so payment_id is not null
         \App\Model\Order\Payment::create([
-            'invoice_id'     => $invoice->id,
-            'user_id'        => $user->id,
-            'amount'         => 100.0,
-            'amt_to_credit'  => 100.0,
+            'invoice_id' => $invoice->id,
+            'user_id' => $user->id,
+            'amount' => 100.0,
+            'amt_to_credit' => 100.0,
             'payment_method' => 'Credit Balance',
             'payment_status' => 'success',
         ]);
 
         $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname'          => 'test',
+            'cloud_cname' => 'test',
         ]);
 
         $controller = new CloudExtraActivities(new Client, $cloud);
@@ -1211,9 +1211,9 @@ class CloudActivitiesTest extends DBTestCase
     public function test_upgrade_downgrade_cloud_returns_400_when_order_not_found(): void
     {
         $response = $this->postJson('/upgradeDowngradeCloud', [
-            'id'      => 999999,
+            'id' => 999999,
             'orderId' => 999999,
-            'agents'  => 5,
+            'agents' => 5,
         ]);
 
         $response->assertStatus(400)
@@ -1224,15 +1224,15 @@ class CloudActivitiesTest extends DBTestCase
     {
         $otherUser = User::factory()->create(['email' => 'updown-'.uniqid().'@test.local']);
         $order = Order::create([
-            'client'       => $otherUser->id,
+            'client' => $otherUser->id,
             'order_status' => 'executed',
-            'number'       => 'UDP-'.uniqid(),
+            'number' => 'UDP-'.uniqid(),
         ]);
 
         $response = $this->postJson('/upgradeDowngradeCloud', [
-            'id'      => 1,
+            'id' => 1,
             'orderId' => $order->id,
-            'agents'  => 5,
+            'agents' => 5,
         ]);
 
         $response->assertStatus(400)
@@ -1247,16 +1247,16 @@ class CloudActivitiesTest extends DBTestCase
     {
         // serial_key last 4 chars = 0003 → 3 agents
         $order = Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => 'ALT-EQ-'.uniqid(),
-            'serial_key'   => '1234567890120003',
+            'number' => 'ALT-EQ-'.uniqid(),
+            'serial_key' => '1234567890120003',
         ]);
 
         // Try to decrease by 3 (same as existing) → invalid
         $response = $this->postJson('/changeAgents', [
-            'newAgents'   => 3,
-            'order_id'    => $order->id,
+            'newAgents' => 3,
+            'order_id' => $order->id,
             'agentAction' => 'decrease',
         ]);
 
@@ -1278,23 +1278,23 @@ class CloudActivitiesTest extends DBTestCase
         $plan = Plan::create(['name' => 'UGCost Plan', 'product' => $product->id, 'days' => 365]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 1000]);
         $order = Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'number'       => 'UGC-'.uniqid(),
-            'serial_key'   => '1234567890120003',
+            'number' => 'UGC-'.uniqid(),
+            'serial_key' => '1234567890120003',
         ]);
         Subscription::create([
-            'plan_id'         => $plan->id,
-            'order_id'        => $order->id,
-            'product_id'      => $product->id,
-            'version'         => 'v1.0',
-            'update_ends_at'  => '',
-            'ends_at'         => '',
+            'plan_id' => $plan->id,
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'version' => 'v1.0',
+            'update_ends_at' => '',
+            'ends_at' => '',
         ]);
 
         $response = $this->postJson('/get-cloud-upgrade-cost', [
-            'plan'    => $plan->id,
-            'agents'  => 3,
+            'plan' => $plan->id,
+            'agents' => 3,
             'orderId' => $order->id,
         ]);
 
@@ -1309,16 +1309,16 @@ class CloudActivitiesTest extends DBTestCase
     public function test_change_domain_returns_400_for_invalid_domain_format(): void
     {
         $order = Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => 'DOM-INV-'.uniqid(),
+            'number' => 'DOM-INV-'.uniqid(),
         ]);
 
         // '#invalid!domain' fails FILTER_VALIDATE_DOMAIN
         $response = $this->postJson('/change/domain', [
             'currentDomain' => 'old.example.com',
-            'newDomain'     => '#invalid!domain',
-            'order_id'      => $order->id,
+            'newDomain' => '#invalid!domain',
+            'order_id' => $order->id,
         ]);
 
         $response->assertStatus(400)
@@ -1335,7 +1335,7 @@ class CloudActivitiesTest extends DBTestCase
 
         $cloud = \App\Model\Common\FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname'          => 'test',
+            'cloud_cname' => 'test',
         ]);
 
         $this->bindMockClientWithResponses([]);

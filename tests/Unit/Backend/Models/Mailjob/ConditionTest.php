@@ -26,11 +26,11 @@ class ConditionTest extends DBTestCase
     public function test_check_active_job_returns_array_with_expected_keys(): void
     {
         StatusSetting::updateOrCreate([], [
-            'expiry_mail'             => 0,
-            'activity_log_delete'     => 0,
-            'subs_expirymail'         => 0,
-            'post_expirymail'         => 0,
-            'cloud_mail_status'       => 0,
+            'expiry_mail' => 0,
+            'activity_log_delete' => 0,
+            'subs_expirymail' => 0,
+            'post_expirymail' => 0,
+            'cloud_mail_status' => 0,
             'invoice_deletion_status' => 0,
         ]);
 
@@ -57,11 +57,11 @@ class ConditionTest extends DBTestCase
     public function test_check_active_job_sets_true_when_all_enabled(): void
     {
         StatusSetting::updateOrCreate([], [
-            'expiry_mail'             => 1,
-            'activity_log_delete'     => 1,
-            'subs_expirymail'         => 1,
-            'post_expirymail'         => 1,
-            'cloud_mail_status'       => 1,
+            'expiry_mail' => 1,
+            'activity_log_delete' => 1,
+            'subs_expirymail' => 1,
+            'post_expirymail' => 1,
+            'cloud_mail_status' => 1,
             'invoice_deletion_status' => 1,
         ]);
 

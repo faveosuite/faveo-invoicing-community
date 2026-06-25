@@ -247,5 +247,4 @@ class BaseHomeControllerTest extends TestCase
         $this->assertEquals('success', $result['status']);
         $this->assertEquals('this-is-a-valid-request', $result['message']);
     }
-
 }

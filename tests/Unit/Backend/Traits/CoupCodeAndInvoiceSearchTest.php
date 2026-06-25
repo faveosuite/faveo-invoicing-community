@@ -6,10 +6,7 @@ namespace Tests\Unit\Backend\Traits;
 
 use App\Http\Controllers\Order\InvoiceController;
 use App\Model\Order\Invoice;
-use App\Model\Order\InvoiceItem;
-use App\Model\Order\Order;
 use App\Model\Order\Payment;
-use App\Model\Product\Product;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
@@ -83,7 +80,7 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
     public function test_advance_search_with_date_range_filter(): void
     {
         $from = now()->subDays(30)->toDateString();
-        $to   = now()->toDateString();
+        $to = now()->toDateString();
 
         $response = $this->getJson('/invoices?from_date='.$from.'&to_date='.$to);
         $response->assertStatus(200);
@@ -154,10 +151,10 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
 
     public function test_delete_bulk_invoices_returns_success_when_valid_ids(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $invoice = Invoice::factory()->create([
             'user_id' => $user->id,
-            'status'  => 'pending',
+            'status' => 'pending',
         ]);
 
         $response = $this->deleteJson('/invoices', ['invoice_ids' => [$invoice->id]]);
@@ -198,17 +195,17 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
 
     public function test_delete_bulk_payments_with_valid_payment_recalculates_invoice_status(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $invoice = Invoice::factory()->create([
-            'user_id'     => $user->id,
-            'status'      => 'success',
+            'user_id' => $user->id,
+            'status' => 'success',
             'grand_total' => 100.0,
         ]);
 
         $payment = Payment::create([
-            'invoice_id'     => $invoice->id,
-            'user_id'        => $user->id,
-            'amount'         => 100.0,
+            'invoice_id' => $invoice->id,
+            'user_id' => $user->id,
+            'amount' => 100.0,
             'payment_method' => 'stripe',
             'payment_status' => 'success',
         ]);
@@ -225,25 +222,25 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
 
     public function test_delete_bulk_payments_with_partial_payment_sets_partially_paid(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $invoice = Invoice::factory()->create([
-            'user_id'     => $user->id,
-            'status'      => 'success',
+            'user_id' => $user->id,
+            'status' => 'success',
             'grand_total' => 200.0,
         ]);
 
         // Keep one payment, delete another
         $payment1 = Payment::create([
-            'invoice_id'     => $invoice->id,
-            'user_id'        => $user->id,
-            'amount'         => 100.0,
+            'invoice_id' => $invoice->id,
+            'user_id' => $user->id,
+            'amount' => 100.0,
             'payment_method' => 'stripe',
             'payment_status' => 'success',
         ]);
         $payment2 = Payment::create([
-            'invoice_id'     => $invoice->id,
-            'user_id'        => $user->id,
-            'amount'         => 100.0,
+            'invoice_id' => $invoice->id,
+            'user_id' => $user->id,
+            'amount' => 100.0,
             'payment_method' => 'stripe',
             'payment_status' => 'success',
         ]);
@@ -284,12 +281,12 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
 
         $request = new Request;
         $request->merge([
-            'name'       => 'John',
+            'name' => 'John',
             'invoice_no' => 'INV-001',
-            'status'     => 'pending',
-            'currency'   => 'USD',
-            'from_date'  => now()->subDays(30)->toDateString(),
-            'to_date'    => now()->toDateString(),
+            'status' => 'pending',
+            'currency' => 'USD',
+            'from_date' => now()->subDays(30)->toDateString(),
+            'to_date' => now()->toDateString(),
         ]);
 
         $builder = $controller->advanceSearch($request);
@@ -303,7 +300,7 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
     public function test_advance_search_with_name_filter_builds_valid_query(): void
     {
         $controller = new InvoiceController;
-        $request    = new Request;
+        $request = new Request;
         $request->merge(['name' => 'Admin User']);
 
         $builder = $controller->advanceSearch($request);
@@ -315,10 +312,10 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
     public function test_advance_search_with_date_range_builds_valid_query(): void
     {
         $controller = new InvoiceController;
-        $request    = new Request;
+        $request = new Request;
         $request->merge([
             'from_date' => now()->subDays(7)->toDateString(),
-            'to_date'   => now()->toDateString(),
+            'to_date' => now()->toDateString(),
         ]);
 
         $builder = $controller->advanceSearch($request);
@@ -339,7 +336,7 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
         $request->merge(['invoice_ids' => []]);
 
         $response = $controller->deleteBulkInvoices($request);
-        $body     = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertFalse($body['success']);
     }
@@ -348,17 +345,17 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
     {
         $controller = new InvoiceController;
 
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $invoice = Invoice::factory()->create([
             'user_id' => $user->id,
-            'status'  => 'pending',
+            'status' => 'pending',
         ]);
 
         $request = new Request;
         $request->merge(['invoice_ids' => [$invoice->id]]);
 
         $response = $controller->deleteBulkInvoices($request);
-        $body     = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertTrue($body['success']);
     }

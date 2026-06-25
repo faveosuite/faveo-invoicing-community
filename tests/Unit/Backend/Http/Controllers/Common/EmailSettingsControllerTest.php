@@ -75,13 +75,13 @@ class EmailSettingsControllerTest extends DBTestCase
         ]);
 
         $response = $this->patchJson('/settings/email', [
-            'driver'     => 'mail',
-            'host'       => '',
-            'port'       => '',
+            'driver' => 'mail',
+            'host' => '',
+            'port' => '',
             'encryption' => '',
-            'email'      => 'noreply@test.local',
-            'password'   => '',
-            'from_name'  => 'Test',
+            'email' => 'noreply@test.local',
+            'password' => '',
+            'from_name' => 'Test',
         ]);
 
         // mail driver may succeed (200) or fail due to env (400)
@@ -98,17 +98,17 @@ class EmailSettingsControllerTest extends DBTestCase
         \App\Model\Common\Setting::firstOrCreate(['id' => 1], [
             'email' => 'test@test.local',
             'driver' => 'smtp',
-            'host'   => 'smtp.test.local',
+            'host' => 'smtp.test.local',
         ]);
 
         $response = $this->patchJson('/settings/email', [
-            'driver'     => 'smtp',
-            'host'       => 'smtp.test.local',
-            'port'       => '587',
+            'driver' => 'smtp',
+            'host' => 'smtp.test.local',
+            'port' => '587',
             'encryption' => 'tls',
-            'email'      => 'noreply@test.local',
-            'password'   => 'pass',
-            'from_name'  => 'Test',
+            'email' => 'noreply@test.local',
+            'password' => 'pass',
+            'from_name' => 'Test',
         ]);
 
         // SMTP connection to test.local will fail → 400 (connection error)
