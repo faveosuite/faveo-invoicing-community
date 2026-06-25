@@ -43,7 +43,7 @@
 
                         <!-- Product -->
                         <div class="col-md-4">
-                            <DynamicSelect
+                            <TreeSelect
                                 name="product"
                                 :label="__('message.product')"
                                 :required="true"
@@ -157,6 +157,7 @@ import { validateForm } from '@/helpers/formUtils.js'
 import { buildInvoiceCreateSchema } from '@/validations/admin/invoiceValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import NumberField from '@/components/Reusable/FormField/NumberField.vue'
+import TreeSelect from '@/components/Reusable/FormField/TreeSelect.vue'
 
 const COMPONENT = 'invoices-create'
 const el = document.getElementById('app-root')

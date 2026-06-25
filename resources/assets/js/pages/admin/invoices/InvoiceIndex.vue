@@ -31,6 +31,7 @@
                 <InvoiceFilter
                     :show="showFilter"
                     :baseUrl="baseUrl"
+                    :initialValues="activeFilters"
                     @apply="onFilterApply"
                     @reset="onFilterReset"
                     @close="showFilter = false"
@@ -88,8 +89,8 @@
 </template>
 
 <script setup>
-import { h, ref, computed, reactive } from 'vue'
-import { RouterLink } from 'vue-router'
+import { h, ref, computed, reactive, watch } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
@@ -104,11 +105,26 @@ const { formatDate } = useDateTime()
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const apiUrl = `${baseUrl}/invoices`
+const route = useRoute()
 
 const dtRef = ref(null)
 const selectedInvoices = ref([])
 const showFilter = ref(false)
-const activeFilters = ref({})
+
+const allowedInvoiceFilters = ['name', 'invoice_no', 'status', 'currency', 'from_date', 'to_date']
+
+function parseInvoiceQuery(query) {
+    const params = {}
+    allowedInvoiceFilters.forEach(k => { if (query[k]) params[k] = query[k] })
+    return params
+}
+
+const activeFilters = ref(parseInvoiceQuery(route.query))
+
+watch(() => route.query, (newQuery) => {
+    activeFilters.value = parseInvoiceQuery(newQuery)
+    dtRef.value?.refresh()
+}, { deep: true })
 const exporting = ref(false)
 const pendingBulkDelete = ref(null)
 

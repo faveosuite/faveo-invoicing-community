@@ -29,7 +29,7 @@ class OrderSearchController extends Controller
                     ->select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country');
             },
             'productRelation.groupRelation',
-            'installationDetail',
+            'installationDetails',
             'subscription' => function ($q): void {
                 $q->with('plan');
             },

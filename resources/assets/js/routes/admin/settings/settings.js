@@ -20,4 +20,5 @@ export default [
     { path: '/settings/whatsapp-integration',     component: () => import('../../../pages/admin/settings/settings/WhatsappSettings.vue'),    meta: { title: 'WhatsApp Integration',     titleKey: 'message.whatsapp_config' } },
     { path: '/settings/contact-options',          component: () => import('../../../pages/admin/settings/settings/ContactOptions.vue'),      meta: { title: 'Contact Options',       titleKey: 'message.contact_options' } },
     { path: '/settings/open-payments',            component: () => import('../../../pages/admin/settings/common/openPayments/OpenPaymentsList.vue'), meta: { title: 'Open Payments' } },
+    { path: '/settings/deployment',               component: () => import('../../../pages/admin/settings/settings/DeploymentSettings.vue'),          meta: { title: 'Deployment Settings', titleKey: 'message.deployment_settings' } },
 ]

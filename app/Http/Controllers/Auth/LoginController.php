@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
+use App\DefaultPage;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Model\Common\ChatScript;
 use App\Model\Common\Country;
@@ -224,7 +225,11 @@ class LoginController extends BaseAuthController
             $this->clearRateLimit('2fa', $auth);
         }
 
-        return url(($auth && $auth->role === 'user') ? '/' : '/admin');
+        if ($auth && $auth->role === 'user') {
+            return DefaultPage::value('page_url') ?? url('/');
+        }
+
+        return url('/admin');
     }
 
     /**

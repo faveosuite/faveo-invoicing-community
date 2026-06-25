@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Common as Common;
 use App\Http\Controllers\Common\BaseSettingsController;
 use App\Http\Controllers\Common\CacheSettingsController;
 use App\Http\Controllers\Common\ChatScriptController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Common\SystemManagerController;
 use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
+use App\Http\Controllers\Front as Front;
 use App\Http\Controllers\Front\AutoRenewalController;
 use App\Http\Controllers\Front\Cart\CartApiController;
 use App\Http\Controllers\Front\ClientController;
@@ -316,6 +318,8 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('get-my-payment-client/{orderid}/{userid}', [ClientController::class, 'getPaymentByOrderIdClient'])->name('get-my-payment-client');
     Route::get('get-my-installations/{orderid}', [ClientController::class, 'getOrderInstallations']);
     Route::get('get-versions/{orderid}', [ClientController::class, 'getVersionList'])->name('get-versions');
+    Route::get('get-deploy-versions/{orderId}', [Front\DeployController::class, 'getVersions'])->name('get-deploy-versions');
+    Route::post('deploy-product-step', [Front\DeployController::class, 'deployStep'])->name('deploy-product-step');
 
     // --- Renew (client) ---
     Route::get('get-renew-cost', [RenewController::class, 'getCost']);
@@ -619,6 +623,8 @@ Route::middleware('installAgora')->group(function (): void {
     // Terms settings
     Route::get('settings/terms', [SettingsController::class, 'getTermsSettings']);
     Route::post('updateTermsDetails', [BaseSettingsController::class, 'updateTermsDetails'])->name('updateTermsDetails');
+    Route::get('settings/deployment', [Common\SettingsController::class, 'getDeploymentSettings'])->name('getDeploymentSettings');
+    Route::post('settings/deployment', [Common\SettingsController::class, 'saveDeploymentSettings'])->name('saveDeploymentSettings');
 
     // License / encryption
     Route::post('licenseStatus', [SettingsController::class, 'licenseStatus'])->name('licenseStatus');

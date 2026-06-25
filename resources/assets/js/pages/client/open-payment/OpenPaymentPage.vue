@@ -52,7 +52,8 @@
                     <div class="col-md-6">
                       <PhoneField name="mobile" :label="__('message.mobile')"
                                   :value="form.mobile" :error="errors.mobile" :required="true"
-                                  :onChange="(val) => { form.mobile = val; setFieldError('mobile', undefined) }" />
+                                  :onChange="(val) => { form.mobile = val; setFieldError('mobile', undefined) }"
+                                  @countryChange="({ dialCode }) => form.mobile_code = dialCode" />
                     </div>
                   </div>
 
@@ -178,7 +179,7 @@
                 <div class="row g-4 mb-4">
                   <div class="col-6">
                     <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.mobile') }}</div>
-                    <div class="fw-semibold text-dark">{{ form.mobile }}</div>
+                    <div class="fw-semibold text-dark">{{ form.mobile_code ? `+${form.mobile_code} ${form.mobile}` : form.mobile }}</div>
                   </div>
                   <div class="col-6">
                     <div class="op-detail-label text-uppercase fw-semibold text-muted mb-1">{{ __('message.company') }}</div>
@@ -489,7 +490,7 @@ let   cardNumberEl     = null
 let   clientSecret     = null
 
 const form = reactive({
-  name: '', email: '', mobile: '', company: '',
+  name: '', email: '', mobile: '', mobile_code: '', company: '',
   address: '', city: '', state: '', zip: '', country: '',
   amount: '', currency: '', gateway: '', description: '',
 })
@@ -605,7 +606,8 @@ const createOrder = async () => {
     err.captchaFailed = true
     throw err
   }
-  const { data } = await http.post(`${API}/create`, { ...form, ...captchaPayload })
+  const mobile = form.mobile_code ? `+${form.mobile_code} ${form.mobile}`.trim() : form.mobile
+  const { data } = await http.post(`${API}/create`, { ...form, mobile, ...captchaPayload })
   order.value = data.data.order
 }
 

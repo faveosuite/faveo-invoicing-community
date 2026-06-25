@@ -155,7 +155,7 @@
               </table>
             </div>
             <div class="card-footer clearfix">
-              <router-link to="/invoices" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+              <router-link :to="`/invoices?from_date=${thirtyOneDaysAgo}&to_date=${today}`" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
             </div>
           </div>
         </div>
@@ -200,13 +200,15 @@
                   </td>
                   <td class="text-danger">{{ formatDate(sub.update_ends_at) }}</td>
                   <td>{{ sub.days_expired }} {{ __('message.days') }}</td>
-                  <td>{{ sub.product?.name }}</td>
+                  <td>
+                    <router-link v-if="sub.product" :to="`/products/${sub.product.id}/edit`" class="text-decoration-none">{{ sub.product.name }}</router-link>
+                  </td>
                 </tr>
                 </tbody>
               </table>
             </div>
             <div class="card-footer clearfix">
-              <router-link to="/orders" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+              <router-link to="/orders?renewal=expired_subscription" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
             </div>
           </div>
         </div>
@@ -249,13 +251,15 @@
                   </td>
                   <td>{{ formatDate(sub.update_ends_at) }}</td>
                   <td>{{ sub.days_to_expire }} {{ __('message.days') }}</td>
-                  <td>{{ sub.product?.name }}</td>
+                  <td>
+                    <router-link v-if="sub.product" :to="`/products/${sub.product.id}/edit`" class="text-decoration-none">{{ sub.product.name }}</router-link>
+                  </td>
                 </tr>
                 </tbody>
               </table>
             </div>
             <div class="card-footer clearfix">
-              <router-link to="/orders" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+              <router-link to="/orders?renewal=expiring_subscription" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
             </div>
           </div>
         </div>
@@ -288,12 +292,14 @@
                 <tbody>
                 <tr v-for="sub in data.clientWithOutdatedProducts" :key="sub.id">
                   <td>
-                    <span v-if="sub.user">{{ sub.user.first_name }} {{ sub.user.last_name }}</span>
+                    <router-link v-if="sub.user" :to="`/users/${sub.user.id}`" class="text-decoration-none">{{ sub.user.first_name }} {{ sub.user.last_name }}</router-link>
                   </td>
                   <td>
                     <span class="fw-semibold text-body-secondary">{{ sub.version }}</span>
                   </td>
-                  <td>{{ sub.product?.name }}</td>
+                  <td>
+                    <router-link v-if="sub.product" :to="`/products/${sub.product.id}/edit`" class="text-decoration-none">{{ sub.product.name }}</router-link>
+                  </td>
                   <td>
                     <span :class="{ 'text-danger': isExpired(sub.update_ends_at) }">{{ formatDate(sub.update_ends_at) }}</span>
                   </td>
@@ -302,7 +308,7 @@
               </table>
             </div>
             <div class="card-footer clearfix">
-              <router-link to="/orders" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+              <router-link to="/orders?act_ins=paid_inactive_ins" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
             </div>
           </div>
         </div>
@@ -333,7 +339,9 @@
                 <tbody>
                 <tr v-for="order in data.recentPaidOrders" :key="order.id">
                   <td><router-link :to="`/orders/${order.id}`" class="text-decoration-none">{{ order.number }}</router-link></td>
-                  <td>{{ order.product_relation?.name }}</td>
+                  <td>
+                    <router-link v-if="order.product_relation" :to="`/products/${order.product_relation.id}/edit`" class="text-decoration-none">{{ order.product_relation.name }}</router-link>
+                  </td>
                   <td>{{ formatDate(order.created_at) }}</td>
                   <td>
                     <router-link v-if="order.user" :to="`/users/${order.user.id}`" class="text-decoration-none">
@@ -345,7 +353,7 @@
               </table>
             </div>
             <div class="card-footer clearfix">
-              <router-link to="/orders" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+              <router-link :to="`/orders?from=${thirtyDaysAgo}&till=${today}`" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
             </div>
           </div>
         </div>
@@ -372,14 +380,13 @@
                   <th scope="col">{{ __('message.product') }}</th>
                   <th scope="col">{{ __('message.sales') }}</th>
                   <th scope="col">{{ __('message.last_purchase') }}</th>
-                  <th scope="col">{{ __('message.more') }}</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="product in data.productSoldInLast30Days" :key="product.id">
                   <td>
                     <img loading="lazy" :src="product.image" alt="Product Image" class="rounded-circle img-size-32 me-2">
-                    {{ product.name }}
+                    <router-link :to="`/products/${product.id}/edit`" class="text-decoration-none">{{ product.name }}</router-link>
                   </td>
                   <td>
                     {{ product.order_count }} {{ __('message.sold') || 'Sold' }}
@@ -387,17 +394,12 @@
                   <td>
                     <span>{{ formatDate(product.latest_order_created_at) }}</span>
                   </td>
-                  <td>
-                    <router-link :to="`/products/${product.id}`" class="text-decoration-none text-secondary">
-                      <i class="bi bi-search"></i>
-                    </router-link>
-                  </td>
                 </tr>
                 </tbody>
               </table>
             </div>
             <div class="card-footer clearfix">
-              <router-link to="/orders" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+              <router-link :to="`/orders?from=${thirtyDaysAgo}&till=${today}`" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
             </div>
           </div>
         </div>
@@ -422,25 +424,19 @@
                   <th scope="col">{{ __('message.product') }}</th>
                   <th scope="col">{{ __('message.sales') }}</th>
                   <th scope="col">{{ __('message.last_purchase') }}</th>
-                  <th scope="col">{{ __('message.more') }}</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="product in data.totalProductsSold" :key="product.id">
                   <td>
                     <img loading="lazy" :src="product.image" alt="Product Image" class="rounded-circle img-size-32 me-2">
-                    {{ product.name }}
+                    <router-link :to="`/products/${product.id}/edit`" class="text-decoration-none">{{ product.name }}</router-link>
                   </td>
                   <td>
                     {{ product.order_count }} {{ __('message.sold') || 'Sold' }}
                   </td>
                   <td>
                     <span>{{ formatDate(product.latest_order_created_at) }}</span>
-                  </td>
-                  <td>
-                    <router-link :to="`/products/${product.id}`" class="text-decoration-none text-secondary">
-                      <i class="bi bi-search"></i>
-                    </router-link>
                   </td>
                 </tr>
                 </tbody>
@@ -486,6 +482,12 @@ const startingDateOfYear = ref(new Date().getFullYear() + '-01-01')
 const d = new Date();
 const startMonthDate = ref(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`)
 const endMonthDate = ref(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()}`)
+const fmt = (dt) => `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
+const today = fmt(d)
+const p30 = new Date(d); p30.setDate(p30.getDate() - 30)
+const thirtyDaysAgo = fmt(p30)
+const p31 = new Date(d); p31.setDate(p31.getDate() - 31)
+const thirtyOneDaysAgo = fmt(p31)
 
 onMounted(async () => {
   try {

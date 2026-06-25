@@ -8,6 +8,7 @@ use App\Model\Cart\CartItem;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\InvoiceTaxLine;
+use App\Model\Payment\Plan;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\TaxOption;
 use App\Services\Payment\ProcessingFee;
@@ -300,9 +301,21 @@ class CartService
      */
     private function addToDbCart(Cart $cart, array $data): void
     {
+        $planId = $data['plan_id'] ?? null;
+
+        if (! $planId) {
+            $planId = Plan::where('product', $data['product_id'])
+                ->where('status', 1)
+                ->value('id');
+
+            if (! $planId) {
+                abort(422, 'This product has no active plan and cannot be added to the cart.');
+            }
+        }
+
         $existing = $cart->items()
             ->where('product_id', $data['product_id'])
-            ->where('plan_id', $data['plan_id'] ?? null)
+            ->where('plan_id', $planId)
             ->where('billing_cycle', $data['billing_cycle'] ?? 'monthly')
             ->first();
 
@@ -311,7 +324,7 @@ class CartService
         } else {
             $cart->items()->create([
                 'product_id' => $data['product_id'],
-                'plan_id' => $data['plan_id'] ?? null,
+                'plan_id' => $planId,
                 'quantity' => $data['quantity'] ?? 1,
                 'agents' => $data['agents'] ?? 1,
                 'domain' => $data['domain'] ?? null,

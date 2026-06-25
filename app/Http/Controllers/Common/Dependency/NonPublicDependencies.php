@@ -95,16 +95,26 @@ class NonPublicDependencies extends BaseDependencyController
 
     private function products(): mixed
     {
-        $this->sortField = 'name';
-        $this->sortOrder = 'asc';
+        $products = Product::where('invoice_hidden', 0)
+            ->when($this->searchQuery, fn ($q, string $s) => $q->where('name', 'like', "%{$s}%"))
+            ->with('groupRelation:id,name')
+            ->orderBy('group')
+            ->orderBy('name')
+            ->get(['id', 'name', 'group']);
 
-        $baseQuery = $this->baseQuery(new Product)
-            ->where('invoice_hidden', 0)
-            ->when($this->searchQuery, function ($query, string $searchQuery): void {
-                $query->where('name', 'like', sprintf('%%%s%%', $searchQuery));
-            });
+        $grouped = $products->groupBy(fn ($p) => $p->groupRelation?->id ?? 0);
 
-        return $this->get('products', $baseQuery, fn ($item): array => ['id' => $item->id, 'name' => $item->name]);
+        $result = $grouped->map(function ($items, $groupId): array {
+            $group = $items->first()->groupRelation;
+
+            return [
+                'id'       => 'group_'.$groupId,
+                'name'     => $group?->name ?? 'Uncategorised',
+                'children' => $items->map(fn ($p): array => ['id' => $p->id, 'name' => $p->name])->values()->all(),
+            ];
+        })->values()->all();
+
+        return ['products' => $result];
     }
 
     private function industries(): mixed

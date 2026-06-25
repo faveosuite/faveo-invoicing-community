@@ -22,3 +22,7 @@
 .grecaptcha-badge {
     bottom: 14px !important;
 }
+/* ── Tooltip (floating-vue) — match admin panel appearance ─────────────── */
+.v-popper__inner { text-align: center !important; }
+.v-popper__inner div { max-width: 300px !important; word-break: break-word !important; }
+.tooltip-inner { max-width: 600px; }

@@ -290,7 +290,7 @@ class ClientController extends AdvanceSearchController
         $sortField = $request->input('sort-field', 'created_at');
         $limit = $request->input('limit', 10);
 
-        $query = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at', 'email_verified', 'mobile_verified', 'is_2fa_enabled');
+        $query = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country', 'created_at', 'email_verified', 'mobile_verified', 'is_2fa_enabled');
 
         $total = $this->cachedTotal($query, $request, [ // @phpstan-ignore argument.type
             'company', 'country', 'industry', 'role', 'position',

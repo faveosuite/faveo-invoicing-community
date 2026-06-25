@@ -16,7 +16,7 @@
                             <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" :error="errors.name" />
                         </div>
                         <div class="col-md-3">
-                            <DynamicSelect
+                            <TreeSelect
                                 name="product"
                                 :label="__('message.product')"
                                 :required="true"
@@ -121,6 +121,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { planSchema } from '@/validations/admin/planValidations'
 import { validateForm } from '@/helpers/formUtils.js'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
+import TreeSelect from '@/components/Reusable/FormField/TreeSelect.vue'
 
 const COMPONENT = 'plans-edit'
 const el = document.getElementById('app-root')

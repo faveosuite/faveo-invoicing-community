@@ -25,7 +25,7 @@ class SoftDeleteController extends ClientController
         $sortField = $request->input('sort-field', 'created_at');
         $limit = $request->input('limit', 10);
 
-        $users = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at')
+        $users = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country', 'created_at')
             ->where(function ($query) use ($searchQuery): void {
                 $query->where('email', 'like', '%'.$searchQuery.'%')
                     ->orWhere(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.$searchQuery.'%')

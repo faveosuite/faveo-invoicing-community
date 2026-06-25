@@ -187,6 +187,7 @@ const sections = computed(() => [
             { to: '/settings/whatsapp-users',   icon: 'fab fa-whatsapp',     label: __('message.whatsapp_users') },
             { to: '/settings/third-party-apps', icon: 'fas fa-puzzle-piece', label: __('message.third_party_apps') },
             { to: '/settings/api/third-party',  icon: 'fas fa-link',         label: __('message.third_party_integrations') },
+            { to: '/settings/deployment',       icon: 'fas fa-rocket',       label: 'Deployment' },
             ...(flags.value.is_pipedrive_enabled ? [{ to: '/settings/api/pipedrive', icon: 'fas fa-diagram-project', label: __('message.pipedrive') }] : []),
             ...(flags.value.is_recaptcha_enabled ? [{ to: '/settings/api/recaptcha', icon: 'fas fa-shield-halved',   label: __('message.recaptcha') }] : []),
         ],

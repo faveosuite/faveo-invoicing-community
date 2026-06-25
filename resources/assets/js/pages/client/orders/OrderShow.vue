@@ -82,6 +82,12 @@
                                     {{ __('message.whatsapp_signup') }}
                                 </a>
                             </li>
+                            <li v-if="order.deploy_enabled && order.has_deployable_uploads && order.status !== 'Terminated'" class="nav-item">
+                                <a class="nav-link text-3" :class="{ active: activeTab === 'deploy' }"
+                                   href="javascript:;" @click="activeTab = 'deploy'">
+                                    Deploy
+                                </a>
+                            </li>
                         </ul>
                     </aside>
                 </div>
@@ -185,7 +191,7 @@
                                         <span class="fw-bold">{{ __('message.mobile') }}</span>
                                     </div>
                                 </div>
-                                <div class="col-sm-7">{{ order.user.mobile || '—' }}</div>
+                                <div class="col-sm-7">{{ order.user.mobile ? (order.user.mobile_code ? `+${order.user.mobile_code} ${order.user.mobile}` : order.user.mobile) : '—' }}</div>
                             </div>
                             <div class="row"><div class="col"><hr class="solid my-3"></div></div>
 
@@ -345,6 +351,17 @@
                     <!-- ── WhatsApp SignUp ──────────────────────────────── -->
                     <div v-if="order.whatsapp_enabled" v-show="activeTab === 'whatsapp'">
                         <WhatsappPanel :order="order" :active="activeTab === 'whatsapp'" />
+                    </div>
+
+                    <!-- ── Deploy ──────────────────────────────────────────── -->
+                    <div v-show="activeTab === 'deploy'">
+                        <DeployWizard
+                            v-if="order.deploy_enabled && order.has_deployable_uploads"
+                            :orderId="order.id"
+                            :serialKey="order.serial_key ?? ''"
+                            :orderNumber="order.number ?? ''"
+                            :manualGuideUrl="order.manual_install_guide_url"
+                        />
                     </div>
 
                 </div>
@@ -565,6 +582,7 @@ import Modal from '@/themes/porto/components/common/Modal.vue'
 import AppAlert from '@/components/Reusable/Alert.vue'
 import RenewModal from './components/RenewModal.vue'
 import WhatsappPanel from './components/WhatsappPanel.vue'
+import DeployWizard from './components/DeployWizard.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
 
 const { formatDate } = useDateTime()

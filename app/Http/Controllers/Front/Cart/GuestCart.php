@@ -35,10 +35,22 @@ class GuestCart
             $cart['currency'] = $currency;
         }
 
+        $planId = $data['plan_id'] ?? null;
+
+        if (! $planId) {
+            $planId = Plan::where('product', $data['product_id'])
+                ->where('status', 1)
+                ->value('id');
+
+            if (! $planId) {
+                abort(422, 'This product has no active plan and cannot be added to the cart.');
+            }
+        }
+
         // Same product+plan+cycle already present → bump quantity (mirrors the DB path).
         foreach ($cart['items'] as $id => $item) {
             if ((int) $item['product_id'] === (int) $data['product_id']
-                && ($item['plan_id'] ?? null) == ($data['plan_id'] ?? null)
+                && ($item['plan_id'] ?? null) == $planId
                 && ($item['billing_cycle'] ?? 'monthly') === ($data['billing_cycle'] ?? 'monthly')) {
                 $cart['items'][$id]['quantity'] += (int) ($data['quantity'] ?? 1);
                 $this->write($cart);
@@ -51,7 +63,7 @@ class GuestCart
         $cart['items'][$id] = [
             'id' => $id,
             'product_id' => (int) $data['product_id'],
-            'plan_id' => $data['plan_id'] ?? null,
+            'plan_id' => $planId,
             'quantity' => (int) ($data['quantity'] ?? 1),
             'agents' => (int) ($data['agents'] ?? 1),
             'domain' => $data['domain'] ?? null,

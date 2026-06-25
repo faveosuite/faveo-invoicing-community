@@ -176,6 +176,7 @@ class Setting extends Model
         'cloud_deleted', 'cloud_order',
         'driver', 'admin_logo', 'title', 'favicon_title', 'fav_icon',
         'company_email', 'favicon_title_client', 'default_currency', 'default_symbol', 'file_storage', 'cin_no', 'gstin', 'zip', 'from_name', 'phone_code', 'knowledge_base_url', 'content', 'autorenewal_status', 'sending_status',
+        'help_support_url', 'help_docs_url', 'help_description', 'deployment_enabled',
         'timezone_id', 'date_format', 'time_format'];
 
     protected string $logName = 'settings';

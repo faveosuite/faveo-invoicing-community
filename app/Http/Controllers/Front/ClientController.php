@@ -194,6 +194,13 @@ class ClientController extends BaseClientController
                     'mobile' => ($user->mobile_code ? '(+'.$user->mobile_code.') ' : '').($user->mobile ?? ''),
                     'address' => $user->address ?? '',
                 ],
+                'has_deployable_uploads' => ProductUpload::where('product_id', $order->productRelation?->id)
+                    ->where('is_private', 0)
+                    ->whereNotNull('file')
+                    ->where('file', '!=', '')
+                    ->exists(),
+                'manual_install_guide_url' => \App\Model\Common\Setting::where('id', 1)->value('help_docs_url'),
+                'deploy_enabled'           => (bool) \App\Model\Common\Setting::where('id', 1)->value('deployment_enabled'),
             ]);
         }
 

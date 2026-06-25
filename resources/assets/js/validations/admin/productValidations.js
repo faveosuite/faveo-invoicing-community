@@ -9,6 +9,7 @@ export const productSchema = yup.object({
     short_description:   yup.string().required(() => __('validation.product_controller.short_description_required')),
     product_sku:         yup.string().required(() => __('validation.product_controller.product_sku_required')),
     product_description: yup.string().required(() => __('validation.product_controller.product_description_required')),
+    shoping_cart_link:   yup.string().required(() => __('validation.product.shoping_cart_link.required')),
     github_owner:        yup.string().when('file_source', {
         is: 'github',
         then: (s) => s.required(() => __('validation.product.github_owner.required')),

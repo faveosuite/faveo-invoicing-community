@@ -4,6 +4,7 @@ namespace App\Model\Order;
 
 use App\BaseModel;
 use App\License\Models\Installation;
+use App\Model\Order\InstallationDetail;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Traits\SystemActivityLogsTrait;
@@ -202,6 +203,11 @@ class Order extends BaseModel
     public function installation(): HasMany
     {
         return $this->hasMany(Installation::class, 'order_id');
+    }
+
+    public function installationDetails(): HasMany
+    {
+        return $this->hasMany(InstallationDetail::class, 'order_id');
     }
 
     #[Override]

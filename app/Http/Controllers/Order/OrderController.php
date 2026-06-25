@@ -138,8 +138,17 @@ class OrderController extends BaseOrderController
                     $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), sync: true);
                 }
 
-                $installedVersions = $order->installationDetail->pluck('version')->toArray();
-                $latestVersion = count($installedVersions) > 0 ? max($installedVersions) : null;
+                $threshold = now()->subDays(7);
+                $versions = $order->installationDetails
+                    ->whereNotNull('version')->where('version', '!=', '')
+                    ->sortByDesc('last_active')
+                    ->unique('version')
+                    ->values()
+                    ->map(fn ($d) => [
+                        'version' => $d->version,
+                        'active'  => $d->last_active && $d->last_active >= $threshold,
+                    ])
+                    ->all();
 
                 $licenseAgents = substr((string) $order->serial_key, 12, 16) === '0000'
                     ? 'Unlimited'
@@ -155,9 +164,9 @@ class OrderController extends BaseOrderController
                     'group_id' => $order->productRelation?->group,
                     'plan' => $order->subscription?->plan?->name,
                     'plan_id' => $order->subscription?->plan?->id,
-                    'version' => $latestVersion ? getVersionAndLabel($latestVersion, $order->product) : null, // @phpstan-ignore argument.type
+                    'versions' => $versions,
                     'agents' => $licenseAgents,
-                    'status' => empty($order->installationDetail) ? 'Inactive' : 'Active',
+                    'status' => $order->installationDetails->isEmpty() ? 'Inactive' : 'Active',
                     'order_date' => $order->created_at,
                     'update_ends_at' => strtotime((string) $order->subscription?->ends_at) > 1 ? $order->subscription?->ends_at : null,
                     'subscription_updated_at' => $order->subscription?->updated_at,

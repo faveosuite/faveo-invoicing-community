@@ -302,18 +302,20 @@ class DashboardController extends Controller
      */
     private function formatCurrencyTotals(array $totals): array
     {
-        $allowedCurrencies1 = Setting::where('id', 1)->value('default_currency');
-        $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->value('code');
+        $defaultCurrency   = Setting::where('id', 1)->value('default_currency');
+        $dashboardCurrency = Currency::where('dashboard_currency', 1)->value('code');
 
-        if ($allowedCurrencies1 && ! isset($totals[$allowedCurrencies1])) {
-            $totals[$allowedCurrencies1] = 0;
+        $result = [];
+
+        if ($defaultCurrency) {
+            $result[$defaultCurrency] = $totals[$defaultCurrency] ?? 0;
         }
 
-        if ($allowedCurrencies2 && ! isset($totals[$allowedCurrencies2])) {
-            $totals[$allowedCurrencies2] = 0;
+        if ($dashboardCurrency && $dashboardCurrency !== $defaultCurrency) {
+            $result[$dashboardCurrency] = $totals[$dashboardCurrency] ?? 0;
         }
 
-        return $totals;
+        return $result;
     }
 
     /**
@@ -451,55 +453,46 @@ class DashboardController extends Controller
 
     public function getTotalSalesByCurrency(): mixed
     {
-        $invoices = Invoice::where('status', '!=', 'pending')
-            ->with('payment')
-            ->get();
-
-        // Group by currency and sum payments
-        return $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(fn ($invoice) => $invoice->payment->sum('amount')));
+        return Invoice::join('payments', 'invoices.id', '=', 'payments.invoice_id')
+            ->where('invoices.status', '!=', 'pending')
+            ->groupBy('invoices.currency')
+            ->selectRaw('invoices.currency, SUM(payments.amount) as total')
+            ->pluck('total', 'currency');
     }
 
     public function getYearlySalesByCurrency(): mixed
     {
-        $currentYear = Date::now()->year;
-
-        // Fetch invoices for the current year that are not pending
-        $invoices = Invoice::where('status', '!=', 'pending')
-            ->whereYear('created_at', $currentYear)
-            ->with('payment')
-            ->get();
-
-        // Group by currency and sum payments
-        return $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(fn ($invoice) => $invoice->payment->sum('amount')));
+        return Invoice::join('payments', 'invoices.id', '=', 'payments.invoice_id')
+            ->where('invoices.status', '!=', 'pending')
+            ->whereYear('invoices.created_at', Date::now()->year)
+            ->groupBy('invoices.currency')
+            ->selectRaw('invoices.currency, SUM(payments.amount) as total')
+            ->pluck('total', 'currency');
     }
 
     public function getMonthlySalesByCurrency(): mixed
     {
-        // Fetch invoices for the current month that are not pending
-        $invoices = Invoice::where('status', '!=', 'pending')
-            ->whereBetween('date', [now()->startOfMonth(), now()->endOfMonth()])
-            ->with('payment')
-            ->get();
-
-        // Group by currency and sum payments
-        return $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(fn ($invoice) => $invoice->payment->sum('amount')));
+        return Invoice::join('payments', 'invoices.id', '=', 'payments.invoice_id')
+            ->where('invoices.status', '!=', 'pending')
+            ->whereBetween('invoices.date', [now()->startOfMonth(), now()->endOfMonth()])
+            ->groupBy('invoices.currency')
+            ->selectRaw('invoices.currency, SUM(payments.amount) as total')
+            ->pluck('total', 'currency');
     }
 
     public function getAllPendingPayments(): mixed
     {
-        // Fetch invoices that are partially paid or unpaid
-        $invoices = Invoice::where('status', '!=', 'paid')
-            ->with('payment')
-            ->get();
-
-        // Group by currency and sum pending amounts
-        $totals = $invoices->groupBy('currency')->map(fn ($invoicesGroup) => $invoicesGroup->sum(function ($invoice): int|float {
-            $paidAmount = $invoice->payment->sum('amount');
-
-            return $invoice->grand_total - $paidAmount;
-        }));
-
-        return $totals;
+        return DB::table(
+            Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
+                ->where('invoices.status', '!=', 'paid')
+                ->groupBy('invoices.id', 'invoices.currency', 'invoices.grand_total')
+                ->selectRaw('invoices.currency, invoices.grand_total - COALESCE(SUM(payments.amount), 0) as remaining')
+                ->toBase(),
+            'sub'
+        )
+            ->groupBy('currency')
+            ->selectRaw('currency, SUM(remaining) as total')
+            ->pluck('total', 'currency');
     }
 
     /**
@@ -595,20 +588,21 @@ class DashboardController extends Controller
 
     public function getSoldProduct(?int $days = null): mixed
     {
-        $fromDate = $days
-            ? Date::now()->subDays($days)->startOfDay()
-            : CarbonImmutable::startOfTime();
-
-        $toDate = Date::now()->endOfDay();
+        $fromDate = $days ? Date::now()->subDays($days)->startOfDay() : null;
+        $toDate   = Date::now()->endOfDay();
 
         return Product::select('id', 'name', 'image')
             ->withCount(['order as order_count' => function ($query) use ($fromDate, $toDate): void {
-                $query->where('order_status', 'executed')
-                    ->whereBetween('created_at', [$fromDate, $toDate]);
+                $query->where('order_status', 'executed');
+                if ($fromDate) {
+                    $query->whereBetween('created_at', [$fromDate, $toDate]);
+                }
             }])
             ->withMax(['order as latest_order_created_at' => function ($query) use ($fromDate, $toDate): void {
-                $query->where('order_status', 'executed')
-                    ->whereBetween('created_at', [$fromDate, $toDate]);
+                $query->where('order_status', 'executed');
+                if ($fromDate) {
+                    $query->whereBetween('created_at', [$fromDate, $toDate]);
+                }
             }], 'created_at')
             ->having('order_count', '>', 0)
             ->orderByDesc('order_count')

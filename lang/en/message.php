@@ -3386,4 +3386,62 @@ return [
 
     'plugin_compatible_tooltip' => 'This plugin works with this product. It may come included with the product if it is also marked as Bundled, or the customer can purchase it separately as an add-on. Marking a plugin as Compatible means it is supported and recognised as working alongside this product.',
     'plugin_bundled_tooltip' => 'This plugin is included with the product automatically. When a customer buys this product, they get this plugin too — no extra steps or extra payment needed. Because it comes with the product, it is also marked as Compatible automatically and cannot be unchecked.',
+
+    // Fresh Install Script URL
+    'install_script_url'             => 'Fresh Install Script URL',
+    'install_script_url_description' => 'URL of the shell script used for fresh server installations via the guided deploy wizard.',
+    'install_script_url_label'       => 'Script URL',
+    'install_script_url_hint'        => 'Enter the full URL to the install.sh script (e.g. https://github.com/.../install.sh).',
+    'install_script_url_saved'       => 'Install Script URL saved successfully.',
+
+    // Manual Install Guide
+    'manual_install_guide'             => 'Manual Install Guide',
+    'manual_install_guide_description' => 'Reference link to the manual installation guide for this product.',
+    'manual_install_guide_url'         => 'Guide URL',
+    'manual_install_guide_url_hint'    => 'Enter the full URL to the installation guide (e.g. https://docs.example.com/install).',
+    'manual_install_guide_saved'       => 'Manual Install Guide URL saved successfully.',
+    'manual_install_guide_configured'  => 'Configured',
+    'manual_install_guide_not_set'     => 'Not configured',
+    'visit_guide'                      => 'Visit Guide',
+
+    // Deploy wizard messages (returned by DeployController)
+    'deploy_auth_failed_fallback'          => 'Authentication failed',
+    'deploy_ssh_auth_failed'               => 'SSH authentication failed: :errors',
+    'deploy_path_create_failed'            => "Could not create deploy path ':path'. Check permissions.",
+    'deploy_ssh_verified'                  => 'SSH connection verified.',
+    'deploy_install_script_not_configured' => 'Install script URL is not configured. Please set it in Admin Panel → Third Party Integrations.',
+    'deploy_install_script_errors'         => 'Installation script encountered errors.',
+    'deploy_install_completed'             => 'Server installation completed.',
+    'deploy_no_file_attached'              => 'No file attached to this version.',
+    'deploy_file_not_found'                => 'Product file not found in storage.',
+    'deploy_sftp_failed'                   => 'SFTP connection failed.',
+    'deploy_upload_failed'                 => 'Failed to upload file to the remote server.',
+    'deploy_file_uploaded'                 => 'File uploaded to server.',
+    'deploy_permission_denied'             => "Permission denied on ':path'. Provide a sudo password or use a user with write access.",
+    'deploy_extract_completed'             => 'Files extracted successfully.',
+    'deploy_invalid_private_key'           => 'Invalid private key: :error',
+
+    // Deployment settings validation
+    'enter_install_script_url'       => 'Please enter the install script URL.',
+    'valid_install_script_url'       => 'Please enter a valid URL for the install script (e.g. https://example.com/install.sh).',
+    'enter_manual_install_guide_url' => 'Please enter the manual install guide URL.',
+    'valid_manual_install_guide_url' => 'Please enter a valid URL for the manual install guide (e.g. https://docs.example.com/install).',
+
+    // Deploy wizard form validation
+    'deploy_host_required'         => 'Server host address is required.',
+    'deploy_port_invalid'          => 'Port must be a number between 1 and 65535.',
+    'deploy_username_required'     => 'SSH username is required.',
+    'deploy_password_required'     => 'SSH password is required.',
+    'deploy_private_key_required'  => 'SSH private key is required.',
+    'deploy_path_required'         => 'Deployment path is required.',
+    'deploy_domain_required'       => 'Domain name is required.',
+    'deploy_email_required'        => 'Admin email is required.',
+    'deploy_email_invalid'         => 'Please enter a valid email address.',
+    'deploy_cert_path_required'    => 'Certificate file path is required.',
+    'deploy_key_path_required'     => 'Certificate key file path is required.',
+
+    // Deployment settings tooltips
+    'deployment_enabled_tooltip'        => 'Controls whether the Deploy tab appears on client order pages. When enabled, clients can connect to their own server via SSH and deploy Faveo Helpdesk directly from the billing portal. Disable this to hide the Deploy tab from all clients.',
+    'install_script_url_tooltip'        => 'The URL to the shell script that performs a full Faveo Helpdesk installation on a fresh server — it installs PHP, a web server (Apache or Nginx), MariaDB, Redis, and Supervisor automatically. This script is invoked when a client chooses the Fresh Server deploy mode. Leave blank only if you do not intend to support fresh server installations.',
+    'manual_install_guide_url_tooltip'  => 'A link to the step-by-step installation documentation shown to clients as an alternative to the guided SSH wizard. Clients who prefer to set up the server themselves can follow this guide instead. Typically a URL to your product docs (e.g. https://docs.example.com/install).',
 ];

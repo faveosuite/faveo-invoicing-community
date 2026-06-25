@@ -15,7 +15,7 @@
                     />
                 </div>
                 <div class="col-md-4">
-                    <DynamicSelect
+                    <TreeSelect
                         name="product_id"
                         :label="__('message.product')"
                         :apiEndpoint="`${baseUrl}/dependency/products`"
@@ -99,10 +99,12 @@
 <script setup>
 import { reactive } from 'vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
+import TreeSelect from '@/components/Reusable/FormField/TreeSelect.vue'
 
-defineProps({
-    show:    { type: Boolean, default: false },
-    baseUrl: { type: String, default: '' },
+const props = defineProps({
+    show:          { type: Boolean, default: false },
+    baseUrl:       { type: String, default: '' },
+    initialValues: { type: Object, default: () => ({}) },
 })
 
 const emit = defineEmits(['apply', 'reset', 'close'])
@@ -125,7 +127,15 @@ const empty = () => ({
     domain: '', act_ins: null, renewal: null, version: null,
 })
 
-const form = reactive(empty())
+const form = reactive({
+    ...empty(),
+    order_no: props.initialValues.order_no ?? '',
+    domain:   props.initialValues.domain   ?? '',
+    from:     props.initialValues.from     ?? null,
+    till:     props.initialValues.till     ?? null,
+    act_ins:  installationOptions.find(o => o.id === props.initialValues.act_ins)  ?? null,
+    renewal:  subscriptionOptions.find(o => o.id === props.initialValues.renewal)  ?? null,
+})
 
 function apply() {
     const params = {}

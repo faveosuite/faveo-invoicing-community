@@ -149,7 +149,11 @@ const tableOptions = reactive({
             onChange: () => toggleRow(row.id),
         }),
         name:       (f, row) => `${row.first_name ?? ''} ${row.last_name ?? ''}`.trim() || '—',
-        mobile:     (f, row) => row.mobile?.trim() || '—',
+        mobile: (f, row) => {
+            if (!row.mobile?.trim()) return '—'
+            const code = row.mobile_code?.trim()
+            return code ? `+${code} ${row.mobile.trim()}` : row.mobile.trim()
+        },
         country:    (f, row) => row.country?.trim() || '—',
         created_at: (f, row) => row.created_at ? formatDate(row.created_at) : '—',
         action:     (f, row) => h(SuspendedTableActions, {

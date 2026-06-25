@@ -235,9 +235,10 @@
                                                 <TextField
                                                     name="shoping_cart_link"
                                                     :label="__('message.shoping-cart-link')"
-                                                    :value="`${baseUrl}/cart?id=${route.params.id}`"
-                                                    :disabled="true"
-                                                    :onChange="() => {}"
+                                                    :value="form.shoping_cart_link"
+                                                    :required="true"
+                                                    :onChange="onChange"
+                                                    :error="errors.shoping_cart_link"
                                                 />
                                             </div>
                                         </div>
@@ -571,6 +572,7 @@ const form = reactive({
     github_owner: '',
     github_repository: '',
     version: '',
+    shoping_cart_link: '',
 })
 
 function onChange(val, name) {
@@ -633,6 +635,7 @@ onMounted(async () => {
         form.github_repository    = p.github_repository ?? ''
         form.version              = p.version ?? ''
         form.file_source          = p.github_owner ? 'github' : 'filesystem'
+        form.shoping_cart_link    = p.shoping_cart_link || `${baseUrl}/pricing?id=${route.params.id}`
 
         const lt = p.license_type ?? p.licenseType
         if (lt) form.typeObj = { id: p.type, name: lt.name }
@@ -684,6 +687,7 @@ async function submit() {
             fd.append('github_repository', '')
         }
 
+        fd.append('shoping_cart_link', form.shoping_cart_link)
         fd.append('_method', 'PATCH')
         const res = await http.post(`${baseUrl}/product/${route.params.id}`, fd, {
             headers: { 'Content-Type': 'multipart/form-data' },

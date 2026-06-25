@@ -5,6 +5,16 @@
       <!-- Loading -->
       <div v-if="cartStore.loading && !cartStore.items.length" class="row justify-content-center py-3"><loader /></div>
 
+      <!-- Error -->
+      <div v-else-if="cartStore.error"
+           class="d-flex flex-column align-items-center justify-content-center text-center py-6">
+        <i class="fas fa-exclamation-circle fa-3x text-danger mb-3 d-block"></i>
+        <p class="text-color-grey mb-4">{{ cartStore.error }}</p>
+        <router-link to="/store" class="btn btn-dark btn-modern text-uppercase border-radius-0 btn-px-4 py-3">
+          {{ __('message.browse_products') }}
+        </router-link>
+      </div>
+
       <!-- Empty -->
       <div v-else-if="cartStore.items.length === 0"
            class="d-flex flex-column align-items-center justify-content-center text-center py-6">
@@ -103,7 +113,7 @@
 
 <script setup>
 import { computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useCartStore } from '@/core/stores/cart'
 import { useAlertStore } from '@/core/stores/alert'
 import { __ } from '@/plugins/i18n'
@@ -111,13 +121,26 @@ import CartItemRow from '@/themes/porto/components/cart/CartItemRow.vue'
 import { useAuthStore } from '@/core/stores/auth'
 
 const router     = useRouter()
+const route      = useRoute()
 const cartStore  = useCartStore()
 const alertStore = useAlertStore()
 const authStore  = useAuthStore()
 
 const symbol = computed(() => cartStore.currencySymbol)
 
-onMounted(() => cartStore.fetchCart())
+onMounted(async () => {
+    const productId = route.query.id
+    if (productId) {
+        try {
+            await cartStore.addItem({ product_id: Number(productId) })
+        } catch {
+            await cartStore.fetchCart()
+        }
+        router.replace({ path: '/cart' })
+    } else {
+        await cartStore.fetchCart()
+    }
+})
 
 function checkout() {
   if (!authStore.isAuthenticated) {

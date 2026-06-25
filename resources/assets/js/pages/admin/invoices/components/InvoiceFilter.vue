@@ -76,9 +76,10 @@
 import { reactive } from 'vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
-defineProps({
-    show:    { type: Boolean, default: false },
-    baseUrl: { type: String, default: '' },
+const props = defineProps({
+    show:          { type: Boolean, default: false },
+    baseUrl:       { type: String, default: '' },
+    initialValues: { type: Object, default: () => ({}) },
 })
 
 const emit = defineEmits(['apply', 'reset', 'close'])
@@ -93,7 +94,14 @@ const empty = () => ({
     name: '', invoice_no: '', status: null, currency: null, from_date: null, to_date: null,
 })
 
-const form = reactive(empty())
+const form = reactive({
+    ...empty(),
+    name:       props.initialValues.name       ?? '',
+    invoice_no: props.initialValues.invoice_no ?? '',
+    from_date:  props.initialValues.from_date  ?? null,
+    to_date:    props.initialValues.to_date    ?? null,
+    status:     statusOptions.find(o => o.id === props.initialValues.status) ?? null,
+})
 
 function apply() {
     const params = {}

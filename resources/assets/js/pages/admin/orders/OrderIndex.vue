@@ -19,6 +19,7 @@
                 <OrderFilter
                     :show="showFilter"
                     :baseUrl="baseUrl"
+                    :initialValues="activeFilters"
                     @apply="onFilterApply"
                     @reset="onFilterReset"
                     @close="showFilter = false"
@@ -75,8 +76,8 @@
 </template>
 
 <script setup>
-import { h, ref, computed, reactive } from 'vue'
-import { RouterLink } from 'vue-router'
+import { h, ref, computed, reactive, watch, withDirectives, resolveDirective } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 
 import { useDateTime } from '@/core/composables/useDateTime'
 import OrderTableActions from './components/OrderTableActions.vue'
@@ -89,11 +90,26 @@ const { formatDate } = useDateTime()
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const apiUrl = `${baseUrl}/orders`
+const route = useRoute()
 
 const dtRef = ref(null)
 const selectedOrders = ref([])
 const showFilter = ref(false)
-const activeFilters = ref({})
+
+const allowedOrderFilters = ['order_no', 'product_id', 'from', 'till', 'domain', 'act_ins', 'renewal', 'version']
+
+function parseOrderQuery(query) {
+    const params = {}
+    allowedOrderFilters.forEach(k => { if (query[k]) params[k] = query[k] })
+    return params
+}
+
+const activeFilters = ref(parseOrderQuery(route.query))
+
+watch(() => route.query, (newQuery) => {
+    activeFilters.value = parseOrderQuery(newQuery)
+    dtRef.value?.refresh()
+}, { deep: true })
 const pendingBulkDelete = ref(null)
 
 const allSelected = computed(() => {
@@ -231,14 +247,32 @@ const tableOptions = reactive({
             if (row.user?.email && row.user?.id) return h(RouterLink, { to: '/users/' + row.user.id }, () => row.user.email)
             return '—'
         },
-        mobile:       (f, row) => row.user?.mobile ? `${row.user.mobile_code ?? ''} ${row.user.mobile}`.trim() : '—',
+        mobile: (f, row) => {
+            if (!row.user?.mobile?.trim()) return '—'
+            const code = row.user.mobile_code?.trim()
+            return code ? `+${code} ${row.user.mobile.trim()}` : row.user.mobile.trim()
+        },
         country:      (f, row) => row.user?.country || '—',
         number:       (f, row) => row.number && row.id ? h(RouterLink, { to: '/orders/' + row.id }, () => row.number) : '—',
         order_status: (f, row) => row.order_status || '—',
         product_name: (f, row) => row.product_name && row.product_id ? h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => row.product_name) : (row.product_name || '—'),
         group:        (f, row) => row.group && row.group_id ? h(RouterLink, { to: '/products/groups/' + row.group_id + '/edit' }, () => row.group) : (row.group || '—'),
         plan:         (f, row) => row.plan && row.plan_id ? h(RouterLink, { to: '/products/plans/' + row.plan_id + '/edit' }, () => row.plan) : (row.plan || '—'),
-        version:      (f, row) => row.version || '—',
+        version: (f, row) => {
+            if (!row.versions?.length) return '—'
+            const vTooltip = resolveDirective('tooltip')
+            return h('div', { class: 'd-flex flex-wrap gap-1' },
+                row.versions.map(({ version, active }) =>
+                    withDirectives(
+                        h('span', {
+                            class: `badge ${active ? 'bg-success' : 'bg-danger'}`,
+                            style: 'cursor:default',
+                        }, version),
+                        [[vTooltip, active ? 'Active' : 'Inactive']]
+                    )
+                )
+            )
+        },
         agents:       (f, row) => row.agents ?? '—',
         status:       (f, row) => row.status || '—',
         order_date:   (f, row) => row.order_date ? formatDate(row.order_date) : '—',

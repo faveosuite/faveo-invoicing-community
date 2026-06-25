@@ -567,6 +567,9 @@ return [
             'required_without_all' => 'The GitHub repository field is required if none of file or image are provided.',
             'required_if' => 'The GitHub repository field is required if type is 2.',
         ],
+        'shoping_cart_link' => [
+            'required' => 'The shopping cart link field is required.',
+        ],
     ],
 
     // User

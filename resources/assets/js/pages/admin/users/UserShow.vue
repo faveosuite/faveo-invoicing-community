@@ -427,7 +427,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { h }                        from 'vue'
+import { h, withDirectives, resolveDirective } from 'vue'
 import { useRoute, RouterLink }     from 'vue-router'
 import http                         from '@/plugins/axios'
 import { errorHandler }             from '@/helpers/responseHandler.js'
@@ -783,7 +783,21 @@ const orderOptions = {
         order_date:   (_, row) => fmtDate(row.order_date),
         product_name: (_, row) => row.product_name && row.product_id ? h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => row.product_name) : (row.product_name || '—'),
         number:       (_, row) => row.number && row.id ? h(RouterLink, { to: `/orders/${row.id}` }, () => `#${row.number}`) : (row.number ? `#${row.number}` : '—'),
-        version:      (_, row) => row.version || '—',
+        version: (_, row) => {
+            if (!row.versions?.length) return '—'
+            const vTooltip = resolveDirective('tooltip')
+            return h('div', { class: 'd-flex flex-wrap gap-1' },
+                row.versions.map(({ version, active }) =>
+                    withDirectives(
+                        h('span', {
+                            class: `badge ${active ? 'bg-success' : 'bg-danger'}`,
+                            style: 'cursor:default',
+                        }, version),
+                        [[vTooltip, active ? 'Active' : 'Inactive']]
+                    )
+                )
+            )
+        },
         order_status: (_, row) => statusBadge(row.order_status, { active: 'bg-success', pending: 'bg-warning text-dark', cancelled: 'bg-danger', expired: 'bg-secondary', terminated: 'bg-dark' }),
         action:       (_, row) => h(OrderTableActions, { orderId: row.id, showDelete: true }),
     },
