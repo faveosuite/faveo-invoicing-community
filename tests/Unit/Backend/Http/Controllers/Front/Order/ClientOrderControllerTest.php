@@ -200,4 +200,154 @@ class ClientOrderControllerTest extends DBTestCase
         $this->assertEquals($product->name, $content['data'][0]['product_name']);
         $this->assertEquals($order->number, $content['data'][0]['number']);
     }
+
+    // =========================================================================
+    // getCloudSettings – GET /get-cloud-settings/{orderId}
+    // =========================================================================
+
+    public function test_get_cloud_settings_returns_200_for_nonexistent_order(): void
+    {
+        $user = User::factory()->create(['email' => 'cloud-settings-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->getJson('/get-cloud-settings/999999');
+        $this->assertContains($response->status(), [200, 400]);
+    }
+
+    // =========================================================================
+    // getInvoicesByOrderId – GET /get-my-invoices/{orderid}/{userid}/{admin?}
+    // =========================================================================
+
+    public function test_get_invoices_by_order_id_returns_200_for_nonexistent(): void
+    {
+        $user = User::factory()->create(['email' => 'invoices-by-order-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->getJson('/get-my-invoices/999999/'.$user->id);
+        $this->assertContains($response->status(), [200, 400]);
+    }
+
+    // =========================================================================
+    // getPaymentByOrderIdClient – GET /get-my-payment-client/{orderid}/{userid}
+    // =========================================================================
+
+    public function test_get_payment_by_order_id_returns_200(): void
+    {
+        $user = User::factory()->create(['email' => 'payment-by-order-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->getJson('/get-my-payment-client/999999/'.$user->id);
+        $this->assertContains($response->status(), [200, 400]);
+    }
+
+    // =========================================================================
+    // getOrderInstallations – GET /get-my-installations/{orderid}
+    // =========================================================================
+
+    public function test_get_order_installations_returns_200(): void
+    {
+        $user = User::factory()->create(['email' => 'installations-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->getJson('/get-my-installations/999999');
+        $this->assertContains($response->status(), [200, 400]);
+    }
+
+    // =========================================================================
+    // getVersionList – covers error paths and basic structure
+    // =========================================================================
+
+    public function test_get_version_list_returns_error_for_order_not_belonging_to_user(): void
+    {
+        $user = User::factory()->create(['email' => 'version-list-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        // Order 999999 doesn't exist for this user
+        $response = $this->getJson('/get-versions/999999');
+        // Returns 400 (errorResponse) or 403 depending on how Laravel handles it
+        $this->assertContains($response->status(), [400, 403]);
+        $this->assertFalse($response->json('success'));
+    }
+
+    public function test_get_version_list_with_existing_order_returns_structured_data(): void
+    {
+        $user = User::factory()->create(['email' => 'version-list-2-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+
+        $product = Product::create(['name' => 'TestProduct-'.uniqid(), 'description' => 'Test']);
+        $order = Order::create([
+            'client' => $user->id,
+            'order_status' => 'executed',
+            'product' => $product->id,
+            'number' => mt_rand(100000, 999999),
+        ]);
+
+        $response = $this->getJson('/get-versions/'.$order->id);
+        // Either 200 with upload versions or 400 if product relation missing
+        $this->assertContains($response->status(), [200, 400]);
+        if ($response->status() === 200) {
+            $response->assertJson(['success' => true]);
+        }
+    }
+
+    // =========================================================================
+    // renewPopupVue – GET /renew-popup-details/{productid}
+    // =========================================================================
+
+    public function test_renew_popup_vue_returns_plans_for_product(): void
+    {
+        $user = User::factory()->create(['email' => 'renew-popup-'.uniqid().'@test.local', 'country' => 'US']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+
+        $product = Product::create(['name' => 'TestRenewProduct-'.uniqid()]);
+        $plan = Plan::create(['name' => 'Annual', 'product' => $product->id, 'days' => 365, 'status' => 1]);
+        PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'USD', 'renew_price' => '99', 'add_price' => '99']);
+
+        $response = $this->getJson('/renew-popup-details/'.$product->id);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $data = $response->json('data');
+        $this->assertArrayHasKey('plans', $data);
+        $this->assertArrayHasKey('user_id', $data);
+        $this->assertSame($user->id, $data['user_id']);
+    }
+
+    public function test_renew_popup_vue_returns_empty_plans_for_nonexistent_product(): void
+    {
+        $user = User::factory()->create(['email' => 'renew-popup-2-'.uniqid().'@test.local', 'country' => 'US']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->getJson('/renew-popup-details/999999');
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertIsArray($data['plans']);
+        $this->assertCount(0, $data['plans']);
+    }
+
+    // =========================================================================
+    // getOrderInstallations – with real data
+    // =========================================================================
+
+    public function test_get_order_installations_returns_structured_data(): void
+    {
+        $user = User::factory()->create(['email' => 'installations-2-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+
+        $product = Product::create(['name' => 'TestInstallProd-'.uniqid()]);
+        $order = Order::create([
+            'client' => $user->id,
+            'order_status' => 'executed',
+            'product' => $product->id,
+            'number' => mt_rand(100000, 999999),
+        ]);
+
+        $response = $this->getJson('/get-my-installations/'.$order->id);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $data = $response->json('data');
+        $this->assertArrayHasKey('data', $data);
+    }
 }

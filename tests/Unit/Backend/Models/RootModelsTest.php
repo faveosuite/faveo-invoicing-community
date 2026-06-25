@@ -15,6 +15,7 @@ use App\Payment_log;
 use App\ReportColumn;
 use App\ReportSetting;
 use App\ThirdPartyApp;
+use App\UserBackupCodes;
 use App\UserLinkReport;
 use App\VerificationAttempt;
 use App\WhatsappIntegrationUser;
@@ -324,6 +325,7 @@ class RootModelsTest extends TestCase
         $this->assertInstanceOf(BelongsTo::class, (new Comment())->user());
     }
 
+
     // ───────────── ExportDetail ─────────────
 
     public function test_export_detail_table_name(): void
@@ -402,5 +404,48 @@ class RootModelsTest extends TestCase
         $model->setRawAttributes(['access_token' => 'not-encrypted']);
         // DecryptException falls back to raw value
         $this->assertSame('not-encrypted', $model->access_token);
+    }
+
+    // ───────────── Payment_log – relationships ─────────────
+
+    public function test_payment_log_user_is_belongs_to(): void
+    {
+        $this->assertInstanceOf(BelongsTo::class, (new Payment_log())->user());
+    }
+
+    public function test_payment_log_order_details_is_belongs_to(): void
+    {
+        $this->assertInstanceOf(BelongsTo::class, (new Payment_log())->orderDetails());
+    }
+
+    public function test_payment_log_user_relation_uses_email_as_foreign_key(): void
+    {
+        $relation = (new Payment_log())->user();
+        $this->assertSame('from', $relation->getForeignKeyName());
+    }
+
+    public function test_payment_log_order_details_relation_uses_order_as_foreign_key(): void
+    {
+        $relation = (new Payment_log())->orderDetails();
+        $this->assertSame('order', $relation->getForeignKeyName());
+    }
+
+    // ───────────── UserBackupCodes ─────────────
+
+    public function test_user_backup_codes_table_name(): void
+    {
+        $this->assertSame('user_backup_codes', (new UserBackupCodes())->getTable());
+    }
+
+    public function test_user_backup_codes_fillable_contains_expected_fields(): void
+    {
+        $fillable = (new UserBackupCodes())->getFillable();
+        $this->assertContains('user_id', $fillable);
+        $this->assertContains('backup_codes', $fillable);
+    }
+
+    public function test_user_backup_codes_user_is_belongs_to(): void
+    {
+        $this->assertInstanceOf(BelongsTo::class, (new UserBackupCodes())->user());
     }
 }

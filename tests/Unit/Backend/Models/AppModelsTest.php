@@ -2,8 +2,11 @@
 
 namespace Tests\Unit\Backend\Models;
 
+use App\ApiKey;
 use App\Auto_renewal;
 use App\Comment;
+use App\Model\Cart\Cart;
+use App\Model\Common\StatusSetting;
 use App\Payment_log;
 use App\ThirdPartyApp;
 use App\User;
@@ -141,5 +144,80 @@ class AppModelsTest extends DBTestCase
         ]);
         $this->assertInstanceOf(Payment_log::class, $log);
         $this->assertDatabaseHas('payment_logs', ['subject' => 'Payment received']);
+    }
+
+    // =========================================================================
+    // Cart model – invoice() relationship
+    // =========================================================================
+
+    public function test_cart_invoice_is_belongs_to(): void
+    {
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, (new Cart())->invoice());
+    }
+
+    public function test_cart_casts_contains_coupon_discount(): void
+    {
+        $casts = (new Cart())->getCasts();
+        $this->assertArrayHasKey('coupon_discount', $casts);
+    }
+
+    // =========================================================================
+    // ApiKey::getLogUrl() and getLogName() – wasChanged() branches
+    // =========================================================================
+
+    public function test_api_key_get_log_url_returns_contact_option_when_verification_preference_changed(): void
+    {
+        // Load real ApiKey, change verification_preference, save → wasChanged() true
+        $apiKey = ApiKey::firstOrCreate(['id' => 1]);
+        $original = $apiKey->verification_preference;
+
+        // Simulate a change by using a new value
+        $newVal = $original === 'email' ? 'mobile' : 'email';
+        $apiKey->verification_preference = $newVal;
+        $apiKey->save();
+
+        // After save, wasChanged('verification_preference') = true
+        $url = $apiKey->getLogUrl();
+        $this->assertStringContainsString('contact-option', $url);
+
+        $name = $apiKey->getLogName();
+        $this->assertSame('contact_options', $name);
+    }
+
+    // =========================================================================
+    // StatusSetting – wasChanged branches for getLogUrl/getLogName
+    // =========================================================================
+
+    public function test_status_setting_get_log_url_returns_contact_option_when_verification_changed(): void
+    {
+        $setting = StatusSetting::firstOrCreate(['id' => 1]);
+        $original = $setting->emailverification_status;
+
+        // Change emailverification_status to trigger wasChanged()
+        $setting->emailverification_status = $original ? 0 : 1;
+        $setting->save();
+
+        $url = $setting->getLogUrl();
+        $this->assertStringContainsString('contact-option', $url);
+
+        $name = $setting->getLogName();
+        $this->assertSame('contact_options', $name);
+    }
+
+    public function test_status_setting_get_log_url_returns_tenant_when_cloud_changed(): void
+    {
+        $setting = StatusSetting::firstOrCreate(['id' => 1]);
+        $original = $setting->cloud_button;
+
+        // Change cloud_button to trigger wasChanged() for cloud check
+        $setting->cloud_button = $original === '1' ? '0' : '1';
+        $setting->save();
+
+        $url = $setting->getLogUrl();
+        // cloud_button was changed → should contain 'view/tenant'
+        $this->assertStringContainsString('tenant', $url);
+
+        $name = $setting->getLogName();
+        $this->assertSame('cloud', $name);
     }
 }

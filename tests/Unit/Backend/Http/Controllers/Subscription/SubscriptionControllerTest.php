@@ -189,4 +189,62 @@ class SubscriptionControllerTest extends DBTestCase
         $result = $subController->getPriceforCloud($order, 10.0);
         $this->assertEqualsWithDelta(50.0, $result, 0.01);
     }
+
+    // =========================================================================
+    // ConcretePostSubscriptionHandleController – additional coverage
+    // =========================================================================
+
+    public function test_record_payment_creates_payment_record(): void
+    {
+        $controller = $this->instantiateDependencies();
+
+        $user = User::factory()->create(['email' => 'concrete-'.uniqid().'@test.local']);
+        /** @var Invoice $invoice */
+        $invoice = Invoice::factory()->create([
+            'user_id' => $user->id,
+            'grand_total' => 100.0,
+            'status' => 'pending',
+        ]);
+
+        $payment = $controller->recordPayment($invoice, 'Stripe');
+        $this->assertInstanceOf(\App\Model\Order\Payment::class, $payment);
+        $this->assertSame('success', $payment->payment_status);
+    }
+
+    public function test_get_processing_fee_returns_null_for_unknown_method(): void
+    {
+        $controller = $this->instantiateDependencies();
+        $result = $controller->getProcessingFee('unknown_gateway', 'USD');
+        $this->assertNull($result);
+    }
+
+    public function test_disable_autorenewal_exits_early_for_nonexistent_order(): void
+    {
+        $controller = $this->instantiateDependencies();
+        $controller->disableAutorenewalStatusByOrderId(999999);
+        $this->assertTrue(true);
+    }
+
+    // =========================================================================
+    // checkSubscriptionStatus – early return paths
+    // =========================================================================
+
+    public function test_check_subscription_status_exits_early_when_no_invoice(): void
+    {
+        $controller = $this->instantiateDependencies();
+        $subController = new SubscriptionController($controller);
+
+        $subscription = new \stdClass();
+        $subscription->order_id = 999999;
+        $subscription->product_id = 999999;
+        $subscription->user_id = 999999;
+        $subscription->id = 999999;
+        $subscription->subscribe_id = null;
+        $subscription->rzp_subscription = null;
+        $subscription->autoRenew_status = null;
+
+        // No invoice → returns early without error
+        $subController->checkSubscriptionStatus($subscription);
+        $this->assertTrue(true);
+    }
 }

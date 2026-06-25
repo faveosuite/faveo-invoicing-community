@@ -25,7 +25,7 @@ class UserFactory extends Factory
             'user_name' => fake()->userName(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
-            'email' => fake()->unique()->safeEmail(),
+            'email' => fake()->unique()->userName().'.'.fake()->unique()->numberBetween(10000, 99999).'@test.invalid',
             'company' => fake()->company(),
             'bussiness' => 'abcd',
             'company_type' => 'public_company',

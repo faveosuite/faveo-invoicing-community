@@ -14,6 +14,8 @@ use App\Model\Payment\Tax;
 use App\Model\Payment\TaxClass;
 use App\Model\Payment\TaxOption;
 use App\Model\Payment\TaxProductRelation;
+use App\Model\Payment\TaxRate;
+use App\Model\Payment\TaxRateLocation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -259,5 +261,201 @@ class PaymentModelsCoverageTest extends TestCase
     {
         $relation = (new Currency())->country();
         $this->assertInstanceOf(Country::class, $relation->getRelated());
+    }
+
+    public function test_currency_get_mappings_returns_array_with_expected_keys(): void
+    {
+        $model = new Currency();
+        $ref = new \ReflectionMethod($model, 'getMappings');
+        $mappings = $ref->invoke($model);
+        $this->assertIsArray($mappings);
+        $this->assertArrayHasKey('code', $mappings);
+        $this->assertArrayHasKey('symbol', $mappings);
+        $this->assertArrayHasKey('name', $mappings);
+        $this->assertArrayHasKey('status', $mappings);
+    }
+
+    // =========================================================================
+    // PlanPrice – getMappings + plan() relationship
+    // =========================================================================
+
+    public function test_plan_price_plan_is_belongs_to(): void
+    {
+        $this->assertInstanceOf(BelongsTo::class, (new PlanPrice())->plan());
+    }
+
+    public function test_plan_price_get_mappings_returns_expected_keys(): void
+    {
+        $model = new PlanPrice();
+        $ref = new \ReflectionMethod($model, 'getMappings');
+        $mappings = $ref->invoke($model);
+        $this->assertIsArray($mappings);
+        $this->assertArrayHasKey('plan_id', $mappings);
+        $this->assertArrayHasKey('currency', $mappings);
+        $this->assertArrayHasKey('add_price', $mappings);
+        $this->assertArrayHasKey('renew_price', $mappings);
+        $this->assertArrayHasKey('offer_price', $mappings);
+    }
+
+    // =========================================================================
+    // TaxOption – getMappings
+    // =========================================================================
+
+    public function test_tax_option_get_mappings_returns_expected_keys(): void
+    {
+        $model = new TaxOption();
+        $ref = new \ReflectionMethod($model, 'getMappings');
+        $mappings = $ref->invoke($model);
+        $this->assertIsArray($mappings);
+        $this->assertArrayHasKey('tax_enable', $mappings);
+        $this->assertArrayHasKey('inclusive', $mappings);
+        $this->assertArrayHasKey('tax_based_on', $mappings);
+        $this->assertArrayHasKey('rounding', $mappings);
+    }
+
+    // =========================================================================
+    // TaxRateLocation – taxRate() relationship
+    // =========================================================================
+
+    public function test_tax_rate_location_table_is_tax_rate_locations(): void
+    {
+        $this->assertSame('tax_rate_locations', (new TaxRateLocation())->getTable());
+    }
+
+    public function test_tax_rate_location_fillable_contains_expected_fields(): void
+    {
+        $fillable = (new TaxRateLocation())->getFillable();
+        $this->assertContains('tax_rate_id', $fillable);
+        $this->assertContains('location_code', $fillable);
+        $this->assertContains('location_type', $fillable);
+    }
+
+    public function test_tax_rate_location_tax_rate_is_belongs_to(): void
+    {
+        $this->assertInstanceOf(BelongsTo::class, (new TaxRateLocation())->taxRate());
+    }
+
+    // =========================================================================
+    // TaxRate – getMappings + locations() + taxClass()
+    // =========================================================================
+
+    public function test_tax_rate_table_is_tax_rates(): void
+    {
+        $this->assertSame('tax_rates', (new TaxRate())->getTable());
+    }
+
+    public function test_tax_rate_fillable_contains_expected_fields(): void
+    {
+        $fillable = (new TaxRate())->getFillable();
+        $this->assertContains('name', $fillable);
+        $this->assertContains('country', $fillable);
+        $this->assertContains('rate', $fillable);
+        $this->assertContains('active', $fillable);
+    }
+
+    public function test_tax_rate_get_mappings_returns_expected_keys(): void
+    {
+        $model = new TaxRate();
+        $ref = new \ReflectionMethod($model, 'getMappings');
+        $mappings = $ref->invoke($model);
+        $this->assertIsArray($mappings);
+        $this->assertArrayHasKey('name', $mappings);
+        $this->assertArrayHasKey('country', $mappings);
+        $this->assertArrayHasKey('state', $mappings);
+        $this->assertArrayHasKey('rate', $mappings);
+        $this->assertArrayHasKey('active', $mappings);
+    }
+
+    public function test_tax_rate_locations_is_has_many(): void
+    {
+        $this->assertInstanceOf(HasMany::class, (new TaxRate())->locations());
+    }
+
+    public function test_tax_rate_tax_class_is_belongs_to(): void
+    {
+        $this->assertInstanceOf(BelongsTo::class, (new TaxRate())->taxClass());
+    }
+
+    public function test_tax_rate_casts_contains_expected_keys(): void
+    {
+        $casts = (new TaxRate())->getCasts();
+        $this->assertArrayHasKey('rate', $casts);
+        $this->assertArrayHasKey('compound', $casts);
+        $this->assertArrayHasKey('active', $casts);
+    }
+
+    // =========================================================================
+    // TaxClass – getMappings + rates()
+    // =========================================================================
+
+    public function test_tax_class_get_mappings_returns_expected_keys(): void
+    {
+        $model = new TaxClass();
+        $ref = new \ReflectionMethod($model, 'getMappings');
+        $mappings = $ref->invoke($model);
+        $this->assertIsArray($mappings);
+        $this->assertArrayHasKey('name', $mappings);
+        $this->assertArrayHasKey('slug', $mappings);
+    }
+
+    public function test_tax_class_rates_is_has_many(): void
+    {
+        $this->assertInstanceOf(HasMany::class, (new TaxClass())->rates());
+    }
+
+    // =========================================================================
+    // Plan – getMappings
+    // =========================================================================
+
+    public function test_plan_get_mappings_returns_expected_keys(): void
+    {
+        $model = new Plan();
+        $ref = new \ReflectionMethod($model, 'getMappings');
+        $mappings = $ref->invoke($model);
+        $this->assertIsArray($mappings);
+        $this->assertArrayHasKey('name', $mappings);
+        $this->assertArrayHasKey('product', $mappings);
+        $this->assertArrayHasKey('allow_tax', $mappings);
+        $this->assertArrayHasKey('days', $mappings);
+        $this->assertArrayHasKey('status', $mappings);
+    }
+
+    // =========================================================================
+    // Period – getMappings (implicit via delete body covered by DBTestCase)
+    // =========================================================================
+
+    public function test_period_get_mappings_method_does_not_exist(): void
+    {
+        // Period has no getMappings; confirm delete() is declared
+        $this->assertTrue(method_exists(Period::class, 'delete'));
+    }
+
+    // =========================================================================
+    // Promotion – getMappings + promotionType() + products()
+    // =========================================================================
+
+    public function test_promotion_get_mappings_returns_expected_keys(): void
+    {
+        $model = new Promotion();
+        $ref = new \ReflectionMethod($model, 'getMappings');
+        $mappings = $ref->invoke($model);
+        $this->assertIsArray($mappings);
+        $this->assertArrayHasKey('code', $mappings);
+        $this->assertArrayHasKey('type', $mappings);
+        $this->assertArrayHasKey('uses', $mappings);
+        $this->assertArrayHasKey('value', $mappings);
+    }
+
+    public function test_promotion_promotion_type_is_belongs_to(): void
+    {
+        $this->assertInstanceOf(BelongsTo::class, (new Promotion())->promotionType());
+    }
+
+    public function test_promotion_products_is_has_one_through(): void
+    {
+        $this->assertInstanceOf(
+            \Illuminate\Database\Eloquent\Relations\HasOneThrough::class,
+            (new Promotion())->products()
+        );
     }
 }

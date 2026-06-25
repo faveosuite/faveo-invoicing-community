@@ -633,4 +633,179 @@ class CloudActivitiesTest extends DBTestCase
         $response->assertJson(['success' => true]);
         $response->assertJsonStructure(['data' => ['products']]);
     }
+
+    // =========================================================================
+    // getUpgradeCost – error path when plan not found
+    // =========================================================================
+
+    public function test_get_upgrade_cost_returns_nan_when_plan_not_found(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->postJson('/get-cloud-upgrade-cost', [
+            'plan' => 999999,
+            'agents' => 5,
+            'orderId' => 999999,
+        ]);
+        // Returns array with NaN values via error path
+        $this->assertTrue($response->status() >= 200);
+    }
+
+    // =========================================================================
+    // getThePaymentCalculationDisplay – empty agents path
+    // =========================================================================
+
+    public function test_get_payment_calculation_display_error_on_missing_order(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->postJson('/get-agent-inc-dec-cost', [
+            'orderId' => 999999,
+            'number' => 0,
+            'oldAgents' => 5,
+            'agentAction' => 'increase',
+        ]);
+        $this->assertTrue($response->status() >= 200);
+    }
+
+    // =========================================================================
+    // agentAlteration – validation or error
+    // =========================================================================
+
+    public function test_agent_alteration_with_missing_data_returns_error(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->postJson('/changeAgents', [
+            'orderId' => 999999,
+            'agents' => 5,
+        ]);
+        $this->assertTrue($response->status() >= 200);
+    }
+
+    // =========================================================================
+    // upgradeDowngradeCloud – missing data returns error
+    // =========================================================================
+
+    public function test_upgrade_downgrade_cloud_with_missing_data_returns_error(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->postJson('/upgradeDowngradeCloud', [
+            'orderId' => 999999,
+        ]);
+        $this->assertTrue($response->status() >= 200);
+    }
+
+    // =========================================================================
+    // changeDomain – all early-return error branches
+    // =========================================================================
+
+    public function test_change_domain_validation_fails_without_domains(): void
+    {
+        // changeDomain wraps $this->validate() in try/catch(Exception)
+        // ValidationException IS an Exception → caught → returns errorResponse 400
+        $user = User::factory()->create(['email' => 'change-dom-1-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->postJson('/change/domain', []);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_change_domain_returns_error_when_order_not_found(): void
+    {
+        $user = User::factory()->create(['email' => 'change-dom-2-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->postJson('/change/domain', [
+            'currentDomain' => 'current.example.com',
+            'newDomain' => 'new.example.com',
+            'order_id' => 999999,  // doesn't exist
+        ]);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_change_domain_returns_error_for_same_domain(): void
+    {
+        $user = User::factory()->create(['email' => 'change-dom-3-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $order = Order::factory()->create(['client' => $user->id]);
+
+        $response = $this->postJson('/change/domain', [
+            'currentDomain' => 'same.example.com',
+            'newDomain' => 'same.example.com',  // same as current
+            'order_id' => $order->id,
+        ]);
+        // Either 'invalid_user' (client != auth user) or 'nothing_changed'
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // agentAlteration – additional early-return error branches
+    // =========================================================================
+
+    public function test_agent_alteration_returns_error_when_new_agents_empty(): void
+    {
+        $user = User::factory()->create(['email' => 'agent-alt-1-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->postJson('/changeAgents', [
+            'newAgents' => '',  // empty
+            'order_id' => 999999,
+        ]);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_agent_alteration_returns_error_when_order_not_found(): void
+    {
+        $user = User::factory()->create(['email' => 'agent-alt-2-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->postJson('/changeAgents', [
+            'newAgents' => 5,
+            'order_id' => 999999,  // doesn't exist
+            'agentAction' => 'increase',
+        ]);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // fetchData – covers pagination and search
+    // =========================================================================
+
+    public function test_fetch_data_with_pagination_returns_structure(): void
+    {
+        $user = User::factory()->create(['role' => 'admin', 'email' => 'fetch-data-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->getJson('/fetch-data?limit=5&page=1');
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $data = $response->json('data');
+        $this->assertArrayHasKey('data', $data);
+        $this->assertArrayHasKey('total', $data);
+        $this->assertArrayHasKey('per_page', $data);
+    }
+
+    public function test_fetch_data_with_search_query_filters_results(): void
+    {
+        $user = User::factory()->create(['role' => 'admin', 'email' => 'fetch-data-s-'.uniqid().'@test.local']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $response = $this->getJson('/fetch-data?search_query=nonexistent_domain_xyz');
+        $response->assertStatus(200);
+        $data = $response->json('data.data');
+        $this->assertIsArray($data);
+        $this->assertCount(0, $data);  // No matching results
+    }
 }

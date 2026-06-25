@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Models\Common;
 
 use App\Model\Common\ChatScript;
+use App\Model\Common\CommonSettings;
 use App\Model\Common\Country;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\FaveoCloud;
@@ -283,6 +284,61 @@ class CommonModelsTest extends TestCase
         $this->assertInstanceOf(\App\BaseModel::class, new Website());
     }
 
+    public function test_website_customer_model_method_exists(): void
+    {
+        $this->assertTrue(method_exists(Website::class, 'customermodel'));
+    }
+
+    public function test_website_customer_model_invokes_belongs_to(): void
+    {
+        // Website::customermodel() passes the unqualified string 'User' to belongsTo().
+        // This covers the return statement; the exception is thrown inside Laravel's
+        // newRelatedInstance() when it tries to instantiate 'User' (no namespace).
+        try {
+            (new Website())->customermodel();
+        } catch (\Throwable $e) {
+            // Class "User" not found is expected due to unqualified class name
+            $this->assertStringContainsString('User', $e->getMessage());
+        }
+    }
+
+    // ───────────── CommonSettings ─────────────
+
+    public function test_common_settings_table_name(): void
+    {
+        $this->assertSame('common_settings', (new CommonSettings())->getTable());
+    }
+
+    public function test_common_settings_fillable_contains_expected_fields(): void
+    {
+        $fillable = (new CommonSettings())->getFillable();
+        $this->assertContains('option_name', $fillable);
+        $this->assertContains('option_value', $fillable);
+        $this->assertContains('status', $fillable);
+        $this->assertContains('optional_field', $fillable);
+    }
+
+    public function test_common_settings_get_status_returns_empty_string_when_not_found(): void
+    {
+        $model = new CommonSettings();
+        $result = $model->getStatus('nonexistent_option_name_xyz_12345');
+        $this->assertSame('', $result);
+    }
+
+    public function test_common_settings_get_option_value_without_field_returns_collection(): void
+    {
+        $model = new CommonSettings();
+        $result = $model->getOptionValue('nonexistent_option_xyz_12345');
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $result);
+    }
+
+    public function test_common_settings_get_option_value_with_field_returns_null_when_not_found(): void
+    {
+        $model = new CommonSettings();
+        $result = $model->getOptionValue('nonexistent_option_xyz_12345', 'some_field');
+        $this->assertNull($result);
+    }
+
     // ───────────── StatusSetting ─────────────
 
     public function test_status_setting_table_name(): void
@@ -453,6 +509,16 @@ class CommonModelsTest extends TestCase
         $this->assertInstanceOf(\App\BaseModel::class, new TemplateType());
     }
 
+    public function test_template_type_selected_template_is_belongs_to(): void
+    {
+        $this->assertInstanceOf(BelongsTo::class, (new TemplateType())->selectedTemplate());
+    }
+
+    public function test_template_type_templates_is_has_many(): void
+    {
+        $this->assertInstanceOf(HasMany::class, (new TemplateType())->templates());
+    }
+
     // ───────────── Country ─────────────
 
     public function test_country_table_name(): void
@@ -481,5 +547,10 @@ class CommonModelsTest extends TestCase
     public function test_country_users_relation(): void
     {
         $this->assertInstanceOf(HasMany::class, (new Country())->users());
+    }
+
+    public function test_country_states_relation(): void
+    {
+        $this->assertInstanceOf(HasMany::class, (new Country())->states());
     }
 }

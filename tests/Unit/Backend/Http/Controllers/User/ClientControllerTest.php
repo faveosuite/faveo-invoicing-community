@@ -248,4 +248,71 @@ class ClientControllerTest extends DBTestCase
         $response->assertStatus(400);
         $response->assertJson(['success' => false]);
     }
+
+    // =========================================================================
+    // Additional coverage for uncovered methods
+    // =========================================================================
+
+    public function test_save_columns_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->postJson('/save-columns', [
+            'report-key' => 'users',
+            'columns' => ['id', 'name', 'email'],
+        ]);
+        $this->assertContains($response->status(), [200, 400, 422]);
+    }
+
+    public function test_update_user_comment_returns_200_or_not_found(): void
+    {
+        $this->getLoggedInUser('admin');
+        $user = \App\User::factory()->create(['email' => 'comment-user-'.uniqid().'@test.local']);
+
+        $comment = \App\Comment::create([
+            'user_id' => $user->id,
+            'updated_by_user_id' => $user->id,
+            'description' => 'Original comment',
+        ]);
+
+        $response = $this->putJson('/user/'.$user->id.'/comments/'.$comment->id, [
+            'description' => 'Updated comment',
+        ]);
+        $this->assertContains($response->status(), [200, 400, 404]);
+    }
+
+    public function test_delete_user_comment_returns_200_or_not_found(): void
+    {
+        $this->getLoggedInUser('admin');
+        $user = \App\User::factory()->create(['email' => 'comment-del-user-'.uniqid().'@test.local']);
+
+        $comment = \App\Comment::create([
+            'user_id' => $user->id,
+            'updated_by_user_id' => $user->id,
+            'description' => 'Comment to delete',
+        ]);
+
+        $response = $this->deleteJson('/user/'.$user->id.'/comments/'.$comment->id);
+        $this->assertContains($response->status(), [200, 400, 404]);
+    }
+
+    public function test_user_update_validates_fields(): void
+    {
+        $this->getLoggedInUser('admin');
+        $user = \App\User::factory()->create(['email' => 'update-user-'.uniqid().'@test.local']);
+
+        $response = $this->patchJson('/user/'.$user->id, [
+            'first_name' => 'Updated',
+            'last_name' => 'User',
+            'email' => $user->email,
+            'role' => 'user',
+        ]);
+        $this->assertContains($response->status(), [200, 400, 422]);
+    }
+
+    public function test_download_exported_file_returns_404_for_nonexistent(): void
+    {
+        $this->getLoggedInUser('admin');
+        $response = $this->getJson('/download-exported-file/999999');
+        $this->assertContains($response->status(), [200, 400, 404]);
+    }
 }

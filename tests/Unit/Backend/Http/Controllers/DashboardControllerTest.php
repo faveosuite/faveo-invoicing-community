@@ -398,4 +398,18 @@ class DashboardControllerTest extends DBTestCase
         $response = $this->call('get', 'admin-dashboard-data');
         $this->assertNotEquals(500, $response->getStatusCode());
     }
+
+    // =========================================================================
+    // GET /dashboard – covers dashboard() and all internal helper methods
+    // =========================================================================
+
+    public function test_dashboard_endpoint_returns_non_500(): void
+    {
+        $this->withoutMiddleware();
+        $this->getLoggedInUser('admin');
+
+        // The /dashboard route calls dashboard() which internally calls all helper methods
+        $response = $this->getJson('/dashboard');
+        $this->assertNotEquals(500, $response->getStatusCode());
+    }
 }

@@ -7,6 +7,7 @@ namespace Tests\Unit\Backend\Models\Order;
 use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
+use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -281,5 +282,121 @@ class OrderModelsTest extends TestCase
         // getOrderLink requires DB; test get_domain instead for extra coverage
         $order = new Order();
         $this->assertIsString($order->get_domain('https://test.example.com'));
+    }
+
+    public function test_order_get_mappings_returns_expected_keys(): void
+    {
+        $model = new Order();
+        $ref = new \ReflectionMethod($model, 'getMappings');
+        $mappings = $ref->invoke($model);
+        $this->assertIsArray($mappings);
+        $this->assertArrayHasKey('client', $mappings);
+        $this->assertArrayHasKey('order_status', $mappings);
+        $this->assertArrayHasKey('serial_key', $mappings);
+        $this->assertArrayHasKey('domain', $mappings);
+        $this->assertArrayHasKey('number', $mappings);
+    }
+
+    public function test_order_installation_is_has_many(): void
+    {
+        $this->assertInstanceOf(HasMany::class, (new Order())->installation());
+    }
+
+    public function test_order_domain_attribute_handles_trailing_slash(): void
+    {
+        // Covers the Str::endsWith branch in the domain() Attribute (line 247)
+        $order = new Order();
+        $order->setRawAttributes(['domain' => 'example.com/']);
+        $result = $order->domain;
+        $this->assertIsString($result);
+        $this->assertStringContainsString('example.com', $result);
+    }
+
+    public function test_order_domain_setter_calls_get_domain(): void
+    {
+        // Covers the set callback in domain() Attribute (line 252)
+        $order = new Order();
+        $order->domain = 'https://www.example.com/path';
+        $this->assertStringContainsString('example.com', $order->getRawOriginal('domain') ?? $order->domain);
+    }
+
+    public function test_order_get_order_link_returns_fallback_without_db(): void
+    {
+        // Without a matching order in DB, static method returns '--'
+        $result = Order::getOrderLink(999999999);
+        $this->assertSame('--', $result);
+    }
+
+    // =========================================================================
+    // Invoice – getMappings + status attribute + installationDetail
+    // =========================================================================
+
+    public function test_invoice_get_mappings_returns_expected_keys(): void
+    {
+        $model = new Invoice();
+        $ref = new \ReflectionMethod($model, 'getMappings');
+        $mappings = $ref->invoke($model);
+        $this->assertIsArray($mappings);
+        $this->assertArrayHasKey('user_id', $mappings);
+        $this->assertArrayHasKey('number', $mappings);
+        $this->assertArrayHasKey('grand_total', $mappings);
+        $this->assertArrayHasKey('currency', $mappings);
+        $this->assertArrayHasKey('status', $mappings);
+    }
+
+    public function test_invoice_status_accessor_ucfirsts_value(): void
+    {
+        $invoice = new Invoice();
+        $invoice->setRawAttributes(['status' => 'pending']);
+        $this->assertSame('Pending', $invoice->status);
+    }
+
+    // =========================================================================
+    // InvoiceTaxLine – relationships + casts
+    // =========================================================================
+
+    public function test_invoice_tax_line_table_is_invoice_tax_lines(): void
+    {
+        $this->assertSame('invoice_tax_lines', (new InvoiceTaxLine())->getTable());
+    }
+
+    public function test_invoice_tax_line_invoice_is_belongs_to(): void
+    {
+        $this->assertInstanceOf(BelongsTo::class, (new InvoiceTaxLine())->invoice());
+    }
+
+    public function test_invoice_tax_line_item_is_belongs_to(): void
+    {
+        $this->assertInstanceOf(BelongsTo::class, (new InvoiceTaxLine())->item());
+    }
+
+    public function test_invoice_tax_line_casts_rate_and_amount_as_float(): void
+    {
+        $casts = (new InvoiceTaxLine())->getCasts();
+        $this->assertArrayHasKey('rate', $casts);
+        $this->assertSame('float', $casts['rate']);
+        $this->assertArrayHasKey('amount', $casts);
+        $this->assertSame('float', $casts['amount']);
+    }
+
+    // =========================================================================
+    // InvoiceItem – taxLines() relationship (covers line 84)
+    // =========================================================================
+
+    public function test_invoice_item_tax_lines_is_has_many(): void
+    {
+        $this->assertInstanceOf(HasMany::class, (new InvoiceItem())->taxLines());
+    }
+
+    // =========================================================================
+    // TaxRate – casts() (covers lines 129-136)
+    // =========================================================================
+
+    public function test_tax_rate_casts_method_returns_array(): void
+    {
+        $casts = (new \App\Model\Payment\TaxRate())->getCasts();
+        $this->assertIsArray($casts);
+        $this->assertArrayHasKey('rate', $casts);
+        $this->assertArrayHasKey('compound', $casts);
     }
 }

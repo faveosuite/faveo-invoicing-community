@@ -6,6 +6,7 @@ namespace Tests\Unit\Backend\Exports;
 
 use App\Exports\InvoiceExport;
 use App\Exports\OrderExport;
+use App\Exports\TenatExport;
 use App\Exports\UsersExport;
 use Illuminate\Support\Collection;
 use Tests\DBTestCase;
@@ -203,5 +204,46 @@ class ExportsTest extends DBTestCase
         $result = $export->collection();
 
         $this->assertCount(2, $result);
+    }
+
+    // =========================================================================
+    // TenatExport
+    // =========================================================================
+
+    public function test_tenat_export_collection_returns_collect_of_data(): void
+    {
+        $data = [['name' => 'Alice', 'email' => 'alice@example.com']];
+        $export = new TenatExport(['name', 'email'], $data, 1);
+        $result = $export->collection();
+        $this->assertInstanceOf(Collection::class, $result);
+        $this->assertCount(1, $result);
+    }
+
+    public function test_tenat_export_headings_maps_known_columns(): void
+    {
+        $export = new TenatExport(['name', 'email', 'mobile'], [], 1);
+        $headings = $export->headings();
+        $this->assertSame(['User', 'Email', 'Mobile'], $headings);
+    }
+
+    public function test_tenat_export_headings_falls_back_to_column_name_for_unknown(): void
+    {
+        $export = new TenatExport(['custom_field'], [], 1);
+        $headings = $export->headings();
+        $this->assertSame(['custom_field'], $headings);
+    }
+
+    public function test_tenat_export_title_includes_sheet_index(): void
+    {
+        $export = new TenatExport([], [], 3);
+        $this->assertSame('Sheet 3', $export->title());
+    }
+
+    public function test_tenat_export_collection_with_empty_data(): void
+    {
+        $export = new TenatExport(['name'], [], 1);
+        $result = $export->collection();
+        $this->assertInstanceOf(Collection::class, $result);
+        $this->assertCount(0, $result);
     }
 }
