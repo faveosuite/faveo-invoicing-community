@@ -44,8 +44,11 @@ class CloudExtraActivities extends Controller
 
     public mixed $cloud = null;
 
-    public function __construct(Client $client, FaveoCloud $cloud) // @phpstan-ignore constructor.unusedParameter
+    private Client $client;
+
+    public function __construct(Client $client, FaveoCloud $cloud)
     {
+        $this->client = $client;
         $this->cloud = $cloud->first();
         $this->middleware('auth', ['except' => ['verifyThirdPartyToken']]);
     }
@@ -62,7 +65,7 @@ class CloudExtraActivities extends Controller
         $data = array_merge($data, ['app_key' => $keys->app_key, 'token' => Str::random(32), 'timestamp' => time()]);
         $hashedSignature = hash_hmac('sha256', http_build_query($data), (string) $keys->app_secret);
 
-        $response = new Client()->request('POST', $this->cloud->cloud_central_domain.$endpoint, [
+        $response = $this->client->request('POST', $this->cloud->cloud_central_domain.$endpoint, [
             'form_params' => $data,
             'headers' => ['signature' => $hashedSignature],
         ]);
@@ -82,8 +85,7 @@ class CloudExtraActivities extends Controller
 
     private function checktheAgent(mixed $numberOfAgents, string $domain): mixed
     {
-        $client = new Client([]);
-        $response = $client->request('POST', 'https://'.$domain.'/api/agent-check', [
+        $response = $this->client->request('POST', 'https://'.$domain.'/api/agent-check', [
             'form_params' => ['number_of_agents' => $numberOfAgents],
         ]);
         $response = explode('{', (string) $response->getBody());
@@ -185,7 +187,7 @@ class CloudExtraActivities extends Controller
 
     private function jobsForCloudDomain(string $newDomain): void
     {
-        new Client([])->request('GET', config('custom.cloud_job_url'), [
+        $this->client->request('GET', config('custom.cloud_job_url'), [
             'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
             'query' => ['token' => config('custom.cloud_oauth_token'), 'domain' => $newDomain],
         ]);

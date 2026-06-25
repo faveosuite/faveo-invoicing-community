@@ -39,7 +39,8 @@ class DashboardTest extends DBTestCase
         $response->assertStatus(200);
         $this->assertEquals(1, $content['total_orders_count']);
         $this->assertEquals(0, $content['pending_invoices_count']);
-        $this->assertDatabaseCount('orders', 1);
+        // Count orders for this specific user (not globally — real DB has other orders)
+        $this->assertEquals(1, Order::where('client', $user->id)->count());
     }
 
     #[Group('dashboard')]
@@ -51,7 +52,8 @@ class DashboardTest extends DBTestCase
         Invoice::factory()->create(['user_id' => $user->id]);
         $response = $this->call('get', 'client-dashboard-details');
         $response->assertStatus(200);
-        $this->assertDatabaseCount('orders', 0);
+        // No orders for this specific user (not globally)
+        $this->assertEquals(0, Order::where('client', $user->id)->count());
     }
 
     #[Group('dashboard')]

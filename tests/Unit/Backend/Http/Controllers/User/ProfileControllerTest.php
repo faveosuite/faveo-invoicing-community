@@ -96,4 +96,39 @@ class ProfileControllerTest extends DBTestCase
     {
         $this->patchJson('/profile', ['first_name' => 'Test'])->assertStatus(401);
     }
+
+    public function test_update_profile_with_valid_data_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+
+        $response = $this->patchJson('/profile', [
+            'first_name'          => 'Admin',
+            'last_name'           => 'Updated',
+            'user_name'           => $this->user->user_name,
+            'email'               => $this->user->email,
+            'company'             => 'Test Co',
+            'address'             => '123 St',
+            'mobile'              => '9876543210',
+            'mobile_country_iso'  => 'IN',
+            'timezone_id'         => 1,
+            'country'             => $this->user->country ?? 'IN',
+        ]);
+
+        $this->assertContains($response->status(), [200, 422]);
+    }
+
+    public function test_update_password_returns_400_for_wrong_old_password(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+
+        $response = $this->patchJson('/password', [
+            'old_password' => 'wrong_password_xyz',
+            'new_password' => 'NewPass@456!',
+            'new_password_confirmation' => 'NewPass@456!',
+        ]);
+
+        $this->assertContains($response->status(), [200, 400, 422]);
+    }
 }

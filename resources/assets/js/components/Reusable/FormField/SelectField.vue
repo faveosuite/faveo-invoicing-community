@@ -144,9 +144,8 @@ watch(() => props.elements, () => {
 
 .faveo-dynamic-select .vs__search,
 .faveo-dynamic-select .vs__search:focus {
-    margin: 0;
+    margin: 0 5px;
     padding: 0;
-    height: 0;
     border: 0;
     min-width: 0;
 }

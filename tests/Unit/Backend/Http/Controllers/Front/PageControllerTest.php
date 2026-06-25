@@ -116,4 +116,118 @@ class PageControllerTest extends DBTestCase
 
         $response->assertStatus(422);
     }
+
+    // =========================================================================
+    // pageBySlug — returns page content or null
+    // =========================================================================
+
+    public function test_page_by_slug_returns_200_with_null_for_unknown_slug(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+
+        $response = $this->getJson('/page-content/nonexistent-slug-xyzzy');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+        // No page found → data is null
+        $this->assertNull($response->json('data'));
+    }
+
+    public function test_page_by_slug_returns_page_when_exists(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+
+        $page = \App\Model\Front\FrontendPage::create([
+            'name'    => 'Test Page',
+            'slug'    => 'test-page-' . uniqid(),
+            'content' => '<p>Hello</p>',
+            'publish' => 1,
+            'type'    => 'custom',
+        ]);
+
+        $response = $this->getJson('/page-content/' . $page->slug);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $data = $response->json('data');
+        $this->assertNotNull($data);
+        $this->assertSame($page->slug, $data['slug']);
+        $this->assertSame('Test Page', $data['name']);
+    }
+
+    // =========================================================================
+    // getDemoStatus — GET /demo
+    // =========================================================================
+
+    public function test_get_demo_status_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+
+        $response = $this->getJson('/demo');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    // =========================================================================
+    // getPriceDescription — direct call, unknown product → empty string
+    // =========================================================================
+
+    public function test_get_price_description_returns_empty_for_unknown_product(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+
+        $controller = new \App\Http\Controllers\Front\PageController;
+        $result = $controller->getPriceDescription(999999);
+
+        $this->assertSame('', $result);
+    }
+
+    public function test_get_price_description_for_known_product_returns_string(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
+
+        $controller = new \App\Http\Controllers\Front\PageController;
+        $result = $controller->getPriceDescription($product->id);
+
+        $this->assertIsString($result);
+    }
+
+    // =========================================================================
+    // transform / keyArray / valueArray — pure logic, no DB
+    // =========================================================================
+
+    public function test_transform_returns_empty_string_for_empty_transform_array(): void
+    {
+        $controller = new \App\Http\Controllers\Front\PageController;
+        $result = $controller->transform('invoice', 'test data', []);
+
+        $this->assertSame('', $result);
+    }
+
+    public function test_key_array_returns_array_of_keys(): void
+    {
+        $controller = new \App\Http\Controllers\Front\PageController;
+        $result = $controller->keyArray(['key1' => 'val1', 'key2' => 'val2']);
+
+        $this->assertIsArray($result);
+        $this->assertEquals(['key1', 'key2'], $result);
+    }
+
+    public function test_value_array_returns_array_of_values(): void
+    {
+        $controller = new \App\Http\Controllers\Front\PageController;
+        $result = $controller->valueArray(['key1' => 'val1', 'key2' => 'val2']);
+
+        $this->assertIsArray($result);
+        $this->assertEquals(['val1', 'val2'], $result);
+    }
 }

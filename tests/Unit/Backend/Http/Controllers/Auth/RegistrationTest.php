@@ -243,4 +243,74 @@ class RegistrationTest extends DBTestCase
         $content = $response->original;
         $this->assertEquals(expected: true, actual: $content['success']);
     }
+
+    // -------------------------------------------------------------------------
+    // emailVerification — exception path (provider not in DB → fail open)
+    // -------------------------------------------------------------------------
+
+    public function test_email_verification_returns_true_when_provider_not_configured(): void
+    {
+        $controller = new \App\Http\Controllers\Auth\RegisterController;
+
+        // No EmailMobileValidationProviders row for 'reoon' → firstOrFail throws
+        // The exception is caught → returns ['status' => true, 'id' => null]
+        $result = $controller->emailVerification('test@example.com');
+
+        $this->assertIsArray($result);
+        $this->assertTrue($result['status']);
+        $this->assertNull($result['id']);
+    }
+
+    // -------------------------------------------------------------------------
+    // getUserDetails — builds location-based user detail array
+    // -------------------------------------------------------------------------
+
+    public function test_get_user_details_returns_array_with_required_keys(): void
+    {
+        $controller = new \App\Http\Controllers\Auth\RegisterController;
+
+        $request = new \Illuminate\Http\Request;
+        $request->merge([
+            'email'              => 'test@example.com',
+            'first_name'         => 'Test',
+            'last_name'          => 'User',
+            'mobile'             => '9876543210',
+            'mobile_code'        => '91',
+            'mobile_country_iso' => 'IN',
+            'country'            => 'IN',
+            'company'            => 'Test Co',
+            'address'            => '123 Main St',
+        ]);
+
+        $result = $controller->getUserDetails($request);
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('email', $result);
+        $this->assertArrayHasKey('first_name', $result);
+        $this->assertArrayHasKey('registration', $result);
+        $this->assertEquals('Not Completed', $result['registration']);
+    }
+
+    // -------------------------------------------------------------------------
+    // logActivityRegister — logs activity for a user
+    // -------------------------------------------------------------------------
+
+    public function test_log_activity_register_does_not_throw_for_valid_user(): void
+    {
+        $controller = new \App\Http\Controllers\Auth\RegisterController;
+        $user = User::factory()->create();
+
+        $controller->logActivityRegister($user);
+
+        $this->assertTrue(true); // no exception thrown
+    }
+
+    public function test_log_activity_register_returns_early_for_null_user(): void
+    {
+        $controller = new \App\Http\Controllers\Auth\RegisterController;
+
+        $controller->logActivityRegister(null);
+
+        $this->assertTrue(true);
+    }
 }

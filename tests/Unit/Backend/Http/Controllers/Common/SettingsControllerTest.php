@@ -1172,4 +1172,31 @@ class SettingsControllerTest extends DBTestCase
             'option_value' => '1',
         ]);
     }
+
+    // =========================================================================
+    // getDeploymentSettings / saveDeploymentSettings
+    // =========================================================================
+
+    public function test_get_deployment_settings_returns_response(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+
+        $response = $this->getJson('/settings/deployment');
+
+        $this->assertContains($response->status(), [200, 400, 500]);
+    }
+
+    public function test_save_deployment_settings_returns_response(): void
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+
+        $response = $this->postJson('/settings/deployment', [
+            'deployment_enabled' => false,
+        ]);
+
+        $this->assertContains($response->status(), [200, 302, 400, 422, 500]);
+    }
+
 }

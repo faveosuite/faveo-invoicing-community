@@ -211,4 +211,96 @@ class PipedriveControllerTest extends DBTestCase
             'local_field_id' => $localField->id,
         ]);
     }
+
+    // =========================================================================
+    // getMapFields — invalid group → 400
+    // =========================================================================
+
+    public function test_get_map_fields_returns_400_for_invalid_group(): void
+    {
+        $this->withoutMiddleware();
+
+        $response = $this->getJson('/pipedrive/mapping/999999');
+
+        $response->assertStatus(400)
+            ->assertJson(['success' => false]);
+    }
+
+    public function test_get_map_fields_returns_200_for_valid_group(): void
+    {
+        $this->withoutMiddleware();
+
+        $group = PipedriveGroups::first();
+
+
+        $response = $this->getJson('/pipedrive/mapping/' . $group->id);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true])
+            ->assertJsonStructure(['data' => ['group_id', 'title', 'groups', 'pipedriveData']]);
+
+        $this->assertEquals($group->id, $response->json('data.group_id'));
+    }
+
+    // =========================================================================
+    // syncFields — GET /syncing/pipedriveFields
+    // =========================================================================
+
+    public function test_sync_fields_returns_response(): void
+    {
+        $this->withoutMiddleware();
+
+        $response = $this->getJson('/syncing/pipedriveFields');
+
+        // May succeed (200) or fail (400/500) if Pipedrive API not configured
+        $this->assertContains($response->status(), [200, 400, 500]);
+        $this->assertIsArray($response->json());
+    }
+
+    // =========================================================================
+    // getDropdown — POST /pipedrive/get-dropdown
+    // =========================================================================
+
+    public function test_get_dropdown_returns_empty_when_no_options(): void
+    {
+        $this->withoutMiddleware();
+
+        $response = $this->postJson('/pipedrive/get-dropdown', ['pipedrive_field_id' => 999999]);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $this->assertEmpty($response->json('data.dropdown'));
+    }
+
+    // =========================================================================
+    // addUserToPipedrive — disabled status → returns early
+    // =========================================================================
+
+    public function test_add_user_to_pipedrive_does_nothing_when_disabled(): void
+    {
+        StatusSetting::first()->update(['pipedrive_status' => 0]);
+
+        $user = User::factory()->create(['email' => 'pipedrive-'.uniqid().'@test.local']);
+        $this->pipedriveController->addUserToPipedrive($user);
+
+        $this->assertTrue(true); // no exception, returned early
+    }
+
+    // =========================================================================
+    // getLocalFields — returns local fields + pipedrive fields
+    // =========================================================================
+
+    public function test_get_local_fields_returns_200_with_expected_keys(): void
+    {
+        $group = PipedriveGroups::first();
+
+
+        $response = $this->pipedriveController->getLocalFields($group->id);
+        $data = $response->getData(true);
+
+        $this->assertTrue($data['success']);
+        $this->assertArrayHasKey('local_fields', $data['data']);
+        $this->assertArrayHasKey('pipedrive_fields', $data['data']);
+    }
 }

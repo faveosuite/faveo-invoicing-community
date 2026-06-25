@@ -210,4 +210,385 @@ class ProductControllerTest extends DBTestCase
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
     }
+
+    // =========================================================================
+    // getProductUploads — with real product
+    // =========================================================================
+
+    public function test_get_product_uploads_for_unknown_product_returns_response(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/product/uploads/999999');
+
+        $this->assertContains($response->status(), [200, 400, 404]);
+    }
+
+    public function test_get_all_products_with_sort_params(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/products?sort-field=name&sort-order=asc&limit=5');
+
+        $response->assertStatus(200);
+    }
+
+    // =========================================================================
+    // getProductDropdown — direct call (no HTTP route)
+    // =========================================================================
+
+    public function test_get_product_dropdown_returns_paginated_products(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $controller = new \App\Http\Controllers\Product\ProductController;
+        $request    = new \Illuminate\Http\Request;
+        $request->merge(['limit' => 10, 'page' => 1]);
+
+        $response = $controller->getProductDropdown($request);
+        $body     = json_decode($response->getContent(), true);
+
+        $this->assertTrue($body['success']);
+        $this->assertArrayHasKey('data', $body['data']);
+    }
+
+    public function test_get_product_dropdown_filters_by_search(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $controller = new \App\Http\Controllers\Product\ProductController;
+        $request    = new \Illuminate\Http\Request;
+        $request->merge(['search-query' => '__no_match_xyzzy__', 'limit' => 10]);
+
+        $response = $controller->getProductDropdown($request);
+        $body     = json_decode($response->getContent(), true);
+
+        $this->assertTrue($body['success']);
+        $this->assertEmpty($body['data']['data']);
+    }
+
+    // =========================================================================
+    // getProductPlans — direct call
+    // =========================================================================
+
+    public function test_get_product_plans_returns_empty_for_unknown_product(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $controller = new \App\Http\Controllers\Product\ProductController;
+        $request    = new \Illuminate\Http\Request;
+        $request->merge(['limit' => 10]);
+
+        $response = $controller->getProductPlans($request, 999999);
+        $body     = json_decode($response->getContent(), true);
+
+        $this->assertTrue($body['success']);
+        $this->assertEmpty($body['data']['data']);
+    }
+
+    public function test_get_product_plans_with_search_query(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
+
+        $controller = new \App\Http\Controllers\Product\ProductController;
+        $request    = new \Illuminate\Http\Request;
+        $request->merge(['search-query' => '__no_plan_xyzzy__', 'limit' => 10]);
+
+        $response = $controller->getProductPlans($request, $product->id);
+        $body     = json_decode($response->getContent(), true);
+
+        $this->assertTrue($body['success']);
+        $this->assertEmpty($body['data']['data']);
+    }
+
+    // =========================================================================
+    // updateProduct — PATCH /product/{productId}
+    // =========================================================================
+
+    public function test_update_product_returns_error_for_nonexistent(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->patchJson('/product/999999', ['name' => 'Updated']);
+
+        $this->assertContains($response->status(), [200, 400, 422]);
+    }
+
+    public function test_update_product_upload_returns_error_for_nonexistent(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->patchJson('/product/upload/999999', ['version' => '1.0.0']);
+
+        $this->assertContains($response->status(), [200, 400, 422]);
+    }
+
+    // =========================================================================
+    // productUploadCreate — PUT /product/upload/{productId}
+    // =========================================================================
+
+    public function test_product_upload_create_with_empty_body_returns_422(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+
+        $response = $this->putJson("/product/upload/{$product->id}", []);
+
+        $response->assertStatus(422);
+        $errors = $response->json('errors');
+        foreach (['producttitle', 'version', 'filename', 'dependencies'] as $field) {
+            $this->assertArrayHasKey($field, $errors, "Expected '$field' validation error");
+        }
+    }
+
+    public function test_product_upload_create_with_valid_data_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+
+        $response = $this->putJson("/product/upload/{$product->id}", [
+            'producttitle' => 'Version 2.0 Release',
+            'version'      => '2.0.0',
+            'filename'     => 'product-v2.0.0.zip',
+            'dependencies' => ['core'],
+            'description'  => 'Major release',
+            'release_type' => 'official',
+            'is_private'   => false,
+            'is_restricted' => false,
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('product_uploads', [
+            'product_id' => $product->id,
+            'version'    => '2.0.0',
+        ]);
+    }
+
+    public function test_product_upload_create_for_nonexistent_product_returns_400(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->putJson('/product/upload/999999', [
+            'producttitle' => 'Test',
+            'version'      => '1.0.0',
+            'filename'     => 'test.zip',
+            'dependencies' => ['core'],
+            'description'  => 'Test description',
+            'release_type' => 'official',
+        ]);
+
+        $this->assertContains($response->status(), [400, 404, 422]);
+    }
+
+    // =========================================================================
+    // updateProductUpload — PATCH /product/upload/{productUploadId}
+    // =========================================================================
+
+    public function test_update_product_upload_with_valid_data_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $upload = \App\Model\Product\ProductUpload::factory()->create();
+
+        $response = $this->patchJson("/product/upload/{$upload->id}", [
+            'title'        => 'Updated Title',
+            'version'      => '1.1.0',
+            'dependencies' => ['core'],
+            'description'  => 'Updated description',
+            'release_type' => 'official',
+            'is_private'   => false,
+            'is_restricted' => false,
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    public function test_update_product_upload_missing_required_fields_returns_422(): void
+    {
+        $this->getLoggedInUser('admin');
+        $upload = \App\Model\Product\ProductUpload::factory()->create();
+
+        $response = $this->patchJson("/product/upload/{$upload->id}", [
+            // 'title' missing — required; 'dependencies' and 'release_type' also required
+            'version' => '1.1.0',
+            'dependencies' => [],
+            'release_type' => 'official',
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertArrayHasKey('title', $response->json('errors'));
+    }
+
+    public function test_update_product_upload_with_new_filename_updates_file_field(): void
+    {
+        $this->getLoggedInUser('admin');
+        $upload = \App\Model\Product\ProductUpload::factory()->create();
+
+        $response = $this->patchJson("/product/upload/{$upload->id}", [
+            'title'        => 'Renamed Release',
+            'version'      => '1.2.0',
+            'dependencies' => ['core'],
+            'description'  => 'With new filename',
+            'release_type' => 'official',
+            'filename'     => 'new-file-v1.2.0.zip',
+            'is_private'   => false,
+            'is_restricted' => false,
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('product_uploads', [
+            'id'   => $upload->id,
+            'file' => 'new-file-v1.2.0.zip',
+        ]);
+    }
+
+    // =========================================================================
+    // getProductUpload — GET /product/upload/{productUploadId}
+    // =========================================================================
+
+    public function test_get_product_upload_returns_200_for_existing(): void
+    {
+        $this->getLoggedInUser('admin');
+        $upload = \App\Model\Product\ProductUpload::factory()->create();
+
+        $response = $this->getJson("/product/upload/{$upload->id}");
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $data = $response->json('data');
+        $this->assertArrayHasKey('id', $data);
+        $this->assertArrayHasKey('version', $data);
+        $this->assertArrayHasKey('release_type', $data);
+        $this->assertArrayHasKey('dependencies', $data);
+    }
+
+    public function test_get_product_upload_returns_400_for_nonexistent(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/product/upload/999999');
+
+        $response->assertStatus(400)
+            ->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // getProduct — detailed response structure
+    // =========================================================================
+
+    public function test_get_product_returns_github_status_flag(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+
+        $response = $this->getJson("/product/{$product->id}");
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $data = $response->json('data');
+        $this->assertArrayHasKey('product', $data);
+        $this->assertArrayHasKey('github_status', $data);
+        $this->assertIsBool($data['github_status']);
+    }
+
+    public function test_get_product_returns_relations(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+
+        $response = $this->getJson("/product/{$product->id}");
+
+        $response->assertStatus(200);
+        $productData = $response->json('data.product');
+        $this->assertEquals($product->id, $productData['id']);
+        $this->assertEquals($product->name, $productData['name']);
+    }
+
+    // =========================================================================
+    // getProductUploads — GET /product/uploads/{productId} — with search
+    // =========================================================================
+
+    public function test_get_product_uploads_with_search_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+        \App\Model\Product\ProductUpload::factory()->create([
+            'product_id' => $product->id,
+            'title'      => 'My Special Release',
+        ]);
+
+        $response = $this->getJson("/product/uploads/{$product->id}?search-query=Special");
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    public function test_get_product_uploads_with_sort_params_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+
+        $response = $this->getJson("/product/uploads/{$product->id}?sort-field=version&sort-order=asc&limit=5");
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    public function test_get_product_uploads_with_invalid_sort_fallback_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+
+        $response = $this->getJson("/product/uploads/{$product->id}?sort-field=nonexistent_col");
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    // =========================================================================
+    // getAllProducts — sort field whitelist
+    // =========================================================================
+
+    public function test_get_all_products_with_license_type_sort_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/products?sort-field=license_type&sort-order=asc');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    public function test_get_all_products_with_group_sort_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/products?sort-field=group&sort-order=desc');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    public function test_get_all_products_includes_transform_data(): void
+    {
+        $this->getLoggedInUser('admin');
+        Product::factory()->create();
+
+        $response = $this->getJson('/products?limit=5');
+
+        $response->assertStatus(200);
+        $data = $response->json('data.data');
+        $this->assertNotEmpty($data);
+        $this->assertArrayHasKey('id', $data[0]);
+        $this->assertArrayHasKey('name', $data[0]);
+        $this->assertArrayHasKey('action', $data[0]);
+    }
 }

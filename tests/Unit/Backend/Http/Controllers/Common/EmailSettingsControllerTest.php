@@ -62,4 +62,57 @@ class EmailSettingsControllerTest extends DBTestCase
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['port']);
     }
+
+    // =========================================================================
+    // postSettingsEmail — mail driver (no SMTP connection check needed)
+    // =========================================================================
+
+    public function test_post_settings_email_mail_driver_attempts_send_and_may_fail(): void
+    {
+        \App\Model\Common\Setting::firstOrCreate(['id' => 1], [
+            'email' => 'test@test.local',
+            'driver' => 'mail',
+        ]);
+
+        $response = $this->patchJson('/settings/email', [
+            'driver'     => 'mail',
+            'host'       => '',
+            'port'       => '',
+            'encryption' => '',
+            'email'      => 'noreply@test.local',
+            'password'   => '',
+            'from_name'  => 'Test',
+        ]);
+
+        // mail driver may succeed (200) or fail due to env (400)
+        $this->assertContains($response->status(), [200, 400, 422]);
+    }
+
+    // =========================================================================
+    // checkSendConnection — smtp driver triggers checkSMTPConnection (private)
+    // covered indirectly through postSettingsEmail
+    // =========================================================================
+
+    public function test_post_settings_email_smtp_with_valid_fields_attempts_connection(): void
+    {
+        \App\Model\Common\Setting::firstOrCreate(['id' => 1], [
+            'email' => 'test@test.local',
+            'driver' => 'smtp',
+            'host'   => 'smtp.test.local',
+        ]);
+
+        $response = $this->patchJson('/settings/email', [
+            'driver'     => 'smtp',
+            'host'       => 'smtp.test.local',
+            'port'       => '587',
+            'encryption' => 'tls',
+            'email'      => 'noreply@test.local',
+            'password'   => 'pass',
+            'from_name'  => 'Test',
+        ]);
+
+        // SMTP connection to test.local will fail → 400 (connection error)
+        // or 422 if validation fails
+        $this->assertContains($response->status(), [200, 400, 422]);
+    }
 }

@@ -318,15 +318,25 @@ class DashboardControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $this->getLoggedInUser();
         $user = $this->user;
-        Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'price_override' => 1000, ]);
+
+        // Capture baseline (real DB may have orders from last 30 days)
+        $beforeAll  = (int) $this->getPrivateMethod($this->classObject, 'getConversionRate')['all_orders'];
+        $beforePaid = (int) $this->getPrivateMethod($this->classObject, 'getConversionRate')['paid_orders'];
 
         Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'price_override' => 0, ]);
+            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'price_override' => 1000]);
+        Order::create(['client' => $user->id, 'order_status' => 'executed',
+            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'price_override' => 0]);
+
         $response = $this->getPrivateMethod($this->classObject, 'getConversionRate');
-        $this->assertEquals('50.0', $response['rate']);
-        $this->assertEquals('2', $response['all_orders']);
-        $this->assertEquals('1', $response['paid_orders']);
+
+        // Assert the delta: we added 2 orders (1 paid, 1 unpaid)
+        $this->assertEquals($beforeAll + 2,  (int) $response['all_orders'],  'Total orders should increase by 2');
+        $this->assertEquals($beforePaid + 1, (int) $response['paid_orders'], 'Paid orders should increase by 1');
+
+        // Rate = paid/total * 100
+        $expectedRate = round((($beforePaid + 1) / ($beforeAll + 2)) * 100, 1);
+        $this->assertEquals($expectedRate, round((float) $response['rate'], 1));
     }
 
     #[Group('Dashboard')]

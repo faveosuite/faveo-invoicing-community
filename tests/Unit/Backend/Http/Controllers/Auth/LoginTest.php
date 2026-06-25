@@ -18,6 +18,7 @@ class LoginTest extends DBTestCase
     #[Group('postLogin')]
     public function test_post_login_for_verified_users(): void
     {
+        \App\DefaultPage::query()->delete(); // ensure url('/') fallback, not DB page_url
         $user = User::factory()->create(['password' => Hash::make('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
@@ -255,6 +256,7 @@ class LoginTest extends DBTestCase
     #[Group('postLogin')]
     public function test_it_succeeds_with_valid_input_and_no_honeypot(): void
     {
+        \App\DefaultPage::query()->delete(); // ensure url('/') fallback
         $user = User::factory()->create(['active' => 1, 'email' => 'user@example.com', 'password' => bcrypt('password')]);
         StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
@@ -330,6 +332,7 @@ class LoginTest extends DBTestCase
     #[Group('postLogin')]
     public function test_login_with_username(): void
     {
+        \App\DefaultPage::query()->delete(); // ensure url('/') fallback
         $this->withoutMiddleware();
         $user = User::factory()->create([
             'user_name' => 'testuser',
@@ -361,5 +364,79 @@ class LoginTest extends DBTestCase
         $response = $this->getJson('/auth/login-config');
         $response->assertStatus(200);
         $response->assertJsonStructure(['success', 'data' => ['status', 'apiKeys', 'social']]);
+    }
+
+    // -------------------------------------------------------------------------
+    // getLoginRateLimitKey — MD5 of ip:email
+    // -------------------------------------------------------------------------
+
+    public function test_get_login_rate_limit_key_returns_string(): void
+    {
+        $this->withoutMiddleware();
+        $controller = new \App\Http\Controllers\Auth\LoginController;
+        $key = $controller->getLoginRateLimitKey('test@example.com');
+        $this->assertIsString($key);
+        $this->assertEquals(32, strlen($key)); // MD5 is 32 hex chars
+    }
+
+    // -------------------------------------------------------------------------
+    // logActivityLogin — simple activity log
+    // -------------------------------------------------------------------------
+
+    public function test_log_activity_login_does_not_throw(): void
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create();
+        $controller = new \App\Http\Controllers\Auth\LoginController;
+        $controller->logActivityLogin($user);
+        $this->assertTrue(true);
+    }
+
+    public function test_log_activity_login_returns_early_for_null(): void
+    {
+        $this->withoutMiddleware();
+        $controller = new \App\Http\Controllers\Auth\LoginController;
+        $controller->logActivityLogin(null);
+        $this->assertTrue(true);
+    }
+
+    // -------------------------------------------------------------------------
+    // redirectToGithub — provider not in DB → ModelNotFoundException
+    // -------------------------------------------------------------------------
+
+    public function test_redirect_to_github_returns_error_when_provider_not_configured(): void
+    {
+        $this->withoutMiddleware();
+        // Route: GET /auth/redirect/{provider}
+        $response = $this->getJson('/auth/redirect/nonexistent_provider_xyzzy');
+
+        // ModelNotFoundException from firstOrFail → 404 or 500
+        $this->assertContains($response->getStatusCode(), [200, 404, 500]);
+    }
+
+    // -------------------------------------------------------------------------
+    // redirectPath — admin vs user redirect
+    // -------------------------------------------------------------------------
+
+    public function test_redirect_path_returns_admin_url_for_admin_user(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+
+        $controller = new \App\Http\Controllers\Auth\LoginController;
+        $path = $controller->redirectPath();
+
+        $this->assertEquals(url('/admin'), $path);
+    }
+
+    public function test_redirect_path_returns_client_url_for_regular_user(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $this->actingAs($user);
+
+        $controller = new \App\Http\Controllers\Auth\LoginController;
+        $path = $controller->redirectPath();
+
+        $this->assertIsString($path);
     }
 }

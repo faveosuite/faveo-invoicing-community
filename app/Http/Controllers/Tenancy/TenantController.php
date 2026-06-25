@@ -211,11 +211,10 @@ class TenantController extends Controller
 
             $token = Str::random(32);
             DB::table('third_party_tokens')->insert(['user_id' => $userId, 'token' => $token]);
-            $client = new Client([]);
             $data = ['domain' => $faveoCloud, 'app_key' => $keys->app_key, 'token' => $token, 'lic_code' => $licCode, 'username' => $userEmail, 'userId' => $userId, 'timestamp' => time(), 'product' => $product, 'product_id' => $order->product];
             $encodedData = http_build_query($data);
             $hashedSignature = hash_hmac('sha256', $encodedData, (string) $keys->app_secret);
-            $response = $client->request(
+            $response = $this->client->request( // @phpstan-ignore property.notFound
                 'POST',
                 $this->cloud->cloud_central_domain.'/tenants', ['form_params' => $data, 'headers' => ['signature' => $hashedSignature]]
             );
@@ -247,9 +246,8 @@ class TenantController extends Controller
                 $this->googleChat($result['message'] ?? '');
 
                 return errorResponse($result['message'] ?? '');
-                // return ['status' => 'validationFailure', 'message' => $result->message];
             } else {
-                $client->request('GET', config('custom.cloud_job_url_normal'), [
+                $this->client->request('GET', config('custom.cloud_job_url_normal'), [ // @phpstan-ignore property.notFound
                     'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
                     'query' => [
                         'token' => config('custom.cloud_oauth_token'),
@@ -349,8 +347,7 @@ class TenantController extends Controller
             $data = ['id' => $request->input('id'), 'app_key' => $keys->app_key, 'deleteTenant' => true, 'token' => $token, 'timestamp' => time()];
             $encodedData = http_build_query($data);
             $hashedSignature = hash_hmac('sha256', $encodedData, (string) $keys->app_secret);
-            $client = new Client([]);
-            $response = $client->request(
+            $response = $this->client->request( // @phpstan-ignore property.notFound
                 'DELETE',
                 $this->cloud->cloud_central_domain.'/tenants', ['form_params' => $data, 'headers' => ['signature' => $hashedSignature]]
             );
@@ -418,9 +415,8 @@ class TenantController extends Controller
 
     private function deleteCronForTenant(string $tenantId): void
     {
-        $client = new Client;
         if (strpos($tenantId, (string) cloudSubDomain())) {
-            $client->request('GET', config('custom.cloud_delete_job_url_normal'), [
+            $this->client->request('GET', config('custom.cloud_delete_job_url_normal'), [ // @phpstan-ignore property.notFound
                 'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
                 'query' => [
                     'token' => config('custom.cloud_oauth_token'),
@@ -428,7 +424,7 @@ class TenantController extends Controller
                 ],
             ]);
         } else {
-            $client->request('GET', config('custom.cloud_delete_job_url_custom'), [
+            $this->client->request('GET', config('custom.cloud_delete_job_url_custom'), [ // @phpstan-ignore property.notFound
                 'auth' => [config('custom.cloud_user'), config('custom.cloud_auth')],
                 'query' => [
                     'token' => config('custom.cloud_oauth_token'),
@@ -485,8 +481,7 @@ class TenantController extends Controller
                     $data = ['id' => $domainArray[$i]->id, 'app_key' => $keys->app_key, 'deleteTenant' => true, 'token' => $token, 'timestamp' => time()];
                     $encodedData = http_build_query($data);
                     $hashedSignature = hash_hmac('sha256', $encodedData, (string) $keys->app_secret);
-                    $client = new Client([]);
-                    $response = $client->request(
+                    $response = $this->client->request( // @phpstan-ignore property.notFound
                         'DELETE',
                         $this->cloud->cloud_central_domain.'/tenants', ['form_params' => $data, 'headers' => ['signature' => $hashedSignature]]
                     );
@@ -588,8 +583,7 @@ class TenantController extends Controller
         $message_headers = [
             'Content-Type' => 'application/json; charset=UTF-8',
         ];
-        $client = new Client;
-        $client->post($url, [
+        $this->client->post($url, [ // @phpstan-ignore property.notFound
             'headers' => $message_headers,
             'body' => json_encode($message),
         ]);

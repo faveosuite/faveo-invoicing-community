@@ -93,4 +93,58 @@ class LanguageControllerTest extends DBTestCase
         $response->assertStatus(400)
             ->assertJson(['success' => false]);
     }
+
+    // =========================================================================
+    // viewLanguage — GET /languages (auth required)
+    // =========================================================================
+
+    public function test_view_language_returns_200_with_paginated_structure(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/languages');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true])
+            ->assertJsonStructure(['data' => ['data', 'total']]);
+    }
+
+    public function test_view_language_with_search_filters_results(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/languages?search-query=__no_match_xyzzy__');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $this->assertEmpty($response->json('data.data'));
+    }
+
+    // =========================================================================
+    // setDefaultLanguage — POST /language-set-default
+    // =========================================================================
+
+    public function test_set_default_language_with_valid_locale(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $lang = \App\Model\Common\Language::first();
+        if (! $lang) { $lang = \App\Model\Common\Language::create(['name' => 'Test Language', 'locale' => 'tl-'.uniqid(), 'status' => 1]); }
+
+        $response = $this->postJson('/language-set-default', [
+            'locale' => $lang->locale,
+        ]);
+
+        $this->assertContains($response->status(), [200, 400, 422]);
+    }
+
+    public function test_set_default_language_returns_error_for_missing_locale(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->postJson('/language-set-default', []);
+
+        $this->assertContains($response->status(), [400, 422]);
+    }
 }

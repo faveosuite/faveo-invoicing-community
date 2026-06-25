@@ -289,4 +289,227 @@ class OrderControllerTest extends DBTestCase
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
     }
+
+    // =========================================================================
+    // Small helper methods: plan(), product(), subscription(), expiry()
+    // =========================================================================
+
+    public function test_plan_returns_zero_for_unknown_invoice_item(): void
+    {
+        $this->getLoggedInUser('admin');
+        $controller = new \App\Http\Controllers\Order\OrderController;
+
+        $result = $controller->plan(999999);
+
+        $this->assertEquals(0, $result);
+    }
+
+    public function test_check_invoice_status_by_order_id_returns_string(): void
+    {
+        $this->getLoggedInUser('admin');
+        $controller = new \App\Http\Controllers\Order\OrderController;
+
+        $result = $controller->checkInvoiceStatusByOrderId(999999);
+
+        $this->assertIsString($result);
+    }
+
+    public function test_product_returns_empty_for_unknown_item(): void
+    {
+        $this->getLoggedInUser('admin');
+        $controller = new \App\Http\Controllers\Order\OrderController;
+
+        $result = $controller->product(999999);
+
+        $this->assertIsString($result);
+    }
+
+    public function test_subscription_returns_null_for_unknown_order(): void
+    {
+        $this->getLoggedInUser('admin');
+        $controller = new \App\Http\Controllers\Order\OrderController;
+
+        $result = $controller->subscription(999999);
+
+        $this->assertNull($result);
+    }
+
+    public function test_expiry_returns_null_or_empty_for_unknown_order(): void
+    {
+        $this->getLoggedInUser('admin');
+        $controller = new \App\Http\Controllers\Order\OrderController;
+
+        $result = $controller->expiry(999999);
+
+        $this->assertTrue($result === null || $result === '');
+    }
+
+    public function test_get_installation_details_returns_response(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/get-installation-details/999999');
+
+        $this->assertContains($response->getStatusCode(), [200, 400, 404]);
+    }
+
+    public function test_export_orders_returns_response(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/export-orders');
+
+        $this->assertContains($response->getStatusCode(), [200, 400, 404, 422]);
+    }
+
+    // =========================================================================
+    // getOrderInvoices — with real data showing paginated invoices
+    // =========================================================================
+
+    public function test_get_order_invoices_with_real_data_returns_paginated_invoices(): void
+    {
+        $this->getLoggedInUser('admin');
+        $order = Order::factory()->withRelations()->create();
+
+        $response = $this->getJson("/getOrderInvoices/{$order->id}");
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $data = $response->json('data');
+        $this->assertArrayHasKey('data', $data);
+        $this->assertIsArray($data['data']);
+    }
+
+    public function test_get_order_invoices_with_sort_and_limit(): void
+    {
+        $this->getLoggedInUser('admin');
+        $order = Order::factory()->withRelations()->create();
+
+        $response = $this->getJson("/getOrderInvoices/{$order->id}?sort-field=created_at&sort-order=desc&limit=5");
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    // =========================================================================
+    // getPaymentByOrderId — with search query (covers search branches)
+    // =========================================================================
+
+    public function test_get_payment_by_order_id_with_search_query_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $user  = \App\User::factory()->create(['role' => 'user']);
+        $order = Order::factory()->create(['client' => $user->id]);
+
+        $response = $this->getJson("/getOrderPayments/{$order->id}?search-query=stripe");
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    public function test_get_payment_by_order_id_with_sort_params_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $user  = \App\User::factory()->create(['role' => 'user']);
+        $order = Order::factory()->create(['client' => $user->id]);
+
+        $response = $this->getJson("/getOrderPayments/{$order->id}?sort-field=amount&sort-order=desc&limit=5");
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    // =========================================================================
+    // renew — direct call
+    // =========================================================================
+
+    public function test_renew_returns_my_orders_url(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $controller = new \App\Http\Controllers\Order\OrderController;
+        $result = $controller->renew(999999);
+
+        $this->assertStringContainsString('my-orders', (string) $result);
+    }
+
+    // =========================================================================
+    // checkInvoiceStatusByOrderId — with real order that has success invoice
+    // =========================================================================
+
+    public function test_check_invoice_status_returns_success_for_paid_invoice(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        // Create order with associated paid invoice
+        $order   = Order::factory()->withRelations()->create();
+        $invoice = $order->getRelation('invoice');
+        if ($invoice) {
+            $invoice->status = 'Success';
+            $invoice->save();
+        }
+
+        $controller = new \App\Http\Controllers\Order\OrderController;
+        $result = $controller->checkInvoiceStatusByOrderId($order->id);
+
+        $this->assertIsString($result);
+        // With a 'Success' invoice, the method returns 'success'
+        $this->assertSame('success', $result);
+    }
+
+    // =========================================================================
+    // getOrders — sort field whitelist: invalid field falls back to created_at
+    // =========================================================================
+
+    public function test_get_orders_with_invalid_sort_field_falls_back_to_created_at(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/orders?sort-field=nonexistent_column&sort-order=asc');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    public function test_get_orders_with_order_status_sort_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/orders?sort-field=order_status&sort-order=asc');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    // =========================================================================
+    // getPaymentByOrderId — with real payments linked to order
+    // =========================================================================
+
+    public function test_get_payment_by_order_id_with_payments_returns_paginated_data(): void
+    {
+        $this->getLoggedInUser('admin');
+        $order = Order::factory()->withRelations()->create();
+
+        // Create a payment for the invoice linked to this order
+        $invoice = $order->getRelation('invoice');
+        if ($invoice) {
+            \App\Model\Order\Payment::create([
+                'invoice_id'     => $invoice->id,
+                'user_id'        => $order->client,
+                'amount'         => 100.0,
+                'payment_method' => 'stripe',
+                'payment_status' => 'success',
+            ]);
+        }
+
+        $response = $this->getJson("/getOrderPayments/{$order->id}");
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $data = $response->json('data');
+        $this->assertArrayHasKey('data', $data);
+    }
 }
+

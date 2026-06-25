@@ -106,4 +106,65 @@ class OrderSearchControllerTest extends DBTestCase
         // Filtering on a nonexistent status must return ≤ total (never more)
         $this->assertLessThanOrEqual($all, $filtered->count());
     }
+
+    // =========================================================================
+    // advanceOrderSearch — with specific filters exercises private methods
+    // =========================================================================
+
+    public function test_advance_order_search_with_order_no_filter(): void
+    {
+        $this->getLoggedInUser('admin');
+        $request = new \Illuminate\Http\Request;
+        $request->merge(['order_no' => 'NONEXISTENT-ORDER-XYZ']);
+        $result = $this->controller->advanceOrderSearch($request);
+        $this->assertEquals(0, $result->count());
+    }
+
+    public function test_advance_order_search_with_client_filter(): void
+    {
+        $this->getLoggedInUser('admin');
+        $request = new \Illuminate\Http\Request;
+        $request->merge(['client' => 999999]);
+        $result = $this->controller->advanceOrderSearch($request);
+        $this->assertEquals(0, $result->count());
+    }
+
+    public function test_advance_order_search_with_date_range(): void
+    {
+        $this->getLoggedInUser('admin');
+        $request = new \Illuminate\Http\Request;
+        $request->merge([
+            'from_date' => '2020-01-01',
+            'to_date'   => '2020-12-31',
+        ]);
+        $result = $this->controller->advanceOrderSearch($request);
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $result);
+    }
+
+    public function test_advance_order_search_with_domain_filter(): void
+    {
+        $this->getLoggedInUser('admin');
+        $request = new \Illuminate\Http\Request;
+        $request->merge(['domain' => 'nonexistent-domain-xyz.test']);
+        $result = $this->controller->advanceOrderSearch($request);
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $result);
+    }
+
+    public function test_advance_order_search_with_renewal_expiring(): void
+    {
+        $this->getLoggedInUser('admin');
+        $request = new \Illuminate\Http\Request;
+        $request->merge(['renewal' => 'expiring_subscription']);
+        $result = $this->controller->advanceOrderSearch($request);
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $result);
+    }
+
+    public function test_advance_order_search_with_product_id_filter(): void
+    {
+        $this->getLoggedInUser('admin');
+        $request = new \Illuminate\Http\Request;
+        $request->merge(['product_id' => 999999]);
+        $result = $this->controller->advanceOrderSearch($request);
+        $this->assertEquals(0, $result->count());
+    }
 }

@@ -176,6 +176,10 @@ class PlanControllerTest extends DBTestCase
         // Covers lines 271-308: updatePlan
         $this->getLoggedInUser('admin');
         $product = Product::factory()->create();
+
+        // Disable any existing active plan for this product/period to avoid unique constraint
+        Plan::where('product', $product->id)->where('status', 1)->update(['status' => 0]);
+
         $plan = Plan::factory()->create(['product' => $product->id, 'status' => 1]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'add_price' => 50]);
 

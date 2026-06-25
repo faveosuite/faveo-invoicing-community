@@ -49,7 +49,7 @@
                                 <div class="card card-light mb-4">
                                     <div class="card-header">
                                         <h4 class="card-title">
-                                            <i class="fas fa-key text-muted me-2"></i>{{ __('message.license_details') }}
+                                            {{ __('message.license_details') }}
                                         </h4>
                                         <div class="card-tools">
                                             <button class="btn btn-tool" v-tooltip="__('message.edit')" @click="openLicenseEditModal">
@@ -188,7 +188,7 @@
                                 <div class="card card-light mb-4">
                                     <div class="card-header">
                                         <h4 class="card-title">
-                                            <i class="fas fa-user text-muted me-2"></i>{{ __('message.customer') }}
+                                            {{ __('message.customer') }}
                                         </h4>
                                     </div>
                                     <div class="card-body p-0">
@@ -238,7 +238,7 @@
                                 <div class="card card-light">
                                     <div class="card-header">
                                         <h4 class="card-title">
-                                            <i class="fas fa-sync-alt text-muted me-2"></i>{{ __('message.auto_renewal') }}
+                                            {{ __('message.auto_renewal') }}
                                         </h4>
                                     </div>
                                     <div class="card-body">
@@ -543,7 +543,7 @@ const installTableOptions = reactive({
         path:             (f, row) => row.path || '—',
         ip:               (f, row) => row.ip || '—',
         version:          (f, row) => row.version || '—',
-        status:           (f, row) => row.status || '—',
+        status:           (f, row) => h('span', { class: row.status === 'Active' ? 'badge bg-success' : 'badge bg-secondary' }, row.status || '—'),
         last_active_date: (f, row) => row.last_active_date || '—',
     },
     sortable:   [],

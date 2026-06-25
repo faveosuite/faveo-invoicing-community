@@ -228,13 +228,17 @@ class OrderController extends BaseOrderController
         try {
             $rows = InstallationDetail::where('order_id', $orderId)->get();
 
-            $installationDetails = $rows->map(fn ($row): array => [ // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
-                'path' => $row->installation_path,
-                'ip' => $row->installation_ip,
-                'version' => $row->version ?? null,
-                'status' => $row->installation_status, // @phpstan-ignore property.notFound
-                'last_active_date' => $row->last_active,
-            ])->values()->all();
+            $installationDetails = $rows->map(function ($row): array { // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
+                $isActive = $row->last_active && now()->diffInDays($row->last_active) <= 7;
+
+                return [
+                    'path' => $row->installation_path,
+                    'ip' => $row->installation_ip,
+                    'version' => $row->version ?? null,
+                    'status' => $isActive ? 'Active' : 'Inactive',
+                    'last_active_date' => $row->last_active,
+                ];
+            })->values()->all();
 
             return successResponse('', $installationDetails);
         } catch (Exception $exception) {

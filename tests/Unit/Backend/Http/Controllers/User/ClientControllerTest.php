@@ -315,4 +315,198 @@ class ClientControllerTest extends DBTestCase
         $response = $this->getJson('/download-exported-file/999999');
         $this->assertContains($response->status(), [200, 400, 404]);
     }
+
+    // =========================================================================
+    // getUserSummary — happy path with real user
+    // =========================================================================
+
+    public function test_get_user_summary_returns_data_for_existing_user(): void
+    {
+        $this->getLoggedInUser('admin');
+        $user = \App\User::factory()->create(['email' => 'summary-'.uniqid().'@test.local']);
+
+        $response = $this->getJson('/user/'.$user->id.'/summary');
+
+        $this->assertContains($response->status(), [200, 400]);
+        if ($response->status() === 200) {
+            $response->assertJsonStructure(['data' => ['invoice_total', 'amount_paid', 'balance', 'invoice_count']]);
+        }
+    }
+
+    // =========================================================================
+    // getUserInvoices — with sort-field and sort-order params
+    // =========================================================================
+
+    public function test_get_user_invoices_with_sort_params(): void
+    {
+        $this->getLoggedInUser('admin');
+        $user = \App\User::factory()->create(['email' => 'inv-sort-'.uniqid().'@test.local']);
+
+        $response = $this->getJson('/user/'.$user->id.'/invoices?sort-field=number&sort-order=asc');
+
+        $this->assertContains($response->status(), [200, 400]);
+    }
+
+    public function test_get_user_invoices_with_invalid_sort_field_falls_back(): void
+    {
+        $this->getLoggedInUser('admin');
+        $user = \App\User::factory()->create(['email' => 'inv-bad-sort-'.uniqid().'@test.local']);
+
+        // Invalid sort field → falls back to 'date'
+        $response = $this->getJson('/user/'.$user->id.'/invoices?sort-field=invalid_column');
+
+        $this->assertContains($response->status(), [200, 400]);
+    }
+
+    // =========================================================================
+    // getAllUsers — with various filter combinations
+    // =========================================================================
+
+    public function test_get_all_users_with_role_filter(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/users?role=user&limit=5');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_get_all_users_with_date_filters(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/users?reg_from=2020-01-01&reg_till='.date('Y-m-d').'&limit=5');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_get_all_users_with_country_filter(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/users?country=IN&limit=5');
+
+        $response->assertStatus(200);
+    }
+
+    // =========================================================================
+    // userCreate — with valid data
+    // =========================================================================
+
+    public function test_user_create_with_valid_data_creates_user(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->putJson('/users', [
+            'first_name' => 'New',
+            'last_name'  => 'TestUser',
+            'email'      => 'newcreate_'.uniqid().'@test.local',
+            'password'   => 'Secret1234!',
+            'role'       => 'user',
+            'company'    => 'Test Co',
+        ]);
+
+        $this->assertContains($response->status(), [200, 400, 422]);
+    }
+
+    // =========================================================================
+    // saveColumns — checkbox/action auto-added, dedup preserved
+    // =========================================================================
+
+    public function test_save_columns_auto_prepends_checkbox_and_appends_action(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->postJson('/save-columns', [
+            'entity_type'      => 'users',
+            'selected_columns' => ['name', 'email'],
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $cols = $response->json('data.selected_columns');
+        $this->assertSame('checkbox', $cols[0]);
+        $this->assertSame('action', $cols[count($cols) - 1]);
+    }
+
+    // =========================================================================
+    // getColumns — returns all available columns for entity_type
+    // =========================================================================
+
+    public function test_get_columns_returns_columns_array(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/get-columns?entity_type=users');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true])
+            ->assertJsonStructure(['data' => ['columns']]);
+
+        $this->assertIsArray($response->json('data.columns'));
+    }
+
+    // =========================================================================
+    // getAllUsers — additional filter branches
+    // =========================================================================
+
+    public function test_get_all_users_with_actmanager_filter(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/users?actmanager=0&limit=5');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_get_all_users_with_is_2fa_enabled_filter(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/users?is_2fa_enabled=0&limit=5');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_get_all_users_with_mobile_verified_filter(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/users?mobile_verified=0&limit=5');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_get_all_users_sort_by_name_ascending(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/users?sort-field=first_name&sort-order=asc&limit=5');
+
+        $response->assertStatus(200);
+        $data = $response->json('data.data');
+        $this->assertIsArray($data);
+    }
+
+    // =========================================================================
+    // getUserSummary — known user with real data
+    // =========================================================================
+
+    public function test_get_user_summary_returns_zero_counts_for_new_user(): void
+    {
+        $this->getLoggedInUser('admin');
+        $newUser = \App\User::factory()->create(['email' => 'summ-new-'.uniqid().'@test.local']);
+
+        $response = $this->getJson('/user/'.$newUser->id.'/summary');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $data = $response->json('data');
+        $this->assertEquals(0, $data['invoice_count']);
+        $this->assertEquals(0, $data['payment_count']);
+        $this->assertEquals(0, $data['order_count']);
+        $this->assertEquals(0.0, $data['invoice_total']);
+    }
 }

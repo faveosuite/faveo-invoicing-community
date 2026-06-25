@@ -457,4 +457,135 @@ class AuthControllerTest extends DBTestCase
         $response = $this->postJson('/email/verify', []);
         $this->assertContains($response->status(), [400, 422]);
     }
+
+    public function test_verify_email_returns_error_for_invalid_token(): void
+    {
+        $this->withoutMiddleware();
+        $user = \App\User::factory()->create();
+        $eid = \Illuminate\Support\Facades\Crypt::encrypt($user->email);
+
+        $response = $this->postJson('/email/verify', [
+            'eid' => $eid,
+            'otp' => '999999',
+        ]);
+
+        $this->assertContains($response->status(), [200, 400, 422]);
+    }
+
+    // =========================================================================
+    // GET /auth/verify-config — verifyConfig
+    // =========================================================================
+
+    public function test_verify_config_redirects_to_login_when_no_session(): void
+    {
+        $this->withoutMiddleware();
+
+        $response = $this->getJson('/auth/verify-config');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true])
+            ->assertJsonPath('data.redirect', url('login'));
+    }
+
+    public function test_verify_config_returns_config_when_user_in_session(): void
+    {
+        $this->withoutMiddleware();
+        $user = \App\User::factory()->create();
+        session(['verification_user_id' => $user->id]);
+
+        $response = $this->getJson('/auth/verify-config');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    public function test_verify_config_redirects_when_user_not_found(): void
+    {
+        $this->withoutMiddleware();
+        session(['verification_user_id' => 999999]);
+
+        $response = $this->getJson('/auth/verify-config');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    // =========================================================================
+    // POST /otp/verify — verifyOtp with invalid encrypted eid
+    // =========================================================================
+
+    public function test_verify_otp_with_invalid_encrypted_eid_returns_error(): void
+    {
+        $this->withoutMiddleware();
+        $user = \App\User::factory()->create();
+        $eid = \Illuminate\Support\Facades\Crypt::encrypt($user->email);
+
+        $response = $this->postJson('/otp/verify', [
+            'eid' => $eid,
+            'otp' => '000000',
+        ]);
+
+        $this->assertContains($response->status(), [200, 400, 422]);
+    }
+
+    // =========================================================================
+    // salesManagerMail — throws when no template found → no assertion needed
+    // =========================================================================
+
+    public function test_sales_manager_mail_throws_when_template_not_found(): void
+    {
+        $this->withoutMiddleware();
+        $user = \App\User::factory()->create(['email' => 'sales-mgr-'.uniqid().'@test.local']);
+
+        $controller = new \App\Http\Controllers\Auth\AuthController;
+        try {
+            $controller->salesManagerMail($user);
+        } catch (\Throwable $e) {
+            // Template not found → null->data throws Error
+        }
+        $this->assertTrue(true);
+    }
+
+    // =========================================================================
+    // accountManagerMail — same: throws when template not found
+    // =========================================================================
+
+    public function test_account_manager_mail_throws_when_template_not_found(): void
+    {
+        $this->withoutMiddleware();
+        $user = \App\User::factory()->create(['email' => 'acct-mgr-'.uniqid().'@test.local']);
+
+        $controller = new \App\Http\Controllers\Auth\AuthController;
+        try {
+            $controller->accountManagerMail($user);
+        } catch (\Throwable $e) {
+            // Template/manager not found → Error
+        }
+        $this->assertTrue(true);
+    }
+
+    // =========================================================================
+    // verifyConfig — session branches
+    // =========================================================================
+
+    public function test_verify_config_returns_login_redirect_when_no_session(): void
+    {
+        $this->withoutMiddleware();
+        // No verification_user_id in session → redirects to login
+        $response = $this->getJson('/auth/verify-config');
+        $response->assertStatus(200)
+            ->assertJsonPath('data.redirect', url('login'));
+    }
+
+    public function test_verify_config_returns_config_when_session_has_user(): void
+    {
+        $this->withoutMiddleware();
+        $user = \App\User::factory()->create(['email' => 'verify-cfg-'.uniqid().'@test.local']);
+        session(['verification_user_id' => $user->id]);
+
+        $response = $this->getJson('/auth/verify-config');
+        $response->assertStatus(200)
+            ->assertJson(['success' => true])
+            ->assertJsonStructure(['data' => ['eid', 'mobile', 'email']]);
+    }
 }

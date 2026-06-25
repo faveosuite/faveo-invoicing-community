@@ -135,4 +135,70 @@ class OpenPaymentControllerTest extends DBTestCase
         $response = $this->getJson("/pay/order/' OR 1=1 --");
         $this->assertStringNotContainsString('OR 1=1', (string) $response->getContent());
     }
+
+    // =========================================================================
+    // detectCountry — returns 200 with country key
+    // =========================================================================
+
+    public function test_detect_country_returns_200_with_country_key(): void
+    {
+        $response = $this->getJson('/pay/detect-country');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true])
+            ->assertJsonStructure(['data' => ['country']]);
+
+        // Country may be null if IP geolocation fails
+        $this->assertTrue(
+            $response->json('data.country') === null || is_array($response->json('data.country'))
+        );
+    }
+
+    // =========================================================================
+    // calculate — with amount and gateway
+    // =========================================================================
+
+    public function test_calculate_returns_400_when_params_missing(): void
+    {
+        $response = $this->getJson('/pay/calculate');
+
+        // Validation fails → 422 or 400
+        $this->assertContains($response->status(), [400, 422]);
+    }
+
+    public function test_calculate_returns_totals_with_valid_params(): void
+    {
+        $response = $this->getJson('/pay/calculate?amount=100.00&gateway=stripe&currency=USD');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true])
+            ->assertJsonStructure(['data' => ['base_amount', 'processing_fee', 'processing_fee_rate', 'total']]);
+
+        $this->assertSame('100.00', $response->json('data.base_amount'));
+    }
+
+    // =========================================================================
+    // listOrders — admin list with pagination
+    // =========================================================================
+
+    public function test_list_orders_returns_200_with_paginated_structure(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/pay/list');
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true])
+            ->assertJsonStructure(['data' => ['data', 'total', 'per_page']]);
+    }
+
+    public function test_list_orders_with_search_returns_filtered_results(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->getJson('/pay/list?search-query=__nonexistent_order_xyzzy__');
+
+        // 200 if open payment table exists, 400 if not configured
+        $this->assertContains($response->status(), [200, 400]);
+    }
 }

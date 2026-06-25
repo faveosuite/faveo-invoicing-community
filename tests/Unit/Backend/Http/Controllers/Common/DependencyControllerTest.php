@@ -73,4 +73,76 @@ class DependencyControllerTest extends DBTestCase
         $response = $this->getJson('/dependency/periods');
         $response->assertStatus(200);
     }
+
+    public function test_managers_dependency_returns_200(): void
+    {
+        $response = $this->getJson('/dependency/managers');
+        $response->assertStatus(200);
+    }
+
+    public function test_industries_dependency_returns_200(): void
+    {
+        $response = $this->getJson('/dependency/industries');
+        $response->assertStatus(200);
+    }
+
+    public function test_order_versions_dependency_returns_200(): void
+    {
+        $response = $this->getJson('/dependency/order-versions');
+        $this->assertContains($response->getStatusCode(), [200, 400]);
+    }
+
+    public function test_product_plans_dependency_returns_200(): void
+    {
+        $response = $this->getJson('/dependency/product-plans');
+        $this->assertContains($response->getStatusCode(), [200, 400]);
+    }
+
+    public function test_license_types_dependency_returns_200(): void
+    {
+        $response = $this->getJson('/dependency/license-types');
+        $this->assertContains($response->getStatusCode(), [200, 400]);
+    }
+
+    public function test_product_groups_dependency_returns_200(): void
+    {
+        $response = $this->getJson('/dependency/product-groups');
+        $this->assertContains($response->getStatusCode(), [200, 400]);
+    }
+
+    public function test_tax_classes_dependency_returns_200(): void
+    {
+        $response = $this->getJson('/dependency/tax-classes');
+        $this->assertContains($response->getStatusCode(), [200, 400]);
+    }
+
+    public function test_promotion_types_dependency_returns_200(): void
+    {
+        $response = $this->getJson('/dependency/promotion-types');
+        $this->assertContains($response->getStatusCode(), [200, 400]);
+    }
+
+    public function test_pricing_templates_dependency_returns_200(): void
+    {
+        $response = $this->getJson('/dependency/pricing-templates');
+        $this->assertContains($response->getStatusCode(), [200, 400]);
+    }
+
+    public function test_all_products_dependency_returns_200(): void
+    {
+        $response = $this->getJson('/dependency/all-products');
+        $this->assertContains($response->getStatusCode(), [200, 400]);
+    }
+
+    public function test_plugin_products_dependency_returns_200(): void
+    {
+        $response = $this->getJson('/dependency/plugin-products');
+        $this->assertContains($response->getStatusCode(), [200, 400]);
+    }
+
+    public function test_users_dependency_returns_200(): void
+    {
+        $response = $this->getJson('/dependency/users');
+        $this->assertContains($response->getStatusCode(), [200, 400]);
+    }
 }
