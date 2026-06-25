@@ -200,7 +200,7 @@ class ClientController extends BaseClientController
                     ->where('file', '!=', '')
                     ->exists(),
                 'manual_install_guide_url' => \App\Model\Common\Setting::where('id', 1)->value('help_docs_url'),
-                'deploy_enabled'           => (bool) \App\Model\Common\Setting::where('id', 1)->value('deployment_enabled'),
+                'deploy_enabled' => (bool) \App\Model\Common\Setting::where('id', 1)->value('deployment_enabled'),
             ]);
         }
 

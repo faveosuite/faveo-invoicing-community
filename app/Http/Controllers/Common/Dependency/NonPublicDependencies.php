@@ -108,8 +108,8 @@ class NonPublicDependencies extends BaseDependencyController
             $group = $items->first()->groupRelation;
 
             return [
-                'id'       => 'group_'.$groupId,
-                'name'     => $group?->name ?? 'Uncategorised',
+                'id' => 'group_'.$groupId,
+                'name' => $group?->name ?? 'Uncategorised',
                 'children' => $items->map(fn ($p): array => ['id' => $p->id, 'name' => $p->name])->values()->all(),
             ];
         })->values()->all();

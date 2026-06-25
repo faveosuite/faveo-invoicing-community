@@ -146,7 +146,7 @@ class OrderController extends BaseOrderController
                     ->values()
                     ->map(fn ($d) => [
                         'version' => $d->version,
-                        'active'  => $d->last_active && $d->last_active >= $threshold,
+                        'active' => $d->last_active && $d->last_active >= $threshold,
                     ])
                     ->all();
 
