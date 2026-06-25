@@ -325,7 +325,6 @@ class RootModelsTest extends TestCase
         $this->assertInstanceOf(BelongsTo::class, (new Comment())->user());
     }
 
-
     // ───────────── ExportDetail ─────────────
 
     public function test_export_detail_table_name(): void
