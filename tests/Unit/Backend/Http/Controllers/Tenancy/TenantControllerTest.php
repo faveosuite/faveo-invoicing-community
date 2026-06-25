@@ -280,9 +280,9 @@ class TenantControllerTest extends DBTestCase
         // using a direct controller call for a precise assertion.
         ThirdPartyApp::where('app_name', 'faveo_app_key')->delete();
 
-        $cloud  = FaveoCloud::firstOrCreate([], [
+        $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname'          => 'test',
+            'cloud_cname' => 'test',
         ]);
         $client = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
         $controller = new TenantController($client, $cloud);
@@ -388,7 +388,6 @@ class TenantControllerTest extends DBTestCase
 
     public function test_delete_cloud_instance_with_is_delete_false_returns_200(): void
     {
-
         // isDelete=0 → method returns null → Laravel converts to 200 empty body
         $response = $this->get('/delete/domain/NONEXISTENT_ORDER/0');
 
@@ -414,8 +413,8 @@ class TenantControllerTest extends DBTestCase
                 ],
             ])),
         ]);
-        $client  = new Client(['handler' => HandlerStack::create($mock)]);
-        $cloud   = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+        $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
         $request = new \Illuminate\Http\Request(['sort-field' => 'domain', 'sort-order' => 'asc']);
 
@@ -445,10 +444,11 @@ class TenantControllerTest extends DBTestCase
      */
     private function bindMockClientWithResponses(array $responses): Client
     {
-        $mock    = new MockHandler($responses);
+        $mock = new MockHandler($responses);
         $handler = HandlerStack::create($mock);
-        $client  = new Client(['handler' => $handler]);
+        $client = new Client(['handler' => $handler]);
         $this->app->bind(Client::class, fn () => $client);
+
         return $client;
     }
 
@@ -458,13 +458,13 @@ class TenantControllerTest extends DBTestCase
     private function setCloudConfig(): void
     {
         config([
-            'custom.google_chat'                  => 'https://chat.test.local/webhook',
-            'custom.cloud_delete_job_url_normal'  => 'https://jobs.test.local/delete/normal',
-            'custom.cloud_delete_job_url_custom'  => 'https://jobs.test.local/delete/custom',
-            'custom.cloud_job_url_normal'         => 'https://jobs.test.local/create',
-            'custom.cloud_user'                   => 'test-user',
-            'custom.cloud_auth'                   => 'test-auth',
-            'custom.cloud_oauth_token'            => 'test-token',
+            'custom.google_chat' => 'https://chat.test.local/webhook',
+            'custom.cloud_delete_job_url_normal' => 'https://jobs.test.local/delete/normal',
+            'custom.cloud_delete_job_url_custom' => 'https://jobs.test.local/delete/custom',
+            'custom.cloud_job_url_normal' => 'https://jobs.test.local/create',
+            'custom.cloud_user' => 'test-user',
+            'custom.cloud_auth' => 'test-auth',
+            'custom.cloud_oauth_token' => 'test-token',
         ]);
     }
 
@@ -483,7 +483,7 @@ class TenantControllerTest extends DBTestCase
         );
         $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname'          => 'test',
+            'cloud_cname' => 'test',
         ]);
 
         // Sequence: DELETE /tenants → deleteCronForTenant GET → googleChat POST
@@ -494,9 +494,9 @@ class TenantControllerTest extends DBTestCase
         ]);
 
         $controller = new TenantController($client, $cloud);
-        $request    = new \Illuminate\Http\Request(['id' => 'test.cloud.local']);
-        $response   = $controller->destroyTenant($request);
-        $body       = json_decode($response->getContent(), true);
+        $request = new \Illuminate\Http\Request(['id' => 'test.cloud.local']);
+        $response = $controller->destroyTenant($request);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertTrue($body['success']);
         $this->assertEquals(200, $response->getStatusCode());
@@ -511,7 +511,7 @@ class TenantControllerTest extends DBTestCase
         );
         $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname'          => 'test',
+            'cloud_cname' => 'test',
         ]);
 
         // Sequence: DELETE → googleChat (no deleteCronForTenant on fails)
@@ -521,9 +521,9 @@ class TenantControllerTest extends DBTestCase
         ]);
 
         $controller = new TenantController($client, $cloud);
-        $request    = new \Illuminate\Http\Request(['id' => 'test.cloud.local']);
-        $response   = $controller->destroyTenant($request);
-        $body       = json_decode($response->getContent(), true);
+        $request = new \Illuminate\Http\Request(['id' => 'test.cloud.local']);
+        $response = $controller->destroyTenant($request);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertFalse($body['success']);
         $this->assertEquals(400, $response->getStatusCode());
@@ -538,7 +538,7 @@ class TenantControllerTest extends DBTestCase
         );
         $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname'          => 'test',
+            'cloud_cname' => 'test',
         ]);
 
         // Only 1 request — method returns early after detecting non-array JSON (no googleChat)
@@ -547,9 +547,9 @@ class TenantControllerTest extends DBTestCase
         ]);
 
         $controller = new TenantController($client, $cloud);
-        $request    = new \Illuminate\Http\Request(['id' => 'test.cloud.local']);
-        $response   = $controller->destroyTenant($request);
-        $body       = json_decode($response->getContent(), true);
+        $request = new \Illuminate\Http\Request(['id' => 'test.cloud.local']);
+        $response = $controller->destroyTenant($request);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertFalse($body['success']);
         $this->assertEquals(400, $response->getStatusCode());
@@ -564,7 +564,7 @@ class TenantControllerTest extends DBTestCase
         );
         $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname'          => 'test',
+            'cloud_cname' => 'test',
         ]);
 
         // Sequence: DELETE → googleChat (tenant_not_found triggers statusChange but status != 'success')
@@ -574,9 +574,9 @@ class TenantControllerTest extends DBTestCase
         ]);
 
         $controller = new TenantController($client, $cloud);
-        $request    = new \Illuminate\Http\Request(['id' => 'test.cloud.local', 'orderId' => '999999']);
-        $response   = $controller->destroyTenant($request);
-        $body       = json_decode($response->getContent(), true);
+        $request = new \Illuminate\Http\Request(['id' => 'test.cloud.local', 'orderId' => '999999']);
+        $response = $controller->destroyTenant($request);
+        $body = json_decode($response->getContent(), true);
 
         // Returns cloud_deleted_failed since status != 'success'
         $this->assertFalse($body['success']);
@@ -589,8 +589,8 @@ class TenantControllerTest extends DBTestCase
 
     public function test_create_tenant_returns_400_when_order_not_found(): void
     {
-        $cloud      = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
-        $client     = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
+        $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
+        $client = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
         $controller = new TenantController($client, $cloud);
 
         $request = new \Illuminate\Http\Request(['orderNo' => 'NONEXISTENT_ORDER_XYZ999']);
@@ -609,29 +609,27 @@ class TenantControllerTest extends DBTestCase
     {
         // $this->user is the admin created by getLoggedInUser('admin') in setUp()
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'TenantTest '.uniqid()]);
-        $plan    = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'TenantPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
-
-        
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'TenantPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = Order::create([
-            'client'       => $this->user->id,
-            'product'      => $product->id,
+            'client' => $this->user->id,
+            'product' => $product->id,
             'order_status' => 'executed',
-            'number'       => 'SC-'.uniqid(),
+            'number' => 'SC-'.uniqid(),
         ]);
         \App\Model\Product\Subscription::create([
-            'order_id'   => $order->id,
+            'order_id' => $order->id,
             'product_id' => $product->id,
-            'plan_id'    => $plan->id,
+            'plan_id' => $plan->id,
             'is_deleted' => 0,
         ]);
 
-        $cloud      = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
+        $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController(new Client, $cloud);
         $controller->statusChange($order->id);
 
         $this->assertDatabaseHas('subscriptions', [
-            'order_id'   => $order->id,
+            'order_id' => $order->id,
             'is_deleted' => 1,
         ]);
     }
@@ -655,8 +653,8 @@ class TenantControllerTest extends DBTestCase
                 ],
             ])),
         ]);
-        $client  = new Client(['handler' => HandlerStack::create($mock)]);
-        $cloud   = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+        $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
 
         // search-query with name that won't match (no installation records → userData null)
@@ -689,10 +687,10 @@ class TenantControllerTest extends DBTestCase
                 ],
             ])),
         ]);
-        $client     = new Client(['handler' => HandlerStack::create($mock)]);
-        $cloud      = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+        $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
-        $request    = new \Illuminate\Http\Request(['limit' => '2', 'page' => '1']);
+        $request = new \Illuminate\Http\Request(['limit' => '2', 'page' => '1']);
 
         $response = $controller->getTenants($request);
         $data = json_decode($response->getContent(), true);
@@ -710,15 +708,15 @@ class TenantControllerTest extends DBTestCase
     public function test_cloud_product_store_second_entry_with_same_product_succeeds(): void
     {
         $product = \App\Model\Product\Product::factory()->create();
-        $plan    = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
+        $plan = \App\Model\Payment\Plan::factory()->create(['product' => $product->id]);
 
-        $client     = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
-        $cloud      = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
+        $client = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
+        $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
 
         $request = new \Illuminate\Http\Request([
-            'cloud_product'     => $product->id,
-            'cloud_free_plan'   => $plan->id,
+            'cloud_product' => $product->id,
+            'cloud_free_plan' => $plan->id,
             'cloud_product_key' => 'KEY_'.uniqid(),
         ]);
         $response = $controller->cloudProductStore($request);
@@ -738,8 +736,8 @@ class TenantControllerTest extends DBTestCase
             'cloud_label_radio' => 'Old radio',
         ]);
 
-        $client     = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
-        $cloud      = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
+        $client = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
+        $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
 
         $request = new \Illuminate\Http\Request([
@@ -762,8 +760,8 @@ class TenantControllerTest extends DBTestCase
     {
         \DB::table('status_settings')->where('id', 1)->delete();
 
-        $client     = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
-        $cloud      = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
+        $client = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
+        $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
 
         $request = new \Illuminate\Http\Request(['debug' => 'false']);
@@ -793,10 +791,10 @@ class TenantControllerTest extends DBTestCase
                 ],
             ])),
         ]);
-        $client     = new Client(['handler' => HandlerStack::create($mock)]);
-        $cloud      = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+        $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
         $controller = new TenantController($client, $cloud);
-        $request    = new \Illuminate\Http\Request();
+        $request = new \Illuminate\Http\Request();
 
         $response = $controller->getTenants($request);
         $data = json_decode($response->getContent(), true);
@@ -818,7 +816,7 @@ class TenantControllerTest extends DBTestCase
         );
         $cloud = FaveoCloud::firstOrCreate([], [
             'cloud_central_domain' => 'https://cloud.test.local',
-            'cloud_cname'          => 'test',
+            'cloud_cname' => 'test',
         ]);
 
         // success: DELETE → deleteCronForTenant GET → googleChat POST
@@ -830,9 +828,9 @@ class TenantControllerTest extends DBTestCase
 
         $controller = new TenantController($client, $cloud);
         // orderId points to non-existent order → statusChange finds nothing, skips update
-        $request    = new \Illuminate\Http\Request(['id' => 'test.cloud.local', 'orderId' => '999999']);
-        $response   = $controller->destroyTenant($request);
-        $body       = json_decode($response->getContent(), true);
+        $request = new \Illuminate\Http\Request(['id' => 'test.cloud.local', 'orderId' => '999999']);
+        $response = $controller->destroyTenant($request);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertTrue($body['success']);
         $this->assertEquals(200, $response->getStatusCode());
@@ -844,8 +842,8 @@ class TenantControllerTest extends DBTestCase
 
     public function test_create_tenant_direct_call_returns_400_when_no_matching_order(): void
     {
-        $cloud      = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
-        $client     = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
+        $cloud = FaveoCloud::firstOrCreate([], ['cloud_central_domain' => 'https://cloud.test.local', 'cloud_cname' => 'test']);
+        $client = new Client(['handler' => HandlerStack::create(new MockHandler([]))]);
         $controller = new TenantController($client, $cloud);
 
         $request = new \Illuminate\Http\Request(['orderNo' => 'TOTALLY-NONEXISTENT-'.uniqid()]);

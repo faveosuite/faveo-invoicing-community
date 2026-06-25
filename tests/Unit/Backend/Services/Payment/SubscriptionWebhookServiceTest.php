@@ -255,24 +255,22 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         $this->getLoggedInUser('user');
 
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
-        $plan    = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
-
-        
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = \App\Model\Order\Order::create([
-            'client'       => $this->user->id,
-            'product'      => $product->id,
+            'client' => $this->user->id,
+            'product' => $product->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
 
         $subId = 'sub_del_'.uniqid();
         $sub1 = \App\Model\Product\Subscription::create([
-            'order_id'        => $order->id,
-            'product_id'      => $product->id,
-            'plan_id'         => $plan->id,
-            'is_subscribed'   => 1,
-            'autoRenew_status'=> 1,
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'is_subscribed' => 1,
+            'autoRenew_status' => 1,
         ]);
         // subscribe_id not in fillable — set directly
         \Illuminate\Support\Facades\DB::table('subscriptions')->where('id', $sub1->id)->update(['subscribe_id' => $subId]);
@@ -299,26 +297,24 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         $this->getLoggedInUser('user');
 
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
-        $plan    = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
-
-        
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = \App\Model\Order\Order::create([
-            'client'       => $this->user->id,
-            'product'      => $product->id,
+            'client' => $this->user->id,
+            'product' => $product->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
 
         $subId = 'sub_fail_'.uniqid();
         // is_subscribed=0 so gateway cancellation is skipped but DB update still runs
         $sub = \App\Model\Product\Subscription::create([
-            'order_id'        => $order->id,
-            'product_id'      => $product->id,
-            'plan_id'         => $plan->id,
-            'user_id'         => $this->user->id,
-            'is_subscribed'   => 0,
-            'autoRenew_status'=> 1, // will be reset to 0
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'user_id' => $this->user->id,
+            'is_subscribed' => 0,
+            'autoRenew_status' => 1, // will be reset to 0
         ]);
         \Illuminate\Support\Facades\DB::table('subscriptions')
             ->where('id', $sub->id)
@@ -352,26 +348,24 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         $this->getLoggedInUser('user');
 
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
-        $plan    = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
-
-        
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = \App\Model\Order\Order::create([
-            'client'       => $this->user->id,
-            'product'      => $product->id,
+            'client' => $this->user->id,
+            'product' => $product->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
 
         $subId = 'sub_halt_'.uniqid();
         // is_subscribed=0 so gateway cancellation is skipped but DB update still runs
         $sub = \App\Model\Product\Subscription::create([
-            'order_id'        => $order->id,
-            'product_id'      => $product->id,
-            'plan_id'         => $plan->id,
-            'user_id'         => $this->user->id,
-            'is_subscribed'   => 0,
-            'autoRenew_status'=> 1, // will be reset to 0
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'user_id' => $this->user->id,
+            'is_subscribed' => 0,
+            'autoRenew_status' => 1, // will be reset to 0
         ]);
         \Illuminate\Support\Facades\DB::table('subscriptions')
             ->where('id', $sub->id)
@@ -385,7 +379,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         $service = new \App\Services\Payment\SubscriptionWebhookService($handler);
 
         $service->handleRazorpayEvent([
-            'event'   => 'subscription.halted',
+            'event' => 'subscription.halted',
             'payload' => [
                 'subscription' => ['entity' => ['id' => $subId]],
             ],
@@ -405,7 +399,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $service = $this->makeWebhookService();
         $service->handleRazorpayEvent([
-            'event'   => 'payment.authorized', // not handled
+            'event' => 'payment.authorized', // not handled
             'payload' => [],
         ]);
         $this->assertTrue(true);
@@ -419,10 +413,10 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $service = $this->makeWebhookService();
         $service->handleRazorpayEvent([
-            'event'   => 'subscription.charged',
+            'event' => 'subscription.charged',
             'payload' => [
                 'subscription' => ['entity' => []], // no id
-                'payment'      => ['entity' => ['amount' => 1000]],
+                'payment' => ['entity' => ['amount' => 1000]],
             ],
         ]);
         $this->assertTrue(true);
@@ -436,7 +430,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
     {
         $service = $this->makeWebhookService();
         $service->handleRazorpayEvent([
-            'event'   => 'subscription.halted',
+            'event' => 'subscription.halted',
             'payload' => [
                 'subscription' => ['entity' => []], // no id
             ],
@@ -459,9 +453,9 @@ class SubscriptionWebhookServiceTest extends DBTestCase
             'type' => 'invoice.payment_succeeded',
             'data' => ['object' => [
                 'billing_reason' => 'subscription_cycle',
-                'subscription'   => 'sub_jpy_nonexistent_'.uniqid(),
-                'amount_paid'    => 1000,
-                'currency'       => 'jpy',
+                'subscription' => 'sub_jpy_nonexistent_'.uniqid(),
+                'amount_paid' => 1000,
+                'currency' => 'jpy',
             ]],
         ]);
         // No DB subscription → logs warning, returns early

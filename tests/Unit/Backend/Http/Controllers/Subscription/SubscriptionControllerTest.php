@@ -255,7 +255,7 @@ class SubscriptionControllerTest extends DBTestCase
     public function test_get_on_day_expiry_info_subs_returns_empty_when_no_expiry_days(): void
     {
         StatusSetting::updateOrCreate([], [
-            'stripe_auto_renewal'   => 1,
+            'stripe_auto_renewal' => 1,
             'razorpay_auto_renewal' => 0,
         ]);
 
@@ -274,7 +274,7 @@ class SubscriptionControllerTest extends DBTestCase
     public function test_auto_renewal_does_nothing_when_both_disabled(): void
     {
         StatusSetting::updateOrCreate([], [
-            'stripe_auto_renewal'   => 0,
+            'stripe_auto_renewal' => 0,
             'razorpay_auto_renewal' => 0,
         ]);
 
@@ -293,7 +293,7 @@ class SubscriptionControllerTest extends DBTestCase
     public function test_get_created_subscription_returns_empty_when_stripe_enabled_but_no_match(): void
     {
         StatusSetting::updateOrCreate([], [
-            'stripe_auto_renewal'   => 1,
+            'stripe_auto_renewal' => 1,
             'razorpay_auto_renewal' => 0,
         ]);
 
@@ -312,7 +312,7 @@ class SubscriptionControllerTest extends DBTestCase
     public function test_get_created_subscription_returns_empty_when_razorpay_enabled_but_no_match(): void
     {
         StatusSetting::updateOrCreate([], [
-            'stripe_auto_renewal'   => 0,
+            'stripe_auto_renewal' => 0,
             'razorpay_auto_renewal' => 1,
         ]);
         \App\Model\Mailjob\ExpiryMailDay::updateOrCreate([], ['autorenewal_days' => '[3]']);
@@ -375,10 +375,10 @@ class SubscriptionControllerTest extends DBTestCase
         $subController = new SubscriptionController($controller);
 
         $subscription = new \stdClass;
-        $subscription->order_id   = 999999;
+        $subscription->order_id = 999999;
         $subscription->product_id = 999999;
-        $subscription->user_id    = 999999;
-        $subscription->id         = 999999;
+        $subscription->user_id = 999999;
+        $subscription->id = 999999;
         $subscription->subscribe_id = null;
         $subscription->rzp_subscription = '0';
         $subscription->autoRenew_status = '0';
@@ -398,19 +398,23 @@ class SubscriptionControllerTest extends DBTestCase
         $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
-        $testUser     = \App\User::first();
+        $testUser = \App\User::first();
         $testUser = $testUser ?? \App\User::factory()->create();
-        $invoice      = Invoice::factory()->create(['user_id' => $testUser->id, 'status' => 'pending']);
-        $order        = new \App\Model\Order\Order;
-        $product      = \App\Model\Product\Product::first();
-        $user         = \App\User::first();
-        $plan         = \App\Model\Payment\Plan::first();
+        $invoice = Invoice::factory()->create(['user_id' => $testUser->id, 'status' => 'pending']);
+        $order = new \App\Model\Order\Order;
+        $product = \App\Model\Product\Product::first();
+        $user = \App\User::first();
+        $plan = \App\Model\Payment\Plan::first();
         $subscription = new \App\Model\Product\Subscription;
 
         if (! $product || ! $user || ! $plan) {
             // create missing data
-            if (! $product) { $product = \App\Model\Product\Product::create(['name' => 'Sub Test '.uniqid()]); }
-            if (! $plan) { $plan = \App\Model\Payment\Plan::create(['name' => 'Sub Plan '.uniqid(), 'product' => $product->id, 'days' => 30]); }
+            if (! $product) {
+                $product = \App\Model\Product\Product::create(['name' => 'Sub Test '.uniqid()]);
+            }
+            if (! $plan) {
+                $plan = \App\Model\Payment\Plan::create(['name' => 'Sub Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+            }
         }
 
         try {
@@ -446,7 +450,7 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_resolve_payment_method_returns_stripe_when_auto_renew_not_zero(): void
     {
-        $controller  = $this->instantiateDependencies();
+        $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
         $sub = new Subscription;
@@ -462,7 +466,7 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_resolve_payment_method_returns_razorpay_when_rzp_not_zero(): void
     {
-        $controller  = $this->instantiateDependencies();
+        $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
         $sub = new Subscription;
@@ -478,7 +482,7 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_resolve_payment_method_returns_null_when_both_zero(): void
     {
-        $controller  = $this->instantiateDependencies();
+        $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
         $sub = new Subscription;
@@ -498,29 +502,29 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_calculate_renewal_cost_returns_flat_price_when_not_agent_allowed(): void
     {
-        $controller  = $this->instantiateDependencies();
+        $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
         $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
         $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
-        $user  = \App\User::factory()->create(['role' => 'user', 'country' => 'IN']);
+        $user = \App\User::factory()->create(['role' => 'user', 'country' => 'IN']);
         $order = Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'product'      => $product->id,
-            'number'       => 'RCT-'.uniqid(),
-            'serial_key'   => '000000000000', // last 4 = '0000' → 0
+            'product' => $product->id,
+            'number' => 'RCT-'.uniqid(),
+            'serial_key' => '000000000000', // last 4 = '0000' → 0
         ]);
 
         $sub = new Subscription;
         $sub->product_id = $product->id;
-        $sub->plan_id    = $plan->id;
-        $sub->order_id   = $order->id;
+        $sub->plan_id = $plan->id;
+        $sub->order_id = $order->id;
 
         $planDetails = [
             'currency' => 'USD',
-            'plan'     => (object) ['renew_price' => 99.0, 'no_of_agents' => 10],
+            'plan' => (object) ['renew_price' => 99.0, 'no_of_agents' => 10],
         ];
 
         $method = new \ReflectionMethod(SubscriptionController::class, 'calculateRenewalCost');
@@ -541,21 +545,21 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_send_pending_auth_mail_returns_early_when_no_setting(): void
     {
-        $controller  = $this->instantiateDependencies();
+        $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
         $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
         $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
-        $user  = \App\User::factory()->create(['role' => 'user']);
+        $user = \App\User::factory()->create(['role' => 'user']);
         $order = Order::create([
-            'client'       => $user->id,
+            'client' => $user->id,
             'order_status' => 'executed',
-            'number'       => 'SPAM-'.uniqid(),
+            'number' => 'SPAM-'.uniqid(),
         ]);
 
         $sub = new Subscription;
-        $sub->order_id       = $order->id;
+        $sub->order_id = $order->id;
         $sub->update_ends_at = now()->addDays(3)->toDateTimeString();
 
         $method = new \ReflectionMethod(SubscriptionController::class, 'sendPendingAuthMail');
@@ -578,7 +582,7 @@ class SubscriptionControllerTest extends DBTestCase
     {
         \App\Model\Mailjob\ExpiryMailDay::query()->delete();
 
-        $controller  = $this->instantiateDependencies();
+        $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
         $method = new \ReflectionMethod(SubscriptionController::class, 'getRenewalDays');
@@ -593,7 +597,7 @@ class SubscriptionControllerTest extends DBTestCase
     {
         \App\Model\Mailjob\ExpiryMailDay::updateOrCreate([], ['autorenewal_days' => 'not-json']);
 
-        $controller  = $this->instantiateDependencies();
+        $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
         $method = new \ReflectionMethod(SubscriptionController::class, 'getRenewalDays');
@@ -608,7 +612,7 @@ class SubscriptionControllerTest extends DBTestCase
     {
         \App\Model\Mailjob\ExpiryMailDay::updateOrCreate([], ['autorenewal_days' => '[3,7,14]']);
 
-        $controller  = $this->instantiateDependencies();
+        $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
         $method = new \ReflectionMethod(SubscriptionController::class, 'getRenewalDays');
@@ -629,12 +633,12 @@ class SubscriptionControllerTest extends DBTestCase
     public function test_auto_renewal_runs_without_exception_when_gateways_enabled_no_subs(): void
     {
         \App\Model\Common\StatusSetting::updateOrCreate([], [
-            'stripe_auto_renewal'   => 1,
+            'stripe_auto_renewal' => 1,
             'razorpay_auto_renewal' => 1,
         ]);
         \App\Model\Mailjob\ExpiryMailDay::updateOrCreate([], ['autorenewal_days' => '[99999]']);
 
-        $controller  = $this->instantiateDependencies();
+        $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
         $subController->autoRenewal();
@@ -649,12 +653,12 @@ class SubscriptionControllerTest extends DBTestCase
     public function test_get_on_day_expiry_info_subs_returns_empty_array_when_no_subs_expire(): void
     {
         \App\Model\Common\StatusSetting::updateOrCreate([], [
-            'stripe_auto_renewal'   => 1,
+            'stripe_auto_renewal' => 1,
             'razorpay_auto_renewal' => 0,
         ]);
         \App\Model\Mailjob\ExpiryMailDay::updateOrCreate([], ['autorenewal_days' => '[99999]']);
 
-        $controller  = $this->instantiateDependencies();
+        $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
         $result = $subController->getOnDayExpiryInfoSubs();
@@ -664,12 +668,12 @@ class SubscriptionControllerTest extends DBTestCase
     public function test_get_on_day_expiry_info_subs_razorpay_enabled_returns_array(): void
     {
         \App\Model\Common\StatusSetting::updateOrCreate([], [
-            'stripe_auto_renewal'   => 0,
+            'stripe_auto_renewal' => 0,
             'razorpay_auto_renewal' => 1,
         ]);
         \App\Model\Mailjob\ExpiryMailDay::updateOrCreate([], ['autorenewal_days' => '[99999]']);
 
-        $controller  = $this->instantiateDependencies();
+        $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
         $result = $subController->getOnDayExpiryInfoSubs();
@@ -682,7 +686,7 @@ class SubscriptionControllerTest extends DBTestCase
 
     public function test_calculate_reverse_unit_cost_inr_two_decimal(): void
     {
-        $controller  = $this->instantiateDependencies();
+        $controller = $this->instantiateDependencies();
         $subController = new SubscriptionController($controller);
 
         $result = $subController->calculateReverseUnitCost('INR', 5000);

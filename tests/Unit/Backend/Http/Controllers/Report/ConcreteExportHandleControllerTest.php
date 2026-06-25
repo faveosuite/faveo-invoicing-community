@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Report;
 
-use App\ExportDetail;
 use App\Http\Controllers\Report\ConcreteExportHandleController;
 use App\Model\Common\Setting;
 use App\ReportSetting;
@@ -103,16 +102,16 @@ class ConcreteExportHandleControllerTest extends DBTestCase
         $response = $this->controller->userExports(
             ['name', 'email'],
             [
-                'company'        => 'testco',
-                'country'        => 'IN',
-                'role'           => 'user',
-                'active'         => '0',
+                'company' => 'testco',
+                'country' => 'IN',
+                'role' => 'user',
+                'active' => '0',
                 'is_2fa_enabled' => '0',
-                'mobile_verified'=> '0',
-                'actmanager'     => '',
-                'salesmanager'   => '',
-                'position'       => '',
-                'industry'       => '',
+                'mobile_verified' => '0',
+                'actmanager' => '',
+                'salesmanager' => '',
+                'position' => '',
+                'industry' => '',
             ],
             $this->user->email
         );
@@ -175,7 +174,7 @@ class ConcreteExportHandleControllerTest extends DBTestCase
         $response = $this->controller->orderExports(
             ['order_id', 'status'],
             [],
-            'nonexistent_' . uniqid() . '@nowhere.test'
+            'nonexistent_'.uniqid().'@nowhere.test'
         );
 
         $this->assertEquals(404, $response->getStatusCode());
@@ -187,7 +186,7 @@ class ConcreteExportHandleControllerTest extends DBTestCase
 
         $response = $this->controller->orderExports(
             ['order_id', 'client', 'email', 'mobile', 'country', 'status',
-             'product_name', 'plan_name', 'version', 'agents', 'order_date', 'update_ends_at'],
+                'product_name', 'plan_name', 'version', 'agents', 'order_date', 'update_ends_at'],
             [],
             $this->user->email
         );

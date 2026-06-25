@@ -119,8 +119,8 @@ class CartServiceTest extends DBTestCase
     public function test_owns_item_returns_false_for_other_user_cart(): void
     {
         $other = User::factory()->create();
-        $cart  = Cart::firstOrCreate(['user_id' => $other->id], ['currency' => 'USD']);
-        $item  = CartItem::create(['cart_id' => $cart->id, 'product_id' => 1, 'plan_id' => 1, 'quantity' => 1]);
+        $cart = Cart::firstOrCreate(['user_id' => $other->id], ['currency' => 'USD']);
+        $item = CartItem::create(['cart_id' => $cart->id, 'product_id' => 1, 'plan_id' => 1, 'quantity' => 1]);
 
         $this->assertFalse($this->service->ownsItem($this->authenticatedRequest(), $item->id));
     }

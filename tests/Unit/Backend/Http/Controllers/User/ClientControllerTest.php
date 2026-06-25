@@ -399,11 +399,11 @@ class ClientControllerTest extends DBTestCase
 
         $response = $this->putJson('/users', [
             'first_name' => 'New',
-            'last_name'  => 'TestUser',
-            'email'      => 'newcreate_'.uniqid().'@test.local',
-            'password'   => 'Secret1234!',
-            'role'       => 'user',
-            'company'    => 'Test Co',
+            'last_name' => 'TestUser',
+            'email' => 'newcreate_'.uniqid().'@test.local',
+            'password' => 'Secret1234!',
+            'role' => 'user',
+            'company' => 'Test Co',
         ]);
 
         $this->assertContains($response->status(), [200, 400, 422]);
@@ -418,7 +418,7 @@ class ClientControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         $response = $this->postJson('/save-columns', [
-            'entity_type'      => 'users',
+            'entity_type' => 'users',
             'selected_columns' => ['name', 'email'],
         ]);
 

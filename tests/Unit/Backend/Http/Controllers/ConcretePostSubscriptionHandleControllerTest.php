@@ -3,15 +3,13 @@
 namespace Tests\Unit\Backend\Http\Controllers;
 
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
+use App\Model\Common\Setting;
+use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
-use App\Model\Payment\PlanPrice;
 use App\Model\Product\Subscription;
-use App\Model\Common\Setting;
-use App\Model\Common\StatusSetting;
-use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -46,9 +44,9 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
     public function test_record_payment_creates_payment_record(): void
     {
         $invoice = Invoice::factory()->create([
-            'user_id'     => $this->user->id,
+            'user_id' => $this->user->id,
             'grand_total' => 100.0,
-            'status'      => 'pending',
+            'status' => 'pending',
         ]);
 
         $payment = $this->controller->recordPayment($invoice, 'stripe');
@@ -116,26 +114,26 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
     public function test_disable_autorenewal_updates_existing_subscription(): void
     {
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'CPSHT Test '.uniqid()]);
-        $plan    = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'CPSHT Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'CPSHT Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = Order::create([
-            'client'       => $this->user->id,
-            'product'      => $product->id,
+            'client' => $this->user->id,
+            'product' => $product->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(10000000, 99999999),
+            'number' => mt_rand(10000000, 99999999),
         ]);
         Subscription::create([
-            'order_id'          => $order->id,
-            'product_id'        => $product->id,
-            'plan_id'           => $plan->id,
-            'autoRenew_status'  => 1,
-            'rzp_subscription'  => '1',
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'autoRenew_status' => 1,
+            'rzp_subscription' => '1',
         ]);
 
         $this->controller->disableAutorenewalStatusByOrderId($order->id);
 
         $this->assertDatabaseHas('subscriptions', [
-            'order_id'         => $order->id,
+            'order_id' => $order->id,
             'autoRenew_status' => 0,
         ]);
     }

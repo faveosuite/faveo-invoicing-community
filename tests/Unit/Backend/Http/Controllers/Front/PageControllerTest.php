@@ -140,14 +140,14 @@ class PageControllerTest extends DBTestCase
         $this->withoutMiddleware();
 
         $page = \App\Model\Front\FrontendPage::create([
-            'name'    => 'Test Page',
-            'slug'    => 'test-page-' . uniqid(),
+            'name' => 'Test Page',
+            'slug' => 'test-page-'.uniqid(),
             'content' => '<p>Hello</p>',
             'publish' => 1,
-            'type'    => 'custom',
+            'type' => 'custom',
         ]);
 
-        $response = $this->getJson('/page-content/' . $page->slug);
+        $response = $this->getJson('/page-content/'.$page->slug);
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);

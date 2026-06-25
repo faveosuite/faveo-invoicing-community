@@ -8,7 +8,6 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Http\Request;
 use Tests\DBTestCase;
 
 class RenewControllerTest extends DBTestCase
@@ -66,11 +65,15 @@ class RenewControllerTest extends DBTestCase
 
     public function test_create_order_invoice_relation_creates_record(): void
     {
-        $order   = Order::first();
+        $order = Order::first();
         $invoice = \App\Model\Order\Invoice::first();
 
-        if (! $order) { $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]); }
-        if (! $invoice) { $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $this->user->id]); }
+        if (! $order) {
+            $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+        }
+        if (! $invoice) {
+            $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $this->user->id]);
+        }
 
         // Should not throw; wrapped in try-catch internally
         $this->controller->createOrderInvoiceRelation($order->id, $invoice->id);
@@ -155,7 +158,9 @@ class RenewControllerTest extends DBTestCase
     public function test_get_price_by_product_id_returns_price_when_found(): void
     {
         $product = Product::has('price')->first();
-        if (! $product) { $product = \App\Model\Product\Product::create(['name' => 'RenewPP '.uniqid()]); }
+        if (! $product) {
+            $product = \App\Model\Product\Product::create(['name' => 'RenewPP '.uniqid()]);
+        }
 
         try {
             $result = $this->controller->getPriceByProductId($product->id, $this->user->id);
@@ -173,7 +178,11 @@ class RenewControllerTest extends DBTestCase
     public function test_renew_by_client_fails_validation_when_plan_missing(): void
     {
         $sub = Subscription::first();
-        if (! $sub) { $this->assertTrue(true); return; } // no subscription available
+        if (! $sub) {
+            $this->assertTrue(true);
+
+            return;
+        } // no subscription available
 
         $response = $this->postJson("/client/renew/{$sub->id}", []);
 

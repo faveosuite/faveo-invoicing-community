@@ -1198,5 +1198,4 @@ class SettingsControllerTest extends DBTestCase
 
         $this->assertContains($response->status(), [200, 302, 400, 422, 500]);
     }
-
 }

@@ -232,8 +232,7 @@ class PipedriveControllerTest extends DBTestCase
 
         $group = PipedriveGroups::first();
 
-
-        $response = $this->getJson('/pipedrive/mapping/' . $group->id);
+        $response = $this->getJson('/pipedrive/mapping/'.$group->id);
 
         $response->assertStatus(200)
             ->assertJson(['success' => true])
@@ -294,7 +293,6 @@ class PipedriveControllerTest extends DBTestCase
     public function test_get_local_fields_returns_200_with_expected_keys(): void
     {
         $group = PipedriveGroups::first();
-
 
         $response = $this->pipedriveController->getLocalFields($group->id);
         $data = $response->getData(true);

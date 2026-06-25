@@ -242,11 +242,11 @@ class ProductControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         $controller = new \App\Http\Controllers\Product\ProductController;
-        $request    = new \Illuminate\Http\Request;
+        $request = new \Illuminate\Http\Request;
         $request->merge(['limit' => 10, 'page' => 1]);
 
         $response = $controller->getProductDropdown($request);
-        $body     = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertTrue($body['success']);
         $this->assertArrayHasKey('data', $body['data']);
@@ -257,11 +257,11 @@ class ProductControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         $controller = new \App\Http\Controllers\Product\ProductController;
-        $request    = new \Illuminate\Http\Request;
+        $request = new \Illuminate\Http\Request;
         $request->merge(['search-query' => '__no_match_xyzzy__', 'limit' => 10]);
 
         $response = $controller->getProductDropdown($request);
-        $body     = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertTrue($body['success']);
         $this->assertEmpty($body['data']['data']);
@@ -276,11 +276,11 @@ class ProductControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         $controller = new \App\Http\Controllers\Product\ProductController;
-        $request    = new \Illuminate\Http\Request;
+        $request = new \Illuminate\Http\Request;
         $request->merge(['limit' => 10]);
 
         $response = $controller->getProductPlans($request, 999999);
-        $body     = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertTrue($body['success']);
         $this->assertEmpty($body['data']['data']);
@@ -293,11 +293,11 @@ class ProductControllerTest extends DBTestCase
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
 
         $controller = new \App\Http\Controllers\Product\ProductController;
-        $request    = new \Illuminate\Http\Request;
+        $request = new \Illuminate\Http\Request;
         $request->merge(['search-query' => '__no_plan_xyzzy__', 'limit' => 10]);
 
         $response = $controller->getProductPlans($request, $product->id);
-        $body     = json_decode($response->getContent(), true);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertTrue($body['success']);
         $this->assertEmpty($body['data']['data']);
@@ -350,12 +350,12 @@ class ProductControllerTest extends DBTestCase
 
         $response = $this->putJson("/product/upload/{$product->id}", [
             'producttitle' => 'Version 2.0 Release',
-            'version'      => '2.0.0',
-            'filename'     => 'product-v2.0.0.zip',
+            'version' => '2.0.0',
+            'filename' => 'product-v2.0.0.zip',
             'dependencies' => ['core'],
-            'description'  => 'Major release',
+            'description' => 'Major release',
             'release_type' => 'official',
-            'is_private'   => false,
+            'is_private' => false,
             'is_restricted' => false,
         ]);
 
@@ -364,7 +364,7 @@ class ProductControllerTest extends DBTestCase
 
         $this->assertDatabaseHas('product_uploads', [
             'product_id' => $product->id,
-            'version'    => '2.0.0',
+            'version' => '2.0.0',
         ]);
     }
 
@@ -374,10 +374,10 @@ class ProductControllerTest extends DBTestCase
 
         $response = $this->putJson('/product/upload/999999', [
             'producttitle' => 'Test',
-            'version'      => '1.0.0',
-            'filename'     => 'test.zip',
+            'version' => '1.0.0',
+            'filename' => 'test.zip',
             'dependencies' => ['core'],
-            'description'  => 'Test description',
+            'description' => 'Test description',
             'release_type' => 'official',
         ]);
 
@@ -394,12 +394,12 @@ class ProductControllerTest extends DBTestCase
         $upload = \App\Model\Product\ProductUpload::factory()->create();
 
         $response = $this->patchJson("/product/upload/{$upload->id}", [
-            'title'        => 'Updated Title',
-            'version'      => '1.1.0',
+            'title' => 'Updated Title',
+            'version' => '1.1.0',
             'dependencies' => ['core'],
-            'description'  => 'Updated description',
+            'description' => 'Updated description',
             'release_type' => 'official',
-            'is_private'   => false,
+            'is_private' => false,
             'is_restricted' => false,
         ]);
 
@@ -429,13 +429,13 @@ class ProductControllerTest extends DBTestCase
         $upload = \App\Model\Product\ProductUpload::factory()->create();
 
         $response = $this->patchJson("/product/upload/{$upload->id}", [
-            'title'        => 'Renamed Release',
-            'version'      => '1.2.0',
+            'title' => 'Renamed Release',
+            'version' => '1.2.0',
             'dependencies' => ['core'],
-            'description'  => 'With new filename',
+            'description' => 'With new filename',
             'release_type' => 'official',
-            'filename'     => 'new-file-v1.2.0.zip',
-            'is_private'   => false,
+            'filename' => 'new-file-v1.2.0.zip',
+            'is_private' => false,
             'is_restricted' => false,
         ]);
 
@@ -443,7 +443,7 @@ class ProductControllerTest extends DBTestCase
             ->assertJson(['success' => true]);
 
         $this->assertDatabaseHas('product_uploads', [
-            'id'   => $upload->id,
+            'id' => $upload->id,
             'file' => 'new-file-v1.2.0.zip',
         ]);
     }
@@ -522,7 +522,7 @@ class ProductControllerTest extends DBTestCase
         $product = Product::factory()->create();
         \App\Model\Product\ProductUpload::factory()->create([
             'product_id' => $product->id,
-            'title'      => 'My Special Release',
+            'title' => 'My Special Release',
         ]);
 
         $response = $this->getJson("/product/uploads/{$product->id}?search-query=Special");

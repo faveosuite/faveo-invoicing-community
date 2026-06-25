@@ -130,7 +130,9 @@ class LanguageControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         $lang = \App\Model\Common\Language::first();
-        if (! $lang) { $lang = \App\Model\Common\Language::create(['name' => 'Test Language', 'locale' => 'tl-'.uniqid(), 'status' => 1]); }
+        if (! $lang) {
+            $lang = \App\Model\Common\Language::create(['name' => 'Test Language', 'locale' => 'tl-'.uniqid(), 'status' => 1]);
+        }
 
         $response = $this->postJson('/language-set-default', [
             'locale' => $lang->locale,

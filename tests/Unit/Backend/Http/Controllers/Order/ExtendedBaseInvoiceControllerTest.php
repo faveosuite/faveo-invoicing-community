@@ -131,16 +131,16 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     public function test_post_edit_invoice_with_all_required_fields_returns_200(): void
     {
         $this->getLoggedInUser('admin');
-        $client  = \App\User::factory()->create(['email' => 'post-edit-'.uniqid().'@test.local']);
+        $client = \App\User::factory()->create(['email' => 'post-edit-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $client->id,
+            'user_id' => $client->id,
             'grand_total' => 100.0,
-            'status'      => 'pending',
+            'status' => 'pending',
         ]);
 
         $response = $this->postJson('/invoice/edit/'.$invoice->id, [
-            'date'   => '2025-06-01',
-            'total'  => 150.0,
+            'date' => '2025-06-01',
+            'total' => 150.0,
             'status' => 'success',
         ]);
 
@@ -151,11 +151,11 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     public function test_post_edit_invoice_missing_date_returns_422(): void
     {
         $this->getLoggedInUser('admin');
-        $client  = \App\User::factory()->create(['email' => 'edit-nod-'.uniqid().'@test.local']);
+        $client = \App\User::factory()->create(['email' => 'edit-nod-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $client->id]);
 
         $response = $this->postJson('/invoice/edit/'.$invoice->id, [
-            'total'  => 150.0,
+            'total' => 150.0,
             'status' => 'success',
         ]);
 
@@ -166,11 +166,11 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     public function test_post_edit_invoice_missing_total_returns_422(): void
     {
         $this->getLoggedInUser('admin');
-        $client  = \App\User::factory()->create(['email' => 'edit-nototal-'.uniqid().'@test.local']);
+        $client = \App\User::factory()->create(['email' => 'edit-nototal-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $client->id]);
 
         $response = $this->postJson('/invoice/edit/'.$invoice->id, [
-            'date'   => '2025-06-01',
+            'date' => '2025-06-01',
             'status' => 'success',
         ]);
 
@@ -185,23 +185,23 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     public function test_post_new_multiple_payment_with_invoice_marks_invoice_fully_paid(): void
     {
         $this->getLoggedInUser('admin');
-        $client  = User::factory()->create(['role' => 'user', 'email' => 'multi-pay-'.uniqid().'@test.local']);
+        $client = User::factory()->create(['role' => 'user', 'email' => 'multi-pay-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $client->id,
+            'user_id' => $client->id,
             'grand_total' => 100.0,
-            'currency'    => 'USD',
-            'status'      => 'pending',
+            'currency' => 'USD',
+            'status' => 'pending',
         ]);
 
         // invoiceChecked is [0 => invoiceId] and invoiceAmount is [0 => amount]
         // so the key matches the index of invoiceChecked, not the invoice id
         $response = $this->postJson("/newMultiplePayment/receive/{$client->id}", [
-            'payment_date'   => '2025-06-01',
+            'payment_date' => '2025-06-01',
             'payment_method' => 'cash',
-            'totalAmt'       => 100,
+            'totalAmt' => 100,
             'invoiceChecked' => [0 => $invoice->id],
-            'invoiceAmount'  => [0 => 100],
-            'amtToCredit'    => 0,
+            'invoiceAmount' => [0 => 100],
+            'amtToCredit' => 0,
         ]);
 
         $response->assertStatus(200)
@@ -209,7 +209,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
 
         // Invoice status should be updated to 'success'
         $this->assertDatabaseHas('invoices', [
-            'id'     => $invoice->id,
+            'id' => $invoice->id,
             'status' => 'success',
         ]);
     }
@@ -217,28 +217,28 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     public function test_post_new_multiple_payment_with_partial_amount_marks_invoice_partially_paid(): void
     {
         $this->getLoggedInUser('admin');
-        $client  = User::factory()->create(['role' => 'user', 'email' => 'partial-pay-'.uniqid().'@test.local']);
+        $client = User::factory()->create(['role' => 'user', 'email' => 'partial-pay-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $client->id,
+            'user_id' => $client->id,
             'grand_total' => 200.0,
-            'currency'    => 'USD',
-            'status'      => 'pending',
+            'currency' => 'USD',
+            'status' => 'pending',
         ]);
 
         $response = $this->postJson("/newMultiplePayment/receive/{$client->id}", [
-            'payment_date'   => '2025-06-01',
+            'payment_date' => '2025-06-01',
             'payment_method' => 'cash',
-            'totalAmt'       => 50,
+            'totalAmt' => 50,
             'invoiceChecked' => [0 => $invoice->id],
-            'invoiceAmount'  => [0 => 50],
-            'amtToCredit'    => 0,
+            'invoiceAmount' => [0 => 50],
+            'amtToCredit' => 0,
         ]);
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
 
         $this->assertDatabaseHas('invoices', [
-            'id'     => $invoice->id,
+            'id' => $invoice->id,
             'status' => 'partially paid',
         ]);
     }
@@ -249,13 +249,13 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         $client = User::factory()->create(['role' => 'user', 'email' => 'credit-pay-'.uniqid().'@test.local']);
 
         $response = $this->postJson("/newMultiplePayment/receive/{$client->id}", [
-            'payment_date'   => '2025-06-01',
+            'payment_date' => '2025-06-01',
             'payment_method' => 'cash',
-            'totalAmt'       => 200,
+            'totalAmt' => 200,
             'invoiceChecked' => [],
-            'invoiceAmount'  => [],
-            'amtToCredit'    => 50,
-            'currency'       => 'USD',
+            'invoiceAmount' => [],
+            'amtToCredit' => 50,
+            'currency' => 'USD',
         ]);
 
         $response->assertStatus(200)
@@ -263,7 +263,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
 
         // A credit row (invoice_id = 0) should be created
         $this->assertDatabaseHas('payments', [
-            'user_id'    => $client->id,
+            'user_id' => $client->id,
             'invoice_id' => 0,
             'amt_to_credit' => 50,
         ]);
@@ -276,31 +276,31 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     public function test_update_new_multiple_payment_with_credit_applies_to_invoice(): void
     {
         $this->getLoggedInUser('admin');
-        $client  = User::factory()->create(['role' => 'user', 'email' => 'upd-pay-'.uniqid().'@test.local']);
+        $client = User::factory()->create(['role' => 'user', 'email' => 'upd-pay-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $client->id,
+            'user_id' => $client->id,
             'grand_total' => 100.0,
-            'currency'    => 'USD',
-            'status'      => 'pending',
+            'currency' => 'USD',
+            'status' => 'pending',
         ]);
 
         // Seed a credit balance for the client
         \App\Model\Order\Payment::create([
-            'invoice_id'     => 0,
-            'user_id'        => $client->id,
-            'amount'         => 200.0,
-            'amt_to_credit'  => 200.0,
+            'invoice_id' => 0,
+            'user_id' => $client->id,
+            'amount' => 200.0,
+            'amt_to_credit' => 200.0,
             'payment_method' => 'cash',
             'payment_status' => 'success',
-            'currency'       => 'USD',
+            'currency' => 'USD',
         ]);
 
         // invoiceChecked and invoiceAmount are parallel arrays: key = numeric index
         $response = $this->postJson("/newMultiplePayment/update/{$client->id}", [
-            'payment_date'   => '2025-06-01',
+            'payment_date' => '2025-06-01',
             'payment_method' => 'cash',
             'invoiceChecked' => [0 => $invoice->id],
-            'invoiceAmount'  => [0 => 100],
+            'invoiceAmount' => [0 => 100],
         ]);
 
         $response->assertStatus(200)
@@ -310,20 +310,20 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     public function test_update_new_multiple_payment_fails_when_no_credit(): void
     {
         $this->getLoggedInUser('admin');
-        $client  = User::factory()->create(['role' => 'user', 'email' => 'nocredit-pay-'.uniqid().'@test.local']);
+        $client = User::factory()->create(['role' => 'user', 'email' => 'nocredit-pay-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create([
-            'user_id'     => $client->id,
+            'user_id' => $client->id,
             'grand_total' => 100.0,
-            'currency'    => 'USD',
-            'status'      => 'pending',
+            'currency' => 'USD',
+            'status' => 'pending',
         ]);
 
         // No credit balance seeded — should fail with insufficient credit
         $response = $this->postJson("/newMultiplePayment/update/{$client->id}", [
-            'payment_date'   => '2025-06-01',
+            'payment_date' => '2025-06-01',
             'payment_method' => 'cash',
             'invoiceChecked' => [0 => $invoice->id],
-            'invoiceAmount'  => [0 => 100],
+            'invoiceAmount' => [0 => 100],
         ]);
 
         // Expect error because insufficient credit (applied > 0 but creditBefore = 0)
@@ -337,7 +337,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
         $client = User::factory()->create(['role' => 'user', 'email' => 'upd-valid-'.uniqid().'@test.local']);
 
         $response = $this->postJson("/newMultiplePayment/update/{$client->id}", [
-            'payment_date'   => '2025-06-01',
+            'payment_date' => '2025-06-01',
             'payment_method' => 'cash',
             // invoiceChecked missing
         ]);

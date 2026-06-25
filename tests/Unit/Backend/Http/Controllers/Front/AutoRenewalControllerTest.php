@@ -82,7 +82,9 @@ class AutoRenewalControllerTest extends DBTestCase
         $this->app->instance(PaymentService::class, $paymentServiceMock);
 
         $order = \App\Model\Order\Order::where('client', $this->user->id)->first();
-        if (! $order) { $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]); }
+        if (! $order) {
+            $order = \App\Model\Order\Order::create(['client' => $this->user->id, 'order_status' => 'executed', 'number' => mt_rand(10000000, 99999999)]);
+        }
 
         $response = $this->postJson("/auto-renewal/{$order->id}/disable");
 
@@ -97,9 +99,9 @@ class AutoRenewalControllerTest extends DBTestCase
     {
         $otherUser = User::factory()->create(['email' => 'other-ar-'.uniqid().'@test.local']);
         $order = Order::create([
-            'client'       => $otherUser->id,
+            'client' => $otherUser->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
 
         $response = $this->postJson("/auto-renewal/{$order->id}/disable");
@@ -114,9 +116,9 @@ class AutoRenewalControllerTest extends DBTestCase
     public function test_disable_returns_400_when_no_subscription_found(): void
     {
         $order = Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
         // No subscription created → firstOrFail() throws → caught → errorResponse 400
 
@@ -132,22 +134,21 @@ class AutoRenewalControllerTest extends DBTestCase
     public function test_disable_with_subscription_no_gateway_sub_returns_200(): void
     {
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'AutoR '.uniqid()]);
-        $plan    = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
-        
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
 
         $order = Order::create([
-            'client'       => $this->user->id,
-            'product'      => $product->id,
+            'client' => $this->user->id,
+            'product' => $product->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
         Subscription::create([
-            'order_id'        => $order->id,
-            'product_id'      => $product->id,
-            'plan_id'         => $plan->id,
-            'is_subscribed'   => 1,
-            'autoRenew_status'=> 1,
-            'subscribe_id'    => '', // no gateway sub → skip cancel
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'is_subscribed' => 1,
+            'autoRenew_status' => 1,
+            'subscribe_id' => '', // no gateway sub → skip cancel
         ]);
 
         $response = $this->postJson("/auto-renewal/{$order->id}/disable");
@@ -156,8 +157,8 @@ class AutoRenewalControllerTest extends DBTestCase
 
         // Verify local state reset
         $this->assertDatabaseHas('subscriptions', [
-            'order_id'         => $order->id,
-            'is_subscribed'    => 0,
+            'order_id' => $order->id,
+            'is_subscribed' => 0,
             'autoRenew_status' => 0,
         ]);
     }
@@ -169,9 +170,9 @@ class AutoRenewalControllerTest extends DBTestCase
     public function test_stripe_session_for_owned_order_returns_error_or_success(): void
     {
         $order = Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
 
         $paymentServiceMock = Mockery::mock(PaymentService::class);
@@ -192,9 +193,9 @@ class AutoRenewalControllerTest extends DBTestCase
     public function test_razorpay_order_for_owned_order_returns_400_on_gateway_error(): void
     {
         $order = Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
 
         $paymentServiceMock = Mockery::mock(PaymentService::class);
@@ -214,9 +215,9 @@ class AutoRenewalControllerTest extends DBTestCase
     public function test_stripe_confirm_returns_400_when_no_payment_intent(): void
     {
         $order = Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
 
         $response = $this->postJson("/auto-renewal/{$order->id}/stripe/confirm", []);
@@ -232,9 +233,9 @@ class AutoRenewalControllerTest extends DBTestCase
     public function test_razorpay_confirm_for_owned_order_returns_400_on_capture_error(): void
     {
         $order = Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(100000, 999999),
+            'number' => mt_rand(100000, 999999),
         ]);
 
         $paymentServiceMock = Mockery::mock(PaymentService::class);
@@ -243,9 +244,9 @@ class AutoRenewalControllerTest extends DBTestCase
         $this->app->instance(PaymentService::class, $paymentServiceMock);
 
         $response = $this->postJson("/auto-renewal/{$order->id}/razorpay/confirm", [
-            'razorpay_order_id'   => 'order_test',
+            'razorpay_order_id' => 'order_test',
             'razorpay_payment_id' => 'pay_test',
-            'razorpay_signature'  => 'sig_test',
+            'razorpay_signature' => 'sig_test',
         ]);
 
         $response->assertStatus(400);

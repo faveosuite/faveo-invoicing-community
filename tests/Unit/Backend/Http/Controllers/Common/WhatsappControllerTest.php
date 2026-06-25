@@ -167,12 +167,12 @@ class WhatsappControllerTest extends DBTestCase
         $this->withoutMiddleware();
 
         $record = \App\WhatsappIntegrationUser::create([
-            'user_id'           => $user->id,
-            'waba_id'           => 'waba-'.uniqid(),
-            'phone_number_id'   => 'ph-'.uniqid(),
-            'access_token'      => 'tok-'.uniqid(),
+            'user_id' => $user->id,
+            'waba_id' => 'waba-'.uniqid(),
+            'phone_number_id' => 'ph-'.uniqid(),
+            'access_token' => 'tok-'.uniqid(),
             'user_callback_url' => 'https://callback.test.local',
-            'order_id'          => \App\Model\Order\Order::value('id') ?? 0,
+            'order_id' => \App\Model\Order\Order::value('id') ?? 0,
         ]);
 
         $response = $this->getJson('/get-webhook-url?id='.$record->id);
@@ -194,16 +194,16 @@ class WhatsappControllerTest extends DBTestCase
         $this->withoutMiddleware();
 
         $record = \App\WhatsappIntegrationUser::create([
-            'user_id'           => $user->id,
-            'waba_id'           => 'waba-'.uniqid(),
-            'phone_number_id'   => 'ph-'.uniqid(),
-            'access_token'      => 'tok-'.uniqid(),
+            'user_id' => $user->id,
+            'waba_id' => 'waba-'.uniqid(),
+            'phone_number_id' => 'ph-'.uniqid(),
+            'access_token' => 'tok-'.uniqid(),
             'user_callback_url' => 'https://old-url.test',
-            'order_id'          => \App\Model\Order\Order::value('id') ?? 0,
+            'order_id' => \App\Model\Order\Order::value('id') ?? 0,
         ]);
 
         $response = $this->postJson('/webhook-url-edit', [
-            'id'  => $record->id,
+            'id' => $record->id,
             'url' => 'https://new-url.test',
         ]);
 
@@ -211,7 +211,7 @@ class WhatsappControllerTest extends DBTestCase
             ->assertJson(['success' => true]);
 
         $this->assertDatabaseHas('whatsapp_integration_user', [
-            'id'                => $record->id,
+            'id' => $record->id,
             'user_callback_url' => 'https://new-url.test',
         ]);
     }
@@ -259,10 +259,10 @@ class WhatsappControllerTest extends DBTestCase
 
         // No 'code' → getToken will fail (HTTP call to Facebook)
         $response = $this->postJson('/save-waba-id', [
-            'waba_id'         => 'test-waba',
+            'waba_id' => 'test-waba',
             'phone_number_id' => 'test-phone',
-            'business_id'     => 'test-biz',
-            'order_id'        => null,
+            'business_id' => 'test-biz',
+            'order_id' => null,
         ]);
 
         // getToken() makes an HTTP call that fails → exception caught → 400

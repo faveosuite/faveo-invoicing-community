@@ -36,7 +36,11 @@ class StoreControllerTest extends DBTestCase
         $group = \App\Model\Product\ProductGroup::first();
         if (! $group) {
             $tmpl = \App\Model\Common\PricingTemplate::first();
-            if (! $tmpl) { $this->assertTrue(true); return; }
+            if (! $tmpl) {
+                $this->assertTrue(true);
+
+                return;
+            }
             $group = \App\Model\Product\ProductGroup::create(['name' => 'Test Group '.uniqid(), 'pricing_templates_id' => $tmpl->id]);
         }
 

@@ -76,12 +76,12 @@ class PhpMailControllerTest extends DBTestCase
     public function test_set_mail_config_with_smtp_driver(): void
     {
         $setting = (object) [
-            'driver'     => 'smtp',
-            'host'       => 'smtp.test.local',
-            'port'       => 587,
+            'driver' => 'smtp',
+            'host' => 'smtp.test.local',
+            'port' => 587,
             'encryption' => 'tls',
-            'email'      => 'noreply@test.local',
-            'password'   => 'secret',
+            'email' => 'noreply@test.local',
+            'password' => 'secret',
         ];
 
         $result = $this->mailer->setMailConfig($setting);
@@ -100,5 +100,4 @@ class PhpMailControllerTest extends DBTestCase
 
         $this->assertFalse((bool) $result);
     }
-
 }

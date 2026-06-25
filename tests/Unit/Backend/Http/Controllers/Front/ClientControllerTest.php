@@ -5,7 +5,6 @@ namespace Tests\Unit\Backend\Http\Controllers\Front;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
-use App\Model\Product\Subscription;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
@@ -41,11 +40,11 @@ class ClientControllerTest extends DBTestCase
     public function test_get_invoices_returns_invoice_row_structure(): void
     {
         Invoice::factory()->create([
-            'user_id'     => $this->user->id,
-            'number'      => 'INV-CLIENT-001',
-            'currency'    => 'USD',
+            'user_id' => $this->user->id,
+            'number' => 'INV-CLIENT-001',
+            'currency' => 'USD',
             'grand_total' => 100.00,
-            'status'      => 'unpaid',
+            'status' => 'unpaid',
         ]);
 
         $response = $this->getJson('/get-my-invoices?limit=10');
@@ -67,8 +66,8 @@ class ClientControllerTest extends DBTestCase
     {
         Invoice::factory()->create([
             'user_id' => $this->user->id,
-            'number'  => 'UNIQUE-NUM-XYZ',
-            'status'  => 'unpaid',
+            'number' => 'UNIQUE-NUM-XYZ',
+            'status' => 'unpaid',
         ]);
 
         $response = $this->getJson('/get-my-invoices?search-query=UNIQUE-NUM-XYZ');
@@ -90,11 +89,11 @@ class ClientControllerTest extends DBTestCase
     public function test_get_invoices_paid_invoice_shows_paid_status(): void
     {
         Invoice::factory()->create([
-            'user_id'     => $this->user->id,
-            'number'      => 'INV-PAID-001',
-            'currency'    => 'USD',
+            'user_id' => $this->user->id,
+            'number' => 'INV-PAID-001',
+            'currency' => 'USD',
             'grand_total' => 50.00,
-            'status'      => 'success',
+            'status' => 'success',
         ]);
 
         $response = $this->getJson('/get-my-invoices?search-query=INV-PAID-001');
@@ -109,11 +108,11 @@ class ClientControllerTest extends DBTestCase
     public function test_get_invoices_unpaid_shows_pay_button(): void
     {
         Invoice::factory()->create([
-            'user_id'     => $this->user->id,
-            'number'      => 'INV-UNPAID-002',
-            'currency'    => 'USD',
+            'user_id' => $this->user->id,
+            'number' => 'INV-UNPAID-002',
+            'currency' => 'USD',
             'grand_total' => 200.00,
-            'status'      => 'unpaid',
+            'status' => 'unpaid',
         ]);
 
         $response = $this->getJson('/get-my-invoices?search-query=INV-UNPAID-002');
@@ -159,14 +158,14 @@ class ClientControllerTest extends DBTestCase
         $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
 
         $order = Order::create([
-            'client'       => $this->user->id,
-            'product'      => $product->id,
+            'client' => $this->user->id,
+            'product' => $product->id,
             'order_status' => 'executed',
-            'number'       => mt_rand(10000000, 99999999),
+            'number' => mt_rand(10000000, 99999999),
             'price_override' => 0,
         ]);
 
-        $response = $this->getJson('/get-my-orders?id=' . $order->id);
+        $response = $this->getJson('/get-my-orders?id='.$order->id);
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
@@ -224,7 +223,7 @@ class ClientControllerTest extends DBTestCase
     {
         // Order 999999 not found → firstOrFail throws ModelNotFoundException
         // → caught by catch(Exception) → errorResponse 400
-        $response = $this->getJson('/get-my-invoices/999999/' . $this->user->id);
+        $response = $this->getJson('/get-my-invoices/999999/'.$this->user->id);
 
         $response->assertStatus(400)
             ->assertJson(['success' => false]);
@@ -233,12 +232,12 @@ class ClientControllerTest extends DBTestCase
     public function test_get_invoices_by_order_id_returns_empty_when_order_has_no_invoices(): void
     {
         $order = Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => 'ORD-INV-' . uniqid(),
+            'number' => 'ORD-INV-'.uniqid(),
         ]);
 
-        $response = $this->getJson('/get-my-invoices/' . $order->id . '/' . $this->user->id);
+        $response = $this->getJson('/get-my-invoices/'.$order->id.'/'.$this->user->id);
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
@@ -253,7 +252,7 @@ class ClientControllerTest extends DBTestCase
     public function test_get_payment_by_order_id_returns_200_or_400(): void
     {
         // Returns 200 with empty data if order exists, 400 if not (caught exception)
-        $response = $this->getJson('/get-my-payment-client/999999/' . $this->user->id);
+        $response = $this->getJson('/get-my-payment-client/999999/'.$this->user->id);
 
         $this->assertContains($response->getStatusCode(), [200, 400]);
         $this->assertIsArray($response->json());
@@ -287,7 +286,7 @@ class ClientControllerTest extends DBTestCase
     {
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
 
-        $response = $this->getJson('/renew-popup-details/' . $product->id);
+        $response = $this->getJson('/renew-popup-details/'.$product->id);
 
         $response->assertStatus(200)
             ->assertJson(['success' => true])
@@ -303,12 +302,12 @@ class ClientControllerTest extends DBTestCase
     public function test_get_order_installations_returns_200_for_owned_order(): void
     {
         $order = \App\Model\Order\Order::create([
-            'client'       => $this->user->id,
+            'client' => $this->user->id,
             'order_status' => 'executed',
-            'number'       => 'INST-' . uniqid(),
+            'number' => 'INST-'.uniqid(),
         ]);
 
-        $response = $this->getJson('/get-my-installations/' . $order->id);
+        $response = $this->getJson('/get-my-installations/'.$order->id);
 
         $response->assertStatus(200)
             ->assertJson(['success' => true])
@@ -320,15 +319,15 @@ class ClientControllerTest extends DBTestCase
 
     public function test_get_order_installations_returns_400_for_unowned_order(): void
     {
-        $other = \App\User::factory()->create(['email' => 'other-inst-' . uniqid() . '@test.local']);
+        $other = \App\User::factory()->create(['email' => 'other-inst-'.uniqid().'@test.local']);
         $order = \App\Model\Order\Order::create([
-            'client'       => $other->id,
+            'client' => $other->id,
             'order_status' => 'executed',
-            'number'       => 'INST-OTHER-' . uniqid(),
+            'number' => 'INST-OTHER-'.uniqid(),
         ]);
 
         // Auth user doesn't own this order → firstOrFail throws → 400
-        $response = $this->getJson('/get-my-installations/' . $order->id);
+        $response = $this->getJson('/get-my-installations/'.$order->id);
 
         $response->assertStatus(400)
             ->assertJson(['success' => false]);
@@ -343,13 +342,13 @@ class ClientControllerTest extends DBTestCase
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
 
         $order = \App\Model\Order\Order::create([
-            'client'       => $this->user->id,
-            'product'      => $product->id,
+            'client' => $this->user->id,
+            'product' => $product->id,
             'order_status' => 'executed',
-            'number'       => 'CLOUD-' . uniqid(),
+            'number' => 'CLOUD-'.uniqid(),
         ]);
 
-        $response = $this->getJson('/get-cloud-settings/' . $order->id);
+        $response = $this->getJson('/get-cloud-settings/'.$order->id);
 
         // Product not in cloudPopupProducts() → 400
         $response->assertStatus(400)
@@ -384,18 +383,18 @@ class ClientControllerTest extends DBTestCase
     public function test_post_profile_updates_user_fields(): void
     {
         $response = $this->patchJson('/my-profile', [
-            'first_name'          => 'Updated',
-            'last_name'           => 'Name',
-            'user_name'           => $this->user->user_name,
-            'company'             => 'New Company',
-            'address'             => '123 Street',
-            'town'                => 'Cityville',
-            'timezone_id'         => 1,
-            'zip'                 => '12345',
-            'email'               => $this->user->email,
-            'mobile'              => '9876543210',
-            'mobile_country_iso'  => 'IN',
-            'country'             => $this->user->country ?? 'IN',
+            'first_name' => 'Updated',
+            'last_name' => 'Name',
+            'user_name' => $this->user->user_name,
+            'company' => 'New Company',
+            'address' => '123 Street',
+            'town' => 'Cityville',
+            'timezone_id' => 1,
+            'zip' => '12345',
+            'email' => $this->user->email,
+            'mobile' => '9876543210',
+            'mobile_country_iso' => 'IN',
+            'country' => $this->user->country ?? 'IN',
         ]);
 
         // 200 = success; 422 = validation error (some required field missing)
@@ -412,8 +411,8 @@ class ClientControllerTest extends DBTestCase
     public function test_post_password_returns_error_for_wrong_old_password(): void
     {
         $response = $this->patchJson('/my-password', [
-            'old_password'          => 'wrong_old_password',
-            'new_password'          => 'NewPass@1234!',
+            'old_password' => 'wrong_old_password',
+            'new_password' => 'NewPass@1234!',
             'password_confirmation' => 'NewPass@1234!',
         ]);
 
@@ -426,17 +425,17 @@ class ClientControllerTest extends DBTestCase
     public function test_post_password_updates_with_correct_old_password(): void
     {
         $user = \App\User::factory()->create([
-            'email'    => 'pass-update-'.uniqid().'@test.local',
-            'role'     => 'user',
+            'email' => 'pass-update-'.uniqid().'@test.local',
+            'role' => 'user',
             'password' => \Hash::make('OldPass@123'),
         ]);
         $this->actingAs($user);
 
         $response = $this->patchJson('/my-password', [
-            'old_password'              => 'OldPass@123',
-            'new_password'              => 'NewPass@456!',
+            'old_password' => 'OldPass@123',
+            'new_password' => 'NewPass@456!',
             'new_password_confirmation' => 'NewPass@456!',
-            'password_confirmation'     => 'NewPass@456!',
+            'password_confirmation' => 'NewPass@456!',
         ]);
 
         // 200 = success; 422 = validation schema mismatch

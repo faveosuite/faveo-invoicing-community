@@ -320,7 +320,7 @@ class DashboardControllerTest extends DBTestCase
         $user = $this->user;
 
         // Capture baseline (real DB may have orders from last 30 days)
-        $beforeAll  = (int) $this->getPrivateMethod($this->classObject, 'getConversionRate')['all_orders'];
+        $beforeAll = (int) $this->getPrivateMethod($this->classObject, 'getConversionRate')['all_orders'];
         $beforePaid = (int) $this->getPrivateMethod($this->classObject, 'getConversionRate')['paid_orders'];
 
         Order::create(['client' => $user->id, 'order_status' => 'executed',
@@ -331,7 +331,7 @@ class DashboardControllerTest extends DBTestCase
         $response = $this->getPrivateMethod($this->classObject, 'getConversionRate');
 
         // Assert the delta: we added 2 orders (1 paid, 1 unpaid)
-        $this->assertEquals($beforeAll + 2,  (int) $response['all_orders'],  'Total orders should increase by 2');
+        $this->assertEquals($beforeAll + 2, (int) $response['all_orders'], 'Total orders should increase by 2');
         $this->assertEquals($beforePaid + 1, (int) $response['paid_orders'], 'Paid orders should increase by 1');
 
         // Rate = paid/total * 100

@@ -54,7 +54,7 @@ class GithubControllerTest extends DBTestCase
         $response = $this->postJson('/github-setting', [
             'git_username' => 'validuser',
             'git_password' => 'validtoken',
-            'status'       => 1,
+            'status' => 1,
         ]);
 
         // 200 = success; 400 = validation still fails
@@ -71,7 +71,7 @@ class GithubControllerTest extends DBTestCase
         $response = $this->postJson('/github-setting', [
             'git_username' => '',
             'git_password' => '',
-            'status'       => 0,
+            'status' => 0,
         ]);
 
         $this->assertContains($response->status(), [200, 400, 422]);
