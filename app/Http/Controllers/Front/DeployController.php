@@ -46,39 +46,39 @@ class DeployController extends Controller
     public function deployStep(Request $request): JsonResponse
     {
         $request->validate([
-            'step'            => 'required|in:verify,install,upload,extract',
-            'order_id'        => 'required|integer',
-            'host'            => 'required|string|max:255',
-            'port'            => 'required|integer|min:1|max:65535',
-            'username'        => 'required|string|max:255',
-            'auth_method'     => 'required|in:private_key,password',
-            'private_key'     => 'nullable|string|required_if:auth_method,private_key',
-            'password'        => 'nullable|string|required_if:auth_method,password',
-            'deploy_mode'     => 'required|in:fresh_install,extract_only',
-            'deploy_path'     => 'nullable|string|max:1000|required_if:deploy_mode,extract_only',
-            'install_domain'  => 'nullable|string|max:255',
-            'install_email'   => 'nullable|email|max:255',
+            'step' => 'required|in:verify,install,upload,extract',
+            'order_id' => 'required|integer',
+            'host' => 'required|string|max:255',
+            'port' => 'required|integer|min:1|max:65535',
+            'username' => 'required|string|max:255',
+            'auth_method' => 'required|in:private_key,password',
+            'private_key' => 'nullable|string|required_if:auth_method,private_key',
+            'password' => 'nullable|string|required_if:auth_method,password',
+            'deploy_mode' => 'required|in:fresh_install,extract_only',
+            'deploy_path' => 'nullable|string|max:1000|required_if:deploy_mode,extract_only',
+            'install_domain' => 'nullable|string|max:255',
+            'install_email' => 'nullable|email|max:255',
             'install_license' => 'nullable|string|size:16',
-            'install_order'   => 'nullable|string|size:8',
-            'web_server'      => 'nullable|in:1,2',
-            'ssl_type'        => 'nullable|in:A,B,C',
-            'ssl_cert_path'   => 'nullable|string|max:500',
-            'ssl_key_path'    => 'nullable|string|max:500',
-            'web_user'        => 'nullable|string|max:64',
-            'sudo_password'   => 'nullable|string',
-            'version_id'      => 'nullable|integer',
-            'remote_path'     => 'nullable|string|max:500',
+            'install_order' => 'nullable|string|size:8',
+            'web_server' => 'nullable|in:1,2',
+            'ssl_type' => 'nullable|in:A,B,C',
+            'ssl_cert_path' => 'nullable|string|max:500',
+            'ssl_key_path' => 'nullable|string|max:500',
+            'web_user' => 'nullable|string|max:64',
+            'sudo_password' => 'nullable|string',
+            'version_id' => 'nullable|integer',
+            'remote_path' => 'nullable|string|max:500',
         ], [
-            'host.required'              => __('message.deploy_host_required'),
-            'port.required'              => __('message.deploy_port_invalid'),
-            'port.integer'               => __('message.deploy_port_invalid'),
-            'port.min'                   => __('message.deploy_port_invalid'),
-            'port.max'                   => __('message.deploy_port_invalid'),
-            'username.required'          => __('message.deploy_username_required'),
-            'password.required_if'       => __('message.deploy_password_required'),
-            'private_key.required_if'    => __('message.deploy_private_key_required'),
-            'deploy_path.required_if'    => __('message.deploy_path_required'),
-            'install_email.email'        => __('message.deploy_email_invalid'),
+            'host.required' => __('message.deploy_host_required'),
+            'port.required' => __('message.deploy_port_invalid'),
+            'port.integer' => __('message.deploy_port_invalid'),
+            'port.min' => __('message.deploy_port_invalid'),
+            'port.max' => __('message.deploy_port_invalid'),
+            'username.required' => __('message.deploy_username_required'),
+            'password.required_if' => __('message.deploy_password_required'),
+            'private_key.required_if' => __('message.deploy_private_key_required'),
+            'deploy_path.required_if' => __('message.deploy_path_required'),
+            'install_email.email' => __('message.deploy_email_invalid'),
         ]);
 
         try {
@@ -88,9 +88,9 @@ class DeployController extends Controller
                 : rtrim($request->deploy_path, '/');
 
             return match ($request->step) {
-                'verify'  => $this->stepVerify($request, $credential, $deployPath),
+                'verify' => $this->stepVerify($request, $credential, $deployPath),
                 'install' => $this->stepInstall($request, $credential),
-                'upload'  => $this->stepUpload($request, $credential),
+                'upload' => $this->stepUpload($request, $credential),
                 'extract' => $this->stepExtract($request, $credential, $deployPath),
             };
         } catch (\Exception $e) {
@@ -138,7 +138,7 @@ class DeployController extends Controller
         }
 
         $license = $request->install_license;
-        $order   = $request->install_order;
+        $order = $request->install_order;
 
         if ($request->ssl_type === 'C') {
             $cmd = sprintf(
@@ -179,8 +179,8 @@ class DeployController extends Controller
 
         return successResponse(__('message.deploy_install_completed'), [
             'credentials' => $credentials,
-            'setup_url'   => 'http://'.$request->install_domain.'/',
-            'output'      => $output,
+            'setup_url' => 'http://'.$request->install_domain.'/',
+            'output' => $output,
         ]);
     }
 
@@ -211,8 +211,8 @@ class DeployController extends Controller
             return errorResponse(__('message.deploy_file_not_found'));
         }
 
-        $stream    = Attach::readStream($filePath);
-        $tmpFile   = tempnam(sys_get_temp_dir(), 'deploy_');
+        $stream = Attach::readStream($filePath);
+        $tmpFile = tempnam(sys_get_temp_dir(), 'deploy_');
         $tmpHandle = fopen($tmpFile, 'wb');
         stream_copy_to_stream($stream, $tmpHandle);
         fclose($tmpHandle);
@@ -242,7 +242,7 @@ class DeployController extends Controller
 
     private function stepExtract(Request $request, mixed $credential, string $deployPath): JsonResponse
     {
-        $remotePath   = $request->remote_path;
+        $remotePath = $request->remote_path;
         $sudoPassword = $request->filled('sudo_password') ? $request->sudo_password : null;
 
         $withSudo = fn (string $cmd) => $sudoPassword
@@ -260,7 +260,7 @@ class DeployController extends Controller
             $webUser = $request->web_user;
         } else {
             $detected = trim($ssh->exec('stat -c %U '.escapeshellarg($deployPath).' 2>/dev/null'));
-            $webUser  = ($detected && ! str_contains($detected, 'stat:')) ? $detected : 'www-data';
+            $webUser = ($detected && ! str_contains($detected, 'stat:')) ? $detected : 'www-data';
         }
 
         $ssh2 = new SSH2($request->host, (int) $request->port);
@@ -299,7 +299,7 @@ class DeployController extends Controller
         }
 
         return successResponse(__('message.deploy_extract_completed'), [
-            'output'   => $output,
+            'output' => $output,
             'site_url' => $siteUrl,
         ]);
     }

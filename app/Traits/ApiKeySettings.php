@@ -462,8 +462,8 @@ trait ApiKeySettings
             ->first(['deployment_enabled', 'help_support_url', 'help_docs_url']);
 
         return successResponse('', [
-            'deployment_enabled'       => (bool) $settings?->deployment_enabled,
-            'install_script_url'       => $settings?->help_support_url,
+            'deployment_enabled' => (bool) $settings?->deployment_enabled,
+            'install_script_url' => $settings?->help_support_url,
             'manual_install_guide_url' => $settings?->help_docs_url,
         ]);
     }
@@ -471,16 +471,16 @@ trait ApiKeySettings
     public function saveDeploymentSettings(Request $request): JsonResponse
     {
         $request->validate([
-            'deployment_enabled'       => 'required|boolean',
-            'install_script_url'       => 'required|url|max:500',
+            'deployment_enabled' => 'required|boolean',
+            'install_script_url' => 'required|url|max:500',
             'manual_install_guide_url' => 'required|url|max:500',
         ]);
 
         try {
             \Illuminate\Support\Facades\DB::table('settings')->where('id', 1)->update([
                 'deployment_enabled' => $request->boolean('deployment_enabled'),
-                'help_support_url'   => $request->input('install_script_url'),
-                'help_docs_url'      => $request->input('manual_install_guide_url'),
+                'help_support_url' => $request->input('install_script_url'),
+                'help_docs_url' => $request->input('manual_install_guide_url'),
             ]);
 
             return successResponse(\Lang::get('message.updated_successfully'));

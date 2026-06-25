@@ -4,7 +4,6 @@ namespace App\Model\Order;
 
 use App\BaseModel;
 use App\License\Models\Installation;
-use App\Model\Order\InstallationDetail;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Traits\SystemActivityLogsTrait;

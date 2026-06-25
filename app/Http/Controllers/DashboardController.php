@@ -10,7 +10,6 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use DateTime;
 use DB;
 use Exception;
@@ -302,7 +301,7 @@ class DashboardController extends Controller
      */
     private function formatCurrencyTotals(array $totals): array
     {
-        $defaultCurrency   = Setting::where('id', 1)->value('default_currency');
+        $defaultCurrency = Setting::where('id', 1)->value('default_currency');
         $dashboardCurrency = Currency::where('dashboard_currency', 1)->value('code');
 
         $result = [];
@@ -589,7 +588,7 @@ class DashboardController extends Controller
     public function getSoldProduct(?int $days = null): mixed
     {
         $fromDate = $days ? Date::now()->subDays($days)->startOfDay() : null;
-        $toDate   = Date::now()->endOfDay();
+        $toDate = Date::now()->endOfDay();
 
         return Product::select('id', 'name', 'image')
             ->withCount(['order as order_count' => function ($query) use ($fromDate, $toDate): void {
