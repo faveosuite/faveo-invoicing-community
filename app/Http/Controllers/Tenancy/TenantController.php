@@ -446,11 +446,11 @@ class TenantController extends Controller
 
         try {
             $data = [
-                'cloud_central_domain'        => $request->input('cloud_central_domain'),
-                'cloud_cname'                 => $request->input('cloud_cname'),
-                'cloud_job_url'               => $request->input('cloud_job_url'),
-                'cloud_job_url_normal'        => $request->input('cloud_job_url_normal'),
-                'cloud_user'                  => $request->input('cloud_user'),
+                'cloud_central_domain' => $request->input('cloud_central_domain'),
+                'cloud_cname' => $request->input('cloud_cname'),
+                'cloud_job_url' => $request->input('cloud_job_url'),
+                'cloud_job_url_normal' => $request->input('cloud_job_url_normal'),
+                'cloud_user' => $request->input('cloud_user'),
                 'cloud_delete_job_url_normal' => $request->input('cloud_delete_job_url_normal'),
                 'cloud_delete_job_url_custom' => $request->input('cloud_delete_job_url_custom'),
             ];

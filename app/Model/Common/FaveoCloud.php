@@ -44,8 +44,8 @@ class FaveoCloud extends Model
     ];
 
     protected $casts = [
-        'cloud_auth'          => 'encrypted',
-        'cloud_oauth_token'   => 'encrypted',
+        'cloud_auth' => 'encrypted',
+        'cloud_oauth_token' => 'encrypted',
         'google_chat_webhook' => 'encrypted',
     ];
 

@@ -24,7 +24,8 @@ class NotifyManagerChange implements ShouldQueue
         private array $userIds,
         private string $managerColumn,
         private int $newManagerId
-    ) {}
+    ) {
+    }
 
     public function handle(PhpMailController $mailer): void
     {
@@ -57,16 +58,16 @@ class NotifyManagerChange implements ShouldQueue
             ->cursor()
             ->each(function (User $user) use ($setting, $template, $newManager, $contact, $mailer, $categoryName): void {
                 $replace = [
-                    'name'               => $user->first_name.' '.$user->last_name,
+                    'name' => $user->first_name.' '.$user->last_name,
                     'manager_first_name' => $newManager->first_name,
-                    'manager_last_name'  => $newManager->last_name,
-                    'manager_email'      => $newManager->email,
-                    'manager_code'       => '+'.$newManager->mobile_code,
-                    'manager_mobile'     => $newManager->mobile,
-                    'manager_skype'      => $newManager->skype,
-                    'contact'            => $contact['contact'],
-                    'logo'               => $contact['logo'],
-                    'reply_email'        => $setting->company_email,
+                    'manager_last_name' => $newManager->last_name,
+                    'manager_email' => $newManager->email,
+                    'manager_code' => '+'.$newManager->mobile_code,
+                    'manager_mobile' => $newManager->mobile,
+                    'manager_skype' => $newManager->skype,
+                    'contact' => $contact['contact'],
+                    'logo' => $contact['logo'],
+                    'reply_email' => $setting->company_email,
                 ];
 
                 $mailer->sendEmail(
