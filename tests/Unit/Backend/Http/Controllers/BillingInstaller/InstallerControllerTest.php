@@ -269,7 +269,6 @@ class InstallerControllerTest extends DBTestCase
         $this->assertFalse($body['success']);
     }
 
-
     // =========================================================================
     // getTimeZoneDropDown — structure check
     // =========================================================================
@@ -487,7 +486,6 @@ class InstallerControllerTest extends DBTestCase
         // Should return 400 due to Redis connection failure
         $this->assertEquals(400, $response->getStatusCode());
     }
-
 
     // =========================================================================
     // storeLanguage — via route, language set on user

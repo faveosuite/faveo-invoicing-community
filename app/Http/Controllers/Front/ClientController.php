@@ -135,7 +135,7 @@ class ClientController extends BaseClientController
                 'paid' => currencyFormat($paid, $invoice->currency),
                 'balance' => currencyFormat($balance, $invoice->currency),
                 'status' => $isPaid ? 'Paid' : 'Unpaid',
-                'show_pay'    => ! $isPaid && floatval($invoice->grand_total) > 0,
+                'show_pay' => ! $isPaid && floatval($invoice->grand_total) > 0,
                 'show_delete' => ! $isPaid && $invoice->orders->isEmpty(),
             ];
         });
