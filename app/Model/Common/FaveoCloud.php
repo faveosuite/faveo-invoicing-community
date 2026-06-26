@@ -36,7 +36,18 @@ class FaveoCloud extends Model
 
     protected $table = 'faveo_cloud';
 
-    protected $fillable = ['cloud_central_domain', 'cloud_cname'];
+    protected $fillable = [
+        'cloud_central_domain', 'cloud_cname',
+        'cloud_job_url', 'cloud_job_url_normal', 'cloud_user',
+        'cloud_delete_job_url_normal', 'cloud_delete_job_url_custom',
+        'cloud_auth', 'cloud_oauth_token', 'google_chat_webhook',
+    ];
+
+    protected $casts = [
+        'cloud_auth'          => 'encrypted',
+        'cloud_oauth_token'   => 'encrypted',
+        'google_chat_webhook' => 'encrypted',
+    ];
 
     protected string $logName = 'cloud';
 

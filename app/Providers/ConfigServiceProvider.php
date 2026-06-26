@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use DB;
 use Exception;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\ServiceProvider;
 use Log;
 use Override;
@@ -19,6 +20,12 @@ class ConfigServiceProvider extends ServiceProvider
             return;
         }
 
+        $this->loadAppConfig();
+        $this->overrideCloudConfigFromDb();
+    }
+
+    private function loadAppConfig(): void
+    {
         try {
             // Runs in register() (not boot()) so Debugbar, Clockwork, and Pulse read the
             // correct values when their own boot() methods run — all register() calls
@@ -35,12 +42,12 @@ class ConfigServiceProvider extends ServiceProvider
             $debugOn = $bool('debugging:app_debug');
 
             config([
-                'app.debug' => $debugOn,
-                'debugbar.force_allow_enable' => $debugOn, // Debugbar v4 blocks itself in non-local envs
-                'pulse.enabled' => $bool('debugging:pulse_enabled'),
-                'clockwork.enable' => $bool('debugging:clockwork_enable'),
-                'app.sentry_reporting' => $bool('sentry:crash_reporting'),
-                'sentry.traces_sample_rate' => $rows->get('sentry:performance_monitoring')?->option_value ? 0.1 : 0,
+                'app.debug'                   => $debugOn,
+                'debugbar.force_allow_enable'  => $debugOn, // Debugbar v4 blocks itself in non-local envs
+                'pulse.enabled'               => $bool('debugging:pulse_enabled'),
+                'clockwork.enable'            => $bool('debugging:clockwork_enable'),
+                'app.sentry_reporting'        => $bool('sentry:crash_reporting'),
+                'sentry.traces_sample_rate'   => $rows->get('sentry:performance_monitoring')?->option_value ? 0.1 : 0,
             ]);
 
             if ($cacheDriver = $rows->get('cache:driver')?->option_value) {
@@ -48,6 +55,44 @@ class ConfigServiceProvider extends ServiceProvider
             }
         } catch (Throwable) {
             // Fall back to .env values — app still boots correctly
+        }
+    }
+
+    private function overrideCloudConfigFromDb(): void
+    {
+        try {
+            $cloud = DB::table('faveo_cloud')->where('id', 1)->first();
+            if (! $cloud) {
+                return;
+            }
+
+            $plain = [
+                'cloud_job_url'               => 'custom.cloud_job_url',
+                'cloud_job_url_normal'        => 'custom.cloud_job_url_normal',
+                'cloud_user'                  => 'custom.cloud_user',
+                'cloud_delete_job_url_normal' => 'custom.cloud_delete_job_url_normal',
+                'cloud_delete_job_url_custom' => 'custom.cloud_delete_job_url_custom',
+            ];
+
+            $encrypted = [
+                'cloud_auth'          => 'custom.cloud_auth',
+                'cloud_oauth_token'   => 'custom.cloud_oauth_token',
+                'google_chat_webhook' => 'custom.google_chat',
+            ];
+
+            foreach ($plain as $column => $configKey) {
+                if (filled($cloud->{$column})) {
+                    config([$configKey => $cloud->{$column}]);
+                }
+            }
+
+            foreach ($encrypted as $column => $configKey) {
+                if (filled($cloud->{$column})) {
+                    config([$configKey => Crypt::decrypt($cloud->{$column})]);
+                }
+            }
+        } catch (Throwable) {
+            // DB unavailable, or decryption failed — fall back to ENV values
         }
     }
 

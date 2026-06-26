@@ -14,6 +14,19 @@ class SendEmail implements ShouldQueue
     public int $tries = 5;
 
     /**
+     * Exponential backoff with proportional jitter (25% of base) for transient
+     * SMTP failures. Proportional jitter gives consistent spread at every delay
+     * level — fixed jitter clusters retries at longer intervals.
+     */
+    public function backoff(): array
+    {
+        return array_map(
+            fn ($base) => $base + random_int(0, (int) ($base * 0.25)),
+            [30, 60, 120, 300, 600]
+        );
+    }
+
+    /**
      * Create a new job instance.
      */
     public function __construct(protected mixed $from, protected mixed $to, protected mixed $template_data, protected mixed $template_name, protected mixed $replace = [], protected mixed $type = '', protected mixed $bcc = [], protected mixed $fromname = '', protected mixed $toname = '', protected mixed $cc = [], protected mixed $attach = [], protected mixed $logIdentifier = null, protected mixed $auto_reply = false)

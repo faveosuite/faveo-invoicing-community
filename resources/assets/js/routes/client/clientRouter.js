@@ -38,6 +38,10 @@ const routes = [
     { path: '/contact-us', meta: { sidebar: false, requiresAuth: false, title: 'Contact Us', titleKey: 'message.contact_us' }, component: () => import('@/pages/client/pages/ContactUsPage.vue') },
     { path: '/pages/:slug', meta: { sidebar: false, requiresAuth: false }, component: () => import('@/pages/client/pages/PageView.vue') },
     { path: '/pay', meta: { requiresAuth: false, sidebar: false, title: 'Secure Payment' }, component: () => import('@/pages/client/open-payment/OpenPaymentPage.vue') },
+    { path: '/404', name: 'NotFound',    meta: { title: 'Not Found',    sidebar: false, requiresAuth: false }, component: () => import('@/pages/client/errors/NotFound.vue') },
+    { path: '/403', name: 'Forbidden',   meta: { title: 'Forbidden',    sidebar: false, requiresAuth: false }, component: () => import('@/pages/client/errors/Forbidden.vue') },
+    { path: '/500', name: 'ServerError', meta: { title: 'Server Error', sidebar: false, requiresAuth: false }, component: () => import('@/pages/client/errors/ServerError.vue') },
+    { path: '/:pathMatch(.*)*',          meta: { title: 'Not Found',    sidebar: false, requiresAuth: false }, component: () => import('@/pages/client/errors/NotFound.vue') },
 ]
 
 const router = createRouter({

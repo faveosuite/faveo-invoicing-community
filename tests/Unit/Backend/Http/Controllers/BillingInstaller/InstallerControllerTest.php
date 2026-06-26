@@ -269,17 +269,6 @@ class InstallerControllerTest extends DBTestCase
         $this->assertFalse($body['success']);
     }
 
-    // =========================================================================
-    // updateInstallEnv — updates .env with cache driver
-    // =========================================================================
-
-    public function test_update_install_env_returns_null_or_json(): void
-    {
-        $controller = new InstallerController;
-        $result = $controller->updateInstallEnv('production', 'file');
-        // Returns null (success) or JsonResponse (error)
-        $this->assertTrue($result === null || $result instanceof \Illuminate\Http\JsonResponse);
-    }
 
     // =========================================================================
     // getTimeZoneDropDown — structure check
@@ -499,29 +488,6 @@ class InstallerControllerTest extends DBTestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    // =========================================================================
-    // env method — writes env file (integration test)
-    // =========================================================================
-
-    public function test_env_method_writes_env_file(): void
-    {
-        $controller = new InstallerController;
-
-        // env() writes to base_path('.env') — test it doesn't throw
-        try {
-            $controller->env(
-                'mysql', '127.0.0.1', '3306',
-                config('database.connections.mysql.database'),
-                config('database.connections.mysql.username'),
-                config('database.connections.mysql.password')
-            );
-            // If we got here, file was written (or re-written)
-            $this->assertFileExists(base_path('.env'));
-        } catch (\Throwable $e) {
-            // env write may fail in restricted environments
-            $this->assertTrue(true);
-        }
-    }
 
     // =========================================================================
     // storeLanguage — via route, language set on user

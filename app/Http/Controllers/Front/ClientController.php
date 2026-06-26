@@ -135,7 +135,8 @@ class ClientController extends BaseClientController
                 'paid' => currencyFormat($paid, $invoice->currency),
                 'balance' => currencyFormat($balance, $invoice->currency),
                 'status' => $isPaid ? 'Paid' : 'Unpaid',
-                'show_pay' => ! $isPaid && floatval($invoice->grand_total) > 0,
+                'show_pay'    => ! $isPaid && floatval($invoice->grand_total) > 0,
+                'show_delete' => ! $isPaid && $invoice->orders->isEmpty(),
             ];
         });
 
@@ -744,6 +745,27 @@ class ClientController extends BaseClientController
             ]);
 
             return successResponse('', $paginated);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function deleteInvoice(int $id): JsonResponse
+    {
+        try {
+            $invoice = Invoice::with('orders')->where('user_id', Auth::id())->findOrFail($id);
+
+            if (strtolower($invoice->status) === 'success') {
+                return errorResponse(__('message.cannot_delete_paid_invoice'));
+            }
+
+            if ($invoice->orders->isNotEmpty()) {
+                return errorResponse(__('message.cannot_delete_invoice_with_order'));
+            }
+
+            $invoice->delete();
+
+            return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }

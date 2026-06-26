@@ -54,6 +54,34 @@
                                     </div>
                                 </div>
                                 <hr />
+                                <p class="text-muted fw-bold mb-2">{{ __('message.cloud_ci_config') }}</p>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <TextField name="cloud_job_url" :label="__('message.cloud_job_url')" :hint="__('message.cloud_job_url_hint')" :value="form.cloud_job_url" :onChange="v => form.cloud_job_url = v" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <TextField name="cloud_job_url_normal" :label="__('message.cloud_job_url_normal')" :hint="__('message.cloud_job_url_normal_hint')" :value="form.cloud_job_url_normal" :onChange="v => form.cloud_job_url_normal = v" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <TextField name="cloud_delete_job_url_normal" :label="__('message.cloud_delete_job_url_normal')" :hint="__('message.cloud_delete_job_url_normal_hint')" :value="form.cloud_delete_job_url_normal" :onChange="v => form.cloud_delete_job_url_normal = v" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <TextField name="cloud_delete_job_url_custom" :label="__('message.cloud_delete_job_url_custom')" :hint="__('message.cloud_delete_job_url_custom_hint')" :value="form.cloud_delete_job_url_custom" :onChange="v => form.cloud_delete_job_url_custom = v" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <TextField name="cloud_user" :label="__('message.cloud_user')" :hint="__('message.cloud_user_hint')" :value="form.cloud_user" :onChange="v => form.cloud_user = v" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <TextField name="google_chat_webhook" type="password" :label="__('message.google_chat_webhook')" :hint="__('message.google_chat_webhook_hint')" :placeholder="form.google_chat_webhook_configured ? '••••••••••••' : ''" :value="form.google_chat_webhook" :onChange="v => form.google_chat_webhook = v" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <TextField name="cloud_auth" type="password" :label="__('message.cloud_auth')" :hint="__('message.cloud_auth_hint')" :placeholder="form.cloud_auth_configured ? '••••••••••••' : ''" :value="form.cloud_auth" :onChange="v => form.cloud_auth = v" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <TextField name="cloud_oauth_token" type="password" :label="__('message.cloud_oauth_token')" :hint="__('message.cloud_oauth_token_hint')" :placeholder="form.cloud_oauth_token_configured ? '••••••••••••' : ''" :value="form.cloud_oauth_token" :onChange="v => form.cloud_oauth_token = v" />
+                                    </div>
+                                </div>
+                                <hr />
                                 <p class="text-muted fw-bold mb-2">{{ __('message.customise_cloud_popup') }}</p>
                                 <div class="row">
                                     <div class="col-md-4">
@@ -310,7 +338,13 @@ function closeProductModal() { showProductModal.value = false; productForm.cloud
 function openDCModal()  { showDCModal.value = true }
 function closeDCModal() { showDCModal.value = false; dcForm.cloud_countries = null; dcForm.cloud_state = null; dcForm.cloud_city = ''; states.value = [] }
 
-const form        = reactive({ cloud_central_domain: '', cloud_cname: '', cloud_button: false })
+const form        = reactive({
+    cloud_central_domain: '', cloud_cname: '', cloud_button: false,
+    cloud_job_url: '', cloud_job_url_normal: '', cloud_user: '',
+    cloud_delete_job_url_normal: '', cloud_delete_job_url_custom: '',
+    cloud_auth: '', cloud_oauth_token: '', google_chat_webhook: '',
+    cloud_auth_configured: false, cloud_oauth_token_configured: false, google_chat_webhook_configured: false,
+})
 const popup       = reactive({ cloud_top_message: '', cloud_label_field: '', cloud_label_radio: '' })
 const productForm = reactive({ cloud_product: null, cloud_free_plan: null, cloud_product_key: '' })
 const dcForm      = reactive({ cloud_countries: null, cloud_state: null, cloud_city: '' })
@@ -346,8 +380,19 @@ onMounted(async () => {
         const res  = await http.get(`${baseUrl}/settings/cloud-details`)
         const data = res.data?.data ?? {}
         Object.assign(form, {
-            cloud_central_domain: data.cloud_central_domain ?? '',
-            cloud_cname:          data.cloud_cname          ?? '',
+            cloud_central_domain:          data.cloud_central_domain          ?? '',
+            cloud_cname:                   data.cloud_cname                   ?? '',
+            cloud_job_url:                 data.cloud_job_url                 ?? '',
+            cloud_job_url_normal:          data.cloud_job_url_normal          ?? '',
+            cloud_user:                    data.cloud_user                    ?? '',
+            cloud_delete_job_url_normal:   data.cloud_delete_job_url_normal   ?? '',
+            cloud_delete_job_url_custom:   data.cloud_delete_job_url_custom   ?? '',
+            cloud_auth:                        '',
+            cloud_oauth_token:                 '',
+            google_chat_webhook:               '',
+            cloud_auth_configured:             data.cloud_auth_configured             ?? false,
+            cloud_oauth_token_configured:      data.cloud_oauth_token_configured      ?? false,
+            google_chat_webhook_configured:    data.google_chat_webhook_configured    ?? false,
             cloud_button:         data.cloud_button         ?? false,
         })
         Object.assign(popup, {
@@ -425,8 +470,16 @@ async function saveSettings() {
     try {
         const [res] = await Promise.all([
             http.post(`${baseUrl}/cloud-details`, {
-                cloud_central_domain: form.cloud_central_domain,
-                cloud_cname:          form.cloud_cname,
+                cloud_central_domain:        form.cloud_central_domain,
+                cloud_cname:                 form.cloud_cname,
+                cloud_job_url:               form.cloud_job_url,
+                cloud_job_url_normal:        form.cloud_job_url_normal,
+                cloud_user:                  form.cloud_user,
+                cloud_delete_job_url_normal: form.cloud_delete_job_url_normal,
+                cloud_delete_job_url_custom: form.cloud_delete_job_url_custom,
+                cloud_auth:                  form.cloud_auth || undefined,
+                cloud_oauth_token:           form.cloud_oauth_token || undefined,
+                google_chat_webhook:         form.google_chat_webhook || undefined,
             }),
             http.post(`${baseUrl}/enable/cloud`, { debug: form.cloud_button ? 'true' : 'false' }),
             http.post(`${baseUrl}/cloud-pop-up`, popup),

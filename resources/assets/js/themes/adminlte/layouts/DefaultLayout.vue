@@ -6,7 +6,7 @@
     <main class="app-main">
 
         <!-- ── Content header: page title + breadcrumb ──────────────────── -->
-        <div class="app-content-header">
+        <div v-if="!route.meta?.isErrorPage" class="app-content-header">
             <div class="container-fluid">
                 <div class="row align-items-center">
                     <div class="col-sm-6">

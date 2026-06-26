@@ -309,6 +309,7 @@ Route::middleware('installAgora')->group(function (): void {
 
     // --- Invoices (client) ---
     Route::get('get-my-invoices', [ClientController::class, 'getInvoices'])->name('get-my-invoices');
+    Route::delete('my-invoice/{id}', [ClientController::class, 'deleteInvoice'])->name('my-invoice.delete');
 
     // --- Orders (client) ---
     Route::get('get-my-orders', [ClientController::class, 'getClientOrder'])->name('get-my-orders');

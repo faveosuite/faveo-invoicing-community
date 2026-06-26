@@ -528,8 +528,16 @@ class SettingsController extends BaseSettingsController
                 ]);
 
             return successResponse('', [
-                'cloud_central_domain' => $cloud?->cloud_central_domain,
-                'cloud_cname' => $cloud?->cloud_cname,
+                'cloud_central_domain'        => $cloud?->cloud_central_domain,
+                'cloud_cname'                 => $cloud?->cloud_cname,
+                'cloud_job_url'               => $cloud?->cloud_job_url ?? config('custom.cloud_job_url'),
+                'cloud_job_url_normal'        => $cloud?->cloud_job_url_normal ?? config('custom.cloud_job_url_normal'),
+                'cloud_user'                  => $cloud?->cloud_user ?? config('custom.cloud_user'),
+                'cloud_delete_job_url_normal' => $cloud?->cloud_delete_job_url_normal ?? config('custom.cloud_delete_job_url_normal'),
+                'cloud_delete_job_url_custom' => $cloud?->cloud_delete_job_url_custom ?? config('custom.cloud_delete_job_url_custom'),
+                'cloud_auth_configured'            => filled($cloud?->cloud_auth) || filled(config('custom.cloud_auth')),
+                'cloud_oauth_token_configured'     => filled($cloud?->cloud_oauth_token) || filled(config('custom.cloud_oauth_token')),
+                'google_chat_webhook_configured'   => filled($cloud?->google_chat_webhook) || filled(config('custom.google_chat')),
                 'cloud_button' => (bool) StatusSetting::value('cloud_button'),
                 'cloud_top_message' => $cloudPopUp->cloud_top_message ?? '',
                 'cloud_label_field' => $cloudPopUp->cloud_label_field ?? '',

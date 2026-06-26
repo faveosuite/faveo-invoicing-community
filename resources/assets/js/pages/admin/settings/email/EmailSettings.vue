@@ -10,6 +10,17 @@
 
             <template v-else>
                 <div class="card-body">
+                    <div v-if="form.driver?.id === 'smtp'" class="alert alert-info d-flex gap-2 align-items-start mb-3">
+                        <i class="fas fa-info-circle mt-1 flex-shrink-0"></i>
+                        <div>
+                            <strong>{{ __('message.smtp_info_title') }}</strong>
+                            <ul class="mb-0 mt-1 ps-3">
+                                <li>{{ __('message.smtp_info_transactional') }}</li>
+                                <li>{{ __('message.smtp_info_bulk_limit') }}</li>
+                                <li>{{ __('message.smtp_info_bulk_recommend') }}</li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-4">
                             <SelectField

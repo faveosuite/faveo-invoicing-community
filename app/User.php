@@ -3,7 +3,7 @@
 namespace App;
 
 use App\Facades\Attach;
-use App\Http\Controllers\Auth\AuthController;
+use App\Jobs\NotifyManagerChange;
 use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\LicenseCallback;
@@ -448,14 +448,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $changed = $this->isDirty() ? $this->getDirty() : false;
         $result = parent::save($options);
         $role = $this->role;
-        if ($changed && checkArray('manager', $changed) && $role == 'user' && emailSendingStatus()) {
-            $auth = new AuthController;
-            $auth->salesManagerMail($this);
-        }
-
-        if ($changed && checkArray('account_manager', $changed) && $role == 'user' && emailSendingStatus()) {
-            $auth = new AuthController;
-            $auth->accountManagerMail($this);
+        if ($changed && $role == 'user' && emailSendingStatus()) {
+            if (checkArray('manager', $changed) && $this->manager) {
+                NotifyManagerChange::dispatch([$this->id], 'manager', (int) $this->manager);
+            }
+            if (checkArray('account_manager', $changed) && $this->account_manager) {
+                NotifyManagerChange::dispatch([$this->id], 'account_manager', (int) $this->account_manager);
+            }
         }
 
         return $result;

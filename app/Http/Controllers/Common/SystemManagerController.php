@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Common;
 
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Common\SystemManagerSettingsRequest;
+use App\Jobs\NotifyManagerChange;
 use App\Model\Common\ManagerSetting;
 use App\User;
-use Closure;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -103,25 +102,13 @@ class SystemManagerController extends Controller
     public function updateManagerSettings(SystemManagerSettingsRequest $request): JsonResponse
     {
         try {
-            $mailer = new AuthController;
+            $warning = $this->smtpBatchWarning($request);
+            if ($warning) {
+                return errorResponse($warning);
+            }
 
-            $this->updateManager(
-                'account_manager',
-                'position',
-                'account',
-                $request->existingAccManager,
-                $request->newAccManager,
-                fn ($user) => $mailer->accountManagerMail($user)
-            );
-
-            $this->updateManager(
-                'manager',
-                'position',
-                'sales',
-                $request->existingSaleManager,
-                $request->newSaleManager,
-                fn ($user) => $mailer->salesManagerMail($user)
-            );
+            $this->updateManager('account_manager', $request->existingAccManager, $request->newAccManager);
+            $this->updateManager('manager', $request->existingSaleManager, $request->newSaleManager);
 
             $roles = [
                 'account' => $request->autoAssignAccount,
@@ -140,35 +127,47 @@ class SystemManagerController extends Controller
         }
     }
 
-    /**
-     * Updates manager assignment and notifies users.
-     *
-     * @param  string  $managerColumn  The column representing the manager relationship.
-     * @param  string  $positionColumn  The column representing the user's position.
-     * @param  string  $role  The manager role ('account' or 'sales').
-     * @param  int  $oldManagerId  The ID of the old manager.
-     * @param  int  $newManagerId  The ID of the new manager.
-     * @param  Closure  $mailCallback  Callback to send notification email.
-     */
-    private function updateManager(string $managerColumn, string $positionColumn, string $role, $oldManagerId, $newManagerId, Closure $mailCallback): void
+    private function smtpBatchWarning(SystemManagerSettingsRequest $request): ?string
+    {
+        $isSyncQueue = config('queue.default') === 'sync';
+        $isSmtp = \App\Model\Common\Setting::value('driver') === 'smtp';
+
+        if (! $isSyncQueue && ! $isSmtp) {
+            return null;
+        }
+
+        $counts = [];
+        if ($request->existingAccManager) {
+            $counts['account'] = User::where('account_manager', $request->existingAccManager)->count();
+        }
+        if ($request->existingSaleManager) {
+            $counts['sales'] = User::where('manager', $request->existingSaleManager)->count();
+        }
+
+        $affectedCount = array_sum($counts);
+        if ($affectedCount <= 200) {
+            return null;
+        }
+
+        return __('message.smtp_driver_warning');
+    }
+
+    private function updateManager(string $managerColumn, $oldManagerId, $newManagerId): void
     {
         if (blank($oldManagerId) || blank($newManagerId)) {
             return;
         }
 
-        $position = $role === 'account' ? 'account_manager' : 'manager';
-        User::where('id', $newManagerId)->update([$positionColumn => $position]);
+        User::where('id', $newManagerId)->update(['position' => $managerColumn]);
 
-        $affectedUserIds = User::where($managerColumn, $oldManagerId)->pluck('id');
+        $affectedUserIds = emailSendingStatus()
+            ? User::where($managerColumn, $oldManagerId)->pluck('id')->all()
+            : [];
 
         User::where($managerColumn, $oldManagerId)->update([$managerColumn => $newManagerId]);
 
-        if (emailSendingStatus() && $affectedUserIds->isNotEmpty()) {
-            User::whereIn('id', $affectedUserIds)
-                ->cursor()
-                ->each(function ($user) use ($mailCallback): void {
-                    $mailCallback($user);
-                });
+        if ($affectedUserIds) {
+            NotifyManagerChange::dispatch($affectedUserIds, $managerColumn, (int) $newManagerId);
         }
     }
 }

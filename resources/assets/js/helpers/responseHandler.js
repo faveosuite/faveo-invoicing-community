@@ -26,9 +26,16 @@ export const errorHandler = (err, componentName = '') => {
         store.setAlert({ type: 'danger', message: data.message, component_name: componentName })
     }
 
-    if (status === 404) {
-        window.location = window.axios.defaults.baseURL + '/404'
+    if (status === 403) {
+        window.__router?.push('/403')
+        return
     }
+
+    if (status === 404) {
+        window.__router?.push('/404')
+        return
+    }
+
 }
 
 /**

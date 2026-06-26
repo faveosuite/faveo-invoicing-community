@@ -32,6 +32,10 @@ const routes = [
     ...commonRoutes,
     ...widgetRoutes,
     ...licenseRoutes,
+    { path: '/404', name: 'NotFound',    meta: { title: 'Not Found',    isErrorPage: true }, component: () => import('@/pages/admin/errors/NotFound.vue') },
+    { path: '/403', name: 'Forbidden',   meta: { title: 'Forbidden',    isErrorPage: true }, component: () => import('@/pages/admin/errors/Forbidden.vue') },
+    { path: '/500', name: 'ServerError', meta: { title: 'Server Error', isErrorPage: true }, component: () => import('@/pages/admin/errors/ServerError.vue') },
+    { path: '/:pathMatch(.*)*',          meta: { title: 'Not Found',    isErrorPage: true }, component: () => import('@/pages/admin/errors/NotFound.vue') },
 ]
 
 // Read the admin base path from the blade-rendered data attribute.

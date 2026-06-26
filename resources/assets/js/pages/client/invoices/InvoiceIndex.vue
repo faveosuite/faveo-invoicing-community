@@ -34,18 +34,43 @@
                            icon="fas fa-credit-card" class="table_btn"
                            v-tooltip="__('message.pay')"
                            @click="goToPay(row.id)"/>
+
+            <action-button v-if="row.show_delete"
+                           icon="fas fa-trash" class="table_btn"
+                           v-tooltip="__('message.delete')"
+                           @click="confirmDelete(row)"/>
           </div>
         </template>
       </DataTable>
     </AppCard>
+
+    <AppModal
+        :showModal="!!deleteTarget"
+        :onClose="() => deleteTarget = null"
+        :showCloseBtn="false"
+    >
+        <template #title>
+            <h5>{{ __('message.delete_invoice') }}</h5>
+        </template>
+        <template #fields>
+            <AppAlert componentName="my-invoices" />
+            <p class="mb-0">{{ __('message.delete_invoice_confirm', { number: deleteTarget?.number }) }}</p>
+        </template>
+        <template #controls>
+            <action-button action="delete" :loading="deleteLoading" @click="doDelete" />
+        </template>
+    </AppModal>
+
   </div>
 </template>
 
 <script setup>
-import {reactive} from 'vue'
-import {RouterLink, useRouter} from 'vue-router'
-import {__} from '@/plugins/i18n'
+import { reactive, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { __ } from '@/plugins/i18n'
 import { useDateTime } from '@/core/composables/useDateTime'
+import http from '@/plugins/axios'
+import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const { formatDate } = useDateTime()
 
@@ -73,8 +98,26 @@ const tableOptions = reactive({
 
 
 function goToPay(invoiceId) {
-  // Send to the checkout/gateway-selection step (page 2), not straight to the
-  // pay page — the user picks a gateway there before paying.
   router.push({ path: '/checkout', query: { invoice: invoiceId } })
+}
+
+const deleteTarget   = ref(null)
+const deleteLoading  = ref(false)
+const COMPONENT      = 'my-invoices'
+
+function confirmDelete(row) {
+  deleteTarget.value = row
+}
+
+async function doDelete() {
+  if (!deleteTarget.value) return
+  deleteLoading.value = true
+  try {
+    const res = await http.delete(`${baseUrl}/my-invoice/${deleteTarget.value.id}`)
+    successHandler(res, COMPONENT)
+    deleteTarget.value = null
+    window.emitter?.emit('refreshData')
+  } catch (e) { errorHandler(e, COMPONENT) }
+  finally { deleteLoading.value = false }
 }
 </script>

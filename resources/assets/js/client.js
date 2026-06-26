@@ -59,6 +59,7 @@ const auth = useAuthStore()
 await auth.hydrate()
 
 app.use(clientRouter)
+window.__router = clientRouter
 app.use(i18n)
 app.use(VueProgressBar, progressBarOptions)
 app.use(FloatingVue)

@@ -69,6 +69,7 @@ import(`./themes/${theme}/index.js`).then(async themeModule => {
     app.use(pinia)
     app.use(DateTimePlugin)
     app.use(router)
+    window.__router = router
     app.use(i18n)
     app.use(VueProgressBar, progressBarOptions)
     app.use(ServerTable, {}, 'bootstrap4', {})

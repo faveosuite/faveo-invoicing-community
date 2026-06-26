@@ -38,7 +38,10 @@
                                     <Switch :name="`publish-${ft.key}`" :value="forms[ft.key].publish" :onChange="(val) => forms[ft.key].publish = val" />
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label fw-bold d-block">{{ __('message.allow_mailchimp') }}</label>
+                                    <label class="form-label fw-bold d-block">{{ __('message.allow_newsletter') }}</label>
+                                    <span v-if="!mailchimpStatus" class="d-block">
+                                        <small class="text-muted">{{ __('message.newsletter_not_configured') }}</small>
+                                    </span>
                                     <Switch :name="`allow_mailchimp-${ft.key}`" :value="forms[ft.key].allow_mailchimp" :disabled="!mailchimpStatus" :onChange="(val) => forms[ft.key].allow_mailchimp = val" />
                                 </div>
                                 <div class="col-md-4 mb-3">

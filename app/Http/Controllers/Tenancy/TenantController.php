@@ -445,8 +445,29 @@ class TenantController extends Controller
         ]);
 
         try {
-            $cloud = new FaveoCloud;
-            $cloud->updateOrCreate(['id' => 1], ['cloud_central_domain' => $request->input('cloud_central_domain'), 'cloud_cname' => $request->input('cloud_cname')]);
+            $data = [
+                'cloud_central_domain'        => $request->input('cloud_central_domain'),
+                'cloud_cname'                 => $request->input('cloud_cname'),
+                'cloud_job_url'               => $request->input('cloud_job_url'),
+                'cloud_job_url_normal'        => $request->input('cloud_job_url_normal'),
+                'cloud_user'                  => $request->input('cloud_user'),
+                'cloud_delete_job_url_normal' => $request->input('cloud_delete_job_url_normal'),
+                'cloud_delete_job_url_custom' => $request->input('cloud_delete_job_url_custom'),
+            ];
+
+            if (filled($request->input('cloud_auth'))) {
+                $data['cloud_auth'] = $request->input('cloud_auth');
+            }
+
+            if (filled($request->input('cloud_oauth_token'))) {
+                $data['cloud_oauth_token'] = $request->input('cloud_oauth_token');
+            }
+
+            if (filled($request->input('google_chat_webhook'))) {
+                $data['google_chat_webhook'] = $request->input('google_chat_webhook');
+            }
+
+            (new FaveoCloud)->updateOrCreate(['id' => 1], $data);
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception) {
