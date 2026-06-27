@@ -68,9 +68,9 @@ class RenewController extends BaseRenewController
     public function renew(int $id, Request $request): JsonResponse
     {
         $request->validate([
-            'plan'           => ['required', 'integer'],
+            'plan' => ['required', 'integer'],
             'payment_method' => ['required', 'string'],
-            'cost'           => ['required', 'numeric'],
+            'cost' => ['required', 'numeric'],
         ]);
 
         try {

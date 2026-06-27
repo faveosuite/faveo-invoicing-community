@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Controllers\Tenancy\TenantController;
-use App\Model\Product\CloudProducts;
 use App\Http\Requests\InvoiceRequest;
 use App\Jobs\ReportExport;
 use App\Model\Common\FaveoCloud;
@@ -23,6 +22,7 @@ use App\Model\Payment\Promotion;
 use App\Model\Payment\Tax;
 use App\Model\Payment\TaxByState;
 use App\Model\Payment\TaxOption;
+use App\Model\Product\CloudProducts;
 use App\Model\Product\Price;
 use App\Model\Product\Product;
 use App\Services\Payment\ProcessingFee;

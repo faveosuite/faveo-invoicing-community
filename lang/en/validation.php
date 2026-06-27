@@ -561,13 +561,13 @@ return [
             'mimes' => 'The image must be a PNG file.',
         ],
         'github_owner' => [
-            'required'             => 'The GitHub owner field is required.',
+            'required' => 'The GitHub owner field is required.',
             'required_without_all' => 'The GitHub owner field is required if none of file or image are provided.',
         ],
         'github_repository' => [
-            'required'             => 'The GitHub repository field is required.',
+            'required' => 'The GitHub repository field is required.',
             'required_without_all' => 'The GitHub repository field is required if none of file or image are provided.',
-            'required_if'          => 'The GitHub repository field is required if type is 2.',
+            'required_if' => 'The GitHub repository field is required if type is 2.',
         ],
         'shoping_cart_link' => [
             'required' => 'The shopping cart link field is required.',
