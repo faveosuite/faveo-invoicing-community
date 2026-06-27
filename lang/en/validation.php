@@ -561,11 +561,13 @@ return [
             'mimes' => 'The image must be a PNG file.',
         ],
         'github_owner' => [
+            'required'             => 'The GitHub owner field is required.',
             'required_without_all' => 'The GitHub owner field is required if none of file or image are provided.',
         ],
         'github_repository' => [
+            'required'             => 'The GitHub repository field is required.',
             'required_without_all' => 'The GitHub repository field is required if none of file or image are provided.',
-            'required_if' => 'The GitHub repository field is required if type is 2.',
+            'required_if'          => 'The GitHub repository field is required if type is 2.',
         ],
         'shoping_cart_link' => [
             'required' => 'The shopping cart link field is required.',
@@ -985,4 +987,38 @@ return [
     // Phone number validation (libphonenumber)
     'phone_number' => 'The :attribute is not a valid phone number.',
     'mobile_number' => 'The :attribute must be a valid mobile phone number.',
+
+    // Missing keys — added 2026-06-26
+    'license' => [
+        'product' => [
+            'required' => 'The product field is required.',
+        ],
+        'client' => [
+            'required' => 'The client field is required.',
+        ],
+        'license_code' => [
+            'required' => 'The license code field is required.',
+        ],
+        'license_expire_date' => [
+            'required' => 'The license expiry date is required.',
+        ],
+        'license_updates_date' => [
+            'required' => 'The license updates date is required.',
+        ],
+        'license_support_date' => [
+            'required' => 'The license support date is required.',
+        ],
+        'banned_host_ip' => [
+            'required' => 'The banned host IP field is required.',
+        ],
+        'whitelist_host_ip' => [
+            'required' => 'The whitelist host IP field is required.',
+        ],
+        'installation_ip' => [
+            'required' => 'The installation IP field is required.',
+        ],
+        'notification_field' => [
+            'required' => 'This notification field is required.',
+        ],
+    ],
 ];

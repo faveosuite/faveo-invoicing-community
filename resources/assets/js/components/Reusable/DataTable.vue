@@ -10,7 +10,7 @@
           class="form-control globe-search"
           v-model="searchStr"
           @keyup.enter="onSearch"
-          placeholder="Type and press enter to search..."
+          :placeholder="__('message.search_placeholder')"
       />
       <slot name="table-tools" />
     </div>

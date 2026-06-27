@@ -3,9 +3,15 @@
         <router-link :to="`/invoices/${invoiceId}`" class="btn btn-default table_btn" v-tooltip="__('message.view')">
             <i class="fas fa-eye"></i>
         </router-link>
-        <router-link :to="`/invoices/${invoiceId}/edit`" class="btn btn-light table_btn" v-tooltip="__('message.edit')">
-            <i class="fas fa-edit"></i>
-        </router-link>
+
+        <button
+            v-if="!isExecuted"
+            class="btn btn-light table_btn"
+            v-tooltip="__('message.order_execute')"
+            @click="execute"
+        >
+            <i class="fas fa-play"></i>
+        </button>
 
         <template v-if="showDelete">
             <button class="btn btn-light table_btn" v-tooltip="__('message.Delete')" @click="showModal = true">
@@ -27,13 +33,25 @@
 
 <script setup>
 import { ref } from 'vue'
+import http from '@/plugins/axios'
+import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
-defineProps({
+const props = defineProps({
     invoiceId:  { type: [Number, String], required: true },
+    isExecuted: { type: Boolean, default: false },
     showDelete: { type: Boolean, default: false },
 })
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 const showModal = ref(false)
+
+async function execute() {
+    try {
+        const res = await http.post(`${baseUrl}/invoices/${props.invoiceId}/execute`)
+        successHandler(res, 'invoices-index')
+    } catch (e) {
+        errorHandler(e, 'invoices-index')
+    }
+}
 </script>

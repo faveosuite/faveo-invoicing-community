@@ -9,23 +9,6 @@ export const errorHandler = (err, componentName = '') => {
     const status = err?.response?.status
     const data   = err?.response?.data
 
-    // 422: Laravel validation errors — surface the top-level message via the global alert.
-    // Field-level errors live in each form's vee-validate `useForm()` instance now.
-    if (status === 422) {
-        if (data?.message) {
-            store.setAlert({ type: 'danger', message: data.message, component_name: componentName })
-        }
-        return
-    }
-
-    if ([400, 401, 429, 500].includes(status) && data?.message !== undefined) {
-        store.setAlert({ type: 'danger', message: data.message, component_name: componentName })
-    }
-
-    if (status === 412 && data?.message !== undefined) {
-        store.setAlert({ type: 'danger', message: data.message, component_name: componentName })
-    }
-
     if (status === 403) {
         window.__router?.push('/403')
         return
@@ -36,6 +19,21 @@ export const errorHandler = (err, componentName = '') => {
         return
     }
 
+    // Extract a human-readable message, prioritizing the structured data.message,
+    // then validation errors, then axios error message, and finally a default fallback.
+    let message = data?.message
+    if (!message && data && typeof data === 'object') {
+        if (data.errors) {
+            message = Object.values(data.errors)
+                .map(e => Array.isArray(e) ? e[0] : e)
+                .join(' ')
+        }
+    }
+    if (!message) {
+        message = err.message || 'Something went wrong.'
+    }
+
+    store.setAlert({ type: 'danger', message, component_name: componentName })
 }
 
 /**

@@ -272,7 +272,7 @@ const tableOptions = reactive({
             else if (row.status === 'Partially Paid') badgeClass = 'badge bg-info text-dark'
             return h('span', { class: badgeClass }, row.status)
         },
-        action:       (f, row) => h(InvoiceTableActions, { invoiceId: row.id, showDelete: true }),
+        action:       (f, row) => h(InvoiceTableActions, { invoiceId: row.id, isExecuted: !!row.is_executed, showDelete: true }),
     },
 
     sortable: ['number', 'date', 'grand_total', 'status'],

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
+use App\Http\Controllers\Tenancy\TenantController;
+use App\Model\Product\CloudProducts;
 use App\Http\Requests\InvoiceRequest;
 use App\Jobs\ReportExport;
 use App\Model\Common\FaveoCloud;
@@ -177,7 +179,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             $query = $this->advanceSearch($request);
 
-            $invoice = $query->when($searchQuery, function ($query, $search): void {
+            $invoice = $query->withCount('orderRelation')->when($searchQuery, function ($query, $search): void {
                 $statusMapping = [
                     'paid' => 'success',
                     'unpaid' => 'pending',
@@ -214,6 +216,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                     'created_at' => $invoice->created_at,
                     'grand_total' => currencyFormat($invoice->grand_total, $invoice->currency),
                     'status' => $statusMapping[$status] ?? $invoice->status,
+                    'is_executed' => $invoice->order_relation_count > 0,
                 ];
             });
 
@@ -239,12 +242,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 $user_id = $request->input('user');
             }
 
-            if ($request->has('cloud_domain')) {
+            if ($request->filled('cloud_domain')) {
                 $cloud_domain = $request->input('cloud_domain');
-
-                if (empty($cloud_domain)) {
-                    return errorResponse([trans('message.cloud_domain_empty')]);
-                }
 
                 $cloud_domain = $cloud_domain.'.'.cloudSubDomain();
 
@@ -262,7 +261,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $code = $request->input('code');
             $total = (float) str_replace(',', '', $request->input('price'));
             $description = $request->input('description');
-            if ($request->has('domain')) {
+            if ($request->filled('domain')) {
                 $domain = $request->input('domain');
                 $this->setDomain($productid, $domain);
             }
@@ -302,13 +301,41 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             $items = $this->createInvoiceItemsByAdmin($invoice->id, $productid,
                 $total, $currency, $qty, $agents, $plan, $user_id, $tax['name'], (float) $tax['value'], $total);
-            $result = $this->getMessage($items, $user_id);
             Session::forget('plan');
 
-            return successResponse($result); // @phpstan-ignore argument.type
+            if (! $items) {
+                return errorResponse([__('message.can-not-generate-invoice')]);
+            }
+
+            return successResponse(__('message.invoice-generated-successfully'));
         } catch (Exception $exception) {
             Logger::exception($exception);
 
+            return errorResponse([$exception->getMessage()]);
+        }
+    }
+
+    public function executeInvoice(int $id): JsonResponse
+    {
+        try {
+            (new OrderController)->executeOrder($id);
+
+            $invoice = Invoice::findOrFail($id);
+            if (! empty($invoice->cloud_domain)) {
+                $cloudProductIds = CloudProducts::pluck('cloud_product');
+                $orderIds = OrderInvoiceRelation::where('invoice_id', $id)->pluck('order_id');
+                $orderNumber = Order::whereIn('id', $orderIds)
+                    ->whereIn('product', $cloudProductIds)
+                    ->value('number');
+                if ($orderNumber) {
+                    new TenantController(new Client, new FaveoCloud)->createTenant(
+                        new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain, 'userInfo' => $invoice->user_id])
+                    );
+                }
+            }
+
+            return successResponse(__('message.order-executed-successfully'));
+        } catch (Exception $exception) {
             return errorResponse([$exception->getMessage()]);
         }
     }

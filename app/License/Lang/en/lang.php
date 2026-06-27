@@ -298,4 +298,12 @@ return [
     'whitelist_add' => 'Whitelist IP added successfully',
     'whitelist_update' => 'Whitelist IP updated successfully',
     'you_are_all_set_from_now_on_you_will_use_authenticator_to_sign_in_to_your_account' => "You're all set. From now on, you'll use Authenticator to sign in to your License Manager Account.",
+
+    // Missing keys — added 2026-06-26
+    'close'           => 'Close',
+    'error'           => 'Error',
+    'installs_count'  => 'Installs Count',
+    'license_domain'  => 'License Domain',
+    'license_expiry'  => 'License Expiry',
+    'view_agent'      => 'View Agent',
 ];

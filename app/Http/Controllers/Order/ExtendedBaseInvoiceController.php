@@ -94,32 +94,6 @@ class ExtendedBaseInvoiceController extends Controller
         }
     }
 
-    public function postEdit(int $invoiceid, Request $request): JsonResponse
-    {
-        $this->validate($request, [
-            'date' => 'required',
-            'total' => 'required',
-            'status' => 'required',
-        ],
-            [
-                'date.required' => __('validation.custom_date.date_required'),
-                'total.required' => __('validation.custom_date.total_required'),
-                'status.required' => __('validation.custom_date.status_required'),
-            ]);
-
-        try {
-            $total = $request->input('total');
-            $status = $request->input('status');
-            $paid = $request->input('paid');
-            $invoice = Invoice::where('id', $invoiceid)->update(['grand_total' => $total, 'status' => $status,
-                'date' => Date::parse($request->input('date')), ]);
-            $order = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))->update(['price_override' => $total]);
-
-            return successResponse(__('message.updated-successfully'));
-        } catch (Exception $exception) {
-            return errorResponse($exception->getMessage());
-        }
-    }
 
     public function postNewMultiplePayment(int $clientid, Request $request): JsonResponse
     {

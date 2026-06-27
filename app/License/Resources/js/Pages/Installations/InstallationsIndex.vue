@@ -51,6 +51,7 @@ const options = reactive({
                 data.view_url = '/installations/' + data.id + '/view'
                 data.keyVal = 'id'
                 data.idVal = data.id
+                data.method = 'post'
                 return data
             }),
             count: data.data.total

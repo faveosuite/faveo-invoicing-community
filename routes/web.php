@@ -326,6 +326,9 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('get-renew-cost', [RenewController::class, 'getCost']);
     Route::post('client/renew/{id}', [RenewController::class, 'renewByClient']);
 
+    // --- Renew (admin) ---
+    Route::post('admin/renew/{id}', [RenewController::class, 'renew']);
+
     // --- Payments (client) ---
     Route::middleware('auth')->group(function (): void {
         Route::get('invoice/{invoice}/pay-init', [PaymentController::class, 'payInit'])->name('invoice.pay.init');
@@ -472,8 +475,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::delete('invoices', [InvoiceController::class, 'deleteBulkInvoices']);
     Route::delete('payments', [InvoiceController::class, 'deleteBulkPayments']);
 
-    // Legacy invoice endpoints
-    Route::post('invoice/edit/{id}', [InvoiceController::class, 'postEdit']);
+    Route::post('invoices/{id}/execute', [InvoiceController::class, 'executeInvoice']);
     Route::post('generate/invoice/{user_id?}', [InvoiceController::class, 'invoiceGenerateByForm']);
     Route::get('export-invoices', [InvoiceController::class, 'exportInvoices'])->name('export-invoices');
 

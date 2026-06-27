@@ -170,6 +170,8 @@ class OrderController extends BaseOrderController
                     'order_date' => $order->created_at,
                     'update_ends_at' => strtotime((string) $order->subscription?->ends_at) > 1 ? $order->subscription?->ends_at : null,
                     'subscription_updated_at' => $order->subscription?->updated_at,
+                    'subscription_id' => $order->subscription?->id,
+                    'can_renew' => $order->order_status !== 'terminated' && $order->subscription !== null,
                     'user' => $user,
                 ];
             });

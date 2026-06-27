@@ -65,6 +65,31 @@ class RenewController extends BaseRenewController
         $this->user = $user;
     }
 
+    public function renew(int $id, Request $request): JsonResponse
+    {
+        $request->validate([
+            'plan'           => ['required', 'integer'],
+            'payment_method' => ['required', 'string'],
+            'cost'           => ['required', 'numeric'],
+        ]);
+
+        try {
+            $sub = Subscription::where('order_id', $id)->firstOrFail();
+
+            $this->renewBySubId(
+                $sub->id,
+                (int) $request->input('plan'),
+                $request->input('payment_method'),
+                (float) $request->input('cost'),
+                (string) $request->input('code', ''),
+            );
+
+            return successResponse(__('message.renewed_successfully'));
+        } catch (Exception $exception) {
+            return errorResponse([$exception->getMessage()]);
+        }
+    }
+
     // Renew From admin panel
     public function renewBySubId(int $id, int $planid, string $payment_method, float|int $cost, string $code, bool $isAgentIncrease = true, ?int $agents = null): Subscription|InvoiceItem
     {

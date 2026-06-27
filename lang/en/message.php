@@ -425,6 +425,7 @@ return [
     'place-an-order' => 'Place an Order',
     'generate' => 'Generate',
     'invoice-generated-successfully' => 'Invoice generated successfully',
+    'order-executed-successfully' => 'Order executed successfully',
     'update_end' => 'Update Ends At',
     'license_end' => 'License Ends At',
     'support_end' => 'Support Ends At',
@@ -3487,4 +3488,49 @@ return [
     'deployment_enabled_tooltip' => 'Controls whether the Deploy tab appears on client order pages. When enabled, clients can connect to their own server via SSH and deploy Faveo Helpdesk directly from the billing portal. Disable this to hide the Deploy tab from all clients.',
     'install_script_url_tooltip' => 'The URL to the shell script that performs a full Faveo Helpdesk installation on a fresh server — it installs PHP, a web server (Apache or Nginx), MariaDB, Redis, and Supervisor automatically. This script is invoked when a client chooses the Fresh Server deploy mode. Leave blank only if you do not intend to support fresh server installations.',
     'manual_install_guide_url_tooltip' => 'A link to the step-by-step installation documentation shown to clients as an alternative to the guided SSH wizard. Clients who prefer to set up the server themselves can follow this guide instead. Typically a URL to your product docs (e.g. https://docs.example.com/install).',
+
+    // -------------------------------------------------------------------------
+    // Missing keys — added 2026-06-26
+    // -------------------------------------------------------------------------
+
+    // Frontend (Vue/JS)
+    'auto_renewal_hint'              => 'This subscription will automatically renew at the end of the current billing period.',
+    'continue'                       => 'Continue',
+    'delete_tenant'                  => 'Delete Tenant',
+    'domain_invalid'                 => 'The domain format is invalid.',
+    'domain_required'                => 'Domain is required.',
+    'free_trial_started'             => 'Your free trial has started.',
+    'grand_total'                    => 'Grand Total',
+    'is_required'                    => ':attribute is required.',
+    'mobile_required'                => 'Mobile number is required.',
+    'newsletter_subscribed'          => 'You have been successfully subscribed to our newsletter.',
+    'no_records_found'               => 'No records found.',
+    'pay'                            => 'Pay',
+    'please_renew'                   => 'Please renew your subscription to continue.',
+    'pricing_row_required'           => 'At least one pricing row is required.',
+    'search_placeholder'             => 'Type and press enter to search...',
+    'select_currency'                => 'Select Currency',
+    'select_data_center_required'    => 'Please select a data center.',
+    'select_product_required'        => 'Please select a product.',
+    'webhook_url_hint'               => 'The URL where webhook events will be delivered.',
+
+    // Backend (PHP)
+    'check-expiry'                   => 'Coupon has expired.',
+    'find-cost-error'                => 'Unable to calculate cost. Please try again.',
+    'form_loaded_successfully'       => 'Form loaded successfully.',
+    'invalid'                        => 'Invalid request.',
+    'invalid_driver'                 => 'Invalid cache driver specified.',
+    'invalid_log_type'               => 'Invalid log type specified.',
+    'invalid_queue_id'               => 'Invalid queue ID.',
+    'language_set_as_default'        => 'Language set as default successfully.',
+    'mobile_verification_required'   => 'Mobile verification is required to proceed.',
+    'no_fields_to_update'            => 'No fields to update.',
+    'no_newsletter_provider_enabled' => 'No newsletter provider is enabled.',
+    'spam_detected'                  => 'Your message was flagged as spam. Please try again.',
+    'subscribed_to_newsletter'       => 'You have been successfully subscribed to our newsletter.',
+    'tax_fetched'                    => 'Tax rates retrieved successfully.',
+    'template_update_error'          => 'Failed to update template. Please try again.',
+    'updated_successfully'           => 'Settings updated successfully.',
+    'user-create-successfully'       => 'User created successfully.',
+    'version_not_found'              => 'Version not found.',
 ];

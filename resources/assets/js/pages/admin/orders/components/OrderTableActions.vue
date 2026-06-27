@@ -8,6 +8,15 @@
             <i class="fas fa-eye"></i>
         </router-link>
 
+        <router-link
+            v-if="canRenew"
+            :to="`/orders/${orderId}/renew`"
+            class="btn btn-light table_btn"
+            v-tooltip="__('message.renew')"
+        >
+            <i class="fas fa-sync-alt"></i>
+        </router-link>
+
         <template v-if="showDelete">
             <button class="btn btn-light table_btn" v-tooltip="__('message.Delete')" @click="showModal = true">
                 <i class="fas fa-trash"></i>
@@ -31,8 +40,9 @@ import { ref } from 'vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
 const props = defineProps({
-    orderId:    { type: Number, required: true },
-    baseUrl:    { type: String, default: '' },
+    orderId:   { type: Number, required: true },
+    canRenew:  { type: Boolean, default: false },
+    baseUrl:   { type: String, default: '' },
     showDelete: { type: Boolean, default: false },
 })
 

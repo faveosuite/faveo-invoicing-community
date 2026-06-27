@@ -277,7 +277,7 @@ const tableOptions = reactive({
         status:       (f, row) => row.status || '—',
         order_date:   (f, row) => row.order_date ? formatDate(row.order_date) : '—',
         update_ends_at: (f, row) => row.update_ends_at ? formatDate(row.update_ends_at) : '—',
-        action: (f, row) => h(OrderTableActions, { orderId: row.id, baseUrl: baseUrl, showDelete: true }),
+        action: (f, row) => h(OrderTableActions, { orderId: row.id, canRenew: !!row.can_renew, baseUrl: baseUrl, showDelete: true }),
     },
 
     sortable: ['number', 'order_status', 'order_date', 'update_ends_at'],

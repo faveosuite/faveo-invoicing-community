@@ -71,7 +71,8 @@
                          :deleteData="computedDeleteData"
                          :title="data.modalTitle ? trans(data.modalTitle) : trans('delete')"
                          :message="data.modalMessage ? trans(data.modalMessage) : trans('are_you_sure')"
-                         :componentName="alert" />
+                         :componentName="alert"
+                         :method="data.method" />
         </transition>
 
         <transition name="modal">

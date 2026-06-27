@@ -38,7 +38,7 @@
                             <!-- Category boxes -->
                             <div class="col-12 col-lg-9 mb-3 mb-lg-0">
                                 <div v-if="loadingCategories" class="text-center py-4">
-                                    <span class="spinner-border text-secondary"></span>
+                                  <loader />
                                 </div>
                                 <div v-else-if="!categories.length" class="text-center text-muted py-4">
                                     {{ __('log.no_categories_found') }}
@@ -542,12 +542,21 @@ onMounted(() => loadCategories())
 
 /* ── Inline calendar ── */
 .inline-calendar {
-    display: inline-block;
-    background: #fff;
-    border-radius: 0.25rem;
-    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
-    padding: 30px;
-    overflow: hidden;
+  display: inline-block;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+}
+.inline-calendar .mx-datepicker,
+.inline-calendar .mx-datepicker-main,
+.inline-calendar .mx-datepicker-content,
+.inline-calendar .mx-calendar {
+  width: 248px;
+}
+.inline-calendar .mx-calendar-content {
+  padding-top: 4px;
 }
 .inline-calendar :deep(.mx-input-wrapper)    { display: none; }
 .inline-calendar :deep(.mx-datepicker-popup) {

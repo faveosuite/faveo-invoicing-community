@@ -255,7 +255,7 @@ async function fetchPrice() {
     try {
         const res = await http.post(`${baseUrl}/get-price`, {
             product: pid,
-            plan:    planId,
+            plan:    String(planId),
             user:    userId || null,
         })
         const data = res.data?.data ?? res.data
@@ -273,7 +273,7 @@ async function fetchPrice() {
         dynamic.show_agents = !!agents.can_modify
         if (agents.can_modify) form.agents = agents.quantity ?? 0
     } catch (e) {
-        // price fetch is best-effort; leave price field editable
+        errorHandler(e, COMPONENT)
     }
 }
 
