@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Controller;
 use App\Model\Order\Invoice;
-use App\Model\Order\Order;
-use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use Exception;
@@ -93,7 +91,6 @@ class ExtendedBaseInvoiceController extends Controller
             return errorResponse($exception->getMessage());
         }
     }
-
 
     public function postNewMultiplePayment(int $clientid, Request $request): JsonResponse
     {
