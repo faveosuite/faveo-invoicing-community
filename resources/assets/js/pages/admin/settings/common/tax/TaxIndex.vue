@@ -334,7 +334,7 @@ const tableOptions = reactive({
     requestAdapter(data) {
         return {
             'sort-field':   data.orderBy   ?? 'created_at',
-            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search-query': (data.query ?? '').trim(),
             tax_class:      activeClass.value,
             page:  data.page,

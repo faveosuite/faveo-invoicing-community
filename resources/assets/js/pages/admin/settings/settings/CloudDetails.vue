@@ -585,7 +585,7 @@ const productTableOptions = reactive({
     requestAdapter(data) {
         return {
             'sort-field':   data.orderBy ?? 'updated_at',
-            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search-query': (data.query ?? '').trim(),
             page:           data.page,
             limit:          data.limit,
@@ -722,7 +722,7 @@ const tenantTableOptions = reactive({
     requestAdapter(data) {
         return {
             'sort-field':   data.orderBy ?? 'created_at',
-            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search-query': (data.query ?? '').trim(),
             page:           data.page,
             limit:          data.limit,

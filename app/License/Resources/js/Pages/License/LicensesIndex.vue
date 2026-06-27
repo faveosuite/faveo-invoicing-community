@@ -36,7 +36,7 @@ import { lang } from '@/helpers/extraLogics'
 import { useDateTime } from '@/core/composables/useDateTime'
 import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
 
-const { formatDate } = useDateTime()
+const { formatDate, formatDateTime } = useDateTime()
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
@@ -80,7 +80,7 @@ const options = reactive({
     requestAdapter(data) {
         return {
             'sort_field': data.orderBy ? data.orderBy : 'id',
-            'sort_order': data.ascending ? 'asc' : 'desc',
+            'sort_order': data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search_query': data.query.trim(),
             perPage: data.limit,
             page: data.page,
@@ -120,10 +120,10 @@ const options = reactive({
     templates: {
         license_ip: (f, row) => row.license_ip || '—',
         license_updates_date: (f, row) => formatDate(row.license_updates_date),
-        latest_call_backs: (f, row) => row.latest_call_backs || '—',
+        latest_call_backs: (f, row) => row.latest_call_backs ? formatDateTime(row.latest_call_backs) : '—',
         license_support_date: (f, row) => formatDate(row.license_support_date),
         license_date: (f, row) => formatDate(row.license_date),
-        license_expire_date: (f, row) => row.license_expire_date || '—',
+        license_expire_date: (f, row) => row.license_expire_date ? formatDate(row.license_expire_date) : '—',
         license_code: (f, row) => {
             if (row.license_code && row.id) {
                 return h(RouterLink, { to: '/licenses/' + row.id + '/view' },

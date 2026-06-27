@@ -166,9 +166,9 @@ describe('Queues.vue', () => {
     })
 
     // ── requestAdapter ───────────────────────────────────────────────
-    it('requestAdapter maps ascending:true to asc sort-order', () => {
+    it('requestAdapter defaults to desc sort-order when no orderBy (latest first)', () => {
         const result = wrapper.vm.tableOptions.requestAdapter({ ascending: true, query: '', page: 1, limit: 10 })
-        expect(result['sort-order']).toBe('asc')
+        expect(result['sort-order']).toBe('desc')
     })
 
     it('requestAdapter maps ascending:false to desc sort-order', () => {

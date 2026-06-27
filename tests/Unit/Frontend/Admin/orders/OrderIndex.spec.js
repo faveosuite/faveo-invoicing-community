@@ -198,7 +198,7 @@ describe('OrderIndex.vue', () => {
         })
 
         it('mobile returns formatted mobile when present', () => {
-            expect(tpl().mobile(null, { user: { mobile: '9999999999', mobile_code: '+91' } })).toBe('+91 9999999999')
+            expect(tpl().mobile(null, { user: { mobile: '9999999999', mobile_code: '91' } })).toBe('+91 9999999999')
         })
 
         it('country returns — when user has no country', () => {
@@ -239,7 +239,8 @@ describe('OrderIndex.vue', () => {
         })
 
         it('version returns version string when present', () => {
-            expect(tpl().version(null, { version: '3.0.0' })).toBe('3.0.0')
+            const vnode = tpl().version(null, { versions: [{ version: '3.0.0', active: true }] })
+            expect(vnode.children[0].children).toBe('3.0.0')
         })
 
         it('agents returns — when agents is null', () => {

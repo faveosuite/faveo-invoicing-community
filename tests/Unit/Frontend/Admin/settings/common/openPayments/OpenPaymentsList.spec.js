@@ -137,8 +137,8 @@ describe('OpenPaymentsList.vue', () => {
         it('defaults sort-field to created_at', () => {
             expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-field']).toBe('created_at')
         })
-        it('sets asc when ascending=true', () => {
-            expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-order']).toBe('asc')
+        it('defaults to desc when no orderBy (latest first)', () => {
+            expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-order']).toBe('desc')
         })
         it('sets desc when ascending=false', () => {
             expect(adapt({ ascending: false, query: '', page: 1, limit: 10 })['sort-order']).toBe('desc')

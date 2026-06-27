@@ -32,16 +32,18 @@ describe('InvoiceTableActions.vue', () => {
         expect(viewLink).toBeTruthy()
     })
 
-    it('renders edit router-link pointing to /invoices/:id/edit', () => {
+    it('renders view router-link pointing to /invoices/:id (no edit link)', () => {
         const links = wrapper.findAll('router-link-stub')
+        const viewLink = links.find(l => l.attributes('to') === '/invoices/42')
+        expect(viewLink).toBeTruthy()
         const editLink = links.find(l => l.attributes('to') === '/invoices/42/edit')
-        expect(editLink).toBeTruthy()
+        expect(editLink).toBeFalsy()
     })
 
-    it('does not show delete button when showDelete is false (default)', () => {
-        expect(wrapper.find('button.btn').exists()).toBe(false)
+    it('does not show delete button when showDelete is false (default), but shows execute button', () => {
+        expect(wrapper.find('button.btn').exists()).toBe(true) // execute button
+        expect(wrapper.find('.btn-light').exists()).toBe(true)  // execute button
     })
-
     it('shows delete button when showDelete is true', async () => {
         const w = mountComponent({ showDelete: true })
         expect(w.find('button.btn').exists()).toBe(true)
@@ -55,7 +57,8 @@ describe('InvoiceTableActions.vue', () => {
 
     it('sets showModal to true when delete button is clicked', async () => {
         const w = mountComponent({ showDelete: true })
-        await w.find('button.btn').trigger('click')
+        const deleteBtn = w.findAll('button.btn').at(1) // second button is delete
+        await deleteBtn.trigger('click')
         expect(w.vm.showModal).toBe(true)
     })
 

@@ -129,7 +129,7 @@ const computedOptions = computed(() => ({
   requestAdapter(data) {
     return {
       'sort-field': data.orderBy,
-      'sort-order': data.ascending ? 'asc' : 'desc',
+      'sort-order': data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
       'search-query': (data.query ?? '').trim(),
       page: data.page,
       limit: data.limit,

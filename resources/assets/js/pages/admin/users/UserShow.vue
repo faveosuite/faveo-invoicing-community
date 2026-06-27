@@ -701,7 +701,7 @@ const invoiceOptions = {
     requestAdapter(data) {
         return {
             'sort-field':   data.orderBy ?? 'date',
-            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search-query': (data.query ?? '').trim(),
             page:           data.page,
             limit:          data.limit,
@@ -749,7 +749,7 @@ const paymentOptions = {
         const columnMap = { date: 'created_at', status: 'payment_status' }
         return {
             'sort-field':   columnMap[data.orderBy] ?? data.orderBy ?? 'created_at',
-            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search-query': (data.query ?? '').trim(),
             page:           data.page,
             limit:          data.limit,
@@ -806,7 +806,7 @@ const orderOptions = {
     requestAdapter(data) {
         return {
             'sort-field':   data.orderBy === 'order_date' ? 'created_at' : (data.orderBy ?? 'created_at'),
-            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search-query': (data.query ?? '').trim(),
             page:           data.page,
             limit:          data.limit,

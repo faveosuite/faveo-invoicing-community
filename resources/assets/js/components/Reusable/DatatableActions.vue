@@ -50,19 +50,17 @@
             </router-link>
         </div>
 
-        <span v-tooltip="disabled ? trans('default_field_is_not_restore') : trans('restore')">
-            <button v-if="data.restore_url" class="btn btn-light table_btn"
-                    @click="showRestoreModalMethod" :disabled="disabled">
-                <i class="fas fa-sync-alt"></i>
-            </button>
-        </span>
+        <button v-if="data.restore_url" class="btn btn-light table_btn"
+                v-tooltip="disabled ? trans('default_field_is_not_restore') : trans('restore')"
+                @click="showRestoreModalMethod" :disabled="disabled">
+            <i class="fas fa-sync-alt"></i>
+        </button>
 
-        <span v-tooltip="disabled ? trans('default_field_is_not_deletable') : data.tooltip ? trans(data.tooltip) : trans('delete')">
-            <button v-if="data.delete_url" class="btn btn-light table_btn"
-                    @click="showModalMethod" :disabled="disabled">
-                <i class="fas fa-trash"></i>
-            </button>
-        </span>
+        <button v-if="data.delete_url" class="btn btn-light table_btn"
+                v-tooltip="disabled ? trans('default_field_is_not_deletable') : data.tooltip ? trans(data.tooltip) : trans('delete_btn')"
+                @click="showModalMethod" :disabled="disabled">
+            <i class="fas fa-trash"></i>
+        </button>
 
         <transition name="modal">
             <DeleteModal v-if="showModal"

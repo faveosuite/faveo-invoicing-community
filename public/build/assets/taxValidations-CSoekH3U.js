@@ -1,1 +1,0 @@
-import{p as r,aD as a,s as t}from"./mitt-CsqWP4Ak.js";function e(){return{name:t().required(()=>__("validation.tax_form.name.required")),rate:a().typeError(()=>__("validation.tax_form.rate.required")).min(0).required(()=>__("validation.tax_form.rate.required"))}}function n(){return r(e())}function o(){return r(e())}export{o as a,n as b};

@@ -5,8 +5,8 @@
             <div class="card-header">
                 <h3 class="card-title">{{ __('log.system_logs') }}</h3>
                 <div class="card-tools">
-                    <button class="btn btn-sm btn-secondary" v-tooltip="'Delete Logs'" @click="showDeleteModal = true">
-                        <i class="fas fa-trash-alt"></i>
+                    <button class="btn btn-tool" v-tooltip="'Delete Logs'" @click="showDeleteModal = true">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
@@ -250,6 +250,7 @@
 <script setup>
 import { h, ref, computed, onMounted, nextTick } from 'vue'
 import { DateTime } from 'luxon'
+import { useDateTime } from '@/core/composables/useDateTime'
 import { useDateTimeStore } from '@/core/stores/dateTimeStore'
 import VueDatePicker from 'vue-datepicker-next'
 import 'vue-datepicker-next/index.css'
@@ -259,6 +260,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 const COMPONENT = 'billing-log-viewer'
 const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
+const { formatDateTime } = useDateTime()
 
 const logTypes = [
     { key: 'cron',      label: 'Cron Logs',     icon: 'fa-clock'    },
@@ -370,6 +372,9 @@ const cronOptions = {
         created_at: __('log.created_at'),
         status:     __('log.status'),
     },
+    templates: {
+        created_at: (f, row) => row.created_at ? formatDateTime(row.created_at) : '—',
+    },
 }
 
 const exceptionColumns = ['file', 'line', 'message', 'trace', 'created_at']
@@ -385,6 +390,7 @@ const exceptionOptions = computed(() => ({
         created_at: __('log.created_at'),
     },
     templates: {
+        created_at: (f, row) => row.created_at ? formatDateTime(row.created_at) : '—',
         message: (f, row) => {
             if (!row.message || row.message.length <= 100) return row.message || ''
             return h('span', [
@@ -425,6 +431,8 @@ const mailOptions = computed(() => ({
         action:        __('log.action'),
     },
     templates: {
+        created_at:  (f, row) => row.created_at ? formatDateTime(row.created_at) : '—',
+        updated_at:  (f, row) => row.updated_at ? formatDateTime(row.updated_at) : '—',
         sender_mail:   (f, row) => truncate(row.sender_mail, 35),
         receiver_mail: (f, row) => truncate(row.receiver_mail, 35),
         subject: (f, row) => h('a', {

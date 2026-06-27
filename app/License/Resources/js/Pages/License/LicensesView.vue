@@ -9,7 +9,7 @@
                     <router-link :to="'/licenses/' + license_id + '/edit'" v-tooltip="lang('edit')" class="btn btn-tool">
                         <i class="fas fa-edit"></i>
                     </router-link>
-                    <action-button action="delete" icon-only class="btn-tool" v-tooltip="lang('delete_btn')" @click="showDeleteModal()" />
+                    <button class="btn btn-tool" v-tooltip="lang('delete_btn')" @click="showDeleteModal()"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
 
@@ -115,7 +115,9 @@
                                 <span class="fw-bold me-2">{{ lang('license_code') }}:</span>
                                 <template v-if="license_code && license_code !== '----'">
                                     <span class="me-2">{{ license_code.match(/.{1,4}/g).join('-') }}</span>
-                                    <action-button variant="light" size="sm" :icon="iconClass" icon-only v-tooltip="lang('copy')" @click="copyCommand()" />
+                                    <button class="btn btn-light table_btn" v-tooltip="lang('copy')" @click="copyCommand()">
+                                        <i :class="copied ? 'fas fa-check' : 'fas fa-clipboard'"></i>
+                                    </button>
                                 </template>
                                 <span v-else class="text-muted">—</span>
                             </div>
@@ -179,7 +181,7 @@ const { formatDate, formatDateTime } = useDateTime()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
-const iconClass = ref('fas fa-copy')
+const copied = ref(false)
 const showModal = ref(false)
 const activeTab = ref('installations')
 const license_id = ref(null)
@@ -207,8 +209,8 @@ const id = ref(null)
 
 function copyCommand() {
     navigator.clipboard.writeText(license_code.value)
-    iconClass.value = 'fas fa-check'
-    setTimeout(() => { iconClass.value = 'fas fa-copy' }, 2000)
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 2000)
 }
 
 function onClose() {

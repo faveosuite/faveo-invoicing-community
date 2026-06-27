@@ -129,7 +129,7 @@ describe('ProductIndex.vue — branch coverage', () => {
         const adapt = (d) => wrapper.vm.tableOptions.requestAdapter(d)
         it('defaults sort-field to created_at', () => { expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-field']).toBe('created_at') })
         it('passes orderBy through', () => { expect(adapt({ orderBy: 'name', ascending: true, query: '', page: 1, limit: 10 })['sort-field']).toBe('name') })
-        it('sets asc when ascending=true', () => { expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-order']).toBe('asc') })
+        it('defaults to desc when no orderBy (latest first)', () => { expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-order']).toBe('desc') })
         it('sets desc when ascending=false', () => { expect(adapt({ ascending: false, query: '', page: 1, limit: 10 })['sort-order']).toBe('desc') })
     })
 })

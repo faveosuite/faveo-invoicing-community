@@ -1,1 +1,0 @@
-import{l as t}from"./mitt-CsqWP4Ak.js";const u=t(""),i=t("success"),e=t(!1);let s=null;function f(){function l(a,c="success"){u.value=a,i.value=c,e.value=!0,clearTimeout(s),s=setTimeout(()=>{e.value=!1},4e4)}function o(){clearTimeout(s),e.value=!1}return{message:u,type:i,visible:e,notify:l,dismiss:o}}export{f as u};

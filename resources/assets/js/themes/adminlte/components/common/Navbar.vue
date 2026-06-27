@@ -199,9 +199,8 @@ function onMenuScroll() {
 
 async function selectLang(lang) {
   try {
-    const {data} = await http.post('lang/update', {language: lang.locale})
-    notify(data.message, 'success')
-    setTimeout(() => window.location.reload(), 2000)
+    await http.post('lang/update', {language: lang.locale})
+    window.location.reload()
   } catch (err) {
     notify(parseErrorMessage(err), 'danger')
   }

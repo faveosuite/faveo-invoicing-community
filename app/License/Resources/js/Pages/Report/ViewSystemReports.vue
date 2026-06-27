@@ -34,7 +34,7 @@ const options = reactive({
     requestAdapter(data) {
         return {
             'sort_field': data.orderBy ? data.orderBy : 'report_date_time',
-            'sort_order': data.ascending ? 'asc' : 'desc',
+            'sort_order': data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search_query': data.query.trim(),
             perPage: data.limit,
             page: data.page,

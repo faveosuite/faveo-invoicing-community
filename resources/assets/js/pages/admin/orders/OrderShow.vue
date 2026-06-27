@@ -588,7 +588,7 @@ const invoiceTableOptions = reactive({
         const columnMap = { amount: 'grand_total' }
         return {
             'sort-field':   (columnMap[data.orderBy] ?? data.orderBy) || 'date',
-            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search-query': '',
             page:           data.page,
             limit:          data.limit,
@@ -625,7 +625,7 @@ const paymentTableOptions = reactive({
     requestAdapter(data) {
         return {
             'sort-field':   data.orderBy || 'created_at',
-            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search-query': '',
             page:           data.page,
             limit:          data.limit,

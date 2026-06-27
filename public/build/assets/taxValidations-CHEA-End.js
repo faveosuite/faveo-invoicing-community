@@ -1,0 +1,1 @@
+import{m as r,ak as a,q as t}from"./dateTime-BRlL7CfL.js";function e(){return{name:t().required(()=>__("validation.tax_form.name.required")),rate:a().typeError(()=>__("validation.tax_form.rate.required")).min(0).required(()=>__("validation.tax_form.rate.required"))}}function n(){return r(e())}function o(){return r(e())}export{o as a,n as b};

@@ -9,6 +9,7 @@ describe('productSchema', () => {
         short_description:   'Short desc',
         product_sku:         'SKU-001',
         product_description: 'Product details',
+        shoping_cart_link:   'https://example.com/cart',
     }
 
     it('passes with valid data (no github)', async () => {

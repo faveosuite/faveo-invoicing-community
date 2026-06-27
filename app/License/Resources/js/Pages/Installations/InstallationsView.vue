@@ -9,7 +9,7 @@
                     <router-link :to="'/installations/' + id + '/edit'" v-tooltip="lang('edit')" class="btn btn-tool">
                         <i class="fas fa-edit"></i>
                     </router-link>
-                    <action-button action="delete" icon-only class="btn-tool" v-tooltip="lang('delete_btn')" @click="showDeleteModal()" />
+                    <button class="btn btn-tool" v-tooltip="lang('delete_btn')" @click="showDeleteModal()"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
 

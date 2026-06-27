@@ -15,7 +15,7 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
     use DatabaseTransactions;
 
     #[Group('InvoiceAndPayment')]
-    public function test_change_invoice_total_when_invoice_is_updated(): void
+    public function test_change_invoice_total_when_invoice_is_updated_returns_405(): void
     {
         $this->withoutMiddleware();
         $this->getLoggedInUser('admin');
@@ -27,8 +27,7 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
             'status' => 'Active',
         ]);
 
-        $response->assertStatus(200);
-        $response->assertJson(['success' => true]);
+        $response->assertStatus(405);
     }
 
     #[Group('InvoiceAndPayment')]

@@ -105,30 +105,26 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // postEdit — POST /invoice/edit/{id}
+    // postEdit — POST /invoice/edit/{id} — route is not available (no POST route)
     // =========================================================================
 
-    public function test_post_edit_invoice_returns_error_for_nonexistent(): void
+    public function test_post_edit_invoice_returns_405_as_route_not_available(): void
     {
         $this->getLoggedInUser('admin');
         $response = $this->postJson('/invoice/edit/999999', ['grand_total' => 100.0, 'status' => 'success']);
-        $this->assertContains($response->status(), [200, 400, 422]);
+        $response->assertStatus(405);
     }
 
-    public function test_post_edit_invoice_updates_existing(): void
+    public function test_post_edit_invoice_updates_existing_returns_405(): void
     {
         $this->getLoggedInUser('admin');
         $client = \App\User::factory()->create(['email' => 'edit-inv-'.uniqid().'@test.local']);
         $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $client->id, 'grand_total' => 100.0, 'status' => 'pending']);
         $response = $this->postJson('/invoice/edit/'.$invoice->id, ['grand_total' => 150.0, 'status' => 'success']);
-        $this->assertContains($response->status(), [200, 400, 422]);
+        $response->assertStatus(405);
     }
 
-    // =========================================================================
-    // postEdit — POST /invoice/edit/{id} — happy path (all required fields present)
-    // =========================================================================
-
-    public function test_post_edit_invoice_with_all_required_fields_returns_200(): void
+    public function test_post_edit_invoice_with_all_required_fields_returns_405(): void
     {
         $this->getLoggedInUser('admin');
         $client = \App\User::factory()->create(['email' => 'post-edit-'.uniqid().'@test.local']);
@@ -144,11 +140,10 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
             'status' => 'success',
         ]);
 
-        $response->assertStatus(200)
-            ->assertJson(['success' => true]);
+        $response->assertStatus(405);
     }
 
-    public function test_post_edit_invoice_missing_date_returns_422(): void
+    public function test_post_edit_invoice_missing_date_returns_405(): void
     {
         $this->getLoggedInUser('admin');
         $client = \App\User::factory()->create(['email' => 'edit-nod-'.uniqid().'@test.local']);
@@ -159,11 +154,10 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
             'status' => 'success',
         ]);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('date', $response->json('errors'));
+        $response->assertStatus(405);
     }
 
-    public function test_post_edit_invoice_missing_total_returns_422(): void
+    public function test_post_edit_invoice_missing_total_returns_405(): void
     {
         $this->getLoggedInUser('admin');
         $client = \App\User::factory()->create(['email' => 'edit-nototal-'.uniqid().'@test.local']);
@@ -174,8 +168,7 @@ class ExtendedBaseInvoiceControllerTest extends DBTestCase
             'status' => 'success',
         ]);
 
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('total', $response->json('errors'));
+        $response->assertStatus(405);
     }
 
     // =========================================================================

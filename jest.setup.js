@@ -6,6 +6,11 @@ import { registerDefaultHandlers } from './tests/Unit/Frontend/mocks/handlers/in
 
 // ── Globals available in every test file ─────────────────────────────────────
 global.flushPromises = flushPromises
+
+// Polyfill IntersectionObserver (used by TreeSelect.vue, not available in jsdom)
+global.IntersectionObserver = class IntersectionObserver {
+    constructor() { this.observe = jest.fn(); this.disconnect = jest.fn(); this.unobserve = jest.fn() }
+}
 // Make __() available at module load time (some components call it eagerly in
 // script setup outside any function, e.g. to build static option arrays).
 global.__ = (key) => key
@@ -84,6 +89,11 @@ const SUPPRESSED_WARN = [
     // cropperjs (VueCropper) tries to use canvas/Image APIs not supported in jsdom
     'Cannot read properties of undefined',
     'Write operation failed: computed value is readonly',
+    // vue3-treeselect references the deprecated Vue 2 $createElement
+    '$createElement',
+    // Template functions passed to DataTable call withDirectives outside
+    // the immediate component render, which is fine in practice
+    'withDirectives can only be used inside render functions',
 ]
 
 const SUPPRESSED_ERROR = [

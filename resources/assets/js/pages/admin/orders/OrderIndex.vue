@@ -87,6 +87,8 @@ import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
 
 const { formatDate } = useDateTime()
 
+const vTooltipDirective = resolveDirective('tooltip')
+
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const apiUrl = `${baseUrl}/orders`
@@ -260,7 +262,6 @@ const tableOptions = reactive({
         plan:         (f, row) => row.plan && row.plan_id ? h(RouterLink, { to: '/products/plans/' + row.plan_id + '/edit' }, () => row.plan) : (row.plan || '—'),
         version: (f, row) => {
             if (!row.versions?.length) return '—'
-            const vTooltip = resolveDirective('tooltip')
             return h('div', { class: 'd-flex flex-wrap gap-1' },
                 row.versions.map(({ version, active }) =>
                     withDirectives(
@@ -268,7 +269,7 @@ const tableOptions = reactive({
                             class: `badge ${active ? 'bg-success' : 'bg-danger'}`,
                             style: 'cursor:default',
                         }, version),
-                        [[vTooltip, active ? 'Active' : 'Inactive']]
+                        [[vTooltipDirective, active ? 'Active' : 'Inactive']]
                     )
                 )
             )
@@ -287,7 +288,7 @@ const tableOptions = reactive({
         const columnMap = { order_date: 'created_at' }
         return {
             'sort-field':   columnMap[data.orderBy] ?? data.orderBy ?? 'created_at',
-            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search-query': (data.query ?? '').trim(),
             page:           data.page,
             limit:          data.limit,

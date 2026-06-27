@@ -370,14 +370,14 @@ describe('LicensesView.vue', () => {
 
     // ── copyCommand ───────────────────────────────────────────────────────────
 
-    it('copyCommand sets iconClass to fa-check then resets after timer', async () => {
+    it('copyCommand sets copied to true then resets after timer', async () => {
         jest.useFakeTimers()
         Object.assign(navigator, { clipboard: { writeText: jest.fn() } })
         await flushPromises()
         wrapper.vm.copyCommand()
-        expect(wrapper.vm.iconClass).toBe('fas fa-check')
+        expect(wrapper.vm.copied).toBe(true)
         jest.advanceTimersByTime(2001)
         await wrapper.vm.$nextTick()
-        expect(wrapper.vm.iconClass).toBe('fas fa-copy')
+        expect(wrapper.vm.copied).toBe(false)
     })
 })

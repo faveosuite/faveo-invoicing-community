@@ -312,9 +312,9 @@ describe('LicenseTypeIndex.vue', () => {
             expect(result['sort-field']).toBe('name')
         })
 
-        it('sets sort-order to asc when ascending is true', () => {
+        it('defaults to desc sort-order when no orderBy (latest first)', () => {
             const result = adapt({ ascending: true, query: '', page: 1, limit: 10 })
-            expect(result['sort-order']).toBe('asc')
+            expect(result['sort-order']).toBe('desc')
         })
 
         it('sets sort-order to desc when ascending is false', () => {

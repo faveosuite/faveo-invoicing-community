@@ -26,10 +26,11 @@ describe('errorHandler', () => {
         expect(store.message).toBe('Validation failed')
     })
 
-    it('does not set alert for 422 when message is absent', () => {
+    it('sets fallback message for 422 when message is absent', () => {
         const store = useAlertStore()
         errorHandler(makeErr(422, {}))
-        expect(store.message).toBe('')
+        expect(store.type).toBe('danger')
+        expect(store.message).toBe('Something went wrong.')
     })
 
     it('sets the component_name on a 422 alert', () => {
@@ -63,10 +64,11 @@ describe('errorHandler', () => {
         expect(store.message).toBe('Too many requests')
     })
 
-    it('does not set alert for 500 when data.message is undefined', () => {
+    it('sets fallback message for 500 when data.message is undefined', () => {
         const store = useAlertStore()
         errorHandler(makeErr(500, {}))
-        expect(store.message).toBe('')
+        expect(store.type).toBe('danger')
+        expect(store.message).toBe('Something went wrong.')
     })
 
     it('sets a danger alert for a 412 response with a message', () => {
@@ -76,29 +78,26 @@ describe('errorHandler', () => {
         expect(store.message).toBe('Precondition failed')
     })
 
-    it('redirects to /404 on a 404 response', () => {
-        // window.axios.defaults.baseURL is used for the redirect
-        window.axios = { defaults: { baseURL: 'http://localhost' } }
-        const originalLocation = window.location
-        delete window.location
-        window.location = ''
-
+    it('redirects via router to /404 on a 404 response', () => {
+        const push = jest.fn()
+        window.__router = { push }
         errorHandler(makeErr(404))
-
-        expect(window.location).toBe('http://localhost/404')
-        window.location = originalLocation
+        expect(push).toHaveBeenCalledWith('/404')
+        delete window.__router
     })
 
-    it('does not set alert for unknown status codes', () => {
+    it('sets a danger alert for unknown status codes with message', () => {
         const store = useAlertStore()
         errorHandler(makeErr(418, { message: "I'm a teapot" }))
-        expect(store.message).toBe('')
+        expect(store.type).toBe('danger')
+        expect(store.message).toBe("I'm a teapot")
     })
 
-    it('does not throw when err has no response (network error)', () => {
+    it('sets fallback message for network errors (no response)', () => {
         const store = useAlertStore()
         expect(() => errorHandler({})).not.toThrow()
-        expect(store.message).toBe('')
+        expect(store.type).toBe('danger')
+        expect(store.message).toBe('Something went wrong.')
     })
 
     it('throws a TypeError when err is null (no null-guard in source)', () => {

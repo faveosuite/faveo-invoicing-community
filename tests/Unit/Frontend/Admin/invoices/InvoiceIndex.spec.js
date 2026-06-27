@@ -301,8 +301,11 @@ describe('InvoiceIndex.vue', () => {
             expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-field']).toBe('created_at')
         })
 
-        it('sets sort-order to asc/desc based on ascending flag', () => {
-            expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-order']).toBe('asc')
+        it('defaults to desc sort-order when no orderBy (latest first)', () => {
+            expect(adapt({ ascending: true, query: '', page: 1, limit: 10 })['sort-order']).toBe('desc')
+        })
+
+        it('sets desc sort-order when ascending is false', () => {
             expect(adapt({ ascending: false, query: '', page: 1, limit: 10 })['sort-order']).toBe('desc')
         })
 

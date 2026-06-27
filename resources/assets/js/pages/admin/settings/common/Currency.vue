@@ -121,7 +121,7 @@ const tableOptions = reactive({
     requestAdapter(data) {
         return {
             'sort-field':   data.orderBy  ?? 'status',
-            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search-query': (data.query   ?? '').trim(),
             page:           data.page,
             limit:          data.limit,
