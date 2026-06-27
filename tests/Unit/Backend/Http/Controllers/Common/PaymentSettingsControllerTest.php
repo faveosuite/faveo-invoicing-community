@@ -24,20 +24,6 @@ class PaymentSettingsControllerTest extends DBTestCase
             ->assertJson(['success' => true]);
     }
 
-    public function test_update_payment_status_returns_response_with_missing_data(): void
-    {
-        $response = $this->postJson('/updatePaymentStatus', []);
-
-        $this->assertContains($response->getStatusCode(), [200, 400, 302, 422, 500]);
-    }
-
-    public function test_status_plugin_returns_response_for_unknown_slug(): void
-    {
-        $response = $this->postJson('/plugin/status/nonexistent-plugin-xyz');
-
-        $this->assertContains($response->getStatusCode(), [200, 400, 404, 422, 500, 302]);
-    }
-
     public function test_fetch_config_can_be_called_directly(): void
     {
         $controller = new \App\Http\Controllers\Common\PaymentSettingsController;

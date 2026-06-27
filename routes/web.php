@@ -684,7 +684,6 @@ Route::middleware('installAgora')->group(function (): void {
 
     Route::get('payment-gateway-list', [PaymentSettingsController::class, 'getPaymentGatewayList']);
     Route::post('updatePaymentStatus', [PaymentSettingsController::class, 'updatePaymentStatus']);
-    Route::post('plugin/status/{slug}', [PaymentSettingsController::class, 'statusPlugin'])->name('status.plugin');
 
     // --------------------------------------------------------
     // Social Logins & Social Media

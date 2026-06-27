@@ -5,7 +5,8 @@ use App\Facades\Log;
 use App\License\LicenseServiceProvider;
 use App\Plugins\Mailchimp\MailchimpServiceProvider;
 use App\Plugins\Recaptcha\RecaptchaServiceProvider;
-use App\Plugins\Stripe\ServiceProvider;
+use App\Plugins\Stripe\ServiceProvider as StripeServiceProvider;
+use App\Plugins\Razorpay\ServiceProvider as RazorpayServiceProvider;
 use App\Plugins\Zoho\Providers\ZohoServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\AttachmentHelperServiceProvider;
@@ -156,9 +157,7 @@ return [
     | Encryption Key
     |--------------------------------------------------------------------------
 
-'App\Plugins\Stripe\ServiceProvider',//
     | This key is used by the Illuminate encrypter service and should be set
-//
 
     */
 
@@ -212,11 +211,8 @@ return [
     */
 
     'providers' => [
-
-        //
-
-        ServiceProvider::class,
-        App\Plugins\Razorpay\ServiceProvider::class,
+        StripeServiceProvider::class,
+        RazorpayServiceProvider::class,
         /*
          * Laravel Framework Service Providers...
          */
