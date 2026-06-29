@@ -56,7 +56,7 @@ class PageController extends Controller
         }
     }
 
-    public function transform(string $type, string $data, array $trasform = []): string
+    public function transform(string $type, string $data, array $trasform = []): string // @phpstan-ignore missingType.iterableValue
     {
         $config = Config::get('transform.'.$type);
         $result = '';

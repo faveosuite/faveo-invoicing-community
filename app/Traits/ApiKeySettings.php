@@ -483,7 +483,7 @@ trait ApiKeySettings
                 'help_docs_url' => $request->input('manual_install_guide_url'),
             ]);
 
-            return successResponse(\Lang::get('message.updated_successfully'));
+            return successResponse(__('message.updated_successfully'));
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }

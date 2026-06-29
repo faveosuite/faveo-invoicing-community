@@ -450,10 +450,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $role = $this->role;
         if ($changed && $role == 'user' && emailSendingStatus()) {
             if (checkArray('manager', $changed) && $this->manager) {
-                NotifyManagerChange::dispatch([$this->id], 'manager', (int) $this->manager);
+                NotifyManagerChange::dispatch([$this->id], 'manager', (int) $this->getRawOriginal('manager'));
             }
             if (checkArray('account_manager', $changed) && $this->account_manager) {
-                NotifyManagerChange::dispatch([$this->id], 'account_manager', (int) $this->account_manager);
+                NotifyManagerChange::dispatch([$this->id], 'account_manager', (int) $this->getRawOriginal('account_manager'));
             }
         }
 

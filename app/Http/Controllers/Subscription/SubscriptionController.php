@@ -13,6 +13,7 @@ use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
@@ -279,7 +280,7 @@ class SubscriptionController extends Controller
 
         $agents = DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents');
         $invoiceItem = new BaseRenewController()->generateInvoice($product, $user, $order->id, $plan->id, $cost, '', $agents, $currency);
-        if ($invoiceItem instanceof RedirectResponse) {
+        if (! $invoiceItem instanceof InvoiceItem) {
             throw new Exception('Failed to generate invoice item.');
         }
 

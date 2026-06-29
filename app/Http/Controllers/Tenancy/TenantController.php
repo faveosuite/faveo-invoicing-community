@@ -186,6 +186,7 @@ class TenantController extends Controller
         $userId = $userInformation->id;
 
         $mail = new PhpMailController;
+        $faveoCloud = '';
 
         try {
             $company = (string) $request->input('domain');

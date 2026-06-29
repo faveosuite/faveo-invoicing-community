@@ -67,7 +67,7 @@ class ExtendedBaseInvoiceController extends Controller
         }
     }
 
-    public function postNewPayment(int $clientid, Request $request): RedirectResponse
+    public function postNewPayment(int $clientid, Request $request): JsonResponse
     {
         $this->validate($request, [
             'payment_date' => 'required',
@@ -86,7 +86,7 @@ class ExtendedBaseInvoiceController extends Controller
             $payment->user_id = $clientid;
             $paymentReceived = $payment->fill($request->all())->save();
 
-            return successResponse(Lang::get('message.saved-successfully'));
+            return successResponse(__('message.saved-successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }

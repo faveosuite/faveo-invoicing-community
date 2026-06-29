@@ -28,7 +28,7 @@ class CartResource extends JsonResource
             'item_count' => $this->itemCount(), // @phpstan-ignore method.notFound
             'subtotal' => currencyFormat($this->subtotal(), $this->currency, includeSymbol: false), // @phpstan-ignore method.notFound,property.notFound
             'coupon_code' => $this->coupon_code, // @phpstan-ignore property.notFound
-            'coupon_discount' => currencyFormat($this->coupon_discount, $this->currency, includeSymbol: false), // @phpstan-ignore property.notFound
+            'coupon_discount' => currencyFormat($this->coupon_discount, $this->currency, includeSymbol: false), // @phpstan-ignore property.notFound, property.notFound
             'total' => currencyFormat($this->total(), $this->currency, includeSymbol: false), // @phpstan-ignore method.notFound,property.notFound
         ];
     }

@@ -165,20 +165,13 @@ class LocalizedLicenseController extends Controller
      * */
     public function tempOrderLink(string $orderNo, int $userID): string
     {
-        if ($userID === 0 || empty(Auth::user()?->id)) {
+        if ($userID === 0 || empty(Auth::user()->id)) {
             abort(401);
         }
 
         return URL::temporarySignedRoute('event.rsvp', now()->addSeconds(30), [
             'orderNo' => $orderNo,
         ]);
-    }
-
-    private function localizedLicenseInstallLM(string $orderNo): void
-    {
-        Order::where('number', $orderNo)->value('product');
-        date('Y-m-d');
-        // Registration is now handled internally - no API call needed
     }
 
     /**

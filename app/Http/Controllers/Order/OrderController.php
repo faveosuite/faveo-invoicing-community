@@ -230,7 +230,7 @@ class OrderController extends BaseOrderController
         try {
             $rows = InstallationDetail::where('order_id', $orderId)->get();
 
-            $installationDetails = $rows->map(function ($row): array { // @phpstan-ignore method.unresolvableReturnType, argument.unresolvableType
+            $installationDetails = $rows->map(function ($row): array {
                 $isActive = $row->last_active && now()->diffInDays($row->last_active) <= 7;
 
                 return [

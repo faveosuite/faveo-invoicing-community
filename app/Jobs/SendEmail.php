@@ -17,6 +17,8 @@ class SendEmail implements ShouldQueue
      * Exponential backoff with proportional jitter (25% of base) for transient
      * SMTP failures. Proportional jitter gives consistent spread at every delay
      * level — fixed jitter clusters retries at longer intervals.
+     *
+     * @return array<int, int>
      */
     public function backoff(): array
     {

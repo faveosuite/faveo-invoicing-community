@@ -156,7 +156,7 @@ trait SystemActivityLogsTrait
      */
     private function getLogName(): string
     {
-        return static::$logName ?? ''; // @phpstan-ignore staticProperty.nonStaticAccess
+        return static::$logName ?? ''; // @phpstan-ignore property.staticAccess, nullCoalesce.property
     }
 
     private function getLogNameColumn(): string

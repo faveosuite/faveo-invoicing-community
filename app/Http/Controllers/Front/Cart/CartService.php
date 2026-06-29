@@ -399,7 +399,7 @@ class CartService
             ? max(0, $subtotal - $discount)
             : max(0, $subtotal - $discount + $taxTotal);
 
-        return [ // @phpstan-ignore return.type
+        return [
             'items' => $items,
             'subtotal' => $subtotal,
             'discount' => $discount,

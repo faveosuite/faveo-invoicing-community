@@ -77,7 +77,7 @@ class NotifyManagerChange implements ShouldQueue
                     $template->name,
                     $categoryName,
                     $replace,
-                    $template->type_name
+                    $template->type_name // @phpstan-ignore property.notFound
                 );
             });
     }

@@ -323,7 +323,7 @@ class CloudExtraActivities extends Controller
             $invoiceCtrl->createInvoiceItemsByAdmin(
                 $invoice->id, $productNew->id, $price, $currencyNew,
                 1, $agents, $planId, $user->id,
-                $tax['name'], (float) $tax['value'], $price // @phpstan-ignore argument.type
+                $tax['name'], (float) $tax['value'], $price
             );
 
             return successResponse('success', ['invoice_id' => $invoice->id]);

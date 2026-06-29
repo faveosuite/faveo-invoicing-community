@@ -18,25 +18,6 @@ use Illuminate\Support\Facades\Date;
 class DashboardController extends Controller
 {
     /**
-     * Get all the orders that got converted into paid orders in last 30 days.
-     *
-     * @return array<mixed>
-     */
-    private function getConversionRate(): array
-    {
-        $dayUtc = new Carbon('-30 days');
-        $rate = 0;
-        $now = Date::now();
-        $allOrders = Order::whereBetween('created_at', [$dayUtc, $now])->count();
-        $paidOrders = Order::where('price_override', '>', 0)->whereBetween('created_at', [$dayUtc, $now])->count();
-        if ($paidOrders) {
-            $rate = ($paidOrders / $allOrders) * 100;
-        }
-
-        return ['all_orders' => $allOrders, 'paid_orders' => $paidOrders, 'rate' => $rate];
-    }
-
-    /**
      * Get all the installations and their percentage that got active in the last 30 days with respect to inactive installation.
      *
      * @return array<mixed>
@@ -160,7 +141,7 @@ class DashboardController extends Controller
             ->orderBy('orders.created_at', 'desc')
             ->groupBy('products.id')
             ->get()->map(function ($element) {
-                $element->product_image = $element->product_image; // @phpstan-ignore property.notFound
+                $element->product_image = $element->product_image; // @phpstan-ignore property.notFound, property.notFound
                 $element->order_created_at = getTimeInLoggedInUserTimeZone($element->order_created_at); // @phpstan-ignore property.notFound, property.notFound
 
                 return $element;
@@ -265,34 +246,6 @@ class DashboardController extends Controller
 
                 return $element;
             });
-    }
-
-    /**
-     * Gets list of clients who are using older version of the latest release.
-     *
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    private function getClientsUsingOldVersions()
-    {
-        $latestVersion = (string) Subscription::orderBy('version', 'desc')->value('version');
-
-        return $this->getBaseQueryForOrders()->where('price_override', '>', 0)
-            ->where('subscriptions.version', '<', $latestVersion)->
-        orderBy('subscriptions.created_at', 'desc')
-            ->get();
-    }
-
-    private function getBaseQueryForOrders(): mixed
-    {
-        return Order::leftJoin('subscriptions', 'orders.id', '=', 'subscriptions.order_id')
-            ->leftJoin('users', 'orders.client', '=', 'users.id')
-            ->leftJoin('products', 'orders.product', '=', 'products.id')
-            ->leftJoin('installation_details', 'orders.id', '=', 'installation_details.order_id')
-            ->select('orders.id', DB::raw("concat(first_name, ' ', last_name) as client_name"), 'products.name as product_name', 'products.id as product_id',
-                'subscriptions.version as product_version', 'client as client_id', 'subscriptions.update_ends_at as subscription_ends_at'
-            )->groupBy('orders.number');
     }
 
     /**

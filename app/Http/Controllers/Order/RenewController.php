@@ -308,18 +308,4 @@ class RenewController extends BaseRenewController
         return $expiry_date;
     }
 
-    private function checktheAgent(int $numberOfAgents, string $domain): mixed
-    {
-        $client = new Client([]);
-        $data = ['number_of_agents' => $numberOfAgents];
-        $response = $client->request(
-            'POST',
-            'https://'.$domain.'/api/agent-check', ['form_params' => $data]
-        );
-        $response = explode('{', (string) $response->getBody());
-
-        $response = Arr::first($response);
-
-        return json_decode((string) $response);
-    }
 }

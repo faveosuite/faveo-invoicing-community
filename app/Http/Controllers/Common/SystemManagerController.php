@@ -152,7 +152,7 @@ class SystemManagerController extends Controller
         return __('message.smtp_driver_warning');
     }
 
-    private function updateManager(string $managerColumn, $oldManagerId, $newManagerId): void
+    private function updateManager(string $managerColumn, ?int $oldManagerId, ?int $newManagerId): void
     {
         if (blank($oldManagerId) || blank($newManagerId)) {
             return;

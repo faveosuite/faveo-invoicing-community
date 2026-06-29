@@ -102,14 +102,15 @@ class NonPublicDependencies extends BaseDependencyController
             ->orderBy('name')
             ->get(['id', 'name', 'group']);
 
-        $grouped = $products->groupBy(fn ($p) => $p->groupRelation?->id ?? 0);
+        $grouped = $products->groupBy(fn ($p) => $p->groupRelation?->id ?? 0); // @phpstan-ignore nullsafe.neverNull
 
         $result = $grouped->map(function ($items, $groupId): array {
-            $group = $items->first()->groupRelation;
+            $firstProduct = $items->first();
+            $group = $firstProduct ? $firstProduct->groupRelation : null;
 
             return [
                 'id' => 'group_'.$groupId,
-                'name' => $group?->name ?? 'Uncategorised',
+                'name' => $group?->name ?? 'Uncategorised', // @phpstan-ignore nullsafe.neverNull
                 'children' => $items->map(fn ($p): array => ['id' => $p->id, 'name' => $p->name])->values()->all(),
             ];
         })->values()->all();

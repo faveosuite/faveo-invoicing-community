@@ -7,6 +7,7 @@ namespace Tests\Unit\Backend\Exceptions;
 use App\Exceptions\Handler;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -23,6 +24,7 @@ class HandlerTest extends TestCase
     public function test_report_calls_logger_when_installed(): void
     {
         config(['custom.db_install' => 1]);
+        File::shouldReceive('exists')->andReturn(true);
 
         \Logger::shouldReceive('exception')->once();
 

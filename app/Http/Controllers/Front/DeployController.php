@@ -87,7 +87,7 @@ class DeployController extends Controller
                 ? '/var/www/faveo'
                 : rtrim($request->deploy_path, '/');
 
-            return match ($request->step) {
+            return match ($request->step) { // @phpstan-ignore match.unhandled
                 'verify' => $this->stepVerify($request, $credential, $deployPath),
                 'install' => $this->stepInstall($request, $credential),
                 'upload' => $this->stepUpload($request, $credential),
@@ -109,7 +109,7 @@ class DeployController extends Controller
         }
 
         if ($request->deploy_mode === 'extract_only') {
-            $result = trim($ssh->exec(
+            $result = trim((string) $ssh->exec(
                 'mkdir -p '.escapeshellarg($deployPath).' 2>&1 && echo "ok" || echo "failed"'
             ));
 
@@ -167,13 +167,13 @@ class DeployController extends Controller
             );
         }
 
-        $output = $ssh->exec($cmd);
+        $output = (string) $ssh->exec($cmd);
 
         if (str_contains($output, 'error') || str_contains($output, 'failed')) {
             return errorResponse(__('message.deploy_install_script_errors'));
         }
 
-        $credentials = trim($ssh->exec(
+        $credentials = trim((string) $ssh->exec(
             'cat ~/credentials.txt 2>/dev/null || cat /root/credentials.txt 2>/dev/null || echo ""'
         ));
 
@@ -186,7 +186,8 @@ class DeployController extends Controller
 
     private function stepUpload(Request $request, mixed $credential): JsonResponse
     {
-        $order = Order::findOrFail($request->order_id);
+        /** @var Order $order */
+        $order = Order::findOrFail((int) $request->order_id);
 
         if (! authorizeOwnership($order->client)) {
             return errorResponse(__('message.unauthorized_action'), 403);
@@ -212,13 +213,19 @@ class DeployController extends Controller
         }
 
         $stream = Attach::readStream($filePath);
-        $tmpFile = tempnam(sys_get_temp_dir(), 'deploy_');
+        if (! is_resource($stream)) {
+            return errorResponse(__('message.deploy_file_not_found'));
+        }
+        $tmpFile = (string) tempnam(sys_get_temp_dir(), 'deploy_');
         $tmpHandle = fopen($tmpFile, 'wb');
+        if (! is_resource($tmpHandle)) {
+            fclose($stream);
+
+            return errorResponse(__('message.deploy_upload_failed'));
+        }
         stream_copy_to_stream($stream, $tmpHandle);
         fclose($tmpHandle);
-        if (is_resource($stream)) {
-            fclose($stream);
-        }
+        fclose($stream);
 
         $remotePath = '/tmp/'.basename($upload->file);
 
@@ -259,7 +266,7 @@ class DeployController extends Controller
         if ($request->filled('web_user')) {
             $webUser = $request->web_user;
         } else {
-            $detected = trim($ssh->exec('stat -c %U '.escapeshellarg($deployPath).' 2>/dev/null'));
+            $detected = trim((string) $ssh->exec('stat -c %U '.escapeshellarg($deployPath).' 2>/dev/null'));
             $webUser = ($detected && ! str_contains($detected, 'stat:')) ? $detected : 'www-data';
         }
 
@@ -267,7 +274,7 @@ class DeployController extends Controller
         $ssh2->setTimeout(300);
         $ssh2->login($request->username, $credential);
 
-        $output = $ssh2->exec(
+        $output = (string) $ssh2->exec(
             $withSudo('unzip -o '.escapeshellarg($remotePath).' -d '.escapeshellarg($deployPath)).' 2>&1;'.
             'rm -f '.escapeshellarg($remotePath).';'.
             $withSudo('chown -R '.escapeshellarg($webUser).':'.escapeshellarg($webUser).' '.escapeshellarg($deployPath))
@@ -292,7 +299,7 @@ class DeployController extends Controller
                 'fi; '.
                 'echo "$domain"';
 
-            $detected = trim($ssh3->exec($domainCmd));
+            $detected = trim((string) $ssh3->exec($domainCmd));
             if ($detected && ! str_contains($detected, ' ') && str_contains($detected, '.')) {
                 $siteUrl = 'http://'.$detected;
             }

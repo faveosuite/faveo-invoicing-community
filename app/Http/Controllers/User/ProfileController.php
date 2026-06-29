@@ -73,7 +73,7 @@ class ProfileController extends BaseAuthController
                 return successResponse(__('message.updated-successfully'));
             }
 
-            return successResponse(Lang::get('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
             if ($request->expectsJson()) {
                 return errorResponse($exception->getMessage());
@@ -103,7 +103,7 @@ class ProfileController extends BaseAuthController
                     return successResponse(__('message.updated-successfully'));
                 }
 
-                return successResponse(Lang::get('message.updated-successfully'));
+                return successResponse(__('message.updated-successfully'));
             }
 
             if ($request->expectsJson()) {

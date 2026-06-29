@@ -111,19 +111,6 @@ class LocalizedLicenseControllerTest extends DBTestCase
         }
     }
 
-    public function test_localized_license_install_lm_runs_without_exception(): void
-    {
-        // Covers lines 181-184: private helper (dead code left in place)
-        $controller = new \App\Http\Controllers\License\LocalizedLicenseController(
-            $this->app->make(\App\License\Services\InstallationService::class)
-        );
-        $method = (new \ReflectionClass($controller))->getMethod('localizedLicenseInstallLM');
-        $method->setAccessible(true);
-
-        $method->invoke($controller, 'TEST_ORDER');
-        $this->assertTrue(true);
-    }
-
     public function test_it_sets_license_mode_to_file_and_generates_keys(): void
     {
         Storage::fake('public');

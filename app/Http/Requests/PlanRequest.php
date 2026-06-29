@@ -44,7 +44,7 @@ class PlanRequest extends FormRequest
                         ->where('days', $this->days)
                         ->where('status', 1)
                     )
-                    ->ignore($this->route('planId')), // @phpstan-ignore property.notFound
+                    ->ignore($this->route('planId')),
             ],
         ];
     }

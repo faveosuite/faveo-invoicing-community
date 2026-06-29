@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('github_repos')) {
             Schema::create('github_repos', function (Blueprint $table) {
@@ -23,7 +23,7 @@ return new class extends Migration
         }
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('github_repos');
     }

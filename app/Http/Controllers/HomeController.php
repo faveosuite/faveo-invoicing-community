@@ -92,40 +92,26 @@ class HomeController extends BaseHomeController
 
     public function serial(Request $request, Order $order): void
     {
-        $url = null;
         try {
-            $url = $request->input('url');
             $faveo_encrypted_order_number = self::decryptByFaveoPrivateKey((string) $request->input('order_number'));
             $domain = $this->getDomain((string) $request->input('domain'));
-
-            // return $domain;
             $faveo_encrypted_key = self::decryptByFaveoPrivateKey((string) $request->input('serial_key'));
             $request_type = $request->input('request_type');
             $faveo_name = (string) $request->input('name');
             $faveo_version = (string) $request->input('version');
             $order_number = $this->checkOrder((string) $faveo_encrypted_order_number); // @phpstan-ignore method.notFound
-
             $domain = $this->checkDomain($domain);
             $serial_key = $this->checkSerialKey((string) $faveo_encrypted_key, $order_number);
-            // dd($serial_key);
-            // return $serial_key;
-            $result = [];
+
             if ($request_type == 'install') {
-                $result = $this->verificationResult($order_number, (string) $serial_key);
+                $this->verificationResult($order_number, (string) $serial_key);
             }
 
             if ($request_type == 'check_update') {
-                $result = $this->checkUpdate($order_number, (string) $serial_key, $domain, $faveo_name, $faveo_version);
+                $this->checkUpdate($order_number, (string) $serial_key, $domain, $faveo_name, $faveo_version);
             }
-
-            $jsonResult = json_encode($result);
-            $resultStr = self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
-            $this->submit($resultStr, $url);
         } catch (Exception $exception) {
-            $result = ['status' => 'error', 'message' => $exception->getMessage()];
-            $jsonResult = json_encode($result);
-            $resultStr = self::encryptByPublicKey($jsonResult !== false ? $jsonResult : '');
-            $this->submit($resultStr, $url);
+            Logger::exception($exception);
         }
     }
 

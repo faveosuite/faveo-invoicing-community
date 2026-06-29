@@ -505,9 +505,6 @@ class ClientController extends AdvanceSearchController
             $invoices = Invoice::where('user_id', $id)->get();
             $invoiceSum = $this->getTotalInvoice($invoices); // @phpstan-ignore argument.type
             $amountPaid = $this->getAmountPaid($id);
-            if ($amountPaid instanceof RedirectResponse) {
-                return $amountPaid; // @phpstan-ignore return.type
-            }
             $balance = $invoiceSum - $amountPaid;
             $currency = getCurrencyForClient($user->country);
 

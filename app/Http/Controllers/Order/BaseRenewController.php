@@ -24,7 +24,7 @@ class BaseRenewController extends Controller
 {
     use TaxCalculation;
 
-    public function invoiceBySubscriptionId(int $id, int $planid, float|int $cost, string $currency, int|string|null $agents = null): InvoiceItem|RedirectResponse
+    public function invoiceBySubscriptionId(int $id, int $planid, float|int $cost, string $currency, int|string|null $agents = null): InvoiceItem|JsonResponse|RedirectResponse
     {
         try {
             $sub = Subscription::find($id);
@@ -48,7 +48,7 @@ class BaseRenewController extends Controller
      * @param  int  $cost  The Renew cost for for the Paln
      * @param  string  $currency  Currency of ther plan
      */
-    public function getInvoiceByOrderId(int $orderid, int $planid, float|int $cost, string $currency, int|string|null $agents = null): InvoiceItem|RedirectResponse
+    public function getInvoiceByOrderId(int $orderid, int $planid, float|int $cost, string $currency, int|string|null $agents = null): InvoiceItem|JsonResponse|RedirectResponse
     {
         try {
             /** @var Order $order */
@@ -143,7 +143,7 @@ class BaseRenewController extends Controller
         }
     }
 
-    public function generateInvoice(Product $product, User $user, int $orderid, int $planid, float|int $cost, string $code, int|string|null $agents, string $currency): InvoiceItem|RedirectResponse
+    public function generateInvoice(Product $product, User $user, int $orderid, int $planid, float|int $cost, string $code, int|string|null $agents, string $currency): InvoiceItem|JsonResponse|RedirectResponse
     {
         try {
             $controller = new InvoiceController;
@@ -174,7 +174,7 @@ class BaseRenewController extends Controller
             ]);
             $renewController = new RenewController;
             $renewController->createOrderInvoiceRelation($orderid, $invoice->id);
-            $items = $controller->createInvoiceItemsByAdmin($invoice->id, (string) $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, (float) $tax_rate, $renewalPrice); // @phpstan-ignore argument.type
+            $items = $controller->createInvoiceItemsByAdmin($invoice->id, (string) $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, (float) $tax_rate, $renewalPrice);
             if (in_array($product->id, cloudPopupProducts())) {
                 $license_code = Order::where('id', $orderid)->value('serial_key');
                 $installation_path = Installation::where('license_code', Order::find($orderid)?->serial_key)

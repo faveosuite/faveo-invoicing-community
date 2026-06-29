@@ -530,11 +530,11 @@ class SettingsController extends BaseSettingsController
             return successResponse('', [
                 'cloud_central_domain' => $cloud?->cloud_central_domain,
                 'cloud_cname' => $cloud?->cloud_cname,
-                'cloud_job_url' => $cloud?->cloud_job_url ?? config('custom.cloud_job_url'),
-                'cloud_job_url_normal' => $cloud?->cloud_job_url_normal ?? config('custom.cloud_job_url_normal'),
-                'cloud_user' => $cloud?->cloud_user ?? config('custom.cloud_user'),
-                'cloud_delete_job_url_normal' => $cloud?->cloud_delete_job_url_normal ?? config('custom.cloud_delete_job_url_normal'),
-                'cloud_delete_job_url_custom' => $cloud?->cloud_delete_job_url_custom ?? config('custom.cloud_delete_job_url_custom'),
+                'cloud_job_url' => $cloud->cloud_job_url ?? config('custom.cloud_job_url'),
+                'cloud_job_url_normal' => $cloud->cloud_job_url_normal ?? config('custom.cloud_job_url_normal'),
+                'cloud_user' => $cloud->cloud_user ?? config('custom.cloud_user'),
+                'cloud_delete_job_url_normal' => $cloud->cloud_delete_job_url_normal ?? config('custom.cloud_delete_job_url_normal'),
+                'cloud_delete_job_url_custom' => $cloud->cloud_delete_job_url_custom ?? config('custom.cloud_delete_job_url_custom'),
                 'cloud_auth_configured' => filled($cloud?->cloud_auth) || filled(config('custom.cloud_auth')),
                 'cloud_oauth_token_configured' => filled($cloud?->cloud_oauth_token) || filled(config('custom.cloud_oauth_token')),
                 'google_chat_webhook_configured' => filled($cloud?->google_chat_webhook) || filled(config('custom.google_chat')),
@@ -944,34 +944,6 @@ class SettingsController extends BaseSettingsController
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
-    }
-
-    private function setStatus(int $current): string
-    {
-        $map = [
-            'safe' => 1,
-            'catch_all' => 2,
-            'unknown' => 4,
-            'invalid' => 8,
-            'disabled' => 16,
-            'disposable' => 32,
-            'inbox_full' => 64,
-            'role_account' => 128,
-            'spamtrap' => 256,
-        ];
-
-        $statusOptions = '';
-        foreach ($map as $status => $bit) {
-            $checked = (($current & $bit) !== 0) ? 'checked' : '';
-            $label = ucfirst(str_replace('_', ' ', $status));
-            $statusOptions .= '<div class="form-check">
-        <input class="form-check-input emailStatusCheckbox" type="checkbox" 
-               name="allowed_statuses[]" value="'.$bit.'" id="status_'.$status.'" '.$checked.'>
-        <label class="form-check-label" for="status_'.$status.'">'.$label.'</label>
-    </div>';
-        }
-
-        return $statusOptions;
     }
 
     public function emailSettingsSave(Request $request): JsonResponse

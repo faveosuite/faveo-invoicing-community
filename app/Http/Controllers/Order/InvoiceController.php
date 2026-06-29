@@ -303,7 +303,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 $total, $currency, $qty, $agents, $plan, $user_id, $tax['name'], (float) $tax['value'], $total);
             Session::forget('plan');
 
-            if (! $items) {
+            if (! $items instanceof InvoiceItem) {
                 return errorResponse([__('message.can-not-generate-invoice')]);
             }
 
@@ -341,7 +341,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     }
 
     public function createInvoiceItemsByAdmin(int $invoiceid, string $productid, mixed $price,
-        string $currency, int $qty, mixed $agents, int $planid, int $userid, ?string $tax_name, float|int $tax_rate, mixed $grandTotalAfterCoupon): InvoiceItem|RedirectResponse
+        string $currency, int $qty, mixed $agents, int $planid, int $userid, ?string $tax_name, float|int $tax_rate, mixed $grandTotalAfterCoupon): InvoiceItem|JsonResponse|RedirectResponse
     {
         try {
             $product = $this->product->findOrFail($productid);

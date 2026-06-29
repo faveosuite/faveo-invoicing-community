@@ -204,6 +204,7 @@ class Order extends BaseModel
         return $this->hasMany(Installation::class, 'order_id');
     }
 
+    /** @return HasMany<InstallationDetail, $this> */
     public function installationDetails(): HasMany
     {
         return $this->hasMany(InstallationDetail::class, 'order_id');

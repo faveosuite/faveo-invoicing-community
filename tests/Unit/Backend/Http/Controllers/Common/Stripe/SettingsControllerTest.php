@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Facades\Attach;
 use App\FileSystemSettings;
 use App\Http\Controllers\RazorpayController;
+use App\Model\Common\CommonSettings;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
@@ -446,8 +447,10 @@ class SettingsControllerTest extends DBTestCase
     */
     public function test_returns_current_debug_status(): void
     {
-        // Get Debug enable option
-        Config::set('app.debug', true);
+        CommonSettings::updateOrCreate(
+            ['option_name' => 'debugging', 'optional_field' => 'app_debug'],
+            ['option_value' => '1']
+        );
 
         $response = $this->getJson('/debugg');
 
