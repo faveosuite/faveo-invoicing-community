@@ -3,6 +3,7 @@
 namespace Tests\Unit\Backend\Http\Controllers\Front\Account;
 
 use App\User;
+use DB;
 use Hash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
@@ -23,6 +24,7 @@ class ProfileTest extends DBTestCase
     public function test_post_profile_successful_update(): void
     {
         Storage::fake('local');
+        DB::table('settings_filesystem')->insertOrIgnore(['disk' => 'local']);
 
         $file = UploadedFile::fake()->image('profile.jpg');
 
