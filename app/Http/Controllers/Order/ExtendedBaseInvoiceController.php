@@ -8,11 +8,9 @@ use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
-use Lang;
 use Logger;
 
 class ExtendedBaseInvoiceController extends Controller

@@ -11,8 +11,6 @@ use App\Model\Payment\Currency;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
-use Carbon\Carbon;
-use DB;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Date;
 use Tests\DBTestCase;

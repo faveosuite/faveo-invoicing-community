@@ -19,7 +19,6 @@ use GuzzleHttp\Client;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Date;
 use Session;
 
@@ -307,5 +306,4 @@ class RenewController extends BaseRenewController
 
         return $expiry_date;
     }
-
 }
