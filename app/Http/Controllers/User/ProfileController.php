@@ -14,7 +14,6 @@ use Exception;
 use Hash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Lang;
 
 class ProfileController extends BaseAuthController
 {

@@ -20,7 +20,6 @@ use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use Auth;
 // Cartalyst Stripe SDK not installed — tests using Stripe::make() are skipped below
-use Config;
 use DB;
 use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;

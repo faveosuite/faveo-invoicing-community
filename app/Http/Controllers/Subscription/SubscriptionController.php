@@ -25,7 +25,6 @@ use App\User;
 use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Date;
 use Logger;
 
