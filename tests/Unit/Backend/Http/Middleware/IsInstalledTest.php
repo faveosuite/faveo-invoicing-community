@@ -6,6 +6,7 @@ namespace Tests\Unit\Backend\Http\Middleware;
 
 use App\Http\Middleware\IsInstalled;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 class IsInstalledTest extends TestCase
@@ -28,6 +29,7 @@ class IsInstalledTest extends TestCase
     public function test_returns_json_when_installed_and_json_request(): void
     {
         config(['custom.db_install' => 1]);
+        File::shouldReceive('exists')->andReturn(true);
         $request = Request::create('/install', 'POST');
         $request->headers->set('Content-Type', 'application/json');
         $request->headers->set('Accept', 'application/json');
@@ -42,6 +44,7 @@ class IsInstalledTest extends TestCase
     public function test_redirects_when_installed_and_html_request(): void
     {
         config(['custom.db_install' => 1]);
+        File::shouldReceive('exists')->andReturn(true);
         $request = Request::create('/install', 'GET');
 
         $response = (new IsInstalled())->handle($request, $this->next());
