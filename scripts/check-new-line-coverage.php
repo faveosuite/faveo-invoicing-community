@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Checks that lines added in this PR (vs development) are covered by tests.
  *
@@ -17,12 +18,11 @@
  *   0 — passed (or skipped — nothing to check)
  *   1 — coverage below threshold
  */
-
-$workspace  = rtrim($argv[1] ?? getcwd(), '/');
-$threshold  = isset($argv[2]) ? (int) $argv[2] : 80;
+$workspace = rtrim($argv[1] ?? getcwd(), '/');
+$threshold = isset($argv[2]) ? (int) $argv[2] : 80;
 $cloverFile = "{$workspace}/storage/sonarqube/clover.xml";
 
-if (!file_exists($cloverFile)) {
+if (! file_exists($cloverFile)) {
     fwrite(STDERR, "[SKIP] No clover.xml at {$cloverFile}\n");
     echo json_encode(['skipped' => true, 'reason' => 'no clover.xml']);
     exit(0);
@@ -31,12 +31,12 @@ if (!file_exists($cloverFile)) {
 // ── Step 1: get added lines per PHP file (reuse shared diff parser) ───────────
 
 $allChangedLines = json_decode(
-    shell_exec('php ' . escapeshellarg($workspace . '/scripts/get-changed-lines.php') . ' ' . escapeshellarg($workspace)),
+    shell_exec('php '.escapeshellarg($workspace.'/scripts/get-changed-lines.php').' '.escapeshellarg($workspace)),
     true
 ) ?? [];
 
 // Coverage only checks PHP source files (get-changed-lines.php already excluded tests/)
-$addedLines = array_filter($allChangedLines, static fn(string $k) => str_ends_with($k, '.php'), ARRAY_FILTER_USE_KEY);
+$addedLines = array_filter($allChangedLines, static fn (string $k) => str_ends_with($k, '.php'), ARRAY_FILTER_USE_KEY);
 
 if (empty($addedLines)) {
     fwrite(STDERR, "[SKIP] No new PHP source lines found\n");
@@ -65,14 +65,15 @@ foreach ($xml->project->file as $fileNode) {
 
 function lookupLineCoverage(string $relPath, string $workspace, array $cloverCoverage): ?array
 {
-    $abs = $workspace . '/' . $relPath;
+    $abs = $workspace.'/'.$relPath;
+
     return $cloverCoverage[$abs] ?? $cloverCoverage[$relPath] ?? null;
 }
 
 // ── Step 3: cross-reference new lines with clover ────────────────────────────
 
 $totalExecutable = 0;
-$totalCovered    = 0;
+$totalCovered = 0;
 $uncoveredByFile = [];   // [ 'app/Foo.php' => [lineNum, ...] ]
 
 foreach ($addedLines as $relPath => $lines) {
@@ -89,7 +90,7 @@ foreach ($addedLines as $relPath => $lines) {
     }
 
     foreach ($lines as $lineNum) {
-        if (!array_key_exists($lineNum, $lineCov)) {
+        if (! array_key_exists($lineNum, $lineCov)) {
             continue;  // not executable: blank line, comment, closing brace, etc.
         }
         $totalExecutable++;
@@ -107,7 +108,7 @@ if ($totalExecutable === 0) {
     exit(0);
 }
 
-$pct    = round($totalCovered / $totalExecutable * 100, 1);
+$pct = round($totalCovered / $totalExecutable * 100, 1);
 $passed = $pct >= $threshold;
 
 fwrite(STDERR, sprintf(
@@ -116,15 +117,15 @@ fwrite(STDERR, sprintf(
 ));
 
 foreach ($uncoveredByFile as $file => $lines) {
-    fwrite(STDERR, "  [UNCOVERED] {$file}: lines " . implode(', ', $lines) . "\n");
+    fwrite(STDERR, "  [UNCOVERED] {$file}: lines ".implode(', ', $lines)."\n");
 }
 
 echo json_encode([
-    'passed'          => $passed,
-    'coverage'        => $pct,
-    'threshold'       => $threshold,
-    'covered'         => $totalCovered,
-    'total'           => $totalExecutable,
+    'passed' => $passed,
+    'coverage' => $pct,
+    'threshold' => $threshold,
+    'covered' => $totalCovered,
+    'total' => $totalExecutable,
     'uncovered_files' => $uncoveredByFile,
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
