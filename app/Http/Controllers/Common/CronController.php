@@ -515,9 +515,9 @@ class CronController extends BaseCronController
         return $condition1 || $condition2;
     }
 
-    private function deleteInvoice(mixed $invoice): mixed
+    private function deleteInvoice(mixed $invoice): void
     {
-        return DB::transaction(function () use ($invoice): void { // @phpstan-ignore staticMethod.void
+        DB::transaction(function () use ($invoice): void {
             // Delete related InvoiceItem records
             $invoice->invoiceItem()->delete();
 

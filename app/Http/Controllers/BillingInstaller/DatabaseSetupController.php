@@ -35,9 +35,6 @@ class DatabaseSetupController extends Controller
         define('DB_SSL_VERIFY_PEER_CERT', $sslVerify);
         define('PROBE_VERSION', '4.2');
         define('PROBE_FOR', 'HELPDESK 1.0 and Newer');
-        define('STATUS_OK', 'Ok');
-        define('STATUS_WARNING', 'Warning');
-        define('STATUS_ERROR', 'Error');
     }
 
     /**
@@ -88,22 +85,22 @@ class DatabaseSetupController extends Controller
     private function checkDBPrerequisites(array &$results, bool &$mysqli_ok, \mysqli $connection): void
     {
         if (mysqli_select_db($connection, DB_NAME)) {
-            $results[] = new TestResult(__('installer_messages.database').' '.DB_NAME.' '.__('installer_messages.selected'), STATUS_OK);
+            $results[] = new TestResult(__('installer_messages.database').' '.DB_NAME.' '.__('installer_messages.selected'), TestResult::STATUS_OK);
             $mysqli_version = mysqli_get_server_info($connection);
             $dbVersion = mysqli_get_server_version($connection);
             if ($this->compareMySqlAndMariDB($dbVersion)) {
-                $results[] = new TestResult(__('installer_messages.mysql_version_is').' '.$mysqli_version, STATUS_OK);
+                $results[] = new TestResult(__('installer_messages.mysql_version_is').' '.$mysqli_version, TestResult::STATUS_OK);
                 $sql = 'SHOW TABLES FROM '.DB_NAME;
                 $res = mysqli_query($connection, $sql);
                 if ($res instanceof \mysqli_result && mysqli_fetch_array($res) === null) {
                     $results[] = new TestResult(__('installer_messages.database_empty'));
                     $mysqli_ok = true;
                 } else {
-                    $results[] = new TestResult(__('installer_messages.database_not_empty'), STATUS_ERROR);
+                    $results[] = new TestResult(__('installer_messages.database_not_empty'), TestResult::STATUS_ERROR);
                     $mysqli_ok = false;
                 }
             } else {
-                $results[] = new TestResult(__('installer_messages.mysql_version_is').' '.$mysqli_version.' '.__('installer_messages.mysql_version_required'), STATUS_ERROR);
+                $results[] = new TestResult(__('installer_messages.mysql_version_is').' '.$mysqli_version.' '.__('installer_messages.mysql_version_required'), TestResult::STATUS_ERROR);
                 $mysqli_ok = false;
             }
         } else {
@@ -194,15 +191,15 @@ class DatabaseSetupController extends Controller
                     }
 
                     if ($connection) {
-                        $results[] = new TestResult(__('installer_messages.connected_as').' '.DB_USER.'@'.DB_HOST.DB_PORT, STATUS_OK);
+                        $results[] = new TestResult(__('installer_messages.connected_as').' '.DB_USER.'@'.DB_HOST.DB_PORT, TestResult::STATUS_OK);
                         $this->checkDBPrerequisites($results, $mysqli_ok, $connection);
                     } else {
                         $mysqli_ok = false;
-                        $results[] = new TestResult(__('installer_messages.failed_connection').' '.mysqli_connect_error(), STATUS_ERROR);
+                        $results[] = new TestResult(__('installer_messages.failed_connection').' '.mysqli_connect_error(), TestResult::STATUS_ERROR);
                     }
                 }
             } catch (Exception $e) {
-                $results[] = new TestResult(__('installer_messages.failed_connection').' '.$e->getMessage(), STATUS_ERROR);
+                $results[] = new TestResult(__('installer_messages.failed_connection').' '.$e->getMessage(), TestResult::STATUS_ERROR);
                 $mysqli_ok = false;
             }
         }
@@ -213,7 +210,11 @@ class DatabaseSetupController extends Controller
 
 class TestResult
 {
-    public function __construct(public mixed $message, public mixed $status = STATUS_OK) // @phpstan-ignore constant.notFound
+    const STATUS_OK = 'Ok';
+    const STATUS_WARNING = 'Warning';
+    const STATUS_ERROR = 'Error';
+
+    public function __construct(public mixed $message, public mixed $status = self::STATUS_OK)
     {
     }
 }

@@ -38,17 +38,15 @@ class FreeTrialService
     }
 
     /**
-     * @return array<mixed>
-     *
      * @throws RuntimeException
      */
-    public function provision(User $user, string $domain, CloudProducts $cloudProduct): array
+    public function provision(User $user, string $domain, CloudProducts $cloudProduct): JsonResponse
     {
         $currency = getCurrencyForClient($user->country);
         $plan = $this->resolveFreePlan($cloudProduct);
         $product = Product::findOrFail($cloudProduct->cloud_product);
 
-        return DB::transaction(function () use ($user, $domain, $cloudProduct, $plan, $product, $currency): JsonResponse { // @phpstan-ignore return.type
+        return DB::transaction(function () use ($user, $domain, $cloudProduct, $plan, $product, $currency): JsonResponse {
             $invoice = $this->createInvoice($user, $plan, $currency);
             $this->createInvoiceItem($invoice, $product, $plan, $currency);
 

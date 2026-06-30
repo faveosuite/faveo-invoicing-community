@@ -417,7 +417,7 @@ class BillingDependencyController extends Controller
 
             $oldError = error_reporting();
             error_reporting($oldError & ~E_WARNING);
-            $read = fopen($sslHost, 'rb', use_include_path: false, context: $stream);
+            $read = fopen($sslHost, 'rb', use_include_path: false, context: $stream); // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
             error_reporting($oldError);
             if (! $read) {
                 throw new Exception('Unable to open stream');

@@ -1,3 +1,4 @@
+/* global module, jest */
 module.exports = jest.fn(() => ({
     destroy: jest.fn(),
     getNumber: jest.fn(() => ''),
