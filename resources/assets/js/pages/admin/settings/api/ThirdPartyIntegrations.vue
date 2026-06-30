@@ -78,9 +78,9 @@ const tableOptions = reactive({
             // Activate/Deactivate link
             links.push(
                 h('a', {
-                    href: 'javascript:;',
+                    href: '#',
                     class: 'plugin-link activate-link',
-                    onClick: () => toggle(row, !row.enabled)
+                    onClick: (e) => { e.preventDefault(); toggle(row, !row.enabled) }
                 }, row.enabled ? 'Deactivate' : 'Activate')
             )
 

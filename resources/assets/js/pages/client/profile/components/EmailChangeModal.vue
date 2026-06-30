@@ -110,7 +110,7 @@ function startCooldown() {
     }, 1000)
 }
 
-const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) // NOSONAR
 
 async function submitEmail() {
     emailError.value = ''

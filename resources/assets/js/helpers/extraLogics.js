@@ -127,20 +127,13 @@ export const getSubStringValue = (name, count) => {
  * @return {string}     string
  */
 export const generateRandomString = (length = 16) => {
-    var a = ''
-
-    var n = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-
-    for (var e = 1; e <= length; e++) {
-
-        a += n.charAt(Math.floor(Math.random() * n.length));
-
-        if (e % 4 == 0 && e != length) {
-
-            a += ''
-        }
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    const bytes = new Uint8Array(length)
+    crypto.getRandomValues(bytes)
+    let a = ''
+    for (let e = 0; e < length; e++) {
+        a += charset[bytes[e] % charset.length]
     }
-
     return a;
 };
 

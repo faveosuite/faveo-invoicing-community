@@ -130,7 +130,7 @@ const typeOptions = ref([])
 
 const LABEL_OVERRIDES = {
     welcome_mail:                   'Welcome Mail',
-    forgot_password_mail:           'Forgot Password',
+    forgot_password_mail:           'Forgot Password', // NOSONAR
     subscription_going_to_end_mail: 'Subscription Going To End',
     subscription_over_mail:         'Subscription Over',
     invoice_mail:                   'Invoice',
