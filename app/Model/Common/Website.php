@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Website extends BaseModel
 {
-
     /**
      * @return BelongsTo<Model, Model>
      */

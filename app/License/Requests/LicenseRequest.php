@@ -43,5 +43,4 @@ class LicenseRequest extends FormRequest
             'license_status' => ['integer', 'in:0,1,2'],
         ];
     }
-
 }

@@ -159,7 +159,6 @@ class Subscription extends Model
     //     $tz = \Auth::user()->timezone()->first()->name;
     //     $date1->setTimezone(new DateTimeZone($tz));
 
-
     #[Override]
     protected function casts(): array
     {

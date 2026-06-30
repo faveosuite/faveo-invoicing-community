@@ -71,5 +71,4 @@ class Payment extends BaseModel
     {
         return $this->belongsTo(User::class);
     }
-
 }

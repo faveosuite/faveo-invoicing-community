@@ -79,7 +79,7 @@ class BaseRenewController extends Controller
                 $agents = $item->agents;
             }
 
-            return $this->generateInvoice($product, $user, $orderid, $planid, $cost, '' , $agents, $currency);
+            return $this->generateInvoice($product, $user, $orderid, $planid, $cost, '', $agents, $currency);
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }

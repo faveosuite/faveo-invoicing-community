@@ -36,7 +36,6 @@ class AuthController extends BaseAuthController
       |
      */
 
-
     protected mixed $pipedrive = null;
 
     public function __construct()

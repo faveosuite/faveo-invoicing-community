@@ -47,6 +47,7 @@ class ExtendedBaseProductController extends Controller
             return successResponse(__('message.product_updated_successfully'));
         } catch (Exception $exception) {
             Logger::exception($exception);
+
             return errorResponse($exception->getMessage());
         }
     }

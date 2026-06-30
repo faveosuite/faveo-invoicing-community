@@ -495,7 +495,6 @@ function userCountryId(): mixed
     return null;
 }
 
-
 /**
  * sets mail config and reloads the config into the container
  * NOTE: this is getting used outside the class to set service config.
