@@ -23,7 +23,15 @@ parameters:
             message: '#property Illuminate\\Database\\Eloquent\\Model::#'
         -
             identifier: property.notFound
-            message: '#property Razorpay\\Api\\Api::#' 
+            message: '#property Razorpay\\Api\\Api::#'
+        -
+            message: '#Call to an undefined static method Illuminate\\Support\\Facades\\Schema::getTableListing\(\)#'
+            path: app/Http/Controllers/BillingInstaller/InstallerController.php
+            reportUnmatched: false
+        -
+            message: '#Call to an undefined static method Illuminate\\Support\\Facades\\File::filterFiles\(\)#'
+            path: app/Http/helpers.php
+            reportUnmatched: false
 
 
     excludePaths:
