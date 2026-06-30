@@ -91,10 +91,10 @@ async function onSubmit() {
 
     axios.post(apiEndpoint.value, formData).then(res => {
         successHandler(res, 'whitelist')
-        if (!hostId.value) {
-            setTimeout(() => { router.push('/whitelist/list') }, 2000)
-        } else {
+        if (hostId.value) {
             getInitialValues(hostId.value)
+        } else {
+            setTimeout(() => { router.push('/whitelist/list') }, 2000)
         }
     }).catch(err => {
         errorHandler(err, 'whitelist')

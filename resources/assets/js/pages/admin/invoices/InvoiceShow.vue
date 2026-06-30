@@ -99,6 +99,7 @@
                     <div class="row">
                         <div class="col-lg-5 ms-auto">
                             <table class="table table-sm table-borderless w-100">
+                                <thead class="visually-hidden"><tr><th>Description</th><th>Amount</th></tr></thead>
                                 <colgroup>
                                     <col>
                                     <col style="width:140px;">

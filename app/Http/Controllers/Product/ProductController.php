@@ -479,7 +479,7 @@ class ProductController extends BaseProductController
             'description' => ['required'],
             'product_description' => ['required'],
             'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
-            'file' => ['sometimes', 'file'],
+            'file' => ['sometimes', 'file', 'max:102400'],
             'product_sku' => ['required'],
             'group' => ['required'],
             'show_agent' => ['required'],

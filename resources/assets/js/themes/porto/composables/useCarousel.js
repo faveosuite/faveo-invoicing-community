@@ -271,13 +271,19 @@ class Carousel {
         const N       = this._originals.length
         const prevIdx = this._currentIdx
 
-        if (!this.options.loop) {
+        if (this.options.loop) {
             if (this._stagePos >= this._maxPos()) return
             this._currentIdx = Math.min(this._currentIdx + 1, this._maxPos())
             this._stagePos   = this._currentIdx
         } else {
             this._currentIdx = (prevIdx + 1) % N
             this._stagePos++
+        }            this._currentIdx = (prevIdx + 1) % N
+            this._stagePos++
+        } else {
+            if (this._stagePos >= this._maxPos()) return
+            this._currentIdx = Math.min(this._currentIdx + 1, this._maxPos())
+            this._stagePos   = this._currentIdx
         }
 
         this._dispatch('change.owl.carousel', { prevSlideIndex: prevIdx, nextSlideIndex: this._currentIdx })
@@ -305,13 +311,13 @@ class Carousel {
         const N       = this._originals.length
         const prevIdx = this._currentIdx
 
-        if (!this.options.loop) {
+        if (this.options.loop) {
+            this._currentIdx = (prevIdx - 1 + N) % N
+            this._stagePos--
+        } else {
             if (this._stagePos <= 0) return
             this._currentIdx = Math.max(this._currentIdx - 1, 0)
             this._stagePos   = this._currentIdx
-        } else {
-            this._currentIdx = (prevIdx - 1 + N) % N
-            this._stagePos--
         }
 
         this._dispatch('change.owl.carousel', { prevSlideIndex: prevIdx, nextSlideIndex: this._currentIdx })
@@ -335,12 +341,12 @@ class Carousel {
         const N       = this._originals.length
         const prevIdx = this._currentIdx
 
-        if (!this.options.loop) {
-            this._currentIdx = Math.max(0, Math.min(index, this._maxPos()))
-            this._stagePos   = this._currentIdx
-        } else {
+        if (this.options.loop) {
             this._currentIdx = ((index % N) + N) % N
             this._stagePos   = this._cloneOffset + this._currentIdx
+        } else {
+            this._currentIdx = Math.max(0, Math.min(index, this._maxPos()))
+            this._stagePos   = this._currentIdx
         }
 
         this._setTransform(this._translateX(this._stagePos), animate)

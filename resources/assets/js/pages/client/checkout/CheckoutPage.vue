@@ -28,11 +28,11 @@
             <table class="shop_table cart">
               <thead>
                 <tr class="text-color-dark">
-                  <th class="product-thumbnail" width="15%">&nbsp;</th>
-                  <th class="product-name text-uppercase" width="35%">{{ __('message.product') }}</th>
-                  <th class="product-quantity text-uppercase" width="15%">{{ __('message.quantity') }}</th>
-                  <th class="product-quantity text-uppercase" width="20%">{{ __('message.agents') }}</th>
-                  <th class="product-subtotal text-uppercase text-end" width="15%">{{ __('message.total') }}</th>
+                  <th class="product-thumbnail" style="width:15%">&nbsp;</th>
+                  <th class="product-name text-uppercase" style="width:35%">{{ __('message.product') }}</th>
+                  <th class="product-quantity text-uppercase" style="width:15%">{{ __('message.quantity') }}</th>
+                  <th class="product-quantity text-uppercase" style="width:20%">{{ __('message.agents') }}</th>
+                  <th class="product-subtotal text-uppercase text-end" style="width:15%">{{ __('message.total') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -43,7 +43,7 @@
                         <i class="fas fa-times"></i>
                       </a>
                       <span class="product-thumbnail-image d-inline-block">
-                        <img v-if="item.image" :src="item.image" width="90" height="90" alt="" class="img-fluid" />
+                        <img v-if="item.image" :src="item.image" alt="" class="img-fluid" />
                         <span v-else class="d-inline-flex align-items-center justify-content-center bg-light" style="width:90px;height:90px;">
                           <i class="fas fa-box text-color-grey fa-2x"></i>
                         </span>

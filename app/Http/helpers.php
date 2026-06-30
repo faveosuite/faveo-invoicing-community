@@ -182,7 +182,7 @@ function getDateHtml(?string $dateTimeString = null): string
 /**
  * @return array<mixed>
  */
-function getExpiryLabel(string $expiryDate, string $badge = 'badge'): array
+function getExpiryLabel(string $expiryDate): array
 {
     $expiry = Date::parse($expiryDate);
     $now = Date::now();
@@ -313,7 +313,7 @@ function getStateByCode(string $country, string $state): array
 /**
  * @return array<mixed>
  */
-function userCurrencyAndPrice(mixed $userid, mixed $plan, string $productid = ''): array
+function userCurrencyAndPrice(mixed $userid, mixed $plan): array
 {
     try {
         $country = getCountry($userid);
@@ -1102,7 +1102,7 @@ function logActivity(
         ->event($event)
         ->withProperties($properties);
 
-    $actor ? $log->causedBy($actor) : $log->causedByAnonymous(); // @phpstan-ignore argument.type
+    $actor ? $log->causedBy($actor) : $log->causedByAnonymous();
 
     $log->log($message);
 }

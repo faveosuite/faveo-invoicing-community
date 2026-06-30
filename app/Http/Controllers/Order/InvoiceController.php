@@ -403,7 +403,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $number = $invoice->number;
             $total = $invoice->grand_total;
 
-            return $this->sendInvoiceMail($userid, $number, $total, $invoiceid); // @phpstan-ignore argument.type, method.void
+            $this->sendInvoiceMail($userid, $number, $total, $invoiceid);
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }

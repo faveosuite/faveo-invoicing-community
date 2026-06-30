@@ -314,6 +314,7 @@
               <div class="card-body">
                 <h4 class="font-weight-bold text-uppercase text-4 mb-3">{{ __('message.op_payment_details') }}</h4>
                 <table class="shop_table cart-totals mb-0">
+                  <thead class="visually-hidden"><tr><th>{{ __("message.op_description_optional") }}</th><th>{{ __("message.value") }}</th></tr></thead>
                   <tbody>
                     <tr>
                       <td class="border-top-0"><strong class="text-color-dark">{{ __('message.op_description_optional') }}</strong></td>
@@ -623,7 +624,7 @@ const payNow = async () => {
         // (rate changed between config load and Pay click), alert the user
         const confirmedTotal = parseFloat(order.value?.amount)
         const estimatedTotal = parseFloat(calculation.total)
-        if (!isNaN(confirmedTotal) && Math.abs(confirmedTotal - estimatedTotal) > 0.01) {
+        if (!Number.Number.isNaN(confirmedTotal) && Math.abs(confirmedTotal - estimatedTotal) > 0.01) {
           alertStore.setAlert({
             message: `The total has been updated to ${selectedCurrencySymbol.value} ${confirmedTotal} due to a fee rate change.`,
             type: 'warning',

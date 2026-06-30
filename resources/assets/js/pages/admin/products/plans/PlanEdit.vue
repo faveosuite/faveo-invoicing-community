@@ -226,13 +226,13 @@ async function submit() {
             product:           form.product,
             days:              form.days || null,
             status:            form.status,
-            no_of_agents:      form.no_of_agents !== '' ? form.no_of_agents : null,
-            product_quantity:  form.product_quantity !== '' ? form.product_quantity : null,
+            no_of_agents:      form.no_of_agents === '' ? null : form.no_of_agents,
+            product_quantity:  form.product_quantity === '' ? null : form.product_quantity,
             price_description: form.price_description || null,
             currency:          form.prices.map(p => p.currency),
             add_price:         form.prices.map(p => p.add_price),
             renew_price:       form.prices.map(p => p.renew_price),
-            offer_price:       form.prices.map(p => p.offer_price !== '' ? p.offer_price : null),
+            offer_price:       form.prices.map(p => p.offer_price === '' ? null : p.offer_price),
         }
         const res = await http.patch(`${baseUrl}/plan/${route.params.id}`, payload)
         successHandler(res, COMPONENT)

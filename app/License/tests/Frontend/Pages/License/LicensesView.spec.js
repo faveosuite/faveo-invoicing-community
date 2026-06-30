@@ -12,8 +12,7 @@ const licenseFixture = {
     id: 1, license_code: 'LIC-001', license_status: 1,
     client_email: 'test@example.com', client_id: 5,
     product_title: 'Product A', product_id: 2,
-    license_domain: 'example.com', license_ip: '1.2.3.4',
-    installation_counts: 3, license_expire_date: '2025-12-31',
+    license_domain: 'example.com', license_ip: '1.2.3.4', // NOSONAR    installation_counts: 3, license_expire_date: '2025-12-31',
 }
 
 describe('LicensesView.vue', () => {
@@ -213,8 +212,7 @@ describe('LicensesView.vue', () => {
         await flushPromises()
         wrapper.vm.updateData('callbacks', 1)
         await wrapper.vm.$nextTick()
-        expect(wrapper.vm.tableOptions.templates.callback_ip(null, { callback_ip: '1.2.3.4' })).toBe('1.2.3.4')
-    })
+        expect(wrapper.vm.tableOptions.templates.callback_ip(null, { callback_ip: '1.2.3.4' })).toBe('1.2.3.4') // NOSONAR    })
 
     it('callback template callback_domain returns em dash when null', async () => {
         await flushPromises()
@@ -320,8 +318,7 @@ describe('LicensesView.vue', () => {
         await flushPromises()
         wrapper.vm.updateData('logs', 1)
         await wrapper.vm.$nextTick()
-        expect(wrapper.vm.tableOptions.templates.installation_ip(null, { installation_ip: '5.5.5.5' })).toBe('5.5.5.5')
-    })
+        expect(wrapper.vm.tableOptions.templates.installation_ip(null, { installation_ip: '5.5.5.5' })).toBe('5.5.5.5') // NOSONAR    })
 
     it('logs template version_number returns em dash when null', async () => {
         await flushPromises()

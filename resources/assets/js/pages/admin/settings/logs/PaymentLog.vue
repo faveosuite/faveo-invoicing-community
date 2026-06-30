@@ -134,8 +134,8 @@ function toggleAll(e) {
     if (e.target.checked) {
         rows.forEach(r => { if (!selected.value.includes(r.id)) selected.value.push(r.id) })
     } else {
-        const ids = rows.map(r => r.id)
-        selected.value = selected.value.filter(id => !ids.includes(id))
+        const ids = new Set(rows.map(r => r.id))
+        selected.value = selected.value.filter(id => !ids.has(id))
     }
 }
 

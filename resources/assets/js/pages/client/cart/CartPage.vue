@@ -34,12 +34,12 @@
             <table class="shop_table cart">
               <thead>
                 <tr class="text-color-dark">
-                  <th class="product-thumbnail" width="12%">&nbsp;</th>
-                  <th class="product-name text-uppercase" width="27%">{{ __('message.product') }}</th>
-                  <th class="product-price text-uppercase" width="13%">{{ __('message.price') }}</th>
-                  <th class="product-quantity text-uppercase" width="17%">{{ __('message.quantity') }}</th>
-                  <th class="product-quantity text-uppercase" width="17%">{{ __('message.agents') }}</th>
-                  <th class="product-subtotal text-uppercase text-end" width="14%">{{ __('message.subtotal') }}</th>
+                  <th class="product-thumbnail" style="width:12%">&nbsp;</th>
+                  <th class="product-name text-uppercase" style="width:27%">{{ __('message.product') }}</th>
+                  <th class="product-price text-uppercase" style="width:13%">{{ __('message.price') }}</th>
+                  <th class="product-quantity text-uppercase" style="width:17%">{{ __('message.quantity') }}</th>
+                  <th class="product-quantity text-uppercase" style="width:17%">{{ __('message.agents') }}</th>
+                  <th class="product-subtotal text-uppercase text-end" style="width:14%">{{ __('message.subtotal') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -62,6 +62,7 @@
               <h4 class="font-weight-bold text-uppercase text-4 mb-3">{{ __('message.cart_totals') }}</h4>
               <div class="table-responsive">
                 <table class="shop_table cart-totals mb-4">
+                <thead class="visually-hidden"><tr><th>{{ __("message.subtotal") }}</th><th>{{ __("message.amount") }}</th></tr></thead>
                 <tbody>
                   <tr class="cart-subtotal">
                     <td class="border-top-0"><strong class="text-color-dark">{{ __('message.subtotal') }}</strong></td>

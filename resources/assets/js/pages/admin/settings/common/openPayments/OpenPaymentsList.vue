@@ -102,6 +102,7 @@
                     <p class="text-uppercase fw-bold text-muted small mb-3">Payment Details</p>
                     <div class="rounded border overflow-hidden mb-3">
                         <table class="table table-bordered mb-0">
+                            <thead class="visually-hidden"><tr><th>Field</th><th>Value</th></tr></thead>
                             <tbody>
                                 <tr>
                                     <td class="table-secondary fw-semibold" style="width:40%;">Gateway</td>
@@ -127,6 +128,7 @@
                     <p class="text-uppercase fw-bold text-muted small mb-3">Amount Breakdown</p>
                     <div class="rounded border overflow-hidden">
                         <table class="table table-bordered mb-0">
+                            <thead class="visually-hidden"><tr><th>Field</th><th>Value</th></tr></thead>
                             <tbody>
                                 <tr>
                                     <td class="table-secondary fw-semibold" style="width:40%;">Base Amount</td>

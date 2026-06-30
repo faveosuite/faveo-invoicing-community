@@ -13,7 +13,7 @@ export function __(key, replace = {}) {
 
     // Walk dot-notation: 'message.dashboard' → translator['message']['dashboard']
     const parts = key.split('.')
-    let value = (typeof translator !== 'undefined') ? translator : {}
+    let value = (typeof translator === 'undefined') ? {} : translator
     for (const part of parts) {
         if (value !== null && typeof value === 'object' && part in value) {
             value = value[part] // nosemgrep: javascript.lang.security.audit.prototype-pollution.prototype-pollution-loop.prototype-pollution-loop

@@ -32,7 +32,7 @@
                 <slot name="option" v-bind="option">{{ option[optionLabel] }}</slot>
             </template>
             <template #list-footer>
-                <li v-show="hasNextPage" ref="loaderRef" class="vs__load-trigger" />
+                <ul style="list-style:none;margin:0;padding:0"><li v-show="hasNextPage" ref="loaderRef" class="vs__load-trigger" /></ul>
             </template>
             <template #spinner>
                 <loader v-if="isLoading" class="loader-area" :duration="4000" :size="20" />

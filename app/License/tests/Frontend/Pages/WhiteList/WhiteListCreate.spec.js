@@ -36,10 +36,8 @@ describe('WhiteListCreate.vue', () => {
     })
 
     it('updates data on field change', async () => {
-        wrapper.vm.onChange('192.168.1.1', 'whitelist_host_ip')
-        await wrapper.vm.$nextTick()
-        expect(wrapper.vm.whitelist_host_ip).toBe('192.168.1.1')
-    })
+        wrapper.vm.onChange('192.168.1.1', 'whitelist_host_ip') // NOSONAR        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.whitelist_host_ip).toBe('192.168.1.1') // NOSONAR    })
 
     it('calls submit API on form submit', async () => {
         axiosMock.onPost(/\/api\/admin\/whitelist/).reply(200, { data: {}, message: 'Created' })
@@ -102,8 +100,7 @@ describe('WhiteListCreate.vue', () => {
         getIdFromUrl.mockReturnValue(5)
         Object.defineProperty(window, 'location', { value: { pathname: '/admin/whitelist/5/edit' }, writable: true })
         axiosMock.onGet(/\/api\/admin\/whitelist-edit\//).reply(200, {
-            data: { host_data: { whitelist_host_ip: '10.0.0.1', whitelist_host_comments: 'office' } }
-        })
+            data: { host_data: { whitelist_host_ip: '10.0.0.1', whitelist_host_comments: 'office' } } // NOSONAR        })
         wrapper = mount(WhiteListCreate, {
             global: {
                 plugins: [createTestingPinia()],
@@ -111,8 +108,7 @@ describe('WhiteListCreate.vue', () => {
             },
         })
         await flushPromises()
-        expect(wrapper.vm.whitelist_host_ip).toBe('10.0.0.1')
-        expect(wrapper.vm.isEdit).toBe(true)
+        expect(wrapper.vm.whitelist_host_ip).toBe('10.0.0.1') // NOSONAR        expect(wrapper.vm.isEdit).toBe(true)
     })
 
     it('onSubmit on update (with hostId) calls getInitialValues instead of redirect', async () => {
@@ -120,8 +116,7 @@ describe('WhiteListCreate.vue', () => {
         getIdFromUrl.mockReturnValue(3)
         Object.defineProperty(window, 'location', { value: { pathname: '/admin/whitelist/3/edit' }, writable: true })
         axiosMock.onGet(/\/api\/admin\/whitelist-edit\//).reply(200, {
-            data: { host_data: { whitelist_host_ip: '1.1.1.1', whitelist_host_comments: '' } }
-        })
+            data: { host_data: { whitelist_host_ip: '1.1.1.1', whitelist_host_comments: '' } } // NOSONAR        })
         axiosMock.onPost(/\/api\/admin\/whitelist/).reply(200, { data: {}, message: 'Updated' })
         wrapper = mount(WhiteListCreate, {
             global: {

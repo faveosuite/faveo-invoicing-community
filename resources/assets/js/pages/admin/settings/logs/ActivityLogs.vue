@@ -43,6 +43,7 @@
             <template #fields>
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered mb-0">
+                        <thead class="visually-hidden"><tr><th>Detail</th></tr></thead>
                         <tbody>
                             <tr v-for="(item, i) in readMoreItems" :key="i">
                                 <td class="detail-cell">{{ item }}</td>

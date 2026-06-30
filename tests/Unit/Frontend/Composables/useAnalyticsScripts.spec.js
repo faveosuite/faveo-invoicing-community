@@ -86,7 +86,7 @@ describe('useAnalyticsScripts', () => {
         const id = nextId()
         const marker = `__injected_${id}`
         const scripts = [
-            { id, script: `window.${marker} = true;`, on_every_page: true, on_registration: false },
+            { id, script: `globalThis.${marker} = true;`, on_every_page: true, on_registration: false },
         ]
         await mountAnalytics(scripts, '/')
         const injectedEls = Array.from(document.head.querySelectorAll('script'))
@@ -97,7 +97,7 @@ describe('useAnalyticsScripts', () => {
         const id = nextId()
         const marker = `__dedup_${id}`
         const scriptsJson = JSON.stringify([
-            { id, script: `window.${marker} = 1;`, on_every_page: true, on_registration: false },
+            { id, script: `globalThis.${marker} = 1;`, on_every_page: true, on_registration: false },
         ])
 
         document.body.innerHTML = `<div id="app-client" data-scripts='${scriptsJson}'></div>`
@@ -139,7 +139,7 @@ describe('useAnalyticsScripts', () => {
         const id = nextId()
         const marker = `__registration_${id}`
         const scripts = [
-            { id, script: `window.${marker} = true;`, on_every_page: false, on_registration: true },
+            { id, script: `globalThis.${marker} = true;`, on_every_page: false, on_registration: true },
         ]
         await mountAnalytics(scripts, '/login')
         const injectedEls = Array.from(document.head.querySelectorAll('script'))
@@ -150,7 +150,7 @@ describe('useAnalyticsScripts', () => {
         const id = nextId()
         const marker = `__reg_only_${id}`
         const scripts = [
-            { id, script: `window.${marker} = true;`, on_every_page: false, on_registration: true },
+            { id, script: `globalThis.${marker} = true;`, on_every_page: false, on_registration: true },
         ]
         await mountAnalytics(scripts, '/')
         const injectedEls = Array.from(document.head.querySelectorAll('script'))
@@ -161,7 +161,7 @@ describe('useAnalyticsScripts', () => {
         const id = nextId()
         const marker = `__html_script_${id}`
         // Avoid the string literal "</script>" being parsed by the JS engine
-        const htmlContent = `<script>window.${marker} = 1;<` + '/script>'
+        const htmlContent = `<script>globalThis.${marker} = 1;<` + '/script>'
         const scripts = [
             { id, script: htmlContent, on_every_page: true, on_registration: false },
         ]
@@ -174,7 +174,7 @@ describe('useAnalyticsScripts', () => {
         const id = nextId()
         const marker = `__standalone_${id}`
         const scripts = [
-            { id, script: `window.${marker} = true;`, on_every_page: true, on_registration: false },
+            { id, script: `globalThis.${marker} = true;`, on_every_page: true, on_registration: false },
         ]
         const extraRoutes = [
             { path: '/embed', component: { template: '<div />' }, meta: { standalone: true } },

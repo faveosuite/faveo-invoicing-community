@@ -346,8 +346,8 @@ watch(
         if (!ready) return
         try {
             const token = await v3Ref.value?.execute('settings_save')
-            if (!token) setFieldError('v3_site_key', __('recaptcha.valid_recaptcha_site_key'))
-            else setFieldError('v3_site_key', undefined)
+            if (token) setFieldError('v3_site_key', undefined)
+            else setFieldError('v3_site_key', __('recaptcha.valid_recaptcha_site_key'))
         } catch {
             setFieldError('v3_site_key', __('recaptcha.valid_recaptcha_site_key'))
         }

@@ -189,8 +189,8 @@ function toggleAll(e) {
     if (e.target.checked) {
         selected.value.push(...data.map(r => r.id).filter(id => !selected.value.includes(id)))
     } else {
-        const ids = data.map(r => r.id)
-        selected.value = selected.value.filter(id => !ids.includes(id))
+        const ids = new Set(data.map(r => r.id))
+        selected.value = selected.value.filter(id => !ids.has(id))
     }
 }
 

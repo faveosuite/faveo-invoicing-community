@@ -362,11 +362,11 @@ async function onPipedriveChange(index, val) {
 }
 
 function availablePipedriveOptions(rowIndex) {
-    const used = rows.value
+    const used = new Set(rows.value
         .filter((_, i) => i !== rowIndex)
         .map(r => r.pipedriveField?.id)
-        .filter(Boolean)
-    return allPipedriveOptions.value.filter(o => !used.includes(o.id))
+        .filter(Boolean))
+    return allPipedriveOptions.value.filter(o => !used.has(o.id))
 }
 
 // ── Add / delete row ──────────────────────────────────────────────────────

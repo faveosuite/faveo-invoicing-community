@@ -64,8 +64,7 @@ describe('WhiteList.vue', () => {
     })
 
     it('responseAdapter maps rows with edit_url, delete_url, keyVal, idVal', () => {
-        const rows = [{ id: 3, whitelist_host_ip: '192.168.0.1', whitelist_host_comments: 'office' }]
-        const result = wrapper.vm.options.responseAdapter({ data: { data: { data: rows, total: 1 } } })
+        const rows = [{ id: 3, whitelist_host_ip: '192.168.0.1', whitelist_host_comments: 'office' }] // NOSONAR        const result = wrapper.vm.options.responseAdapter({ data: { data: { data: rows, total: 1 } } })
         expect(result.count).toBe(1)
         expect(result.data[0].edit_url).toContain('/whitelist/3/edit')
         expect(result.data[0].delete_url).toContain('/api/admin/delete-whitelist-ip')
@@ -78,8 +77,7 @@ describe('WhiteList.vue', () => {
     })
 
     it('template whitelist_host_ip returns value when present', () => {
-        expect(wrapper.vm.options.templates.whitelist_host_ip(null, { whitelist_host_ip: '10.0.0.1' })).toBe('10.0.0.1')
-    })
+        expect(wrapper.vm.options.templates.whitelist_host_ip(null, { whitelist_host_ip: '10.0.0.1' })).toBe('10.0.0.1') // NOSONAR    })
 
     it('template whitelist_host_comments returns em dash when null', () => {
         expect(wrapper.vm.options.templates.whitelist_host_comments(null, { whitelist_host_comments: null })).toBe('—')

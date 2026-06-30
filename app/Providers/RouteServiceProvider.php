@@ -128,7 +128,7 @@ class RouteServiceProvider extends ServiceProvider
             $maxAttempts = 600;
             $limits = [];
 
-            $customResponse = function ($request) {
+            $customResponse = function () {
                 if (request()->expectsJson()) {
                     return errorResponse(__('message.too_many_attempts'), 429);
                 }

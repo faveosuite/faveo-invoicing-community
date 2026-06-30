@@ -372,7 +372,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     protected function bussiness(): Attribute
     {
-        return Attribute::make(get: function ($value) {
+        return Attribute::make(get: function () {
             $short = $this->attributes['bussiness'] ?? null;
             $name = '--';
             $bussiness = Bussiness::where('short', $short)->first();

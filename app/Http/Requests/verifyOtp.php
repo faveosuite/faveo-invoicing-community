@@ -31,7 +31,7 @@ class verifyOtp extends FormRequest
             'verify_email' => ['sometimes', 'required', 'verify_number', 'numeric'],
             'password' => [
 
-                function ($attribute, $value, $fail) use ($pass) {
+                function ($_attribute, $value, $fail) use ($pass) { // NOSONAR
                     if (! Hash::check($value, $pass)) {
                         return $fail(__('validation.password_otp.invalid'));
                     }

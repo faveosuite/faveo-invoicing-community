@@ -473,8 +473,8 @@ function toggleAll(selRef, dtRef, e) {
     if (e.target.checked) {
         selRef.value.push(...data.map(r => r.id).filter(id => !selRef.value.includes(id)))
     } else {
-        const ids = data.map(r => r.id)
-        selRef.value = selRef.value.filter(id => !ids.includes(id))
+        const ids = new Set(data.map(r => r.id))
+        selRef.value = selRef.value.filter(id => !ids.has(id))
     }
 }
 function toggleRow(selRef, id) {

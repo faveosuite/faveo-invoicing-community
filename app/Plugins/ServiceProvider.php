@@ -28,7 +28,7 @@ abstract class ServiceProvider extends \Illuminate\Support\ServiceProvider
             // Add routes
             $routes = app_path().'/Plugins/'.$module.'/routes.php';
             if (file_exists($routes)) {
-                require $routes;
+                require_once $routes;
             }
         }
     }

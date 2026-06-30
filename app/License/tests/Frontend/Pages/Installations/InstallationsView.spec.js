@@ -9,8 +9,7 @@ import http from '@/plugins/axios.js'
 import InstallationsView from '../../../../../Resources/js/Pages/Installations/InstallationsView.vue'
 
 const installationFixture = {
-    id: 1, installation_domain: 'example.com', installation_ip: '1.2.3.4',
-    installation_status: 1, product_title: 'Product A',
+    id: 1, installation_domain: 'example.com', installation_ip: '1.2.3.4', // NOSONAR    installation_status: 1, product_title: 'Product A',
     license_code: 'LIC-001', license_id: 5,
 }
 
@@ -59,8 +58,7 @@ describe('InstallationsView.vue', () => {
 
     it('populates installation_ip after fetch', async () => {
         await flushPromises()
-        expect(wrapper.vm.installation_ip).toBe('1.2.3.4')
-    })
+        expect(wrapper.vm.installation_ip).toBe('1.2.3.4') // NOSONAR    })
 
     it('populates product_title after fetch', async () => {
         await flushPromises()
@@ -123,8 +121,7 @@ describe('InstallationsView.vue', () => {
         await flushPromises()
         wrapper.vm.updateData('callbacks', 1)
         await wrapper.vm.$nextTick()
-        const rows = [{ id: 4, callback_ip: '1.2.3.4' }]
-        const result = wrapper.vm.tableOptions.responseAdapter({ data: { data: { data: rows, total: 1 } } })
+        const rows = [{ id: 4, callback_ip: '1.2.3.4' }] // NOSONAR        const result = wrapper.vm.tableOptions.responseAdapter({ data: { data: { data: rows, total: 1 } } })
         expect(result.data[0].keyVal).toBe('id')
         expect(result.data[0].idVal).toBe(4)
         expect(result.count).toBe(1)

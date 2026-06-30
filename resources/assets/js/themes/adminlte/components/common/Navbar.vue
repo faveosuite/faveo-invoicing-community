@@ -32,7 +32,7 @@
 
           <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown"
              href="javascript:;" role="button" :aria-label="`Change language, current: ${currentLocale}`"
-             aria-haspopup="true">
+             aria-haspopup="true" @keydown.enter="$event.target.click()" @keydown.space.prevent="$event.target.click()">
             <span :class="`fi fi-${flagCode(currentLocale)}`" v-tooltip="currentLocale.toUpperCase()"></span>
             <span class="d-none d-md-inline">{{ currentLocale.toUpperCase() }}</span>
           </a>
@@ -60,7 +60,8 @@
         <li class="nav-item dropdown">
 
           <a href="javascript:;" class="nav-link d-flex align-items-center gap-2" data-bs-toggle="dropdown"
-             data-bs-offset="0,8" role="button" :aria-label="`User menu for ${userName}`" aria-haspopup="true">
+             data-bs-offset="0,8" role="button" :aria-label="`User menu for ${userName}`" aria-haspopup="true"
+             @keydown.enter="$event.target.click()" @keydown.space.prevent="$event.target.click()">
 
             <span class="d-none d-md-inline">{{ userName }}</span>
 

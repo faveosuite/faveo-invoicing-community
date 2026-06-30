@@ -199,6 +199,7 @@
             <template #fields>
                 <iframe
                     ref="emailIframe"
+                    title="Log Details"
                     sandbox="allow-same-origin"
                     style="width:100%; height:75vh; border:none; display:block;"
                 ></iframe>

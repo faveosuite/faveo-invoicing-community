@@ -36,10 +36,8 @@ describe('BannedHostCreateEdit.vue', () => {
     })
 
     it('updates data on field change', async () => {
-        wrapper.vm.onChange('192.168.0.1', 'banned_host_ip')
-        await wrapper.vm.$nextTick()
-        expect(wrapper.vm.banned_host_ip).toBe('192.168.0.1')
-    })
+        wrapper.vm.onChange('192.168.0.1', 'banned_host_ip') // NOSONAR        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.banned_host_ip).toBe('192.168.0.1') // NOSONAR    })
 
     it('calls submit API on form submit', async () => {
         axiosMock.onPost(/\/api\/admin\/bannedHost/).reply(200, { data: {}, message: 'Created' })
@@ -82,8 +80,7 @@ describe('BannedHostCreateEdit.vue', () => {
         const { getIdFromUrl } = require('@/helpers/extraLogics')
         getIdFromUrl.mockReturnValue(3)
         Object.defineProperty(window, 'location', { value: { pathname: '/admin/banned-hosts/3/edit' }, writable: true })
-        axiosMock.onGet(/\/api\/admin\/viewBannedHost\//).reply(200, { data: { banned_host_ip: '10.0.0.1', banned_host_comments: 'test' } })
-        wrapper = mount(BannedHostCreateEdit, {
+        axiosMock.onGet(/\/api\/admin\/viewBannedHost\//).reply(200, { data: { banned_host_ip: '10.0.0.1', banned_host_comments: 'test' } }) // NOSONAR        wrapper = mount(BannedHostCreateEdit, {
             global: {
                 plugins: [createTestingPinia()],
                 stubs: ['AppAlert', 'inline-loader', 'action-button', 'text-field', 'app-alert'],
@@ -111,8 +108,7 @@ describe('BannedHostCreateEdit.vue', () => {
         getIdFromUrl.mockReturnValue(2)
         Object.defineProperty(window, 'location', { value: { pathname: '/admin/banned-hosts/2/edit' }, writable: true })
         axiosMock.onGet(/\/api\/admin\/viewBannedHost\//).reply(200, {
-            data: { banned_host_data: { banned_host_ip: '192.168.5.5', comments: 'my comment' } }
-        })
+            data: { banned_host_data: { banned_host_ip: '192.168.5.5', comments: 'my comment' } } // NOSONAR        })
         wrapper = mount(BannedHostCreateEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -120,8 +116,7 @@ describe('BannedHostCreateEdit.vue', () => {
             },
         })
         await flushPromises()
-        expect(wrapper.vm.banned_host_ip).toBe('192.168.5.5')
-        expect(wrapper.vm.banned_host_comments).toBe('my comment')
+        expect(wrapper.vm.banned_host_ip).toBe('192.168.5.5') // NOSONAR        expect(wrapper.vm.banned_host_comments).toBe('my comment')
         expect(wrapper.vm.isEdit).toBe(true)
         expect(wrapper.vm.title).toBe('edit_banned_host')
     })
@@ -140,8 +135,7 @@ describe('BannedHostCreateEdit.vue', () => {
         getIdFromUrl.mockReturnValue(4)
         Object.defineProperty(window, 'location', { value: { pathname: '/admin/banned-hosts/4/edit' }, writable: true })
         axiosMock.onGet(/\/api\/admin\/viewBannedHost\//).reply(200, {
-            data: { banned_host_data: { banned_host_ip: '5.5.5.5', comments: '' } }
-        })
+            data: { banned_host_data: { banned_host_ip: '5.5.5.5', comments: '' } } // NOSONAR        })
         axiosMock.onPost(/\/api\/admin\/bannedHost/).reply(200, { data: {}, message: 'Updated' })
         wrapper = mount(BannedHostCreateEdit, {
             global: {

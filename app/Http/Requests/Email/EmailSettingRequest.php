@@ -43,7 +43,7 @@ class EmailSettingRequest extends FormRequest
             'email' => [
                 'required',
                 'email',
-                function ($attribute, $value, $fail) {
+                function ($_attribute, $value, $fail) { // NOSONAR
                     $emailDomain = explode('@', $value)[1];
                     $url = Request::url();
                     $domain = parse_url($url);

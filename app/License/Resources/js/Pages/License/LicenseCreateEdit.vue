@@ -245,10 +245,10 @@ async function onSubmit() {
 
     axios.post(apiEndpoint.value, data).then(res => {
         successHandler(res, 'license')
-        if (!license_id.value) {
-            setTimeout(() => { router.push('/licenses/list') }, 2000)
-        } else {
+        if (license_id.value) {
             getInitialValues(license_id.value)
+        } else {
+            setTimeout(() => { router.push('/licenses/list') }, 2000)
         }
     }).catch(err => {
         errorHandler(err, 'license')

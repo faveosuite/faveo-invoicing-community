@@ -161,7 +161,7 @@ function initTooltips() {
   if (!descriptionEl.value || !globalThis.bootstrap?.Tooltip) return
   descriptionEl.value.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(node => {
     globalThis.bootstrap.Tooltip.getInstance(node)?.dispose()
-    new globalThis.bootstrap.Tooltip(node, { customClass: 'porto-tooltip', offset: [0, 10] })
+    const _tooltip = new globalThis.bootstrap.Tooltip(node, { customClass: 'porto-tooltip', offset: [0, 10] })
   })
 }
 
@@ -318,7 +318,7 @@ async function onDomainConfirmed() {
 
 :deep(.product-description ul li)::before {
   content: "\f00c";
-  font-family: "Font Awesome 7 Free";
+  font-family: "Font Awesome 7 Free", sans-serif;
   font-weight: 900;
   position: absolute;
   left: 0;

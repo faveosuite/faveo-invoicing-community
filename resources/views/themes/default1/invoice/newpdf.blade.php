@@ -190,6 +190,7 @@
 
     {{-- ── TOTALS ── --}}
     <table class="totals-table">
+        <thead class="visually-hidden"><tr><th>Description</th><th>Amount</th></tr></thead>
         <tbody>
             <tr>
                 <td class="label">{{ __('message.sub_total') }}</td>

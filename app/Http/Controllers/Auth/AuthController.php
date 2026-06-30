@@ -293,7 +293,6 @@ class AuthController extends BaseAuthController
             ->first();
         $template_data = $template->data;
         $template_name = $template->name;
-        new TemplateController;
         $replace = [
             'name' => $user->first_name.' '.$user->last_name,
             'manager_first_name' => $manager->first_name,
@@ -335,7 +334,6 @@ class AuthController extends BaseAuthController
             ->first();
         $template_data = $template->data;
         $template_name = $template->name;
-        new TemplateController;
         $replace = [
             'name' => $user->first_name.' '.$user->last_name,
             'manager_first_name' => $manager->first_name,

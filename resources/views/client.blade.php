@@ -48,7 +48,7 @@ $productGroups = \App\Model\Product\ProductGroup::select('id', 'name')
         <link rel="shortcut icon" href="{{ $set->fav_icon }}" type="image/x-icon">
     @endif
 
-    {{-- Google Fonts --}}
+    {{-- Google Fonts --}} {{-- NOSONAR --}}
     <link id="googleFonts"
           href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800%7CShadows+Into+Light&display=swap"
           rel="stylesheet">

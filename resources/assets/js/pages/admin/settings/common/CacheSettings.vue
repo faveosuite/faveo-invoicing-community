@@ -77,7 +77,7 @@ const tableOptions = reactive({
             const busy         = activating.value === driver
             const disabled     = isActivated || busy || !isConfigured
 
-            return h('span', { title: !isConfigured ? __('message.activate_configure_first', { name: driver }) : '' }, [
+            return h('span', { title: isConfigured ? '' : __('message.activate_configure_first', { name: driver }) }, [
                 h('button', {
                     class:    'btn btn-sm btn-primary',
                     disabled,

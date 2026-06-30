@@ -28,7 +28,7 @@ class SyncBillingToLatestVersion
 
         try {
             if (version_compare($latestVersion, $olderVersion) === 1) {
-                $this->updateToLatestVersion($latestVersion, $olderVersion);
+                $this->updateToLatestVersion($olderVersion);
             }
 
             DB::table('settings')->update(['version' => 'v'.$latestVersion]);
@@ -114,7 +114,7 @@ class SyncBillingToLatestVersion
         return $this->getPHPCompatibleVersionString($olderVersion);
     }
 
-    public function updateToLatestVersion(string $latestVersion, string $olderVersion): void
+    public function updateToLatestVersion(string $olderVersion): void
     {
         $this->updateMigrationTable($olderVersion);
 

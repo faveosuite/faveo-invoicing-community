@@ -12,7 +12,7 @@ use App\User;
 
 trait PostPaymentHandle
 {
-    public static function sendFailedPaymenttoAdmin(Invoice $invoice, float $total, string $productName, string $exceptionMessage, User $user): void
+    public static function sendFailedPaymenttoAdmin(Invoice $invoice, float $total, string $exceptionMessage, User $user): void
     {
         $amount = currencyFormat($total, $user->currency);
         $payment = Payment::where('invoice_id', $invoice->id)->first();

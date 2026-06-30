@@ -695,7 +695,7 @@ class ConcreteExportHandleController extends ExportHandleController
                         $tenantData['db_username'] = $tenats->database_user_name;
                         break;
                     default:
-                        $tenantData[$column] = $tenant->$column ?? null; // @phpstan-ignore nullCoalesce.variable
+                        $tenantData[$column] = $tenats->$column ?? null; // @phpstan-ignore nullCoalesce.variable
                         break;
                 }
             }
@@ -794,7 +794,7 @@ class ConcreteExportHandleController extends ExportHandleController
      * @param  Builder<Model>  $baseQuery
      * @return Builder<Model>
      */
-    public function getSelectedVersionOrders(Builder $baseQuery, ?string $version, string|int $productId, Request $request): Builder
+    public function getSelectedVersionOrders(Builder $baseQuery, ?string $version, string|int $productId): Builder
     {
         if ($version) {
             if ($productId == 'paid' || $productId == 'unpaid') {

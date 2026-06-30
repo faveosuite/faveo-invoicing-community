@@ -89,6 +89,7 @@
                                         :class="['faveo-dynamic-select', { 'is-invalid': errors.listId }]"
                                     >
                                         <template #list-footer>
+                                            <ul style="list-style:none;margin:0;padding:0">
                                             <li v-if="listsLoading" class="text-center py-2 text-muted small">
                                                 <span class="spinner-border spinner-border-sm me-1"></span>
                                                 {{ __('message.loading') }}…
@@ -97,6 +98,7 @@
                                                 class="py-1 text-muted small text-center" style="list-style:none">
                                                 {{ __('message.loading') }}…
                                             </li>
+                                            </ul>
                                         </template>
                                         <template #no-options="{ search }">
                                             <span v-if="search">{{ __('message.no_results') }}: <em>{{ search }}</em></span>

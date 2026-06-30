@@ -46,6 +46,7 @@
               <h4 class="font-weight-bold text-uppercase text-4 mb-3">{{ __('message.your_order') }}</h4>
 
               <table class="shop_table cart-totals mb-0">
+                <thead class="visually-hidden"><tr><th>{{ __("message.product") }}</th><th>{{ __("message.amount") }}</th></tr></thead>
                 <tbody>
                   <tr>
                     <td colspan="2" class="border-top-0">

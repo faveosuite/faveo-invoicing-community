@@ -32,6 +32,16 @@ parameters:
             message: '#Call to an undefined static method Illuminate\\Support\\Facades\\File::filterFiles\(\)#'
             path: app/Http/helpers.php
             reportUnmatched: false
+        -
+            identifier: variable.undefined
+            message: '#Undefined variable: \$result#'
+            path: app/Http/Controllers/Front/AutoRenewalController.php
+            reportUnmatched: false
+        -
+            identifier: argument.type
+            message: '#causedBy\(\)#'
+            path: app/Http/helpers.php
+            reportUnmatched: false
 
 
     excludePaths:

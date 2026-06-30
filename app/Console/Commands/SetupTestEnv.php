@@ -14,7 +14,7 @@ class SetupTestEnv extends LoggableCommand
      *
      * @var string
      */
-    protected $signature = 'testing-setup {--username=} {--password=} {--database=}';
+    protected $signature = 'testing-setup {--username=} {--password=} {--database=}'; // NOSONAR
 
     /**
      * The console command description.

@@ -144,8 +144,7 @@ describe('LicensesIndex.vue', () => {
     })
 
     it('template license_ip returns value when present', () => {
-        expect(wrapper.vm.options.templates.license_ip(null, { license_ip: '1.2.3.4' })).toBe('1.2.3.4')
-    })
+        expect(wrapper.vm.options.templates.license_ip(null, { license_ip: '1.2.3.4' })).toBe('1.2.3.4') // NOSONAR    })
 
     it('template latest_call_backs returns em dash when null', () => {
         expect(wrapper.vm.options.templates.latest_call_backs(null, { latest_call_backs: null })).toBe('—')

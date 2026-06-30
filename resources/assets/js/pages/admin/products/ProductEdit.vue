@@ -445,11 +445,11 @@ function toggleVersion(id) {
 function toggleAllVersions(e) {
     const data = dtVersionRef.value?.tableData ?? []
     if (e.target.checked) {
-        const ids = data.map(r => r.id).filter(id => !selectedVersions.value.includes(id))
+        const ids = new Set(data.map(r => r.id)).filter(id => !selectedVersions.value.includes(id))
         selectedVersions.value.push(...ids)
     } else {
-        const ids = data.map(r => r.id)
-        selectedVersions.value = selectedVersions.value.filter(id => !ids.includes(id))
+        const ids = new Set(data.map(r => r.id))
+        selectedVersions.value = selectedVersions.value.filter(id => !ids.has(id))
     }
 }
 

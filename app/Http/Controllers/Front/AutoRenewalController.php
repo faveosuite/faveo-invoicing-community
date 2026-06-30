@@ -69,7 +69,7 @@ class AutoRenewalController extends Controller
                 return errorResponse(__('message.something_went_wrong'));
             }
 
-            $this->payments->capture('Stripe', ['payment_intent' => $paymentIntentId]);
+            $result = $this->payments->capture('Stripe', ['payment_intent' => $paymentIntentId]);
             if (! $result->paid) {
                 return errorResponse(__('message.payment_declined_try_other_gateway'));
             }

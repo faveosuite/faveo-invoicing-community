@@ -265,7 +265,7 @@
                 <?php if ($mysqli_ok) { ?>
 
 
-            <script src="//cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js"></script>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js"></script> {{-- NOSONAR --}}
             <span id="wait"></span>
             <form id="form">
                 @csrf

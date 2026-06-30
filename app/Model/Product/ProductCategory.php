@@ -62,7 +62,6 @@ class ProductCategory extends Model
 
         return '';
 
-        // \Auth::user()->activity;
     }
 
     public function getActivitylogOptions(): LogOptions

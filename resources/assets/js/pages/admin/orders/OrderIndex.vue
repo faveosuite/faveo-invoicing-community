@@ -128,11 +128,11 @@ function toggleRow(id) {
 function toggleAll(e) {
     const data = dtRef.value?.tableData ?? []
     if (e.target.checked) {
-        const ids = data.map(r => r.id).filter(id => !selectedOrders.value.includes(id))
+        const ids = new Set(data.map(r => r.id)).filter(id => !selectedOrders.value.includes(id))
         selectedOrders.value.push(...ids)
     } else {
-        const ids = data.map(r => r.id)
-        selectedOrders.value = selectedOrders.value.filter(id => !ids.includes(id))
+        const ids = new Set(data.map(r => r.id))
+        selectedOrders.value = selectedOrders.value.filter(id => !ids.has(id))
     }
 }
 

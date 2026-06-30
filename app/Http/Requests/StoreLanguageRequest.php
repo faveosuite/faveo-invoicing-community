@@ -20,7 +20,7 @@ class StoreLanguageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'language' => ['required', function ($attribute, $value, $fail) {
+            'language' => ['required', function ($_attribute, $value, $fail) { // NOSONAR
                 $availableLanguages = array_map(basename(...), File::directories(lang_path()));
                 if (! in_array($value, $availableLanguages)) {
                     return $fail(__('validation.language.invalid'));

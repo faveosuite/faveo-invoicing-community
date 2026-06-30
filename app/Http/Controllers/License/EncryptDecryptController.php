@@ -14,7 +14,7 @@ class EncryptDecryptController extends Controller
     public function encrypt(mixed $data, string $orderNumber): string
     {
         $pubkey = Storage::disk('public')->get('publicKey-'.$orderNumber.'.txt');
-        if (openssl_public_encrypt($data, $encrypted, (string) $pubkey, OPENSSL_PKCS1_PADDING)) {
+        if (openssl_public_encrypt($data, $encrypted, (string) $pubkey, OPENSSL_PKCS1_OAEP_PADDING)) {
             $data = base64_encode((string) $encrypted);
         } else {
             throw new Exception(__('message.unable_to_encrypt'));

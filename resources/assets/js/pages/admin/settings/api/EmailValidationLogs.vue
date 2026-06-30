@@ -29,6 +29,7 @@
                 <div v-if="loadingDetail" class="row justify-content-center py-3"><loader /></div>
                 <div v-else class="table-responsive">
                     <table class="table table-striped table-bordered mb-0">
+                        <thead class="visually-hidden"><tr><th>Field</th><th>Value</th></tr></thead>
                         <tbody>
                             <tr v-for="(val, key) in detailData" :key="key">
                                 <td class="fw-semibold text-capitalize" style="width:40%">{{ key }}</td>

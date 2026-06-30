@@ -88,8 +88,7 @@ describe('VersionsView.vue', () => {
         await flushPromises()
         wrapper.vm.updateData(1)
         await wrapper.vm.$nextTick()
-        const rows = [{ version_id: 2, callback_ip: '1.2.3.4' }]
-        const result = wrapper.vm.tableOptions.responseAdapter({ data: { data: { data: rows, total: 1 } } })
+        const rows = [{ version_id: 2, callback_ip: '1.2.3.4' }] // NOSONAR        const result = wrapper.vm.tableOptions.responseAdapter({ data: { data: { data: rows, total: 1 } } })
         expect(result.data[0].keyVal).toBe('version_id')
         expect(result.data[0].idVal).toBe(2)
     })
