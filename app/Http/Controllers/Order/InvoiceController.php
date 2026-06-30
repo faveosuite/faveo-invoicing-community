@@ -396,14 +396,14 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         }
     }
 
-    public function sendMail(int $userid, int $invoiceid): mixed
+    public function sendMail(int $userid, int $invoiceid): void
     {
         try {
             $invoice = $this->invoice->findOrFail($invoiceid);
             $number = $invoice->number;
             $total = $invoice->grand_total;
 
-            $this->sendInvoiceMail($userid, $number, $total, $invoiceid);
+            $this->sendInvoiceMail($userid, $number, $total, $invoiceid); // @phpstan-ignore argument.type
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }

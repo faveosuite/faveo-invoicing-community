@@ -65,7 +65,8 @@ describe('BannedHostsIndex.vue', () => {
     })
 
     it('responseAdapter maps rows with edit_url, delete_url, keyVal, idVal', () => {
-        const rows = [{ id: 1, banned_host_ip: '192.168.1.1', comments: 'test' }] // NOSONAR        const result = wrapper.vm.options.responseAdapter({ data: { data: { data: rows, total: 1 } } })
+        const rows = [{ id: 1, banned_host_ip: '192.168.1.1', comments: 'test' }] // NOSONAR
+        const result = wrapper.vm.options.responseAdapter({ data: { data: { data: rows, total: 1 } } })
         expect(result.count).toBe(1)
         expect(result.data[0].edit_url).toContain('/banned-hosts/1/edit')
         expect(result.data[0].delete_url).toContain('/api/admin/bannedHosts/delete')
@@ -84,7 +85,8 @@ describe('BannedHostsIndex.vue', () => {
     })
 
     it('template banned_host_ip returns value when present', () => {
-        expect(wrapper.vm.options.templates.banned_host_ip(null, { banned_host_ip: '10.0.0.1' })).toBe('10.0.0.1') // NOSONAR    })
+        expect(wrapper.vm.options.templates.banned_host_ip(null, { banned_host_ip: '10.0.0.1' })).toBe('10.0.0.1') // NOSONAR
+    })
 
     it('template comments returns em dash when null', () => {
         expect(wrapper.vm.options.templates.comments(null, { comments: null })).toBe('—')

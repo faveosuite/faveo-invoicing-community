@@ -272,13 +272,7 @@ class Carousel {
         const prevIdx = this._currentIdx
 
         if (this.options.loop) {
-            if (this._stagePos >= this._maxPos()) return
-            this._currentIdx = Math.min(this._currentIdx + 1, this._maxPos())
-            this._stagePos   = this._currentIdx
-        } else {
             this._currentIdx = (prevIdx + 1) % N
-            this._stagePos++
-        }            this._currentIdx = (prevIdx + 1) % N
             this._stagePos++
         } else {
             if (this._stagePos >= this._maxPos()) return

@@ -80,7 +80,8 @@ describe('LicenseCreateEdit.vue', () => {
             data: {
                 license: {
                     id: 5, license_code: 'LIC-001', license_status: 1, license_require_domain: 1,
-                    license_ip: '1.2.3.4', license_domain: 'example.com', license_limit: 10, // NOSONAR                    license_order_number: 100, license_comments: 'test', api_key_secret: null,
+                    license_ip: '1.2.3.4', license_domain: 'example.com', license_limit: 10, // NOSONAR
+                    license_order_number: 100, license_comments: 'test', api_key_secret: null,
                     license_expire_date: null, license_updates_date: null, license_support_date: null,
                 },
                 product_name: [{ product_id: 1, product_title: 'Product A' }]
@@ -127,8 +128,10 @@ describe('LicenseCreateEdit.vue', () => {
     })
 
     it('onChange license_ip updates license_ip', async () => {
-        wrapper.vm.onChange('192.168.1.1', 'license_ip') // NOSONAR        await wrapper.vm.$nextTick()
-        expect(wrapper.vm.license_ip).toBe('192.168.1.1') // NOSONAR    })
+        wrapper.vm.onChange('192.168.1.1', 'license_ip') // NOSONAR
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.license_ip).toBe('192.168.1.1') // NOSONAR
+    })
 
     it('onChange license_domain updates license_domain', async () => {
         wrapper.vm.onChange('example.com', 'license_domain')

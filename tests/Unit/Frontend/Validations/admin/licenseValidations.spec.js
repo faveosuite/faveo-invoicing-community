@@ -56,7 +56,8 @@ describe('licenseSchema', () => {
 
 describe('bannedHostSchema', () => {
     it('passes with a valid IP', async () => {
-        await expect(bannedHostSchema.validate({ banned_host_ip: '192.168.1.1' })).resolves.toBeTruthy() // NOSONAR    })
+        await expect(bannedHostSchema.validate({ banned_host_ip: '192.168.1.1' })).resolves.toBeTruthy() // NOSONAR
+    })
 
     it('fails when banned_host_ip is empty', async () => {
         await expect(bannedHostSchema.validate({ banned_host_ip: '' })).rejects.toThrow()
@@ -69,7 +70,8 @@ describe('bannedHostSchema', () => {
 
 describe('whitelistSchema', () => {
     it('passes with a valid IP', async () => {
-        await expect(whitelistSchema.validate({ whitelist_host_ip: '10.0.0.1' })).resolves.toBeTruthy() // NOSONAR    })
+        await expect(whitelistSchema.validate({ whitelist_host_ip: '10.0.0.1' })).resolves.toBeTruthy() // NOSONAR
+    })
 
     it('fails when whitelist_host_ip is empty', async () => {
         await expect(whitelistSchema.validate({ whitelist_host_ip: '' })).rejects.toThrow()
@@ -82,7 +84,8 @@ describe('whitelistSchema', () => {
 
 describe('installationSchema', () => {
     it('passes with a valid IP', async () => {
-        await expect(installationSchema.validate({ installation_ip: '203.0.113.5' })).resolves.toBeTruthy() // NOSONAR    })
+        await expect(installationSchema.validate({ installation_ip: '203.0.113.5' })).resolves.toBeTruthy() // NOSONAR
+    })
 
     it('fails when installation_ip is empty', async () => {
         await expect(installationSchema.validate({ installation_ip: '' })).rejects.toThrow()

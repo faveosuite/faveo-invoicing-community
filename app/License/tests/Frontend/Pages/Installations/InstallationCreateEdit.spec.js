@@ -76,8 +76,10 @@ describe('InstallationCreateEdit.vue', () => {
     // ── onChange branches ─────────────────────────────────────────────────────
 
     it('onChange updates installation_ip', async () => {
-        wrapper.vm.onChange('10.0.0.1', 'installation_ip') // NOSONAR        await wrapper.vm.$nextTick()
-        expect(wrapper.vm.installation_ip).toBe('10.0.0.1') // NOSONAR    })
+        wrapper.vm.onChange('10.0.0.1', 'installation_ip') // NOSONAR
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.installation_ip).toBe('10.0.0.1') // NOSONAR
+    })
 
     it('onChange sets installation_ip to empty string when falsy', async () => {
         wrapper.vm.onChange('', 'installation_ip')

@@ -695,7 +695,7 @@ class ConcreteExportHandleController extends ExportHandleController
                         $tenantData['db_username'] = $tenats->database_user_name;
                         break;
                     default:
-                        $tenantData[$column] = $tenats->$column ?? null; // @phpstan-ignore nullCoalesce.variable
+                        $tenantData[$column] = $tenats->$column ?? null;
                         break;
                 }
             }

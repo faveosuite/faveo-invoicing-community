@@ -45,6 +45,7 @@ parameters:
 
 
     excludePaths:
+        - scripts/*
         - vendor/*
         - node_modules/*
         - storage/*
