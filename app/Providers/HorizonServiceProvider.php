@@ -17,8 +17,6 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     public function boot(): void
     {
         parent::boot();
-
-
     }
 
     /**

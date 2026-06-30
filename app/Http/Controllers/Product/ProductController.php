@@ -24,7 +24,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-
 class ProductController extends BaseProductController
 {
     use ChunkUpload;

@@ -46,7 +46,6 @@ use Laravel\Passport\Token;
 use Override;
 use Spatie\Activitylog\Models\Activity;
 
-
 /**
  * @property int $id
  * @property string $user_name
@@ -212,7 +211,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     use Notifiable;
     use SoftDeletes;
     use SystemActivityLogsTrait;
-
 
     #[Override]
     protected static function booted(): void

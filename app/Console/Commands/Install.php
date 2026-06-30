@@ -231,9 +231,6 @@ class Install extends LoggableCommand
         $this->sslCert = null; // @phpstan-ignore property.notFound
         $this->sslCa = null; // @phpstan-ignore property.notFound
         $this->sslVerify = false; // @phpstan-ignore property.notFound
-
-
-
     }
 
     /**

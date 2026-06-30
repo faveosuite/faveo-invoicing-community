@@ -304,7 +304,6 @@ class Kernel extends ConsoleKernel
     public function cloudEmail(): void
     {
         try {
-            
             /** @var Setting $setting */
             $setting = Setting::find(1);
             $mail = new PhpMailController;

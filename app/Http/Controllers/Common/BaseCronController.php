@@ -77,7 +77,6 @@ class BaseCronController extends Controller
         return $sub;
     }
 
-
     public function getAllDaysSubscription(int $day): mixed
     {
         $users = $this->getAllDaysExpiryUsers($day); // @phpstan-ignore method.notFound

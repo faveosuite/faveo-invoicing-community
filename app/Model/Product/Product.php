@@ -270,7 +270,6 @@ class Product extends BaseModel
         ];
     }
 
-
     /**
      * @return HasMany<Order, $this>
      */
