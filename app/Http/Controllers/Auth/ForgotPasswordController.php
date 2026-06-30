@@ -10,7 +10,6 @@ use App\Model\Common\TemplateType;
 use App\Model\User\Password;
 use App\Rules\Honeypot;
 use App\User;
-use Exception;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
