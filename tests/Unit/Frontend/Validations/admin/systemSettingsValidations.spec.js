@@ -137,7 +137,7 @@ describe('pdfSettingsSchema', () => {
     })
 
     it('fails when npm_path is missing', async () => {
-        const { npm_path: _o, ...rest } = valid
+        const { npm_path: _o, ...rest } = valid // NOSONAR
         await expect(pdfSettingsSchema.validate(rest)).rejects.toThrow()
     })
 

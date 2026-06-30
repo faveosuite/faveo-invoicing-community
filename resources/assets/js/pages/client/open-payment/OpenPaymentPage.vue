@@ -674,7 +674,7 @@ const payNow = async () => {
 
 const initRazorpay = async (cfg) => {
   await loadScript('https://checkout.razorpay.com/v1/checkout.js')
-  const rzp = new window.Razorpay({ ...cfg, handler: verifyRazorpay })
+  const rzp = new globalThis.Razorpay({ ...cfg, handler: verifyRazorpay })
   rzp.on('payment.failed', (e) => {
     alertStore.setAlert({ message: e.error.description, type: 'danger', component_name: 'open-payment-review' })
   })
@@ -695,7 +695,7 @@ const initStripe = async () => {
     }
 
     await loadScript('https://js.stripe.com/v3/')
-    stripeInstance = window.Stripe(cfg.publishable_key)
+    stripeInstance = globalThis.Stripe(cfg.publishable_key)
     clientSecret  = cfg.client_secret
 
     Object.assign(cardErrors,   { number: '', expiry: '', cvc: '' })
@@ -859,7 +859,7 @@ onMounted(async () => {
     form.gateway  = 'Razorpay'
   }
 
-  const params  = new URLSearchParams(window.location.search)
+  const params  = new URLSearchParams(globalThis.location.search)
   const status  = params.get('status')
   const orderId = params.get('order_id')
   const message = params.get('message')
@@ -869,13 +869,13 @@ onMounted(async () => {
       const { data } = await http.get(`${API}/order/${orderId}`)
       showResult(true, data.data?.order ?? { id: orderId })
     } catch { showResult(true, { id: orderId }) }
-    window.history.replaceState({}, document.title, window.location.pathname)
+    globalThis.history.replaceState({}, document.title, globalThis.location.pathname)
   } else if (status === 'failed' || status === 'error') {
     showResult(false, null, message ? decodeURIComponent(message) : 'Payment failed')
-    window.history.replaceState({}, document.title, window.location.pathname)
+    globalThis.history.replaceState({}, document.title, globalThis.location.pathname)
   } else if (status === 'pending') {
     showResult(false, null, message ? decodeURIComponent(message) : 'Payment is still processing. Please check back later.')
-    window.history.replaceState({}, document.title, window.location.pathname)
+    globalThis.history.replaceState({}, document.title, globalThis.location.pathname)
   }
 })
 </script>

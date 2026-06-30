@@ -32,8 +32,8 @@ describe('InvoiceEdit.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/invoice\//).reply(200, INVOICE_RESPONSE)
-        global.mockHttp.onPost(/\/invoice\/edit\//).reply(200, { data: { message: 'Invoice updated' } })
+        globalThis.mockHttp.onGet(/\/invoice\//).reply(200, INVOICE_RESPONSE)
+        globalThis.mockHttp.onPost(/\/invoice\/edit\//).reply(200, { data: { message: 'Invoice updated' } })
         wrapper = mount(InvoiceEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -47,7 +47,7 @@ describe('InvoiceEdit.vue', () => {
     })
 
     afterEach(() => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -68,7 +68,7 @@ describe('InvoiceEdit.vue', () => {
 
     it('calls GET /invoice/:id on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/invoice\//.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/invoice\//.test(r.url))).toBe(true)
     })
 
     it('populates form from fetched invoice data', async () => {
@@ -92,7 +92,7 @@ describe('InvoiceEdit.vue', () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/invoice\/edit\//.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/invoice\/edit\//.test(r.url))).toBe(true)
     })
 
     it('calls successHandler after successful update', async () => {
@@ -103,8 +103,8 @@ describe('InvoiceEdit.vue', () => {
     })
 
     it('calls errorHandler when submit fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/invoice\/edit\//).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/invoice\/edit\//).reply(500)
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
@@ -116,12 +116,12 @@ describe('InvoiceEdit.vue', () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/invoice\/edit\//.test(r.url))).toBe(false)
+        expect(globalThis.mockHttp.history.post.some(r => /\/invoice\/edit\//.test(r.url))).toBe(false)
     })
 
     it('calls errorHandler when fetch fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/invoice\//).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/invoice\//).reply(500)
         const w = mount(InvoiceEdit, {
             global: {
                 plugins: [createTestingPinia()],

@@ -59,8 +59,6 @@ trait ChunkUpload
                 'status' => true,
             ]);
         } catch (Exception $exception) {
-            $response = ['success' => 'false', 'message' => $exception->getMessage()];
-
             return response()->json($exception->getMessage(), 500);
         }
     }

@@ -127,7 +127,7 @@ class ZohoAccountsApiTest extends DBTestCase
             $url = $request->url();
 
             return str_contains($url, 'client_id=test_client_id') &&
-                   str_contains($url, 'client_secret=test_client_secret') &&
+                   str_contains($url, 'client_secret=test_client_secret') && // NOSONAR
                    str_contains($url, 'grant_type=authorization_code') &&
                    str_contains($url, 'code=test_code');
         });
@@ -147,9 +147,9 @@ class ZohoAccountsApiTest extends DBTestCase
             $url = $request->url();
 
             return str_contains($url, 'client_id=test_client_id') &&
-                   str_contains($url, 'client_secret=test_client_secret') &&
+                   str_contains($url, 'client_secret=test_client_secret') && // NOSONAR
                    str_contains($url, 'grant_type=refresh_token') &&
-                   str_contains($url, 'refresh_token=test_refresh_token');
+                   str_contains($url, 'refresh_token=test_refresh_token'); // NOSONAR
         });
     }
 

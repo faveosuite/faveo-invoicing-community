@@ -270,7 +270,6 @@ class Product extends BaseModel
         ];
     }
 
-    // protected static $recordEvents = ['deleted'];
 
     /**
      * @return HasMany<Order, $this>

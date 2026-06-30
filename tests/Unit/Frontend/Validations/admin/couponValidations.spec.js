@@ -20,7 +20,7 @@ describe('couponSchema', () => {
     })
 
     it('fails when code is missing', async () => {
-        const { code: _o, ...rest } = valid
+        const { code: _o, ...rest } = valid // NOSONAR
         await expect(couponSchema.validate(rest)).rejects.toThrow()
     })
 

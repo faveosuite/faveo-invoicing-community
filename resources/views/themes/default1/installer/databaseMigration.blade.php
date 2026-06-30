@@ -30,7 +30,6 @@
             $username = Session::get('username');
             $password = Session::get('password');
             $databasename = Session::get('databasename');
-//          $dummy_install = Session::get('dummy_data_installation');
             $port = Session::get('port');
             $sslKey = Session::get('db_ssl_key');
             $sslCert = Session::get('db_ssl_cert');
@@ -195,7 +194,6 @@
             if (DB_HOST && DB_USER && DB_NAME) {
                 $mysqli_ok = true;
                 $results = [];
-                // error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE | E_ALL);
                 error_reporting(0);
                 try {
                     if (DB_DEFAULT == 'mysql') {

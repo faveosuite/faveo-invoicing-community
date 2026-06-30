@@ -98,16 +98,11 @@ class LicensePermissionsController extends Controller
     /*
     Show All Permission in Datatable
     */
-    //    public function showPermissions($permissions)
-    //    {
-    //        if (count($permissions) > 0) {
     //            $html = '<ul>';
-    //            foreach ($permissions as $permission) {
     //                $html .= '<li><b>'.$permission.'</b></li>';
     //            }
     //
     //            return $html.'</ul>';
-    //        } else {
     //            $html = 'No Permissions Selected';
     //
     //            return $html;
@@ -118,13 +113,8 @@ class LicensePermissionsController extends Controller
      For Ticking permission for a License Type
     */
 
-    //    public function tickPermission(Request $request)
-    //    {
-    //        $licenseTypeInstance = LicenseType::find($request->input('license'));
     //        $allPermission = $licenseTypeInstance->permissions;
-    //        if (count($allPermission) > 0) {
     //            $permissionsArray = $allPermission->pluck('id');
-    //        } else {
     //            $permissionsArray = [];
     //        }
     //

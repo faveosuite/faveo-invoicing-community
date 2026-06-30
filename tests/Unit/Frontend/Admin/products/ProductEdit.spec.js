@@ -41,13 +41,13 @@ describe('ProductEdit.vue', () => {
     beforeEach(() => {
         jest.useFakeTimers()
 
-        global.mockHttp.onGet(/\/dependency\/tax-classes/).reply(200, {
+        globalThis.mockHttp.onGet(/\/dependency\/tax-classes/).reply(200, {
             data: { tax_classes: [{ id: 1, name: 'Standard' }] },
         })
-        global.mockHttp.onGet(/\/product\/0/).reply(200, productResponse)
-        global.mockHttp.onGet(/\/dependency\/product-plans/).reply(200, { data: { data: [], total: 0 } })
-        global.mockHttp.onGet(/\/product\/uploads\/0/).reply(200, { data: { data: [], total: 0 } })
-        global.mockHttp.onPost(/\/product\/0/).reply(200, { data: { id: 1 } })
+        globalThis.mockHttp.onGet(/\/product\/0/).reply(200, productResponse)
+        globalThis.mockHttp.onGet(/\/dependency\/product-plans/).reply(200, { data: { data: [], total: 0 } })
+        globalThis.mockHttp.onGet(/\/product\/uploads\/0/).reply(200, { data: { data: [], total: 0 } })
+        globalThis.mockHttp.onPost(/\/product\/0/).reply(200, { data: { id: 1 } })
 
         wrapper = mount(ProductEdit, {
             global: {
@@ -58,7 +58,7 @@ describe('ProductEdit.vue', () => {
     })
 
     afterEach(() => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
         jest.useRealTimers()
     })
@@ -74,7 +74,7 @@ describe('ProductEdit.vue', () => {
 
     it('fetches tax-classes and product data on mount', async () => {
         await flushPromises()
-        const urls = global.mockHttp.history.get.map(r => r.url)
+        const urls = globalThis.mockHttp.history.get.map(r => r.url)
         expect(urls.some(u => /\/dependency\/tax-classes/.test(u))).toBe(true)
         expect(urls.some(u => /\/product\/0/.test(u))).toBe(true)
     })
@@ -90,7 +90,7 @@ describe('ProductEdit.vue', () => {
         await wrapper.vm.submit()
         await flushPromises()
         expect(
-            global.mockHttp.history.post.some(r => /\/product\/0/.test(r.url))
+            globalThis.mockHttp.history.post.some(r => /\/product\/0/.test(r.url))
         ).toBe(true)
     })
 
@@ -103,8 +103,8 @@ describe('ProductEdit.vue', () => {
 
     it('calls errorHandler on 500 error', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/product\/0/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/product\/0/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()

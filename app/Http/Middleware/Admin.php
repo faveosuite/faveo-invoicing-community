@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use App\DefaultPage;
 use App\User;
 use Auth;
-// use Illuminate\Routing\Middleware;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;

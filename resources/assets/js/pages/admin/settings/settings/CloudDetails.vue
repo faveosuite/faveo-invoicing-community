@@ -421,7 +421,7 @@ function loadLeaflet() {
             link.href = 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css'
             document.head.appendChild(link)
         }
-        if (window.L) { resolve(); return }
+        if (globalThis.L) { resolve(); return }
         const script = document.createElement('script')
         script.src     = 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js'
         script.onload  = resolve
@@ -434,15 +434,15 @@ async function initMap() {
     try { await loadLeaflet() } catch { return }
     const mapEl = document.getElementById('cloud-map')
     if (!mapEl || leafletMap) return
-    const L = window.L
+    const L = globalThis.L
     leafletMap = L.map('cloud-map', { minZoom: 2 }).setView([0, 0], 2)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(leafletMap)
     addMapMarkers()
 }
 
 function addMapMarkers() {
-    if (!leafletMap || !window.L) return
-    const L = window.L
+    if (!leafletMap || !globalThis.L) return
+    const L = globalThis.L
     regions.value.forEach(region => {
         const marker = L.marker([region.latitude, region.longitude]).addTo(leafletMap)
         marker.bindPopup(region.name)
@@ -516,8 +516,8 @@ async function saveDataCenter() {
         successHandler(res, COMPONENT)
         const dr = await http.get(`${baseUrl}/settings/cloud-details`)
         regions.value = dr.data?.data?.regions ?? []
-        if (leafletMap && window.L) {
-            leafletMap.eachLayer(l => { if (l instanceof window.L.Marker) leafletMap.removeLayer(l) })
+        if (leafletMap && globalThis.L) {
+            leafletMap.eachLayer(l => { if (l instanceof globalThis.L.Marker) leafletMap.removeLayer(l) })
             addMapMarkers()
         }
         closeDCModal()

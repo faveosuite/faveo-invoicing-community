@@ -107,10 +107,10 @@ function defaultResponseAdapter(response) {
 const tableData = computed(() => tableRef.value?.data ?? [])
 
 onMounted(() => {
-  if (window.emitter) window.emitter.on('refreshData', () => tableRef.value?.refresh())
+  if (globalThis.emitter) globalThis.emitter.on('refreshData', () => tableRef.value?.refresh())
 })
 onBeforeUnmount(() => {
-  if (window.emitter) window.emitter.off('refreshData')
+  if (globalThis.emitter) globalThis.emitter.off('refreshData')
 })
 defineExpose({ nextPage, prevPage, paginate: onPaginate, total, from, to, perPage, isLoading, tableData, refresh: () => tableRef.value?.refresh() })
 

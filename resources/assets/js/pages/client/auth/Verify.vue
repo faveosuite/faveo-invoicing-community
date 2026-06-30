@@ -137,7 +137,7 @@ onMounted(async () => {
         const data = res.data?.data ?? {}
 
         if (data.redirect) {
-            window.location.href = data.redirect
+            globalThis.location.href = data.redirect
             return
         }
 
@@ -157,7 +157,7 @@ onMounted(async () => {
         steps.value = pending
 
         if (!pending.length) {
-            window.location.href = `${baseUrl}/login`
+            globalThis.location.href = `${baseUrl}/login`
             return
         }
 
@@ -235,7 +235,7 @@ async function verify() {
             // All steps verified — show the success state, then redirect to login.
             done.value = true
             clearInterval(timer)
-            setTimeout(() => { window.location.href = `${baseUrl}/login` }, 1500)
+            setTimeout(() => { globalThis.location.href = `${baseUrl}/login` }, 1500)
         }
     } catch (e) {
         if (e?.response?.data?.data?.show_v2_recaptcha) {

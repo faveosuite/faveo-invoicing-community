@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 
 // jsdom does not implement IntersectionObserver
-global.IntersectionObserver = class {
+globalThis.IntersectionObserver = class {
     constructor() {}
     observe() {}
     disconnect() {}
@@ -96,7 +96,7 @@ describe('DynamicSelect.vue', () => {
     })
 
     it('loads from apiEndpoint when endpoint changes', async () => {
-        global.mockHttp.onGet('/api/users').reply(200, {
+        globalThis.mockHttp.onGet('/api/users').reply(200, {
             data: { data: [{ id: 1, name: 'Alice' }], next_page_url: null },
         })
         wrapper = mountDynamic()

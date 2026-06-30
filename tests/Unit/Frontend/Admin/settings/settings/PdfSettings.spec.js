@@ -11,10 +11,10 @@ describe('PdfSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/pdf-settings/).reply(200, {
+        globalThis.mockHttp.onGet(/\/pdf-settings/).reply(200, {
             data: { node_path: '/usr/bin/node', npm_path: '/usr/bin/npm', chrome_path: '/usr/bin/google-chrome' },
         })
-        global.mockHttp.onPost(/\/pdf-settings/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/pdf-settings/).reply(200, { data: {} })
         wrapper = mount(PdfSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -29,15 +29,15 @@ describe('PdfSettings.vue', () => {
 
     it('fetches pdf settings on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/pdf-settings/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/pdf-settings/)
     })
 
     it('calls POST pdf-settings on submit', async () => {
         await flushPromises()
         wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('pdf-settings'))).toBeTruthy()
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('pdf-settings'))).toBeTruthy()
     })
 
     it('calls successHandler after successful submit', async () => {

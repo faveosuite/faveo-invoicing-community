@@ -22,14 +22,14 @@ describe('TaxIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/tax-options/).reply(200, {
+        globalThis.mockHttp.onGet(/\/tax-options/).reply(200, {
             data: {
                 options: { tax_enable: 1, inclusive: 0, rounding: 0, tax_based_on: 'billing' },
                 additional_tax_classes: '',
                 classes: [{ slug: '', name: 'Standard' }],
             },
         })
-        global.mockHttp.onPost(/\/taxes\/option/).reply(200, { message: 'Saved' })
+        globalThis.mockHttp.onPost(/\/taxes\/option/).reply(200, { message: 'Saved' })
 
         wrapper = mount(TaxIndex, {
             global: {
@@ -48,12 +48,12 @@ describe('TaxIndex.vue', () => {
 
     it('fetches tax options on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/tax-options/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/tax-options/)
     })
 
     it('handles 500 error on loadOptions', async () => {
-        global.mockHttp.onGet(/\/tax-options/).reply(500)
+        globalThis.mockHttp.onGet(/\/tax-options/).reply(500)
         const w = mount(TaxIndex, {
             global: {
                 plugins: [createTestingPinia()],
@@ -70,8 +70,8 @@ describe('TaxIndex.vue', () => {
         await wrapper.vm.saveOptions()
         await flushPromises()
 
-        expect(global.mockHttp.history.post.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.post[0].url).toMatch(/\/taxes\/option/)
+        expect(globalThis.mockHttp.history.post.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.post[0].url).toMatch(/\/taxes\/option/)
     })
 
     it('confirmBulkDelete sets pendingBulkDelete when items are selected', async () => {
@@ -90,14 +90,14 @@ describe('TaxIndex.vue — branch coverage', () => {
     let wrapper
 
     beforeEach(async () => {
-        global.mockHttp.onGet(/\/tax-options/).reply(200, {
+        globalThis.mockHttp.onGet(/\/tax-options/).reply(200, {
             data: {
                 options: { tax_enable: 1, inclusive: 0, rounding: 0, tax_based_on: 'billing' },
                 additional_tax_classes: 'ClassA\nClassB',
                 classes: [{ slug: '', name: 'Standard' }, { slug: 'reduced', name: 'Reduced' }],
             },
         })
-        global.mockHttp.onPost(/\/taxes\/option/).reply(200, { message: 'Saved' })
+        globalThis.mockHttp.onPost(/\/taxes\/option/).reply(200, { message: 'Saved' })
         wrapper = mount(TaxIndex, {
             global: {
                 plugins: [createTestingPinia()],
@@ -217,14 +217,14 @@ describe('TaxIndex.vue — SelectField onChange branch coverage', () => {
     let wrapper
 
     beforeEach(async () => {
-        global.mockHttp.onGet(/\/tax-options/).reply(200, {
+        globalThis.mockHttp.onGet(/\/tax-options/).reply(200, {
             data: {
                 options: { tax_enable: 0, inclusive: 0, rounding: 0, tax_based_on: 'billing' },
                 additional_tax_classes: '',
                 classes: [{ slug: '', name: 'Standard' }],
             },
         })
-        global.mockHttp.onPost(/\/taxes\/option/).reply(200, { message: 'ok' })
+        globalThis.mockHttp.onPost(/\/taxes\/option/).reply(200, { message: 'ok' })
 
         wrapper = mount(TaxIndex, {
             global: {

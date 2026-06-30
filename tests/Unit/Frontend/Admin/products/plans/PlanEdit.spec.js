@@ -43,10 +43,10 @@ describe('PlanEdit.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/dependency\/periods/).reply(200, PERIODS_RESPONSE)
-        global.mockHttp.onGet(/\/dependency\/currencies/).reply(200, CURRENCIES_RESPONSE)
-        global.mockHttp.onGet(/\/plan\/0/).reply(200, PLAN_RESPONSE)
-        global.mockHttp.onPatch(/\/plan\/0/).reply(200, { data: { message: 'Plan updated' } })
+        globalThis.mockHttp.onGet(/\/dependency\/periods/).reply(200, PERIODS_RESPONSE)
+        globalThis.mockHttp.onGet(/\/dependency\/currencies/).reply(200, CURRENCIES_RESPONSE)
+        globalThis.mockHttp.onGet(/\/plan\/0/).reply(200, PLAN_RESPONSE)
+        globalThis.mockHttp.onPatch(/\/plan\/0/).reply(200, { data: { message: 'Plan updated' } })
 
         wrapper = mount(PlanEdit, {
             global: {
@@ -63,7 +63,7 @@ describe('PlanEdit.vue', () => {
     })
 
     afterEach(() => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -77,7 +77,7 @@ describe('PlanEdit.vue', () => {
 
     it('fetches periods, currencies, and plan data on mount', async () => {
         await flushPromises()
-        const urls = global.mockHttp.history.get.map(r => r.url)
+        const urls = globalThis.mockHttp.history.get.map(r => r.url)
         expect(urls.some(u => u.includes('/dependency/periods'))).toBe(true)
         expect(urls.some(u => u.includes('/dependency/currencies'))).toBe(true)
         expect(urls.some(u => u.includes('/plan/0'))).toBe(true)
@@ -96,7 +96,7 @@ describe('PlanEdit.vue', () => {
         wrapper.vm.form.prices = [{ currency: 1, add_price: '19.99', offer_price: '10', renew_price: '19.99' }]
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.patch.some(r => /\/plan\/0/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.patch.some(r => /\/plan\/0/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on success', async () => {
@@ -108,7 +108,7 @@ describe('PlanEdit.vue', () => {
     })
 
     it('calls errorHandler on 500 error', async () => {
-        global.mockHttp.onPatch(/\/plan\/0/).reply(500)
+        globalThis.mockHttp.onPatch(/\/plan\/0/).reply(500)
         await flushPromises()
         wrapper.vm.form.prices = [{ currency: 1, add_price: '19.99', offer_price: '10', renew_price: '19.99' }]
         await wrapper.vm.submit()

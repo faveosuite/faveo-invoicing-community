@@ -31,8 +31,8 @@ describe('FrontendPageEdit.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/page\/0/).reply(200, { data: pageFixture })
-        global.mockHttp.onPut(/\/page\/0/).reply(200, { data: { message: 'Updated' } })
+        globalThis.mockHttp.onGet(/\/page\/0/).reply(200, { data: pageFixture })
+        globalThis.mockHttp.onPut(/\/page\/0/).reply(200, { data: { message: 'Updated' } })
         wrapper = mount(FrontendPageEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -55,7 +55,7 @@ describe('FrontendPageEdit.vue', () => {
 
     it('GETs /page/0 on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/page\/0/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/page\/0/.test(r.url))).toBe(true)
     })
 
     it('populates form fields after fetch', async () => {
@@ -77,8 +77,8 @@ describe('FrontendPageEdit.vue', () => {
     })
 
     it('calls errorHandler when GET /page/0 fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/page\/0/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/page\/0/).reply(500)
         wrapper = mount(FrontendPageEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -97,7 +97,7 @@ describe('FrontendPageEdit.vue', () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.put.some(r => /\/page\/0/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.put.some(r => /\/page\/0/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on successful update', async () => {
@@ -109,8 +109,8 @@ describe('FrontendPageEdit.vue', () => {
 
     it('calls errorHandler on update failure', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPut(/\/page\/0/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPut(/\/page\/0/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -120,10 +120,10 @@ describe('FrontendPageEdit.vue', () => {
         await flushPromises()
         const { validateForm } = require('@/helpers/formUtils.js')
         validateForm.mockResolvedValueOnce(false)
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.put.length).toBe(0)
+        expect(globalThis.mockHttp.history.put.length).toBe(0)
     })
 
     it('onChange sets type and updates url when type is contactus', async () => {

@@ -16,7 +16,7 @@ describe('zohoCredentialsSchema', () => {
     })
 
     it('fails when client_id is missing', async () => {
-        const { client_id: _o, ...rest } = valid
+        const { client_id: _o, ...rest } = valid // NOSONAR
         await expect(zohoCredentialsSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -33,7 +33,7 @@ describe('zohoCredentialsSchema', () => {
     })
 
     it('fails when region is missing', async () => {
-        const { region: _o, ...rest } = valid
+        const { region: _o, ...rest } = valid // NOSONAR
         await expect(zohoCredentialsSchema.validate(rest)).rejects.toThrow()
     })
 

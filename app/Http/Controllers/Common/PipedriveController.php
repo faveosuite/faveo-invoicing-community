@@ -291,7 +291,6 @@ class PipedriveController extends Controller
                 $existingOptions = PipedriveFieldOption::where('pipedrive_field_id', $pipedriveField->id)->get()->keyBy('key');
 
                 $newOptionKeys = $newOptions->keys()->all();
-                $existingOptionKeys = $existingOptions->keys()->toArray();
 
                 // Delete options
                 $optionsToDelete = $existingOptions->filter(fn ($opt, $key): bool => ! in_array($key, $newOptionKeys));

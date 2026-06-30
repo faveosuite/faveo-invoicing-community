@@ -11,7 +11,7 @@ describe('Cron.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/settings\/cron-data/).reply(200, {
+        globalThis.mockHttp.onGet(/\/settings\/cron-data/).reply(200, {
             data: {
                 cron_path: '/var/www/html/artisan',
                 php_paths: ['/usr/bin/php'],
@@ -21,9 +21,9 @@ describe('Cron.vue', () => {
                 conditions: {},
             },
         })
-        global.mockHttp.onPatch(/\/settings\/cron-data/).reply(200, { data: {} })
-        global.mockHttp.onPatch(/\/settings\/cron-days/).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/verify-php-path/).reply(200, { data: {} })
+        globalThis.mockHttp.onPatch(/\/settings\/cron-data/).reply(200, { data: {} })
+        globalThis.mockHttp.onPatch(/\/settings\/cron-days/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/verify-php-path/).reply(200, { data: {} })
 
         wrapper = mount(Cron, {
             global: {
@@ -42,7 +42,7 @@ describe('Cron.vue', () => {
 
     it('fetches cron data on mount', async () => {
         await flushPromises()
-        const getUrls = global.mockHttp.history.get.map(r => r.url)
+        const getUrls = globalThis.mockHttp.history.get.map(r => r.url)
         expect(getUrls.some(u => u.includes('cron-data'))).toBe(true)
     })
 
@@ -57,7 +57,7 @@ describe('Cron.vue', () => {
         if (saveBtns.length > 0) {
             await saveBtns[0].trigger('click')
             await flushPromises()
-            const patchUrls = global.mockHttp.history.patch.map(r => r.url)
+            const patchUrls = globalThis.mockHttp.history.patch.map(r => r.url)
             expect(patchUrls.some(u => u.includes('cron-data'))).toBe(true)
         }
     })
@@ -68,35 +68,35 @@ describe('Cron.vue', () => {
         if (saveBtns.length > 1) {
             await saveBtns[1].trigger('click')
             await flushPromises()
-            const patchUrls = global.mockHttp.history.patch.map(r => r.url)
+            const patchUrls = globalThis.mockHttp.history.patch.map(r => r.url)
             expect(patchUrls.some(u => u.includes('cron-days'))).toBe(true)
         }
     })
 
     it('saveScheduler calls PATCH /settings/cron-data', async () => {
-        global.mockHttp.onPatch(/\/settings\/cron-data/).reply(200, { message: 'ok' })
+        globalThis.mockHttp.onPatch(/\/settings\/cron-data/).reply(200, { message: 'ok' })
         await flushPromises()
         await wrapper.vm.saveScheduler()
         await flushPromises()
-        expect(global.mockHttp.history.patch.some(r => r.url.includes('cron-data'))).toBe(true)
+        expect(globalThis.mockHttp.history.patch.some(r => r.url.includes('cron-data'))).toBe(true)
     })
 
     it('saveScheduler handles error gracefully', async () => {
-        global.mockHttp.onPatch(/\/settings\/cron-data/).reply(500)
+        globalThis.mockHttp.onPatch(/\/settings\/cron-data/).reply(500)
         await flushPromises()
         await expect(wrapper.vm.saveScheduler()).resolves.not.toThrow()
     })
 
     it('saveDays calls PATCH /settings/cron-days', async () => {
-        global.mockHttp.onPatch(/\/settings\/cron-days/).reply(200, { message: 'ok' })
+        globalThis.mockHttp.onPatch(/\/settings\/cron-days/).reply(200, { message: 'ok' })
         await flushPromises()
         await wrapper.vm.saveDays()
         await flushPromises()
-        expect(global.mockHttp.history.patch.some(r => r.url.includes('cron-days'))).toBe(true)
+        expect(globalThis.mockHttp.history.patch.some(r => r.url.includes('cron-days'))).toBe(true)
     })
 
     it('saveDays handles error gracefully', async () => {
-        global.mockHttp.onPatch(/\/settings\/cron-days/).reply(500)
+        globalThis.mockHttp.onPatch(/\/settings\/cron-days/).reply(500)
         await flushPromises()
         await expect(wrapper.vm.saveDays()).resolves.not.toThrow()
     })
@@ -109,12 +109,12 @@ describe('Cron.vue', () => {
     })
 
     it('copyCommand calls POST /verify-php-path', async () => {
-        global.mockHttp.onPost(/\/verify-php-path/).reply(200, { data: { valid: true } })
+        globalThis.mockHttp.onPost(/\/verify-php-path/).reply(200, { data: { valid: true } })
         await flushPromises()
         wrapper.vm.phpPath = '/usr/bin/php'
         await wrapper.vm.copyCommand()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('verify-php-path'))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('verify-php-path'))).toBe(true)
     })
 
     it('onScheduleChange updates conditionForms for a valid job key', async () => {

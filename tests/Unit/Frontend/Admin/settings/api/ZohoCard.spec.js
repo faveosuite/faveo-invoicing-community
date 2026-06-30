@@ -82,14 +82,14 @@ describe('ZohoCard.vue', () => {
     })
 
     it('makes no HTTP calls — purely presentational', async () => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         mount(ZohoCard, {
             props: { integration: makeIntegration() },
             global: { plugins: [createTestingPinia()], stubs: STUBS },
         })
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBe(0)
-        expect(global.mockHttp.history.post.length).toBe(0)
+        expect(globalThis.mockHttp.history.get.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('renders description from integration prop', () => {

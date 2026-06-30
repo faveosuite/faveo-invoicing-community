@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Product;
 
-// use Illuminate\Http\Request;
 use App\Facades\Attach;
 use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\License\LicensePermissionsController;
@@ -25,7 +24,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-// use Input;
 
 class ProductController extends BaseProductController
 {
@@ -279,7 +277,7 @@ class ProductController extends BaseProductController
 
             DB::transaction(function () use ($request, $validated, $product): void {
                 // Save the product upload
-                $productUpload = ProductUpload::create([
+                ProductUpload::create([
                     'product_id' => $product->id,
                     'title' => $validated['producttitle'],
                     'description' => $validated['description'],

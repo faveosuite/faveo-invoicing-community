@@ -15,14 +15,14 @@ describe('LicenseTypeIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/get-license-type$/).reply(200, {
+        globalThis.mockHttp.onGet(/\/get-license-type$/).reply(200, {
             data: { data: [], total: 0 },
         })
-        global.mockHttp.onGet(/\/get-license-type\/\d+/).reply(200, {
+        globalThis.mockHttp.onGet(/\/get-license-type\/\d+/).reply(200, {
             data: { name: 'Test License Type' },
         })
-        global.mockHttp.onPost(/\/create-license-type/).reply(200, { data: {} })
-        global.mockHttp.onPut(/\/update-license-type\/\d+/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/create-license-type/).reply(200, { data: {} })
+        globalThis.mockHttp.onPut(/\/update-license-type\/\d+/).reply(200, { data: {} })
 
         wrapper = mount(LicenseTypeIndex, {
             global: {
@@ -65,21 +65,21 @@ describe('LicenseTypeIndex.vue', () => {
 
     it('calls create-license-type endpoint on create', async () => {
         await flushPromises()
-        global.mockHttp.onPost(/\/create-license-type/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/create-license-type/).reply(200, { data: {} })
         const http = (await import('@/plugins/axios.js')).default
         await http.post('/create-license-type', { name: 'New Type' })
         await flushPromises()
-        const postUrls = global.mockHttp.history.post.map(r => r.url)
+        const postUrls = globalThis.mockHttp.history.post.map(r => r.url)
         expect(postUrls.some(u => u.includes('create-license-type'))).toBe(true)
     })
 
     it('calls update-license-type endpoint on update', async () => {
         await flushPromises()
-        global.mockHttp.onPut(/\/update-license-type\/1/).reply(200, { data: {} })
+        globalThis.mockHttp.onPut(/\/update-license-type\/1/).reply(200, { data: {} })
         const http = (await import('@/plugins/axios.js')).default
         await http.put('/update-license-type/1', { name: 'Updated Type' })
         await flushPromises()
-        const putUrls = global.mockHttp.history.put.map(r => r.url)
+        const putUrls = globalThis.mockHttp.history.put.map(r => r.url)
         expect(putUrls.some(u => u.includes('update-license-type'))).toBe(true)
     })
 
@@ -97,7 +97,7 @@ describe('LicenseTypeIndex.vue', () => {
     })
 
     it('openEdit fetches license type data and sets showEdit', async () => {
-        global.mockHttp.onGet(/\/get-license-type\/1/).reply(200, { data: { id: 1, name: 'SaaS' } })
+        globalThis.mockHttp.onGet(/\/get-license-type\/1/).reply(200, { data: { id: 1, name: 'SaaS' } })
         await flushPromises()
         await wrapper.vm.openEdit(1)
         await flushPromises()
@@ -105,7 +105,7 @@ describe('LicenseTypeIndex.vue', () => {
     })
 
     it('openEdit handles error gracefully', async () => {
-        global.mockHttp.onGet(/\/get-license-type\/99/).reply(500)
+        globalThis.mockHttp.onGet(/\/get-license-type\/99/).reply(500)
         await flushPromises()
         await expect(wrapper.vm.openEdit(99)).resolves.not.toThrow()
     })
@@ -131,24 +131,24 @@ describe('LicenseTypeIndex.vue', () => {
     })
 
     it('create calls POST /create-license-type and closes modal on success', async () => {
-        global.mockHttp.onPost(/\/create-license-type/).reply(200, { data: { id: 2, name: 'New' } })
+        globalThis.mockHttp.onPost(/\/create-license-type/).reply(200, { data: { id: 2, name: 'New' } })
         await flushPromises()
         wrapper.vm.newName = 'New Type'
         await wrapper.vm.create()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('create-license-type'))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('create-license-type'))).toBe(true)
         expect(wrapper.vm.showCreate).toBe(false)
     })
 
     it('create handles error', async () => {
-        global.mockHttp.onPost(/\/create-license-type/).reply(422, { message: 'Invalid' })
+        globalThis.mockHttp.onPost(/\/create-license-type/).reply(422, { message: 'Invalid' })
         await flushPromises()
         wrapper.vm.newName = 'Test'
         await expect(wrapper.vm.create()).resolves.not.toThrow()
     })
 
     it('update calls PUT /update-license-type/:id and closes modal on success', async () => {
-        global.mockHttp.onPut(/\/update-license-type\/1/).reply(200, { data: {} })
+        globalThis.mockHttp.onPut(/\/update-license-type\/1/).reply(200, { data: {} })
         await flushPromises()
         wrapper.vm.editId = 1
         wrapper.vm.editName = 'Updated'

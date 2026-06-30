@@ -13,7 +13,7 @@ describe('SocialMediaCreate.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onPost(/\/social-media\/create/).reply(200, { message: 'Created' })
+        globalThis.mockHttp.onPost(/\/social-media\/create/).reply(200, { message: 'Created' })
 
         wrapper = mount(SocialMediaCreate, {
             global: {
@@ -39,8 +39,8 @@ describe('SocialMediaCreate.vue', () => {
     it('submits form via POST to /social-media/create', async () => {
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.post[0].url).toMatch(/\/social-media\/create/)
+        expect(globalThis.mockHttp.history.post.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.post[0].url).toMatch(/\/social-media\/create/)
     })
 
     it('calls successHandler after successful submit', async () => {
@@ -50,7 +50,7 @@ describe('SocialMediaCreate.vue', () => {
     })
 
     it('calls errorHandler on submit failure', async () => {
-        global.mockHttp.onPost(/\/social-media\/create/).reply(500)
+        globalThis.mockHttp.onPost(/\/social-media\/create/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -61,7 +61,7 @@ describe('SocialMediaCreate.vue', () => {
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('sets saving to false after submit completes', async () => {

@@ -113,21 +113,21 @@ describe('OrderIndex.vue', () => {
 
     it('confirmDelete redirects when deleteRow has a number', () => {
         const { location } = window
-        delete window.location
-        window.location = { href: '' }
+        delete globalThis.location
+        globalThis.location = { href: '' }
         wrapper.vm.deleteRow = { number: 'ORD-001' }
         wrapper.vm.confirmDelete()
-        expect(window.location.href).toContain('/delete/domain/ORD-001/1')
-        window.location = location
+        expect(globalThis.location.href).toContain('/delete/domain/ORD-001/1')
+        globalThis.location = location
     })
 
     it('confirmDelete does nothing when deleteRow has no number', () => {
         const { location } = window
-        delete window.location
-        window.location = { href: 'http://original.test' }
+        delete globalThis.location
+        globalThis.location = { href: 'http://original.test' }
         wrapper.vm.deleteRow = { number: null }
         wrapper.vm.confirmDelete()
-        expect(window.location.href).toBe('http://original.test')
-        window.location = location
+        expect(globalThis.location.href).toBe('http://original.test')
+        globalThis.location = location
     })
 })

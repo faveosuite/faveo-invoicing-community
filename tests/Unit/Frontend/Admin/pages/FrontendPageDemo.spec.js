@@ -12,8 +12,8 @@ describe('FrontendPageDemo.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/demo/).reply(200, { data: { status: true } })
-        global.mockHttp.onPost(/\/save\/demo/).reply(200, { data: { message: 'Saved' } })
+        globalThis.mockHttp.onGet(/\/demo/).reply(200, { data: { status: true } })
+        globalThis.mockHttp.onPost(/\/save\/demo/).reply(200, { data: { message: 'Saved' } })
         wrapper = mount(FrontendPageDemo, {
             global: {
                 plugins: [createTestingPinia()],
@@ -36,7 +36,7 @@ describe('FrontendPageDemo.vue', () => {
 
     it('GETs /demo on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/demo/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/demo/.test(r.url))).toBe(true)
     })
 
     it('sets status from API response on mount', async () => {
@@ -50,8 +50,8 @@ describe('FrontendPageDemo.vue', () => {
     })
 
     it('calls errorHandler when GET /demo fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/demo/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/demo/).reply(500)
         wrapper = mount(FrontendPageDemo, {
             global: {
                 plugins: [createTestingPinia()],
@@ -66,7 +66,7 @@ describe('FrontendPageDemo.vue', () => {
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/save\/demo/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/save\/demo/.test(r.url))).toBe(true)
     })
 
     it('sends current status value in POST body', async () => {
@@ -74,7 +74,7 @@ describe('FrontendPageDemo.vue', () => {
         wrapper.vm.status = false
         await wrapper.vm.save()
         await flushPromises()
-        const body = JSON.parse(global.mockHttp.history.post[0].data)
+        const body = JSON.parse(globalThis.mockHttp.history.post[0].data)
         expect(body.status).toBe(false)
     })
 
@@ -87,8 +87,8 @@ describe('FrontendPageDemo.vue', () => {
 
     it('calls errorHandler on save failure', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/save\/demo/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/save\/demo/).reply(500)
         await wrapper.vm.save()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()

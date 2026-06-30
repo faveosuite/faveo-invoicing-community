@@ -176,7 +176,6 @@ class DatabaseSetupController extends Controller
         $mysqli_ok = true;
         $results = [];
         if (DB_HOST && DB_USER && DB_NAME) {
-            // error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE | E_ALL);
             error_reporting(0);
             try {
                 if (DB_DEFAULT == 'mysql') {

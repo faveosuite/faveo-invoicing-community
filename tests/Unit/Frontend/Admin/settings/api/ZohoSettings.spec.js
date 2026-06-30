@@ -22,8 +22,8 @@ describe('ZohoSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/zoho\/integrations/).reply(200, INTEGRATIONS_RESPONSE)
-        global.mockHttp.onPatch(/\/zoho\/integrations\//).reply(200, { data: {} })
+        globalThis.mockHttp.onGet(/\/zoho\/integrations/).reply(200, INTEGRATIONS_RESPONSE)
+        globalThis.mockHttp.onPatch(/\/zoho\/integrations\//).reply(200, { data: {} })
         wrapper = mount(ZohoSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -38,7 +38,7 @@ describe('ZohoSettings.vue', () => {
 
     afterEach(() => {
         wrapper.unmount()
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -49,7 +49,7 @@ describe('ZohoSettings.vue', () => {
     it('calls GET /zoho/integrations on mount', async () => {
         await flushPromises()
         expect(
-            global.mockHttp.history.get.some(r => r.url.includes('/zoho/integrations'))
+            globalThis.mockHttp.history.get.some(r => r.url.includes('/zoho/integrations'))
         ).toBe(true)
     })
 
@@ -65,20 +65,20 @@ describe('ZohoSettings.vue', () => {
         await wrapper.vm.handleToggle(item)
         await flushPromises()
         expect(
-            global.mockHttp.history.patch.some(r => /\/zoho\/integrations\//.test(r.url))
+            globalThis.mockHttp.history.patch.some(r => /\/zoho\/integrations\//.test(r.url))
         ).toBe(true)
     })
 
     it('reloads integrations silently after toggle', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/zoho\/integrations/).reply(200, INTEGRATIONS_RESPONSE)
-        global.mockHttp.onPatch(/\/zoho\/integrations\//).reply(200, { data: {} })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/zoho\/integrations/).reply(200, INTEGRATIONS_RESPONSE)
+        globalThis.mockHttp.onPatch(/\/zoho\/integrations\//).reply(200, { data: {} })
         const item = wrapper.vm.integrations[0]
         await wrapper.vm.handleToggle(item)
         await flushPromises()
         expect(
-            global.mockHttp.history.get.some(r => r.url.includes('/zoho/integrations'))
+            globalThis.mockHttp.history.get.some(r => r.url.includes('/zoho/integrations'))
         ).toBe(true)
     })
 
@@ -103,8 +103,8 @@ describe('ZohoSettings.vue', () => {
 
     it('calls errorHandler when toggle request fails', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPatch(/\/zoho\/integrations\//).reply(500, { message: 'Server error' })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPatch(/\/zoho\/integrations\//).reply(500, { message: 'Server error' })
         const item = wrapper.vm.integrations[0]
         await wrapper.vm.handleToggle(item)
         await flushPromises()

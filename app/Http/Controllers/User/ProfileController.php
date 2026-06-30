@@ -50,7 +50,6 @@ class ProfileController extends BaseAuthController
             $bussinesses = Bussiness::pluck('name', 'short')->toArray();
 
             return successResponse('', ['bussinesses' => $bussinesses, 'user' => $user, 'timezones' => $timezones, 'state' => $state, 'states' => $states, 'is2faEnabled' => $is2faEnabled, 'dateSinceEnabled' => $dateSinceEnabled]);
-            //            return view('themes.default1.user.profile', compact('bussinesses', 'user', 'timezones', 'state', 'states', 'is2faEnabled', 'dateSinceEnabled'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }

@@ -29,8 +29,8 @@ describe('Recaptcha.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/recaptcha-settings/).reply(200, {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/recaptcha-settings/).reply(200, {
             data: {
                 captcha_version: 'v3_invisible',
                 failover_action: 'none',
@@ -44,7 +44,7 @@ describe('Recaptcha.vue', () => {
                 badge_position: 'bottomright',
             },
         })
-        global.mockHttp.onPatch(/\/recaptcha-settings/).reply(200, { data: { message: 'Saved' } })
+        globalThis.mockHttp.onPatch(/\/recaptcha-settings/).reply(200, { data: { message: 'Saved' } })
         wrapper = mount(Recaptcha, {
             global: {
                 plugins: [createTestingPinia()],
@@ -59,7 +59,7 @@ describe('Recaptcha.vue', () => {
 
     it('fetches settings on mount via GET /recaptcha-settings', async () => {
         await flushPromises()
-        const getCalls = global.mockHttp.history.get.filter(r => /\/recaptcha-settings/.test(r.url))
+        const getCalls = globalThis.mockHttp.history.get.filter(r => /\/recaptcha-settings/.test(r.url))
         expect(getCalls.length).toBeGreaterThan(0)
     })
 
@@ -73,7 +73,7 @@ describe('Recaptcha.vue', () => {
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
-        const patchCalls = global.mockHttp.history.patch.filter(r => /\/recaptcha-settings/.test(r.url))
+        const patchCalls = globalThis.mockHttp.history.patch.filter(r => /\/recaptcha-settings/.test(r.url))
         expect(patchCalls.length).toBeGreaterThan(0)
     })
 
@@ -85,9 +85,9 @@ describe('Recaptcha.vue', () => {
     })
 
     it('calls errorHandler on save failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/recaptcha-settings/).reply(200, { data: {} })
-        global.mockHttp.onPatch(/\/recaptcha-settings/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/recaptcha-settings/).reply(200, { data: {} })
+        globalThis.mockHttp.onPatch(/\/recaptcha-settings/).reply(500)
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()

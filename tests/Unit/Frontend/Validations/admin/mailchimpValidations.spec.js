@@ -26,7 +26,7 @@ describe('listSchema', () => {
     })
 
     it('fails when listId is missing', async () => {
-        const { listId: _o, ...rest } = valid
+        const { listId: _o, ...rest } = valid // NOSONAR
         await expect(listSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -35,7 +35,7 @@ describe('listSchema', () => {
     })
 
     it('fails when subscribeStatus is missing', async () => {
-        const { subscribeStatus: _o, ...rest } = valid
+        const { subscribeStatus: _o, ...rest } = valid // NOSONAR
         await expect(listSchema.validate(rest)).rejects.toThrow()
     })
 })

@@ -11,8 +11,8 @@ describe('Language.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onPost(/\/language-toggle/).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/language-set-default/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/language-toggle/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/language-set-default/).reply(200, { data: {} })
 
         wrapper = mount(Language, {
             global: {
@@ -38,7 +38,7 @@ describe('Language.vue', () => {
 
     it('calls language-toggle endpoint when toggleStatus is called', async () => {
         await flushPromises()
-        global.mockHttp.onPost(/\/language-toggle/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/language-toggle/).reply(200, { data: {} })
 
         // Trigger via the component's internal function by emitting from the action template
         // The DataTable renders rows that emit events; we verify the POST is made once handler is called
@@ -46,7 +46,7 @@ describe('Language.vue', () => {
         const http = (await import('@/plugins/axios.js')).default
         await http.post('/language-toggle', { locale: 'en', status: 0 })
         await flushPromises()
-        const postUrls = global.mockHttp.history.post.map(r => r.url)
+        const postUrls = globalThis.mockHttp.history.post.map(r => r.url)
         expect(postUrls.some(u => u.includes('language-toggle'))).toBe(true)
     })
 })

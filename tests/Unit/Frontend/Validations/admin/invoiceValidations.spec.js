@@ -26,7 +26,7 @@ describe('buildInvoiceCreateSchema - base (no dynamic fields)', () => {
     })
 
     it('fails when date is missing', async () => {
-        const { date: _o, ...rest } = valid
+        const { date: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 
@@ -58,7 +58,7 @@ describe('buildInvoiceCreateSchema - with required_domain', () => {
     })
 
     it('fails when domain is missing', async () => {
-        const { domain: _o, ...rest } = valid
+        const { domain: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 })
@@ -82,7 +82,7 @@ describe('buildInvoiceCreateSchema - with is_cloud_product', () => {
     })
 
     it('fails when cloud_domain is missing', async () => {
-        const { cloud_domain: _o, ...rest } = valid
+        const { cloud_domain: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 })

@@ -200,14 +200,12 @@ class TenantController extends Controller
             $dns_record = dns_get_record($faveoCloud, DNS_CNAME);
             if (! strpos($faveoCloud, (string) cloudSubDomain()) && ($dns_record === [] || $dns_record === false || ! in_array(cloudSubDomain(), array_column($dns_record, 'target')))) {
                 return errorResponse(trans('message.cname'));
-                // return ['status' => 'false', 'message' => trans('message.cname')];
             }
 
             $licCode = $order->serial_key;
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
             if (! $keys?->app_key) {// Validate if the app key to be sent is valid or not
                 return errorResponse(trans('message.something_bad'));
-                // return ['status' => 'false', 'message' => trans('message.something_bad')];
             }
 
             $token = Str::random(32);
@@ -240,7 +238,6 @@ class TenantController extends Controller
                 $this->googleChat($result['message'] ?? '');
 
                 return errorResponse(trans('message.something_bad'));
-                // return ['status' => 'false', 'message' => trans('message.something_bad')];
             } elseif (($result['status'] ?? null) == 'validationFailure') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                 $this->prepareMessages($faveoCloud, $userEmail);
 
@@ -366,7 +363,6 @@ class TenantController extends Controller
                     $this->statusChange($request->orderId);
                 }
 
-                //                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
                 if (! empty($request->orderId)) {
                     $encryptedKey = Order::where('number', $request->input('orderId'))->value('serial_key');
                     if ($encryptedKey) {

@@ -13,10 +13,10 @@ describe('SocialMediaEdit.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/social-media\/show\/3/).reply(200, {
+        globalThis.mockHttp.onGet(/\/social-media\/show\/3/).reply(200, {
             data: { name: 'Twitter', link: 'https://twitter.com/company' },
         })
-        global.mockHttp.onPatch(/\/social-media\/update\/3/).reply(200, { message: 'Updated' })
+        globalThis.mockHttp.onPatch(/\/social-media\/update\/3/).reply(200, { message: 'Updated' })
 
         wrapper = mount(SocialMediaEdit, {
             global: {
@@ -32,8 +32,8 @@ describe('SocialMediaEdit.vue', () => {
 
     it('fetches social media entry on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/social-media\/show\/3/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/social-media\/show\/3/)
     })
 
     it('populates form after fetch', async () => {
@@ -43,7 +43,7 @@ describe('SocialMediaEdit.vue', () => {
     })
 
     it('calls errorHandler when fetch fails', async () => {
-        global.mockHttp.onGet(/\/social-media\/show\/3/).reply(500)
+        globalThis.mockHttp.onGet(/\/social-media\/show\/3/).reply(500)
         const w = mount(SocialMediaEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -59,8 +59,8 @@ describe('SocialMediaEdit.vue', () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.patch.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.patch[0].url).toMatch(/\/social-media\/update\/3/)
+        expect(globalThis.mockHttp.history.patch.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.patch[0].url).toMatch(/\/social-media\/update\/3/)
     })
 
     it('calls successHandler after successful update', async () => {
@@ -71,7 +71,7 @@ describe('SocialMediaEdit.vue', () => {
     })
 
     it('calls errorHandler on submit failure', async () => {
-        global.mockHttp.onPatch(/\/social-media\/update\/3/).reply(500)
+        globalThis.mockHttp.onPatch(/\/social-media\/update\/3/).reply(500)
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
@@ -84,7 +84,7 @@ describe('SocialMediaEdit.vue', () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.patch.length).toBe(0)
+        expect(globalThis.mockHttp.history.patch.length).toBe(0)
     })
 
     it('sets saving to false after submit completes', async () => {

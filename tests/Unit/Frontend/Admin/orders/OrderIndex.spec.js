@@ -16,8 +16,8 @@ describe('OrderIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/orders/).reply(200, { data: [] })
-        global.mockHttp.onDelete(/\/orders/).reply(200, { data: { message: 'Deleted' } })
+        globalThis.mockHttp.onGet(/\/orders/).reply(200, { data: [] })
+        globalThis.mockHttp.onDelete(/\/orders/).reply(200, { data: { message: 'Deleted' } })
         wrapper = mount(OrderIndex, {
             global: {
                 plugins: [createTestingPinia()],

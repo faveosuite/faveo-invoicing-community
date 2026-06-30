@@ -16,7 +16,7 @@ describe('socialLoginSchema', () => {
     })
 
     it('fails when client_id is missing', async () => {
-        const { client_id: _o, ...rest } = valid
+        const { client_id: _o, ...rest } = valid // NOSONAR
         await expect(socialLoginSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -25,7 +25,7 @@ describe('socialLoginSchema', () => {
     })
 
     it('fails when client_secret is missing', async () => {
-        const { client_secret: _o, ...rest } = valid
+        const { client_secret: _o, ...rest } = valid // NOSONAR
         await expect(socialLoginSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -38,7 +38,7 @@ describe('socialLoginSchema', () => {
     })
 
     it('fails when redirect_url is missing', async () => {
-        const { redirect_url: _o, ...rest } = valid
+        const { redirect_url: _o, ...rest } = valid // NOSONAR
         await expect(socialLoginSchema.validate(rest)).rejects.toThrow()
     })
 })

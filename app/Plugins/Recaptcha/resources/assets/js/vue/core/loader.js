@@ -1,7 +1,7 @@
 /**
  * grecaptcha script loader.
  *
- * Google exposes a single `window.grecaptcha` global. Loading api.js more than
+ * Google exposes a single `globalThis.grecaptcha` global. Loading api.js more than
  * once (or with conflicting params) leads to "reCAPTCHA already rendered" and
  * duplicate-badge bugs, so this module owns a single load and hands every caller
  * the same promise.
@@ -25,7 +25,7 @@ let currentRender = null // the `render` param the live script was loaded with
  * @param {string}  opts.render  v3 site key, or 'explicit' for v2.
  * @param {string} [opts.hl]     language code.
  * @param {string} [opts.badge]  badge position for v3 (bottomright|bottomleft|inline).
- * @returns {Promise<object>}    resolves with the ready `window.grecaptcha`.
+ * @returns {Promise<object>}    resolves with the ready `globalThis.grecaptcha`.
  */
 export function loadRecaptcha({ render = 'explicit', hl = 'en', badge = 'bottomright' } = {}) {
     // A v3 script is bound to its site key at load time, so a different `render`
@@ -39,9 +39,9 @@ export function loadRecaptcha({ render = 'explicit', hl = 'en', badge = 'bottomr
     }
 
     // Script may already be on the page (e.g. admin preview loaded it first).
-    if (window.grecaptcha && (window.grecaptcha.render || window.grecaptcha.execute)) {
+    if (globalThis.grecaptcha && (globalThis.grecaptcha.render || globalThis.grecaptcha.execute)) {
         currentRender = render
-        loadPromise = waitForReady(window.grecaptcha)
+        loadPromise = waitForReady(globalThis.grecaptcha)
         return loadPromise
     }
 
@@ -61,7 +61,7 @@ export function loadRecaptcha({ render = 'explicit', hl = 'en', badge = 'bottomr
         script.defer = true
 
         script.onload = () => {
-            waitForReady(window.grecaptcha).then(resolve).catch(reject)
+            waitForReady(globalThis.grecaptcha).then(resolve).catch(reject)
         }
         script.onerror = () => {
             loadPromise = null
@@ -91,7 +91,7 @@ function waitForReady(grecaptcha) {
         }
 
         const poll = () => {
-            if (window.grecaptcha && (window.grecaptcha.render || window.grecaptcha.execute)) {
+            if (globalThis.grecaptcha && (globalThis.grecaptcha.render || globalThis.grecaptcha.execute)) {
                 settle()
             } else if (performance.now() - started > READY_TIMEOUT) {
                 reject(new Error('reCAPTCHA failed to become ready in time.'))
@@ -104,7 +104,7 @@ function waitForReady(grecaptcha) {
 }
 
 /**
- * Forget the cached load so the next call re-evaluates `window.grecaptcha`.
+ * Forget the cached load so the next call re-evaluates `globalThis.grecaptcha`.
  * Does not remove the script tag.
  */
 export function resetLoader() {
@@ -123,9 +123,9 @@ export function teardownRecaptcha() {
         .forEach(el => el.remove())
     document.querySelectorAll('.grecaptcha-badge').forEach(el => el.remove())
     try {
-        delete window.grecaptcha
+        delete globalThis.grecaptcha
     } catch {
-        window.grecaptcha = undefined
+        globalThis.grecaptcha = undefined
     }
     loadPromise = null
     currentRender = null

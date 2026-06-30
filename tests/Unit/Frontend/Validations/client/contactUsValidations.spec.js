@@ -17,7 +17,7 @@ describe('contactUsSchema', () => {
     })
 
     it('fails when name is missing', async () => {
-        const { name: _o, ...rest } = valid
+        const { name: _o, ...rest } = valid // NOSONAR
         await expect(contactUsSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -50,7 +50,7 @@ describe('contactUsSchema', () => {
     })
 
     it('fails when message is missing', async () => {
-        const { message: _o, ...rest } = valid
+        const { message: _o, ...rest } = valid // NOSONAR
         await expect(contactUsSchema.validate(rest)).rejects.toThrow()
     })
 })

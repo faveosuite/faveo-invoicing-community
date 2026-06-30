@@ -15,7 +15,7 @@ describe('ColumnSelector.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet('/get-columns').reply(200, {
+        globalThis.mockHttp.onGet('/get-columns').reply(200, {
             data: {
                 columns: [
                     { key: 'name', label: 'name', is_visible: 1 },
@@ -25,7 +25,7 @@ describe('ColumnSelector.vue', () => {
                 ],
             },
         })
-        global.mockHttp.onPost('/save-columns').reply(200, { data: { message: 'Saved' } })
+        globalThis.mockHttp.onPost('/save-columns').reply(200, { data: { message: 'Saved' } })
         wrapper = mountColumnSelector()
     })
 
@@ -42,9 +42,9 @@ describe('ColumnSelector.vue', () => {
     })
 
     it('shows loader while loading columns', async () => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         let resolve
-        global.mockHttp.onGet('/get-columns').reply(() =>
+        globalThis.mockHttp.onGet('/get-columns').reply(() =>
             new Promise(r => { resolve = r })
         )
         const w = mountColumnSelector()

@@ -26,10 +26,10 @@ describe('CouponEdit.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/promotion\/0/).reply(200, couponResponse)
-        global.mockHttp.onGet(/\/dependency\/promotion-types/).reply(200, { data: { promotion_types: [] } })
-        global.mockHttp.onGet(/\/getPromotionCode/).reply(200, { data: 'NEWCODE' })
-        global.mockHttp.onPatch(/\/updatePromotion\/0/).reply(200, { data: { message: 'Updated' } })
+        globalThis.mockHttp.onGet(/\/promotion\/0/).reply(200, couponResponse)
+        globalThis.mockHttp.onGet(/\/dependency\/promotion-types/).reply(200, { data: { promotion_types: [] } })
+        globalThis.mockHttp.onGet(/\/getPromotionCode/).reply(200, { data: 'NEWCODE' })
+        globalThis.mockHttp.onPatch(/\/updatePromotion\/0/).reply(200, { data: { message: 'Updated' } })
         wrapper = mount(CouponEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -47,12 +47,12 @@ describe('CouponEdit.vue', () => {
 
     it('fetches coupon data on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/promotion\/0/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/promotion\/0/.test(r.url))).toBe(true)
     })
 
     it('fetches promotion types on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/dependency\/promotion-types/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/dependency\/promotion-types/.test(r.url))).toBe(true)
     })
 
     it('populates form fields after fetch', async () => {
@@ -67,9 +67,9 @@ describe('CouponEdit.vue', () => {
     })
 
     it('calls errorHandler when fetch fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/promotion\/0/).reply(500)
-        global.mockHttp.onGet(/\/dependency\/promotion-types/).reply(200, { data: { promotion_types: [] } })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/promotion\/0/).reply(500)
+        globalThis.mockHttp.onGet(/\/dependency\/promotion-types/).reply(200, { data: { promotion_types: [] } })
         wrapper = mount(CouponEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -87,7 +87,7 @@ describe('CouponEdit.vue', () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.patch.some(r => /\/updatePromotion\/0/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.patch.some(r => /\/updatePromotion\/0/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on successful update', async () => {
@@ -99,8 +99,8 @@ describe('CouponEdit.vue', () => {
 
     it('calls errorHandler on submit failure', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPatch(/\/updatePromotion\/0/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPatch(/\/updatePromotion\/0/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -108,12 +108,12 @@ describe('CouponEdit.vue', () => {
 
     it('does not submit when validateForm returns false', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPatch(/\/updatePromotion\/0/).reply(200, { data: {} })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPatch(/\/updatePromotion\/0/).reply(200, { data: {} })
         const { validateForm } = require('@/helpers/formUtils.js')
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.patch.length).toBe(0)
+        expect(globalThis.mockHttp.history.patch.length).toBe(0)
     })
 })

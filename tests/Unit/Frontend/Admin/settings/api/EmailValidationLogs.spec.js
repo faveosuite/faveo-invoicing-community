@@ -21,9 +21,9 @@ describe('EmailValidationLogs.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/email-validation-logs/).reply(200, { data: [] })
-        global.mockHttp.onGet(/\/get-email-validation-results/).reply(200, {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/email-validation-logs/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/get-email-validation-results/).reply(200, {
             data: {
                 email: 'test@example.com',
                 method: 'reoon',
@@ -54,7 +54,7 @@ describe('EmailValidationLogs.vue', () => {
     it('openDetail fetches GET /get-email-validation-results with id', async () => {
         await wrapper.vm.openDetail(99)
         await flushPromises()
-        const getCalls = global.mockHttp.history.get.filter(r => /get-email-validation-results/.test(r.url))
+        const getCalls = globalThis.mockHttp.history.get.filter(r => /get-email-validation-results/.test(r.url))
         expect(getCalls.length).toBeGreaterThan(0)
         expect(getCalls[0].params?.id).toBe(99)
     })
@@ -73,8 +73,8 @@ describe('EmailValidationLogs.vue', () => {
     })
 
     it('calls errorHandler when detail fetch fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/get-email-validation-results/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/get-email-validation-results/).reply(500)
         await wrapper.vm.openDetail(1)
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()

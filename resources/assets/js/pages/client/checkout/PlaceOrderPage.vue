@@ -270,7 +270,7 @@ async function openStripeModal() {
   }
 
   await loadScript('https://js.stripe.com/v3/')
-  stripe = window.Stripe(data.data.publishable_key)
+  stripe = globalThis.Stripe(data.data.publishable_key)
   const elements = stripe.elements()
 
   // Reset state from any previous open
@@ -386,7 +386,7 @@ async function payRazorpay(config) {
     }
   }
   options.modal = { ondismiss: () => { busy.value = false } }
-  const rzp = new window.Razorpay(options)
+  const rzp = new globalThis.Razorpay(options)
   rzp.open()
 }
 

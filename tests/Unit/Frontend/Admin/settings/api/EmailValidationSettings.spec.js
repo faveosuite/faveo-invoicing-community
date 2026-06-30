@@ -24,8 +24,8 @@ describe('EmailValidationSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/email-validation/).reply(200, {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/email-validation/).reply(200, {
             data: {
                 provider: 'reoon',
                 api_key: 'test-key',
@@ -33,7 +33,7 @@ describe('EmailValidationSettings.vue', () => {
                 status_options: [],
             },
         })
-        global.mockHttp.onPost(/\/email-settings-save/).reply(200, { data: { message: 'Saved' } })
+        globalThis.mockHttp.onPost(/\/email-settings-save/).reply(200, { data: { message: 'Saved' } })
         wrapper = mount(EmailValidationSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -48,7 +48,7 @@ describe('EmailValidationSettings.vue', () => {
 
     it('fetches settings on mount via GET /settings/email-validation', async () => {
         await flushPromises()
-        const getCalls = global.mockHttp.history.get.filter(r => /\/settings\/email-validation/.test(r.url))
+        const getCalls = globalThis.mockHttp.history.get.filter(r => /\/settings\/email-validation/.test(r.url))
         expect(getCalls.length).toBeGreaterThan(0)
     })
 
@@ -63,7 +63,7 @@ describe('EmailValidationSettings.vue', () => {
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
-        const postCalls = global.mockHttp.history.post.filter(r => /\/email-settings-save/.test(r.url))
+        const postCalls = globalThis.mockHttp.history.post.filter(r => /\/email-settings-save/.test(r.url))
         expect(postCalls.length).toBeGreaterThan(0)
     })
 
@@ -75,9 +75,9 @@ describe('EmailValidationSettings.vue', () => {
     })
 
     it('calls errorHandler on save failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/email-validation/).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/email-settings-save/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/email-validation/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/email-settings-save/).reply(500)
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
@@ -98,10 +98,10 @@ describe('EmailValidationSettings.vue', () => {
         const { validateForm } = require('@/helpers/formUtils.js')
         validateForm.mockResolvedValueOnce(false)
         await flushPromises()
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         await wrapper.vm.save()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('save sets saving to false after completion', async () => {
@@ -116,10 +116,10 @@ describe('EmailValidationSettings.vue', () => {
         await flushPromises()
         wrapper.vm.form.mode = 'power'
         wrapper.vm.selectedBits = [2, 4]
-        global.mockHttp.onPost(/\/email-settings-save/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/email-settings-save/).reply(200, { data: {} })
         await wrapper.vm.save()
         await flushPromises()
-        const postCall = global.mockHttp.history.post.find(r => r.url.includes('/email-settings-save'))
+        const postCall = globalThis.mockHttp.history.post.find(r => r.url.includes('/email-settings-save'))
         const body = JSON.parse(postCall.data)
         expect(body).toHaveProperty('accepted_output')
         expect(body.accepted_output).toBe(6) // 2 | 4
@@ -128,18 +128,18 @@ describe('EmailValidationSettings.vue', () => {
     it('save does NOT include accepted_output in payload when mode is quick', async () => {
         await flushPromises()
         wrapper.vm.form.mode = 'quick'
-        global.mockHttp.onPost(/\/email-settings-save/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/email-settings-save/).reply(200, { data: {} })
         await wrapper.vm.save()
         await flushPromises()
-        const postCall = global.mockHttp.history.post.find(r => r.url.includes('/email-settings-save'))
+        const postCall = globalThis.mockHttp.history.post.find(r => r.url.includes('/email-settings-save'))
         const body = JSON.parse(postCall.data)
         expect(body).not.toHaveProperty('accepted_output')
     })
 
     // ── mount error path ───────────────────────────────────────────────────
     it('handles GET /settings/email-validation error on mount without throwing', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/email-validation/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/email-validation/).reply(500)
         const w = mount(EmailValidationSettings, {
             global: { plugins: [createTestingPinia()], stubs: STUBS },
         })
@@ -150,8 +150,8 @@ describe('EmailValidationSettings.vue', () => {
 
     // ── statusOptions and selectedBits populated from response ─────────────
     it('populates statusOptions and selectedBits from API response', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/email-validation/).reply(200, {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/email-validation/).reply(200, {
             data: {
                 provider: 'reoon',
                 api_key: 'k',

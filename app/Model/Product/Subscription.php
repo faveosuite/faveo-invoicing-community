@@ -158,19 +158,8 @@ class Subscription extends Model
     //      $date1 = new DateTime($value);
     //     $tz = \Auth::user()->timezone()->first()->name;
     //     $date1->setTimezone(new DateTimeZone($tz));
-    //     $date = $date1->format('M j, Y, g:i a ');
 
-    //     return $date;
-    // }
 
-    //    public function delete() {
-    //
-    //
-    //        $this->Plan()->delete();
-    //
-    //
-    //        return parent::delete();
-    //    }
     #[Override]
     protected function casts(): array
     {

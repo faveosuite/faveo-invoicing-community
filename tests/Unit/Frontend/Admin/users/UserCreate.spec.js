@@ -13,7 +13,7 @@ describe('UserCreate.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onPut(/\/users/).reply(200, { data: { message: 'Created' } })
+        globalThis.mockHttp.onPut(/\/users/).reply(200, { data: { message: 'Created' } })
         wrapper = mount(UserCreate, {
             global: {
                 plugins: [createTestingPinia()],
@@ -44,7 +44,7 @@ describe('UserCreate.vue', () => {
     it('calls PUT /users on submit', async () => {
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.put.some(r => /\/users/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.put.some(r => /\/users/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on successful create', async () => {
@@ -54,8 +54,8 @@ describe('UserCreate.vue', () => {
     })
 
     it('calls errorHandler on create failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onPut(/\/users/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPut(/\/users/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -89,6 +89,6 @@ describe('UserCreate.vue', () => {
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.put.length).toBe(0)
+        expect(globalThis.mockHttp.history.put.length).toBe(0)
     })
 })

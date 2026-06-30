@@ -256,9 +256,9 @@ async function submitLogin() {
     if (redirect) {
       const redirectPath = route.query.redirect
       if (redirectPath) {
-        window.location.href = `${baseUrl}${redirectPath}`
+        globalThis.location.href = `${baseUrl}${redirectPath}`
       } else {
-        window.location.href = redirect
+        globalThis.location.href = redirect
       }
     } else {
       errorHandler({response: {status: 400, data: {message: __('message.something_wrong')}}}, COMPONENT)
@@ -317,7 +317,7 @@ async function submitRegister() {
     successHandler(res, COMPONENT)
     const needVerify = Number(res.data?.data?.need_verify) === 1
     setTimeout(() => {
-      window.location.href = `${baseUrl}/${needVerify ? 'verify' : 'login'}`
+      globalThis.location.href = `${baseUrl}/${needVerify ? 'verify' : 'login'}`
     }, 1200)
   } catch (e) {
     if (e?.response?.data?.data?.show_v2_recaptcha) {

@@ -23,11 +23,11 @@ describe('MobileValidationSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/mobile-validation/).reply(200, {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/mobile-validation/).reply(200, {
             data: { provider: 'vonage', api_key: 'key123', api_secret: 'secret', mode: 'basic' },
         })
-        global.mockHttp.onPost(/\/mobile-settings-save/).reply(200, { data: { message: 'Saved' } })
+        globalThis.mockHttp.onPost(/\/mobile-settings-save/).reply(200, { data: { message: 'Saved' } })
         wrapper = mount(MobileValidationSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -42,7 +42,7 @@ describe('MobileValidationSettings.vue', () => {
 
     it('fetches settings on mount via GET /settings/mobile-validation', async () => {
         await flushPromises()
-        const getCalls = global.mockHttp.history.get.filter(r => /\/settings\/mobile-validation/.test(r.url))
+        const getCalls = globalThis.mockHttp.history.get.filter(r => /\/settings\/mobile-validation/.test(r.url))
         expect(getCalls.length).toBeGreaterThan(0)
     })
 
@@ -56,7 +56,7 @@ describe('MobileValidationSettings.vue', () => {
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
-        const postCalls = global.mockHttp.history.post.filter(r => /\/mobile-settings-save/.test(r.url))
+        const postCalls = globalThis.mockHttp.history.post.filter(r => /\/mobile-settings-save/.test(r.url))
         expect(postCalls.length).toBeGreaterThan(0)
     })
 
@@ -68,9 +68,9 @@ describe('MobileValidationSettings.vue', () => {
     })
 
     it('calls errorHandler on save failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/mobile-validation/).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/mobile-settings-save/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/mobile-validation/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/mobile-settings-save/).reply(500)
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()

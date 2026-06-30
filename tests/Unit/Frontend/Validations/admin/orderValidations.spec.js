@@ -17,7 +17,7 @@ describe('licenseDetailsSchema', () => {
     })
 
     it('fails when limit is missing', async () => {
-        const { limit: _o, ...rest } = valid
+        const { limit: _o, ...rest } = valid // NOSONAR
         await expect(licenseDetailsSchema.validate(rest)).rejects.toThrow()
     })
 

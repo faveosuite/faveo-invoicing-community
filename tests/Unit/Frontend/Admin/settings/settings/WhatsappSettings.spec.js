@@ -12,10 +12,10 @@ describe('WhatsappSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/whatsapp-integration-info/).reply(200, {
+        globalThis.mockHttp.onGet(/\/whatsapp-integration-info/).reply(200, {
             data: { app_id: 'aid123', app_secret: 'asecret', config_id: 'cid', verify_token: 'vtoken' },
         })
-        global.mockHttp.onPost(/\/whatsapp-integration-save/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/whatsapp-integration-save/).reply(200, { data: {} })
         wrapper = mount(WhatsappSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -30,15 +30,15 @@ describe('WhatsappSettings.vue', () => {
 
     it('fetches whatsapp settings on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/whatsapp-integration-info/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/whatsapp-integration-info/)
     })
 
     it('calls POST whatsapp-integration-save on save', async () => {
         await flushPromises()
         wrapper.vm.save()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('whatsapp-integration-save'))).toBeTruthy()
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('whatsapp-integration-save'))).toBeTruthy()
     })
 
     it('calls successHandler after successful save', async () => {

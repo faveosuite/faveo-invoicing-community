@@ -79,7 +79,7 @@ class BaseRenewController extends Controller
                 $agents = $item->agents;
             }
 
-            return $this->generateInvoice($product, $user, $orderid, $planid, $cost, $code = '', $agents, $currency);
+            return $this->generateInvoice($product, $user, $orderid, $planid, $cost, '' , $agents, $currency);
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -148,7 +148,7 @@ class BaseRenewController extends Controller
         try {
             $controller = new InvoiceController;
             if ($code !== '') {
-                $product_cost = $controller->checkCode($code, $product->id, $currency); // @phpstan-ignore method.notFound
+                $controller->checkCode($code, $product->id, $currency); // @phpstan-ignore method.notFound
             }
 
             //            if (!empty($agents) && in_array($product->id, cloudPopupProducts())) {
@@ -174,7 +174,7 @@ class BaseRenewController extends Controller
             ]);
             $renewController = new RenewController;
             $renewController->createOrderInvoiceRelation($orderid, $invoice->id);
-            $items = $controller->createInvoiceItemsByAdmin($invoice->id, (string) $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, (float) $tax_rate, $renewalPrice);
+            $items = $controller->createInvoiceItemsByAdmin($invoice->id, (string) $product->id, $renewalPrice, $currency, 1, $agents, $planid, $user->id, $tax_name, (float) $tax_rate, $renewalPrice);
             if (in_array($product->id, cloudPopupProducts())) {
                 $license_code = Order::where('id', $orderid)->value('serial_key');
                 $installation_path = Installation::where('license_code', Order::find($orderid)?->serial_key)

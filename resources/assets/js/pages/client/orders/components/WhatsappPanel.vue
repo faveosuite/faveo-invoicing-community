@@ -183,9 +183,9 @@ let fbToken = null
 
 function loadFbSdk(appId) {
     return new Promise((resolve) => {
-        if (window.FB) { resolve(); return }
-        window.fbAsyncInit = function () {
-            window.FB.init({ appId, autoLogAppEvents: true, xfbml: true, version: 'v24.0' })
+        if (globalThis.FB) { resolve(); return }
+        globalThis.fbAsyncInit = function () {
+            globalThis.FB.init({ appId, autoLogAppEvents: true, xfbml: true, version: 'v24.0' })
             resolve()
         }
         if (document.getElementById('facebook-jssdk')) { resolve(); return }
@@ -221,7 +221,7 @@ async function launchWhatsAppSignup() {
     fbData = null
     fbToken = null
     await loadFbSdk(props.order.whatsapp_app_id)
-    window.FB.login(fbLoginCallback, {
+    globalThis.FB.login(fbLoginCallback, {
         config_id: props.order.whatsapp_config_id,
         response_type: 'code',
         override_default_response_type: true,

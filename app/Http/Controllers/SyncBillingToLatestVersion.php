@@ -31,7 +31,6 @@ class SyncBillingToLatestVersion
                 $this->updateToLatestVersion($latestVersion, $olderVersion);
             }
 
-            // Setting::first()->update(['version'=> 'v'.$latestVersion]);
             DB::table('settings')->update(['version' => 'v'.$latestVersion]);
 
             $this->cacheDbVersion();

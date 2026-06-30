@@ -94,7 +94,6 @@ class PaymentSettingsController extends Controller
 
             foreach ($plugins as $plugin) {
                 $dir = $plugin['file'];
-                // opendir($dir);
                 if ($dh = opendir($dir)) {
                     while (($file = readdir($dh)) !== false) {
                         if ($file === 'config.php') {

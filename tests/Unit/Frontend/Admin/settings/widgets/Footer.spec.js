@@ -39,12 +39,12 @@ describe('Footer.vue', () => {
     }
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/widgets\/list/).reply(200, widgetListResponse)
-        global.mockHttp.onGet(/\/widgets\/show\/1/).reply(200, widgetDetailResponse)
-        global.mockHttp.onGet(/\/widgets\/show\/2/).reply(200, widgetDetailResponse)
-        global.mockHttp.onGet(/\/widgets\/show\/3/).reply(200, widgetDetailResponse)
-        global.mockHttp.onPut(/\/widgets\/update\//).reply(200, { message: 'Saved' })
-        global.mockHttp.onPost(/\/widgets\/create/).reply(200, { data: { id: 10 }, message: 'Created' })
+        globalThis.mockHttp.onGet(/\/widgets\/list/).reply(200, widgetListResponse)
+        globalThis.mockHttp.onGet(/\/widgets\/show\/1/).reply(200, widgetDetailResponse)
+        globalThis.mockHttp.onGet(/\/widgets\/show\/2/).reply(200, widgetDetailResponse)
+        globalThis.mockHttp.onGet(/\/widgets\/show\/3/).reply(200, widgetDetailResponse)
+        globalThis.mockHttp.onPut(/\/widgets\/update\//).reply(200, { message: 'Saved' })
+        globalThis.mockHttp.onPost(/\/widgets\/create/).reply(200, { data: { id: 10 }, message: 'Created' })
 
         wrapper = mount(Footer, {
             global: {
@@ -60,14 +60,14 @@ describe('Footer.vue', () => {
 
     it('fetches widget list on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/widgets\/list/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/widgets\/list/)
     })
 
     it('fetches widget details for each footer type after list loads', async () => {
         // sequential async loop — each iteration needs its own flush
         for (let i = 0; i < 5; i++) await flushPromises()
-        const detailCalls = global.mockHttp.history.get.filter(r => r.url.includes('/widgets/show/'))
+        const detailCalls = globalThis.mockHttp.history.get.filter(r => r.url.includes('/widgets/show/'))
         expect(detailCalls.length).toBe(3)
     })
 
@@ -77,7 +77,7 @@ describe('Footer.vue', () => {
     })
 
     it('calls errorHandler on fetch failure', async () => {
-        global.mockHttp.onGet(/\/widgets\/list/).reply(500)
+        globalThis.mockHttp.onGet(/\/widgets\/list/).reply(500)
         const w = mount(Footer, {
             global: {
                 plugins: [createTestingPinia()],
@@ -93,8 +93,8 @@ describe('Footer.vue', () => {
         await flushPromises()
         await wrapper.vm.save('footer1')
         await flushPromises()
-        expect(global.mockHttp.history.put.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.put[0].url).toMatch(/\/widgets\/update\/1/)
+        expect(globalThis.mockHttp.history.put.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.put[0].url).toMatch(/\/widgets\/update\/1/)
     })
 
     it('calls successHandler on successful save', async () => {
@@ -105,7 +105,7 @@ describe('Footer.vue', () => {
     })
 
     it('calls errorHandler on save failure', async () => {
-        global.mockHttp.onPut(/\/widgets\/update\//).reply(500)
+        globalThis.mockHttp.onPut(/\/widgets\/update\//).reply(500)
         await flushPromises()
         await wrapper.vm.save('footer1')
         await flushPromises()
@@ -116,10 +116,10 @@ describe('Footer.vue', () => {
         const { validateForm } = require('@/helpers/formUtils.js')
         validateForm.mockResolvedValueOnce(false)
         await flushPromises()
-        const putCountBefore = global.mockHttp.history.put.length
+        const putCountBefore = globalThis.mockHttp.history.put.length
         await wrapper.vm.save('footer1')
         await flushPromises()
-        expect(global.mockHttp.history.put.length).toBe(putCountBefore)
+        expect(globalThis.mockHttp.history.put.length).toBe(putCountBefore)
     })
 
     it('initializes with footer1 as active tab', () => {

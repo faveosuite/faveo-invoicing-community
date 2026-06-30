@@ -11,7 +11,7 @@ describe('MSG91Reports.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/getMsgFilters/).reply(200, {
+        globalThis.mockHttp.onGet(/\/getMsgFilters/).reply(200, {
             data: { statuses: [], sources: [], actions: [] },
         })
 

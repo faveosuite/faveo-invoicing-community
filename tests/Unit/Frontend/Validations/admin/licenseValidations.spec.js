@@ -25,7 +25,7 @@ describe('licenseSchema', () => {
     })
 
     it('fails when product is missing', async () => {
-        const { product: _o, ...rest } = valid
+        const { product: _o, ...rest } = valid // NOSONAR
         await expect(licenseSchema.validate(rest)).rejects.toThrow()
     })
 

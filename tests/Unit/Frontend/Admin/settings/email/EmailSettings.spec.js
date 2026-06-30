@@ -16,14 +16,14 @@ describe('EmailSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/settings\/email/).reply(200, {
+        globalThis.mockHttp.onGet(/\/settings\/email/).reply(200, {
             data: {
                 driver: 'smtp', email: 'test@example.com', from_name: 'Test',
                 host: 'smtp.example.com', port: '587', encryption: 'tls',
                 secret: '', domain: '', key: '', region: '',
             },
         })
-        global.mockHttp.onPatch(/\/settings\/email/).reply(200, { message: 'Saved' })
+        globalThis.mockHttp.onPatch(/\/settings\/email/).reply(200, { message: 'Saved' })
 
         wrapper = mount(EmailSettings, {
             global: {
@@ -42,12 +42,12 @@ describe('EmailSettings.vue', () => {
 
     it('fetches email settings on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/settings\/email/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/settings\/email/)
     })
 
     it('handles 500 error on fetch', async () => {
-        global.mockHttp.onGet(/\/settings\/email/).reply(500)
+        globalThis.mockHttp.onGet(/\/settings\/email/).reply(500)
         const w = mount(EmailSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -67,8 +67,8 @@ describe('EmailSettings.vue', () => {
         await wrapper.vm.submit()
         await flushPromises()
 
-        expect(global.mockHttp.history.patch.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.patch[0].url).toMatch(/\/settings\/email/)
+        expect(globalThis.mockHttp.history.patch.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.patch[0].url).toMatch(/\/settings\/email/)
     })
 
     it('calls successHandler after successful submit', async () => {

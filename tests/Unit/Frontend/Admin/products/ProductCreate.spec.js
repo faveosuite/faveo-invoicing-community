@@ -24,10 +24,10 @@ describe('ProductCreate.vue', () => {
     beforeEach(() => {
         jest.useFakeTimers()
 
-        global.mockHttp.onGet(/\/dependency\/tax-classes/).reply(200, {
+        globalThis.mockHttp.onGet(/\/dependency\/tax-classes/).reply(200, {
             data: { tax_classes: [{ id: 1, name: 'Standard' }] },
         })
-        global.mockHttp.onPut(/\/product$/).reply(201, { data: { id: 1 } })
+        globalThis.mockHttp.onPut(/\/product$/).reply(201, { data: { id: 1 } })
 
         wrapper = mount(ProductCreate, {
             global: {
@@ -38,7 +38,7 @@ describe('ProductCreate.vue', () => {
     })
 
     afterEach(() => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
         jest.useRealTimers()
     })
@@ -55,7 +55,7 @@ describe('ProductCreate.vue', () => {
     it('fetches tax-classes on mount', async () => {
         await flushPromises()
         expect(
-            global.mockHttp.history.get.some(r => /\/dependency\/tax-classes/.test(r.url))
+            globalThis.mockHttp.history.get.some(r => /\/dependency\/tax-classes/.test(r.url))
         ).toBe(true)
     })
 
@@ -64,7 +64,7 @@ describe('ProductCreate.vue', () => {
         await wrapper.vm.submit()
         await flushPromises()
         expect(
-            global.mockHttp.history.put.some(r => /\/product$/.test(r.url))
+            globalThis.mockHttp.history.put.some(r => /\/product$/.test(r.url))
         ).toBe(true)
     })
 
@@ -77,8 +77,8 @@ describe('ProductCreate.vue', () => {
 
     it('calls errorHandler on 500 error', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPut(/\/product$/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPut(/\/product$/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()

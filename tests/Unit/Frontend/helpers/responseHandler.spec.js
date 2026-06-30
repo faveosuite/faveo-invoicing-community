@@ -80,10 +80,10 @@ describe('errorHandler', () => {
 
     it('redirects via router to /404 on a 404 response', () => {
         const push = jest.fn()
-        window.__router = { push }
+        globalThis.__router = { push }
         errorHandler(makeErr(404))
         expect(push).toHaveBeenCalledWith('/404')
-        delete window.__router
+        delete globalThis.__router
     })
 
     it('sets a danger alert for unknown status codes with message', () => {

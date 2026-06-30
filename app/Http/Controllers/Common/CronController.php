@@ -236,7 +236,7 @@ class CronController extends BaseCronController
             $day = (int) $day;
 
             // Calculate the start and end dates
-            $startDate = Date::now()->toDateString();
+
             $endDate = Date::now()->addDays($day)->toDateString();
 
             $subscriptionsForDay = Subscription::where(function (Builder $query) use ($endDate): void {

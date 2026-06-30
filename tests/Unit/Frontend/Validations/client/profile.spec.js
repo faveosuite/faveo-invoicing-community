@@ -20,7 +20,7 @@ describe('profileSchema', () => {
     })
 
     it('fails when first_name is missing', async () => {
-        const { first_name: _o, ...rest } = valid
+        const { first_name: _o, ...rest } = valid // NOSONAR
         await expect(profileSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -69,7 +69,7 @@ describe('passwordChangeSchema', () => {
     })
 
     it('fails when current_password is missing', async () => {
-        const { current_password: _o, ...rest } = valid
+        const { current_password: _o, ...rest } = valid // NOSONAR
         await expect(passwordChangeSchema.validate(rest)).rejects.toThrow()
     })
 

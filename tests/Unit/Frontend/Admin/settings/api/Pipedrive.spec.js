@@ -23,15 +23,15 @@ describe('Pipedrive.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/pipedrive/).reply(200, {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/pipedrive/).reply(200, {
             data: {
                 pipedrive_key: 'pd-key',
                 require_pipedrive_user_verification: false,
                 groups: {},
             },
         })
-        global.mockHttp.onPost(/\/updatepipedriveDetails/).reply(200, { data: { message: 'Connected' } })
+        globalThis.mockHttp.onPost(/\/updatepipedriveDetails/).reply(200, { data: { message: 'Connected' } })
         wrapper = mount(Pipedrive, {
             global: {
                 plugins: [createTestingPinia()],
@@ -46,7 +46,7 @@ describe('Pipedrive.vue', () => {
 
     it('fetches settings on mount via GET /settings/pipedrive', async () => {
         await flushPromises()
-        const getCalls = global.mockHttp.history.get.filter(r => /\/settings\/pipedrive/.test(r.url))
+        const getCalls = globalThis.mockHttp.history.get.filter(r => /\/settings\/pipedrive/.test(r.url))
         expect(getCalls.length).toBeGreaterThan(0)
     })
 
@@ -64,7 +64,7 @@ describe('Pipedrive.vue', () => {
         await flushPromises()
         await wrapper.vm.connect()
         await flushPromises()
-        const postCalls = global.mockHttp.history.post.filter(r => /\/updatepipedriveDetails/.test(r.url))
+        const postCalls = globalThis.mockHttp.history.post.filter(r => /\/updatepipedriveDetails/.test(r.url))
         expect(postCalls.length).toBeGreaterThan(0)
     })
 
@@ -76,9 +76,9 @@ describe('Pipedrive.vue', () => {
     })
 
     it('calls errorHandler on connect failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/pipedrive/).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/updatepipedriveDetails/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/pipedrive/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/updatepipedriveDetails/).reply(500)
         await flushPromises()
         await wrapper.vm.connect()
         await flushPromises()
@@ -92,8 +92,8 @@ describe('Pipedrive.vue', () => {
 
     // ── mount error path ───────────────────────────────────────────────────
     it('handles GET /settings/pipedrive error on mount without throwing', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/pipedrive/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/pipedrive/).reply(500)
         const w = mount(Pipedrive, {
             global: { plugins: [createTestingPinia()], stubs: STUBS },
         })
@@ -105,16 +105,16 @@ describe('Pipedrive.vue', () => {
     // ── saveSettings ────────────────────────────────────────────────────────
     it('saveSettings sends PATCH /settings/pipedrive', async () => {
         await flushPromises()
-        global.mockHttp.onPatch(/\/settings\/pipedrive/).reply(200, { data: { message: 'Saved' } })
+        globalThis.mockHttp.onPatch(/\/settings\/pipedrive/).reply(200, { data: { message: 'Saved' } })
         await wrapper.vm.saveSettings()
         await flushPromises()
-        const patchCalls = global.mockHttp.history.patch.filter(r => /\/settings\/pipedrive/.test(r.url))
+        const patchCalls = globalThis.mockHttp.history.patch.filter(r => /\/settings\/pipedrive/.test(r.url))
         expect(patchCalls.length).toBeGreaterThan(0)
     })
 
     it('saveSettings calls successHandler on success', async () => {
         await flushPromises()
-        global.mockHttp.onPatch(/\/settings\/pipedrive/).reply(200, { data: {} })
+        globalThis.mockHttp.onPatch(/\/settings\/pipedrive/).reply(200, { data: {} })
         successHandler.mockClear()
         await wrapper.vm.saveSettings()
         await flushPromises()
@@ -123,13 +123,13 @@ describe('Pipedrive.vue', () => {
 
     it('saveSettings handles 500 error without throwing', async () => {
         await flushPromises()
-        global.mockHttp.onPatch(/\/settings\/pipedrive/).reply(500)
+        globalThis.mockHttp.onPatch(/\/settings\/pipedrive/).reply(500)
         await expect(wrapper.vm.saveSettings()).resolves.not.toThrow()
     })
 
     it('saveSettings sets savingSettings to false after completion', async () => {
         await flushPromises()
-        global.mockHttp.onPatch(/\/settings\/pipedrive/).reply(200, { data: {} })
+        globalThis.mockHttp.onPatch(/\/settings\/pipedrive/).reply(200, { data: {} })
         await wrapper.vm.saveSettings()
         await flushPromises()
         expect(wrapper.vm.savingSettings).toBe(false)
@@ -138,27 +138,27 @@ describe('Pipedrive.vue', () => {
     // ── loadMappingForGroup early-return guard ─────────────────────────────
     it('loadMappingForGroup does nothing when groupId is null/falsy', async () => {
         await flushPromises()
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         await wrapper.vm.loadMappingForGroup(null)
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBe(0)
+        expect(globalThis.mockHttp.history.get.length).toBe(0)
     })
 
     it('loadMappingForGroup fetches mapping for a given groupId', async () => {
         await flushPromises()
-        global.mockHttp.onGet(/\/pipedrive\/mapping\/42/).reply(200, {
+        globalThis.mockHttp.onGet(/\/pipedrive\/mapping\/42/).reply(200, {
             data: { pipedriveData: { pipedrive_fields: [], local_fields: [] } },
         })
         await wrapper.vm.loadMappingForGroup(42)
         await flushPromises()
         expect(
-            global.mockHttp.history.get.some(r => r.url.includes('/pipedrive/mapping/42'))
+            globalThis.mockHttp.history.get.some(r => r.url.includes('/pipedrive/mapping/42'))
         ).toBe(true)
     })
 
     it('loadMappingForGroup handles 500 error without throwing', async () => {
         await flushPromises()
-        global.mockHttp.onGet(/\/pipedrive\/mapping\/99/).reply(500)
+        globalThis.mockHttp.onGet(/\/pipedrive\/mapping\/99/).reply(500)
         await expect(wrapper.vm.loadMappingForGroup(99)).resolves.not.toThrow()
     })
 
@@ -166,15 +166,15 @@ describe('Pipedrive.vue', () => {
     it('switchGroup does nothing when same group is already active (early return)', async () => {
         await flushPromises()
         const current = wrapper.vm.activeGroupId
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         await wrapper.vm.switchGroup(current)
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBe(0)
+        expect(globalThis.mockHttp.history.get.length).toBe(0)
     })
 
     it('switchGroup changes activeGroupId and loads mapping for new group', async () => {
         await flushPromises()
-        global.mockHttp.onGet(/\/pipedrive\/mapping\/55/).reply(200, {
+        globalThis.mockHttp.onGet(/\/pipedrive\/mapping\/55/).reply(200, {
             data: { pipedriveData: { pipedrive_fields: [], local_fields: [] } },
         })
         wrapper.vm.activeGroupId = 10 // set a different starting value
@@ -186,27 +186,27 @@ describe('Pipedrive.vue', () => {
     // ── syncFields ─────────────────────────────────────────────────────────
     it('syncFields calls GET /syncing/pipedriveFields', async () => {
         await flushPromises()
-        global.mockHttp.onGet(/\/syncing\/pipedriveFields/).reply(200, { data: {} })
-        global.mockHttp.onGet(/\/pipedrive\/mapping\//).reply(200, {
+        globalThis.mockHttp.onGet(/\/syncing\/pipedriveFields/).reply(200, { data: {} })
+        globalThis.mockHttp.onGet(/\/pipedrive\/mapping\//).reply(200, {
             data: { pipedriveData: { pipedrive_fields: [], local_fields: [] } },
         })
         await wrapper.vm.syncFields()
         await flushPromises()
         expect(
-            global.mockHttp.history.get.some(r => r.url.includes('/syncing/pipedriveFields'))
+            globalThis.mockHttp.history.get.some(r => r.url.includes('/syncing/pipedriveFields'))
         ).toBe(true)
     })
 
     it('syncFields handles 500 error without throwing', async () => {
         await flushPromises()
-        global.mockHttp.onGet(/\/syncing\/pipedriveFields/).reply(500)
+        globalThis.mockHttp.onGet(/\/syncing\/pipedriveFields/).reply(500)
         await expect(wrapper.vm.syncFields()).resolves.not.toThrow()
     })
 
     it('syncFields sets syncing to false after completion', async () => {
         await flushPromises()
-        global.mockHttp.onGet(/\/syncing\/pipedriveFields/).reply(200, { data: {} })
-        global.mockHttp.onGet(/\/pipedrive\/mapping\//).reply(200, {
+        globalThis.mockHttp.onGet(/\/syncing\/pipedriveFields/).reply(200, { data: {} })
+        globalThis.mockHttp.onGet(/\/pipedrive\/mapping\//).reply(200, {
             data: { pipedriveData: { pipedrive_fields: [], local_fields: [] } },
         })
         await wrapper.vm.syncFields()
@@ -232,11 +232,11 @@ describe('Pipedrive.vue', () => {
             faveoField: { id: 2 },
             isFaveoField: true,
         }]
-        global.mockHttp.onPost(/\/sync\/pipedrive/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/sync\/pipedrive/).reply(200, { data: {} })
         await wrapper.vm.saveMapping()
         await flushPromises()
         expect(
-            global.mockHttp.history.post.some(r => r.url.includes('/sync/pipedrive'))
+            globalThis.mockHttp.history.post.some(r => r.url.includes('/sync/pipedrive'))
         ).toBe(true)
     })
 
@@ -247,7 +247,7 @@ describe('Pipedrive.vue', () => {
             faveoField: { id: 2 },
             isFaveoField: false,
         }]
-        global.mockHttp.onPost(/\/sync\/pipedrive/).reply(500)
+        globalThis.mockHttp.onPost(/\/sync\/pipedrive/).reply(500)
         await expect(wrapper.vm.saveMapping()).resolves.not.toThrow()
     })
 
@@ -297,7 +297,7 @@ describe('Pipedrive.vue', () => {
 
     it('onPipedriveChange fetches dropdown options when val is set', async () => {
         await flushPromises()
-        global.mockHttp.onPost(/\/pipedrive\/get-dropdown/).reply(200, {
+        globalThis.mockHttp.onPost(/\/pipedrive\/get-dropdown/).reply(200, {
             data: { options: [{ id: 'opt1', value: 'Option 1' }], is_faveo_options: false },
         })
         wrapper.vm.rows = [{
@@ -309,13 +309,13 @@ describe('Pipedrive.vue', () => {
         await wrapper.vm.onPipedriveChange(0, { id: 99 })
         await flushPromises()
         expect(
-            global.mockHttp.history.post.some(r => r.url.includes('/pipedrive/get-dropdown'))
+            globalThis.mockHttp.history.post.some(r => r.url.includes('/pipedrive/get-dropdown'))
         ).toBe(true)
     })
 
     it('onPipedriveChange falls back to localOptions on dropdown fetch error', async () => {
         await flushPromises()
-        global.mockHttp.onPost(/\/pipedrive\/get-dropdown/).reply(500)
+        globalThis.mockHttp.onPost(/\/pipedrive\/get-dropdown/).reply(500)
         wrapper.vm.localOptions = [{ id: 'fallback', name: 'Fallback' }]
         wrapper.vm.rows = [{
             pipedriveField: null,
@@ -333,16 +333,16 @@ describe('Pipedrive.vue', () => {
         const { apiKeySchema } = require('@/validations/admin/pipedriveValidations')
         apiKeySchema.validate.mockRejectedValueOnce(new Error('API key required'))
         await flushPromises()
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         await wrapper.vm.connect()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     // ── connect sets connectionStatus to failed on error ───────────────────
     it('connect sets connectionStatus to failed on 500 error', async () => {
         await flushPromises()
-        global.mockHttp.onPost(/\/updatepipedriveDetails/).reply(500)
+        globalThis.mockHttp.onPost(/\/updatepipedriveDetails/).reply(500)
         await wrapper.vm.connect()
         await flushPromises()
         expect(wrapper.vm.connectionStatus).toBe('failed')

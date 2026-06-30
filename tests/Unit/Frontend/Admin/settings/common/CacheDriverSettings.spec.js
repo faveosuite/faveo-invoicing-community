@@ -28,8 +28,8 @@ describe('CacheDriverSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/cache-settings\//).reply(200, FORM_RESPONSE)
-        global.mockHttp.onPost(/\/cache-settings\//).reply(200, { data: {} })
+        globalThis.mockHttp.onGet(/\/cache-settings\//).reply(200, FORM_RESPONSE)
+        globalThis.mockHttp.onPost(/\/cache-settings\//).reply(200, { data: {} })
         wrapper = mount(CacheDriverSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -44,7 +44,7 @@ describe('CacheDriverSettings.vue', () => {
 
     afterEach(() => {
         wrapper.unmount()
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -55,7 +55,7 @@ describe('CacheDriverSettings.vue', () => {
     it('calls GET /cache-settings/:driver/form on mount', async () => {
         await flushPromises()
         expect(
-            global.mockHttp.history.get.some(r => /\/cache-settings\//.test(r.url))
+            globalThis.mockHttp.history.get.some(r => /\/cache-settings\//.test(r.url))
         ).toBe(true)
     })
 
@@ -76,7 +76,7 @@ describe('CacheDriverSettings.vue', () => {
         await wrapper.vm.save()
         await flushPromises()
         expect(
-            global.mockHttp.history.post.some(r => /\/cache-settings\//.test(r.url))
+            globalThis.mockHttp.history.post.some(r => /\/cache-settings\//.test(r.url))
         ).toBe(true)
     })
 
@@ -93,8 +93,8 @@ describe('CacheDriverSettings.vue', () => {
     })
 
     it('calls errorHandler when form load fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/cache-settings\//).reply(500, { message: 'Server error' })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/cache-settings\//).reply(500, { message: 'Server error' })
         const w = mount(CacheDriverSettings, {
             global: {
                 plugins: [createTestingPinia()],

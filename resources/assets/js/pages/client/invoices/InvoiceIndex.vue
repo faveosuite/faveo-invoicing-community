@@ -116,7 +116,7 @@ async function doDelete() {
     const res = await http.delete(`${baseUrl}/my-invoice/${deleteTarget.value.id}`)
     successHandler(res, COMPONENT)
     deleteTarget.value = null
-    window.emitter?.emit('refreshData')
+    globalThis.emitter?.emit('refreshData')
   } catch (e) { errorHandler(e, COMPONENT) }
   finally { deleteLoading.value = false }
 }

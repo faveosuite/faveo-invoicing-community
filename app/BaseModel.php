@@ -36,14 +36,13 @@ class BaseModel extends Model
     #[Override]
     public function setAttribute($property, $value): void
     {
-        // require_once base_path('vendor'.DIRECTORY_SEPARATOR.'htmlpurifier'
         //     .DIRECTORY_SEPARATOR.'library'.DIRECTORY_SEPARATOR.'HTMLPurifier.auto.php');
         $path = base_path('vendor'.DIRECTORY_SEPARATOR.'htmlpurifier'
             .DIRECTORY_SEPARATOR.'library'.DIRECTORY_SEPARATOR.
             'HTMLPurifier'.DIRECTORY_SEPARATOR.'DefinitionCache'
             .DIRECTORY_SEPARATOR.'Serializer');
         if (! File::exists($path)) {
-            File::makeDirectory($path, $mode = 0777, true, true);
+            File::makeDirectory($path, 0777, true, true);
         }
 
         $config = HTMLPurifier_Config::createDefault();

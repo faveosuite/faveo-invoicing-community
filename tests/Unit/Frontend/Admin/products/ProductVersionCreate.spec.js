@@ -18,8 +18,8 @@ describe('ProductVersionCreate.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onPost(/\/chunkupload/).reply(200, { name: 'uploaded-file.zip' })
-        global.mockHttp.onPut(/\/product\/upload\/42/).reply(200, { data: { message: 'Created' } })
+        globalThis.mockHttp.onPost(/\/chunkupload/).reply(200, { name: 'uploaded-file.zip' })
+        globalThis.mockHttp.onPut(/\/product\/upload\/42/).reply(200, { data: { message: 'Created' } })
 
         wrapper = mount(ProductVersionCreate, {
             global: {
@@ -30,7 +30,7 @@ describe('ProductVersionCreate.vue', () => {
     })
 
     afterEach(() => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -58,7 +58,7 @@ describe('ProductVersionCreate.vue', () => {
     it('submit does not call PUT when required fields are missing', async () => {
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.put.length).toBe(0)
+        expect(globalThis.mockHttp.history.put.length).toBe(0)
     })
 
     it('submit sets errors when title and version are empty', async () => {

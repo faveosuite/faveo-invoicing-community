@@ -48,7 +48,6 @@ class ProductCategory extends Model
 
     public function getDescriptionForEvent(string $eventName): string
     {
-        // dd(Activity::where('subject_id',)->pluck('subject_id'));
         if ($eventName === 'created') {
             return 'Product Category'.$this->name.' was created'; // @phpstan-ignore property.notFound
         }
@@ -63,7 +62,6 @@ class ProductCategory extends Model
 
         return '';
 
-        // return "Product  has been {$eventName}";
         // \Auth::user()->activity;
     }
 

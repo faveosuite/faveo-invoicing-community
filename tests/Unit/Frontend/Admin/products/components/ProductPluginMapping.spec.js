@@ -24,8 +24,8 @@ describe('ProductPluginMapping.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/product\/1\/plugins/).reply(200, pluginData.data)
-        global.mockHttp.onPost(/\/product\/1\/plugins/).reply(200, { data: { message: 'Saved' } })
+        globalThis.mockHttp.onGet(/\/product\/1\/plugins/).reply(200, pluginData.data)
+        globalThis.mockHttp.onPost(/\/product\/1\/plugins/).reply(200, { data: { message: 'Saved' } })
         wrapper = mount(ProductPluginMapping, {
             props: {
                 productId: 1,
@@ -44,7 +44,7 @@ describe('ProductPluginMapping.vue', () => {
 
     it('fetches plugins on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/product\/1\/plugins/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/product\/1\/plugins/.test(r.url))).toBe(true)
     })
 
     it('populates allPlugins after fetch', async () => {
@@ -58,8 +58,8 @@ describe('ProductPluginMapping.vue', () => {
     })
 
     it('calls errorHandler on fetch failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/product\/1\/plugins/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/product\/1\/plugins/).reply(500)
         wrapper = mount(ProductPluginMapping, {
             props: { productId: 1, baseUrl: '' },
             global: {
@@ -75,7 +75,7 @@ describe('ProductPluginMapping.vue', () => {
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/product\/1\/plugins/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/product\/1\/plugins/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on successful save', async () => {
@@ -87,8 +87,8 @@ describe('ProductPluginMapping.vue', () => {
 
     it('calls errorHandler on save failure', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/product\/1\/plugins/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/product\/1\/plugins/).reply(500)
         await wrapper.vm.save()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()

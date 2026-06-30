@@ -5,8 +5,6 @@ declare(strict_types=1);
 use App\Policies\Csp\CspPolicy;
 use Spatie\Csp\Nonce\RandomString;
 
-// use Spatie\Csp\Directive;
-// use Spatie\Csp\Keyword;
 return [
 
     /*

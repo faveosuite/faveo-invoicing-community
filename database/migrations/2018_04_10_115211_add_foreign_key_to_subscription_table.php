@@ -9,9 +9,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Schema::table('subscriptions', function (Blueprint $table) {
-        //     $table->foreign('product_id')->references('id')->on('products');
-        // });
     }
 
     /**
@@ -19,6 +16,5 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // $table->dropForeign('subscriptions_product_id_foreign');
     }
 };

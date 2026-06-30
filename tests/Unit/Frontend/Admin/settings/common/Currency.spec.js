@@ -11,10 +11,10 @@ describe('Currency.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/currency\/list/).reply(200, { data: [] })
-        global.mockHttp.onPost(/\/currency\/update-currency/).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/currency\/default-currency\//).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/currency\/dashboard-currency\//).reply(200, { data: {} })
+        globalThis.mockHttp.onGet(/\/currency\/list/).reply(200, { data: [] })
+        globalThis.mockHttp.onPost(/\/currency\/update-currency/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/currency\/default-currency\//).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/currency\/dashboard-currency\//).reply(200, { data: {} })
         wrapper = mount(Currency, {
             global: {
                 plugins: [createTestingPinia()],
@@ -29,7 +29,7 @@ describe('Currency.vue', () => {
 
     afterEach(() => {
         wrapper.unmount()
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -54,7 +54,7 @@ describe('Currency.vue', () => {
         await wrapper.vm.toggleStatus({ id: 1, is_active: 1 })
         await flushPromises()
         expect(
-            global.mockHttp.history.post.some(r => r.url.includes('/currency/update-currency'))
+            globalThis.mockHttp.history.post.some(r => r.url.includes('/currency/update-currency'))
         ).toBe(true)
     })
 
@@ -63,7 +63,7 @@ describe('Currency.vue', () => {
         await wrapper.vm.setDefault(1)
         await flushPromises()
         expect(
-            global.mockHttp.history.post.some(r => /\/currency\/default-currency\//.test(r.url))
+            globalThis.mockHttp.history.post.some(r => /\/currency\/default-currency\//.test(r.url))
         ).toBe(true)
     })
 
@@ -72,7 +72,7 @@ describe('Currency.vue', () => {
         await wrapper.vm.setDashboard(2)
         await flushPromises()
         expect(
-            global.mockHttp.history.post.some(r => /\/currency\/dashboard-currency\//.test(r.url))
+            globalThis.mockHttp.history.post.some(r => /\/currency\/dashboard-currency\//.test(r.url))
         ).toBe(true)
     })
 
@@ -91,8 +91,8 @@ describe('Currency.vue', () => {
     })
 
     it('calls errorHandler when toggleStatus fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/currency\/update-currency/).reply(500, { message: 'Server error' })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/currency\/update-currency/).reply(500, { message: 'Server error' })
         await wrapper.vm.toggleStatus({ id: 1, is_active: 1 })
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()

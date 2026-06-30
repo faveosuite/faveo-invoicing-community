@@ -20,7 +20,7 @@ describe('buildRecaptchaSchema - base enum fields (v2_checkbox)', () => {
     })
 
     it('fails when captcha_version is missing', async () => {
-        const { captcha_version: _o, ...rest } = valid
+        const { captcha_version: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 
@@ -76,12 +76,12 @@ describe('buildRecaptchaSchema - v3_invisible (needsV3, no v2 failover)', () => 
     })
 
     it('fails when v3_secret_key is missing', async () => {
-        const { v3_secret_key: _o, ...rest } = valid
+        const { v3_secret_key: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 
     it('fails when score_threshold is missing', async () => {
-        const { score_threshold: _o, ...rest } = valid
+        const { score_threshold: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 
@@ -124,7 +124,7 @@ describe('buildRecaptchaSchema - v2_invisible (needsV2)', () => {
     })
 
     it('fails when v2_secret_key is missing', async () => {
-        const { v2_secret_key: _o, ...rest } = valid
+        const { v2_secret_key: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 })
@@ -150,12 +150,12 @@ describe('buildRecaptchaSchema - v3 with v2 failover (needsV3 + needsV2)', () =>
     })
 
     it('fails when v2_site_key is missing', async () => {
-        const { v2_site_key: _o, ...rest } = valid
+        const { v2_site_key: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 
     it('fails when v3_site_key is missing', async () => {
-        const { v3_site_key: _o, ...rest } = valid
+        const { v3_site_key: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 })

@@ -30,8 +30,8 @@ describe('UserEdit.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/user\/1/).reply(200, userResponse.data)
-        global.mockHttp.onPatch(/\/user\/1/).reply(200, { data: { message: 'Updated' } })
+        globalThis.mockHttp.onGet(/\/user\/1/).reply(200, userResponse.data)
+        globalThis.mockHttp.onPatch(/\/user\/1/).reply(200, { data: { message: 'Updated' } })
         wrapper = mount(UserEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -49,7 +49,7 @@ describe('UserEdit.vue', () => {
 
     it('fetches user data on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/user\/1/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/user\/1/.test(r.url))).toBe(true)
     })
 
     it('populates form fields after fetch', async () => {
@@ -65,8 +65,8 @@ describe('UserEdit.vue', () => {
     })
 
     it('calls errorHandler when fetch fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/user\/1/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/user\/1/).reply(500)
         wrapper = mount(UserEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -84,7 +84,7 @@ describe('UserEdit.vue', () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.patch.some(r => /\/user\/1/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.patch.some(r => /\/user\/1/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on successful update', async () => {
@@ -96,8 +96,8 @@ describe('UserEdit.vue', () => {
 
     it('calls errorHandler on update failure', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPatch(/\/user\/1/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPatch(/\/user\/1/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -125,12 +125,12 @@ describe('UserEdit.vue', () => {
 
     it('does not submit when validateForm returns false', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPatch(/\/user\/1/).reply(200, { data: {} })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPatch(/\/user\/1/).reply(200, { data: {} })
         const { validateForm } = require('@/helpers/formUtils.js')
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.patch.length).toBe(0)
+        expect(globalThis.mockHttp.history.patch.length).toBe(0)
     })
 })

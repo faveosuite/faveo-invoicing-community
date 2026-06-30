@@ -58,7 +58,7 @@ router.beforeEach((to, from, next) => {
     const requiresAuth = to.meta?.requiresAuth !== false
 
     if (requiresAuth && !useAuthStore().isAuthenticated) {
-        window.location.href = (el?.dataset?.baseUrl ?? '') + '/login'
+        globalThis.location.href = (el?.dataset?.baseUrl ?? '') + '/login'
     } else {
         next()
     }

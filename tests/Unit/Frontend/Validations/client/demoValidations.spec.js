@@ -17,7 +17,7 @@ describe('demoSchema', () => {
     })
 
     it('fails when name is missing', async () => {
-        const { name: _o, ...rest } = valid
+        const { name: _o, ...rest } = valid // NOSONAR
         await expect(demoSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -46,7 +46,7 @@ describe('demoSchema', () => {
     })
 
     it('fails when message is missing', async () => {
-        const { message: _o, ...rest } = valid
+        const { message: _o, ...rest } = valid // NOSONAR
         await expect(demoSchema.validate(rest)).rejects.toThrow()
     })
 })

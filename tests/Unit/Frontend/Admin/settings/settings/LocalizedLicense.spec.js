@@ -11,7 +11,7 @@ describe('LocalizedLicense.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onDelete(/\/localized-license\/files/).reply(200, { data: {} })
+        globalThis.mockHttp.onDelete(/\/localized-license\/files/).reply(200, { data: {} })
 
         wrapper = mount(LocalizedLicense, {
             global: {

@@ -10,7 +10,7 @@ describe('Honeypot.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet('honeypot').reply(200, {
+        globalThis.mockHttp.onGet('honeypot').reply(200, {
             data: { pot: 'p_abc', time: 't_xyz', token: 'encrypted-token-123' },
         })
         wrapper = mountHoneypot()
@@ -67,8 +67,8 @@ describe('Honeypot.vue', () => {
     })
 
     it('emits ready=false when API fails after retries', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet('honeypot').reply(500, {})
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet('honeypot').reply(500, {})
 
         jest.useFakeTimers()
         wrapper = mountHoneypot()

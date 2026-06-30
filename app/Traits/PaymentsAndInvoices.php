@@ -80,7 +80,6 @@ trait PaymentsAndInvoices
             foreach ($amounts as $amount) {
                 if ($amount) { // @phpstan-ignore if.alwaysTrue
                     $paidSum += (int) $amount->amount;
-                    // $credit = $paidSum + $amount->amt_to_credit;
                 }
             }
 

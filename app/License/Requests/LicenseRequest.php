@@ -44,14 +44,4 @@ class LicenseRequest extends FormRequest
         ];
     }
 
-    /*public function messages()
-    {
-        return[
-            'license_code.required' => 'Please Generate license code',
-            'product_id.required' => 'Please select the product',
-            'license_expire_date.required' => 'Please select License Expiration Date',
-            'license_updates_date.required' => 'Please select License Update Date',
-            'license_support_date.required' => 'Please select License support Date',
-        ];
-    }*/
 }

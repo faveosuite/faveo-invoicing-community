@@ -46,7 +46,7 @@ async function go(provider) {
         const res = await http.get(`${props.baseUrl}/auth/redirect/${provider}`)
         const url = res.data?.data?.url
         if (url) {
-            window.location.href = url
+            globalThis.location.href = url
         } else {
             errorHandler({ response: { status: 400, data: { message: __('message.something_wrong') } } }, 'client-page')
             busy.value = ''

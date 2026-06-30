@@ -10,7 +10,7 @@ describe('CountryList.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/get-country/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/get-country/).reply(200, { data: [] })
         wrapper = mount(CountryList, {
             global: {
                 plugins: [createTestingPinia()],
@@ -25,7 +25,7 @@ describe('CountryList.vue', () => {
 
     afterEach(() => {
         wrapper.unmount()
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -59,7 +59,7 @@ describe('CountryList.vue', () => {
     it('does not make direct HTTP calls on mount (DataTable handles fetching)', async () => {
         await flushPromises()
         // CountryList delegates all fetching to DataTable; no direct http calls expected
-        expect(global.mockHttp.history.post).toHaveLength(0)
+        expect(globalThis.mockHttp.history.post).toHaveLength(0)
     })
 
     it('has correct sort field mappings for country column', () => {

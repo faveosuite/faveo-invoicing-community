@@ -437,7 +437,7 @@ function updateData(value, licenseId) {
 }
 
 onBeforeMount(() => {
-    const path = window.location.pathname
+    const path = globalThis.location.pathname
     const licenseId = getIdFromUrl(path)
     id.value = licenseId
     license_id.value = licenseId

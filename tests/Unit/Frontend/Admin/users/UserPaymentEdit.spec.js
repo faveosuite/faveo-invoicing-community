@@ -25,8 +25,8 @@ describe('UserPaymentEdit.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/payments\/7\/edit/).reply(200, { data: editDataResponse.data })
-        global.mockHttp.onPost(/\/newMultiplePayment\/update\/3/).reply(200, { data: { message: 'Updated' } })
+        globalThis.mockHttp.onGet(/\/payments\/7\/edit/).reply(200, { data: editDataResponse.data })
+        globalThis.mockHttp.onPost(/\/newMultiplePayment\/update\/3/).reply(200, { data: { message: 'Updated' } })
         wrapper = mount(UserPaymentEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -44,7 +44,7 @@ describe('UserPaymentEdit.vue', () => {
 
     it('fetches payment edit data on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/payments\/7\/edit/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/payments\/7\/edit/.test(r.url))).toBe(true)
     })
 
     it('sets symbol after fetch', async () => {
@@ -75,16 +75,16 @@ describe('UserPaymentEdit.vue', () => {
         wrapper.vm.invoices[0].payAmount = 50
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/newMultiplePayment\/update\/3/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/newMultiplePayment\/update\/3/.test(r.url))).toBe(true)
     })
 
     it('does not submit when validation fails (empty form)', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/newMultiplePayment\/update\/3/).reply(200, { data: {} })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/newMultiplePayment\/update\/3/).reply(200, { data: {} })
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('canSubmit is false when no invoices are allocated', async () => {
@@ -128,7 +128,7 @@ describe('UserPaymentEdit.vue', () => {
     })
 
     it('submit calls POST /newMultiplePayment/update when canSubmit and validate pass', async () => {
-        global.mockHttp.onPost(/\/newMultiplePayment\/update/).reply(200, { message: 'ok' })
+        globalThis.mockHttp.onPost(/\/newMultiplePayment\/update/).reply(200, { message: 'ok' })
         await flushPromises()
         wrapper.vm.form.payment_date   = '2025-01-01'
         wrapper.vm.form.payment_method = 'cash'
@@ -141,7 +141,7 @@ describe('UserPaymentEdit.vue', () => {
     })
 
     it('submit handles API error', async () => {
-        global.mockHttp.onPost(/\/newMultiplePayment\/update/).reply(500, { message: 'Server error' })
+        globalThis.mockHttp.onPost(/\/newMultiplePayment\/update/).reply(500, { message: 'Server error' })
         await flushPromises()
         wrapper.vm.form.payment_date   = '2025-01-01'
         wrapper.vm.form.payment_method = 'cash'
@@ -156,9 +156,9 @@ describe('UserPaymentEdit.vue', () => {
         await flushPromises()
         wrapper.vm.form.payment_date   = ''
         wrapper.vm.form.payment_method = ''
-        const before = global.mockHttp.history.post.length
+        const before = globalThis.mockHttp.history.post.length
         await wrapper.vm.submit()
-        expect(global.mockHttp.history.post.length).toBe(before)
+        expect(globalThis.mockHttp.history.post.length).toBe(before)
     })
 
     it('validate returns false when required fields are missing', async () => {

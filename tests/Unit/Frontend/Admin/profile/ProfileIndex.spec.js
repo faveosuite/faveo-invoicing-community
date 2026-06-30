@@ -24,9 +24,9 @@ describe('ProfileIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/profile\/countries/).reply(200, { data: [] })
-        global.mockHttp.onGet(/\/profile/).reply(200, {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/profile\/countries/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/profile/).reply(200, {
             data: {
                 name: 'Test User',
                 email: 'test@example.com',
@@ -37,8 +37,8 @@ describe('ProfileIndex.vue', () => {
                 two_factor_enabled: false,
             },
         })
-        global.mockHttp.onPost(/\/profile/).reply(200, { data: { message: 'Profile updated' } })
-        global.mockHttp.onPatch(/\/password/).reply(200, { data: { message: 'Password changed' } })
+        globalThis.mockHttp.onPost(/\/profile/).reply(200, { data: { message: 'Profile updated' } })
+        globalThis.mockHttp.onPatch(/\/password/).reply(200, { data: { message: 'Password changed' } })
         wrapper = mount(ProfileIndex, {
             global: {
                 plugins: [createTestingPinia()],
@@ -53,13 +53,13 @@ describe('ProfileIndex.vue', () => {
 
     it('fetches profile data on mount', async () => {
         await flushPromises()
-        const profileCalls = global.mockHttp.history.get.filter(r => /\/profile/.test(r.url) && !/countries/.test(r.url))
+        const profileCalls = globalThis.mockHttp.history.get.filter(r => /\/profile/.test(r.url) && !/countries/.test(r.url))
         expect(profileCalls.length).toBeGreaterThan(0)
     })
 
     it('fetches countries on mount', async () => {
         await flushPromises()
-        const countryCalls = global.mockHttp.history.get.filter(r => /\/profile\/countries/.test(r.url))
+        const countryCalls = globalThis.mockHttp.history.get.filter(r => /\/profile\/countries/.test(r.url))
         expect(countryCalls.length).toBeGreaterThan(0)
     })
 
@@ -67,7 +67,7 @@ describe('ProfileIndex.vue', () => {
         await flushPromises()
         await wrapper.vm.submitProfile()
         await flushPromises()
-        const postCalls = global.mockHttp.history.post.filter(r => /\/profile/.test(r.url))
+        const postCalls = globalThis.mockHttp.history.post.filter(r => /\/profile/.test(r.url))
         expect(postCalls.length).toBeGreaterThan(0)
     })
 
@@ -79,10 +79,10 @@ describe('ProfileIndex.vue', () => {
     })
 
     it('calls errorHandler on profile update failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/profile\/countries/).reply(200, { data: [] })
-        global.mockHttp.onGet(/\/profile/).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/profile/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/profile\/countries/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/profile/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/profile/).reply(500)
         await flushPromises()
         await wrapper.vm.submitProfile()
         await flushPromises()
@@ -93,7 +93,7 @@ describe('ProfileIndex.vue', () => {
         await flushPromises()
         await wrapper.vm.submitPassword()
         await flushPromises()
-        const patchCalls = global.mockHttp.history.patch.filter(r => /\/password/.test(r.url))
+        const patchCalls = globalThis.mockHttp.history.patch.filter(r => /\/password/.test(r.url))
         expect(patchCalls.length).toBeGreaterThan(0)
     })
 
@@ -105,10 +105,10 @@ describe('ProfileIndex.vue', () => {
     })
 
     it('calls errorHandler on password change failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/profile\/countries/).reply(200, { data: [] })
-        global.mockHttp.onGet(/\/profile/).reply(200, { data: {} })
-        global.mockHttp.onPatch(/\/password/).reply(422, { errors: { current_password: ['Wrong'] } })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/profile\/countries/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/profile/).reply(200, { data: {} })
+        globalThis.mockHttp.onPatch(/\/password/).reply(422, { errors: { current_password: ['Wrong'] } })
         await flushPromises()
         await wrapper.vm.submitPassword()
         await flushPromises()
@@ -140,13 +140,13 @@ describe('ProfileIndex.vue', () => {
     })
 
     it('onCountryChange fetches states for a valid country', async () => {
-        global.mockHttp.onGet(/\/profile\/states\/US/).reply(200, {
+        globalThis.mockHttp.onGet(/\/profile\/states\/US/).reply(200, {
             data: { states: [{ iso2: 'CA', state_subdivision_name: 'California' }] }
         })
         await flushPromises()
         await wrapper.vm.onCountryChange({ id: 'US' })
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => r.url.includes('/profile/states/US'))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => r.url.includes('/profile/states/US'))).toBe(true)
     })
 
     it('onCountryChange clears form.country and states when val is null', async () => {
@@ -157,16 +157,16 @@ describe('ProfileIndex.vue', () => {
     })
 
     it('openEnableModal sets loading and fetches 2FA data on success', async () => {
-        global.mockHttp.onGet(/\/show\/verify-password/).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/2fa-recovery-code/).reply(200, { data: { recovery_codes: ['code1'] } })
+        globalThis.mockHttp.onGet(/\/show\/verify-password/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/2fa-recovery-code/).reply(200, { data: { recovery_codes: ['code1'] } })
         await flushPromises()
         await wrapper.vm.openEnableModal()
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => r.url.includes('verify-password'))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => r.url.includes('verify-password'))).toBe(true)
     })
 
     it('openEnableModal handles error', async () => {
-        global.mockHttp.onGet(/\/show\/verify-password/).reply(500)
+        globalThis.mockHttp.onGet(/\/show\/verify-password/).reply(500)
         await flushPromises()
         await expect(wrapper.vm.openEnableModal()).resolves.not.toThrow()
     })
@@ -180,7 +180,7 @@ describe('ProfileIndex.vue', () => {
     })
 
     it('loadStates handles error gracefully', async () => {
-        global.mockHttp.onGet(/\/profile\/states\/IN/).reply(500)
+        globalThis.mockHttp.onGet(/\/profile\/states\/IN/).reply(500)
         await flushPromises()
         await expect(wrapper.vm.loadStates('IN')).resolves.not.toThrow()
     })

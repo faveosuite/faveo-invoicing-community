@@ -172,7 +172,7 @@ class SettingsControllerTest extends DBTestCase
         \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
         $subscription = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
         Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        DB::table('api_keys')->where('id', 1)->update(['rzp_key' => 'rzp_test_0UWbi4WpjuMCoC', 'rzp_secret' => 'jZbOckxf4RhwaUAgxzegwQqV']);
+        DB::table('api_keys')->where('id', 1)->update(['rzp_key' => 'rzp_test_0UWbi4WpjuMCoC', 'rzp_secret' => 'jZbOckxf4RhwaUAgxzegwQqV']); // NOSONAR
         // Prepare mock data
         $days = 30;
         $product_name = 'Example Product';

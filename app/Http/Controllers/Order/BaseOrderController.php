@@ -236,7 +236,6 @@ class BaseOrderController extends ExtendedOrderController
             $downloadurl = url('product/download/'.$productId.'/'.$number);
         }
 
-        // $downloadurl = $this->downloadUrl($userid, $orderid,$productId);
         $myaccounturl = url('my-order/'.$orderid);
         $invoiceurl = (string) $this->invoiceUrl($orderid); // @phpstan-ignore argument.type, cast.string
         // template

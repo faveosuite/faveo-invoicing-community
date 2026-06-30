@@ -38,7 +38,7 @@ describe('DashboardIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/dashboard/).reply(200, DASHBOARD_RESPONSE)
+        globalThis.mockHttp.onGet(/\/dashboard/).reply(200, DASHBOARD_RESPONSE)
         wrapper = mount(DashboardIndex, {
             global: {
                 plugins: [createTestingPinia()],
@@ -51,7 +51,7 @@ describe('DashboardIndex.vue', () => {
     })
 
     afterEach(() => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
     })
 
     it('is a vue instance', () => {
@@ -67,7 +67,7 @@ describe('DashboardIndex.vue', () => {
 
     it('calls GET /dashboard on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/dashboard/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/dashboard/.test(r.url))).toBe(true)
     })
 
     it('hides loader after data is fetched', async () => {
@@ -87,8 +87,8 @@ describe('DashboardIndex.vue', () => {
     })
 
     it('sets loading to false even when fetch fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/dashboard/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/dashboard/).reply(500)
         const w = mount(DashboardIndex, {
             global: {
                 plugins: [createTestingPinia()],
@@ -176,7 +176,7 @@ describe('DashboardIndex.vue', () => {
     })
 
     it('renders tables after data loads (covers v-for and nested template branches)', async () => {
-        global.mockHttp.onGet(/\/dashboard/).reply(200, {
+        globalThis.mockHttp.onGet(/\/dashboard/).reply(200, {
             ...DASHBOARD_RESPONSE,
             recentInvoices: [
                 { id: 1, number: 'INV-001', grand_total: 100, date: '2024-01-01', paid_amount: 100, balance: 0, status: 'Paid', user: { id: 1, first_name: 'A', last_name: 'B' } },

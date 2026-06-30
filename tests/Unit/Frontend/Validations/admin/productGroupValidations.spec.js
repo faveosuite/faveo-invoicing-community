@@ -15,7 +15,7 @@ describe('productGroupSchema', () => {
     })
 
     it('fails when name is missing', async () => {
-        const { name: _o, ...rest } = valid
+        const { name: _o, ...rest } = valid // NOSONAR
         await expect(productGroupSchema.validate(rest)).rejects.toThrow()
     })
 

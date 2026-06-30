@@ -113,7 +113,6 @@ class CloudExtraActivities extends Controller
             $plan = Plan::find($planId);
 
             $planDetails = userCurrencyAndPrice($this->authUser()->id, $plan);
-            $actualPrice = $planDetails['plan']->add_price * $agents;
             $oldLicense = Order::where('id', $orderId)->latest()->value('serial_key');
 
             return $this->getThePaymentCalculationUpgradeDowngradeDisplay(

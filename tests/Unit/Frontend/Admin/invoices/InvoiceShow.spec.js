@@ -77,7 +77,7 @@ describe('InvoiceShow.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/invoice\//).reply(200, INVOICE_SHOW_RESPONSE)
+        globalThis.mockHttp.onGet(/\/invoice\//).reply(200, INVOICE_SHOW_RESPONSE)
         wrapper = mount(InvoiceShow, {
             global: {
                 plugins: [createTestingPinia()],
@@ -90,7 +90,7 @@ describe('InvoiceShow.vue', () => {
     })
 
     afterEach(() => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -111,7 +111,7 @@ describe('InvoiceShow.vue', () => {
 
     it('calls GET /invoice/:id on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/invoice\//.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/invoice\//.test(r.url))).toBe(true)
     })
 
     it('hides loader after data is fetched', async () => {
@@ -143,10 +143,10 @@ describe('InvoiceShow.vue', () => {
     })
 
     it('computes bg-warning for pending status', async () => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         const pendingResponse = JSON.parse(JSON.stringify(INVOICE_SHOW_RESPONSE))
         pendingResponse.data.invoice.status = 'pending'
-        global.mockHttp.onGet(/\/invoice\//).reply(200, pendingResponse)
+        globalThis.mockHttp.onGet(/\/invoice\//).reply(200, pendingResponse)
         const w = mount(InvoiceShow, {
             global: {
                 plugins: [createTestingPinia()],
@@ -158,8 +158,8 @@ describe('InvoiceShow.vue', () => {
     })
 
     it('calls errorHandler when fetch fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/invoice\//).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/invoice\//).reply(500)
         const w = mount(InvoiceShow, {
             global: {
                 plugins: [createTestingPinia()],

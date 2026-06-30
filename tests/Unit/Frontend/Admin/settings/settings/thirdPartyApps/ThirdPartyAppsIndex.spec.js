@@ -29,24 +29,24 @@ describe('ThirdPartyAppsIndex.vue', () => {
     })
 
     it('calls POST to create app endpoint on saveApp', async () => {
-        global.mockHttp.onPost(/\/third-party-app-create/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/third-party-app-create/).reply(200, { data: {} })
         wrapper.vm.form.app_name = 'TestApp'
         wrapper.vm.form.app_key = 'key123'
         wrapper.vm.form.app_secret = 'secret123'
         wrapper.vm.saveApp()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('third-party-app-create'))).toBeTruthy()
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('third-party-app-create'))).toBeTruthy()
     })
 
     it('calls PUT to update app endpoint when editId is set', async () => {
-        global.mockHttp.onPut(/\/third-party-app-update\/5/).reply(200, { data: {} })
+        globalThis.mockHttp.onPut(/\/third-party-app-update\/5/).reply(200, { data: {} })
         wrapper.vm.form.app_name = 'EditApp'
         wrapper.vm.form.app_key = 'key456'
         wrapper.vm.form.app_secret = 'secret456'
         wrapper.vm.editId = 5
         wrapper.vm.saveApp()
         await flushPromises()
-        expect(global.mockHttp.history.put.some(r => r.url.includes('third-party-app-update/5'))).toBeTruthy()
+        expect(globalThis.mockHttp.history.put.some(r => r.url.includes('third-party-app-update/5'))).toBeTruthy()
     })
 
     it('openCreate resets form and shows create modal', () => {

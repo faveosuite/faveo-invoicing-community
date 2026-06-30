@@ -168,7 +168,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $replace = [
             'name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'product' => $product,
-            'total' => currencyFormat($total, $code = $currency),
+            'total' => currencyFormat($total, $currency),
             'number' => $number,
             'contact' => $contact['contact'],
             'logo' => $contact['logo'],
@@ -205,7 +205,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $expiryTime = strtotime($end);
         $replace = ['name' => ucfirst((string) $user->first_name).' '.ucfirst((string) $user->last_name),
             'product' => $product_details->name,
-            'total' => $total ? currencyFormat($total, $code = $currency) : 'N/A',
+            'total' => $total ? currencyFormat($total, $currency) : 'N/A',
             'number' => $number,
             'expiry' => ($expiryTime !== false) ? date('d-m-Y', $expiryTime) : '',
             'exception' => $exceptionMessage,

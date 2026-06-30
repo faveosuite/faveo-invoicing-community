@@ -171,7 +171,7 @@ function closeDeleteModal() {
 
 function confirmDelete() {
     if (deleteRow.value?.number) {
-        window.location.href = `${baseUrl}/delete/domain/${deleteRow.value.number}/1`
+        globalThis.location.href = `${baseUrl}/delete/domain/${deleteRow.value.number}/1`
     }
 }
 </script>

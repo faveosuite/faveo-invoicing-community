@@ -43,14 +43,14 @@ describe('OrderShow.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/order\/0/).reply(200, { data: orderFixture })
-        global.mockHttp.onGet(/\/get-installation-details\/0/).reply(200, { data: [] })
-        global.mockHttp.onGet(/\/getOrderInvoices\/0/).reply(200, { data: [] })
-        global.mockHttp.onGet(/\/getOrderPayments\/0/).reply(200, { data: [] })
-        global.mockHttp.onPatch(/\/reissue-license/).reply(200, { data: { message: 'Reissued' } })
-        global.mockHttp.onPost(/\/renewal-disable/).reply(200, { data: { message: 'Disabled' } })
-        global.mockHttp.onPost(/\/switch-license-mode/).reply(200, { data: { message: 'Switched' } })
-        global.mockHttp.onPost(/\/update-license-details/).reply(200, { data: { message: 'Updated' } })
+        globalThis.mockHttp.onGet(/\/order\/0/).reply(200, { data: orderFixture })
+        globalThis.mockHttp.onGet(/\/get-installation-details\/0/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/getOrderInvoices\/0/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/getOrderPayments\/0/).reply(200, { data: [] })
+        globalThis.mockHttp.onPatch(/\/reissue-license/).reply(200, { data: { message: 'Reissued' } })
+        globalThis.mockHttp.onPost(/\/renewal-disable/).reply(200, { data: { message: 'Disabled' } })
+        globalThis.mockHttp.onPost(/\/switch-license-mode/).reply(200, { data: { message: 'Switched' } })
+        globalThis.mockHttp.onPost(/\/update-license-details/).reply(200, { data: { message: 'Updated' } })
         wrapper = mount(OrderShow, {
             global: {
                 plugins: [createTestingPinia()],
@@ -69,7 +69,7 @@ describe('OrderShow.vue', () => {
 
     it('fetches order data on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/order\/0/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/order\/0/.test(r.url))).toBe(true)
     })
 
     it('populates order data after fetch', async () => {
@@ -84,8 +84,8 @@ describe('OrderShow.vue', () => {
     })
 
     it('calls errorHandler when order fetch fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/order\/0/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/order\/0/).reply(500)
         wrapper = mount(OrderShow, {
             global: {
                 plugins: [createTestingPinia()],
@@ -104,13 +104,13 @@ describe('OrderShow.vue', () => {
         await flushPromises()
         await wrapper.vm.reissueLicense()
         await flushPromises()
-        expect(global.mockHttp.history.patch.some(r => /\/reissue-license/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.patch.some(r => /\/reissue-license/.test(r.url))).toBe(true)
         expect(successHandler).toHaveBeenCalled()
     })
 
     it('calls errorHandler when reissueLicense fails', async () => {
         await flushPromises()
-        global.mockHttp.onPatch(/\/reissue-license/).reply(500)
+        globalThis.mockHttp.onPatch(/\/reissue-license/).reply(500)
         await wrapper.vm.reissueLicense()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -120,7 +120,7 @@ describe('OrderShow.vue', () => {
         await flushPromises()
         await wrapper.vm.disableRenewal()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/renewal-disable/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/renewal-disable/.test(r.url))).toBe(true)
         expect(successHandler).toHaveBeenCalled()
     })
 
@@ -128,14 +128,14 @@ describe('OrderShow.vue', () => {
         await flushPromises()
         await wrapper.vm.toggleLicenseMode(true)
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/switch-license-mode/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/switch-license-mode/.test(r.url))).toBe(true)
     })
 
     it('saveLicenseEdit sends POST /update-license-details', async () => {
         await flushPromises()
         await wrapper.vm.saveLicenseEdit()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/update-license-details/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/update-license-details/.test(r.url))).toBe(true)
         expect(successHandler).toHaveBeenCalled()
     })
 
@@ -143,10 +143,10 @@ describe('OrderShow.vue', () => {
         await flushPromises()
         const { validateForm } = require('@/helpers/formUtils.js')
         validateForm.mockResolvedValueOnce(false)
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         await wrapper.vm.saveLicenseEdit()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('openLicenseEditModal sets licenseEditModal.show to true', async () => {

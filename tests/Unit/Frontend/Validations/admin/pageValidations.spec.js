@@ -17,7 +17,7 @@ describe('buildFrontendPageCreateSchema', () => {
     })
 
     it('fails when name is missing', async () => {
-        const { name: _o, ...rest } = valid
+        const { name: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 
@@ -26,7 +26,7 @@ describe('buildFrontendPageCreateSchema', () => {
     })
 
     it('fails when slug is missing', async () => {
-        const { slug: _o, ...rest } = valid
+        const { slug: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 
@@ -35,7 +35,7 @@ describe('buildFrontendPageCreateSchema', () => {
     })
 
     it('fails when content is missing', async () => {
-        const { content: _o, ...rest } = valid
+        const { content: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 })
@@ -66,7 +66,7 @@ describe('buildFrontendPageEditSchema', () => {
     })
 
     it('fails when created_at_date is missing', async () => {
-        const { created_at_date: _o, ...rest } = valid
+        const { created_at_date: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 

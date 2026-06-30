@@ -60,7 +60,6 @@ class InstallerController extends Controller
 
     public function migrate(): JsonResponse
     {
-        $db_install_method = '';
         try {
             if (Cache::get('databasename') != config('database.connections.mysql.database')) {
                 throw new Exception(__('installer_messages.db_connection_error'), 500);
@@ -82,7 +81,6 @@ class InstallerController extends Controller
                 }
             }
         } catch (Exception $exception) {
-            // $this->rollBackMigration();
             $result = ['error' => $exception->getMessage()];
 
             return response()->json(compact('result'), 500);
@@ -98,8 +96,6 @@ class InstallerController extends Controller
     {
         try {
             Artisan::call('migrate', ['--force' => true]);
-            //            shell_exec('php ../artisan passport:install');
-            // Artisan::call('passport:install', ['--force' => true]);
         } catch (Exception $exception) {
             $result = ['error' => $exception->getMessage()];
 

@@ -244,7 +244,6 @@ class LoginController extends BaseAuthController
         Config::set(sprintf('services.%s.client_id', $provider), $details->client_id);
         Config::set(sprintf('services.%s.client_secret', $provider), $details->client_secret);
 
-        // return Socialite::driver($provider)->redirect();
         return successResponse('success', ['url' => Socialite::driver($provider)->redirect()->getTargetUrl()]);
     }
 

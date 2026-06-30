@@ -27,7 +27,7 @@ describe('DeleteModal.vue', () => {
 
     beforeEach(() => {
         jest.clearAllMocks()
-        global.mockHttp.onDelete('/delete/1').reply(200, { data: { message: 'Deleted' } })
+        globalThis.mockHttp.onDelete('/delete/1').reply(200, { data: { message: 'Deleted' } })
         wrapper = mountModal()
     })
 
@@ -95,8 +95,8 @@ describe('DeleteModal.vue', () => {
 
     it('disables buttons while loading', async () => {
         let resolveReq = null
-        global.mockHttp.reset()
-        global.mockHttp.onDelete('/delete/1').reply(
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onDelete('/delete/1').reply(
             () => new Promise(r => { resolveReq = r })
         )
         wrapper = mountModal()
@@ -110,7 +110,7 @@ describe('DeleteModal.vue', () => {
     })
 
     it('uses POST method when method prop is post', async () => {
-        global.mockHttp.onPost('/delete/1').reply(200, { data: { message: 'OK' } })
+        globalThis.mockHttp.onPost('/delete/1').reply(200, { data: { message: 'OK' } })
         wrapper = mountModal({ method: 'post' })
         await wrapper.find('button.btn-danger').trigger('click')
         await flushPromises()

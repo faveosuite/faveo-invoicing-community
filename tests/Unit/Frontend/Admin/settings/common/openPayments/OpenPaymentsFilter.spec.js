@@ -79,7 +79,7 @@ describe('OpenPaymentsFilter.vue', () => {
 
     it('makes no HTTP calls — it is a presentational filter component', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get).toHaveLength(0)
-        expect(global.mockHttp.history.post).toHaveLength(0)
+        expect(globalThis.mockHttp.history.get).toHaveLength(0)
+        expect(globalThis.mockHttp.history.post).toHaveLength(0)
     })
 })

@@ -92,11 +92,11 @@ onMounted(async () => {
         // No active 2FA session → backend hands back a login redirect.
         const redirect = res.data?.data?.redirect
         if (redirect) {
-            window.location.href = redirect
+            globalThis.location.href = redirect
             return
         }
     } catch (e) {
-        window.location.href = `${baseUrl}/login`
+        globalThis.location.href = `${baseUrl}/login`
         return
     } finally {
         loading.value = false
@@ -133,7 +133,7 @@ async function postVerify(url, payload, captchaRef) {
         const res = await http.post(url, payload)
         const redirect = res.data?.data?.redirect
         if (redirect) {
-            window.location.href = redirect
+            globalThis.location.href = redirect
         } else {
             successHandler(res, COMPONENT)
         }

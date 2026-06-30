@@ -27,8 +27,8 @@ describe('ProductGroupEdit.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/group\/0/).reply(200, groupResponse)
-        global.mockHttp.onPatch(/\/group\/0/).reply(200, { data: { message: 'Updated' } })
+        globalThis.mockHttp.onGet(/\/group\/0/).reply(200, groupResponse)
+        globalThis.mockHttp.onPatch(/\/group\/0/).reply(200, { data: { message: 'Updated' } })
         wrapper = mount(ProductGroupEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -46,7 +46,7 @@ describe('ProductGroupEdit.vue', () => {
 
     it('fetches group data on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/group\/0/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/group\/0/.test(r.url))).toBe(true)
     })
 
     it('populates form fields after fetch', async () => {
@@ -61,8 +61,8 @@ describe('ProductGroupEdit.vue', () => {
     })
 
     it('calls errorHandler when fetch fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/group\/0/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/group\/0/).reply(500)
         wrapper = mount(ProductGroupEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -80,7 +80,7 @@ describe('ProductGroupEdit.vue', () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.patch.some(r => /\/group\/0/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.patch.some(r => /\/group\/0/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on successful update', async () => {
@@ -92,8 +92,8 @@ describe('ProductGroupEdit.vue', () => {
 
     it('calls errorHandler on submit failure', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPatch(/\/group\/0/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPatch(/\/group\/0/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -101,12 +101,12 @@ describe('ProductGroupEdit.vue', () => {
 
     it('does not submit when validateForm returns false', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onPatch(/\/group\/0/).reply(200, { data: {} })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPatch(/\/group\/0/).reply(200, { data: {} })
         const { validateForm } = require('@/helpers/formUtils.js')
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.patch.length).toBe(0)
+        expect(globalThis.mockHttp.history.patch.length).toBe(0)
     })
 })

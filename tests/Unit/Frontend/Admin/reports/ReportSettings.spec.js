@@ -20,9 +20,9 @@ describe('ReportSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/reports\/setting/).reply(200, { data: { records: 3000 } })
-        global.mockHttp.onPatch(/\/reports\/setting/).reply(200, { data: { message: 'Saved' } })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/reports\/setting/).reply(200, { data: { records: 3000 } })
+        globalThis.mockHttp.onPatch(/\/reports\/setting/).reply(200, { data: { message: 'Saved' } })
         wrapper = mount(ReportSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -37,7 +37,7 @@ describe('ReportSettings.vue', () => {
 
     it('fetches report settings on mount', async () => {
         await flushPromises()
-        const getCalls = global.mockHttp.history.get.filter(r => /\/reports\/setting/.test(r.url))
+        const getCalls = globalThis.mockHttp.history.get.filter(r => /\/reports\/setting/.test(r.url))
         expect(getCalls.length).toBeGreaterThan(0)
     })
 
@@ -50,7 +50,7 @@ describe('ReportSettings.vue', () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        const patchCalls = global.mockHttp.history.patch.filter(r => /\/reports\/setting/.test(r.url))
+        const patchCalls = globalThis.mockHttp.history.patch.filter(r => /\/reports\/setting/.test(r.url))
         expect(patchCalls.length).toBeGreaterThan(0)
     })
 
@@ -62,9 +62,9 @@ describe('ReportSettings.vue', () => {
     })
 
     it('calls errorHandler on submit failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/reports\/setting/).reply(200, { data: { records: 3000 } })
-        global.mockHttp.onPatch(/\/reports\/setting/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/reports\/setting/).reply(200, { data: { records: 3000 } })
+        globalThis.mockHttp.onPatch(/\/reports\/setting/).reply(500)
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()

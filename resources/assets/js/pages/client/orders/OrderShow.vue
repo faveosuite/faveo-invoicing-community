@@ -795,7 +795,7 @@ async function openRenewalRazorpayPopup(config) {
         }
     }
     options.modal = { ondismiss: () => { renewalBusy.value = false } }
-    new window.Razorpay(options).open()
+    new globalThis.Razorpay(options).open()
 }
 
 let renewalClientSecret    = null
@@ -817,7 +817,7 @@ async function openRenewalStripeModal() {
     }
 
     await loadScript('https://js.stripe.com/v3/')
-    stripeRenewal = window.Stripe(data.data.publishable_key)
+    stripeRenewal = globalThis.Stripe(data.data.publishable_key)
     const elements = stripeRenewal.elements()
 
     Object.assign(renewalCardErrors,   { number: '', expiry: '', cvc: '' })

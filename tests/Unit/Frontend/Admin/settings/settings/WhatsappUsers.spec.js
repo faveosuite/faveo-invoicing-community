@@ -45,17 +45,17 @@ describe('WhatsappUsers.vue', () => {
     })
 
     it('calls POST webhook-url-edit on saveWebhook', async () => {
-        global.mockHttp.onPost(/\/webhook-url-edit/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/webhook-url-edit/).reply(200, { data: {} })
         wrapper.vm.editRow = { id: 3, callback_url: 'https://hook.example.com' }
         wrapper.vm.editWebhookUrl = 'https://hook.example.com/updated'
         wrapper.vm.saveWebhook()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('webhook-url-edit'))).toBeTruthy()
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('webhook-url-edit'))).toBeTruthy()
     })
 
     it('calls successHandler after successful saveWebhook', async () => {
         const { successHandler } = require('@/helpers/responseHandler')
-        global.mockHttp.onPost(/\/webhook-url-edit/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/webhook-url-edit/).reply(200, { data: {} })
         wrapper.vm.editRow = { id: 4, callback_url: '' }
         wrapper.vm.editWebhookUrl = 'https://hook.example.com'
         wrapper.vm.saveWebhook()

@@ -68,7 +68,7 @@ describe('socialMediaSchema', () => {
     })
 
     it('fails when link is missing', async () => {
-        const { link: _o, ...rest } = valid
+        const { link: _o, ...rest } = valid // NOSONAR
         await expect(socialMediaSchema.validate(rest)).rejects.toThrow()
     })
 })

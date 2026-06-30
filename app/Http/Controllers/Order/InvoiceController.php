@@ -345,7 +345,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     {
         try {
             $product = $this->product->findOrFail($productid);
-            $plan = Plan::where('product', $productid)->first();
             $subtotal = $qty * intval($grandTotalAfterCoupon);
 
             $domain = $this->domain($productid);

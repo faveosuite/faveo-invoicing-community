@@ -26,8 +26,8 @@ describe('UserPaymentCreate.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/newPayment\/receive/).reply(200, { data: paymentDataResponse.data })
-        global.mockHttp.onPost(/\/newMultiplePayment\/receive\/3/).reply(200, { data: { message: 'Saved' } })
+        globalThis.mockHttp.onGet(/\/newPayment\/receive/).reply(200, { data: paymentDataResponse.data })
+        globalThis.mockHttp.onPost(/\/newMultiplePayment\/receive\/3/).reply(200, { data: { message: 'Saved' } })
         wrapper = mount(UserPaymentCreate, {
             global: {
                 plugins: [createTestingPinia()],
@@ -45,7 +45,7 @@ describe('UserPaymentCreate.vue', () => {
 
     it('fetches payment data on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/newPayment\/receive/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/newPayment\/receive/.test(r.url))).toBe(true)
     })
 
     it('populates currencies after fetch', async () => {
@@ -72,17 +72,17 @@ describe('UserPaymentCreate.vue', () => {
         wrapper.vm.form.currency       = 'USD'
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/newMultiplePayment\/receive\/3/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/newMultiplePayment\/receive\/3/.test(r.url))).toBe(true)
     })
 
     it('does not submit when validation fails', async () => {
         await flushPromises()
         // form is empty — validate() should fail
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/newMultiplePayment\/receive\/3/).reply(200, { data: {} })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/newMultiplePayment\/receive\/3/).reply(200, { data: {} })
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('onCurrencyChange updates form currency', async () => {
@@ -130,7 +130,7 @@ describe('UserPaymentCreate.vue', () => {
     })
 
     it('submit calls POST /newMultiplePayment/receive on success', async () => {
-        global.mockHttp.onPost(/\/newMultiplePayment\/receive/).reply(200, { message: 'ok' })
+        globalThis.mockHttp.onPost(/\/newMultiplePayment\/receive/).reply(200, { message: 'ok' })
         await flushPromises()
         wrapper.vm.form.currency       = 'USD'
         wrapper.vm.form.payment_date   = '2025-01-01'
@@ -138,11 +138,11 @@ describe('UserPaymentCreate.vue', () => {
         wrapper.vm.form.amount         = '100'
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('newMultiplePayment'))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('newMultiplePayment'))).toBe(true)
     })
 
     it('submit handles API validation error', async () => {
-        global.mockHttp.onPost(/\/newMultiplePayment\/receive/).reply(422, {
+        globalThis.mockHttp.onPost(/\/newMultiplePayment\/receive/).reply(422, {
             errors: { currency: ['Required'] }
         })
         await flushPromises()
@@ -161,8 +161,8 @@ describe('UserPaymentCreate.vue', () => {
         wrapper.vm.form.payment_date   = ''
         wrapper.vm.form.payment_method = ''
         wrapper.vm.form.amount         = ''
-        const before = global.mockHttp.history.post.length
+        const before = globalThis.mockHttp.history.post.length
         await wrapper.vm.submit()
-        expect(global.mockHttp.history.post.length).toBe(before)
+        expect(globalThis.mockHttp.history.post.length).toBe(before)
     })
 })

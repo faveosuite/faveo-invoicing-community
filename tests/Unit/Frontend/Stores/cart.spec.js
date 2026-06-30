@@ -181,8 +181,8 @@ describe('useCartStore', () => {
         })
 
         it('sets error on 500', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onGet('/cart').replyOnce(500, { message: 'Server Error' })
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onGet('/cart').replyOnce(500, { message: 'Server Error' })
             const store = useCartStore()
             await store.fetchCart()
             await flushPromises()
@@ -190,8 +190,8 @@ describe('useCartStore', () => {
         })
 
         it('sets loading to false after error', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onGet('/cart').replyOnce(500)
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onGet('/cart').replyOnce(500)
             const store = useCartStore()
             await store.fetchCart()
             await flushPromises()
@@ -199,8 +199,8 @@ describe('useCartStore', () => {
         })
 
         it('leaves cart unchanged on error', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onGet('/cart').replyOnce(500)
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onGet('/cart').replyOnce(500)
             const store = useCartStore()
             store.cart = cartWithItemFixture
             await store.fetchCart()
@@ -225,8 +225,8 @@ describe('useCartStore', () => {
         })
 
         it('sets error on 422', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onGet('/cart/checkout').replyOnce(422, { message: 'Unprocessable' })
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onGet('/cart/checkout').replyOnce(422, { message: 'Unprocessable' })
             const store = useCartStore()
             await store.fetchCheckout()
             await flushPromises()
@@ -234,8 +234,8 @@ describe('useCartStore', () => {
         })
 
         it('sets loading to false after error', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onGet('/cart/checkout').replyOnce(500)
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onGet('/cart/checkout').replyOnce(500)
             const store = useCartStore()
             await store.fetchCheckout()
             await flushPromises()
@@ -259,8 +259,8 @@ describe('useCartStore', () => {
         })
 
         it('sets error and re-throws on 422', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onPost('/cart/items').replyOnce(422, { message: 'Invalid product' })
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onPost('/cart/items').replyOnce(422, { message: 'Invalid product' })
             const store = useCartStore()
             await expect(store.addItem({ product_id: 99 })).rejects.toBeDefined()
             await flushPromises()
@@ -269,8 +269,8 @@ describe('useCartStore', () => {
         })
 
         it('sets error and re-throws on 500', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onPost('/cart/items').replyOnce(500)
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onPost('/cart/items').replyOnce(500)
             const store = useCartStore()
             await expect(store.addItem({ product_id: 10 })).rejects.toBeDefined()
             await flushPromises()
@@ -294,8 +294,8 @@ describe('useCartStore', () => {
         })
 
         it('sets error on 422', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onPut('/cart/items/1').replyOnce(422, { message: 'Invalid qty' })
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onPut('/cart/items/1').replyOnce(422, { message: 'Invalid qty' })
             const store = useCartStore()
             await store.updateItem(1, { qty: -1 })
             await flushPromises()
@@ -321,8 +321,8 @@ describe('useCartStore', () => {
         })
 
         it('sets error on 404', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onDelete('/cart/items/99').replyOnce(404, { message: 'Not found' })
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onDelete('/cart/items/99').replyOnce(404, { message: 'Not found' })
             const store = useCartStore()
             await store.removeItem(99)
             await flushPromises()
@@ -348,8 +348,8 @@ describe('useCartStore', () => {
         })
 
         it('sets error on 500', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onDelete('/cart').replyOnce(500)
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onDelete('/cart').replyOnce(500)
             const store = useCartStore()
             await store.clearCart()
             await flushPromises()
@@ -375,8 +375,8 @@ describe('useCartStore', () => {
         })
 
         it('sets error and re-throws on 422', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onPost('/cart/coupon').replyOnce(422, { message: 'Invalid coupon' })
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onPost('/cart/coupon').replyOnce(422, { message: 'Invalid coupon' })
             const store = useCartStore()
             await expect(store.applyCoupon('BADCODE')).rejects.toBeDefined()
             await flushPromises()
@@ -403,8 +403,8 @@ describe('useCartStore', () => {
         })
 
         it('sets error on 500', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onDelete('/cart/coupon').replyOnce(500)
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onDelete('/cart/coupon').replyOnce(500)
             const store = useCartStore()
             await store.removeCoupon()
             await flushPromises()

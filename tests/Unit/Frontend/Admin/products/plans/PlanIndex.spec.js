@@ -11,8 +11,8 @@ describe('PlanIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/plans/).reply(200, { data: [] })
-        global.mockHttp.onDelete(/\/plans/).reply(200, { data: { message: 'Deleted' } })
+        globalThis.mockHttp.onGet(/\/plans/).reply(200, { data: [] })
+        globalThis.mockHttp.onDelete(/\/plans/).reply(200, { data: { message: 'Deleted' } })
 
         wrapper = mount(PlanIndex, {
             global: {
@@ -30,7 +30,7 @@ describe('PlanIndex.vue', () => {
     })
 
     afterEach(() => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 

@@ -23,8 +23,8 @@ describe('Msg91Settings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/msg91/).reply(200, {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/msg91/).reply(200, {
             data: {
                 msg91_auth_key: 'authkey',
                 msg91_sender: 'SENDER',
@@ -33,7 +33,7 @@ describe('Msg91Settings.vue', () => {
                 apps: [],
             },
         })
-        global.mockHttp.onPost(/\/updatemobileDetails/).reply(200, { data: { message: 'Saved' } })
+        globalThis.mockHttp.onPost(/\/updatemobileDetails/).reply(200, { data: { message: 'Saved' } })
         wrapper = mount(Msg91Settings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -48,7 +48,7 @@ describe('Msg91Settings.vue', () => {
 
     it('fetches settings on mount via GET /settings/msg91', async () => {
         await flushPromises()
-        const getCalls = global.mockHttp.history.get.filter(r => /\/settings\/msg91/.test(r.url))
+        const getCalls = globalThis.mockHttp.history.get.filter(r => /\/settings\/msg91/.test(r.url))
         expect(getCalls.length).toBeGreaterThan(0)
     })
 
@@ -62,7 +62,7 @@ describe('Msg91Settings.vue', () => {
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
-        const postCalls = global.mockHttp.history.post.filter(r => /\/updatemobileDetails/.test(r.url))
+        const postCalls = globalThis.mockHttp.history.post.filter(r => /\/updatemobileDetails/.test(r.url))
         expect(postCalls.length).toBeGreaterThan(0)
     })
 
@@ -70,7 +70,7 @@ describe('Msg91Settings.vue', () => {
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
-        const body = JSON.parse(global.mockHttp.history.post[0].data)
+        const body = JSON.parse(globalThis.mockHttp.history.post[0].data)
         expect(body.status).toBe(1)
     })
 
@@ -82,9 +82,9 @@ describe('Msg91Settings.vue', () => {
     })
 
     it('calls errorHandler on save failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/msg91/).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/updatemobileDetails/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/msg91/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/updatemobileDetails/).reply(500)
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()

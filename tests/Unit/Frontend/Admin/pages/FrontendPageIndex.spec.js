@@ -12,8 +12,8 @@ describe('FrontendPageIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/pages/).reply(200, { data: [] })
-        global.mockHttp.onDelete(/\/pages/).reply(200, { data: { message: 'Deleted' } })
+        globalThis.mockHttp.onGet(/\/pages/).reply(200, { data: [] })
+        globalThis.mockHttp.onDelete(/\/pages/).reply(200, { data: { message: 'Deleted' } })
         wrapper = mount(FrontendPageIndex, {
             global: {
                 plugins: [createTestingPinia()],
@@ -71,7 +71,7 @@ describe('FrontendPageIndex.vue', () => {
 describe('FrontendPageIndex.vue — branch coverage', () => {
     let wrapper
     beforeEach(() => {
-        global.mockHttp.onGet(/\/pages/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/pages/).reply(200, { data: [] })
         wrapper = mount(FrontendPageIndex, {
             global: {
                 plugins: [createTestingPinia()],

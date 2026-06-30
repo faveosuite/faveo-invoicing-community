@@ -33,7 +33,7 @@ export function __(key, replace = {}) {
 
 export default {
     install(app) {
-        window.__ = __
+        globalThis.__ = __
         app.config.globalProperties.__ = __
     },
 }

@@ -12,7 +12,7 @@ describe('MSG91Filter.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/getMsgFilters/).reply(200, {
+        globalThis.mockHttp.onGet(/\/getMsgFilters/).reply(200, {
             data: {
                 statuses: ['Delivered', 'Failed'],
                 sources:  ['SMS', 'Email'],
@@ -35,8 +35,8 @@ describe('MSG91Filter.vue', () => {
 
     it('fetches filter options on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/getMsgFilters/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/getMsgFilters/)
     })
 
     it('is hidden when show prop is false', () => {
@@ -76,7 +76,7 @@ describe('MSG91Filter.vue', () => {
     })
 
     it('calls errorHandler on fetch failure', async () => {
-        global.mockHttp.onGet(/\/getMsgFilters/).reply(500)
+        globalThis.mockHttp.onGet(/\/getMsgFilters/).reply(500)
         const w = mount(MSG91Filter, {
             props: { show: true, baseUrl: '' },
             global: {

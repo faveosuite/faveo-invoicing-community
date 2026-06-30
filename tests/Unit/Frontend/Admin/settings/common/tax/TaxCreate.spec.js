@@ -20,13 +20,13 @@ describe('TaxCreate.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/tax-options/).reply(200, {
+        globalThis.mockHttp.onGet(/\/tax-options/).reply(200, {
             data: {
                 countries: { US: 'United States', IN: 'India' },
                 classes: [{ slug: 'standard', name: 'Standard' }],
             },
         })
-        global.mockHttp.onPost(/\/create\/tax-class/).reply(200, { message: 'Created' })
+        globalThis.mockHttp.onPost(/\/create\/tax-class/).reply(200, { message: 'Created' })
 
         wrapper = mount(TaxCreate, {
             global: {
@@ -45,12 +45,12 @@ describe('TaxCreate.vue', () => {
 
     it('fetches tax options on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/tax-options/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/tax-options/)
     })
 
     it('handles 500 error on fetch', async () => {
-        global.mockHttp.onGet(/\/tax-options/).reply(500)
+        globalThis.mockHttp.onGet(/\/tax-options/).reply(500)
         const w = mount(TaxCreate, {
             global: {
                 plugins: [createTestingPinia()],
@@ -70,18 +70,18 @@ describe('TaxCreate.vue', () => {
         await wrapper.vm.submit()
         await flushPromises()
 
-        expect(global.mockHttp.history.post.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.post[0].url).toMatch(/\/create\/tax-class/)
+        expect(globalThis.mockHttp.history.post.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.post[0].url).toMatch(/\/create\/tax-class/)
     })
 
     it('fetches states when country is selected', async () => {
         await flushPromises()
-        global.mockHttp.onGet(/\/get-state\/US/).reply(200, {
+        globalThis.mockHttp.onGet(/\/get-state\/US/).reply(200, {
             data: { states: [{ iso2: 'CA', state_subdivision_name: 'California' }] },
         })
         await wrapper.vm.onCountrySelect({ id: 'US' })
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => r.url.includes('/get-state/US'))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => r.url.includes('/get-state/US'))).toBe(true)
     })
 })
 
@@ -89,13 +89,13 @@ describe('TaxCreate.vue — branch coverage', () => {
     let wrapper
 
     beforeEach(async () => {
-        global.mockHttp.onGet(/\/tax-options/).reply(200, {
+        globalThis.mockHttp.onGet(/\/tax-options/).reply(200, {
             data: {
                 countries: { US: 'United States', IN: 'India' },
                 classes: [{ slug: '', name: 'Standard' }, { slug: 'reduced', name: 'Reduced' }],
             },
         })
-        global.mockHttp.onPost(/\/create\/tax-class/).reply(200, { message: 'Created' })
+        globalThis.mockHttp.onPost(/\/create\/tax-class/).reply(200, { message: 'Created' })
 
         wrapper = mount(TaxCreate, {
             global: {
@@ -108,11 +108,11 @@ describe('TaxCreate.vue — branch coverage', () => {
 
     it('onCountrySelect returns early when country is empty', async () => {
         await wrapper.vm.onCountrySelect({ id: '' })
-        expect(global.mockHttp.history.get.filter(r => r.url.includes('/get-state/')).length).toBe(0)
+        expect(globalThis.mockHttp.history.get.filter(r => r.url.includes('/get-state/')).length).toBe(0)
     })
 
     it('onCountrySelect clears state and fetches states on valid country', async () => {
-        global.mockHttp.onGet(/\/get-state\/US/).reply(200, {
+        globalThis.mockHttp.onGet(/\/get-state\/US/).reply(200, {
             data: { states: [{ iso2: 'CA', state_subdivision_name: 'California' }] },
         })
         await wrapper.vm.onCountrySelect({ id: 'US' })
@@ -129,12 +129,12 @@ describe('TaxCreate.vue — branch coverage', () => {
     it('submit() calls validateForm and posts to create/tax-class on success', async () => {
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('/create/tax-class'))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('/create/tax-class'))).toBe(true)
     })
 
     it('submit() calls errorHandler on API failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/create\/tax-class/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/create\/tax-class/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -145,12 +145,12 @@ describe('TaxCreate.vue — branch coverage', () => {
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('classOptions falls back to Standard when classes is empty', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/tax-options/).reply(200, {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/tax-options/).reply(200, {
             data: { countries: {}, classes: [] },
         })
         const w = mount(TaxCreate, {
@@ -171,14 +171,14 @@ describe('TaxCreate.vue — branch coverage', () => {
     })
 
     it('onCountrySelect handles get-state error gracefully', async () => {
-        global.mockHttp.onGet(/\/get-state\/IN/).reply(500)
+        globalThis.mockHttp.onGet(/\/get-state\/IN/).reply(500)
         await wrapper.vm.onCountrySelect({ id: 'IN' })
         await flushPromises()
         expect(wrapper.vm.states).toEqual([])
     })
 
     it('onCountrySelect handles missing states array in response', async () => {
-        global.mockHttp.onGet(/\/get-state\/US/).reply(200, { data: {} })
+        globalThis.mockHttp.onGet(/\/get-state\/US/).reply(200, { data: {} })
         await wrapper.vm.onCountrySelect({ id: 'US' })
         await flushPromises()
         expect(wrapper.vm.states).toEqual([])
@@ -189,13 +189,13 @@ describe('TaxCreate.vue — SelectField onChange handlers via component stub', (
     let wrapper
 
     beforeEach(async () => {
-        global.mockHttp.onGet(/\/tax-options/).reply(200, {
+        globalThis.mockHttp.onGet(/\/tax-options/).reply(200, {
             data: {
                 countries: { US: 'United States', IN: 'India' },
                 classes: [{ slug: 'standard', name: 'Standard' }, { slug: 'reduced', name: 'Reduced' }],
             },
         })
-        global.mockHttp.onPost(/\/create\/tax-class/).reply(200, { message: 'Created' })
+        globalThis.mockHttp.onPost(/\/create\/tax-class/).reply(200, { message: 'Created' })
 
         wrapper = mount(TaxCreate, {
             global: {
@@ -265,7 +265,7 @@ describe('TaxCreate.vue — SelectField onChange handlers via component stub', (
     })
 
     it('country onChange calls onCountrySelect with valid country', async () => {
-        global.mockHttp.onGet(/\/get-state\/US/).reply(200, {
+        globalThis.mockHttp.onGet(/\/get-state\/US/).reply(200, {
             data: { states: [{ iso2: 'CA', state_subdivision_name: 'California' }] },
         })
         const sf = getSF('country')

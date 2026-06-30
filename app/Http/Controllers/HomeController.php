@@ -166,7 +166,6 @@ class HomeController extends BaseHomeController
         try {
             if ($order_number && $domain && $serial_key) {
                 $order = $this->verifyOrder($order_number, $serial_key);
-                // var_dump($order);
                 if ($order instanceof Order) {
                     return $this->checkFaveoDetails($order_number, $faveo_name, $faveo_version);
                 }
@@ -208,7 +207,6 @@ class HomeController extends BaseHomeController
     public static function encryptByPublicKey(string $data): string
     {
         $path = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public.key';
-        // dd($path);
         $key_content = file_get_contents($path);
         if ($key_content === false) {
             throw new Exception('Failed to read public key file');
@@ -485,11 +483,10 @@ class HomeController extends BaseHomeController
             $cost = PlanPrice::where('plan_id', $planid)->where('currency', $oldcurrency)->value('renew_price');
 
             $renewController = new RenewController;
-            $invoiceItems = $renewController->generateInvoice($product_details, $user, $order->id, $plan->id, $cost, $code = '', $item->agents, $oldcurrency);
+            $invoiceItems = $renewController->generateInvoice($product_details, $user, $order->id, $plan->id, $cost, '', $item->agents, $oldcurrency);
             if (! $invoiceItems instanceof InvoiceItem) {
                 throw new Exception('Renewal failed');
             }
-            $invoiceid = $invoiceItems->invoice_id;
 
             return url('my-invoices');
         } catch (Exception $exception) {

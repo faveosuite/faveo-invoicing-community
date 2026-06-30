@@ -13,7 +13,7 @@ describe('QueueSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/queue\/1\/form/).reply(200, {
+        globalThis.mockHttp.onGet(/\/queue\/1\/form/).reply(200, {
             data: {
                 fields: [
                     { name: 'host', label: 'Host', required: true, type: 'text', value: 'localhost' },
@@ -21,7 +21,7 @@ describe('QueueSettings.vue', () => {
                 driver: 'database',
             },
         })
-        global.mockHttp.onPost(/\/queue\/1/).reply(200, { message: 'Saved' })
+        globalThis.mockHttp.onPost(/\/queue\/1/).reply(200, { message: 'Saved' })
 
         wrapper = mount(QueueSettings, {
             global: {
@@ -37,12 +37,12 @@ describe('QueueSettings.vue', () => {
 
     it('fetches queue form data on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/queue\/1\/form/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/queue\/1\/form/)
     })
 
     it('handles 500 error on fetch', async () => {
-        global.mockHttp.onGet(/\/queue\/1\/form/).reply(500)
+        globalThis.mockHttp.onGet(/\/queue\/1\/form/).reply(500)
         const w = mount(QueueSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -62,7 +62,7 @@ describe('QueueSettings.vue', () => {
         await wrapper.vm.save()
         await flushPromises()
 
-        expect(global.mockHttp.history.post.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.post[0].url).toMatch(/\/queue\/1/)
+        expect(globalThis.mockHttp.history.post.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.post[0].url).toMatch(/\/queue\/1/)
     })
 })

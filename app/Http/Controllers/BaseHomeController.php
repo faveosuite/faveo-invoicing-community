@@ -64,7 +64,6 @@ class BaseHomeController extends Controller
     {
         try {
             $order = new Order;
-            // $faveo_decrypted_key = self::decryptByFaveoPrivateKey($faveo_encrypted_key);
             $this_order = $order->where('number', $order_number)->first();
             if (! $this_order) {
                 return null;
@@ -82,10 +81,6 @@ class BaseHomeController extends Controller
 
     public function verifyOrder(string $order_number, string $serial_key): ?Order
     {
-        // if (ends_with($domain, '/')) {
-        //     $domain = substr_replace($domain, '', -1, 1);
-        // }
-        // dd($domain);
         try {
             $order = new Order;
 
@@ -141,10 +136,7 @@ class BaseHomeController extends Controller
         //     'order_number' => 'required',
         // ]);
         // if ($v->fails()) {
-        //     $error = $v->errors();
 
-        //     return response()->json(compact('error'));
-        // }
         try {
             $order_number = $request->input('order_number');
             $licenseCode = $request->input('license_code');
@@ -211,7 +203,6 @@ class BaseHomeController extends Controller
     public function updateLatestVersion(Request $request): array
     {
         try {
-            $orderId = null;
             $url = $request->url;
             $ip = $this->getUserIP();
             if ($url) {

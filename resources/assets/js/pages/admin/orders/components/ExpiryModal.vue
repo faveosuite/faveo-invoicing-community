@@ -73,7 +73,7 @@ async function save() {
                 message.value = null
                 const el = document.getElementById(props.id)
                 if (el) {
-                    const modal = window.bootstrap?.Modal?.getInstance(el)
+                    const modal = globalThis.bootstrap?.Modal?.getInstance(el)
                     modal?.hide()
                 }
                 emit('saved')

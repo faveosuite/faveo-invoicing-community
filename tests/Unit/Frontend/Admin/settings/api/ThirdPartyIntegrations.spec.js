@@ -21,9 +21,9 @@ describe('ThirdPartyIntegrations.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/module-settings/).reply(200, { data: [] })
-        global.mockHttp.onPost(/\/licenseStatus/).reply(200, { data: { message: 'Updated' } })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/module-settings/).reply(200, { data: [] })
+        globalThis.mockHttp.onPost(/\/licenseStatus/).reply(200, { data: { message: 'Updated' } })
         wrapper = mount(ThirdPartyIntegrations, {
             global: {
                 plugins: [createTestingPinia()],
@@ -50,14 +50,14 @@ describe('ThirdPartyIntegrations.vue', () => {
     it('calls POST /licenseStatus on toggle(row)', async () => {
         await wrapper.vm.toggle({ key: 'mailchimp', is_active: false })
         await flushPromises()
-        const postCalls = global.mockHttp.history.post.filter(r => /\/licenseStatus/.test(r.url))
+        const postCalls = globalThis.mockHttp.history.post.filter(r => /\/licenseStatus/.test(r.url))
         expect(postCalls.length).toBeGreaterThan(0)
     })
 
     it('POST /licenseStatus payload contains module key', async () => {
         await wrapper.vm.toggle({ key: 'mailchimp', is_active: false })
         await flushPromises()
-        const body = JSON.parse(global.mockHttp.history.post[0].data)
+        const body = JSON.parse(globalThis.mockHttp.history.post[0].data)
         expect(body).toHaveProperty('mailchimp')
     })
 
@@ -68,9 +68,9 @@ describe('ThirdPartyIntegrations.vue', () => {
     })
 
     it('calls errorHandler on toggle failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/module-settings/).reply(200, { data: [] })
-        global.mockHttp.onPost(/\/licenseStatus/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/module-settings/).reply(200, { data: [] })
+        globalThis.mockHttp.onPost(/\/licenseStatus/).reply(500)
         await wrapper.vm.toggle({ key: 'mailchimp', is_active: false })
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()

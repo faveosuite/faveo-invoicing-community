@@ -52,7 +52,7 @@ class LicenseSettingsController extends LicensePermissionsController
     public function createLicense(Request $request): JsonResponse
     {
         try {
-            $productType = $this->licenseType->fill($request->input())->save();
+            $this->licenseType->fill($request->input())->save();
 
             return successResponse(__('message.saved-successfully'));
         } catch (Exception $exception) {

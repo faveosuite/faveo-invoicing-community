@@ -128,7 +128,7 @@ trait CoupCodeAndInvoiceSearch
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.(string) __('message.no-record').'
                 </div>';
-                        // echo \__('message.no-record') . '  [id=>' . $id . ']';
+
                     }
                 }
 
@@ -147,7 +147,7 @@ trait CoupCodeAndInvoiceSearch
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                         '.(string) __('message.select-a-row').'
                 </div>';
-                // echo \__('message.select-a-row');
+
             }
         } catch (Exception $exception) {
             echo "<div class='alert alert-danger alert-dismissable'>

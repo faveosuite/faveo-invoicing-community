@@ -13,7 +13,7 @@ describe('AnalyticsEdit.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/chat\/show\/5/).reply(200, {
+        globalThis.mockHttp.onGet(/\/chat\/show\/5/).reply(200, {
             data: {
                 name: 'My Script',
                 on_registration: 1,
@@ -22,7 +22,7 @@ describe('AnalyticsEdit.vue', () => {
                 script: 'console.log("test")',
             },
         })
-        global.mockHttp.onPut(/\/chat\/update\/5/).reply(200, { message: 'Updated' })
+        globalThis.mockHttp.onPut(/\/chat\/update\/5/).reply(200, { message: 'Updated' })
 
         wrapper = mount(AnalyticsEdit, {
             global: {
@@ -38,8 +38,8 @@ describe('AnalyticsEdit.vue', () => {
 
     it('fetches analytics entry on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/chat\/show\/5/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/chat\/show\/5/)
     })
 
     it('populates form after fetch', async () => {
@@ -49,7 +49,7 @@ describe('AnalyticsEdit.vue', () => {
     })
 
     it('calls errorHandler when fetch fails', async () => {
-        global.mockHttp.onGet(/\/chat\/show\/5/).reply(500)
+        globalThis.mockHttp.onGet(/\/chat\/show\/5/).reply(500)
         const w = mount(AnalyticsEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -65,8 +65,8 @@ describe('AnalyticsEdit.vue', () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.put.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.put[0].url).toMatch(/\/chat\/update\/5/)
+        expect(globalThis.mockHttp.history.put.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.put[0].url).toMatch(/\/chat\/update\/5/)
     })
 
     it('calls successHandler after successful update', async () => {
@@ -77,7 +77,7 @@ describe('AnalyticsEdit.vue', () => {
     })
 
     it('calls errorHandler on submit failure', async () => {
-        global.mockHttp.onPut(/\/chat\/update\/5/).reply(500)
+        globalThis.mockHttp.onPut(/\/chat\/update\/5/).reply(500)
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
@@ -90,6 +90,6 @@ describe('AnalyticsEdit.vue', () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.put.length).toBe(0)
+        expect(globalThis.mockHttp.history.put.length).toBe(0)
     })
 })

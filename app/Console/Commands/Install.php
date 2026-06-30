@@ -232,16 +232,8 @@ class Install extends LoggableCommand
         $this->sslCa = null; // @phpstan-ignore property.notFound
         $this->sslVerify = false; // @phpstan-ignore property.notFound
 
-        // If want ssl connection enabled then uncomment below code
 
-        //        $securecon = filter_var($this->option('securecon') ?? $this->confirm('Does your database allows secure connection? If yes then make sure you have all required files available on the server as pem bundle. (yes/no)'), FILTER_VALIDATE_BOOLEAN);
 
-        //        if ($securecon) {
-        //            $this->sslKey = $this->option('sslkey') ?: $this->ask('Full path to SSL key file in PEM format (Leave blank if not available)');
-        //            $this->sslCert = $this->option('sslcert') ?: $this->ask('Full path to SSL certificate file in PEM format (Leave blank if not available)');
-        //            $this->sslCa = $this->option('sslca') ?: $this->ask('Full path to Certificate Authority file in PEM format (Leave blank if not available)');
-        //            $this->sslVerify = filter_var($this->option('sslverify') ?? $this->confirm('Verify SSL Peer\'s Certificate?'), FILTER_VALIDATE_BOOLEAN);
-        //        }
     }
 
     /**

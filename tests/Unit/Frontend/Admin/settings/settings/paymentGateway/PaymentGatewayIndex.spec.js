@@ -12,7 +12,7 @@ describe('PaymentGatewayIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/payment-gateway-list/).reply(200, {
+        globalThis.mockHttp.onGet(/\/payment-gateway-list/).reply(200, {
             data: [
                 { name: 'stripe', status: true, description: 'Stripe gateway' },
                 { name: 'razorpay', status: false, description: 'Razorpay gateway' },
@@ -32,16 +32,16 @@ describe('PaymentGatewayIndex.vue', () => {
 
     it('fetches payment gateway list on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/payment-gateway-list/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/payment-gateway-list/)
     })
 
     it('calls toggle status endpoint when toggling a plugin', async () => {
-        global.mockHttp.onPost(/\/updatePaymentStatus/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/updatePaymentStatus/).reply(200, { data: {} })
         await flushPromises()
         wrapper.vm.toggleStatus({ name: 'stripe', status: true })
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('updatePaymentStatus'))).toBeTruthy()
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('updatePaymentStatus'))).toBeTruthy()
     })
 
     it('navigates to settings when goToSettings is called', async () => {

@@ -2,7 +2,7 @@
 // Jest hoists imports above normal statements, so we use jest.mock to inject
 // the global before the module is first evaluated.
 jest.mock('@/validations/admin/queueDriverValidations', () => {
-    global.__ = (key) => key
+    globalThis.__ = (key) => key
     return jest.requireActual('@/validations/admin/queueDriverValidations')
 })
 
@@ -41,7 +41,7 @@ describe('queueDriverSchemas.beanstalkd', () => {
     })
 
     it('fails when host is missing', async () => {
-        const { host: _o, ...rest } = valid
+        const { host: _o, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 

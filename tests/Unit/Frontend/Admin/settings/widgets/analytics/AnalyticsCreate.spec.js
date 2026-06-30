@@ -13,7 +13,7 @@ describe('AnalyticsCreate.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onPost(/\/chat\/create/).reply(200, { message: 'Created' })
+        globalThis.mockHttp.onPost(/\/chat\/create/).reply(200, { message: 'Created' })
 
         wrapper = mount(AnalyticsCreate, {
             global: {
@@ -34,8 +34,8 @@ describe('AnalyticsCreate.vue', () => {
     it('submits form via POST to /chat/create', async () => {
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.post[0].url).toMatch(/\/chat\/create/)
+        expect(globalThis.mockHttp.history.post.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.post[0].url).toMatch(/\/chat\/create/)
     })
 
     it('calls successHandler after successful submit', async () => {
@@ -45,7 +45,7 @@ describe('AnalyticsCreate.vue', () => {
     })
 
     it('calls errorHandler on submit failure', async () => {
-        global.mockHttp.onPost(/\/chat\/create/).reply(500)
+        globalThis.mockHttp.onPost(/\/chat\/create/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -56,7 +56,7 @@ describe('AnalyticsCreate.vue', () => {
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('initializes form with default values', () => {

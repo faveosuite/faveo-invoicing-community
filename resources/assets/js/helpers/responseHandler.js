@@ -10,12 +10,12 @@ export const errorHandler = (err, componentName = '') => {
     const data   = err?.response?.data
 
     if (status === 403) {
-        window.__router?.push('/403')
+        globalThis.__router?.push('/403')
         return
     }
 
     if (status === 404) {
-        window.__router?.push('/404')
+        globalThis.__router?.push('/404')
         return
     }
 

@@ -11,8 +11,8 @@ describe('ProductGroupIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/groups/).reply(200, { data: [] })
-        global.mockHttp.onDelete(/\/group/).reply(200, { data: { message: 'Deleted' } })
+        globalThis.mockHttp.onGet(/\/groups/).reply(200, { data: [] })
+        globalThis.mockHttp.onDelete(/\/group/).reply(200, { data: { message: 'Deleted' } })
         wrapper = mount(ProductGroupIndex, {
             global: {
                 plugins: [createTestingPinia()],
@@ -70,7 +70,7 @@ describe('ProductGroupIndex.vue', () => {
 describe('ProductGroupIndex.vue — branch coverage', () => {
     let wrapper
     beforeEach(() => {
-        global.mockHttp.onGet(/\/product-groups/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/product-groups/).reply(200, { data: [] })
         wrapper = mount(ProductGroupIndex, {
             global: {
                 plugins: [createTestingPinia()],

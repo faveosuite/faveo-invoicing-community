@@ -20,7 +20,7 @@ describe('FileStorage.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/file-storage$/).reply(200, {
+        globalThis.mockHttp.onGet(/\/file-storage$/).reply(200, {
             data: {
                 disk: 'system',
                 local_file_storage_path: '/storage',
@@ -33,15 +33,15 @@ describe('FileStorage.vue', () => {
                 s3_url: '',
             },
         })
-        global.mockHttp.onGet(/\/pdf-settings/).reply(200, {
+        globalThis.mockHttp.onGet(/\/pdf-settings/).reply(200, {
             data: {
                 node_path: '/usr/bin/node',
                 npm_path: '/usr/bin/npm',
                 chrome_path: '/usr/bin/chromium',
             },
         })
-        global.mockHttp.onPost(/\/file-storage-path/).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/pdf-settings/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/file-storage-path/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/pdf-settings/).reply(200, { data: {} })
 
         wrapper = mount(FileStorage, {
             global: {
@@ -60,13 +60,13 @@ describe('FileStorage.vue', () => {
 
     it('fetches file storage settings on mount', async () => {
         await flushPromises()
-        const getUrls = global.mockHttp.history.get.map(r => r.url)
+        const getUrls = globalThis.mockHttp.history.get.map(r => r.url)
         expect(getUrls.some(u => u.includes('file-storage'))).toBe(true)
     })
 
     it('fetches pdf settings on mount', async () => {
         await flushPromises()
-        const getUrls = global.mockHttp.history.get.map(r => r.url)
+        const getUrls = globalThis.mockHttp.history.get.map(r => r.url)
         expect(getUrls.some(u => u.includes('pdf-settings'))).toBe(true)
     })
 
@@ -81,7 +81,7 @@ describe('FileStorage.vue', () => {
         if (saveBtn.exists()) {
             await saveBtn.trigger('click')
             await flushPromises()
-            const postUrls = global.mockHttp.history.post.map(r => r.url)
+            const postUrls = globalThis.mockHttp.history.post.map(r => r.url)
             expect(postUrls.some(u => u.includes('file-storage-path') || u.includes('pdf-settings'))).toBe(true)
         }
     })

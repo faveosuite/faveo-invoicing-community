@@ -104,7 +104,7 @@ async function onSubmit() {
 }
 
 onBeforeMount(() => {
-    const path = window.location.pathname
+    const path = globalThis.location.pathname
     const id = getIdFromUrl(path)
     if (path.includes('edit')) {
         title.value = 'edit_whitelist'

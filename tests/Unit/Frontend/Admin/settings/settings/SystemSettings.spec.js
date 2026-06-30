@@ -12,7 +12,7 @@ describe('SystemSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/settings\/system-data/).reply(200, {
+        globalThis.mockHttp.onGet(/\/settings\/system-data/).reply(200, {
             data: {
                 timezones: [{ id: 1, location: 'UTC' }],
                 date_formats: [{ value: 'Y-m-d', label: '2024-01-01' }],
@@ -20,7 +20,7 @@ describe('SystemSettings.vue', () => {
                 settings: { timezone_id: 1, date_format: 'Y-m-d', time_format: 'H:i' },
             },
         })
-        global.mockHttp.onPost(/\/settings\/datetime-data/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/settings\/datetime-data/).reply(200, { data: {} })
         wrapper = mount(SystemSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -35,8 +35,8 @@ describe('SystemSettings.vue', () => {
 
     it('fetches system data on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/settings\/system-data/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/settings\/system-data/)
     })
 
     it('calls POST datetime-data on save', async () => {
@@ -46,7 +46,7 @@ describe('SystemSettings.vue', () => {
         wrapper.vm.form.time_format = { id: 'H:i', name: '14:30' }
         wrapper.vm.save()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('settings/datetime-data'))).toBeTruthy()
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('settings/datetime-data'))).toBeTruthy()
     })
 
     it('calls successHandler after successful save', async () => {

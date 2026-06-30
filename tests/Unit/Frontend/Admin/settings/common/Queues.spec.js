@@ -36,25 +36,25 @@ describe('Queues.vue', () => {
     })
 
     it('handles verify-php-path POST on copyCommand', async () => {
-        global.mockHttp.onPost(/\/verify-php-path/).reply(200, { message: 'OK' })
+        globalThis.mockHttp.onPost(/\/verify-php-path/).reply(200, { message: 'OK' })
         Object.assign(navigator, {
             clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
         })
         await wrapper.vm.copyCommand()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.post.length).toBeGreaterThan(0)
     })
 
     it('handles activate POST to correct endpoint', async () => {
-        global.mockHttp.onPost(/\/queue\/5\/activate/).reply(200, { message: 'Activated' })
+        globalThis.mockHttp.onPost(/\/queue\/5\/activate/).reply(200, { message: 'Activated' })
         await wrapper.vm.activate(5)
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('/queue/5/activate'))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('/queue/5/activate'))).toBe(true)
         expect(successHandler).toHaveBeenCalled()
     })
 
     it('handles 500 error on activate', async () => {
-        global.mockHttp.onPost(/\/queue\/99\/activate/).reply(500)
+        globalThis.mockHttp.onPost(/\/queue\/99\/activate/).reply(500)
         await wrapper.vm.activate(99)
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -101,8 +101,8 @@ describe('Queues.vue', () => {
 
     // ── copyCommand — error path ────────────────────────────────────
     it('copyCommand calls errorHandler on verify failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/verify-php-path/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/verify-php-path/).reply(500)
         await wrapper.vm.copyCommand()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()

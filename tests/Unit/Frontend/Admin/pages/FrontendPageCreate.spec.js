@@ -14,7 +14,7 @@ describe('FrontendPageCreate.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onPost(/\/page/).reply(200, { data: { message: 'Created' } })
+        globalThis.mockHttp.onPost(/\/page/).reply(200, { data: { message: 'Created' } })
         wrapper = mount(FrontendPageCreate, {
             global: {
                 plugins: [createTestingPinia()],
@@ -63,7 +63,7 @@ describe('FrontendPageCreate.vue', () => {
     it('POSTs to /page on submit', async () => {
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/page/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/page/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on successful create', async () => {
@@ -73,8 +73,8 @@ describe('FrontendPageCreate.vue', () => {
     })
 
     it('calls errorHandler on create failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/page/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/page/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -83,10 +83,10 @@ describe('FrontendPageCreate.vue', () => {
     it('does not POST when validateForm returns false', async () => {
         const { validateForm } = require('@/helpers/formUtils.js')
         validateForm.mockResolvedValueOnce(false)
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('onChange sets type and updates url when type is contactus', () => {

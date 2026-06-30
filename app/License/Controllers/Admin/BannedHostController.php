@@ -70,7 +70,7 @@ class BannedHostController extends Controller
         $comments = $request->get('comments');
 
         if (empty($id) || ! LicenseHelper::validateIntegerValue($id) ||
-        empty($rows_array = LicenseBannedHost::where('id', $id)->get()->toArray())) { // invalid record
+        empty(LicenseBannedHost::where('id', $id)->get()->toArray())) { // invalid record
             return errorResponse(__('lang.banned_host_not_found'), 404);
         }
 

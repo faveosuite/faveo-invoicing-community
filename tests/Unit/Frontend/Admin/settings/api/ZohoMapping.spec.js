@@ -21,9 +21,9 @@ describe('ZohoMapping.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/zoho\/integrations/).reply(200, INTEGRATIONS_RESPONSE)
-        global.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
-        global.mockHttp.onPost(/\/zoho\/mapping\/save/).reply(200, { data: {} })
+        globalThis.mockHttp.onGet(/\/zoho\/integrations/).reply(200, INTEGRATIONS_RESPONSE)
+        globalThis.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
+        globalThis.mockHttp.onPost(/\/zoho\/mapping\/save/).reply(200, { data: {} })
         wrapper = mount(ZohoMapping, {
             global: {
                 plugins: [createTestingPinia()],
@@ -38,7 +38,7 @@ describe('ZohoMapping.vue', () => {
 
     afterEach(() => {
         wrapper.unmount()
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -49,13 +49,13 @@ describe('ZohoMapping.vue', () => {
     it('calls GET /zoho/integrations on mount', async () => {
         await flushPromises()
         expect(
-            global.mockHttp.history.get.some(r => r.url.includes('/zoho/integrations'))
+            globalThis.mockHttp.history.get.some(r => r.url.includes('/zoho/integrations'))
         ).toBe(true)
     })
 
     it('calls GET fields and mapping endpoints on mount', async () => {
         await flushPromises()
-        const zohoUrls = global.mockHttp.history.get.filter(r => /\/zoho\//.test(r.url))
+        const zohoUrls = globalThis.mockHttp.history.get.filter(r => /\/zoho\//.test(r.url))
         expect(zohoUrls.length).toBeGreaterThanOrEqual(2)
         expect(zohoUrls.some(r => r.url.includes('/fields'))).toBe(true)
         expect(zohoUrls.some(r => r.url.includes('/mapping/data'))).toBe(true)
@@ -71,7 +71,7 @@ describe('ZohoMapping.vue', () => {
         await wrapper.vm.save()
         await flushPromises()
         expect(
-            global.mockHttp.history.post.some(r => r.url.includes('/zoho/mapping/save'))
+            globalThis.mockHttp.history.post.some(r => r.url.includes('/zoho/mapping/save'))
         ).toBe(true)
     })
 
@@ -96,12 +96,12 @@ describe('ZohoMapping.vue', () => {
 
     it('switchTab calls loadMappings for the new tab', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
         await wrapper.vm.switchTab('accounts')
         await flushPromises()
         expect(wrapper.vm.activeModule).toBe('accounts')
-        const zohoUrls = global.mockHttp.history.get.filter(r => /\/zoho\//.test(r.url))
+        const zohoUrls = globalThis.mockHttp.history.get.filter(r => /\/zoho\//.test(r.url))
         expect(zohoUrls.length).toBeGreaterThanOrEqual(2)
     })
 
@@ -109,17 +109,17 @@ describe('ZohoMapping.vue', () => {
     it('switchTab does nothing when same tab is already active', async () => {
         await flushPromises()
         const before = wrapper.vm.activeModule
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         await wrapper.vm.switchTab(before)
         await flushPromises()
         expect(wrapper.vm.activeModule).toBe(before)
-        expect(global.mockHttp.history.get.length).toBe(0)
+        expect(globalThis.mockHttp.history.get.length).toBe(0)
     })
 
     it('switchTab resets loadingModule to false on error', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/zoho\//).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/zoho\//).reply(500)
         await expect(wrapper.vm.switchTab('accounts')).resolves.not.toThrow()
         expect(wrapper.vm.loadingModule).toBe(false)
     })
@@ -127,7 +127,7 @@ describe('ZohoMapping.vue', () => {
     // ── save error path ────────────────────────────────────────────────────
     it('save handles 500 error without throwing', async () => {
         await flushPromises()
-        global.mockHttp.onPost(/\/zoho\/mapping\/save/).reply(500)
+        globalThis.mockHttp.onPost(/\/zoho\/mapping\/save/).reply(500)
         await expect(wrapper.vm.save()).resolves.not.toThrow()
     })
 
@@ -143,28 +143,28 @@ describe('ZohoMapping.vue', () => {
     // ── syncFields ─────────────────────────────────────────────────────────
     it('syncFields calls GET /zoho/:platform/sync', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/zoho\/crm\/sync/).reply(200, { data: {} })
-        global.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/zoho\/crm\/sync/).reply(200, { data: {} })
+        globalThis.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
         await wrapper.vm.syncFields()
         await flushPromises()
         expect(
-            global.mockHttp.history.get.some(r => r.url.includes('/sync'))
+            globalThis.mockHttp.history.get.some(r => r.url.includes('/sync'))
         ).toBe(true)
     })
 
     it('syncFields handles 500 error without throwing', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/zoho\/crm\/sync/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/zoho\/crm\/sync/).reply(500)
         await expect(wrapper.vm.syncFields()).resolves.not.toThrow()
     })
 
     it('syncFields sets syncing to false after completion', async () => {
         await flushPromises()
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/zoho\/crm\/sync/).reply(200, { data: {} })
-        global.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/zoho\/crm\/sync/).reply(200, { data: {} })
+        globalThis.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
         await wrapper.vm.syncFields()
         await flushPromises()
         expect(wrapper.vm.syncing).toBe(false)
@@ -193,11 +193,11 @@ describe('ZohoMapping.vue', () => {
     it('onZohoFieldChange fetches options when zohoId is set', async () => {
         await flushPromises()
         // Reset and re-register so the options route is checked before the generic /zoho/ catch-all
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/zoho\/options\//).reply(200, [
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/zoho\/options\//).reply(200, [
             { value: 'v1', label: 'Option 1', type: 'string' },
         ])
-        global.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
+        globalThis.mockHttp.onGet(/\/zoho\//).reply(200, FIELDS_RESPONSE)
         wrapper.vm.addRow()
         const row = wrapper.vm.rows[wrapper.vm.rows.length - 1]
         await wrapper.vm.onZohoFieldChange(row, { id: 10 })
@@ -218,8 +218,8 @@ describe('ZohoMapping.vue', () => {
 
     // ── mount error path ───────────────────────────────────────────────────
     it('handles GET /zoho/integrations error on mount without throwing', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/zoho\/integrations/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/zoho\/integrations/).reply(500)
         const w = mount(ZohoMapping, {
             global: {
                 plugins: [createTestingPinia()],

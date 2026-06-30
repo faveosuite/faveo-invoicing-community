@@ -19,9 +19,9 @@ describe('InvoiceIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/invoices/).reply(200, { data: [] })
-        global.mockHttp.onGet(/\/export-invoices/).reply(200, { data: { message: 'Export queued' } })
-        global.mockHttp.onDelete(/\/invoices/).reply(200, { data: { message: 'Deleted' } })
+        globalThis.mockHttp.onGet(/\/invoices/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/export-invoices/).reply(200, { data: { message: 'Export queued' } })
+        globalThis.mockHttp.onDelete(/\/invoices/).reply(200, { data: { message: 'Deleted' } })
         wrapper = mount(InvoiceIndex, {
             global: {
                 plugins: [createTestingPinia()],
@@ -37,7 +37,7 @@ describe('InvoiceIndex.vue', () => {
     })
 
     afterEach(() => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -77,7 +77,7 @@ describe('InvoiceIndex.vue', () => {
     it('calls exportInvoices which hits the export-invoices API', async () => {
         await wrapper.vm.exportInvoices()
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /export-invoices/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /export-invoices/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on successful export', async () => {
@@ -87,8 +87,8 @@ describe('InvoiceIndex.vue', () => {
     })
 
     it('calls errorHandler on export failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/export-invoices/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/export-invoices/).reply(500)
         await wrapper.vm.exportInvoices()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -137,7 +137,7 @@ describe('InvoiceIndex.vue', () => {
         wrapper.vm.activeFilters = { status: 'paid', from: '' }
         await wrapper.vm.exportInvoices()
         await flushPromises()
-        const url = global.mockHttp.history.get.find(r => /export-invoices/.test(r.url))?.url ?? ''
+        const url = globalThis.mockHttp.history.get.find(r => /export-invoices/.test(r.url))?.url ?? ''
         expect(url).toContain('status=paid')
         expect(url).not.toContain('from=')
     })

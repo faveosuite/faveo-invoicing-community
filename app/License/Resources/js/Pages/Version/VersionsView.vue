@@ -148,7 +148,7 @@ function updateData(versionId) {
 }
 
 onBeforeMount(() => {
-    const path = window.location.pathname
+    const path = globalThis.location.pathname
     const versionId = getIdFromUrl(path)
     id.value = versionId
     getInitialValues(versionId)

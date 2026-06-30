@@ -23,11 +23,11 @@ describe('TermsSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/terms/).reply(200, {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/terms/).reply(200, {
             data: { terms_url: 'https://example.com/terms' },
         })
-        global.mockHttp.onPost(/\/updateTermsDetails/).reply(200, { data: { message: 'Saved' } })
+        globalThis.mockHttp.onPost(/\/updateTermsDetails/).reply(200, { data: { message: 'Saved' } })
         wrapper = mount(TermsSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -42,7 +42,7 @@ describe('TermsSettings.vue', () => {
 
     it('fetches settings on mount via GET /settings/terms', async () => {
         await flushPromises()
-        const getCalls = global.mockHttp.history.get.filter(r => /\/settings\/terms/.test(r.url))
+        const getCalls = globalThis.mockHttp.history.get.filter(r => /\/settings\/terms/.test(r.url))
         expect(getCalls.length).toBeGreaterThan(0)
     })
 
@@ -55,7 +55,7 @@ describe('TermsSettings.vue', () => {
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
-        const postCalls = global.mockHttp.history.post.filter(r => /\/updateTermsDetails/.test(r.url))
+        const postCalls = globalThis.mockHttp.history.post.filter(r => /\/updateTermsDetails/.test(r.url))
         expect(postCalls.length).toBeGreaterThan(0)
     })
 
@@ -63,7 +63,7 @@ describe('TermsSettings.vue', () => {
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
-        const body = JSON.parse(global.mockHttp.history.post[0].data)
+        const body = JSON.parse(globalThis.mockHttp.history.post[0].data)
         expect(body.status).toBe(1)
     })
 
@@ -75,9 +75,9 @@ describe('TermsSettings.vue', () => {
     })
 
     it('calls errorHandler on save failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/terms/).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/updateTermsDetails/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/terms/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/updateTermsDetails/).reply(500)
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()

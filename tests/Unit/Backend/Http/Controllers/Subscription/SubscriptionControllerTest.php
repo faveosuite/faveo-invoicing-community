@@ -50,7 +50,7 @@ class SubscriptionControllerTest extends DBTestCase
     // return empty when zero expired subscription
     public function test_auto_renewal_return_null_when_empty_expired_subscription(): void
     {
-        ApiKey::create(['stripe_secret' => 'sk_test_FIPEe0BihQ4Rn2exN1BhOotg', 'rzp_key' => 'rzp_test_fNDuvutBRXJLkQ', 'rzp_secret' => 'ObVJAj8L2e7V9RLOQkcdLtSw']);
+        ApiKey::create(['stripe_secret' => 'sk_test_FIPEe0BihQ4Rn2exN1BhOotg', 'rzp_key' => 'rzp_test_fNDuvutBRXJLkQ', 'rzp_secret' => 'ObVJAj8L2e7V9RLOQkcdLtSw']); // NOSONAR
         $date = '2025-03-02 18:15:02';
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $user = User::factory()->create(['id' => mt_rand(1, 999), 'role' => 'user', 'country' => 'IN']);
@@ -69,7 +69,7 @@ class SubscriptionControllerTest extends DBTestCase
     // return onday expired data in autorenewal
     public function test_auto_renewal_return_onday_expired_subscription(): void
     {
-        ApiKey::create(['stripe_secret' => 'sk_test_FIPEe0BihQ4Rn2exN1BhOotg', 'rzp_key' => 'rzp_test_fNDuvutBRXJLkQ', 'rzp_secret' => 'ObVJAj8L2e7V9RLOQkcdLtSw']);
+        ApiKey::create(['stripe_secret' => 'sk_test_FIPEe0BihQ4Rn2exN1BhOotg', 'rzp_key' => 'rzp_test_fNDuvutBRXJLkQ', 'rzp_secret' => 'ObVJAj8L2e7V9RLOQkcdLtSw']); // NOSONAR
         $date = date('Y-m-d H:m:i');
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $user = User::factory()->create(['id' => mt_rand(1, 999), 'role' => 'user', 'country' => 'IN']);

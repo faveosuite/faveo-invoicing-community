@@ -77,9 +77,6 @@ class BaseCronController extends Controller
         return $sub;
     }
 
-    // if (count($this->get15DaysUsers())) {
-    //     array_push($sub, $this->get15DaysSubscription());
-    // }
 
     public function getAllDaysSubscription(int $day): mixed
     {

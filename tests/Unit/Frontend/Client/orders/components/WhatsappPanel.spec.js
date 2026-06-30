@@ -91,14 +91,14 @@ describe('WhatsappPanel.vue', () => {
     it('calls POST /url-save with a valid webhook URL', async () => {
         axiosMock.onPost('/url-save').reply(200, { data: {} })
         // Mock FB to avoid real SDK calls
-        window.FB = { login: jest.fn() }
+        globalThis.FB = { login: jest.fn() }
 
         wrapper.vm.webhookUrl = 'https://example.com/webhook'
         await wrapper.vm.submitWebhook()
         await flushPromises()
 
         expect(axiosMock.history.post.some(r => r.url.includes('/url-save'))).toBe(true)
-        delete window.FB
+        delete globalThis.FB
     })
 
     it('calls errorHandler when /url-save returns 500', async () => {

@@ -94,7 +94,7 @@ onMounted(async () => {
 
         // 2FA-protected reset → backend tells us to verify first.
         if (data?.redirect) {
-            window.location.href = data.redirect
+            globalThis.location.href = data.redirect
             return
         }
 
@@ -129,7 +129,7 @@ async function submit() {
         })
         successHandler(res, COMPONENT)
         const redirect = res.data?.data?.redirect
-        setTimeout(() => { window.location.href = redirect || `${baseUrl}/login` }, 1500)
+        setTimeout(() => { globalThis.location.href = redirect || `${baseUrl}/login` }, 1500)
     } catch (e) {
         if (e?.response?.data?.data?.show_v2_recaptcha) {
             captchaRef.value?.triggerFallback()

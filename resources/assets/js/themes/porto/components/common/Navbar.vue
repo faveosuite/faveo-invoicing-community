@@ -405,7 +405,7 @@ const languages = ref(
 async function selectLang(lang) {
   try {
     await http.post('lang/update', {language: lang.locale})
-    window.location.reload()
+    globalThis.location.reload()
   } catch (e) {
     console.error('Language switch failed', e)
   }

@@ -298,7 +298,6 @@ class ClientController extends BaseClientController
             // Plans available for upgrade/downgrade (other cloud products' plans, free excluded).
             $plans = $this->planPriceProductRelation($product);
             $planIds = array_keys($plans);
-            $countryids = Country::where('country_code_char2', $user->country)->first();
             $plans = $this->planDetails($planIds, $user->country, $plans, $product);
             $planOptions = [];
             foreach ($plans as $pid => $pname) {

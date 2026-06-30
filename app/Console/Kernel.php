@@ -106,7 +106,7 @@ class Kernel extends ConsoleKernel
 
         if (config('database.DB_INSTALL')) {
             $condition = new Condition;
-            $command = $condition->getConditionValue($task = 'cloud');
+            $command = $condition->getConditionValue('cloud');
             $this->getCondition($schedule->job(new NotifyMail), $command);
 
             return;
@@ -304,7 +304,7 @@ class Kernel extends ConsoleKernel
     public function cloudEmail(): void
     {
         try {
-            $contact = getContactData();
+            
             /** @var Setting $setting */
             $setting = Setting::find(1);
             $mail = new PhpMailController;

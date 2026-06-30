@@ -12,7 +12,7 @@ describe('TemplateSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/settings\/template/).reply(200, {
+        globalThis.mockHttp.onGet(/\/settings\/template/).reply(200, {
             data: {
                 types: [
                     { id: 1, name: 'welcome_mail', selected_template_id: null },
@@ -25,7 +25,7 @@ describe('TemplateSettings.vue', () => {
                 ],
             },
         })
-        global.mockHttp.onPatch(/\/settings\/template/).reply(200, { message: 'Saved' })
+        globalThis.mockHttp.onPatch(/\/settings\/template/).reply(200, { message: 'Saved' })
 
         wrapper = mount(TemplateSettings, {
             global: {
@@ -44,12 +44,12 @@ describe('TemplateSettings.vue', () => {
 
     it('fetches template settings on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/settings\/template/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/settings\/template/)
     })
 
     it('handles 500 error on fetch', async () => {
-        global.mockHttp.onGet(/\/settings\/template/).reply(500)
+        globalThis.mockHttp.onGet(/\/settings\/template/).reply(500)
         const w = mount(TemplateSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -66,8 +66,8 @@ describe('TemplateSettings.vue', () => {
         await wrapper.vm.submit()
         await flushPromises()
 
-        expect(global.mockHttp.history.patch.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.patch[0].url).toMatch(/\/settings\/template/)
+        expect(globalThis.mockHttp.history.patch.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.patch[0].url).toMatch(/\/settings\/template/)
     })
 
     it('calls successHandler after successful submit', async () => {

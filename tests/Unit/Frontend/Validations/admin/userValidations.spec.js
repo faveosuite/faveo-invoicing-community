@@ -21,7 +21,7 @@ describe('userCreateSchema', () => {
     })
 
     it('fails when last_name is missing', async () => {
-        const { last_name: _o, ...rest } = valid
+        const { last_name: _o, ...rest } = valid // NOSONAR
         await expect(userCreateSchema.validate(rest)).rejects.toThrow()
     })
 

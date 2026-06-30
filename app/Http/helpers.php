@@ -495,10 +495,6 @@ function userCountryId(): mixed
     return null;
 }
 
-// function getIndianCurrencySymbol($currency)
-// {
-//    return \DB::table('format_currencies')->where('code', $currency)->value('symbol');
-// }
 
 /**
  * sets mail config and reloads the config into the container

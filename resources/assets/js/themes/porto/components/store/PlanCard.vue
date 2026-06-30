@@ -158,10 +158,10 @@ const domainError        = ref('')
 const selectedDataCenter = ref(null)
 
 function initTooltips() {
-  if (!descriptionEl.value || !window.bootstrap?.Tooltip) return
+  if (!descriptionEl.value || !globalThis.bootstrap?.Tooltip) return
   descriptionEl.value.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(node => {
-    window.bootstrap.Tooltip.getInstance(node)?.dispose()
-    new window.bootstrap.Tooltip(node, { customClass: 'porto-tooltip', offset: [0, 10] })
+    globalThis.bootstrap.Tooltip.getInstance(node)?.dispose()
+    new globalThis.bootstrap.Tooltip(node, { customClass: 'porto-tooltip', offset: [0, 10] })
   })
 }
 
@@ -173,7 +173,7 @@ function applyListClasses() {
 
 function destroyTooltips() {
   descriptionEl.value?.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(node => {
-    window.bootstrap.Tooltip.getInstance(node)?.dispose()
+    globalThis.bootstrap.Tooltip.getInstance(node)?.dispose()
   })
 }
 

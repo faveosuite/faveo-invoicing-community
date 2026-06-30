@@ -258,7 +258,7 @@ async function onSubmit() {
 }
 
 onBeforeMount(() => {
-    const path = window.location.pathname
+    const path = globalThis.location.pathname
     const licId = getIdFromUrl(path)
     if (path.indexOf('edit') >= 0) {
         title.value = 'edit_license'

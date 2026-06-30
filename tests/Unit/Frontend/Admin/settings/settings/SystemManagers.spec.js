@@ -12,7 +12,7 @@ describe('SystemManagers.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/system-managers/).reply(200, {
+        globalThis.mockHttp.onGet(/\/system-managers/).reply(200, {
             data: {
                 account_managers: [{ id: 1, name: 'Admin One' }],
                 sales_managers: [{ id: 2, name: 'Admin Two' }],
@@ -20,7 +20,7 @@ describe('SystemManagers.vue', () => {
                 sales_managers_auto_assign: false,
             },
         })
-        global.mockHttp.onPost(/\/updateSystemManager/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/updateSystemManager/).reply(200, { data: {} })
         wrapper = mount(SystemManagers, {
             global: {
                 plugins: [createTestingPinia()],
@@ -35,15 +35,15 @@ describe('SystemManagers.vue', () => {
 
     it('fetches system managers data on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/system-managers/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/system-managers/)
     })
 
     it('calls POST updateSystemManager on submit', async () => {
         await flushPromises()
         wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('updateSystemManager'))).toBeTruthy()
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('updateSystemManager'))).toBeTruthy()
     })
 
     it('calls successHandler after successful submit', async () => {

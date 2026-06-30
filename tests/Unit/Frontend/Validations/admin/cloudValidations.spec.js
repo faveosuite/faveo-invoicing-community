@@ -14,7 +14,7 @@ describe('cloudSettingsSchema', () => {
     })
 
     it('fails when cloud_central_domain is missing', async () => {
-        const { cloud_central_domain: _o, ...rest } = valid
+        const { cloud_central_domain: _o, ...rest } = valid // NOSONAR
         await expect(cloudSettingsSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -75,7 +75,7 @@ describe('cloudProductSchema', () => {
     })
 
     it('fails when cloud_product_key is missing', async () => {
-        const { cloud_product_key: _o, ...rest } = valid
+        const { cloud_product_key: _o, ...rest } = valid // NOSONAR
         await expect(cloudProductSchema.validate(rest)).rejects.toThrow()
     })
 })

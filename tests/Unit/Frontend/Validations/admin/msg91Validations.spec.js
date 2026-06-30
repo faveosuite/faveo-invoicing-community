@@ -16,7 +16,7 @@ describe('msg91Schema', () => {
     })
 
     it('fails when msg91_auth_key is missing', async () => {
-        const { msg91_auth_key: _o, ...rest } = valid
+        const { msg91_auth_key: _o, ...rest } = valid // NOSONAR
         await expect(msg91Schema.validate(rest)).rejects.toThrow()
     })
 
@@ -33,7 +33,7 @@ describe('msg91Schema', () => {
     })
 
     it('fails when msg91_template_id is missing', async () => {
-        const { msg91_template_id: _o, ...rest } = valid
+        const { msg91_template_id: _o, ...rest } = valid // NOSONAR
         await expect(msg91Schema.validate(rest)).rejects.toThrow()
     })
 })

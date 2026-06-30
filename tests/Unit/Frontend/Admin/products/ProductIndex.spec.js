@@ -11,8 +11,8 @@ describe('ProductIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/products/).reply(200, { data: [] })
-        global.mockHttp.onDelete(/\/products/).reply(200, { data: { message: 'Deleted' } })
+        globalThis.mockHttp.onGet(/\/products/).reply(200, { data: [] })
+        globalThis.mockHttp.onDelete(/\/products/).reply(200, { data: { message: 'Deleted' } })
 
         wrapper = mount(ProductIndex, {
             global: {
@@ -29,7 +29,7 @@ describe('ProductIndex.vue', () => {
     })
 
     afterEach(() => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -79,7 +79,7 @@ describe('ProductIndex.vue', () => {
 describe('ProductIndex.vue — branch coverage', () => {
     let wrapper
     beforeEach(() => {
-        global.mockHttp.onGet(/\/products/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/products/).reply(200, { data: [] })
         wrapper = mount(ProductIndex, {
             global: {
                 plugins: [createTestingPinia()],

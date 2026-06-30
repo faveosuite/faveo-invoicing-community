@@ -16,7 +16,7 @@ describe('thirdPartyAppSchema', () => {
     })
 
     it('fails when app_name is missing', async () => {
-        const { app_name: _o, ...rest } = valid
+        const { app_name: _o, ...rest } = valid // NOSONAR
         await expect(thirdPartyAppSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -25,7 +25,7 @@ describe('thirdPartyAppSchema', () => {
     })
 
     it('fails when app_key is missing', async () => {
-        const { app_key: _o, ...rest } = valid
+        const { app_key: _o, ...rest } = valid // NOSONAR
         await expect(thirdPartyAppSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -34,7 +34,7 @@ describe('thirdPartyAppSchema', () => {
     })
 
     it('fails when app_secret is missing', async () => {
-        const { app_secret: _o, ...rest } = valid
+        const { app_secret: _o, ...rest } = valid // NOSONAR
         await expect(thirdPartyAppSchema.validate(rest)).rejects.toThrow()
     })
 })

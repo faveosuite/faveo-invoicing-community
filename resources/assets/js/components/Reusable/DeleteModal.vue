@@ -63,7 +63,7 @@ async function onSubmit() {
             : await http.delete(props.deleteUrl, { data: props.deleteData })
         successHandler(res, props.componentName)
         emit('deleted')
-        window.emitter?.emit('refreshData')
+        globalThis.emitter?.emit('refreshData')
         props.onClose()
     } catch (e) {
         errorHandler(e, 'delete-modal')

@@ -49,7 +49,6 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
     public function getMessage(mixed $items, int $user_id): array
     {
         if ($items) {
-            // $this->sendmailClientAgent($user_id, $items->invoice_id);
             return ['success' => Lang::get('message.invoice-generated-successfully')];
         }
 

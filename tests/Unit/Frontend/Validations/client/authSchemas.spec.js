@@ -21,7 +21,7 @@ describe('loginSchema', () => {
     })
 
     it('fails when email_username is missing', async () => {
-        const { email_username: _o, ...rest } = valid
+        const { email_username: _o, ...rest } = valid // NOSONAR
         await expect(loginSchema.validate(rest)).rejects.toThrow()
     })
 

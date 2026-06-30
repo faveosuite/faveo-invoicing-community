@@ -20,8 +20,6 @@ return new class extends Migration
                 $table->integer('parent');
                 $table->integer('type')->nullable();
                 $table->integer('group')->nullable();
-                // $table->foreign('group')->references('id')->on('product_groups');
-                // $table->foreign('type')->references('id')->on('license_types');
                 $table->string('welcome_email');
                 $table->integer('require_domain');
                 $table->boolean('can_modify_agent')->nullable();

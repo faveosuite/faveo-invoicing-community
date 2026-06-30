@@ -177,45 +177,6 @@ class LocalizedLicenseController extends Controller
     /**
      * Edits the license details without showing the pre-existing license data.
      * */
-    /*public function fileEdit(Request $request,$fileName)
-    {
-      $value = explode("}",$fileName);
-      $orderNo = substr($value[0], 15);
-      $fileName = "faveo-license-{".$orderNo."}.txt";
-      dd($orderNo,$fileName);
-      extract($this->getLicenseData($fileName,$orderNo));
-
-      if(!is_null($request->get('root_url')))
-      {
-        $root_url = $request->get('root_url');
-      }
-      if(!is_null($request->get('license_expiry')))
-      {
-        $license_expiry = $request->get('license_expiry');
-      }
-      if(!is_null($request->get('updates_expiry')))
-      {
-        $updates_expiry = $request->get('updates_expiry');
-      }
-      if(!is_null($request->get('support_expiry')))
-      {
-        $support_expiry = $request->get('support_expiry');
-      }
-
-      $stored=Storage::disk('public')->path($fileName);
-      $handle=@fopen($stored, "w+");
-       $fwrite=@fwrite($handle,"<root_url>$root_url</root_url><license_code>$license_code</license_code><license_expiry>$license_expiry</license_expiry><updates_expiry>$updates_expiry</updates_expiry><support_expiry>$support_expiry</support_expiry>");
-          if ($fwrite===false) //updating file failed
-           {
-            echo "Update was not performed";
-            exit();
-            }
-       $encrypt = new EncryptDecryptController();
-       $data=$encrypt->encrypt($fileName,$orderNo);
-       Storage::disk('public')->put($fileName,$data);
-       @fclose($handle);
-       return successResponse(Lang::get('License data is updated'.$orderNo));
-    }*/
 
     // return an array with license data
     /**

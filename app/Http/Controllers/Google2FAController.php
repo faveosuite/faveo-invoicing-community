@@ -39,7 +39,6 @@ class Google2FAController extends Controller
     {
         if (Session::has('2fa:user:id')) {
             return successResponse('Redirect to 2fa');
-            //            return view('themes.default1.front.enableTwoFactor');
         } else {
             return successResponse('Login page', ['redirect' => url('login')]);
         }

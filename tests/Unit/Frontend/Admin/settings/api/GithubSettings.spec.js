@@ -21,11 +21,11 @@ describe('GithubSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/github/).reply(200, {
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/github/).reply(200, {
             data: { username: 'octocat', password: 'secret' },
         })
-        global.mockHttp.onPost(/\/github-setting/).reply(200, { data: { message: 'Saved' } })
+        globalThis.mockHttp.onPost(/\/github-setting/).reply(200, { data: { message: 'Saved' } })
         wrapper = mount(GithubSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -40,7 +40,7 @@ describe('GithubSettings.vue', () => {
 
     it('fetches settings on mount via GET /settings/github', async () => {
         await flushPromises()
-        const getCalls = global.mockHttp.history.get.filter(r => /\/settings\/github/.test(r.url))
+        const getCalls = globalThis.mockHttp.history.get.filter(r => /\/settings\/github/.test(r.url))
         expect(getCalls.length).toBeGreaterThan(0)
     })
 
@@ -54,7 +54,7 @@ describe('GithubSettings.vue', () => {
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
-        const postCalls = global.mockHttp.history.post.filter(r => /\/github-setting/.test(r.url))
+        const postCalls = globalThis.mockHttp.history.post.filter(r => /\/github-setting/.test(r.url))
         expect(postCalls.length).toBeGreaterThan(0)
     })
 
@@ -62,7 +62,7 @@ describe('GithubSettings.vue', () => {
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()
-        const body = JSON.parse(global.mockHttp.history.post[0].data)
+        const body = JSON.parse(globalThis.mockHttp.history.post[0].data)
         expect(body.status).toBe(1)
     })
 
@@ -74,9 +74,9 @@ describe('GithubSettings.vue', () => {
     })
 
     it('calls errorHandler on save failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/settings\/github/).reply(200, { data: {} })
-        global.mockHttp.onPost(/\/github-setting/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/settings\/github/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/github-setting/).reply(500)
         await flushPromises()
         await wrapper.vm.save()
         await flushPromises()

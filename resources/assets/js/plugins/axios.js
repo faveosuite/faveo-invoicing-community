@@ -33,8 +33,8 @@ http.interceptors.response.use(
 
         // 401 — session expired; skip if the caller flagged this request
         // (e.g. auth.hydrate() which expects 401 for guests)
-        if (status === 401 && !error.config?._skipAuthRedirect && !window.location.href.endsWith('/login')) {
-            window.location.href = loginUrl
+        if (status === 401 && !error.config?._skipAuthRedirect && !globalThis.location.href.endsWith('/login')) {
+            globalThis.location.href = loginUrl
         }
 
         // 419 — CSRF token expired; refresh the token and retry the request once

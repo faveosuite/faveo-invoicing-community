@@ -17,7 +17,7 @@ describe('CompanySettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/settings\/system-data/).reply(200, {
+        globalThis.mockHttp.onGet(/\/settings\/system-data/).reply(200, {
             data: {
                 settings: {
                     company: 'Test Co',
@@ -40,7 +40,7 @@ describe('CompanySettings.vue', () => {
                 languages: [],
             },
         })
-        global.mockHttp.onPost(/\/settings\/system-data/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/settings\/system-data/).reply(200, { data: {} })
 
         wrapper = mount(CompanySettings, {
             global: {
@@ -59,7 +59,7 @@ describe('CompanySettings.vue', () => {
 
     it('fetches system data on mount', async () => {
         await flushPromises()
-        const getUrls = global.mockHttp.history.get.map(r => r.url)
+        const getUrls = globalThis.mockHttp.history.get.map(r => r.url)
         expect(getUrls.some(u => u.includes('system-data'))).toBe(true)
     })
 
@@ -74,7 +74,7 @@ describe('CompanySettings.vue', () => {
         if (saveBtn.exists()) {
             await saveBtn.trigger('click')
             await flushPromises()
-            const postUrls = global.mockHttp.history.post.map(r => r.url)
+            const postUrls = globalThis.mockHttp.history.post.map(r => r.url)
             expect(postUrls.some(u => u.includes('system-data'))).toBe(true)
         }
     })

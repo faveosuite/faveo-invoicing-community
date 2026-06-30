@@ -63,8 +63,8 @@ describe('useAuthStore', () => {
         })
 
         it('sets user to null on HTTP error', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onGet('/api/user').replyOnce(401, { message: 'Unauthenticated.' })
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onGet('/api/user').replyOnce(401, { message: 'Unauthenticated.' })
             const store = useAuthStore()
             await store.hydrate()
             await flushPromises()
@@ -72,8 +72,8 @@ describe('useAuthStore', () => {
         })
 
         it('sets user to null on 500 error', async () => {
-            global.mockHttp.reset()
-            global.mockHttp.onGet('/api/user').replyOnce(500)
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onGet('/api/user').replyOnce(500)
             const store = useAuthStore()
             await store.hydrate()
             await flushPromises()
@@ -91,8 +91,8 @@ describe('useAuthStore', () => {
 
         it('does not call setUserTimezone when timezone is absent', async () => {
             const userWithoutTz = { ...userFixture, timezone: null }
-            global.mockHttp.reset()
-            global.mockHttp.onGet('/api/user').replyOnce(200, { data: userWithoutTz })
+            globalThis.mockHttp.reset()
+            globalThis.mockHttp.onGet('/api/user').replyOnce(200, { data: userWithoutTz })
             const store = useAuthStore()
             const dtStore = useDateTimeStore()
             await store.hydrate()

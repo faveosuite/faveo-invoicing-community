@@ -14,7 +14,7 @@ describe('ProductGroupCreate.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onPut(/\/group/).reply(200, { data: { message: 'Created' } })
+        globalThis.mockHttp.onPut(/\/group/).reply(200, { data: { message: 'Created' } })
         wrapper = mount(ProductGroupCreate, {
             global: {
                 plugins: [createTestingPinia()],
@@ -41,7 +41,7 @@ describe('ProductGroupCreate.vue', () => {
     it('calls PUT /group on submit', async () => {
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.put.some(r => /\/group/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.put.some(r => /\/group/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on successful create', async () => {
@@ -51,8 +51,8 @@ describe('ProductGroupCreate.vue', () => {
     })
 
     it('calls errorHandler on submit failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onPut(/\/group/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPut(/\/group/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -68,7 +68,7 @@ describe('ProductGroupCreate.vue', () => {
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.put.length).toBe(0)
+        expect(globalThis.mockHttp.history.put.length).toBe(0)
     })
 
     it('saving starts as false', () => {

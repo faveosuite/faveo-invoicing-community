@@ -33,9 +33,9 @@ describe('UserShow.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/user\/2$/).reply(200, { data: userFixture })
-        global.mockHttp.onGet(/\/user\/2\/summary/).reply(200, { data: { invoice_total: 0, amount_paid: 0, balance: 0 } })
-        global.mockHttp.onGet(/\/user\/2\/comments/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/user\/2$/).reply(200, { data: userFixture })
+        globalThis.mockHttp.onGet(/\/user\/2\/summary/).reply(200, { data: { invoice_total: 0, amount_paid: 0, balance: 0 } })
+        globalThis.mockHttp.onGet(/\/user\/2\/comments/).reply(200, { data: [] })
         wrapper = mount(UserShow, {
             global: {
                 plugins: [createTestingPinia()],
@@ -54,7 +54,7 @@ describe('UserShow.vue', () => {
 
     it('fetches user data on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/user\/2/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/user\/2/.test(r.url))).toBe(true)
     })
 
     it('sets user data after fetch', async () => {
@@ -70,19 +70,19 @@ describe('UserShow.vue', () => {
 
     it('fetches summary on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/summary/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/summary/.test(r.url))).toBe(true)
     })
 
     it('fetches comments on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/comments/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/comments/.test(r.url))).toBe(true)
     })
 
     it('calls errorHandler when user fetch fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/user\/2$/).reply(500)
-        global.mockHttp.onGet(/\/user\/2\/summary/).reply(200, { data: {} })
-        global.mockHttp.onGet(/\/user\/2\/comments/).reply(200, { data: [] })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/user\/2$/).reply(500)
+        globalThis.mockHttp.onGet(/\/user\/2\/summary/).reply(200, { data: {} })
+        globalThis.mockHttp.onGet(/\/user\/2\/comments/).reply(200, { data: [] })
         wrapper = mount(UserShow, {
             global: {
                 plugins: [createTestingPinia()],
@@ -130,23 +130,23 @@ describe('UserShow.vue', () => {
     })
 
     it('addComment posts to comments endpoint', async () => {
-        global.mockHttp.onPost(/\/user\/2\/comments/).reply(200, { data: { id: 1, description: 'Test', author: 'Admin' } })
+        globalThis.mockHttp.onPost(/\/user\/2\/comments/).reply(200, { data: { id: 1, description: 'Test', author: 'Admin' } })
         await flushPromises()
         wrapper.vm.newComment = 'Test comment'
         await wrapper.vm.addComment()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/comments/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/comments/.test(r.url))).toBe(true)
     })
 
     it('addComment returns early when newComment is empty', async () => {
         await flushPromises()
         wrapper.vm.newComment = ''
         await wrapper.vm.addComment()
-        expect(global.mockHttp.history.post.filter(r => /\/comments/.test(r.url)).length).toBe(0)
+        expect(globalThis.mockHttp.history.post.filter(r => /\/comments/.test(r.url)).length).toBe(0)
     })
 
     it('addComment handles API error gracefully without throwing', async () => {
-        global.mockHttp.onPost(/\/user\/2\/comments/).reply(500)
+        globalThis.mockHttp.onPost(/\/user\/2\/comments/).reply(500)
         await flushPromises()
         wrapper.vm.newComment = 'Test comment'
         await expect(wrapper.vm.addComment()).resolves.not.toThrow()
@@ -162,18 +162,18 @@ describe('UserShow.vue', () => {
     })
 
     it('saveEdit calls PUT and clears editingComment on success', async () => {
-        global.mockHttp.onPut(/\/user\/2\/comments\/5/).reply(200, { data: {} })
+        globalThis.mockHttp.onPut(/\/user\/2\/comments\/5/).reply(200, { data: {} })
         await flushPromises()
         const comment = { id: 5, description: 'Updated' }
         wrapper.vm.editingComment = comment
         await wrapper.vm.saveEdit(comment)
         await flushPromises()
-        expect(global.mockHttp.history.put.some(r => /\/comments\/5/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.put.some(r => /\/comments\/5/.test(r.url))).toBe(true)
         expect(wrapper.vm.editingComment).toBeNull()
     })
 
     it('saveEdit handles API error', async () => {
-        global.mockHttp.onPut(/\/user\/2\/comments\/5/).reply(500)
+        globalThis.mockHttp.onPut(/\/user\/2\/comments\/5/).reply(500)
         await flushPromises()
         const comment = { id: 5, description: 'Updated' }
         wrapper.vm.editingComment = comment
@@ -183,30 +183,30 @@ describe('UserShow.vue', () => {
     })
 
     it('disable2fa calls POST /2fa/disable/:id on success', async () => {
-        global.mockHttp.onPost(/\/2fa\/disable\/2/).reply(200, { message: 'ok' })
+        globalThis.mockHttp.onPost(/\/2fa\/disable\/2/).reply(200, { message: 'ok' })
         await flushPromises()
         jest.spyOn(window, 'confirm').mockReturnValue(true)
         await wrapper.vm.disable2fa()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/2fa\/disable/.test(r.url))).toBe(true)
-        window.confirm.mockRestore?.()
+        expect(globalThis.mockHttp.history.post.some(r => /\/2fa\/disable/.test(r.url))).toBe(true)
+        globalThis.confirm.mockRestore?.()
     })
 
     it('disable2fa returns early when confirm is cancelled', async () => {
         jest.spyOn(window, 'confirm').mockReturnValue(false)
         await flushPromises()
-        const before = global.mockHttp.history.post.length
+        const before = globalThis.mockHttp.history.post.length
         await wrapper.vm.disable2fa()
-        expect(global.mockHttp.history.post.length).toBe(before)
-        window.confirm.mockRestore?.()
+        expect(globalThis.mockHttp.history.post.length).toBe(before)
+        globalThis.confirm.mockRestore?.()
     })
 
     it('disable2fa handles API error', async () => {
-        global.mockHttp.onPost(/\/2fa\/disable\/2/).reply(500)
+        globalThis.mockHttp.onPost(/\/2fa\/disable\/2/).reply(500)
         await flushPromises()
         jest.spyOn(window, 'confirm').mockReturnValue(true)
         await expect(wrapper.vm.disable2fa()).resolves.not.toThrow()
-        window.confirm.mockRestore?.()
+        globalThis.confirm.mockRestore?.()
     })
 
     it('copy copies field to clipboard', async () => {
@@ -235,7 +235,7 @@ describe('UserShow.vue', () => {
     })
 
     it('loadSummary sets summary data on success', async () => {
-        global.mockHttp.onGet(/\/user\/2\/summary/).reply(200, {
+        globalThis.mockHttp.onGet(/\/user\/2\/summary/).reply(200, {
             data: { invoice_total: 100, amount_paid: 80, balance: 20 }
         })
         await wrapper.vm.loadSummary()
@@ -244,7 +244,7 @@ describe('UserShow.vue', () => {
     })
 
     it('loadSummary handles API error', async () => {
-        global.mockHttp.onGet(/\/user\/2\/summary/).reply(500)
+        globalThis.mockHttp.onGet(/\/user\/2\/summary/).reply(500)
         await expect(wrapper.vm.loadSummary()).resolves.not.toThrow()
     })
 

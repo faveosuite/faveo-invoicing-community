@@ -13,10 +13,10 @@ describe('SocialLoginEdit.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/edit\/SocialLogins\/1/).reply(200, {
+        globalThis.mockHttp.onGet(/\/edit\/SocialLogins\/1/).reply(200, {
             data: { type: 'Google', client_id: 'gid', client_secret: 'gsecret', redirect_url: 'http://example.com/callback', status: true },
         })
-        global.mockHttp.onPost(/\/update-social-login/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/update-social-login/).reply(200, { data: {} })
         wrapper = mount(SocialLoginEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -31,15 +31,15 @@ describe('SocialLoginEdit.vue', () => {
 
     it('fetches social login data on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/edit\/SocialLogins\/1/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/edit\/SocialLogins\/1/)
     })
 
     it('calls POST update-social-login on submit', async () => {
         await flushPromises()
         wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => r.url.includes('update-social-login'))).toBeTruthy()
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('update-social-login'))).toBeTruthy()
     })
 
     it('calls successHandler after successful update', async () => {

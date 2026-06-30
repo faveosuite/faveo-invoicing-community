@@ -191,7 +191,7 @@ class ConcreteExportHandleController extends ExportHandleController
             foreach ($chunks as $index => $chunk) {
                 $export = new UsersExport($selectedColumns, $chunk, $index + 1);
                 $fileName = 'users_'.$id.'_part'.($index + 1).'.xlsx';
-                $filePath = $folderPath.'/'.$fileName;
+                
                 Excel::store($export, 'public/export/'.$folderName.'/'.$fileName);
             }
 
@@ -241,11 +241,7 @@ class ConcreteExportHandleController extends ExportHandleController
             $request = new Request;
             $request->merge($searchParams);
             $name = $request->input('name');
-            $invoice_no = $request->input('invoice_no');
-            $status = $request->input('status');
-            $currency = $request->input('currency_id');
             $from = $request->input('from');
-            $till = $request->input('till');
 
             // Get invoices with filters applied
             $invoices = $this->advanceSearch($name);
@@ -326,7 +322,7 @@ class ConcreteExportHandleController extends ExportHandleController
             foreach ($chunks as $index => $chunk) {
                 $export = new InvoiceExport($selectedColumns, $chunk, $index + 1);
                 $fileName = 'invoices_'.$id.'_part'.($index + 1).'.xlsx';
-                $filePath = $folderPath.'/'.$fileName;
+                
                 Excel::store($export, 'public/export/'.$folderName.'/'.$fileName);
             }
 
@@ -465,7 +461,7 @@ class ConcreteExportHandleController extends ExportHandleController
             foreach ($chunks as $index => $chunk) {
                 $export = new OrderExport($selectedColumns, $chunk, $index + 1);
                 $fileName = 'orders_'.$id.'_part'.($index + 1).'.xlsx';
-                $filePath = $folderPath.'/'.$fileName;
+                
                 Excel::store($export, 'public/export/'.$folderName.'/'.$fileName);
             }
 
@@ -734,7 +730,7 @@ class ConcreteExportHandleController extends ExportHandleController
         foreach ($chunks as $index => $chunk) {
             $export = new TenatExport($this->selectedColumns, $chunk, $index + 1);
             $fileName = 'tenants_'.$id.'_part'.($index + 1).'.xlsx';
-            $filePath = $folderPath.'/'.$fileName;
+            
             Excel::store($export, 'public/export/'.$folderName.'/'.$fileName);
         }
 

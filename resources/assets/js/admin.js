@@ -39,7 +39,7 @@ const theme = el?.dataset?.theme || 'adminlte'
 
 // Global event bus used by license module components (table refresh after delete, etc.)
 const emitter = mitt()
-window.emitter = emitter
+globalThis.emitter = emitter
 
 // load theme first, then mount
 import(`./themes/${theme}/index.js`).then(async themeModule => {
@@ -69,7 +69,7 @@ import(`./themes/${theme}/index.js`).then(async themeModule => {
     app.use(pinia)
     app.use(DateTimePlugin)
     app.use(router)
-    window.__router = router
+    globalThis.__router = router
     app.use(i18n)
     app.use(VueProgressBar, progressBarOptions)
     app.use(ServerTable, {}, 'bootstrap4', {})

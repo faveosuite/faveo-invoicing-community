@@ -14,9 +14,9 @@ describe('useDownload', () => {
         // Spy on the real action since jest.setup.js uses createPinia() (not createTestingPinia)
         setAlertSpy = jest.spyOn(alertStore, 'setAlert')
 
-        global.fetch = jest.fn()
-        global.URL.createObjectURL = jest.fn(() => 'blob:url')
-        global.URL.revokeObjectURL = jest.fn()
+        globalThis.fetch = jest.fn()
+        globalThis.URL.createObjectURL = jest.fn(() => 'blob:url')
+        globalThis.URL.revokeObjectURL = jest.fn()
 
         // Mock document.createElement('a') click behavior
         const mockAnchor = {
@@ -44,7 +44,7 @@ describe('useDownload', () => {
 
     it('downloads file successfully and extracts filename from header', async () => {
         const mockBlob = new Blob(['file content'])
-        global.fetch.mockResolvedValue({
+        globalThis.fetch.mockResolvedValue({
             ok: true,
             blob: () => Promise.resolve(mockBlob),
             headers: { get: () => 'attachment; filename="report.zip"' },
@@ -60,7 +60,7 @@ describe('useDownload', () => {
 
     it('uses fallback filename when content-disposition header is missing', async () => {
         const mockBlob = new Blob(['data'])
-        global.fetch.mockResolvedValue({
+        globalThis.fetch.mockResolvedValue({
             ok: true,
             blob: () => Promise.resolve(mockBlob),
             headers: { get: () => null },
@@ -77,7 +77,7 @@ describe('useDownload', () => {
 
     it('uses fallback filename when content-disposition has no filename', async () => {
         const mockBlob = new Blob(['data'])
-        global.fetch.mockResolvedValue({
+        globalThis.fetch.mockResolvedValue({
             ok: true,
             blob: () => Promise.resolve(mockBlob),
             headers: { get: () => 'attachment' },
@@ -93,7 +93,7 @@ describe('useDownload', () => {
     })
 
     it('calls alertStore.setAlert with danger when response is not ok and has JSON message', async () => {
-        global.fetch.mockResolvedValue({
+        globalThis.fetch.mockResolvedValue({
             ok: false,
             json: () => Promise.resolve({ message: 'File not found' }),
         })
@@ -109,7 +109,7 @@ describe('useDownload', () => {
     })
 
     it('calls alertStore.setAlert with i18n key when response not ok and JSON has no message', async () => {
-        global.fetch.mockResolvedValue({
+        globalThis.fetch.mockResolvedValue({
             ok:   false,
             json: () => Promise.resolve({}),
         })
@@ -125,7 +125,7 @@ describe('useDownload', () => {
     })
 
     it('calls alertStore.setAlert when response.json() throws', async () => {
-        global.fetch.mockResolvedValue({
+        globalThis.fetch.mockResolvedValue({
             ok:   false,
             json: () => Promise.reject(new Error('not json')),
         })
@@ -141,7 +141,7 @@ describe('useDownload', () => {
     })
 
     it('calls alertStore.setAlert when fetch throws a network error', async () => {
-        global.fetch.mockRejectedValue(new Error('Network error'))
+        globalThis.fetch.mockRejectedValue(new Error('Network error'))
 
         const { downloadFile } = useDownload('TestComponent')
         await downloadFile('/api/download/file')
@@ -154,7 +154,7 @@ describe('useDownload', () => {
     })
 
     it('uses the componentName passed to useDownload in the alert', async () => {
-        global.fetch.mockRejectedValue(new Error('fail'))
+        globalThis.fetch.mockRejectedValue(new Error('fail'))
 
         const { downloadFile } = useDownload('InvoiceList')
         await downloadFile('/api/invoice/export')

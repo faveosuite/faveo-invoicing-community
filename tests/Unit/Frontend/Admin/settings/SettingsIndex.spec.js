@@ -11,7 +11,7 @@ describe('SettingsIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/settings\/index-data/).reply(200, {
+        globalThis.mockHttp.onGet(/\/settings\/index-data/).reply(200, {
             data: {
                 is_redis_configured: false,
                 is_debug_mode: false,
@@ -38,8 +38,8 @@ describe('SettingsIndex.vue', () => {
 
     it('fetches index-data on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/settings\/index-data/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/settings\/index-data/)
     })
 
     it('renders settings sections', async () => {

@@ -23,7 +23,7 @@ describe('openPaymentSchema', () => {
     })
 
     it('fails when name is missing', async () => {
-        const { name: _o, ...rest } = valid
+        const { name: _o, ...rest } = valid // NOSONAR
         await expect(openPaymentSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -84,7 +84,7 @@ describe('openPaymentSchema', () => {
     })
 
     it('fails when amount is missing', async () => {
-        const { amount: _o, ...rest } = valid
+        const { amount: _o, ...rest } = valid // NOSONAR
         await expect(openPaymentSchema.validate(rest)).rejects.toThrow()
     })
 

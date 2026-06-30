@@ -137,8 +137,8 @@ class Carousel {
             clearTimeout(this._resizeTimer)
             this._resizeTimer = setTimeout(() => this._onResize(), 150)
         }
-        window.addEventListener('resize', onResize)
-        this._handlers.push({ target: window, type: 'resize', handler: onResize })
+        globalThis.addEventListener('resize', onResize)
+        this._handlers.push({ target: globalThis, type: 'resize', handler: onResize })
 
         el.classList.remove('owl-loading')
 
@@ -200,7 +200,7 @@ class Carousel {
     // ─── Layout ───────────────────────────────────────────────────────────────
 
     _getVisibleCount() {
-        const w   = window.innerWidth
+        const w   = globalThis.innerWidth
         const bps = Object.keys(this.options.responsive).map(Number).sort((a, b) => a - b)
         let count = this.options.items ?? 1
         for (const bp of bps) {
@@ -480,7 +480,7 @@ class Carousel {
     _handleNavOutside() {
         if (!this.el.classList.contains('nav-outside')) return
         const apply = () => {
-            if (window.innerWidth < 992) {
+            if (globalThis.innerWidth < 992) {
                 this.options.stagePadding = 40
                 this.el.classList.add('stage-margin')
             } else {
@@ -490,10 +490,10 @@ class Carousel {
             this._layout()
             this._applyNavOffsets()
         }
-        window.addEventListener('load',   apply)
-        window.addEventListener('resize', apply)
-        this._handlers.push({ target: window, type: 'load',   handler: apply })
-        this._handlers.push({ target: window, type: 'resize', handler: apply })
+        globalThis.addEventListener('load',   apply)
+        globalThis.addEventListener('resize', apply)
+        this._handlers.push({ target: globalThis, type: 'load',   handler: apply })
+        this._handlers.push({ target: globalThis, type: 'resize', handler: apply })
         apply()
     }
 

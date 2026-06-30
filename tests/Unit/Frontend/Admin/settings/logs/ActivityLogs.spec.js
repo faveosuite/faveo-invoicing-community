@@ -13,10 +13,10 @@ describe('ActivityLogs.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/get-activity-filters/).reply(200, {
+        globalThis.mockHttp.onGet(/\/get-activity-filters/).reply(200, {
             data: { modules: [], users: [] },
         })
-        global.mockHttp.onDelete(/\/logs\/delete/).reply(200, { message: 'Deleted' })
+        globalThis.mockHttp.onDelete(/\/logs\/delete/).reply(200, { message: 'Deleted' })
 
         wrapper = mount(ActivityLogs, {
             global: {
@@ -66,7 +66,7 @@ describe('ActivityLogs.vue', () => {
     })
 
     it('calls errorHandler on delete failure', async () => {
-        global.mockHttp.onDelete(/\/logs\/delete/).reply(500)
+        globalThis.mockHttp.onDelete(/\/logs\/delete/).reply(500)
         wrapper.vm.deleteDate = '2026-01-01'
         await wrapper.vm.confirmDelete()
         await flushPromises()

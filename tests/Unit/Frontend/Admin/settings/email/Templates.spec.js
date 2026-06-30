@@ -41,6 +41,6 @@ describe('Templates.vue', () => {
     it('does not make API calls on mount (DataTable handles fetch)', async () => {
         await flushPromises()
         // Templates.vue relies on DataTable for fetching — no direct axios calls on mount
-        expect(global.mockHttp.history.get.length).toBe(0)
+        expect(globalThis.mockHttp.history.get.length).toBe(0)
     })
 })

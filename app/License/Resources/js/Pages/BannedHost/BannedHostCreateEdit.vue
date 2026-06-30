@@ -102,7 +102,7 @@ async function onSubmit() {
 }
 
 onBeforeMount(() => {
-    const path = window.location.pathname
+    const path = globalThis.location.pathname
     const id = getIdFromUrl(path)
     if (path.indexOf('edit') >= 0) {
         title.value = 'edit_banned_host'

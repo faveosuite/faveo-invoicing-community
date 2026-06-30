@@ -111,7 +111,7 @@ async function onSubmit() {
 }
 
 onBeforeMount(() => {
-    const path = window.location.pathname
+    const path = globalThis.location.pathname
     const installationId = getIdFromUrl(path)
     installation_id.value = installationId
     axios.get(baseUrl + '/api/admin/installation/' + installationId).then(res => {

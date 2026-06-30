@@ -160,8 +160,8 @@ describe('ProfileImageUpload.vue', () => {
                 this.onload({ target: { result: 'data:image/png;base64,xyz' } })
             })
         }
-        const OriginalFileReader = global.FileReader
-        global.FileReader = MockFileReader
+        const OriginalFileReader = globalThis.FileReader
+        globalThis.FileReader = MockFileReader
 
         const file = new File([''], 'avatar.png', { type: 'image/png' })
         await wrapper.vm.onFileSelected({ target: { files: [file], value: '' } })
@@ -169,6 +169,6 @@ describe('ProfileImageUpload.vue', () => {
         expect(wrapper.vm.imageSrc).toBe('data:image/png;base64,xyz')
         expect(wrapper.vm.showModal).toBe(true)
 
-        global.FileReader = OriginalFileReader
+        globalThis.FileReader = OriginalFileReader
     })
 })

@@ -26,9 +26,9 @@ describe('ProductVersionEdit.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/product\/upload\/7/).reply(200, VERSION_RESPONSE)
-        global.mockHttp.onPost(/\/chunkupload/).reply(200, { name: 'new-file.zip' })
-        global.mockHttp.onPatch(/\/product\/upload\/7/).reply(200, { data: { message: 'Updated' } })
+        globalThis.mockHttp.onGet(/\/product\/upload\/7/).reply(200, VERSION_RESPONSE)
+        globalThis.mockHttp.onPost(/\/chunkupload/).reply(200, { name: 'new-file.zip' })
+        globalThis.mockHttp.onPatch(/\/product\/upload\/7/).reply(200, { data: { message: 'Updated' } })
 
         wrapper = mount(ProductVersionEdit, {
             global: {
@@ -39,7 +39,7 @@ describe('ProductVersionEdit.vue', () => {
     })
 
     afterEach(() => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -53,7 +53,7 @@ describe('ProductVersionEdit.vue', () => {
 
     it('fetches version data on mount via GET /product/upload/:versionId', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /\/product\/upload\/7/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /\/product\/upload\/7/.test(r.url))).toBe(true)
     })
 
     it('populates form from fetched version data', async () => {
@@ -77,7 +77,7 @@ describe('ProductVersionEdit.vue', () => {
         wrapper.vm.form.version = ''
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.patch.length).toBe(0)
+        expect(globalThis.mockHttp.history.patch.length).toBe(0)
     })
 
     it('calls PATCH /product/upload/:versionId on valid submit', async () => {
@@ -85,7 +85,7 @@ describe('ProductVersionEdit.vue', () => {
         // form already populated from mock; no file needed for edit
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.patch.some(r => /\/product\/upload\/7/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.patch.some(r => /\/product\/upload\/7/.test(r.url))).toBe(true)
     })
 
     it('pushes to product edit after successful submit', async () => {
@@ -96,8 +96,8 @@ describe('ProductVersionEdit.vue', () => {
     })
 
     it('handles fetch failure gracefully', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/product\/upload\/7/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/product\/upload\/7/).reply(500)
         const w = mount(ProductVersionEdit, {
             global: {
                 plugins: [createTestingPinia()],

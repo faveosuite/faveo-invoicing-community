@@ -147,7 +147,6 @@ class CallBackController extends Controller
         $removed_records = 0;
         if ($isLicense) {
             if (LicenseHelper::validateIntegerValue($callback_id)) {
-                $removed_records += LicenseCallback::where('license_callbacks.product_id', $callback_id)->delete(); // doMysqlQuery("DELETE FROM apl_callbacks WHERE license_callbacks.product_id=?", array($callback_id), array("i"));
             }
 
             return $removed_records;

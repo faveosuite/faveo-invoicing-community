@@ -338,15 +338,15 @@ describe('PlaceOrderPage.vue — openStripeModal and payStripe branches', () => 
     afterEach(() => {
         axiosMock.restore()
         jest.clearAllMocks()
-        delete window.Stripe
-        delete window.Razorpay
+        delete globalThis.Stripe
+        delete globalThis.Razorpay
     })
 
     // ── openStripeModal ───────────────────────────────────────────────────────
 
     it('openStripeModal posts to /stripe/session and opens modal', async () => {
         const stripeMock = makeStripeMock()
-        window.Stripe = jest.fn(() => stripeMock)
+        globalThis.Stripe = jest.fn(() => stripeMock)
 
         axiosMock.onPost('/invoice/42/stripe/session').reply(200, {
             data: {
@@ -502,7 +502,7 @@ describe('PlaceOrderPage.vue — openStripeModal and payStripe branches', () => 
     it('payRazorpay opens a Razorpay instance', async () => {
         const openMock = jest.fn()
         const rzpInstance = { open: openMock }
-        window.Razorpay = jest.fn(() => rzpInstance)
+        globalThis.Razorpay = jest.fn(() => rzpInstance)
 
         // Stub loadScript so it resolves immediately without touching the DOM
         const origAppend = document.head.appendChild.bind(document.head)
@@ -515,7 +515,7 @@ describe('PlaceOrderPage.vue — openStripeModal and payStripe branches', () => 
         const config = { key: 'rzp_test', amount: 9900, currency: 'INR' }
         await wrapper.vm.payRazorpay(config)
 
-        expect(window.Razorpay).toHaveBeenCalled()
+        expect(globalThis.Razorpay).toHaveBeenCalled()
         expect(openMock).toHaveBeenCalled()
         document.head.appendChild.mockRestore()
     })
@@ -523,7 +523,7 @@ describe('PlaceOrderPage.vue — openStripeModal and payStripe branches', () => 
     it('payRazorpay handler posts to /payment/:id on success', async () => {
         let capturedHandler = null
         const openMock = jest.fn()
-        window.Razorpay = jest.fn((opts) => {
+        globalThis.Razorpay = jest.fn((opts) => {
             capturedHandler = opts.handler
             return { open: openMock }
         })
@@ -545,7 +545,7 @@ describe('PlaceOrderPage.vue — openStripeModal and payStripe branches', () => 
     it('payRazorpay handler sets alert on payment POST failure', async () => {
         let capturedHandler = null
         const openMock = jest.fn()
-        window.Razorpay = jest.fn((opts) => {
+        globalThis.Razorpay = jest.fn((opts) => {
             capturedHandler = opts.handler
             return { open: openMock }
         })
@@ -567,7 +567,7 @@ describe('PlaceOrderPage.vue — openStripeModal and payStripe branches', () => 
 
     it('payRazorpay ondismiss resets busy to false', async () => {
         let capturedOndismiss = null
-        window.Razorpay = jest.fn((opts) => {
+        globalThis.Razorpay = jest.fn((opts) => {
             capturedOndismiss = opts.modal.ondismiss
             return { open: jest.fn() }
         })
@@ -614,7 +614,7 @@ describe('PlaceOrderPage.vue — openStripeModal and payStripe branches', () => 
 
     it('continuePay opens stripe modal on successful session API call', async () => {
         const stripeMock = makeStripeMock()
-        window.Stripe = jest.fn(() => stripeMock)
+        globalThis.Stripe = jest.fn(() => stripeMock)
 
         axiosMock.onPost('/invoice/42/stripe/session').reply(200, {
             data: {
@@ -634,7 +634,7 @@ describe('PlaceOrderPage.vue — openStripeModal and payStripe branches', () => 
 
     it('continuePay calls razorpay order then payRazorpay on success', async () => {
         const openMock = jest.fn()
-        window.Razorpay = jest.fn(() => ({ open: openMock }))
+        globalThis.Razorpay = jest.fn(() => ({ open: openMock }))
 
         axiosMock.onPost('/invoice/42/razorpay/order').reply(200, {
             data: { razorpay: { key: 'rzp_test', amount: 9900, currency: 'INR' } },

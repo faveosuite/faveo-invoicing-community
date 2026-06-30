@@ -43,8 +43,8 @@ export function useStickyHeader(headerSelector = '#header') {
         }
 
         const updateSticky = () => {
-            const active = enableOnMobile || window.innerWidth >= MOBILE_BREAKPOINT
-                ? window.scrollY >= startAt
+            const active = enableOnMobile || globalThis.innerWidth >= MOBILE_BREAKPOINT
+                ? globalThis.scrollY >= startAt
                 : false
             html.classList.toggle('sticky-header-active', active)
             isStickyActive.value = active
@@ -59,13 +59,13 @@ export function useStickyHeader(headerSelector = '#header') {
             updateSticky()
         }
 
-        window.addEventListener('scroll', scrollHandler, { passive: true })
-        window.addEventListener('resize', resizeHandler)
+        globalThis.addEventListener('scroll', scrollHandler, { passive: true })
+        globalThis.addEventListener('resize', resizeHandler)
     })
 
     onBeforeUnmount(() => {
-        if (scrollHandler) window.removeEventListener('scroll', scrollHandler)
-        if (resizeHandler) window.removeEventListener('resize', resizeHandler)
+        if (scrollHandler) globalThis.removeEventListener('scroll', scrollHandler)
+        if (resizeHandler) globalThis.removeEventListener('resize', resizeHandler)
         const html = document.documentElement
         html.classList.remove('sticky-header-enabled', 'sticky-header-active')
         if (effectClass) html.classList.remove(effectClass)

@@ -325,7 +325,7 @@ async function saveConnection() {
         })
         const redirectUrl = res.data?.data?.redirect_url
         if (redirectUrl) {
-            window.location.href = redirectUrl
+            globalThis.location.href = redirectUrl
             return
         }
         successHandler(res, COMPONENT)

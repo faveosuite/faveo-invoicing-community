@@ -20,9 +20,9 @@ describe('ReportIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/reports/).reply(200, { data: [] })
-        global.mockHttp.onDelete(/\/reports/).reply(200, { data: { message: 'Deleted' } })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/reports/).reply(200, { data: [] })
+        globalThis.mockHttp.onDelete(/\/reports/).reply(200, { data: { message: 'Deleted' } })
         wrapper = mount(ReportIndex, {
             global: {
                 plugins: [createTestingPinia()],

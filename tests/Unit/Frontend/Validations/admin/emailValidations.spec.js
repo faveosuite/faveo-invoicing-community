@@ -104,7 +104,7 @@ describe('templateEditSchema', () => {
     })
 
     it('fails when name is missing', async () => {
-        const { name: _o, ...rest } = valid
+        const { name: _o, ...rest } = valid // NOSONAR
         await expect(templateEditSchema.validate(rest)).rejects.toThrow()
     })
 

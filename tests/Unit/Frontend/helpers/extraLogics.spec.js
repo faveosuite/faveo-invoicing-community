@@ -89,7 +89,7 @@ describe('findObjectByKey', () => {
 // ── lang ─────────────────────────────────────────────────────────────────────
 describe('lang', () => {
     afterEach(() => {
-        delete global.translator
+        delete globalThis.translator
     })
 
     it('returns the original string when translator is not defined', () => {
@@ -97,17 +97,17 @@ describe('lang', () => {
     })
 
     it('returns the original string when translator.lang is falsy', () => {
-        global.translator = { lang: null }
+        globalThis.translator = { lang: null }
         expect(lang('Hello')).toBe('Hello')
     })
 
     it('returns translated string when translator.lang has the key', () => {
-        global.translator = { lang: { Hello: 'Hola' } }
+        globalThis.translator = { lang: { Hello: 'Hola' } }
         expect(lang('Hello')).toBe('Hola')
     })
 
     it('falls back to original string when key is missing from translator.lang', () => {
-        global.translator = { lang: { Goodbye: 'Adios' } }
+        globalThis.translator = { lang: { Goodbye: 'Adios' } }
         expect(lang('Hello')).toBe('Hello')
     })
 
@@ -287,15 +287,15 @@ describe('formatDateTime', () => {
 // ── getCountry ────────────────────────────────────────────────────────────────
 describe('getCountry', () => {
     beforeEach(() => {
-        global.fetch = jest.fn()
+        globalThis.fetch = jest.fn()
     })
 
     afterEach(() => {
-        delete global.fetch
+        delete globalThis.fetch
     })
 
     it('returns a 2-letter country code on success', async () => {
-        global.fetch.mockResolvedValue({
+        globalThis.fetch.mockResolvedValue({
             text: () => Promise.resolve('1;US;USA'),
         })
         const result = await getCountry()
@@ -303,14 +303,14 @@ describe('getCountry', () => {
     })
 
     it('throws when the API returns a non-1 prefix', async () => {
-        global.fetch.mockResolvedValue({
+        globalThis.fetch.mockResolvedValue({
             text: () => Promise.resolve('0;'),
         })
         await expect(getCountry()).rejects.toThrow('unable to fetch the country')
     })
 
     it('throws when the API returns an empty string', async () => {
-        global.fetch.mockResolvedValue({
+        globalThis.fetch.mockResolvedValue({
             text: () => Promise.resolve(''),
         })
         await expect(getCountry()).rejects.toThrow('unable to fetch the country')

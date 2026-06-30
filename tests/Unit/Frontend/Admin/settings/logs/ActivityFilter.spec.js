@@ -12,7 +12,7 @@ describe('ActivityFilter.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/get-activity-filters/).reply(200, {
+        globalThis.mockHttp.onGet(/\/get-activity-filters/).reply(200, {
             data: {
                 modules: ['Users', 'Orders'],
                 users: [{ id: 1, name: 'Admin' }],
@@ -34,8 +34,8 @@ describe('ActivityFilter.vue', () => {
 
     it('fetches filter options on mount', async () => {
         await flushPromises()
-        expect(global.mockHttp.history.get.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.get[0].url).toMatch(/\/get-activity-filters/)
+        expect(globalThis.mockHttp.history.get.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.get[0].url).toMatch(/\/get-activity-filters/)
     })
 
     it('is hidden when show prop is false', () => {
@@ -63,7 +63,7 @@ describe('ActivityFilter.vue', () => {
     })
 
     it('calls errorHandler on fetch failure', async () => {
-        global.mockHttp.onGet(/\/get-activity-filters/).reply(500)
+        globalThis.mockHttp.onGet(/\/get-activity-filters/).reply(500)
         const w = mount(ActivityFilter, {
             props: { show: true, baseUrl: '' },
             global: {

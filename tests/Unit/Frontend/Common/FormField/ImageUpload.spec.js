@@ -125,8 +125,8 @@ describe('ImageUpload.vue', () => {
 
     it('onFileSelected sets selectedFile for valid png (FileReader not fired)', () => {
         // Stub FileReader so the async onload never fires and avoids jsdom/cropperjs leak
-        const origFileReader = global.FileReader
-        global.FileReader = class {
+        const origFileReader = globalThis.FileReader
+        globalThis.FileReader = class {
             readAsDataURL() {}
             set onload(_) {}
         }
@@ -134,7 +134,7 @@ describe('ImageUpload.vue', () => {
         Object.defineProperty(file, 'size', { value: 1024 })
         wrapper.vm.onFileSelected({ target: { files: [file], value: '' } })
         expect(wrapper.vm.selectedFile).toBe(file)
-        global.FileReader = origFileReader
+        globalThis.FileReader = origFileReader
     })
 
     // ── cropImage ─────────────────────────────────────────────────────

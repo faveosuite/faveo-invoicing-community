@@ -21,7 +21,7 @@ describe('ExpiryModal.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onPost(/\/update-expiry/).reply(200, { message: 'success', update: 'Date updated successfully.' })
+        globalThis.mockHttp.onPost(/\/update-expiry/).reply(200, { message: 'success', update: 'Date updated successfully.' })
         wrapper = mount(ExpiryModal, {
             props: defaultProps,
             global: {
@@ -55,14 +55,14 @@ describe('ExpiryModal.vue', () => {
         wrapper.vm.selectedDate = null
         await wrapper.vm.save()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('POSTs to baseUrl/endpoint with orderid and date on save', async () => {
         await wrapper.vm.save()
         await flushPromises()
-        expect(global.mockHttp.history.post.some(r => /\/update-expiry/.test(r.url))).toBe(true)
-        const body = JSON.parse(global.mockHttp.history.post[0].data)
+        expect(globalThis.mockHttp.history.post.some(r => /\/update-expiry/.test(r.url))).toBe(true)
+        const body = JSON.parse(globalThis.mockHttp.history.post[0].data)
         expect(body.orderid).toBe(42)
         expect(body.date).toBe('06/20/2026')
     })
@@ -83,8 +83,8 @@ describe('ExpiryModal.vue', () => {
     })
 
     it('sets an error message on POST failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/update-expiry/).reply(500, { message: 'Server error' })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/update-expiry/).reply(500, { message: 'Server error' })
         await wrapper.vm.save()
         await flushPromises()
         expect(wrapper.vm.message).toMatchObject({ type: 'error' })

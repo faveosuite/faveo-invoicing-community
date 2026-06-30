@@ -17,7 +17,7 @@ describe('whatsappSchema', () => {
     })
 
     it('fails when app_id is missing', async () => {
-        const { app_id: _o, ...rest } = valid
+        const { app_id: _o, ...rest } = valid // NOSONAR
         await expect(whatsappSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -38,7 +38,7 @@ describe('whatsappSchema', () => {
     })
 
     it('fails when verify_token is missing', async () => {
-        const { verify_token: _o, ...rest } = valid
+        const { verify_token: _o, ...rest } = valid // NOSONAR
         await expect(whatsappSchema.validate(rest)).rejects.toThrow()
     })
 })

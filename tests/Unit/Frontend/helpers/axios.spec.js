@@ -71,9 +71,9 @@ describe('parseValidationErrors()', () => {
 // ── Request interceptor — CSRF token ─────────────────────────────────────────
 describe('axios request interceptor', () => {
     it('attaches X-CSRF-TOKEN header from the meta tag', async () => {
-        global.mockHttp.onGet('/test-csrf').reply(200, {})
+        globalThis.mockHttp.onGet('/test-csrf').reply(200, {})
         await http.get('/test-csrf')
-        const request = global.mockHttp.history.get.find(r => r.url === '/test-csrf')
+        const request = globalThis.mockHttp.history.get.find(r => r.url === '/test-csrf')
         expect(request.headers['X-CSRF-TOKEN']).toBe('test-csrf-token')
     })
 })
@@ -83,7 +83,7 @@ describe('axios response error interceptor', () => {
     let originalHref
 
     beforeEach(() => {
-        originalHref = window.location.href
+        originalHref = globalThis.location.href
     })
 
     afterEach(() => {
@@ -94,19 +94,19 @@ describe('axios response error interceptor', () => {
     })
 
     it('redirects to /login on 401 when not on login page', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet('/protected').reply(401)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet('/protected').reply(401)
         Object.defineProperty(window, 'location', {
             writable: true,
             value: { href: 'http://localhost/' },
         })
         try { await http.get('/protected') } catch { /* expected */ }
-        expect(window.location.href).toContain('/login')
+        expect(globalThis.location.href).toContain('/login')
     })
 
     it('does not redirect on 401 when _skipAuthRedirect is set', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet('/hydrate').reply(401)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet('/hydrate').reply(401)
         Object.defineProperty(window, 'location', {
             writable: true,
             value: { href: 'http://localhost/' },
@@ -114,25 +114,25 @@ describe('axios response error interceptor', () => {
         try {
             await http.get('/hydrate', { _skipAuthRedirect: true })
         } catch { /* expected */ }
-        expect(window.location.href).not.toContain('/login')
+        expect(globalThis.location.href).not.toContain('/login')
     })
 
     it('rejects the promise for non-401/419 errors', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet('/server-error').reply(500, { message: 'Server error' })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet('/server-error').reply(500, { message: 'Server error' })
         await expect(http.get('/server-error')).rejects.toThrow()
     })
 
     it('retries the request once on 419 with a fresh CSRF token', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet('/csrf-expired')
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet('/csrf-expired')
             .replyOnce(419, {})
             .onGet('/csrf-expired')
             .replyOnce(200, { ok: true })
 
         const res = await http.get('/csrf-expired')
         expect(res.status).toBe(200)
-        const requests = global.mockHttp.history.get.filter(r => r.url === '/csrf-expired')
+        const requests = globalThis.mockHttp.history.get.filter(r => r.url === '/csrf-expired')
         expect(requests.length).toBe(2)
     })
 })

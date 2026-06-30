@@ -31,7 +31,7 @@ const progressBarOptions = {
     autoFinish: false,
 }
 
-window.emitter = mitt()
+globalThis.emitter = mitt()
 
 const app = createApp(Client)
 
@@ -59,7 +59,7 @@ const auth = useAuthStore()
 await auth.hydrate()
 
 app.use(clientRouter)
-window.__router = clientRouter
+globalThis.__router = clientRouter
 app.use(i18n)
 app.use(VueProgressBar, progressBarOptions)
 app.use(FloatingVue)

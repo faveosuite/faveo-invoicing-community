@@ -12,7 +12,7 @@ describe('githubSchema', () => {
     })
 
     it('fails when git_username is missing', async () => {
-        const { git_username: _o, ...rest } = valid
+        const { git_username: _o, ...rest } = valid // NOSONAR
         await expect(githubSchema.validate(rest)).rejects.toThrow()
     })
 
@@ -25,7 +25,7 @@ describe('githubSchema', () => {
     })
 
     it('fails when git_password is missing', async () => {
-        const { git_password: _o, ...rest } = valid
+        const { git_password: _o, ...rest } = valid // NOSONAR
         await expect(githubSchema.validate(rest)).rejects.toThrow()
     })
 

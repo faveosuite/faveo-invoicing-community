@@ -180,7 +180,6 @@ class MSG91Controller extends Controller
             // Apply filter query
             $baseQuery = $this->filterQueryForMsg($baseQuery);
 
-            $total = $baseQuery->count();
 
             $logs = $baseQuery->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);

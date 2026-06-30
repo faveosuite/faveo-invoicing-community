@@ -207,7 +207,7 @@ function updateData(value, productId) {
 }
 
 onBeforeMount(() => {
-    const path = window.location.pathname
+    const path = globalThis.location.pathname
     const installationId = getIdFromUrl(path)
     id.value = installationId
     getInitialValues(installationId)

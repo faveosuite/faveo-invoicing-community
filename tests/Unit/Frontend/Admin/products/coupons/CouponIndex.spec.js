@@ -11,8 +11,8 @@ describe('CouponIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/promotions/).reply(200, { data: [] })
-        global.mockHttp.onDelete(/\/promotions/).reply(200, { data: { message: 'Deleted' } })
+        globalThis.mockHttp.onGet(/\/promotions/).reply(200, { data: [] })
+        globalThis.mockHttp.onDelete(/\/promotions/).reply(200, { data: { message: 'Deleted' } })
         wrapper = mount(CouponIndex, {
             global: {
                 plugins: [createTestingPinia()],

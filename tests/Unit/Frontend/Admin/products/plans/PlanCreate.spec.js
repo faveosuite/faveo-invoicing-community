@@ -24,9 +24,9 @@ describe('PlanCreate.vue', () => {
     beforeEach(() => {
         jest.useFakeTimers()
 
-        global.mockHttp.onGet(/\/dependency\/periods/).reply(200, PERIODS_RESPONSE)
-        global.mockHttp.onGet(/\/dependency\/currencies/).reply(200, CURRENCIES_RESPONSE)
-        global.mockHttp.onPut(/\/plans/).reply(200, { data: { message: 'Plan created' } })
+        globalThis.mockHttp.onGet(/\/dependency\/periods/).reply(200, PERIODS_RESPONSE)
+        globalThis.mockHttp.onGet(/\/dependency\/currencies/).reply(200, CURRENCIES_RESPONSE)
+        globalThis.mockHttp.onPut(/\/plans/).reply(200, { data: { message: 'Plan created' } })
 
         wrapper = mount(PlanCreate, {
             global: {
@@ -43,7 +43,7 @@ describe('PlanCreate.vue', () => {
     })
 
     afterEach(() => {
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
         jest.useRealTimers()
     })
@@ -58,7 +58,7 @@ describe('PlanCreate.vue', () => {
 
     it('fetches periods and currencies on mount', async () => {
         await flushPromises()
-        const urls = global.mockHttp.history.get.map(r => r.url)
+        const urls = globalThis.mockHttp.history.get.map(r => r.url)
         expect(urls.some(u => u.includes('/dependency/periods'))).toBe(true)
         expect(urls.some(u => u.includes('/dependency/currencies'))).toBe(true)
     })
@@ -70,7 +70,7 @@ describe('PlanCreate.vue', () => {
         wrapper.vm.form.prices = [{ currency: 1, add_price: '10', offer_price: '', renew_price: '10' }]
         await wrapper.vm.submit()
         await flushPromises()
-        expect(global.mockHttp.history.put.some(r => /\/plans/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.put.some(r => /\/plans/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on success', async () => {
@@ -84,7 +84,7 @@ describe('PlanCreate.vue', () => {
     })
 
     it('calls errorHandler on 500 error', async () => {
-        global.mockHttp.onPut(/\/plans/).reply(500)
+        globalThis.mockHttp.onPut(/\/plans/).reply(500)
         await flushPromises()
         wrapper.vm.form.name = 'Basic Plan'
         wrapper.vm.form.product = 1

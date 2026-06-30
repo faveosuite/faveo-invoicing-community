@@ -82,7 +82,7 @@ class ExtendedBaseInvoiceController extends Controller
             $payment = new Payment;
             $payment->payment_status = 'success';
             $payment->user_id = $clientid;
-            $paymentReceived = $payment->fill($request->all())->save();
+            $payment->fill($request->all())->save();
 
             return successResponse(__('message.saved-successfully'));
         } catch (Exception $exception) {

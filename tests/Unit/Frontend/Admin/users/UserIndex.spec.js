@@ -13,8 +13,8 @@ describe('UserIndex.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/users/).reply(200, { data: [] })
-        global.mockHttp.onGet(/\/export-users/).reply(200, { data: { message: 'Export queued' } })
+        globalThis.mockHttp.onGet(/\/users/).reply(200, { data: [] })
+        globalThis.mockHttp.onGet(/\/export-users/).reply(200, { data: { message: 'Export queued' } })
         wrapper = mount(UserIndex, {
             global: {
                 plugins: [createTestingPinia()],
@@ -63,7 +63,7 @@ describe('UserIndex.vue', () => {
     it('calls exportAll which hits export API', async () => {
         await wrapper.vm.exportAll()
         await flushPromises()
-        expect(global.mockHttp.history.get.some(r => /export-users/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.get.some(r => /export-users/.test(r.url))).toBe(true)
     })
 
     it('calls successHandler on successful export', async () => {
@@ -73,8 +73,8 @@ describe('UserIndex.vue', () => {
     })
 
     it('calls errorHandler on export failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/export-users/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/export-users/).reply(500)
         await wrapper.vm.exportAll()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()

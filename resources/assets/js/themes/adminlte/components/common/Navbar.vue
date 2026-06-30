@@ -107,7 +107,7 @@ const baseUrl = el?.dataset?.baseUrl ?? '/'
 // ── Logout ────────────────────────────────────────────────────────────────────
 async function logout() {
   await http.get('auth/logout')
-  window.location.href = baseUrl + '/login'
+  globalThis.location.href = baseUrl + '/login'
 }
 
 // ── User ──────────────────────────────────────────────────────────────────────
@@ -200,7 +200,7 @@ function onMenuScroll() {
 async function selectLang(lang) {
   try {
     await http.post('lang/update', {language: lang.locale})
-    window.location.reload()
+    globalThis.location.reload()
   } catch (err) {
     notify(parseErrorMessage(err), 'danger')
   }

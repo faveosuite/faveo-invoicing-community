@@ -28,10 +28,10 @@ describe('LicenseTypeIndex.vue', () => {
 
     beforeEach(() => {
         jest.clearAllMocks()
-        global.mockHttp.onGet(/\/get-license-type/).reply(200, { data: { id: 1, name: 'Standard' } })
-        global.mockHttp.onPost(/\/create-license-type/).reply(200, { message: 'Created' })
-        global.mockHttp.onPut(/\/update-license-type/).reply(200, { message: 'Updated' })
-        global.mockHttp.onDelete(/\/delete-license-type/).reply(200, { message: 'Deleted' })
+        globalThis.mockHttp.onGet(/\/get-license-type/).reply(200, { data: { id: 1, name: 'Standard' } })
+        globalThis.mockHttp.onPost(/\/create-license-type/).reply(200, { message: 'Created' })
+        globalThis.mockHttp.onPut(/\/update-license-type/).reply(200, { message: 'Updated' })
+        globalThis.mockHttp.onDelete(/\/delete-license-type/).reply(200, { message: 'Deleted' })
 
         wrapper = mount(LicenseTypeIndex, {
             global: {
@@ -91,8 +91,8 @@ describe('LicenseTypeIndex.vue', () => {
         wrapper.vm.newName = 'Enterprise'
         await wrapper.vm.create()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.post[0].url).toMatch(/create-license-type/)
+        expect(globalThis.mockHttp.history.post.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.post[0].url).toMatch(/create-license-type/)
     })
 
     it('create() calls successHandler and closes modal on success', async () => {
@@ -104,8 +104,8 @@ describe('LicenseTypeIndex.vue', () => {
     })
 
     it('create() calls errorHandler on API failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/create-license-type/).reply(422, { message: 'Error' })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/create-license-type/).reply(422, { message: 'Error' })
         wrapper.vm.newName = 'Enterprise'
         await wrapper.vm.create()
         await flushPromises()
@@ -122,7 +122,7 @@ describe('LicenseTypeIndex.vue', () => {
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.create()
         await flushPromises()
-        expect(global.mockHttp.history.post.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     // ── Edit modal ───────────────────────────────────────────────────
@@ -135,8 +135,8 @@ describe('LicenseTypeIndex.vue', () => {
     })
 
     it('openEdit calls errorHandler and closes modal on API failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onGet(/\/get-license-type\/\d+/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onGet(/\/get-license-type\/\d+/).reply(500)
         await wrapper.vm.openEdit(1)
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -158,8 +158,8 @@ describe('LicenseTypeIndex.vue', () => {
         wrapper.vm.editName = 'Updated'
         await wrapper.vm.update()
         await flushPromises()
-        expect(global.mockHttp.history.put.length).toBeGreaterThan(0)
-        expect(global.mockHttp.history.put[0].url).toMatch(/update-license-type\/1/)
+        expect(globalThis.mockHttp.history.put.length).toBeGreaterThan(0)
+        expect(globalThis.mockHttp.history.put[0].url).toMatch(/update-license-type\/1/)
     })
 
     it('update() calls successHandler and closes edit modal on success', async () => {
@@ -172,8 +172,8 @@ describe('LicenseTypeIndex.vue', () => {
     })
 
     it('update() calls errorHandler on API failure', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onPut(/\/update-license-type/).reply(500)
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPut(/\/update-license-type/).reply(500)
         wrapper.vm.editId = 1
         wrapper.vm.editName = 'Updated'
         await wrapper.vm.update()
@@ -192,7 +192,7 @@ describe('LicenseTypeIndex.vue', () => {
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.update()
         await flushPromises()
-        expect(global.mockHttp.history.put.length).toBe(0)
+        expect(globalThis.mockHttp.history.put.length).toBe(0)
     })
 
     // ── Delete ───────────────────────────────────────────────────────

@@ -12,7 +12,7 @@ describe('DebuggingSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/debugg/).reply(200, {
+        globalThis.mockHttp.onGet(/\/debugg/).reply(200, {
             data: {
                 debug: false,
                 pulse_enabled: false,
@@ -21,7 +21,7 @@ describe('DebuggingSettings.vue', () => {
                 sentry_performance: false,
             },
         })
-        global.mockHttp.onPost(/\/save\/debugg/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/save\/debugg/).reply(200, { data: {} })
 
         wrapper = mount(DebuggingSettings, {
             global: {
@@ -40,7 +40,7 @@ describe('DebuggingSettings.vue', () => {
 
     it('fetches debugging settings on mount', async () => {
         await flushPromises()
-        const getUrls = global.mockHttp.history.get.map(r => r.url)
+        const getUrls = globalThis.mockHttp.history.get.map(r => r.url)
         expect(getUrls.some(u => u.includes('debugg'))).toBe(true)
     })
 
@@ -55,7 +55,7 @@ describe('DebuggingSettings.vue', () => {
         if (saveBtn.exists()) {
             await saveBtn.trigger('click')
             await flushPromises()
-            const postUrls = global.mockHttp.history.post.map(r => r.url)
+            const postUrls = globalThis.mockHttp.history.post.map(r => r.url)
             expect(postUrls.some(u => u.includes('save/debugg'))).toBe(true)
         }
     })

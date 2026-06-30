@@ -8,7 +8,7 @@ describe('Alert.vue', () => {
 
     beforeAll(() => {
         // jsdom does not implement scrollIntoView
-        window.HTMLElement.prototype.scrollIntoView = jest.fn()
+        globalThis.HTMLElement.prototype.scrollIntoView = jest.fn()
     })
 
     beforeEach(() => {

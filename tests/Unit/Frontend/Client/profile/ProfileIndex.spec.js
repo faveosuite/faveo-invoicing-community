@@ -222,7 +222,7 @@ describe('ProfileIndex.vue', () => {
     })
 
     it('loadStates resolves without throwing for a given country', async () => {
-        global.mockHttp.onGet(/\/dependency\/states/).replyOnce(200, {
+        globalThis.mockHttp.onGet(/\/dependency\/states/).replyOnce(200, {
             data: { states: [{ iso2: 'MH', name: 'Maharashtra' }] }
         })
         await flushPromises()
@@ -236,7 +236,7 @@ describe('ProfileIndex.vue', () => {
     })
 
     it('loadStates handles error gracefully', async () => {
-        global.mockHttp.onGet(/\/dependency\/states/).reply(500)
+        globalThis.mockHttp.onGet(/\/dependency\/states/).reply(500)
         await flushPromises()
         await expect(wrapper.vm.loadStates('IN')).resolves.not.toThrow()
     })
@@ -250,7 +250,7 @@ describe('ProfileIndex.vue', () => {
     })
 
     it('submitProfile handles 422 validation error', async () => {
-        global.mockHttp.onPost(/\/my-profile/).reply(422, {
+        globalThis.mockHttp.onPost(/\/my-profile/).reply(422, {
             errors: { first_name: ['Required'] }
         })
         await flushPromises()

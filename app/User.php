@@ -46,9 +46,6 @@ use Laravel\Passport\Token;
 use Override;
 use Spatie\Activitylog\Models\Activity;
 
-// use Laravel\Cashier\Billable;
-// use LinkThrow\Billing\CustomerBillableTrait;
-// use App\Model\Common\Website;
 
 /**
  * @property int $id
@@ -216,8 +213,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     use SoftDeletes;
     use SystemActivityLogsTrait;
 
-    // use Billable;
-    // use CustomerBillableTrait;
 
     #[Override]
     protected static function booted(): void
@@ -409,11 +404,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     // public function forceDelete()
-    // {
-    //     $this->invoiceItem()->delete();
-    //     $this->orderRelation()->delete();
-    //     $this->invoice()->delete();
-    //     $this->order()->delete();
     //     $this->subscription()->delete();
     //     $this->comments()->delete();
     //     return parent::delete();

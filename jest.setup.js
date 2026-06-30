@@ -5,15 +5,15 @@ import http from './resources/assets/js/plugins/axios.js'
 import { registerDefaultHandlers } from './tests/Unit/Frontend/mocks/handlers/index.js'
 
 // ── Globals available in every test file ─────────────────────────────────────
-global.flushPromises = flushPromises
+globalThis.flushPromises = flushPromises
 
 // Polyfill IntersectionObserver (used by TreeSelect.vue, not available in jsdom)
-global.IntersectionObserver = class IntersectionObserver {
+globalThis.IntersectionObserver = class IntersectionObserver {
     constructor() { this.observe = jest.fn(); this.disconnect = jest.fn(); this.unobserve = jest.fn() }
 }
 // Make __() available at module load time (some components call it eagerly in
 // script setup outside any function, e.g. to build static option arrays).
-global.__ = (key) => key
+globalThis.__ = (key) => key
 
 // ── DOM seed ──────────────────────────────────────────────────────────────────
 // Must be set before any module-level store code reads data-* attributes.
@@ -51,20 +51,20 @@ beforeEach(() => {
 // ── HTTP mock (axios-mock-adapter) ────────────────────────────────────────────
 // A single shared MockAdapter is created once. Before every test we reset it
 // and re-register the default happy-path handlers. Tests that need a different
-// response can override with global.mockHttp.onGet(...).replyOnce(...).
-global.mockHttp = new MockAdapter(http, { onNoMatch: 'throwException' })
+// response can override with globalThis.mockHttp.onGet(...).replyOnce(...).
+globalThis.mockHttp = new MockAdapter(http, { onNoMatch: 'throwException' })
 
 beforeEach(() => {
-    global.mockHttp.reset()
-    registerDefaultHandlers(global.mockHttp)
+    globalThis.mockHttp.reset()
+    registerDefaultHandlers(globalThis.mockHttp)
 })
 
 // ── Vue Test Utils global config ──────────────────────────────────────────────
-config.global.directives = {
+config.globalThis.directives = {
     tooltip: () => {},
 }
 
-config.global.stubs = {
+config.globalThis.stubs = {
     'router-link': { template: '<a><slot /></a>' },
     'router-view': { template: '<div />' },
     Teleport: { template: '<div><slot /></div>' },
@@ -72,7 +72,7 @@ config.global.stubs = {
     TransitionGroup: false,
 }
 
-config.global.mocks = {
+config.globalThis.mocks = {
     $t: (key) => key,
     __: (key) => key,
 }
@@ -135,5 +135,5 @@ afterAll(() => {
     console.warn.mockRestore?.()
     // eslint-disable-next-line no-console
     console.error.mockRestore?.()
-    global.mockHttp.restore()
+    globalThis.mockHttp.restore()
 })

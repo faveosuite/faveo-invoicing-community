@@ -16,7 +16,7 @@ describe('cloudTrialSchema', () => {
     })
 
     it('fails when domain is missing', async () => {
-        const { domain: _o, ...rest } = valid
+        const { domain: _o, ...rest } = valid // NOSONAR
         await expect(cloudTrialSchema.validate(rest)).rejects.toThrow()
     })
 

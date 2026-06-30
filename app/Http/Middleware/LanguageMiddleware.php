@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-// use Illuminate\Contracts\Routing\Middleware;
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
 use App\User;

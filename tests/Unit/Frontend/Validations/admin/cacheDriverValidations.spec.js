@@ -83,7 +83,7 @@ describe('cacheDriverSchemas.dynamodb', () => {
     })
 
     it('fails when AWS_ACCESS_KEY_ID is missing', async () => {
-        const { AWS_ACCESS_KEY_ID: _omit, ...rest } = valid
+        const { AWS_ACCESS_KEY_ID: _omit, ...rest } = valid // NOSONAR
         await expect(schema.validate(rest)).rejects.toThrow()
     })
 

@@ -12,14 +12,14 @@ describe('ContactOptions.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/contact-option/).reply(200, {
+        globalThis.mockHttp.onGet(/\/contact-option/).reply(200, {
             data: {
                 emailverification_status: 1,
                 msg91_status: 0,
                 verification_preference: 'email',
             },
         })
-        global.mockHttp.onPost(/\/verificationSettings/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/verificationSettings/).reply(200, { data: {} })
 
         wrapper = mount(ContactOptions, {
             global: {
@@ -38,7 +38,7 @@ describe('ContactOptions.vue', () => {
 
     it('fetches contact options on mount', async () => {
         await flushPromises()
-        const getUrls = global.mockHttp.history.get.map(r => r.url)
+        const getUrls = globalThis.mockHttp.history.get.map(r => r.url)
         expect(getUrls.some(u => u.includes('contact-option'))).toBe(true)
     })
 
@@ -53,7 +53,7 @@ describe('ContactOptions.vue', () => {
         if (saveBtn.exists()) {
             await saveBtn.trigger('click')
             await flushPromises()
-            const postUrls = global.mockHttp.history.post.map(r => r.url)
+            const postUrls = globalThis.mockHttp.history.post.map(r => r.url)
             expect(postUrls.some(u => u.includes('verificationSettings'))).toBe(true)
         }
     })

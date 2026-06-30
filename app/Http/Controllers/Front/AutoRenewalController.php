@@ -69,7 +69,7 @@ class AutoRenewalController extends Controller
                 return errorResponse(__('message.something_went_wrong'));
             }
 
-            $result = $this->payments->capture('Stripe', ['payment_intent' => $paymentIntentId]);
+            $this->payments->capture('Stripe', ['payment_intent' => $paymentIntentId]);
             if (! $result->paid) {
                 return errorResponse(__('message.payment_declined_try_other_gateway'));
             }
@@ -116,7 +116,7 @@ class AutoRenewalController extends Controller
     {
         $order = $this->authorizedOrder($order);
         try {
-            $result = $this->payments->capture('Razorpay', $request->only([
+            $this->payments->capture('Razorpay', $request->only([
                 'razorpay_order_id',
                 'razorpay_payment_id',
                 'razorpay_signature',

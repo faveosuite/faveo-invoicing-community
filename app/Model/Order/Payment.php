@@ -72,7 +72,4 @@ class Payment extends BaseModel
         return $this->belongsTo(User::class);
     }
 
-    //    public function setCreatedAtAttribute($value) {
-    //        dd($value);
-    //    }
 }

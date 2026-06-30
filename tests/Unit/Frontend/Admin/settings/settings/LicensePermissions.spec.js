@@ -11,7 +11,7 @@ describe('LicensePermissions.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onDelete(/\/add-permission/).reply(200, { data: {} })
+        globalThis.mockHttp.onDelete(/\/add-permission/).reply(200, { data: {} })
 
         wrapper = mount(LicensePermissions, {
             global: {
@@ -44,11 +44,11 @@ describe('LicensePermissions.vue', () => {
         await flushPromises()
         // Simulate openEdit being called by setting editLicense via DOM interaction
         // Since the action template renders inside DataTable (stubbed), we verify the mock
-        global.mockHttp.onDelete(/\/add-permission/).reply(200, { data: {} })
+        globalThis.mockHttp.onDelete(/\/add-permission/).reply(200, { data: {} })
         const http = (await import('@/plugins/axios.js')).default
         await http.delete('/add-permission', { data: { licenseId: 1, permissionid: [1, 2] } })
         await flushPromises()
-        const deleteUrls = global.mockHttp.history.delete.map(r => r.url)
+        const deleteUrls = globalThis.mockHttp.history.delete.map(r => r.url)
         expect(deleteUrls.some(u => u.includes('add-permission'))).toBe(true)
     })
 })

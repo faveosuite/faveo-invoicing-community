@@ -15,8 +15,8 @@ describe('CacheSettings.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        global.mockHttp.onGet(/\/cache-settings\/list/).reply(200, { data: [] })
-        global.mockHttp.onPost(/\/cache-settings\//).reply(200, { data: {} })
+        globalThis.mockHttp.onGet(/\/cache-settings\/list/).reply(200, { data: [] })
+        globalThis.mockHttp.onPost(/\/cache-settings\//).reply(200, { data: {} })
         wrapper = mount(CacheSettings, {
             global: {
                 plugins: [createTestingPinia()],
@@ -31,7 +31,7 @@ describe('CacheSettings.vue', () => {
 
     afterEach(() => {
         wrapper.unmount()
-        global.mockHttp.reset()
+        globalThis.mockHttp.reset()
         jest.clearAllMocks()
     })
 
@@ -55,7 +55,7 @@ describe('CacheSettings.vue', () => {
         await wrapper.vm.activate('redis')
         await flushPromises()
         expect(
-            global.mockHttp.history.post.some(r => /\/cache-settings\//.test(r.url) && r.url.includes('/activate'))
+            globalThis.mockHttp.history.post.some(r => /\/cache-settings\//.test(r.url) && r.url.includes('/activate'))
         ).toBe(true)
     })
 
@@ -67,8 +67,8 @@ describe('CacheSettings.vue', () => {
     })
 
     it('calls errorHandler when activate fails', async () => {
-        global.mockHttp.reset()
-        global.mockHttp.onPost(/\/cache-settings\//).reply(500, { message: 'Server error' })
+        globalThis.mockHttp.reset()
+        globalThis.mockHttp.onPost(/\/cache-settings\//).reply(500, { message: 'Server error' })
         await wrapper.vm.activate('redis')
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -83,7 +83,7 @@ describe('CacheSettings.vue', () => {
         await wrapper.vm.activate('memcached')
         await flushPromises()
         expect(
-            global.mockHttp.history.post.some(r => r.url.includes('memcached'))
+            globalThis.mockHttp.history.post.some(r => r.url.includes('memcached'))
         ).toBe(true)
     })
 })
