@@ -60,11 +60,11 @@ beforeEach(() => {
 })
 
 // ── Vue Test Utils global config ──────────────────────────────────────────────
-config.globalThis.directives = {
+config.global.directives = {
     tooltip: () => {},
 }
 
-config.globalThis.stubs = {
+config.global.stubs = {
     'router-link': { template: '<a><slot /></a>' },
     'router-view': { template: '<div />' },
     Teleport: { template: '<div><slot /></div>' },
@@ -72,7 +72,7 @@ config.globalThis.stubs = {
     TransitionGroup: false,
 }
 
-config.globalThis.mocks = {
+config.global.mocks = {
     $t: (key) => key,
     __: (key) => key,
 }

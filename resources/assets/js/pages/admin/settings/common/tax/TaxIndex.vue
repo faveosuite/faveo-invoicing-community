@@ -182,7 +182,7 @@ const allSelected = computed(() => {
 function toggleAll(e) {
     const data = dtRef.value?.tableData ?? []
     if (e.target.checked) {
-        const ids = new Set(data.map(r => r.id)).filter(id => !selected.value.includes(id))
+        const ids = data.map(r => r.id).filter(id => !selected.value.includes(id))
         selected.value.push(...ids)
     } else {
         const ids = new Set(data.map(r => r.id))

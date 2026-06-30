@@ -99,7 +99,7 @@ class ForgotPasswordController extends Controller
             }
 
             return errorResponse(__('validation.forgot_email_validation'));
-        } catch (Exception) {
+        } catch (\Throwable) {
             return successResponse(__('validation.forgot_email_validation'));
         }
     }

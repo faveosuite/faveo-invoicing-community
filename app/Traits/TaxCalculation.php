@@ -70,7 +70,7 @@ trait TaxCalculation
      * Tax amount for a single rate against a price. Retained for invoice
      * display helpers.
      */
-    public static function taxValue(string $rate, int|float $price): int|float
+    public static function taxValue(string $rate, int|float $price, bool $round = true): int|float
     {
         try {
             if (! $rate || ! is_numeric($price)) { // @phpstan-ignore function.alreadyNarrowedType

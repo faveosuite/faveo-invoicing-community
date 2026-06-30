@@ -142,7 +142,7 @@ function toggleRow(id) {
 function toggleAll(e) {
     const data = dtRef.value?.tableData ?? []
     if (e.target.checked) {
-        const ids = new Set(data.map(r => r.id)).filter(id => !selectedInvoices.value.includes(id))
+        const ids = data.map(r => r.id).filter(id => !selectedInvoices.value.includes(id))
         selectedInvoices.value.push(...ids)
     } else {
         const ids = new Set(data.map(r => r.id))

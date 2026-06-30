@@ -30,7 +30,7 @@ class EncryptDecryptController extends Controller
     {
         $privkey = Storage::disk('public')->get('privateKey-'.$orderNo.'.txt');
         $data = Storage::disk('public')->get('faveo-license-{'.$orderNo.'}.txt');
-        if (openssl_private_decrypt(base64_decode((string) $data), $decrypted, (string) $privkey, OPENSSL_PKCS1_PADDING)) {
+        if (openssl_private_decrypt(base64_decode((string) $data), $decrypted, (string) $privkey, OPENSSL_PKCS1_OAEP_PADDING)) {
             return $decrypted;
         }
 
