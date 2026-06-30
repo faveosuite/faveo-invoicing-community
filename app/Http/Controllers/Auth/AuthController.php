@@ -6,7 +6,6 @@ use App\ApiKey;
 use App\Events\UserRegisteredEvent;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
-use App\Http\Controllers\Common\TemplateController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;

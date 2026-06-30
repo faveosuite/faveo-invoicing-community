@@ -29,7 +29,6 @@ Artisan::command('preinstall:check', function (): void {
         if ($exception->getCode() == 100) {
             $this->call('droptables');
         }
-
     }
 
     $this->info('Preinstall has checked successfully');
