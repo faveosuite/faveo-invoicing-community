@@ -61,7 +61,6 @@ class ProductCategory extends Model
         }
 
         return '';
-
     }
 
     public function getActivitylogOptions(): LogOptions
