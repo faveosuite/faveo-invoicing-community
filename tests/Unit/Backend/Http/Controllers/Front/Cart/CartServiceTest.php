@@ -6,6 +6,7 @@ use App\Http\Controllers\Front\Cart\CartService;
 use App\Http\Controllers\Front\Cart\GuestCart;
 use App\Model\Cart\Cart;
 use App\Model\Cart\CartItem;
+use App\Services\Payment\InvoicePaymentService;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
@@ -26,7 +27,9 @@ class CartServiceTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         $this->guestMock = Mockery::mock(GuestCart::class);
-        $this->service = new CartService($this->guestMock);
+        // None of these tests exercise checkoutExtras() (the only caller of
+        // InvoicePaymentService), so an un-expectation-set mock is enough.
+        $this->service = new CartService($this->guestMock, Mockery::mock(InvoicePaymentService::class));
     }
 
     private function authenticatedRequest(): Request

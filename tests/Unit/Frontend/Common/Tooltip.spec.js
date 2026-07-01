@@ -35,8 +35,10 @@ describe('Tooltip.vue', () => {
     })
 
     it('has cursor help on icon', () => {
+        // cursor: help now lives in a scoped CSS class rather than an inline
+        // style, so we assert the class is applied instead of the style attr.
         const icon = wrapper.find('.fa-question-circle')
-        expect(icon.attributes('style')).toContain('cursor: help')
+        expect(icon.classes()).toContain('tooltip-icon')
     })
 
     it('uses default size of medium', () => {

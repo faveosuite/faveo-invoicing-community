@@ -91,7 +91,7 @@
 </template>
 
 <script setup>
-import { h, reactive, ref, computed } from 'vue'
+import { h, reactive, ref } from 'vue'
 import PaymentFilter from './PaymentFilter.vue'
 import { useTableSelection } from '@/core/composables/useTableSelection'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'

@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { h, ref, computed, reactive } from 'vue'
+import { h, ref, reactive } from 'vue'
 
 import ProductTableActions from './components/ProductTableActions.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'

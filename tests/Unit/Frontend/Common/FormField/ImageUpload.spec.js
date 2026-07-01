@@ -59,10 +59,11 @@ describe('ImageUpload.vue', () => {
     })
 
     it('renders hidden file input', () => {
+        // display:none now lives in a scoped CSS class rather than an inline
+        // style, so we assert the class is applied instead of the style attr.
         const input = wrapper.find('input[type="file"]')
         expect(input.exists()).toBe(true)
-        // style may be "display:none" or "display: none;" depending on browser
-        expect(input.attributes('style').replace(/\s/g, '')).toContain('display:none')
+        expect(input.classes()).toContain('hidden-input')
     })
 
     it('renders image element', () => {

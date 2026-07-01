@@ -49,16 +49,16 @@ describe('InstallationsIndex.vue', () => {
 
     it('requestAdapter maps correctly with trim', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: 'product_title', ascending: false, query: '  hello  ', limit: 15, page: 3 })
-        expect(result.sort_field).toBe('product_title')
-        expect(result.sort_order).toBe('desc')
-        expect(result.search_query).toBe('hello')
-        expect(result.perPage).toBe(15)
+        expect(result['sort-field']).toBe('product_title')
+        expect(result['sort-order']).toBe('desc')
+        expect(result['search-query']).toBe('hello')
+        expect(result.limit).toBe(15)
         expect(result.page).toBe(3)
     })
 
     it('requestAdapter falls back to id when orderBy empty', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: '', ascending: true, query: '', limit: 10, page: 1 })
-        expect(result.sort_field).toBe('id')
+        expect(result['sort-field']).toBe('id')
     })
 
     it('responseAdapter maps rows with edit_url, view_url, keyVal, idVal', () => {

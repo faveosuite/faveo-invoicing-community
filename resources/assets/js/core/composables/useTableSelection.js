@@ -4,7 +4,7 @@ export function useTableSelection(dtRef) {
     const selected = ref([])
 
     const allSelected = computed(() => {
-        const data = dtRef.value?.data ?? []
+        const data = dtRef.value?.tableData ?? []
         return data.length > 0 && data.every(row => selected.value.includes(row.id))
     })
 
@@ -15,7 +15,7 @@ export function useTableSelection(dtRef) {
     }
 
     function toggleAll(e) {
-        const data = dtRef.value?.data ?? []
+        const data = dtRef.value?.tableData ?? []
         const ids = new Set(data.map(r => r.id))
         if (e.target.checked)
             selected.value.push(...data.map(r => r.id).filter(id => !selected.value.includes(id)))

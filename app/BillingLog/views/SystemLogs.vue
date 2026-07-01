@@ -16,8 +16,7 @@
                 <div class="row mb-3">
                     <div v-for="type in logTypes" :key="type.key" class="col-md-2 col-sm-4 col-6">
                         <div
-                            class="d-flex flex-column align-items-center text-center gap-2 py-2"
-                            class="clickable"
+                            class="d-flex flex-column align-items-center text-center gap-2 py-2 clickable"
                             @click="switchType(type.key)"
                         >
                             <span class="settings-icon" :class="activeType === type.key && 'settings-icon--active'">

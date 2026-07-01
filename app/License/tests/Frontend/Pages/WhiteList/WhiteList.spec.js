@@ -52,15 +52,15 @@ describe('WhiteList.vue', () => {
 
     it('requestAdapter maps sort field correctly', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: 'whitelist_host_ip', ascending: true, query: 'test', limit: 10, page: 1 })
-        expect(result.sort_field).toBe('whitelist_host_ip')
-        expect(result.sort_order).toBe('asc')
-        expect(result.search_query).toBe('test')
+        expect(result['sort-field']).toBe('whitelist_host_ip')
+        expect(result['sort-order']).toBe('asc')
+        expect(result['search-query']).toBe('test')
     })
 
     it('requestAdapter falls back to id when orderBy is empty', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: '', ascending: false, query: '', limit: 25, page: 1 })
-        expect(result.sort_field).toBe('id')
-        expect(result.sort_order).toBe('desc')
+        expect(result['sort-field']).toBe('id')
+        expect(result['sort-order']).toBe('desc')
     })
 
     it('responseAdapter maps rows with edit_url, delete_url, keyVal, idVal', () => {

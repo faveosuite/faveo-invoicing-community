@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-import { h, ref, computed, reactive } from 'vue'
+import { h, ref, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'

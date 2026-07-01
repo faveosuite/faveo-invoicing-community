@@ -56,15 +56,15 @@ describe('ViewLicenseReports.vue', () => {
 
     it('requestAdapter maps sort field with fallback to report_date_time', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: '', ascending: false, query: '  search  ', limit: 10, page: 1 })
-        expect(result.sort_field).toBe('report_date_time')
-        expect(result.sort_order).toBe('desc')
-        expect(result.search_query).toBe('search')
+        expect(result['sort-field']).toBe('report_date_time')
+        expect(result['sort-order']).toBe('desc')
+        expect(result['search-query']).toBe('search')
     })
 
     it('requestAdapter uses provided orderBy when set', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: 'product_title', ascending: true, query: '', limit: 25, page: 2 })
-        expect(result.sort_field).toBe('product_title')
-        expect(result.sort_order).toBe('asc')
+        expect(result['sort-field']).toBe('product_title')
+        expect(result['sort-order']).toBe('asc')
     })
 
     it('responseAdapter maps rows with keyVal and idVal', () => {

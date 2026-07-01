@@ -89,7 +89,7 @@
 </template>
 
 <script setup>
-import { h, ref, computed, reactive, watch } from 'vue'
+import { h, ref, reactive, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
 import http from '@/plugins/axios'

@@ -44,15 +44,15 @@ describe('VersionsIndex.vue', () => {
 
     it('requestAdapter maps sort field and trims query', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: 'version_number', ascending: true, query: '  2.0  ', limit: 10, page: 1 })
-        expect(result.sort_field).toBe('version_number')
-        expect(result.sort_order).toBe('asc')
-        expect(result.search_query).toBe('2.0')
+        expect(result['sort-field']).toBe('version_number')
+        expect(result['sort-order']).toBe('asc')
+        expect(result['search-query']).toBe('2.0')
     })
 
     it('requestAdapter falls back to id when orderBy empty', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: '', ascending: false, query: '', limit: 25, page: 1 })
-        expect(result.sort_field).toBe('id')
-        expect(result.sort_order).toBe('desc')
+        expect(result['sort-field']).toBe('id')
+        expect(result['sort-order']).toBe('desc')
     })
 
     it('responseAdapter maps rows with view_url, keyVal, idVal', () => {

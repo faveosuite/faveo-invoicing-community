@@ -205,8 +205,8 @@
                                         <p class="text-muted small mb-0">{{ __('message.map_is_paid_hint') }}</p>
                                     </div>
                                     <div class="form-check form-switch mb-0 flex-shrink-0">
-                                        <input class="form-check-input" type="checkbox" role="switch"
-                                            v-model="isPaidStatus" class="clickable" />
+                                        <input class="form-check-input clickable" type="checkbox" role="switch"
+                                            v-model="isPaidStatus" />
                                     </div>
                                 </div>
 
@@ -238,8 +238,8 @@
                                         <p class="text-muted small mb-0">{{ __('message.group_fields_mapping_hint') }}</p>
                                     </div>
                                     <div class="form-check form-switch mb-0 flex-shrink-0">
-                                        <input class="form-check-input" type="checkbox" role="switch"
-                                            v-model="productStatus" class="clickable" />
+                                        <input class="form-check-input clickable" type="checkbox" role="switch"
+                                            v-model="productStatus" />
                                     </div>
                                 </div>
 

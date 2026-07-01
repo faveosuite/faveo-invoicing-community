@@ -105,17 +105,17 @@ describe('LicensesIndex.vue', () => {
 
     it('requestAdapter maps all fields with trim', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: 'license_code', ascending: true, query: '  abc  ', limit: 10, page: 2 })
-        expect(result.sort_field).toBe('license_code')
-        expect(result.sort_order).toBe('asc')
-        expect(result.search_query).toBe('abc')
-        expect(result.perPage).toBe(10)
+        expect(result['sort-field']).toBe('license_code')
+        expect(result['sort-order']).toBe('asc')
+        expect(result['search-query']).toBe('abc')
+        expect(result.limit).toBe(10)
         expect(result.page).toBe(2)
     })
 
     it('requestAdapter falls back to id and desc when orderBy empty', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: '', ascending: false, query: '', limit: 25, page: 1 })
-        expect(result.sort_field).toBe('id')
-        expect(result.sort_order).toBe('desc')
+        expect(result['sort-field']).toBe('id')
+        expect(result['sort-order']).toBe('desc')
     })
 
     // ── responseAdapter ───────────────────────────────────────────────────────

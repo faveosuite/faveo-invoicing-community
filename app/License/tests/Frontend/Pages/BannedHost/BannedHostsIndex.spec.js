@@ -52,16 +52,16 @@ describe('BannedHostsIndex.vue', () => {
 
     it('requestAdapter maps sort field correctly', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: 'banned_host_ip', ascending: true, query: '  test  ', limit: 10, page: 2 })
-        expect(result.sort_field).toBe('banned_host_ip')
-        expect(result.sort_order).toBe('asc')
-        expect(result.perPage).toBe(10)
+        expect(result['sort-field']).toBe('banned_host_ip')
+        expect(result['sort-order']).toBe('asc')
+        expect(result.limit).toBe(10)
         expect(result.page).toBe(2)
     })
 
     it('requestAdapter falls back to id when orderBy is empty', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: '', ascending: false, query: '', limit: 25, page: 1 })
-        expect(result.sort_field).toBe('id')
-        expect(result.sort_order).toBe('desc')
+        expect(result['sort-field']).toBe('id')
+        expect(result['sort-order']).toBe('desc')
     })
 
     it('responseAdapter maps rows with edit_url, delete_url, keyVal, idVal', () => {

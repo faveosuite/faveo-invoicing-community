@@ -76,7 +76,7 @@
 </template>
 
 <script setup>
-import { h, ref, computed, reactive, watch, withDirectives, resolveDirective } from 'vue'
+import { h, ref, reactive, watch, withDirectives, resolveDirective } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
 import { useDateTime } from '@/core/composables/useDateTime'

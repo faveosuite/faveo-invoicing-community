@@ -56,14 +56,14 @@ describe('ViewUpdateReports.vue', () => {
 
     it('requestAdapter falls back to report_date_time when orderBy empty', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: '', ascending: false, query: '', limit: 10, page: 1 })
-        expect(result.sort_field).toBe('report_date_time')
-        expect(result.sort_order).toBe('desc')
+        expect(result['sort-field']).toBe('report_date_time')
+        expect(result['sort-order']).toBe('desc')
     })
 
     it('requestAdapter maps correctly with query trim', () => {
         const result = wrapper.vm.options.requestAdapter({ orderBy: 'report_text', ascending: true, query: '  update  ', limit: 25, page: 3 })
-        expect(result.sort_field).toBe('report_text')
-        expect(result.search_query).toBe('update')
+        expect(result['sort-field']).toBe('report_text')
+        expect(result['search-query']).toBe('update')
         expect(result.page).toBe(3)
     })
 

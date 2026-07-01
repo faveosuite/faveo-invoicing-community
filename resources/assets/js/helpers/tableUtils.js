@@ -8,7 +8,7 @@
 export function makeRequestAdapter(defaultSort = 'created_at', filtersRef = null, columnMap = {}) {
     return function (data) {
         return {
-            'sort-field':   columnMap[data.orderBy] ?? data.orderBy ?? defaultSort,
+            'sort-field':   data.orderBy ? (columnMap[data.orderBy] ?? data.orderBy) : defaultSort,
             'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
             'search-query': (data.query ?? '').trim(),
             page:           data.page,
