@@ -589,6 +589,8 @@ return [
     'apply_credit' => 'Apply credit to invoices',
     'insufficient_credit_balance' => 'The amount applied exceeds the available credit balance.',
     'credit_applied' => 'Credit Applied',
+    'credit_to_apply' => 'Credit to Apply',
+    'use_credit_balance' => 'Use my credit balance (:amount available)',
 
     /*
      * Category

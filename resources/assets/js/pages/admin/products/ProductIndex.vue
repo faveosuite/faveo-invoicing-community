@@ -60,36 +60,16 @@ import { h, ref, computed, reactive } from 'vue'
 
 import ProductTableActions from './components/ProductTableActions.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useTableSelection } from '@/core/composables/useTableSelection'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/products`
+const baseUrl = useBaseUrl()
+const apiUrl = `/products`
 
 const dtRef = ref(null)
-const selectedProducts = ref([])
+const { selected: selectedProducts, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 const pendingBulkDelete = ref(null)
-
-const allSelected = computed(() => {
-    const data = dtRef.value?.tableData ?? []
-    return data.length > 0 && data.every(row => selectedProducts.value.includes(row.id))
-})
-
-function toggleRow(id) {
-    const idx = selectedProducts.value.indexOf(id)
-    if (idx === -1) selectedProducts.value.push(id)
-    else selectedProducts.value.splice(idx, 1)
-}
-
-function toggleAll(e) {
-    const data = dtRef.value?.tableData ?? []
-    if (e.target.checked) {
-        const ids = data.map(r => r.id).filter(id => !selectedProducts.value.includes(id))
-        selectedProducts.value.push(...ids)
-    } else {
-        const ids = new Set(data.map(r => r.id))
-        selectedProducts.value = selectedProducts.value.filter(id => !ids.has(id))
-    }
-}
 
 function confirmBulkDelete() {
     if (!selectedProducts.value.length) return
@@ -129,15 +109,7 @@ const tableOptions = reactive({
     sortable: ['name', 'license_type', 'group'],
     filterable: true,
 
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at'),
 
     orderBy: { column: 'created_at', ascending: false },
 })

@@ -101,14 +101,14 @@ import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import Modal from '@/themes/porto/components/common/Modal.vue'
 import AppAlert from '@/components/Reusable/Alert.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const props = defineProps({
     order:  { type: Object, default: null },
     active: { type: Boolean, default: false },
 })
 
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const COMPONENT  = 'whatsapp-panel'
 
 const copiedId = ref(null)
@@ -167,7 +167,7 @@ async function submitWebhook() {
     webhookBusy.value = true
     try {
         // Store the webhook URL server-side (session) before the FB signup flow.
-        await http.post(`${baseUrl}/url-save`, { url: webhookUrl.value })
+        await http.post(`/url-save`, { url: webhookUrl.value })
         closeWebhookModal()
         await launchWhatsAppSignup()
     } catch (e) {
@@ -243,7 +243,7 @@ async function saveWaba() {
     fbData = null
     fbToken = null
     try {
-        const res = await http.post(`${baseUrl}/save-waba-id`, payload)
+        const res = await http.post(`/save-waba-id`, payload)
         successHandler(res, COMPONENT)
         refreshTable()
     } catch (e) {
@@ -268,7 +268,7 @@ async function openEdit(row) {
     showEditModal.value = true
     // Pull the freshest stored URL.
     try {
-        const res = await http.get(`${baseUrl}/get-webhook-url`, { params: { id: row.id } })
+        const res = await http.get(`/get-webhook-url`, { params: { id: row.id } })
         editUrl.value = res.data?.data?.url ?? editUrl.value
     } catch { /* keep the row value */ }
 }
@@ -282,7 +282,7 @@ async function submitEdit() {
     }
     editBusy.value = true
     try {
-        const res = await http.post(`${baseUrl}/webhook-url-edit`, { id: editId.value, url: editUrl.value })
+        const res = await http.post(`/webhook-url-edit`, { id: editId.value, url: editUrl.value })
         successHandler(res, COMPONENT)
         closeEditModal()
         refreshTable()
@@ -307,7 +307,7 @@ function closeDeleteModal() { showDeleteModal.value = false }
 async function submitDelete() {
     deleteBusy.value = true
     try {
-        const res = await http.post(`${baseUrl}/whatsapp-deregister`, { id: deleteRow.value?.id })
+        const res = await http.post(`/whatsapp-deregister`, { id: deleteRow.value?.id })
         successHandler(res, COMPONENT)
         closeDeleteModal()
         refreshTable()

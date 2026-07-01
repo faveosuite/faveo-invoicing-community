@@ -39,8 +39,6 @@ import Honeypot from '@/components/Reusable/Honeypot.vue'
 import { RecaptchaField } from '@recaptcha'
 
 const COMPONENT = 'client-page'
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 const captchaRef = ref(null)
@@ -57,7 +55,7 @@ async function submit() {
         if (!captchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
             return
         }
-        const res = await http.post(`${baseUrl}/password/email`, {
+        const res = await http.post(`/password/email`, {
             email: form.email,
             forgot: form.forgot,
             ...captchaPayload,

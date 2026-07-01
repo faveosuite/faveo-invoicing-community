@@ -78,11 +78,11 @@ class ReportsController extends Controller
     // system1
     public function reportArraySystem(Request $request): JsonResponse
     {
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('limit', $request->input('perPage', 10));
         $page = $request->input('page', 1);
-        $searchQuery = $request->input('search_query');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'id');
+        $searchQuery = $request->input('search-query', $request->input('search-query', $request->input('search_query', '')));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
 
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
         $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], strict: true) ? $sortField : 'id';
@@ -114,11 +114,11 @@ class ReportsController extends Controller
 
     public function reportArrayCracking(Request $request): JsonResponse
     {
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('limit', $request->input('perPage', 10));
         $page = $request->input('page', 1);
-        $searchQuery = $request->input('search_query');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'id');
+        $searchQuery = $request->input('search-query', $request->input('search-query', $request->input('search_query', '')));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
 
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
         $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], strict: true) ? $sortField : 'id';
@@ -158,11 +158,11 @@ class ReportsController extends Controller
 
     public function reportArrayLicense(Request $request): JsonResponse
     {
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('limit', $request->input('perPage', 10));
         $page = $request->input('page', 1);
-        $searchQuery = $request->input('search_query');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'id');
+        $searchQuery = $request->input('search-query', $request->input('search-query', $request->input('search_query', '')));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
 
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
         $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], strict: true) ? $sortField : 'id';
@@ -203,11 +203,11 @@ class ReportsController extends Controller
 
     public function reportArrayUpdate(Request $request): JsonResponse
     {
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('limit', $request->input('perPage', 10));
         $page = $request->input('page', 1);
-        $searchQuery = str_replace('-', '', $request->input('search_query'));
-        $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'id');
+        $searchQuery = str_replace('-', '', $request->input('search-query', $request->input('search-query', $request->input('search_query', ''))));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
 
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
         $sortField = in_array($sortField, ['id', 'user_id', 'product_id', 'report_text', 'report_date_time', 'report_status'], strict: true) ? $sortField : 'id';

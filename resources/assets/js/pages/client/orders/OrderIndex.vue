@@ -96,13 +96,13 @@ import RenewModal from './components/RenewModal.vue'
 import Alert from '@/components/Reusable/Alert.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
 import { useDownload } from '@/core/composables/useDownload'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const { formatDate }  = useDateTime()
 const { downloadFile } = useDownload('order-download')
 
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/get-my-orders`
+const baseUrl = useBaseUrl()
+const apiUrl  = `/get-my-orders`
 
 const columns = ['product_name', 'order_date', 'number', 'agents', 'update_ends_at', 'action']
 

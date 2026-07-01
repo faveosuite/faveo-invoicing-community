@@ -86,8 +86,6 @@ import { buildAnalyticsSchema } from '@/validations/admin/widgetValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'analytics-edit'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const route   = useRoute()
 const router  = useRouter()
 const id      = route.params.id
@@ -121,7 +119,7 @@ function onChange(val, name) {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/chat/show/${id}`)
+        const res = await http.get(`/chat/show/${id}`)
         const d   = res.data?.data ?? {}
         Object.assign(form, {
             name:                 d.name ?? '',
@@ -142,7 +140,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.put(`${baseUrl}/chat/update/${id}`, {
+        const res = await http.put(`/chat/update/${id}`, {
             name:                 form.name,
             on_registration:      form.on_registration,
             google_analytics:     form.google_analytics,

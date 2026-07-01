@@ -38,8 +38,6 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import ZohoCard from './ZohoCard.vue'
 
 const COMPONENT = 'zoho-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const route   = useRoute()
 
 const PLATFORM_ICONS = {
@@ -58,7 +56,7 @@ const togglingId   = ref(null)
 async function loadIntegrations(silent = false) {
     if (!silent) loading.value = true
     try {
-        const res = await http.get(`${baseUrl}/zoho/integrations`)
+        const res = await http.get(`/zoho/integrations`)
         integrations.value = res.data?.data ?? []
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -82,7 +80,7 @@ async function handleToggle(item) {
     if (togglingId.value) return
     togglingId.value = item.id
     try {
-        const res = await http.patch(`${baseUrl}/zoho/integrations/${item.id}/toggle`, { is_active: !item.is_active })
+        const res = await http.patch(`/zoho/integrations/${item.id}/toggle`, { is_active: !item.is_active })
         successHandler(res, COMPONENT)
         await loadIntegrations(true)
     } catch (e) {

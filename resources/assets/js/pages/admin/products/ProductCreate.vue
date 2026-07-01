@@ -233,10 +233,10 @@ import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import Tooltip from '@/components/Reusable/Tooltip.vue'
 import ImageField from '@/components/Reusable/FormField/ImageField.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'products-create'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const router = useRouter()
 
 const { errors, setErrors, setFieldError } = useForm()
@@ -298,7 +298,7 @@ function onImageChange(value) {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/dependency/tax-classes`, { params: { limit: 'all' } })
+        const res = await http.get(`/dependency/tax-classes`, { params: { limit: 'all' } })
         taxClasses.value = res.data?.data?.tax_classes ?? []
         const standard = taxClasses.value.find(c => c.name === 'Standard') ?? taxClasses.value[0]
         if (standard && !form.tax_class_id) form.tax_class_id = standard.id
@@ -336,7 +336,7 @@ async function submit() {
         if (form.tax_status === 1 && form.tax_class_id) fd.append('tax_class_id', form.tax_class_id)
         if (selectedImage.value?.file) fd.append('image', selectedImage.value.file, selectedImage.value.name || 'image.jpg')
 
-        const res = await http.put(`${baseUrl}/product`, fd, {
+        const res = await http.put(`/product`, fd, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
         successHandler(res, COMPONENT)

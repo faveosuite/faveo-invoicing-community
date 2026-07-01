@@ -4,39 +4,29 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { ref, watch } from 'vue'
 import Toggle from '@vueform/toggle'
 import { boolean } from '@/helpers/extraLogics'
 
-export default {
-    name: 'status-switch',
+const props = defineProps({
+    name:      { type: [String, Number], required: true },
+    value:     { type: [Boolean, Number], default: false },
+    classname: { type: String,  default: '' },
+    onChange:  { type: Function, required: true },
+    bold:      { type: [Boolean, Number], default: false },
+    disabled:  { type: [Boolean, Number], default: false },
+})
 
-    components: { Toggle },
+const enabled = ref(boolean(props.value))
 
-    props: {
-        name:      { type: [String, Number], required: true },
-        value:     { type: [Boolean, Number], default: false },
-        classname: { type: String,  default: '' },
-        onChange:  { type: Function, required: true },
-        bold:      { type: [Boolean, Number], default: false },
-        disabled:  { type: [Boolean, Number], default: false },
-    },
+watch(enabled, (newVal) => {
+    props.onChange(newVal, props.name)
+})
 
-    data() {
-        return {
-            enabled: boolean(this.value),
-        }
-    },
-
-    watch: {
-        enabled(newVal) {
-            this.onChange(newVal, this.name)
-        },
-        value(newVal) {
-            this.enabled = boolean(newVal)
-        },
-    },
-}
+watch(() => props.value, (newVal) => {
+    enabled.value = boolean(newVal)
+})
 </script>
 
 <style src="@vueform/toggle/themes/default.css"></style>

@@ -72,9 +72,6 @@ import http from '@/plugins/axios'
 import { useAlertStore } from '@/core/stores/alert'
 import TextArea from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
-
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
 const productId = route.params.id
@@ -127,13 +124,13 @@ async function submit() {
         // 1) Upload the file → returns the stored filename.
         const fd = new FormData()
         fd.append('file', file.value)
-        const up = await http.post(`${baseUrl}/chunkupload`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+        const up = await http.post(`/chunkupload`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
         const filename = up.data?.name
         if (!filename) throw new Error(__('message.something_wrong'))
         uploadedName.value = filename
 
         // 2) Create the version record.
-        await http.put(`${baseUrl}/product/upload/${productId}`, {
+        await http.put(`/product/upload/${productId}`, {
             producttitle: form.value.title,
             version: form.value.version,
             filename,

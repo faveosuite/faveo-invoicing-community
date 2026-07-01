@@ -25,7 +25,7 @@
                                 </div>
 
                                 <div class="p-3">
-                                    <p class="text-uppercase text-muted small fw-semibold mb-3" style="letter-spacing:.06em">
+                                    <p class="text-uppercase text-muted small fw-semibold mb-3 section-label">
                                         {{ __('message.debugging_options') }}
                                     </p>
 
@@ -68,7 +68,7 @@
                                 </div>
 
                                 <div class="p-3">
-                                    <p class="text-uppercase text-muted small fw-semibold mb-3" style="letter-spacing:.06em">
+                                    <p class="text-uppercase text-muted small fw-semibold mb-3 section-label">
                                         {{ __('message.monitoring_options') }}
                                     </p>
 
@@ -116,7 +116,6 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const COMPONENT = 'debugging-settings'
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -131,7 +130,7 @@ const form = ref({
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/debugg`)
+        const res = await http.get(`/debugg`)
         Object.assign(form.value, res.data?.data ?? {})
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -143,7 +142,7 @@ onMounted(async () => {
 async function submit() {
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/save/debugg`, form.value)
+        const res = await http.post(`/save/debugg`, form.value)
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -152,3 +151,7 @@ async function submit() {
     }
 }
 </script>
+
+<style scoped>
+.section-label { letter-spacing: .06em; }
+</style>

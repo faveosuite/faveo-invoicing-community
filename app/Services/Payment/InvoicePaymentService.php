@@ -3,11 +3,15 @@
 namespace App\Services\Payment;
 
 use App\Http\Controllers\Common\SettingsController;
+use App\Http\Controllers\Order\InvoiceController;
+use App\Http\Controllers\User\AdvanceSearchController;
 use App\Model\Order\Invoice;
 use App\Plugins\Payment\Dto\Customer;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentSession;
 use App\Plugins\Payment\Exceptions\PaymentException;
+use Exception;
+use Illuminate\Support\Facades\Date;
 use Throwable;
 
 /**
@@ -50,6 +54,57 @@ class InvoicePaymentService
         return max(0, (float) $invoice->grand_total - $paid);
     }
 
+    /** Client's spendable credit balance — SUM of their invoice_id = 0 rows. */
+    public function availableCredit(int $userId): float
+    {
+        return (float) app(AdvanceSearchController::class)->getExtraAmt($userId);
+    }
+
+    /** How much credit will be auto-applied to this invoice: the full balance, capped at what's owed. */
+    public function creditApplied(Invoice $invoice): float
+    {
+        return min($this->outstanding($invoice), $this->availableCredit((int) $invoice->user_id));
+    }
+
+    /**
+     * Pay an invoice entirely out of the client's own credit balance — the full
+     * available amount is used automatically, up to what's owed; there's no
+     * partial/manual amount to choose (mirrors a coupon: no per-payment
+     * negotiation). Reuses the same ledger operation the admin "Edit Payment"
+     * tool uses (ExtendedBaseInvoiceController::updatePaymentByInvoice).
+     *
+     * If the credit fully covers the invoice, fulfilment runs immediately (same
+     * pipeline a real gateway payment triggers) since no gateway step follows.
+     *
+     * @return array{paid_in_full: bool}
+     */
+    public function applyCredit(Invoice $invoice): array
+    {
+        $toApply = $this->creditApplied($invoice);
+
+        if ($toApply <= 0) {
+            throw new Exception(__('message.insufficient_credit_balance'));
+        }
+
+        app(InvoiceController::class)->updatePaymentByInvoice(
+            (int) $invoice->user_id,
+            [$invoice->id],
+            'Credit Balance',
+            Date::now(),
+            [$toApply],
+            'success'
+        );
+
+        $invoice->refresh();
+        $paidInFull = $this->outstanding($invoice) <= 0;
+
+        if ($paidInFull) {
+            $this->postPayment->handle($invoice, 'Credit Balance');
+        }
+
+        return ['paid_in_full' => $paidInFull];
+    }
+
     /**
      * Gateways active for a currency, each with its processing fee.
      *
@@ -75,11 +130,19 @@ class InvoicePaymentService
     /**
      * Open a payment for an invoice and return the gateway's client config.
      *
+     * $useCredit is a single yes/no choice ("use my credit balance or not") —
+     * there's no partial amount to pick. When on, the full available credit is
+     * applied, up to what's owed (mirrors a coupon: it just discounts, no
+     * negotiation). It's embedded in the gateway session as metadata and only
+     * ever really spent once {@see confirm} sees the gateway payment succeed;
+     * nothing is written to the credit ledger here, so the same balance stays
+     * free to use on another invoice right up until this one is actually paid.
+     *
      * @throws PaymentException
      */
-    public function start(Invoice $invoice, string $gateway): PaymentSession
+    public function start(Invoice $invoice, string $gateway, bool $useCredit = false): PaymentSession
     {
-        $request = $this->invoiceRequest($invoice, $gateway);
+        $request = $this->invoiceRequest($invoice, $gateway, $useCredit ? $this->creditApplied($invoice) : 0);
 
         // Stripe uses a PaymentIntent so the SPA can collect card details in its
         // own UI; Razorpay opens its Checkout via the standard createPayment.
@@ -95,6 +158,12 @@ class InvoicePaymentService
      * callback / refresh cannot double-fulfil. Package exceptions
      * (PaymentException / SignatureVerificationException) propagate to the caller.
      *
+     * If the session was opened with a credit preview (see {@see start}), that
+     * amount is spent for real now — atomically with the gateway payment being
+     * recorded — never before. Re-clamped against the CURRENT balance (not just
+     * trusted from the session) in case it was spent elsewhere on another
+     * invoice in the meantime; the gateway already collected the rest either way.
+     *
      * @param  array<string, mixed>  $payload  Raw gateway callback fields.
      */
     public function confirm(Invoice $invoice, string $gateway, array $payload): bool
@@ -103,8 +172,24 @@ class InvoicePaymentService
             return true;
         }
 
-        if (! $this->payments->capture($gateway, $payload)->paid) {
+        $result = $this->payments->capture($gateway, $payload);
+        if (! $result->paid) {
             return false;
+        }
+
+        $creditApplied = (float) ($payload['credit_applied'] ?? $result->raw['metadata']['credit_applied'] ?? 0);
+        $creditApplied = min($creditApplied, $this->availableCredit((int) $invoice->user_id));
+
+        if ($creditApplied > 0) {
+            app(InvoiceController::class)->updatePaymentByInvoice(
+                (int) $invoice->user_id,
+                [$invoice->id],
+                'Credit Balance',
+                Date::now(),
+                [$creditApplied],
+                'success'
+            );
+            $invoice->refresh();
         }
 
         // Persist the processing fee that was actually charged, so the invoice
@@ -117,10 +202,10 @@ class InvoicePaymentService
     }
 
     /** Build the package payment request for an invoice on a given gateway. */
-    private function invoiceRequest(Invoice $invoice, string $gateway): PaymentRequest
+    private function invoiceRequest(Invoice $invoice, string $gateway, float $creditApplied = 0): PaymentRequest
     {
         return new PaymentRequest(
-            amount: $this->amountDue($invoice, $gateway),
+            amount: $this->amountDue($invoice, $gateway, $creditApplied),
             currency: $invoice->currency,
             reference: (string) $invoice->number,
             customer: $this->customer(),
@@ -128,14 +213,15 @@ class InvoicePaymentService
             metadata: [
                 'invoice_id' => (int) $invoice->id,
                 'user_id' => (int) $invoice->user_id,
+                'credit_applied' => $creditApplied,
             ],
         );
     }
 
-    /** Amount actually payable now: outstanding balance plus the gateway's processing fee. */
-    private function amountDue(Invoice $invoice, string $gateway): float
+    /** Amount actually payable now: outstanding balance (less any previewed credit) plus the gateway's processing fee. */
+    private function amountDue(Invoice $invoice, string $gateway, float $creditApplied = 0): float
     {
-        return ProcessingFee::addTo($this->outstanding($invoice), $gateway);
+        return ProcessingFee::addTo(max(0, $this->outstanding($invoice) - $creditApplied), $gateway);
     }
 
     /**
@@ -143,6 +229,10 @@ class InvoicePaymentService
      * (and the recorded payment) match what the card was charged. grand_total
      * is stored fee-inclusive, matching the legacy convention. Idempotent and a
      * no-op for fee-less gateways (e.g. a gateway configured with a 0% fee).
+     *
+     * Fee applies only to the portion actually run through the gateway — any
+     * credit payment already recorded against the invoice (see {@see confirm})
+     * is excluded, since credit isn't card-processed and carries no fee.
      */
     private function applyProcessingFee(Invoice $invoice, string $gateway): void
     {
@@ -155,8 +245,9 @@ class InvoicePaymentService
             return;
         }
 
+        $alreadyPaid = (float) $invoice->payment()->where('payment_status', 'success')->sum('amount');
         $invoice->processing_fee = ProcessingFee::label($fee);
-        $invoice->grand_total = (string) ProcessingFee::addTo((float) $invoice->grand_total, $gateway);
+        $invoice->grand_total = (string) ($alreadyPaid + ProcessingFee::addTo(max(0, (float) $invoice->grand_total - $alreadyPaid), $gateway));
         $invoice->save();
     }
 

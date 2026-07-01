@@ -88,8 +88,7 @@
               <div class="row justify-content-between align-items-center mx-0 flex-wrap">
                 <div class="col-12 col-md-auto px-0 mb-2 mb-md-0">
                   <button type="button"
-                          class="btn btn-light btn-modern w-100 text-2 text-uppercase"
-                          style="background: #F4F4F4;"
+                          class="btn btn-light btn-modern w-100 text-2 text-uppercase btn-clear-cart"
                           :disabled="cartStore.loading"
                           @click="cartStore.clearCart()">
                     {{ __('message.clear_cart') }}
@@ -165,3 +164,7 @@ function onUpdate({ id, quantity, agents }) {
   cartStore.updateItem(id, payload)
 }
 </script>
+
+<style scoped>
+.btn-clear-cart { background: #F4F4F4; }
+</style>

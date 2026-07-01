@@ -69,7 +69,7 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">{{ __('message.redirect_uri') }}</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control bg-light" :value="redirectUri" readonly style="cursor:default">
+                                    <input type="text" class="form-control bg-light cursor-default" :value="redirectUri" readonly>
                                     <button type="button" class="btn btn-light border" :title="__('message.copy')" @click="copyRedirectUri">
                                         <i class="fa" :class="uriCopied ? 'fa-check text-success' : 'fa-copy'"></i>
                                     </button>
@@ -157,8 +157,6 @@ import TextField   from '@/components/Reusable/FormField/TextField.vue'
 import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 
 const COMPONENT = 'zoho-platform-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const route   = useRoute()
 
 const platform = route.params.platform
@@ -200,7 +198,7 @@ const form = reactive({ client_id: '', client_secret: '', region: 'in' })
 
 const selectedRegion = computed(() => regionOptions.find(o => o.id === form.region) ?? null)
 
-const redirectUri = `${baseUrl}/zoho/oauth/callback`
+const redirectUri = `/zoho/oauth/callback`
 
 async function copyRedirectUri() {
     try {
@@ -232,7 +230,7 @@ function addRow()          { rows.push({ zohoId: null, targetOptions: [], target
 function removeRow(idx)    { rows.splice(idx, 1) }
 
 async function fetchOptions(zohoId) {
-    const res = await http.get(`${baseUrl}/zoho/options/${zohoId}`)
+    const res = await http.get(`/zoho/options/${zohoId}`)
     return (res.data ?? []).map(o => ({ id: o.value, name: o.label, type: o.type }))
 }
 
@@ -251,8 +249,8 @@ function onTargetChange(row, val) {
 async function loadMappings() {
     const mod = activeModule.value
     const [fieldsRes, mappingRes] = await Promise.all([
-        http.get(`${baseUrl}/zoho/${platform}/${mod}/fields`),
-        http.get(`${baseUrl}/zoho/${platform}/${mod}/mapping/data`),
+        http.get(`/zoho/${platform}/${mod}/fields`),
+        http.get(`/zoho/${platform}/${mod}/mapping/data`),
     ])
     zohoFields.value = fieldsRes.data?.data ?? []
     const mappings   = mappingRes.data?.data ?? []
@@ -287,14 +285,14 @@ async function switchModule(tabId) {
 onMounted(async () => {
     try {
         const [intRes] = await Promise.all([
-            http.get(`${baseUrl}/zoho/integrations`),
+            http.get(`/zoho/integrations`),
         ])
 
         const integration = (intRes.data?.data ?? []).find(i => i.platform === platform)
         integrationId.value = integration?.id ?? null
 
         if (integrationId.value) {
-            const keysData = await http.get(`${baseUrl}/zoho/getKeys/${integrationId.value}`)
+            const keysData = await http.get(`/zoho/getKeys/${integrationId.value}`)
             const d = keysData.data?.data
             if (d) {
                 form.client_id     = d.client_id     ?? ''
@@ -317,7 +315,7 @@ async function saveConnection() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/zoho/saveKeys`, {
+        const res = await http.post(`/zoho/saveKeys`, {
             integration_id: integrationId.value,
             client_id:      form.client_id,
             client_secret:  form.client_secret,
@@ -340,7 +338,7 @@ async function saveConnection() {
 async function syncFields() {
     syncing.value = true
     try {
-        const res = await http.get(`${baseUrl}/zoho/${platform}/sync`)
+        const res = await http.get(`/zoho/${platform}/sync`)
         successHandler(res, COMPONENT)
         await loadMappings()
     } catch (e) {
@@ -361,7 +359,7 @@ async function saveMapping() {
 
     savingMapping.value = true
     try {
-        const res = await http.post(`${baseUrl}/zoho/mapping/save`, {
+        const res = await http.post(`/zoho/mapping/save`, {
             module:         activeModule.value,
             integration_id: integrationId.value,
             mappings,
@@ -374,3 +372,7 @@ async function saveMapping() {
     }
 }
 </script>
+
+<style scoped>
+.cursor-default { cursor: default; }
+</style>

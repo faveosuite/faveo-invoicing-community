@@ -13,6 +13,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const props = defineProps({
     id:              { type: String,           required: true },
@@ -25,7 +26,7 @@ const props = defineProps({
     defaultImage:    { type: String,           default: 'default.png' },
 })
 
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const getSrc = computed(() =>
     props.sourceUrl ? props.sourceUrl : `${baseUrl}/themes/default/img/${props.defaultImage}`

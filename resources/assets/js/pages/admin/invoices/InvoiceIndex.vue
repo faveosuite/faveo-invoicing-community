@@ -99,16 +99,18 @@ import InvoiceTableActions from './components/InvoiceTableActions.vue'
 import InvoiceFilter from './components/InvoiceFilter.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useTableSelection } from '@/core/composables/useTableSelection'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDate } = useDateTime()
 
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/invoices`
+const baseUrl = useBaseUrl()
+const apiUrl = `/invoices`
 const route = useRoute()
 
 const dtRef = ref(null)
-const selectedInvoices = ref([])
+const { selected: selectedInvoices, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 const showFilter = ref(false)
 
 const allowedInvoiceFilters = ['name', 'invoice_no', 'status', 'currency', 'from_date', 'to_date']
@@ -127,28 +129,6 @@ watch(() => route.query, (newQuery) => {
 }, { deep: true })
 const exporting = ref(false)
 const pendingBulkDelete = ref(null)
-
-const allSelected = computed(() => {
-    const data = dtRef.value?.tableData ?? []
-    return data.length > 0 && data.every(row => selectedInvoices.value.includes(row.id))
-})
-
-function toggleRow(id) {
-    const idx = selectedInvoices.value.indexOf(id)
-    if (idx === -1) selectedInvoices.value.push(id)
-    else selectedInvoices.value.splice(idx, 1)
-}
-
-function toggleAll(e) {
-    const data = dtRef.value?.tableData ?? []
-    if (e.target.checked) {
-        const ids = data.map(r => r.id).filter(id => !selectedInvoices.value.includes(id))
-        selectedInvoices.value.push(...ids)
-    } else {
-        const ids = new Set(data.map(r => r.id))
-        selectedInvoices.value = selectedInvoices.value.filter(id => !ids.has(id))
-    }
-}
 
 function onFilterApply(params) {
     activeFilters.value = params
@@ -174,7 +154,7 @@ async function exportInvoices() {
             if (v !== '' && v !== null) params.append(k, v)
         })
         
-        const res = await http.get(`${baseUrl}/export-invoices?${params.toString()}`)
+        const res = await http.get(`/export-invoices?${params.toString()}`)
         successHandler(res, 'invoices-index')
     } catch (e) {
         errorHandler(e, 'invoices-index')
@@ -278,17 +258,7 @@ const tableOptions = reactive({
     sortable: ['number', 'date', 'grand_total', 'status'],
     filterable: true,
 
-    requestAdapter(data) {
-        const columnMap = { date: 'created_at' }
-        return {
-            'sort-field':   columnMap[data.orderBy] ?? data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-            ...activeFilters.value,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at', activeFilters, { date: 'created_at' }),
 
     orderBy: { column: 'date', ascending: false },
 })

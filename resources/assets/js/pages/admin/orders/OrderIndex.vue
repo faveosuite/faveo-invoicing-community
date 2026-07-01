@@ -84,18 +84,20 @@ import OrderTableActions from './components/OrderTableActions.vue'
 import OrderFilter from './components/OrderFilter.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useTableSelection } from '@/core/composables/useTableSelection'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDate } = useDateTime()
 
 const vTooltipDirective = resolveDirective('tooltip')
 
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/orders`
+const baseUrl = useBaseUrl()
+const apiUrl = `/orders`
 const route = useRoute()
 
 const dtRef = ref(null)
-const selectedOrders = ref([])
+const { selected: selectedOrders, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 const showFilter = ref(false)
 
 const allowedOrderFilters = ['order_no', 'product_id', 'from', 'till', 'domain', 'act_ins', 'renewal', 'version']
@@ -113,28 +115,6 @@ watch(() => route.query, (newQuery) => {
     dtRef.value?.refresh()
 }, { deep: true })
 const pendingBulkDelete = ref(null)
-
-const allSelected = computed(() => {
-    const data = dtRef.value?.tableData ?? []
-    return data.length > 0 && data.every(row => selectedOrders.value.includes(row.id))
-})
-
-function toggleRow(id) {
-    const idx = selectedOrders.value.indexOf(id)
-    if (idx === -1) selectedOrders.value.push(id)
-    else selectedOrders.value.splice(idx, 1)
-}
-
-function toggleAll(e) {
-    const data = dtRef.value?.tableData ?? []
-    if (e.target.checked) {
-        const ids = data.map(r => r.id).filter(id => !selectedOrders.value.includes(id))
-        selectedOrders.value.push(...ids)
-    } else {
-        const ids = new Set(data.map(r => r.id))
-        selectedOrders.value = selectedOrders.value.filter(id => !ids.has(id))
-    }
-}
 
 function onFilterApply(params) {
     activeFilters.value = params
@@ -284,17 +264,7 @@ const tableOptions = reactive({
     sortable: ['number', 'order_status', 'order_date', 'update_ends_at'],
     filterable: true,
 
-    requestAdapter(data) {
-        const columnMap = { order_date: 'created_at' }
-        return {
-            'sort-field':   columnMap[data.orderBy] ?? data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-            ...activeFilters.value,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at', activeFilters, { order_date: 'created_at' }),
 
     orderBy: { column: 'order_date', ascending: false },
 })

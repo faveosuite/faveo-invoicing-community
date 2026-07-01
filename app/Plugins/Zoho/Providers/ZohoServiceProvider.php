@@ -125,10 +125,7 @@ class ZohoServiceProvider extends ServiceProvider
             app_path('Plugins/Zoho/routes/routes.php')
         );
 
-        $this->loadViewsFrom(
-            app_path('Plugins/Zoho/resources/views'),
-            'zoho'
-        );
+
 
         Event::listen(UserRegisteredEvent::class, SyncUserToZohoCrm::class);
         Event::listen(UserRegisteredEvent::class, SyncUserToZohoCampaigns::class);

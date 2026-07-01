@@ -20,11 +20,10 @@
 <script setup>
 import { h, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'email-templates'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/template/list`
+const apiUrl  = `/template/list`
 const router  = useRouter()
 
 const columns = ['name', 'type', 'action']
@@ -49,15 +48,7 @@ const tableOptions = reactive({
     },
     sortable:   ['name'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'name',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('name'),
     orderBy: { column: 'name', ascending: true },
 })
 </script>

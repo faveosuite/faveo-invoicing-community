@@ -66,7 +66,6 @@ import axios from '@/plugins/axios'
 import { useDateTime } from '@/core/composables/useDateTime'
 
 const { formatDateTime } = useDateTime()
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
 const endPoint = ref('')
@@ -91,7 +90,7 @@ function updateStatesWithData(data) {
 
 function getInitialValues(verId) {
     loading.value = true
-    axios.get(baseUrl + '/api/admin/versionView/' + verId).then(res => {
+    axios.get('/api/admin/versionView/' + verId).then(res => {
         updateStatesWithData(res.data.data)
     }).catch(() => {}).finally(() => {
         loading.value = false
@@ -101,7 +100,7 @@ function getInitialValues(verId) {
 function updateData(versionId) {
     if (versionId) id.value = versionId
 
-    endPoint.value = baseUrl + '/api/admin/versionCallbacks/' + id.value
+    endPoint.value = '/api/admin/versionCallbacks/' + id.value
     columns.value = ['callback_ip', 'callback_type', 'callback_date_time', 'callback_status']
     tableOptions.value = {
         sortable: ['callback_type', 'callback_date_time', 'callback_status'],

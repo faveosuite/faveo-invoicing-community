@@ -43,8 +43,6 @@ import { queueDriverSchemas } from '@/validations/admin/queueDriverValidations.j
 import { validateForm } from '@/helpers/formUtils.js'
 
 const COMPONENT = 'queue-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const route = useRoute()
 const id    = route.params.id
@@ -60,7 +58,7 @@ const form    = reactive({})
 async function load() {
     loading.value = true
     try {
-        const res    = await http.get(`${baseUrl}/queue/${id}/form`)
+        const res    = await http.get(`/queue/${id}/form`)
         fields.value = res.data?.data?.fields ?? []
         driver.value = res.data?.data?.driver ?? ''
         fields.value.forEach(f => { form[f.name] = f.value ?? '' })
@@ -77,7 +75,7 @@ async function save() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/queue/${id}`, { ...form })
+        const res = await http.post(`/queue/${id}`, { ...form })
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)

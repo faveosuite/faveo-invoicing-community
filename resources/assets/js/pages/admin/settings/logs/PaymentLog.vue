@@ -93,11 +93,13 @@
 <script setup>
 import { h, reactive, ref, computed } from 'vue'
 import PaymentFilter from './PaymentFilter.vue'
+import { useTableSelection } from '@/core/composables/useTableSelection'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'payment-log'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/get-payment-log-api`
+const baseUrl = useBaseUrl()
+const apiUrl  = `/get-payment-log-api`
 
 // ── filter ────────────────────────────────────────────────────────────────────
 const dtRef         = ref(null)
@@ -116,28 +118,7 @@ function onFilterReset() {
 }
 
 // ── selection ─────────────────────────────────────────────────────────────────
-const selected = ref([])
-
-const allSelected = computed(() => {
-    const rows = dtRef.value?.tableData ?? []
-    return rows.length > 0 && rows.every(r => selected.value.includes(r.id))
-})
-
-function toggleRow(id) {
-    const idx = selected.value.indexOf(id)
-    if (idx === -1) selected.value.push(id)
-    else selected.value.splice(idx, 1)
-}
-
-function toggleAll(e) {
-    const rows = dtRef.value?.tableData ?? []
-    if (e.target.checked) {
-        rows.forEach(r => { if (!selected.value.includes(r.id)) selected.value.push(r.id) })
-    } else {
-        const ids = new Set(rows.map(r => r.id))
-        selected.value = selected.value.filter(id => !ids.has(id))
-    }
-}
+const { selected, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 
 // ── delete ────────────────────────────────────────────────────────────────────
 const deleteTarget       = ref(null)
@@ -245,16 +226,7 @@ const tableOptions = reactive({
     },
     sortable: ['date', 'amount', 'status', 'order', 'payment_method', 'payment_type', 'user'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'date',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:  data.page,
-            limit: data.limit,
-            ...activeFilters.value,
-        }
-    },
+    requestAdapter: makeRequestAdapter('date', activeFilters),
     orderBy: { column: 'date', ascending: false },
 })
 </script>

@@ -98,10 +98,11 @@ import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import axios from '@/plugins/axios'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const router = useRouter()
 const { formatDateTime } = useDateTime()
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const loading = ref(true)
 const showModal = ref(false)
@@ -144,7 +145,7 @@ function updateStatesWithData(data) {
 
 function getInitialValues(instId) {
     loading.value = true
-    axios.get(baseUrl + '/api/admin/installationView/' + instId).then(res => {
+    axios.get('/api/admin/installationView/' + instId).then(res => {
         updateStatesWithData(res.data.data)
     }).catch(() => {}).finally(() => {
         loading.value = false
@@ -154,7 +155,7 @@ function getInitialValues(instId) {
 function updateData(value, productId) {
     if (productId) id.value = productId
 
-    endPoint.value = baseUrl + '/api/admin/installationCallbacks/' + id.value
+    endPoint.value = '/api/admin/installationCallbacks/' + id.value
     columns.value = ['callback_domain', 'callback_ip', 'callback_date_time', 'callback_status']
     tableOptions.value = {
         sortable: ['callback_date_time', 'callback_status'],

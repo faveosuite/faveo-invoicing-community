@@ -61,8 +61,6 @@ const props = defineProps({
 const emit = defineEmits(['update:show'])
 
 const router  = useRouter()
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const loading      = ref(false)
 const submitting   = ref(false)
@@ -80,7 +78,7 @@ watch(() => props.show, async (open) => {
 
     loading.value = true
     try {
-        const res = await http.get(`${baseUrl}/renew-popup-details/${props.order.product_id}`)
+        const res = await http.get(`/renew-popup-details/${props.order.product_id}`)
         plans.value = res.data?.data?.plans ?? []
         if (plans.value.length) await onPlanChange(plans.value[0])
     } catch { /* silent */ }
@@ -99,7 +97,7 @@ async function onPlanChange(plan) {
 async function fetchCost() {
     if (!selectedPlan.value) { price.value = ''; return }
     try {
-        const res = await http.get(`${baseUrl}/get-renew-cost`, {
+        const res = await http.get(`/get-renew-cost`, {
             params: { plan: selectedPlan.value.id, order: props.order?.id },
         })
         price.value = res.data?.data?.formatted_price ?? ''
@@ -110,7 +108,7 @@ async function submit() {
     if (!selectedPlan.value || submitting.value) return
     submitting.value = true
     try {
-        const res = await http.post(`${baseUrl}/client/renew/${props.order?.sub_id}`, {
+        const res = await http.post(`/client/renew/${props.order?.sub_id}`, {
             plan: selectedPlan.value.id,
             user: props.order?.client_id,
         })

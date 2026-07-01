@@ -146,8 +146,6 @@ import { buildTaxEditSchema } from '@/validations/admin/taxValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'tax-edit'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const id = route.params.id
 
@@ -177,7 +175,7 @@ async function loadStates() {
     states.value = []
     if (!form.country) return
     try {
-        const res = await http.get(`${baseUrl}/get-state/${form.country}`)
+        const res = await http.get(`/get-state/${form.country}`)
         states.value = (res.data?.data?.states ?? []).map(s => ({ id: s.iso2, name: s.state_subdivision_name }))
     } catch (e) { /* ignore */ }
 }
@@ -185,8 +183,8 @@ async function loadStates() {
 onMounted(async () => {
     try {
         const [editRes, optRes] = await Promise.all([
-            http.get(`${baseUrl}/tax/edit/${id}`),
-            http.get(`${baseUrl}/tax-options`),
+            http.get(`/tax/edit/${id}`),
+            http.get(`/tax-options`),
         ])
         const d = editRes.data?.data ?? {}
         const t = d.tax ?? {}
@@ -215,7 +213,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.put(`${baseUrl}/tax/${id}`, { ...form })
+        const res = await http.put(`/tax/${id}`, { ...form })
         successHandler(res, COMPONENT)
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { saving.value = false }

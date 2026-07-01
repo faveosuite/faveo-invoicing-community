@@ -6,7 +6,7 @@
             <div v-else>
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="fas fa-shield-alt" style="font-size:20px;"></i>
+                        <i class="fas fa-shield-alt icon-lg"></i>
                         <span class="text-2">
                             {{
                                 is2faEnabled
@@ -95,8 +95,8 @@
                                     {{ __('message.secret_key_label') }}
                                 </label>
                                 <div class="col-lg-8">
-                                    <input type="text" class="form-control text-3 h-auto py-2"
-                                           :value="qrSecret" readonly style="background-color:#f8f9fa;">
+                                    <input type="text" class="form-control text-3 h-auto py-2 bg-light-grey"
+                                           :value="qrSecret" readonly>
                                 </div>
                             </div>
                             <div class="text-center">
@@ -122,7 +122,7 @@
                     <!-- Step: Done -->
                     <template v-if="twoFaStep === 'done'">
                         <div class="text-center py-4">
-                            <i class="fas fa-check-circle text-success" style="font-size:3rem;"></i>
+                            <i class="fas fa-check-circle text-success icon-3rem"></i>
                             <p class="mt-3 mb-0 fw-bold text-2">{{ __('message.you_are_all_set') }}</p>
                         </div>
                     </template>
@@ -209,9 +209,7 @@ import { ref, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-
 const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const userId  = el?.dataset?.userId ?? ''
 
 const COMPONENT = 'client-page'
@@ -242,7 +240,7 @@ const disabling2fa     = ref(false)
 
 onMounted(async () => {
     try {
-        const res  = await http.get(`${baseUrl}/get-my-profile`)
+        const res  = await http.get(`/get-my-profile`)
         const user = res.data?.data?.user ?? {}
         is2faEnabled.value   = Boolean(user.is_2fa_enabled)
         dateSinceEnabled.value = user.google2fa_activation_date ?? null
@@ -273,10 +271,10 @@ async function openEnableModal() {
     showEnableModal.value  = true
 
     try {
-        await http.get(`${baseUrl}/show/verify-password`)
+        await http.get(`/show/verify-password`)
         // Password already confirmed this session — skip to recovery
         twoFaStep.value    = 'recovery'
-        const res = await http.post(`${baseUrl}/2fa-recovery-code`)
+        const res = await http.post(`/2fa-recovery-code`)
         recoveryCodes.value = res.data?.data?.code ?? []
     } catch {
         // Not confirmed — show password step
@@ -302,10 +300,10 @@ async function validatePassword() {
     modalError.value        = ''
     verifyingPassword.value = true
     try {
-        await http.post(`${baseUrl}/verify-password`, { user_password: userPassword.value })
+        await http.post(`/verify-password`, { user_password: userPassword.value })
         twoFaLoading.value = true
         twoFaStep.value    = 'recovery'
-        const res = await http.post(`${baseUrl}/2fa-recovery-code`)
+        const res = await http.post(`/2fa-recovery-code`)
         recoveryCodes.value = res.data?.data?.code ?? []
     } catch (e) {
         setModalError(e)
@@ -324,7 +322,7 @@ function copyRecovery() {
 async function goToQr() {
     enabling2fa.value = true
     try {
-        const res      = await http.post(`${baseUrl}/2fa/enable`)
+        const res      = await http.post(`/2fa/enable`)
         qrImage.value  = res.data?.data?.image  ?? ''
         qrSecret.value = res.data?.data?.secret ?? ''
         twoFaStep.value = 'qr'
@@ -340,7 +338,7 @@ async function verify2fa() {
     modalError.value   = ''
     verifying2fa.value = true
     try {
-        const res = await http.post(`${baseUrl}/2fa/setupValidate`, { totp: totp.value })
+        const res = await http.post(`/2fa/setupValidate`, { totp: totp.value })
         successHandler(res, COMPONENT)
         twoFaStep.value = 'done'
     } catch (e) {
@@ -363,7 +361,7 @@ function closeDisableModal() { showDisableModal.value = false }
 async function disable2fa() {
     disabling2fa.value = true
     try {
-        const res = await http.post(`${baseUrl}/2fa/disable/${userId}`)
+        const res = await http.post(`/2fa/disable/${userId}`)
         successHandler(res, COMPONENT)
         is2faEnabled.value     = false
         dateSinceEnabled.value = null
@@ -375,3 +373,9 @@ async function disable2fa() {
     }
 }
 </script>
+
+<style scoped>
+.icon-lg { font-size: 20px; }
+.bg-light-grey { background-color: #f8f9fa; }
+.icon-3rem { font-size: 3rem; }
+</style>

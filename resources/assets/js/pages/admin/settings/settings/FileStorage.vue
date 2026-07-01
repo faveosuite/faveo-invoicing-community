@@ -100,8 +100,6 @@ import { buildFileStorageSchema, pdfSettingsSchema } from '@/validations/admin/s
 import { scrollToFirstError } from '@/helpers/formUtils.js'
 
 const COMPONENT = 'file-storage'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError, resetForm } = useForm()
 
@@ -154,7 +152,7 @@ function onPdfChange(val, name) {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/file-storage`)
+        const res = await http.get(`/file-storage`)
         const d = res.data?.data ?? {}
         Object.assign(form, {
             disk: d.disk ?? 'system',
@@ -171,7 +169,7 @@ onMounted(async () => {
     finally { loading.value = false }
 
     try {
-        const res = await http.get(`${baseUrl}/pdf-settings`)
+        const res = await http.get(`/pdf-settings`)
         const d = res.data?.data ?? {}
         Object.assign(pdfForm, {
             node_path:   d.node_path ?? '',
@@ -221,8 +219,8 @@ async function submit() {
         }
 
         const [storageRes] = await Promise.all([
-            http.post(`${baseUrl}/file-storage-path`, storagePayload),
-            http.post(`${baseUrl}/pdf-settings`, { ...pdfForm }),
+            http.post(`/file-storage-path`, storagePayload),
+            http.post(`/pdf-settings`, { ...pdfForm }),
         ])
 
         successHandler(storageRes, COMPONENT)

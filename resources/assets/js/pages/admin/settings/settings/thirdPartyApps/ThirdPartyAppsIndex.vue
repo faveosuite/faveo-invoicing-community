@@ -147,18 +147,19 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { thirdPartyAppSchema } from '@/validations/admin/thirdPartyValidations'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useTableSelection } from '@/core/composables/useTableSelection'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'third-party-apps'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/get-third-party-app`
+const baseUrl = useBaseUrl()
+const apiUrl = `/get-third-party-app`
 
 const dtRef    = ref(null)
 const saving   = ref(false)
 const deleting = ref(false)
 const editId   = ref(null)
-const selected = ref([])
-
+const { selected, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 const form = reactive({ app_name: '', app_key: '', app_secret: '' })
 
 const { errors, setErrors, setFieldError, resetForm } = useForm()
@@ -167,7 +168,7 @@ const generatingKey = ref(false)
 async function generateKey() {
     generatingKey.value = true
     try {
-        const res = await http.get(`${baseUrl}/get-app-key`, { responseType: 'text' })
+        const res = await http.get(`/get-app-key`, { responseType: 'text' })
         form.app_key = res.data
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { generatingKey.value = false }
@@ -200,28 +201,14 @@ function bulkDelete() { if (selected.value.length) showBulkDelete.value = true }
 function onBulkDeleted() { showBulkDelete.value = false; selected.value = []; dtRef.value?.refresh() }
 
 // Select all
-const allSelected = computed(() => {
-    const data = dtRef.value?.tableData ?? []
-    return data.length > 0 && data.every(row => selected.value.includes(row.id))
-})
-function toggleRow(id) {
-    const idx = selected.value.indexOf(id)
-    if (idx === -1) selected.value.push(id)
-    else selected.value.splice(idx, 1)
-}
-function toggleAll(e) {
-    const data = dtRef.value?.tableData ?? []
-    if (e.target.checked) selected.value.push(...data.map(r => r.id).filter(id => !selected.value.includes(id)))
-    else { const ids = new Set(data.map(r => r.id)); selected.value = selected.value.filter(id => !ids.has(id)) }
-}
 
 async function saveApp() {
     if (!await validateForm(thirdPartyAppSchema, form, setErrors)) return
     saving.value = true
     try {
         const res = editId.value
-            ? await http.put(`${baseUrl}/third-party-app-update/${editId.value}`, form)
-            : await http.post(`${baseUrl}/third-party-app-create`, form)
+            ? await http.put(`/third-party-app-update/${editId.value}`, form)
+            : await http.post(`/third-party-app-create`, form)
         successHandler(res, COMPONENT)
         editId.value ? closeEdit() : closeCreate()
         dtRef.value?.refresh()
@@ -258,15 +245,7 @@ const tableOptions = reactive({
     },
     sortable: ['app_name'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at'),
     responseAdapter({ data }) {
         const res = data?.data?.third_party_apps
         return {

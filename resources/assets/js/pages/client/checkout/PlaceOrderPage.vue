@@ -30,7 +30,7 @@
                   <td class="product-thumbnail">
                     <span class="product-thumbnail-image d-inline-block">
                       <img v-if="it.image" :src="it.image" alt="" class="img-fluid" />
-                      <span v-else class="d-inline-flex align-items-center justify-content-center bg-light" style="width:90px;height:90px;">
+                      <span v-else class="d-inline-flex align-items-center justify-content-center bg-light product-placeholder">
                         <i class="fas fa-box text-color-grey fa-2x"></i>
                       </span>
                     </span>
@@ -71,6 +71,16 @@
                 <span class="amount text-success">−{{ symbol }}{{ summary.discount }}</span>
               </div>
 
+              <div v-if="paidAmountNumber > 0" class="d-flex justify-content-between py-3 border-bottom">
+                <strong class="text-color-dark">{{ __('message.credit_applied') }}</strong>
+                <span class="amount text-success">−{{ symbol }}{{ paidAmount }}</span>
+              </div>
+
+              <div v-if="creditAppliedNumber > 0" class="d-flex justify-content-between py-3 border-bottom">
+                <strong class="text-color-dark">{{ __('message.credit_to_apply') }}</strong>
+                <span class="amount text-success">−{{ symbol }}{{ creditApplied }}</span>
+              </div>
+
               <div v-if="feeAmount > 0" class="d-flex justify-content-between py-3 border-bottom">
                 <strong class="text-color-dark">{{ __('message.processing_fee') }}<span v-if="feePercent" class="text-color-grey fw-normal"> ({{ feePercent }}%)</span></strong>
                 <span class="amount font-weight-medium">{{ symbol }}{{ feeAmount }}</span>
@@ -84,7 +94,7 @@
               <div class="py-3">
                 <button type="button"
                         class="btn btn-dark btn-modern w-100 text-uppercase border-radius-0 text-3 py-3"
-                        :disabled="!selectedGateway || busy"
+                        :disabled="busy || (amountDueNumber > 0 && !selectedGateway)"
                         @click="continuePay">
                   {{ busy ? __('message.please_wait') : __('message.pay_now') }}
                   <i v-if="!busy" class="fas fa-arrow-right ms-2"></i>
@@ -155,19 +165,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAlertStore } from '@/core/stores/alert'
 import http, { parseErrorMessage } from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 
-const el = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-
 const route = useRoute()
 const router = useRouter()
-const invoiceId = route.query.invoice
-const gatewayFromUrl = route.query.gateway ?? null
+// Reactive (not a one-time snapshot) because the SPA reuses this component
+// instance when navigating from one invoice's pay page straight to another's
+// — without that, the page would keep showing the first invoice forever.
+const invoiceId = computed(() => route.query.invoice)
 
 const alertStore = useAlertStore()
 
@@ -181,10 +190,27 @@ const items = ref([])
 const summary = ref({})
 const gateways = ref([])
 const amountDue = ref(0)
+const paidAmount = ref(0)
+// Whether to use credit was already decided on the checkout page — this page
+// only carries that choice through, it doesn't offer the toggle itself.
+const useCredit = ref(route.query.use_credit === '1')
+// credit_applied is what the server actually used, for display only.
+const creditApplied = ref(0)
 const symbol = ref('')
-const selectedGateway = ref(gatewayFromUrl)
+const selectedGateway = ref(route.query.gateway ?? null)
 
-// Processing fee + payable total for the chosen gateway (from payInit).
+// Money fields from the backend are currency-formatted for display (e.g. "3,000.00")
+// — strip thousands separators before treating them as numbers.
+function toNumber(v) {
+  return parseFloat(String(v).replace(/,/g, '')) || 0
+}
+
+const paidAmountNumber = computed(() => toNumber(paidAmount.value))
+const creditAppliedNumber = computed(() => toNumber(creditApplied.value))
+const amountDueNumber = computed(() => toNumber(amountDue.value))
+
+// Processing fee + payable total for the chosen gateway (from payInit) — already
+// computed server-side net of any auto-applied credit.
 const selectedGatewayData = computed(() =>
   gateways.value.find(g => (g.name || '').toLowerCase() === (selectedGateway.value || '').toLowerCase()) ?? null
 )
@@ -212,31 +238,57 @@ function loadScript(src) {
   })
 }
 
-onMounted(async () => {
-  if (!invoiceId) { loading.value = false; error.value = __('message.err_msg'); return }
+async function refreshPayInit() {
+  const { data } = await http.get(`/invoice/${invoiceId.value}/pay-init`, {
+    params: { use_credit: useCredit.value ? 1 : 0 },
+  })
+  invoice.value = data.data.invoice
+  items.value = data.data.items
+  summary.value = data.data.summary ?? {}
+  amountDue.value = data.data.amount
+  paidAmount.value = data.data.paid
+  creditApplied.value = data.data.credit_applied
+  symbol.value = data.data.currency_symbol
+  gateways.value = data.data.gateways
+  if (!selectedGateway.value && gateways.value.length) selectedGateway.value = gateways.value[0].name
+}
+
+// Re-run whenever the invoice id changes — including switching from one
+// invoice's pay page straight to another's without a full page reload.
+watch(invoiceId, async (id) => {
+  selectedGateway.value = route.query.gateway ?? null
+  useCredit.value = route.query.use_credit === '1'
+  clientSecret = null
+  paymentIntentId = null
+  if (!id) { loading.value = false; error.value = __('message.err_msg'); return }
+  loading.value = true
+  error.value = ''
   try {
-    const { data } = await http.get(`${baseUrl}/invoice/${invoiceId}/pay-init`)
-    invoice.value = data.data.invoice
-    items.value = data.data.items
-    summary.value = data.data.summary ?? {}
-    amountDue.value = data.data.amount
-    symbol.value = data.data.currency_symbol
-    gateways.value = data.data.gateways
-    if (!selectedGateway.value && gateways.value.length) selectedGateway.value = gateways.value[0].name
+    await refreshPayInit()
   } catch (e) {
     error.value = parseErrorMessage(e)
   } finally {
     loading.value = false
   }
-})
+}, { immediate: true })
 
 async function continuePay() {
-  if (!selectedGateway.value || busy.value) return
+  if (busy.value) return
   busy.value = true
   alertStore.unsetAlert()
   try {
+    // Credit alone covers it (server already reflects this in amountDue): pay
+    // it off directly, no gateway involved at all.
+    if (amountDueNumber.value <= 0) {
+      const { data } = await http.post(`/invoice/${invoiceId.value}/apply-credit`)
+      if (data.data?.paid_in_full) { onPaid(); return }
+      await refreshPayInit()
+      return
+    }
+
+    if (!selectedGateway.value) return
     if (selectedGateway.value.toLowerCase() === 'razorpay') {
-      const { data } = await http.post(`${baseUrl}/invoice/${invoiceId}/razorpay/order`)
+      const { data } = await http.post(`/invoice/${invoiceId.value}/razorpay/order`, { use_credit: useCredit.value })
       await payRazorpay(data.data.razorpay)
     } else {
       await openStripeModal()
@@ -258,7 +310,7 @@ function bindStripeField(element, key) {
 // Create a PaymentIntent for the invoice, then mount our own card fields. The
 // card data is confirmed straight to Stripe (confirmCardPayment) — never our server.
 async function openStripeModal() {
-  const { data } = await http.post(`${baseUrl}/invoice/${invoiceId}/stripe/session`)
+  const { data } = await http.post(`/invoice/${invoiceId.value}/stripe/session`, { use_credit: useCredit.value })
   clientSecret = data.data.client_secret
   paymentIntentId = data.data.payment_intent_id
 
@@ -356,7 +408,7 @@ async function payStripe() {
 // Idempotent: safe to call for an intent a prior attempt already completed.
 async function finalizeStripe() {
   try {
-    const { data } = await http.post(`${baseUrl}/invoice/${invoiceId}/stripe/confirm`, { payment_intent: paymentIntentId })
+    const { data } = await http.post(`/invoice/${invoiceId.value}/stripe/confirm`, { payment_intent: paymentIntentId })
     if (data?.success) {
       showStripeModal.value = false
       onPaid()
@@ -375,7 +427,7 @@ async function payRazorpay(config) {
   const options = { ...config }
   options.handler = async (response) => {
     try {
-      await http.post(`${baseUrl}/payment/${invoiceId}`, {
+      await http.post(`/payment/${invoiceId.value}`, {
         razorpay_payment_id: response.razorpay_payment_id,
         razorpay_order_id: response.razorpay_order_id,
         razorpay_signature: response.razorpay_signature,
@@ -391,6 +443,10 @@ async function payRazorpay(config) {
 }
 
 function onPaid() {
-  router.push({ path: '/payment-success', query: { invoice: invoiceId } })
+  router.push({ path: '/payment-success', query: { invoice: invoiceId.value } })
 }
 </script>
+
+<style scoped>
+.product-placeholder { width: 90px; height: 90px; }
+</style>

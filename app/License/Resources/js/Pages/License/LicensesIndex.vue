@@ -35,12 +35,14 @@ import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
 import { useDateTime } from '@/core/composables/useDateTime'
 import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDate, formatDateTime } = useDateTime()
 
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
-const endPoint = baseUrl + '/api/admin/viewLicenses'
+const endPoint = '/api/admin/viewLicenses'
 
 // report_columns keys (type 'licenses') equal these column names 1:1, so no
 // key map is needed — the ColumnSelector emits the names this table uses.
@@ -77,20 +79,12 @@ function onColumnsChange(reportKeys) {
 const options = reactive({
     sortable: ['product_title', 'client_email', 'license_code', 'license_limit', 'license_order_number', 'license_expire_date', 'license_support_date', 'license_updates_date', 'license_status'],
     filterable: ['product_title'],
-    requestAdapter(data) {
-        return {
-            'sort_field': data.orderBy ? data.orderBy : 'id',
-            'sort_order': data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search_query': data.query.trim(),
-            perPage: data.limit,
-            page: data.page,
-        }
-    },
+    requestAdapter: makeRequestAdapter('id'),
     responseAdapter({ data }) {
         return {
             data: data.data.data.map(data => {
                 data.edit_url = '/licenses/' + data.id + '/edit'
-                data.delete_url = (document.getElementById('app-root')?.dataset?.baseUrl ?? '') + '/api/admin/license/delete'
+                data.delete_url = baseUrl + '/api/admin/license/delete'
                 data.view_url = '/licenses/' + data.id + '/view'
                 data.keyVal = 'id'
                 data.idVal = data.id

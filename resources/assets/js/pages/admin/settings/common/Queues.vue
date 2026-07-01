@@ -39,12 +39,12 @@
                             </div>
                         </div>
                         <div class="col-sm-5">
-                            <code class="text-break" style="color: inherit;">{{ cronCommand }}</code>
+                            <code class="text-break code-inherit">{{ cronCommand }}</code>
                         </div>
                         <div class="col-sm-1 text-center">
                             <span
                                 v-if="!copying"
-                                style="cursor:pointer"
+                                class="clickable"
                                 :title="__('message.verify_and_copy_command')"
                                 @click="copyCommand"
                             >
@@ -72,11 +72,10 @@ import { h, ref, computed, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'queues'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/queue/list`
+const apiUrl  = `/queue/list`
 
 const dtRef           = ref(null)
 const activating      = ref(null)
@@ -108,7 +107,7 @@ async function copyCommand() {
     const path = phpPath.value === 'other' ? customPhpPath.value : phpPath.value
     copying.value = true
     try {
-        const res = await http.post(`${baseUrl}/verify-php-path`, { path })
+        const res = await http.post(`/verify-php-path`, { path })
         await navigator.clipboard.writeText(`* * * * * ${cronCommand.value}`)
         successHandler(res, COMPONENT)
     } catch (e) {
@@ -121,7 +120,7 @@ async function copyCommand() {
 async function activate(id) {
     activating.value = id
     try {
-        const res = await http.post(`${baseUrl}/queue/${id}/activate`)
+        const res = await http.post(`/queue/${id}/activate`)
         successHandler(res, COMPONENT)
         dtRef.value?.refresh()
     } catch (e) {
@@ -172,15 +171,7 @@ const tableOptions = reactive({
     },
     sortable:   ['name'],
     filterable: false,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy  ?? 'name',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query   ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('name'),
     responseAdapter({ data }) {
         const d = data?.data ?? {}
         cronPath.value        = d.cron_path       ?? ''
@@ -197,3 +188,8 @@ const tableOptions = reactive({
     orderBy: { column: 'name', ascending: true },
 })
 </script>
+
+<style scoped>
+.code-inherit { color: inherit; }
+.clickable { cursor: pointer; }
+</style>

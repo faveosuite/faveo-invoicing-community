@@ -162,11 +162,11 @@ import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'tax-index'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/tax-tables`
+const baseUrl = useBaseUrl()
+const apiUrl  = `/tax-tables`
 
 const dtRef          = ref(null)
 const selected       = ref([])
@@ -233,7 +233,7 @@ function setActiveClass(slug) {
 
 async function loadOptions() {
     try {
-        const res = await http.get(`${baseUrl}/tax-options`)
+        const res = await http.get(`/tax-options`)
         const d   = res.data?.data ?? {}
         const o   = d.options ?? {}
         options.tax_enable             = o.tax_enable ?? 0
@@ -256,7 +256,7 @@ onMounted(loadOptions)
 async function saveOptions() {
     savingOptions.value = true
     try {
-        const res = await http.post(`${baseUrl}/taxes/option`, {
+        const res = await http.post(`/taxes/option`, {
             tax_enable:             options.tax_enable,
             inclusive:              options.inclusive,
             rounding:               options.rounding,

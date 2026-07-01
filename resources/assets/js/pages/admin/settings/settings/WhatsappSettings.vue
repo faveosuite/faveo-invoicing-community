@@ -77,8 +77,6 @@ import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { whatsappSchema } from '@/validations/admin/whatsappValidations'
 
 const COMPONENT = 'whatsapp-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 
@@ -94,7 +92,7 @@ const form = reactive({
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/whatsapp-integration-info`)
+        const res = await http.get(`/whatsapp-integration-info`)
         const d   = res.data?.data ?? {}
         Object.assign(form, {
             app_id:       d.app_id       ?? '',
@@ -114,7 +112,7 @@ async function save() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/whatsapp-integration-save`, {
+        const res = await http.post(`/whatsapp-integration-save`, {
             app_id:       form.app_id,
             app_secret:   form.app_secret,
             config_id:    form.config_id,

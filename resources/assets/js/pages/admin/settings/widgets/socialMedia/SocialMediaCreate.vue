@@ -34,8 +34,6 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { socialMediaSchema } from '@/validations/admin/widgetValidations'
 
 const COMPONENT = 'social-media-create'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const router = useRouter()
 
 const { errors, setErrors, setFieldError } = useForm()
@@ -53,7 +51,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/social-media/create`, form)
+        const res = await http.post(`/social-media/create`, form)
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/settings/widgets/social-media'), 2000)
     } catch (e) { errorHandler(e, COMPONENT) }

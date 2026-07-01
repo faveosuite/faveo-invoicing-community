@@ -71,10 +71,10 @@ import { twoFaSchema, recoverySchema } from '@/validations/client/authSchemas.js
 import AuthLayout from './partials/AuthLayout.vue'
 import Honeypot from '@/components/Reusable/Honeypot.vue'
 import { RecaptchaField } from '@recaptcha'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'client-page'
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const { errors, setErrors, setFieldError } = useForm()
 const totpCaptchaRef = ref(null)
@@ -88,7 +88,7 @@ const useRecovery = ref(false)
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/auth/2fa-check`)
+        const res = await http.get(`/auth/2fa-check`)
         // No active 2FA session → backend hands back a login redirect.
         const redirect = res.data?.data?.redirect
         if (redirect) {

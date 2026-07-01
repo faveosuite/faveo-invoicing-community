@@ -41,10 +41,10 @@
                                 </div>
                             </div>
                             <div class="col-sm-5">
-                                <code class="text-break" style="color: inherit;">{{ cronCommand }}</code>
+                                <code class="text-break code-inherit">{{ cronCommand }}</code>
                             </div>
                             <div class="col-sm-1 text-center">
-                                <span v-if="!copying" style="cursor:pointer"
+                                <span v-if="!copying" class="clickable"
                                       :title="__('message.verify_and_copy_command')"
                                       @click="copyCommand">
                                     <i class="far fa-clipboard fa-2x text-secondary"></i>
@@ -193,8 +193,6 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { __ } from '@/plugins/i18n'
 
 const COMPONENT = 'cron-settings'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const loading         = ref(true)
 const savingScheduler = ref(false)
@@ -302,7 +300,7 @@ onMounted(load)
 async function load() {
     loading.value = true
     try {
-        const res  = await http.get(`${baseUrl}/settings/cron-data`)
+        const res  = await http.get(`/settings/cron-data`)
         const data = res.data?.data ?? {}
 
         cronPath.value    = data.cron_path ?? ''
@@ -336,7 +334,7 @@ async function copyCommand() {
     const path = phpPath.value === 'other' ? customPhpPath.value : phpPath.value
     copying.value = true
     try {
-        const res = await http.post(`${baseUrl}/verify-php-path`, { path })
+        const res = await http.post(`/verify-php-path`, { path })
         await navigator.clipboard.writeText(`* * * * * ${cronCommand.value}`)
         successHandler(res, COMPONENT)
     } catch (e) {
@@ -359,7 +357,7 @@ function conditionPayload() {
 async function saveScheduler() {
     savingScheduler.value = true
     try {
-        const res = await http.patch(`${baseUrl}/settings/cron-data`, {
+        const res = await http.patch(`/settings/cron-data`, {
             statuses,
             conditions: conditionPayload(),
         })
@@ -374,7 +372,7 @@ async function saveScheduler() {
 async function saveDays() {
     savingDays.value = true
     try {
-        const res = await http.patch(`${baseUrl}/settings/cron-days`, days)
+        const res = await http.patch(`/settings/cron-days`, days)
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -387,4 +385,6 @@ async function saveDays() {
 <style scoped>
 .mt-13 { margin-top: 13px; }
 .info-box-icon { color: #ffffff !important; }
+.code-inherit { color: inherit; }
+.clickable { cursor: pointer; }
 </style>

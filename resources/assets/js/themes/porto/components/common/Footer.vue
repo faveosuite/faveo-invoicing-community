@@ -147,8 +147,7 @@ async function subscribeNewsletter() {
         if (!newsletterCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
             return
         }
-        const baseUrl = el?.dataset?.baseUrl ?? ''
-        const res = await http.post(`${baseUrl}/newsletter/subscribe`, { newsletterEmail: newsletterEmail.value, ...captchaPayload })
+        const res = await http.post(`/newsletter/subscribe`, { newsletterEmail: newsletterEmail.value, ...captchaPayload })
         newsletterSuccess.value = true
         newsletterCaptchaRef.value?.reset()
         alertStore.setAlert({

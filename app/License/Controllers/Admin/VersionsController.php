@@ -12,11 +12,11 @@ class VersionsController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('limit', $request->input('perPage', 10));
         $page = $request->input('page', 1);
-        $searchQuery = $request->input('search_query');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'id');
+        $searchQuery = $request->input('search-query', $request->input('search-query', $request->input('search_query', '')));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
         $allowedSortFields = ['id', 'product_id', 'version', 'created_at', 'status'];
         $sortField = in_array($sortField, $allowedSortFields, strict: true) ? $sortField : 'id';
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';

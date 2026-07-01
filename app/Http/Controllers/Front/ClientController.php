@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Common\SettingsController;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
+use App\Http\Controllers\User\AdvanceSearchController;
 use App\License\Models\Installation;
+use App\Model\Common\CreditActivity;
 use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
 use App\Model\Order\Invoice;
@@ -140,6 +142,38 @@ class ClientController extends BaseClientController
         });
 
         return successResponse('', $paginated);
+    }
+
+    /**
+     * Client's credit balance = SUM of their invoice_id = 0 rows (see
+     * AdvanceSearchController::getExtraAmt / ExtendedBaseInvoiceController::updatePaymentByInvoice),
+     * plus the client-visible activity log across every row that fed that balance.
+     */
+    public function getCreditBalance(): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            if (! $user instanceof User) {
+                return errorResponse('Unauthorized', 401);
+            }
+
+            $creditPaymentIds = Payment::where('user_id', $user->id)->where('invoice_id', 0)->pluck('id');
+            $balance = new AdvanceSearchController()->getExtraAmt($user->id);
+
+            $activity = CreditActivity::whereIn('payment_id', $creditPaymentIds)
+                ->where('role', 'user')
+                ->orderByDesc('created_at')
+                ->get(['text', 'created_at']);
+
+            return successResponse('', [
+                'balance' => currencyFormat($balance, getCurrencyForClient($user->country), true),
+                'activity' => $activity,
+            ]);
+        } catch (Exception $exception) {
+            Logger::exception($exception);
+
+            return errorResponse(__('message.something_bad'));
+        }
     }
 
     public function getClientOrder(Request $request): JsonResponse

@@ -55,7 +55,6 @@ import { useAlertStore } from '@/core/stores/alert'
 const alertStore = useAlertStore()
 const { errors, setErrors, setFieldError } = useForm()
 const router = useRouter()
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
 const saving = ref(false)
@@ -96,7 +95,7 @@ async function onSubmit() {
     data['installation_status'] = installation_status.value ? 1 : 0
     data['installation_disable_ip'] = installation_disable_ip_verification.value ? 1 : 0
 
-    axios.post(baseUrl + '/api/admin/installations/edit', data).then(res => {
+    axios.post('/api/admin/installations/edit', data).then(res => {
         if (!res.data.api_action_success || res.data.error_detected || res.data.api_error_detected) {
             alertStore.setAlert({ type: 'danger', message: res.data.page_message, component_name: 'installation' })
         } else if (res.data.api_action_success && res.data.action_success) {
@@ -114,7 +113,7 @@ onBeforeMount(() => {
     const path = globalThis.location.pathname
     const installationId = getIdFromUrl(path)
     installation_id.value = installationId
-    axios.get(baseUrl + '/api/admin/installation/' + installationId).then(res => {
+    axios.get('/api/admin/installation/' + installationId).then(res => {
         updateStatesWithData(res.data.data.installation)
     }).catch(() => {}).finally(() => {
         loading.value = false

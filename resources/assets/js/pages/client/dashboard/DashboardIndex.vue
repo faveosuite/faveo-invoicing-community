@@ -62,15 +62,12 @@ import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { errorHandler } from '@/helpers/responseHandler.js'
 
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-
 const loading = ref(true)
 const data    = ref({})
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/client-dashboard-details`)
+        const res = await http.get(`/client-dashboard-details`)
         data.value = res.data?.data ?? res.data
     } catch (e) {
         errorHandler(e, 'client-page')

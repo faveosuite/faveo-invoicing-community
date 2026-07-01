@@ -98,11 +98,11 @@ import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { otpSchema } from '@/validations/client/authSchemas.js'
 import { RecaptchaField } from '@recaptcha'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'client-page'
 const COOLDOWN  = 120
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const { errors, setErrors, setFieldError } = useForm()
 const captchaRef    = ref(null)
@@ -133,7 +133,7 @@ const progressSteps = computed(() => {
 
 onMounted(async () => {
     try {
-        const res  = await http.get(`${baseUrl}/auth/verify-config`)
+        const res  = await http.get(`/auth/verify-config`)
         const data = res.data?.data ?? {}
 
         if (data.redirect) {
@@ -201,7 +201,7 @@ async function sendInitial() {
 async function resend(type) {
     if (cooldown.value > 0) return
     try {
-        const res = await http.post(`${baseUrl}/resend_otp`, {
+        const res = await http.post(`/resend_otp`, {
             eid: eid.value,
             default_type: current.value.type,
             type: current.value.type === 'mobile' ? type : null,

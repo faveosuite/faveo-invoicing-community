@@ -147,7 +147,7 @@
                                                 <div v-if="form.file_source === 'github'" class="mt-3 p-3 border rounded-3 bg-white">
                                                     <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
                                                         <i class="fab fa-github text-dark fs-5"></i>
-                                                        <h6 class="fw-bold mb-0 text-dark" style="font-size: 13px;">GitHub Repository Integration</h6>
+                                                        <h6 class="fw-bold mb-0 text-dark github-section-title">GitHub Repository Integration</h6>
                                                     </div>
                                                     <div class="row g-2">
                                                         <div class="col-md-12 mb-2">
@@ -392,10 +392,11 @@ import ImageField from '@/components/Reusable/FormField/ImageField.vue'
 import VersionTableActions from './components/VersionTableActions.vue'
 import ProductPluginMapping from './components/ProductPluginMapping.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'products-edit'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const route = useRoute()
 const router = useRouter()
 
@@ -425,11 +426,11 @@ const fileSourceValue = computed(() => {
 })
 
 // ── Versions (product uploads) ─────────────────────────────────────────────
-const versionsApiUrl = `${baseUrl}/product/uploads/${route.params.id}`
+const versionsApiUrl = `/product/uploads/${route.params.id}`
 const dtVersionRef = ref(null)
 const selectedVersions = ref([])
 const pendingDeleteVersions = ref(null)
-const versionDeleteUrl = `${baseUrl}/product/upload`
+const versionDeleteUrl = `/product/upload`
 
 const allVersionsSelected = computed(() => {
     const data = dtVersionRef.value?.tableData ?? []
@@ -482,15 +483,7 @@ const versionTableOptions = reactive({
     },
     sortable: ['version', 'release_type'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at'),
     responseAdapter({ data }) {
         const res = data?.data
         return { data: res?.data ?? [], count: res?.total ?? 0 }
@@ -503,7 +496,7 @@ const taxStatusOptions = [
     { id: 0, name: __('message.none') },
 ]
 
-const plansApiUrl = `${baseUrl}/dependency/product-plans?product_id=${route.params.id}`
+const plansApiUrl = `/dependency/product-plans?product_id=${route.params.id}`
 
 const planColumns = ['name', 'months', 'action']
 
@@ -599,8 +592,8 @@ function onImageChange(value) {
 onMounted(async () => {
     try {
         const [taxRes, productRes] = await Promise.all([
-            http.get(`${baseUrl}/dependency/tax-classes`, { params: { limit: 'all' } }),
-            http.get(`${baseUrl}/product/${route.params.id}`),
+            http.get(`/dependency/tax-classes`, { params: { limit: 'all' } }),
+            http.get(`/product/${route.params.id}`),
         ])
         taxClasses.value = taxRes.data?.data?.tax_classes ?? []
 
@@ -689,7 +682,7 @@ async function submit() {
 
         fd.append('shoping_cart_link', form.shoping_cart_link)
         fd.append('_method', 'PATCH')
-        const res = await http.post(`${baseUrl}/product/${route.params.id}`, fd, {
+        const res = await http.post(`/product/${route.params.id}`, fd, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
         successHandler(res, COMPONENT)
@@ -702,3 +695,7 @@ async function submit() {
 }
 </script>
 
+
+<style scoped>
+.github-section-title { font-size: 13px; }
+</style>

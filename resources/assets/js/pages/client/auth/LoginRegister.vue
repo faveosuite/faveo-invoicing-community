@@ -140,11 +140,11 @@ import { validateForm, scrollToFirstError } from '@/helpers/formUtils.js'
 import SocialButtons from './partials/SocialButtons.vue'
 import Honeypot from '@/components/Reusable/Honeypot.vue'
 import { RecaptchaField } from '@recaptcha'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const route     = useRoute()
 const COMPONENT = 'client-page'
-const el        = document.getElementById('app-client')
-const baseUrl   = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 // Separate vee-validate instances so the two forms don't share error state.
 const {errors: loginErrors, setErrors: loginSetErrors, setFieldError: loginSetFieldError} = useForm()
@@ -192,7 +192,7 @@ const passwordFocused = ref(false)
 
 onMounted(async () => {
   try {
-    const res = await http.get(`${baseUrl}/auth/login-config`)
+    const res = await http.get(`/auth/login-config`)
     const data = res.data?.data ?? {}
     social.value = data.social ?? social.value
     termsEnabled.value = data.status?.terms ?? false
@@ -209,7 +209,7 @@ onMounted(async () => {
 async function prefillCountry(iso, name) {
   if (!name) return
   try {
-    const res = await http.get(`${baseUrl}/dependency/countries`, {
+    const res = await http.get(`/dependency/countries`, {
       params: {'search-query': name, page: 1, paginate: 1},
     })
     const list = res.data?.data?.countries ?? []
@@ -245,7 +245,7 @@ async function submitLogin() {
     if (!loginCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
       return
     }
-    const res = await http.post(`${baseUrl}/login`, {
+    const res = await http.post(`/login`, {
       email_username: loginForm.email_username,
       password1: loginForm.password1,
       remember: loginForm.remember ? 'on' : '',
@@ -298,7 +298,7 @@ async function submitRegister() {
     if (!regCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
       return
     }
-    const res = await http.post(`${baseUrl}/auth/register`, {
+    const res = await http.post(`/auth/register`, {
       first_name: regForm.first_name,
       last_name: regForm.last_name,
       email: regForm.email,

@@ -41,8 +41,6 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import GatewayCard from './GatewayCard.vue'
 
 const COMPONENT = 'payment-gateway-index'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const router = useRouter()
 const loading = ref(true)
@@ -126,7 +124,7 @@ onMounted(loadPlugins)
 async function loadPlugins() {
     loading.value = true
     try {
-        const res = await http.get(`${baseUrl}/payment-gateway-list`)
+        const res = await http.get(`/payment-gateway-list`)
         plugins.value = res.data?.data ?? []
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { loading.value = false }
@@ -135,7 +133,7 @@ async function loadPlugins() {
 async function toggleStatus(plugin) {
     toggling.value = plugin.name
     try {
-        const res = await http.post(`${baseUrl}/updatePaymentStatus`, {
+        const res = await http.post(`/updatePaymentStatus`, {
             name:   plugin.name,
             status: plugin.status ? 0 : 1,
         })

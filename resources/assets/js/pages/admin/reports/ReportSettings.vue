@@ -39,9 +39,6 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import NumberField from '@/components/Reusable/FormField/NumberField.vue'
 
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-
 const loading = ref(true)
 const saving = ref(false)
 
@@ -51,7 +48,7 @@ const form = reactive({
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/reports/setting`)
+        const res = await http.get(`/reports/setting`)
         const data = res.data?.data ?? res.data
         form.records = data?.records ?? 3000
     } catch (e) {
@@ -64,7 +61,7 @@ onMounted(async () => {
 async function submit() {
     saving.value = true
     try {
-        const res = await http.patch(`${baseUrl}/reports/setting`, { records: form.records })
+        const res = await http.patch(`/reports/setting`, { records: form.records })
         successHandler(res, 'reports-settings')
     } catch (e) {
         errorHandler(e, 'reports-settings')

@@ -74,10 +74,10 @@ import { validateForm } from '@/helpers/formUtils.js'
 import { buildFrontendPageCreateSchema } from '@/validations/admin/pageValidations'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'pages-create'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const router = useRouter()
 
 const { errors, setErrors, setFieldError } = useForm()
@@ -117,7 +117,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/page`, {
+        const res = await http.post(`/page`, {
             name:           form.name,
             slug:           form.slug,
             url:            form.url,

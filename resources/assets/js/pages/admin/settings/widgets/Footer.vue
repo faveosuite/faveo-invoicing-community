@@ -79,8 +79,6 @@ import { footerWidgetSchema } from '@/validations/admin/widgetValidations'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 
 const COMPONENT = 'footer-widget'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const footerTypes = [
     { key: 'footer1', label: 'Footer 1' },
@@ -105,14 +103,14 @@ const saving = reactive({ footer1: false, footer2: false, footer3: false })
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/widgets/list`, { params: { limit: 200 } })
+        const res = await http.get(`/widgets/list`, { params: { limit: 200 } })
         const pages = res.data?.data?.pages?.data ?? []
 
         for (const ft of footerTypes) {
             const found = pages.find(w => w.type === ft.key)
             if (found) {
                 widgetIds[ft.key] = found.id
-                const detail = await http.get(`${baseUrl}/widgets/show/${found.id}`)
+                const detail = await http.get(`/widgets/show/${found.id}`)
                 const d = detail.data?.data?.widget ?? {}
                 mailchimpStatus.value = Boolean(detail.data?.data?.mailchimpStatus)
                 Object.assign(forms[ft.key], {
@@ -146,9 +144,9 @@ async function save(type) {
 
         let res
         if (widgetIds[type]) {
-            res = await http.put(`${baseUrl}/widgets/update/${widgetIds[type]}`, payload)
+            res = await http.put(`/widgets/update/${widgetIds[type]}`, payload)
         } else {
-            res = await http.post(`${baseUrl}/widgets/create`, payload)
+            res = await http.post(`/widgets/create`, payload)
             widgetIds[type] = res.data?.data?.id ?? null
         }
         successHandler(res, COMPONENT)

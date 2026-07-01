@@ -67,8 +67,6 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { socialLoginSchema } from '@/validations/admin/socialLoginValidations'
 
 const COMPONENT = 'social-logins-edit'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
 
@@ -87,7 +85,7 @@ const form = reactive({
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/edit/SocialLogins/${route.params.id}`)
+        const res = await http.get(`/edit/SocialLogins/${route.params.id}`)
         const d = res.data?.data ?? res.data
         form.type         = d.type ?? ''
         form.client_id    = d.client_id ?? ''
@@ -117,7 +115,7 @@ async function submit() {
             payload.client_id     = form.client_id
             payload.client_secret = form.client_secret
         }
-        const res = await http.post(`${baseUrl}/update-social-login`, payload)
+        const res = await http.post(`/update-social-login`, payload)
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/settings/social-logins'), 2000)
     } catch (e) {

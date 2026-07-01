@@ -7,7 +7,7 @@
         </a>
         <span class="product-thumbnail-image d-inline-block">
           <img v-if="item.image" :src="item.image" width="90" height="90" alt="" class="img-fluid" />
-          <span v-else class="d-inline-flex align-items-center justify-content-center bg-light" style="width:90px;height:90px;">
+          <span v-else class="d-inline-flex align-items-center justify-content-center bg-light product-placeholder">
             <i class="fas fa-box text-color-grey fa-2x"></i>
           </span>
         </span>
@@ -69,3 +69,7 @@ function step(field, delta) {
   emit('update', { id: props.item.id, [field]: next })
 }
 </script>
+
+<style scoped>
+.product-placeholder { width: 90px; height: 90px; }
+</style>

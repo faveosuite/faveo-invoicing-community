@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">{{ __('message.edit_user') }}</h4>
+                <h4 class="card-title">{{ isEdit ? __('message.edit_user') : __('message.create_user') }}</h4>
             </div>
 
             <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
@@ -122,11 +122,13 @@
                             <DynamicSelect
                                 name="country"
                                 :label="__('message.country')"
+                                :required="true"
                                 :apiEndpoint="`${baseUrl}/dependency/countries`"
                                 dataKey="countries"
                                 :value="form.country"
                                 :onChange="onCountryChange"
                                 :placeholder="__('message.choose')"
+                                :error="errors.country"
                             />
                         </div>
                         <div class="col-md-3">
@@ -142,7 +144,7 @@
                             />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="zip" :label="__('message.zip_postal_code')" :value="form.zip" :onChange="onChange" />
+                            <TextField name="zip" :label="__('message.zip')" :value="form.zip" :onChange="onChange" />
                         </div>
                     </div>
 
@@ -215,7 +217,7 @@
                 </div>
 
                 <div class="card-footer">
-                    <action-button action="update" :loading="saving" @click="submit" />
+                    <action-button :action="isEdit ? 'update' : 'save'" :loading="saving" @click="submit" />
                 </div>
             </template>
         </div>
@@ -226,23 +228,24 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useForm } from 'vee-validate'
-import { validateForm } from '@/helpers/formUtils.js'
+import { validateForm, extractId } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { userEditSchema } from '@/validations/admin/userValidations'
+import { userCreateSchema, userEditSchema } from '@/validations/admin/userValidations'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 
-const COMPONENT = 'users-edit'
-
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const router  = useRouter()
 const route   = useRoute()
 const userId  = route.params.id
+const isEdit  = !!userId
+
+const COMPONENT = isEdit ? 'users-edit' : 'users-create'
 
 const { errors, setErrors, setFieldError } = useForm()
 
-const loading = ref(true)
+const loading = ref(isEdit)
 const saving  = ref(false)
 
 const roleOptions = [
@@ -305,34 +308,35 @@ const form = reactive({
 const stateParams = computed(() => ({ country: form.country?.code ?? '' }))
 
 onMounted(async () => {
+    if (!isEdit) return
     try {
-        const res = await http.get(`${baseUrl}/user/${userId}`)
+        const res = await http.get(`/user/${userId}`)
         const u   = res.data?.data ?? res.data
 
-        form.first_name         = u.first_name ?? ''
-        form.last_name          = u.last_name ?? ''
-        form.email              = u.email ?? ''
-        form.user_name          = u.user_name ?? ''
-        form.company            = u.company ?? ''
-        form.bussiness          = u.bussiness ?? null
-        form.active             = u.active ?? 1
-        form.mobile_verified    = u.mobile_verified ?? 0
-        form.role               = roleOptions.find(o => o.id === u.role) ?? null
-        form.position           = positionOptions.find(o => o.id === u.position) ?? null
+        form.first_name         = u.first_name         ?? ''
+        form.last_name          = u.last_name          ?? ''
+        form.email              = u.email              ?? ''
+        form.user_name          = u.user_name          ?? ''
+        form.company            = u.company            ?? ''
+        form.bussiness          = u.bussiness          ?? null
+        form.active             = u.active             ?? 1
+        form.mobile_verified    = u.mobile_verified    ?? 0
+        form.role               = roleOptions.find(o => o.id === u.role)          ?? null
+        form.position           = positionOptions.find(o => o.id === u.position)  ?? null
         form.company_type       = companyTypeOptions.find(o => o.id === u.company_type) ?? null
         form.company_size       = companySizeOptions.find(o => o.id === u.company_size) ?? null
-        form.address            = u.address ?? ''
-        form.town               = u.town ?? ''
-        form.country            = u.country ?? null
-        form.state              = u.state ?? null
-        form.zip                = u.zip ?? ''
-        form.timezone_id        = u.timezone_id ?? null
-        form.mobile             = u.mobile ?? ''
-        form.mobile_code        = u.mobile_code ?? ''
+        form.address            = u.address            ?? ''
+        form.town               = u.town               ?? ''
+        form.country            = u.country            ?? null
+        form.state              = u.state              ?? null
+        form.zip                = u.zip                ?? ''
+        form.timezone_id        = u.timezone_id        ?? null
+        form.mobile             = u.mobile             ?? ''
+        form.mobile_code        = u.mobile_code        ?? ''
         form.mobile_country_iso = u.mobile_country_iso ?? ''
-        form.skype              = u.skype ?? ''
-        form.manager            = u.manager ?? null
-        form.account_manager    = u.account_manager ?? null
+        form.skype              = u.skype              ?? ''
+        form.manager            = u.manager            ?? null
+        form.account_manager    = u.account_manager    ?? null
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {
@@ -361,17 +365,13 @@ function onRoleChange(val) {
     form.position = null
 }
 
-function extractId(val) {
-    if (val === null || val === undefined) return null
-    return typeof val === 'object' ? val.id : val
-}
-
 async function submit() {
-    if (!await validateForm(userEditSchema, form, setErrors)) return
+    const schema = isEdit ? userEditSchema : userCreateSchema
+    if (!await validateForm(schema, form, setErrors)) return
 
     saving.value = true
     try {
-        const res = await http.patch(`${baseUrl}/user/${userId}`, {
+        const payload = {
             first_name:         form.first_name,
             last_name:          form.last_name,
             email:              form.email,
@@ -396,7 +396,12 @@ async function submit() {
             skype:              form.skype,
             manager:            extractId(form.manager),
             account_manager:    extractId(form.account_manager),
-        })
+        }
+
+        const res = isEdit
+            ? await http.patch(`/user/${userId}`, payload)
+            : await http.put(`/users`, payload)
+
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/users'), 2000)
     } catch (e) {

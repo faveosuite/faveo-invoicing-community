@@ -175,10 +175,11 @@ import axios from '@/plugins/axios'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { useRouter } from 'vue-router'
 import { useDateTime } from '@/core/composables/useDateTime'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const router = useRouter()
 const { formatDate, formatDateTime } = useDateTime()
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const loading = ref(true)
 const copied = ref(false)
@@ -248,7 +249,7 @@ function updateStatesWithData(data) {
 
 function getInitialValues(licId) {
     loading.value = true
-    axios.get(baseUrl + '/api/admin/licenseView/' + licId).then(res => {
+    axios.get('/api/admin/licenseView/' + licId).then(res => {
         updateStatesWithData(res.data.data)
     }).catch(() => {}).finally(() => {
         loading.value = false
@@ -271,7 +272,7 @@ function buildInstallationOptions() {
             return {
                 data: data.data.data.map(data => {
                     data.edit_url = '/installations/' + data.id + '/edit'
-                    data.delete_url = (document.getElementById('app-root')?.dataset?.baseUrl ?? '') + '/api/admin/installations/delete'
+                    data.delete_url = baseUrl + '/api/admin/installations/delete'
                     data.view_url = '/installations/' + data.id + '/view'
                     data.keyVal = 'id'
                     data.idVal = data.id
@@ -422,15 +423,15 @@ function updateData(value, licenseId) {
     activeTab.value = value
 
     if (value === 'installations') {
-        endPoint.value = baseUrl + '/api/admin/licenseInstallation/' + id.value
+        endPoint.value = '/api/admin/licenseInstallation/' + id.value
         columns.value = ['installation_domain', 'installation_ip', 'installation_date', 'installation_status', 'actions']
         tableOptions.value = buildInstallationOptions()
     } else if (value === 'callbacks') {
-        endPoint.value = baseUrl + '/api/admin/licenseCallbacks/' + id.value
+        endPoint.value = '/api/admin/licenseCallbacks/' + id.value
         columns.value = ['callback_domain', 'callback_ip', 'callback_date_time', 'callback_status']
         tableOptions.value = buildCallbackOptions()
     } else {
-        endPoint.value = baseUrl + '/api/admin/installationLogs/' + id.value
+        endPoint.value = '/api/admin/installationLogs/' + id.value
         columns.value = ['installation_domain', 'installation_ip', 'version_number', 'installation_last_active_date', 'installation_status']
         tableOptions.value = buildLogsOptions()
     }

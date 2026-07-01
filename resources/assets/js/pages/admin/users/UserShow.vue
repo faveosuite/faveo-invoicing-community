@@ -70,8 +70,8 @@
                                     <div class="col-sm-5">
                                         <span class="text-truncate mb-0 fw-bold" v-tooltip="__('message.user_name')">{{ __('message.user_name') }}</span>
                                     </div>
-                                    <div class="col-sm-7 text-end" style="white-space:nowrap;overflow:hidden;">
-                                        <span class="d-inline-block text-truncate align-middle" style="max-width:calc(100% - 22px)" v-tooltip="user.user_name">{{ user.user_name }}</span>
+                                    <div class="col-sm-7 text-end nowrap-hidden">
+                                        <span class="d-inline-block text-truncate align-middle truncate-with-copy" v-tooltip="user.user_name">{{ user.user_name }}</span>
                                         <a href="javascript:;" v-tooltip="__('message.copy')" @click.prevent="copy('username', user.user_name)" class="align-middle">
                                             <i class="far fa-copy"></i>
                                         </a>
@@ -85,8 +85,8 @@
                                     <div class="col-sm-5">
                                         <span class="text-truncate mb-0 fw-bold" v-tooltip="__('message.email')">{{ __('message.email') }}</span>
                                     </div>
-                                    <div class="col-sm-7 text-end" style="white-space:nowrap;overflow:hidden;">
-                                        <span class="d-inline-block text-truncate align-middle" style="max-width:calc(100% - 22px)" v-tooltip="user.email">{{ user.email }}</span>
+                                    <div class="col-sm-7 text-end nowrap-hidden">
+                                        <span class="d-inline-block text-truncate align-middle truncate-with-copy" v-tooltip="user.email">{{ user.email }}</span>
                                         <a href="javascript:;" v-tooltip="__('message.copy')" @click.prevent="copy('email', user.email)" class="align-middle">
                                             <i class="far fa-copy"></i>
                                         </a>
@@ -357,8 +357,7 @@
                                             <div v-for="comment in comments" :key="comment.id" class="d-flex gap-2 mb-3">
                                                 <div class="flex-shrink-0">
                                                     <span
-                                                        class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
-                                                        style="width:32px;height:32px;font-size:13px;font-weight:600;flex-shrink:0"
+                                                        class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center comment-avatar"
                                                     >{{ (comment.author || 'U').charAt(0).toUpperCase() }}</span>
                                                 </div>
                                                 <div class="flex-grow-1">
@@ -383,7 +382,7 @@
                                                             <action-button action="save" class="btn-xs" @click="saveEdit(comment)" />
                                                         </div>
                                                     </div>
-                                                    <p v-else class="mb-0 mt-1" style="white-space:pre-wrap">{{ comment.description }}</p>
+                                                    <p v-else class="mb-0 mt-1 comment-text">{{ comment.description }}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -439,6 +438,8 @@ import DeleteModal                  from '@/components/Reusable/DeleteModal.vue'
 import PaymentTableActions          from './components/PaymentTableActions.vue'
 import InvoiceTableActions          from '../invoices/components/InvoiceTableActions.vue'
 import OrderTableActions            from '../orders/components/OrderTableActions.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT  = 'user-show'
 const route      = useRoute()
@@ -446,14 +447,13 @@ const userId     = route.params.id
 const { notify } = useNotification()
 const { formatDate } = useDateTime()
 
-const el             = document.getElementById('app-root')
-const baseUrl        = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const fallbackAvatar = asset('themes/adminlte/assets/img/avatar.png')
 
 // ── API URLs ──────────────────────────────────────────────────────────────────
-const invoicesUrl = `${baseUrl}/user/${userId}/invoices`
-const paymentsUrl = `${baseUrl}/user/${userId}/payments`
-const ordersUrl   = `${baseUrl}/orders`
+const invoicesUrl = `/user/${userId}/invoices`
+const paymentsUrl = `/user/${userId}/payments`
+const ordersUrl   = `/orders`
 
 // ── Multi-select + bulk delete (per table) ─────────────────────────────────────
 const invDtRef = ref(null)
@@ -552,7 +552,7 @@ onMounted(async () => {
 // ── Loaders ───────────────────────────────────────────────────────────────────
 async function loadUser() {
     try {
-        const res  = await http.get(`${baseUrl}/user/${userId}`)
+        const res  = await http.get(`/user/${userId}`)
         user.value = res.data?.data ?? null
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -563,7 +563,7 @@ async function loadUser() {
 
 async function loadSummary() {
     try {
-        const res     = await http.get(`${baseUrl}/user/${userId}/summary`)
+        const res     = await http.get(`/user/${userId}/summary`)
         summary.value = { ...summary.value, ...(res.data?.data ?? {}) }
     } catch { /* silent */ } finally {
         loadingSummary.value = false
@@ -573,7 +573,7 @@ async function loadSummary() {
 async function loadComments() {
     loadingComments.value = true
     try {
-        const res      = await http.get(`${baseUrl}/user/${userId}/comments`)
+        const res      = await http.get(`/user/${userId}/comments`)
         comments.value = res.data?.data ?? []
     } catch { comments.value = [] } finally {
         loadingComments.value = false
@@ -584,7 +584,7 @@ async function loadComments() {
 async function disable2fa() {
     if (!confirm(__('message.are_you_sure') || 'Are you sure?')) return
     try {
-        await http.post(`${baseUrl}/2fa/disable/${userId}`)
+        await http.post(`/2fa/disable/${userId}`)
         notify(__('message.updated-successfully') || 'Updated', 'success')
         user.value.is_2fa_enabled = 0
     } catch (e) {
@@ -597,7 +597,7 @@ async function addComment() {
     if (!newComment.value.trim()) return
     savingComment.value = true
     try {
-        const res = await http.post(`${baseUrl}/user/${userId}/comments`, { description: newComment.value })
+        const res = await http.post(`/user/${userId}/comments`, { description: newComment.value })
         comments.value.unshift(res.data?.data)
         newComment.value = ''
         notify(__('message.saved-successfully') || 'Saved', 'success')
@@ -614,7 +614,7 @@ function startEdit(comment) {
 
 async function saveEdit(comment) {
     try {
-        await http.put(`${baseUrl}/user/${userId}/comments/${comment.id}`, { description: editingComment.value.description })
+        await http.put(`/user/${userId}/comments/${comment.id}`, { description: editingComment.value.description })
         comment.description  = editingComment.value.description
         editingComment.value = null
         notify(__('message.updated-successfully') || 'Updated', 'success')
@@ -698,15 +698,7 @@ const invoiceOptions = {
     },
     sortable:   ['date', 'number', 'grand_total', 'status'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'date',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('date'),
     orderBy: { column: 'date', ascending: false },
 }
 
@@ -745,16 +737,7 @@ const paymentOptions = {
     },
     sortable:   ['date', 'payment_method', 'amount', 'status'],
     filterable: true,
-    requestAdapter(data) {
-        const columnMap = { date: 'created_at', status: 'payment_status' }
-        return {
-            'sort-field':   columnMap[data.orderBy] ?? data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at', null, { date: 'created_at', status: 'payment_status' }),
     orderBy: { column: 'date', ascending: false },
 }
 
@@ -857,4 +840,8 @@ const orderOptions = {
 
 /* Match favMer .user_view button spacing */
 .user_view .btn { margin-left: 4px; }
+.nowrap-hidden { white-space: nowrap; overflow: hidden; }
+.truncate-with-copy { max-width: calc(100% - 22px); }
+.comment-avatar { width: 32px; height: 32px; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+.comment-text { white-space: pre-wrap; }
 </style>

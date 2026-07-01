@@ -38,6 +38,7 @@
 <script setup>
 import { ref } from 'vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const props = defineProps({
     orderId:   { type: Number, required: true },
@@ -46,6 +47,6 @@ const props = defineProps({
     showDelete: { type: Boolean, default: false },
 })
 
-const resolvedBaseUrl = props.baseUrl || document.getElementById('app-root')?.dataset?.baseUrl || ''
+const resolvedBaseUrl = props.baseUrl || useBaseUrl()
 const showModal = ref(false)
 </script>

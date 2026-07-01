@@ -106,43 +106,23 @@ import UserTableActions from './components/UserTableActions.vue'
 import UserFilter from './components/UserFilter.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useTableSelection } from '@/core/composables/useTableSelection'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDate } = useDateTime()
 
 const COMPONENT = 'users-index'
 
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/users`
+const baseUrl = useBaseUrl()
+const apiUrl = `/users`
 
 const dtRef = ref(null)
-const selectedUsers = ref([])
+const { selected: selectedUsers, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 const showFilter = ref(false)
 const activeFilters = ref({})
 const exporting = ref(false)
 const pendingBulkDelete = ref(null)
-
-const allSelected = computed(() => {
-    const data = dtRef.value?.tableData ?? []
-    return data.length > 0 && data.every(row => selectedUsers.value.includes(row.id))
-})
-
-function toggleRow(id) {
-    const idx = selectedUsers.value.indexOf(id)
-    if (idx === -1) selectedUsers.value.push(id)
-    else selectedUsers.value.splice(idx, 1)
-}
-
-function toggleAll(e) {
-    const data = dtRef.value?.tableData ?? []
-    if (e.target.checked) {
-        const ids = data.map(r => r.id).filter(id => !selectedUsers.value.includes(id))
-        selectedUsers.value.push(...ids)
-    } else {
-        const ids = new Set(data.map(r => r.id))
-        selectedUsers.value = selectedUsers.value.filter(id => !ids.has(id))
-    }
-}
 
 function onFilterApply(params) {
     activeFilters.value = params
@@ -159,7 +139,7 @@ async function exportAll() {
     if (exporting.value) return
     exporting.value = true
     try {
-        const res = await http.get(`${baseUrl}/export-users`, {
+        const res = await http.get(`/export-users`, {
             params: { search_params: activeFilters.value },
         })
         successHandler(res, COMPONENT)
@@ -173,7 +153,7 @@ async function exportAll() {
 async function bulkExport() {
     if (!selectedUsers.value.length) return
     try {
-        const res = await http.get(`${baseUrl}/export-users`, {
+        const res = await http.get(`/export-users`, {
             params: { search_params: { user_ids: selectedUsers.value } },
         })
         successHandler(res, COMPONENT)
@@ -288,16 +268,7 @@ const tableOptions = reactive({
     sortable: ['email', 'mobile', 'country', 'created_at'],
     filterable: true,
 
-    requestAdapter(data) {
-        return {
-            'sort-field': data.orderBy || 'created_at',
-            'sort-order': data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page: data.page,
-            limit: data.limit,
-            ...activeFilters.value,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at', activeFilters),
 
     orderBy: { column: 'created_at', ascending: false },
 })

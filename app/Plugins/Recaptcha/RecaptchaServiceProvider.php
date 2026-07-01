@@ -24,8 +24,6 @@ class RecaptchaServiceProvider extends ServiceProvider
         // Register plugin routes
         $this->loadRoutesFrom(__DIR__.'/routes/routes.php');
 
-        $this->loadViewsFrom(__DIR__.'/resources/views', 'recaptcha');
-
         // Load language files from plugin directory
         $this->loadTranslationsFrom(__DIR__.'/resources/lang', 'recaptcha');
 

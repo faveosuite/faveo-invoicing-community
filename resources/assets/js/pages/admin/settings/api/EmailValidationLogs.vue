@@ -32,7 +32,7 @@
                         <thead class="visually-hidden"><tr><th>Field</th><th>Value</th></tr></thead>
                         <tbody>
                             <tr v-for="(val, key) in detailData" :key="key">
-                                <td class="fw-semibold text-capitalize" style="width:40%">{{ key }}</td>
+                                <td class="fw-semibold text-capitalize col-key-width">{{ key }}</td>
                                 <td>{{ val }}</td>
                             </tr>
                             <tr v-if="!Object.keys(detailData).length">
@@ -51,13 +51,12 @@ import { h, reactive, ref } from 'vue'
 import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
 import { useDateTime } from '@/core/composables/useDateTime'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDateTime } = useDateTime()
 
 const COMPONENT = 'email-validation-logs'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/settings/email-validation-logs`
+const apiUrl  = `/settings/email-validation-logs`
 
 const dtRef           = ref(null)
 const showDetailModal = ref(false)
@@ -69,7 +68,7 @@ async function openDetail(id) {
     loadingDetail.value   = true
     detailData.value      = {}
     try {
-        const res    = await http.get(`${baseUrl}/get-email-validation-results`, { params: { id } })
+        const res    = await http.get(`/get-email-validation-results`, { params: { id } })
         detailData.value = res.data?.data ?? {}
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -115,15 +114,11 @@ const tableOptions = reactive({
     },
     sortable:   ['email', 'method', 'status', 'registration', 'created_at'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:  data.page,
-            limit: data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at'),
     orderBy: { column: 'created_at', ascending: false },
 })
 </script>
+
+<style scoped>
+.col-key-width { width: 40%; }
+</style>

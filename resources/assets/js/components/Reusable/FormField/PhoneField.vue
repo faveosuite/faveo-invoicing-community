@@ -48,6 +48,7 @@ function numbersOnly(e) {
 function emitCountry() {
     if (!iti) return
     const data = iti.getSelectedCountryData()
+    if (!data.iso2) return
     emit('countryChange', { iso: data.iso2.toUpperCase(), dialCode: data.dialCode })
 }
 

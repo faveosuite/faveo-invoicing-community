@@ -61,8 +61,6 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const COMPONENT = 'contact-options'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -97,7 +95,7 @@ function syncPreference() {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/contact-option`)
+        const res = await http.get(`/contact-option`)
         const d   = res.data?.data ?? {}
         form.email_enabled          = Boolean(d.emailverification_status)
         form.mobile_enabled         = Boolean(d.msg91_status)
@@ -113,7 +111,7 @@ onMounted(async () => {
 async function submit() {
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/verificationSettings`, {
+        const res = await http.post(`/verificationSettings`, {
             email_enabled:          form.email_enabled  ? 1 : 0,
             mobile_enabled:         form.mobile_enabled ? 1 : 0,
             preferred_verification: form.preferred_verification,

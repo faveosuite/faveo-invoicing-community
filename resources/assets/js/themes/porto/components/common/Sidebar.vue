@@ -45,10 +45,10 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { __ } from '@/plugins/i18n'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const route   = useRoute()
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const defaultItems = [
     { key: 'dashboard', label_key: 'dashboard',         route: '/client-dashboard',              active: 'exact' },

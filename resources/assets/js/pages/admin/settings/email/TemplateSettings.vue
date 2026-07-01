@@ -41,8 +41,6 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 
 const COMPONENT = 'template-settings'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const loading   = ref(true)
 const saving    = ref(false)
@@ -86,7 +84,7 @@ function onSelect(typeId, val) {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/settings/template`)
+        const res = await http.get(`/settings/template`)
         const data = res.data?.data ?? {}
         types.value     = data.types     ?? []
         templates.value = data.templates ?? []
@@ -98,7 +96,7 @@ onMounted(async () => {
 async function submit() {
     saving.value = true
     try {
-        const res = await http.patch(`${baseUrl}/settings/template`, { mappings })
+        const res = await http.patch(`/settings/template`, { mappings })
         successHandler(res, COMPONENT)
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { saving.value = false }

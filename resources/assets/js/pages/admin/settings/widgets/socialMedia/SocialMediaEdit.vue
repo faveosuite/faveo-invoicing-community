@@ -38,8 +38,6 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { socialMediaSchema } from '@/validations/admin/widgetValidations'
 
 const COMPONENT = 'social-media-edit'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
 const mediaId = route.params.id
@@ -57,7 +55,7 @@ function onChange(val, name) {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/social-media/show/${mediaId}`)
+        const res = await http.get(`/social-media/show/${mediaId}`)
         const d = res.data?.data ?? {}
         form.name = d.name ?? ''
         form.link = d.link ?? ''
@@ -70,7 +68,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.patch(`${baseUrl}/social-media/update/${mediaId}`, form)
+        const res = await http.patch(`/social-media/update/${mediaId}`, form)
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/settings/widgets/social-media'), 2000)
     } catch (e) { errorHandler(e, COMPONENT) }

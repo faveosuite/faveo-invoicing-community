@@ -98,10 +98,10 @@ import { validateForm } from '@/helpers/formUtils.js'
 import { buildFrontendPageEditSchema } from '@/validations/admin/pageValidations'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'pages-edit'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const route = useRoute()
 const router = useRouter()
 
@@ -138,7 +138,7 @@ function onChange(val, name) {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/page/${route.params.id}`)
+        const res = await http.get(`/page/${route.params.id}`)
         const p = res.data?.data ?? res.data
 
         form.name           = p.name ?? ''
@@ -176,7 +176,7 @@ async function submit() {
             created_at = `${m}/${d}/${y}`
         }
 
-        const res = await http.put(`${baseUrl}/page/${route.params.id}`, {
+        const res = await http.put(`/page/${route.params.id}`, {
             name:           form.name,
             slug:           form.slug,
             url:            form.url,

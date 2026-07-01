@@ -1,9 +1,6 @@
 import { defineStore } from 'pinia'
 import http, { parseErrorMessage } from '@/plugins/axios'
 
-const el = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-
 export const useCartStore = defineStore('cart', {
     state: () => ({
         cart: null,
@@ -26,13 +23,14 @@ export const useCartStore = defineStore('cart', {
         taxLabel: (state) => state.cart?.tax_label ?? '',
         gateways: (state) => state.cart?.gateways ?? [],
         grandTotal: (state) => state.cart?.grand_total ?? 0,
+        availableCredit: (state) => state.cart?.available_credit ?? 0,
     },
     actions: {
         async fetchCart() {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.get(`${baseUrl}/cart`)
+                const { data } = await http.get(`/cart`)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -46,7 +44,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.get(`${baseUrl}/cart/checkout`)
+                const { data } = await http.get(`/cart/checkout`)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -59,7 +57,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.post(`${baseUrl}/cart/items`, payload)
+                const { data } = await http.post(`/cart/items`, payload)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -73,7 +71,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.put(`${baseUrl}/cart/items/${itemId}`, payload)
+                const { data } = await http.put(`/cart/items/${itemId}`, payload)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -86,7 +84,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.delete(`${baseUrl}/cart/items/${itemId}`)
+                const { data } = await http.delete(`/cart/items/${itemId}`)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -99,7 +97,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.delete(`${baseUrl}/cart`)
+                const { data } = await http.delete(`/cart`)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -112,7 +110,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.post(`${baseUrl}/cart/coupon`, { code })
+                const { data } = await http.post(`/cart/coupon`, { code })
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -126,7 +124,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.delete(`${baseUrl}/cart/coupon`)
+                const { data } = await http.delete(`/cart/coupon`)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)

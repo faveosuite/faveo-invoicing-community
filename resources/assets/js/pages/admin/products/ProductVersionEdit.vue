@@ -67,9 +67,6 @@ import http from '@/plugins/axios'
 import { useAlertStore } from '@/core/stores/alert'
 import TextArea from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
-
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
 const productId = route.params.id
@@ -125,13 +122,13 @@ async function submit() {
         if (file.value) {
             const fd = new FormData()
             fd.append('file', file.value)
-            const up = await http.post(`${baseUrl}/chunkupload`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+            const up = await http.post(`/chunkupload`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
             filename = up.data?.name
             if (!filename) throw new Error(__('message.something_wrong'))
             uploadedName.value = filename
         }
 
-        await http.patch(`${baseUrl}/product/upload/${versionId}`, {
+        await http.patch(`/product/upload/${versionId}`, {
             title: form.value.title,
             version: form.value.version,
             description: form.value.description,
@@ -154,7 +151,7 @@ async function submit() {
 
 onMounted(async () => {
     try {
-        const { data } = await http.get(`${baseUrl}/product/upload/${versionId}`)
+        const { data } = await http.get(`/product/upload/${versionId}`)
         const u = data.data
         form.value = {
             title: u.title ?? '', version: u.version ?? '', description: u.description ?? '',

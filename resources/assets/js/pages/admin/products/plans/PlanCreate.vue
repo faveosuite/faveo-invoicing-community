@@ -118,10 +118,10 @@ import { planSchema } from '@/validations/admin/planValidations'
 import { validateForm } from '@/helpers/formUtils.js'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 import TreeSelect from '@/components/Reusable/FormField/TreeSelect.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'plans-create'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const router = useRouter()
 
 const { errors, setErrors, setFieldError } = useForm()
@@ -164,8 +164,8 @@ function removeRow(idx) {
 onMounted(async () => {
     try {
         const [pRes, cRes] = await Promise.all([
-            http.get(`${baseUrl}/dependency/periods`),
-            http.get(`${baseUrl}/dependency/currencies`),
+            http.get(`/dependency/periods`),
+            http.get(`/dependency/currencies`),
         ])
         periods.value = pRes.data?.data?.periods ?? []
         currencies.value = cRes.data?.data?.currencies ?? []
@@ -201,7 +201,7 @@ async function submit() {
             renew_price:       form.prices.map(p => p.renew_price),
             offer_price:       form.prices.map(p => p.offer_price === '' ? null : p.offer_price),
         }
-        const res = await http.put(`${baseUrl}/plans`, payload)
+        const res = await http.put(`/plans`, payload)
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/products/plans'), 2000)
     } catch (e) {

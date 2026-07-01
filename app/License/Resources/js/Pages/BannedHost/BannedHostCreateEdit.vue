@@ -42,7 +42,6 @@ import { validateForm } from '@/helpers/formUtils.js'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const router = useRouter()
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 
@@ -71,7 +70,7 @@ function updateStatesWithData(data) {
 
 function getInitialValues(id) {
     loading.value = true
-    axios.get(baseUrl + '/api/admin/viewBannedHost/' + id).then(res => {
+    axios.get('/api/admin/viewBannedHost/' + id).then(res => {
         updateStatesWithData(res.data.data.banned_host_data)
     }).catch(() => {}).finally(() => {
         loading.value = false
@@ -109,9 +108,9 @@ onBeforeMount(() => {
         isEdit.value = true
         getInitialValues(id)
         hostId.value = id
-        apiEndpoint.value = baseUrl + '/api/admin/bannedHosts/edit'
+        apiEndpoint.value = '/api/admin/bannedHosts/edit'
     } else {
-        apiEndpoint.value = baseUrl + '/api/admin/bannedHosts/add'
+        apiEndpoint.value = '/api/admin/bannedHosts/add'
     }
 })
 </script>

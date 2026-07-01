@@ -23,11 +23,10 @@ import { h, ref, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'cache-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/cache-settings/list`
+const apiUrl  = `/cache-settings/list`
 
 const dtRef      = ref(null)
 const activating = ref(null)
@@ -35,7 +34,7 @@ const activating = ref(null)
 async function activate(driver) {
     activating.value = driver
     try {
-        const res = await http.post(`${baseUrl}/cache-settings/${driver}/activate`)
+        const res = await http.post(`/cache-settings/${driver}/activate`)
         successHandler(res, COMPONENT)
         dtRef.value?.refresh()
     } catch (e) {
@@ -91,15 +90,7 @@ const tableOptions = reactive({
     },
     sortable:   ['name'],
     filterable: false,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy  ?? 'name',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query   ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('name'),
     responseAdapter({ data }) {
         const d       = data?.data ?? {}
         const drivers = d.drivers  ?? {}

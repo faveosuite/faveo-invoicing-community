@@ -10,7 +10,7 @@
                     <!-- Invoice header: logo (left) | number + date + status (right) -->
                     <div class="row align-items-start mb-4">
                         <div class="col-sm-6">
-                            <img v-if="from?.logo" :src="from.logo" alt="Logo" class="mb-3 d-block" style="max-height:70px;max-width:180px;">
+                            <img v-if="from?.logo" :src="from.logo" alt="Logo" class="mb-3 d-block invoice-logo">
                             <h3 class="mb-0">
                                 {{ __('message.invoice') }}
                                 <span class="text-muted">#{{ invoice?.number }}</span>
@@ -120,7 +120,7 @@
                                 <thead class="visually-hidden"><tr><th>Description</th><th>Amount</th></tr></thead>
                                 <colgroup>
                                     <col>
-                                    <col style="width:140px;">
+                                    <col class="col-label-width">
                                 </colgroup>
                                 <tbody>
                                     <tr>
@@ -196,12 +196,12 @@ import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { errorHandler } from '@/helpers/responseHandler.js'
 import { useDateTime } from '@/core/composables/useDateTime'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const { formatDate } = useDateTime()
 
 const COMPONENT = 'client-page'
-const el = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const route = useRoute()
 const invoiceId = route.params.id
@@ -237,7 +237,7 @@ function formatCurrency(val) {
 
 async function fetchInvoice() {
     try {
-        const res = await http.get(`${baseUrl}/invoice/${invoiceId}`)
+        const res = await http.get(`/invoice/${invoiceId}`)
         const data = res.data?.data ?? res.data
 
         invoice.value = data.invoice
@@ -255,3 +255,8 @@ async function fetchInvoice() {
 
 onMounted(fetchInvoice)
 </script>
+
+<style scoped>
+.invoice-logo { max-height: 70px; max-width: 180px; }
+.col-label-width { width: 140px; }
+</style>

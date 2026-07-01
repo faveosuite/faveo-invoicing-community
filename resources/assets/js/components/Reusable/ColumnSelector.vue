@@ -81,8 +81,6 @@ const props = defineProps({
 // initial load and after every successful Apply.
 const emit = defineEmits(['change'])
 
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
-
 const columns = ref([])      // full ordered metadata from the API
 const loading = ref(false)
 const saving = ref(false)
@@ -121,7 +119,7 @@ async function ensureLoaded() {
 async function load() {
     loading.value = true
     try {
-        const res = await http.get(`${baseUrl}/get-columns`, {
+        const res = await http.get(`/get-columns`, {
             params: { entity_type: props.entityType },
         })
         columns.value = (res.data?.data?.columns ?? []).map(c => ({
@@ -163,7 +161,7 @@ async function apply() {
     if (saving.value) return
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/save-columns`, {
+        const res = await http.post(`/save-columns`, {
             entity_type: props.entityType,
             selected_columns: visibleKeys(),
         })

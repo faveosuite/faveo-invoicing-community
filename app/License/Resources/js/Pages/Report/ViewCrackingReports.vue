@@ -19,27 +19,18 @@ import { reactive, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
 import { useDateTime } from '@/core/composables/useDateTime'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDateTime } = useDateTime()
 
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
-
-const endPoint = baseUrl + '/api/admin/reportCracking'
+const endPoint = '/api/admin/reportCracking'
 
 const columns = ['report_text', 'license_code', 'report_date_time', 'report_status']
 
 const options = reactive({
     sortable: ['report_text', 'license_code', 'report_date_time', 'report_status'],
     filterable: ['report_text'],
-    requestAdapter(data) {
-        return {
-            'sort_field': data.orderBy ? data.orderBy : 'report_date_time',
-            'sort_order': data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search_query': data.query.trim(),
-            perPage: data.limit,
-            page: data.page,
-        }
-    },
+    requestAdapter: makeRequestAdapter('report_date_time'),
     responseAdapter({ data }) {
         return {
             data: data.data.data.map(data => {

@@ -19,12 +19,14 @@ import { reactive, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
 import { useDateTime } from '@/core/composables/useDateTime'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDate } = useDateTime()
 
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
-const endPoint = baseUrl + '/api/admin/viewInstallations'
+const endPoint = '/api/admin/viewInstallations'
 
 const columns = [
     'product_title', 'license', 'client_email', 'installation_domain', 'installation_ip',
@@ -34,20 +36,12 @@ const columns = [
 const options = reactive({
     sortable: ['product_title', 'installation_status'],
     filterable: ['product_title'],
-    requestAdapter(data) {
-        return {
-            'sort_field': data.orderBy ? data.orderBy : 'id',
-            'sort_order': data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search_query': data.query.trim(),
-            perPage: data.limit,
-            page: data.page,
-        }
-    },
+    requestAdapter: makeRequestAdapter('id'),
     responseAdapter({ data }) {
         return {
             data: data.data.data.map(data => {
                 data.edit_url = '/installations/' + data.id + '/edit'
-                data.delete_url = (document.getElementById('app-root')?.dataset?.baseUrl ?? '') + '/api/admin/installations/delete'
+                data.delete_url = baseUrl + '/api/admin/installations/delete'
                 data.view_url = '/installations/' + data.id + '/view'
                 data.keyVal = 'id'
                 data.idVal = data.id

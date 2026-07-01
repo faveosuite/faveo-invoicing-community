@@ -24,9 +24,7 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const COMPONENT = 'third-party-integrations'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/module-settings`
+const apiUrl  = `/module-settings`
 
 const dtRef     = ref(null)
 const savingKey = ref(null)
@@ -36,7 +34,7 @@ async function toggle(row, newVal) {
     savingKey.value = row.key
     try {
         const payload = { [row.key]: newVal ? 1 : 0 }
-        const res = await http.post(`${baseUrl}/licenseStatus`, payload)
+        const res = await http.post(`/licenseStatus`, payload)
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)

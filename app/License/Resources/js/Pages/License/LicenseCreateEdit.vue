@@ -126,7 +126,6 @@ import NumberField from '@/components/Reusable/FormField/NumberField.vue'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 
 const router = useRouter()
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 
@@ -195,7 +194,7 @@ async function isValid() {
 
 function getInitialValues(id) {
     loading.value = true
-    axios.get(baseUrl + '/api/admin/license/' + id).then(res => {
+    axios.get('/api/admin/license/' + id).then(res => {
         let resData = res.data.data
         let licenseData = res.data.data.license
         licenseData['api_key_secret'] = licenseData.api_key_secret ? licenseData.api_key_secret.split(',') : ''
@@ -265,9 +264,9 @@ onBeforeMount(() => {
         isEdit.value = true
         getInitialValues(licId)
         license_id.value = licId
-        apiEndpoint.value = baseUrl + '/api/admin/license/edit'
+        apiEndpoint.value = '/api/admin/license/edit'
     } else {
-        apiEndpoint.value = baseUrl + '/api/admin/license/add'
+        apiEndpoint.value = '/api/admin/license/add'
     }
 })
 </script>

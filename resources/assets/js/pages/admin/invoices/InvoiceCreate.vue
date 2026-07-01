@@ -158,10 +158,10 @@ import { buildInvoiceCreateSchema } from '@/validations/admin/invoiceValidations
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import NumberField from '@/components/Reusable/FormField/NumberField.vue'
 import TreeSelect from '@/components/Reusable/FormField/TreeSelect.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'invoices-create'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const router = useRouter()
 const route  = useRoute()
@@ -198,7 +198,7 @@ onMounted(async () => {
     const clientid = route.query.clientid
     if (clientid) {
         try {
-            const res = await http.get(`${baseUrl}/user/${clientid}`)
+            const res = await http.get(`/user/${clientid}`)
             const u = res.data?.data
             if (u) {
                 form.user = {
@@ -253,7 +253,7 @@ async function fetchPrice() {
     if (!pid || !planId) return
 
     try {
-        const res = await http.post(`${baseUrl}/get-price`, {
+        const res = await http.post(`/get-price`, {
             product: pid,
             plan:    String(planId),
             user:    userId || null,
@@ -298,7 +298,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/generate/invoice`, payload)
+        const res = await http.post(`/generate/invoice`, payload)
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/invoices'), 2000)
     } catch (e) {

@@ -17,7 +17,7 @@
                     <div v-for="type in logTypes" :key="type.key" class="col-md-2 col-sm-4 col-6">
                         <div
                             class="d-flex flex-column align-items-center text-center gap-2 py-2"
-                            style="cursor:pointer"
+                            class="clickable"
                             @click="switchType(type.key)"
                         >
                             <span class="settings-icon" :class="activeType === type.key && 'settings-icon--active'">
@@ -201,7 +201,7 @@
                     ref="emailIframe"
                     title="Log Details"
                     sandbox="allow-same-origin"
-                    style="width:100%; height:75vh; border:none; display:block;"
+                    class="log-iframe"
                 ></iframe>
             </template>
         </AppModal>
@@ -257,10 +257,10 @@ import VueDatePicker from 'vue-datepicker-next'
 import 'vue-datepicker-next/index.css'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'billing-log-viewer'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const { formatDateTime } = useDateTime()
 
 const logTypes = [
@@ -335,7 +335,7 @@ function switchType(type) {
 async function loadCategories() {
     loadingCategories.value = true
     try {
-        const res = await http.get(`${baseUrl}/log-category-list`, {
+        const res = await http.get(`/log-category-list`, {
             params: { date: selectedDate.value, log_type: activeType.value },
         })
         categories.value = res.data?.data ?? []
@@ -486,7 +486,7 @@ function openRetry(id) {
 async function confirmRetry() {
     retrying.value = true
     try {
-        const res = await http.get(`${baseUrl}/retry/mail-log/${retryId.value}`)
+        const res = await http.get(`/retry/mail-log/${retryId.value}`)
         successHandler(res, COMPONENT)
         showRetryModal.value = false
     } catch (e) {
@@ -509,7 +509,7 @@ async function confirmDelete() {
     if (!deleteTypes.value.length) { deleteError.value = 'Please select at least one log type.'; return }
     deleting.value = true
     try {
-        const res = await http.delete(`${baseUrl}/logs/delete`, {
+        const res = await http.delete(`/logs/delete`, {
             data: { to_date: deleteDate.value, log_types: deleteTypes.value },
         })
         successHandler(res, COMPONENT)
@@ -532,6 +532,9 @@ onMounted(() => loadCategories())
 </script>
 
 <style scoped>
+.clickable { cursor: pointer; }
+.log-iframe { width: 100%; height: 75vh; border: none; display: block; }
+
 /* ── Log type selector — same style as settings/Index.vue ── */
 .settings-icon {
     width: 68px;

@@ -23,12 +23,14 @@
 import { reactive } from 'vue'
 import { lang } from '@/helpers/extraLogics'
 import { useDateTime } from '@/core/composables/useDateTime'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDate } = useDateTime()
 
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
-const endPoint = baseUrl + '/api/admin/view-Whitelist'
+const endPoint = '/api/admin/view-Whitelist'
 
 const columns = ['whitelist_host_ip', 'whitelist_host_comments', 'whitelist_host_date', 'actions']
 
@@ -41,20 +43,12 @@ const options = reactive({
         whitelist_host_date: 'dt-date',
         actions: 'dt-action',
     },
-    requestAdapter(data) {
-        return {
-            'sort_field': data.orderBy ? data.orderBy : 'id',
-            'sort_order': data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search_query': data.query,
-            perPage: data.limit,
-            page: data.page,
-        }
-    },
+    requestAdapter: makeRequestAdapter('id'),
     responseAdapter({ data }) {
         return {
             data: data.data.data.map(data => {
                 data.edit_url = '/whitelist/' + data.id + '/edit'
-                data.delete_url = (document.getElementById('app-root')?.dataset?.baseUrl ?? '') + '/api/admin/delete-whitelist-ip'
+                data.delete_url = baseUrl + '/api/admin/delete-whitelist-ip'
                 data.keyVal = 'id'
                 data.idVal = data.id
                 return data

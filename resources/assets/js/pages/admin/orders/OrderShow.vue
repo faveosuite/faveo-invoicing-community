@@ -245,7 +245,7 @@
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <div>
                                                 <div class="small fw-semibold">{{ __('message.auto_renewal_subscription') }}</div>
-                                                <div class="text-muted" style="font-size:11px;">Automatically renew when subscription ends</div>
+                                                <div class="text-muted text-renewal-hint">Automatically renew when subscription ends</div>
                                             </div>
                                             <Switch
                                                 name="auto_renewal"
@@ -338,6 +338,8 @@ import { licenseDetailsSchema } from '@/validations/admin/orderValidations.js'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import Tooltip from '@/components/Reusable/Tooltip.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDate, formatDateTime } = useDateTime()
 
@@ -345,8 +347,7 @@ const { errors, setErrors, resetForm } = useForm()
 
 const COMPONENT = 'orders-show'
 
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const route   = useRoute()
 const orderId = route.params.id
@@ -433,7 +434,7 @@ async function copyLicenseCode(e) {
 async function reissueLicense() {
     saving.reissue = true
     try {
-        const res = await http.patch(`${baseUrl}/reissue-license`, { id: orderId })
+        const res = await http.patch(`/reissue-license`, { id: orderId })
         successHandler(res, COMPONENT)
         await reload()
     } catch (e) {
@@ -446,7 +447,7 @@ async function reissueLicense() {
 async function disableRenewal() {
     saving.renewal = true
     try {
-        const res = await http.post(`${baseUrl}/renewal-disable`, { order_id: orderId })
+        const res = await http.post(`/renewal-disable`, { order_id: orderId })
         successHandler(res, COMPONENT)
         await reload()
     } catch (e) {
@@ -460,7 +461,7 @@ async function toggleLicenseMode(checked) {
     saving.licenseMode = true
     try {
         const choose = checked ? 1 : 0
-        const res = await http.post(`${baseUrl}/switch-license-mode`, { choose, orderNo: order.value?.number })
+        const res = await http.post(`/switch-license-mode`, { choose, orderNo: order.value?.number })
         successHandler(res, COMPONENT)
         await reload()
     } catch (e) {
@@ -484,7 +485,7 @@ async function saveLicenseEdit() {
     if (!await validateForm(licenseDetailsSchema, licenseEditModal, setErrors)) return
     saving.licenseEdit = true
     try {
-        const res = await http.post(`${baseUrl}/update-license-details`, {
+        const res = await http.post(`/update-license-details`, {
             orderid:          orderId,
             limit:            licenseEditModal.limit,
             update_end:       licenseEditModal.update_end,
@@ -503,7 +504,7 @@ async function saveLicenseEdit() {
 
 // ── Data loading ───────────────────────────────────────────────────────────
 async function reload() {
-    const res = await http.get(`${baseUrl}/order/${orderId}`)
+    const res = await http.get(`/order/${orderId}`)
     const d   = res.data?.data ?? res.data
     order.value          = d.order
     licenseDetails.value = d.license_details
@@ -622,20 +623,13 @@ const paymentTableOptions = reactive({
     },
     sortable:   ['created_at', 'amount', 'payment_method', 'payment_status'],
     filterable: false,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy || 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': '',
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at'),
     orderBy: { column: 'created_at', ascending: false },
 })
 </script>
 
 <style scoped>
+.text-renewal-hint { font-size: 11px; }
 .order-avatar {
     width: 42px;
     height: 42px;

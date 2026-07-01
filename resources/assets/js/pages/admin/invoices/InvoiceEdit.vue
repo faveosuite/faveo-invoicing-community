@@ -72,8 +72,6 @@ import { invoiceEditSchema } from '@/validations/admin/invoiceValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'invoices-edit'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const route = useRoute()
 const router = useRouter()
@@ -104,7 +102,7 @@ function onChange(val, name) {
 
 async function fetchInvoice() {
     try {
-        const res = await http.get(`${baseUrl}/invoice/${invoiceId}`)
+        const res = await http.get(`/invoice/${invoiceId}`)
         const data = res.data?.data ?? res.data
         invoice.value = data.invoice
 
@@ -129,7 +127,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/invoice/edit/${invoiceId}`, form)
+        const res = await http.post(`/invoice/edit/${invoiceId}`, form)
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/invoices'), 2000)
     } catch (e) {

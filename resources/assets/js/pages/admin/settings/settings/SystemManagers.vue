@@ -85,10 +85,10 @@ import { reactive, ref, onMounted } from 'vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'system-managers'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const loading = ref(true)
 const saving = ref(false)
@@ -106,7 +106,7 @@ const form = reactive({
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/system-managers`)
+        const res = await http.get(`/system-managers`)
         const d = res.data?.data ?? {}
         accountManagers.value = d.account_managers ?? []
         salesManagers.value = d.sales_managers ?? []
@@ -119,7 +119,7 @@ onMounted(async () => {
 async function submit() {
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/updateSystemManager`, {
+        const res = await http.post(`/updateSystemManager`, {
             existingAccManager: form.existingAccManager?.id || null,
             newAccManager: form.newAccManager?.id || null,
             autoAssignAccount: form.autoAssignAccount ? 1 : 0,

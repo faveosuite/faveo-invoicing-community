@@ -154,11 +154,11 @@ class LicenseController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('limit', $request->input('perPage', 10));
         $page = $request->input('page', 1);
-        $searchQuery = $request->input('search_query', '');
-        $sortOrder = strtolower((string) $request->input('sort_order', 'desc')) === 'asc' ? 'asc' : 'desc';
-        $sortField = in_array($request->input('sort_field', 'id'), ['id', 'product_id', 'user_id', 'license_code', 'license_ip', 'license_limit', 'license_expire_date', 'license_support_date', 'license_order_number', 'license_domain', 'license_date', 'license_updates_date', 'license_status'], strict: true) ? $request->input('sort_field', 'id') : 'id';
+        $searchQuery = $request->input('search-query', $request->input('search_query', ''));
+        $sortOrder = strtolower((string) $request->input('sort-order', $request->input('sort_order', 'desc'))) === 'asc' ? 'asc' : 'desc';
+        $sortField = in_array($request->input('sort-field', $request->input('sort_field', 'id')), ['id', 'product_id', 'user_id', 'license_code', 'license_ip', 'license_limit', 'license_expire_date', 'license_support_date', 'license_order_number', 'license_domain', 'license_date', 'license_updates_date', 'license_status'], strict: true) ? $request->input('sort-field', $request->input('sort_field', 'id')) : 'id';
 
         $licenses = License::query()
             ->with(['product:id,name', 'user:id,email'])

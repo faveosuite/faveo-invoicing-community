@@ -65,9 +65,6 @@ const props = defineProps({
     currentIso:   { type: String,  default: '' },
 })
 const emit = defineEmits(['update:show', 'updated'])
-
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const COMPONENT = 'mobile-change'
 const COOLDOWN  = 120
 
@@ -139,7 +136,7 @@ async function submitMobile() {
     }
     busy.value = true
     try {
-        const res = await http.post(`${baseUrl}/profile/mobile/send-otp`, {
+        const res = await http.post(`/profile/mobile/send-otp`, {
             mobile_to_verify: cleanMobile(),
             dial_code: dialCode.value,
             country_iso: countryIso.value,
@@ -164,7 +161,7 @@ async function submitOtp() {
     busy.value = true
     try {
         if (step.value === 'verify_mobile') {
-            const res = await http.post(`${baseUrl}/profile/mobile/verify-otp`, {
+            const res = await http.post(`/profile/mobile/verify-otp`, {
                 mobile_to_verify: fullMobile(),
                 otp: otp.value,
                 new_mobile: cleanMobile(),
@@ -176,7 +173,7 @@ async function submitOtp() {
                 finish(data)
             } else {
                 // Mobile verified, but an email confirmation is also required.
-                await http.post(`${baseUrl}/profile/email/send-otp`, {
+                await http.post(`/profile/email/send-otp`, {
                     email_to_verify: props.currentEmail,
                     is_mobile: 1,
                 })
@@ -186,7 +183,7 @@ async function submitOtp() {
             }
         } else {
             // Confirm via the registered email; the server applies the mobile from session.
-            const res = await http.post(`${baseUrl}/profile/email/verify-otp`, {
+            const res = await http.post(`/profile/email/verify-otp`, {
                 email_to_verify: props.currentEmail,
                 otp: otp.value,
                 verify_type: 'mobile_email',
@@ -206,7 +203,7 @@ async function resend() {
         const payload = step.value === 'verify_mobile'
             ? { type: 'mobile', mobile_to_verify: cleanMobile(), dial_code: dialCode.value, country_iso: countryIso.value, retry_type: 'text' }
             : { type: 'email', email_to_verify: props.currentEmail, is_mobile: 1 }
-        const res = await http.post(`${baseUrl}/profile/resend-otp`, payload)
+        const res = await http.post(`/profile/resend-otp`, payload)
         successHandler(res, COMPONENT)
         startCooldown()
     } catch (e) {

@@ -46,13 +46,12 @@
         </div>
 
         <!-- Monitoring Unavailable Modal -->
-        <div v-if="modal.show" class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0,0,0,0.5);" @click.self="modal.show = false">
+        <div v-if="modal.show" class="modal fade show d-block modal-backdrop-dark" tabindex="-1" role="dialog" @click.self="modal.show = false">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0">
                     <div class="modal-header">
                         <h5 class="modal-title d-flex align-items-center gap-2">
-                            <span class="d-inline-flex align-items-center justify-content-center rounded p-2"
-                                  style="background-color: #fff3cd; color: #856d00;">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded p-2 warning-badge">
                                 <i class="fas fa-exclamation-triangle"></i>
                             </span>
                             {{ __('message.monitoring_unavailable') }}
@@ -107,9 +106,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import http from '@/plugins/axios'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const flags = ref({
     is_redis_configured:          false,
@@ -127,14 +126,14 @@ const modal = ref({ show: false, title: '', reason: '' })
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/settings/index-data`)
+        const res = await http.get(`/settings/index-data`)
         Object.assign(flags.value, res.data?.data ?? {})
     } catch { /* ignore */ }
 })
 
 async function checkMonitoring(type, url) {
     try {
-        const res = await http.get(`${baseUrl}/monitoring/check`, { params: { type } })
+        const res = await http.get(`/monitoring/check`, { params: { type } })
         const data = res.data?.data ?? {}
         if (data.allowed) {
             window.open(url, '_blank', 'noopener')
@@ -243,4 +242,6 @@ const sections = computed(() => [
 .settings-tile:hover .settings-icon {
     opacity: 0.82;
 }
+.modal-backdrop-dark { background: rgba(0,0,0,0.5); }
+.warning-badge { background-color: #fff3cd; color: #856d00; }
 </style>

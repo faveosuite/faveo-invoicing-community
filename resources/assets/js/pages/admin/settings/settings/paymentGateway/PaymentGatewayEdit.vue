@@ -89,10 +89,10 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { __ } from '@/plugins/i18n'
 import { buildGatewaySchema } from '@/validations/admin/gatewayValidations'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'payment-gateway-edit'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const route = useRoute()
 const pluginSlug = route.params.id
 
@@ -136,7 +136,7 @@ const gatewayConfig = computed(() => {
 
 onMounted(async () => {
     try {
-        const listRes = await http.get(`${baseUrl}/payment-gateway-list`)
+        const listRes = await http.get(`/payment-gateway-list`)
         const list    = listRes.data?.data ?? []
         plugin.value  = list.find(p => p.name === pluginSlug) ?? null
 

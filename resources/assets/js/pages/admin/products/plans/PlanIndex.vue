@@ -56,36 +56,16 @@
 import { h, ref, computed, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useTableSelection } from '@/core/composables/useTableSelection'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/plans`
+const baseUrl = useBaseUrl()
+const apiUrl = `/plans`
 
 const dtRef = ref(null)
-const selectedPlans = ref([])
+const { selected: selectedPlans, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 const pendingBulkDelete = ref(null)
-
-const allSelected = computed(() => {
-    const data = dtRef.value?.tableData ?? []
-    return data.length > 0 && data.every(row => selectedPlans.value.includes(row.id))
-})
-
-function toggleRow(id) {
-    const idx = selectedPlans.value.indexOf(id)
-    if (idx === -1) selectedPlans.value.push(id)
-    else selectedPlans.value.splice(idx, 1)
-}
-
-function toggleAll(e) {
-    const data = dtRef.value?.tableData ?? []
-    if (e.target.checked) {
-        const ids = data.map(r => r.id).filter(id => !selectedPlans.value.includes(id))
-        selectedPlans.value.push(...ids)
-    } else {
-        const ids = new Set(data.map(r => r.id))
-        selectedPlans.value = selectedPlans.value.filter(id => !ids.has(id))
-    }
-}
 
 function confirmBulkDelete() {
     if (!selectedPlans.value.length) return
@@ -121,16 +101,7 @@ const tableOptions = reactive({
     },
     sortable: ['name', 'product', 'period'],
     filterable: true,
-    requestAdapter(data) {
-        const columnMap = { period: 'days' }
-        return {
-            'sort-field':   columnMap[data.orderBy] ?? data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at', null, { period: 'days' }),
     orderBy: { column: 'created_at', ascending: false },
 })
 </script>

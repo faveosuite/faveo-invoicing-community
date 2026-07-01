@@ -141,7 +141,7 @@ const computedOptions = computed(() => ({
     })
   },
   ...props.option,
-  pagination: { chunk: 0, edge: false },
+  pagination: { chunk: 10, edge: false },
   responseAdapter: (response) => {
     const callerAdapter = props.option.responseAdapter
     const result = callerAdapter ? callerAdapter(response) : defaultResponseAdapter(response)

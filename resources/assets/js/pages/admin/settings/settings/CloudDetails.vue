@@ -157,7 +157,7 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <div id="cloud-map" style="height: 450px;"></div>
+                                <div id="cloud-map" class="cloud-map"></div>
                             </div>
                         </div>
                     </div>
@@ -314,10 +314,11 @@ import Switch from '@/components/Reusable/FormField/Switch.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { cloudSettingsSchema, cloudProductSchema } from '@/validations/admin/cloudValidations'
 import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'cloud-details'
-const el        = document.getElementById('app-root')
-const baseUrl   = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const { errors, setErrors, setFieldError, resetForm } = useForm()
 
@@ -377,7 +378,7 @@ watch(activeTab, async (val) => {
 
 onMounted(async () => {
     try {
-        const res  = await http.get(`${baseUrl}/settings/cloud-details`)
+        const res  = await http.get(`/settings/cloud-details`)
         const data = res.data?.data ?? {}
         Object.assign(form, {
             cloud_central_domain:          data.cloud_central_domain          ?? '',
@@ -456,7 +457,7 @@ function addMapMarkers() {
 
 async function removeRegion(name, marker) {
     try {
-        await http.delete(`${baseUrl}/remove-location`, { data: { location_id: name } })
+        await http.delete(`/remove-location`, { data: { location_id: name } })
         leafletMap?.removeLayer(marker)
         regions.value = regions.value.filter(r => r.name !== name)
     } catch (e) { errorHandler(e, COMPONENT) }
@@ -469,7 +470,7 @@ async function saveSettings() {
     saving.value = true
     try {
         const [res] = await Promise.all([
-            http.post(`${baseUrl}/cloud-details`, {
+            http.post(`/cloud-details`, {
                 cloud_central_domain:        form.cloud_central_domain,
                 cloud_cname:                 form.cloud_cname,
                 cloud_job_url:               form.cloud_job_url,
@@ -481,8 +482,8 @@ async function saveSettings() {
                 cloud_oauth_token:           form.cloud_oauth_token || undefined,
                 google_chat_webhook:         form.google_chat_webhook || undefined,
             }),
-            http.post(`${baseUrl}/enable/cloud`, { debug: form.cloud_button ? 'true' : 'false' }),
-            http.post(`${baseUrl}/cloud-pop-up`, popup),
+            http.post(`/enable/cloud`, { debug: form.cloud_button ? 'true' : 'false' }),
+            http.post(`/cloud-pop-up`, popup),
         ])
         successHandler(res, COMPONENT)
     } catch (e) { errorHandler(e, COMPONENT) }
@@ -493,7 +494,7 @@ async function saveProduct() {
     if (!await validateForm(cloudProductSchema, productForm, setErrors)) return
     savingProduct.value = true
     try {
-        const res = await http.post(`${baseUrl}/cloud-product-store`, {
+        const res = await http.post(`/cloud-product-store`, {
             cloud_product:     productForm.cloud_product?.id     ?? '',
             cloud_free_plan:   productForm.cloud_free_plan?.id   ?? '',
             cloud_product_key: productForm.cloud_product_key,
@@ -508,13 +509,13 @@ async function saveProduct() {
 async function saveDataCenter() {
     savingDC.value = true
     try {
-        const res = await http.post(`${baseUrl}/cloud-data-center-store`, {
+        const res = await http.post(`/cloud-data-center-store`, {
             cloud_countries: dcForm.cloud_countries?.code ?? '',
             cloud_state:     dcForm.cloud_state?.iso2     ?? '',
             cloud_city:      dcForm.cloud_city,
         })
         successHandler(res, COMPONENT)
-        const dr = await http.get(`${baseUrl}/settings/cloud-details`)
+        const dr = await http.get(`/settings/cloud-details`)
         regions.value = dr.data?.data?.regions ?? []
         if (leafletMap && globalThis.L) {
             leafletMap.eachLayer(l => { if (l instanceof globalThis.L.Marker) leafletMap.removeLayer(l) })
@@ -530,7 +531,7 @@ async function fetchStates() {
     states.value = []
     if (!dcForm.cloud_countries?.code) return
     try {
-        const res = await http.get(`${baseUrl}/get-state/${dcForm.cloud_countries.code.toUpperCase()}`)
+        const res = await http.get(`/get-state/${dcForm.cloud_countries.code.toUpperCase()}`)
         states.value = res.data?.data?.states ?? []
     } catch (e) { errorHandler(e, COMPONENT) }
 }
@@ -539,7 +540,7 @@ async function fetchStates() {
 
 async function toggleTrialStatus(id, status) {
     try {
-        await http.post(`${baseUrl}/update-trial-status`, { id, status })
+        await http.post(`/update-trial-status`, { id, status })
     } catch (e) { errorHandler(e, COMPONENT); productDtRef.value?.refresh() }
 }
 
@@ -582,15 +583,7 @@ const productTableOptions = reactive({
     },
     sortable:   ['cloud_product'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'updated_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('updated_at'),
     responseAdapter({ data }) {
         const res = data?.data
         return { data: res?.data ?? [], count: res?.total ?? 0 }
@@ -607,7 +600,7 @@ async function exportTenants() {
     if (exportingTenants.value) return
     exportingTenants.value = true
     try {
-        const res = await http.get(`${baseUrl}/export-tenats`)
+        const res = await http.get(`/export-tenats`)
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -719,17 +712,9 @@ const tenantTableOptions = reactive({
     },
     sortable:   [],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at'),
     requestFunction(data) {
-        return http.get(`${baseUrl}/get-tenants`, { params: data })
+        return http.get(`/get-tenants`, { params: data })
             .catch(e => {
                 errorHandler(e, COMPONENT)
                 return { data: { data: { data: [], total: 0, per_page: data.limit || 10, current_page: 1, from: null, to: null, next_page_url: null, prev_page_url: null } } }
@@ -737,3 +722,7 @@ const tenantTableOptions = reactive({
     },
 })
 </script>
+
+<style scoped>
+.cloud-map { height: 450px; }
+</style>

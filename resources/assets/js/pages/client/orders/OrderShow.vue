@@ -310,7 +310,7 @@
                         <AppCard :title="__('message.auto_renewal')">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2">
-                                    <i class="fas fa-sync-alt" style="font-size:20px;"></i>
+                                    <i class="fas fa-sync-alt icon-lg"></i>
                                     <div>
                                         <span class="text-2">
                                             {{ __('message.auto_renewal') }}
@@ -586,9 +586,7 @@ import DeployWizard from './components/DeployWizard.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
 
 const { formatDate } = useDateTime()
-
 const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const userId  = el?.dataset?.userId  ?? ''
 
 const route   = useRoute()
@@ -600,9 +598,9 @@ const copied    = ref(false)
 const activeTab = ref('license')
 const order     = ref(null)
 
-const installationsUrl = `${baseUrl}/get-my-installations/${orderId}`
-const invoicesUrl      = `${baseUrl}/get-my-invoices/${orderId}/${userId}`
-const paymentsUrl      = `${baseUrl}/get-my-payment-client/${orderId}/${userId}`
+const installationsUrl = `/get-my-installations/${orderId}`
+const invoicesUrl      = `/get-my-invoices/${orderId}/${userId}`
+const paymentsUrl      = `/get-my-payment-client/${orderId}/${userId}`
 
 
 const installColumns = ['installation_path', 'installation_ip', 'version', 'last_active']
@@ -739,7 +737,7 @@ async function confirmDisableRenewal() {
     renewalBusy.value = true
     closeDisableRenewalModal()
     try {
-        const res = await http.post(`${baseUrl}/auto-renewal/${orderId}/disable`)
+        const res = await http.post(`/auto-renewal/${orderId}/disable`)
         order.value.is_subscribed    = false
         order.value.autorenew_status = false
         successHandler(res, 'client-page')
@@ -755,7 +753,7 @@ async function enableAutoRenewal() {
     renewalBusy.value = true
     try {
         if (selectedGateway.value === 'razorpay') {
-            const { data } = await http.post(`${baseUrl}/auto-renewal/${orderId}/razorpay/order`)
+            const { data } = await http.post(`/auto-renewal/${orderId}/razorpay/order`)
             closeRenewalModal()
             await openRenewalRazorpayPopup(data.data)
         } else {
@@ -780,7 +778,7 @@ async function openRenewalRazorpayPopup(config) {
     options.handler = async (response) => {
         try {
             renewalBusy.value = true
-            const res = await http.post(`${baseUrl}/auto-renewal/${orderId}/razorpay/confirm`, {
+            const res = await http.post(`/auto-renewal/${orderId}/razorpay/confirm`, {
                 razorpay_order_id:   response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature:  response.razorpay_signature,
@@ -804,7 +802,7 @@ const renewalAmount        = ref('')
 const renewalSymbol        = ref('')
 
 async function openRenewalStripeModal() {
-    const { data } = await http.post(`${baseUrl}/auto-renewal/${orderId}/stripe/session`)
+    const { data } = await http.post(`/auto-renewal/${orderId}/stripe/session`)
     renewalClientSecret    = data.data.client_secret
     renewalPaymentIntentId = data.data.payment_intent_id
     renewalAmount.value    = data.data.display_amount ?? ''
@@ -896,7 +894,7 @@ async function payRenewalStripe() {
 
 async function finalizeRenewalStripe() {
     try {
-        const res = await http.post(`${baseUrl}/auto-renewal/${orderId}/stripe/confirm`, {
+        const res = await http.post(`/auto-renewal/${orderId}/stripe/confirm`, {
             payment_intent: renewalPaymentIntentId,
         })
         order.value.is_subscribed    = true
@@ -952,7 +950,7 @@ async function reissueLicense() {
     if (reissuing.value) return
     reissuing.value = true
     try {
-        const res = await http.patch(`${baseUrl}/reissue-license`, { id: orderId })
+        const res = await http.patch(`/reissue-license`, { id: orderId })
         alertStore.setAlert({
             message: res.data?.message ?? __('message.license_reissued'),
             type: 'success',
@@ -975,7 +973,7 @@ async function openCloudTab() {
     if (cloudLoaded.value) return
     cloudLoading.value = true
     try {
-        const res = await http.get(`${baseUrl}/get-cloud-settings/${orderId}`)
+        const res = await http.get(`/get-cloud-settings/${orderId}`)
         cloud.value = res.data?.data ?? null
         cloudLoaded.value = true
     } catch (e) {
@@ -996,7 +994,7 @@ async function submitDomain() {
     if (!cloud.value) return
     domainBusy.value = true
     try {
-        const res = await http.post(`${baseUrl}/change/domain`, {
+        const res = await http.post(`/change/domain`, {
             newDomain:     domainForm.newDomain,
             currentDomain: cloud.value.installation_path,
             lic_code:      cloud.value.serial_key,
@@ -1024,7 +1022,7 @@ function closeAgentsModal() { showAgentsModal.value = false; alertStore.unsetAle
 async function fetchAgentCost() {
     if (!cloud.value || !agentForm.number) { agentCost.value = ''; return }
     try {
-        const res = await http.post(`${baseUrl}/get-agent-inc-dec-cost`, {
+        const res = await http.post(`/get-agent-inc-dec-cost`, {
             number:      agentForm.number,
             oldAgents:   cloud.value.current_agents,
             orderId:     cloud.value.order_id,
@@ -1042,7 +1040,7 @@ async function submitAgents() {
     if (!cloud.value || !agentForm.number) return
     agentBusy.value = true
     try {
-        const res = await http.post(`${baseUrl}/changeAgents`, {
+        const res = await http.post(`/changeAgents`, {
             newAgents:   agentForm.number,
             orderId:     cloud.value.order_id,
             product_id:  cloud.value.product_id,
@@ -1069,7 +1067,7 @@ function closePlanModal() { showPlanModal.value = false; alertStore.unsetAlert()
 async function fetchPlanCost() {
     if (!cloud.value || !planForm.planId) { planCost.value = null; return }
     try {
-        const res = await http.post(`${baseUrl}/get-cloud-upgrade-cost`, {
+        const res = await http.post(`/get-cloud-upgrade-cost`, {
             plan:    planForm.planId,
             agents:  cloud.value.current_agents,
             orderId: cloud.value.order_id,
@@ -1086,7 +1084,7 @@ async function submitPlan() {
     if (!cloud.value || !planForm.planId) return
     planBusy.value = true
     try {
-        const res = await http.post(`${baseUrl}/upgradeDowngradeCloud`, {
+        const res = await http.post(`/upgradeDowngradeCloud`, {
             id:      planForm.planId,
             agents:  cloud.value.current_agents,
             userId:  userId,
@@ -1103,7 +1101,7 @@ async function submitPlan() {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/get-my-orders`, { params: { id: orderId } })
+        const res = await http.get(`/get-my-orders`, { params: { id: orderId } })
         order.value = res.data?.data ?? null
     } catch (e) {
         errorHandler(e, 'client-page')
@@ -1112,3 +1110,7 @@ onMounted(async () => {
     }
 })
 </script>
+
+<style scoped>
+.icon-lg { font-size: 20px; }
+</style>

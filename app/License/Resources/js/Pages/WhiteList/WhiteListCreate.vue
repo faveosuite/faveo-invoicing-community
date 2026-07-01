@@ -42,7 +42,6 @@ import { validateForm } from '@/helpers/formUtils.js'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const router = useRouter()
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 
@@ -73,7 +72,7 @@ function updateStatesWithData(data) {
 
 function getInitialValues(id) {
     loading.value = true
-    axios.get(baseUrl + '/api/admin/whitelist-edit/' + id).then(res => {
+    axios.get('/api/admin/whitelist-edit/' + id).then(res => {
         updateStatesWithData(res.data.data.host_data)
     }).catch(() => {}).finally(() => {
         loading.value = false
@@ -112,6 +111,6 @@ onBeforeMount(() => {
         getInitialValues(id)
         hostId.value = id
     }
-    apiEndpoint.value = baseUrl + '/api/admin/whitelist/updateOrCreate'
+    apiEndpoint.value = '/api/admin/whitelist/updateOrCreate'
 })
 </script>

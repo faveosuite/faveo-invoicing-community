@@ -146,8 +146,6 @@ import Switch from '@/components/Reusable/FormField/Switch.vue'
 import { systemSettingsSchema } from '@/validations/admin/systemSettingsValidations'
 
 const COMPONENT = 'company-settings'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 
@@ -200,7 +198,7 @@ const form = reactive({
 
 onMounted(async () => {
     try {
-        const res  = await http.get(`${baseUrl}/settings/system-data`)
+        const res  = await http.get(`/settings/system-data`)
         const data = res.data?.data ?? {}
         const s    = data.settings ?? {}
 
@@ -265,7 +263,7 @@ async function loadStates() {
     const code = form.country?.id
     if (!code) { stateOptions.value = []; return }
     try {
-        const res = await http.get(`${baseUrl}/get-state/${code}`)
+        const res = await http.get(`/get-state/${code}`)
         stateOptions.value = (res.data?.data?.states ?? []).map(st => ({ id: stateValue(st), name: stateLabel(st) }))
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -322,7 +320,7 @@ async function save() {
 
         fd.append('_method', 'PATCH')
 
-        const res = await http.post(`${baseUrl}/settings/system-data`, fd, {
+        const res = await http.post(`/settings/system-data`, fd, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
         successHandler(res, COMPONENT)

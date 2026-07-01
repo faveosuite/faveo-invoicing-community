@@ -55,8 +55,6 @@ import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { githubSchema } from '@/validations/admin/githubValidations'
 
 const COMPONENT = 'github-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 
@@ -70,7 +68,7 @@ const form = reactive({
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/settings/github`)
+        const res = await http.get(`/settings/github`)
         const d   = res.data?.data ?? {}
         Object.assign(form, {
             git_username: d.username ?? '',
@@ -88,7 +86,7 @@ async function save() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/github-setting`, {
+        const res = await http.post(`/github-setting`, {
             git_username: form.git_username,
             git_password: form.git_password,
             status:       1,

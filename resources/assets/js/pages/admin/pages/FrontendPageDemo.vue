@@ -38,8 +38,6 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const COMPONENT = 'demo-page'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
 const saving = ref(false)
@@ -47,7 +45,7 @@ const status = ref(false)
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/demo`)
+        const res = await http.get(`/demo`)
         status.value = res.data?.data?.status ?? false
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -59,7 +57,7 @@ onMounted(async () => {
 async function save() {
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/save/demo`, { status: status.value })
+        const res = await http.post(`/save/demo`, { status: status.value })
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)

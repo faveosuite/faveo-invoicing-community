@@ -122,10 +122,10 @@ import { planSchema } from '@/validations/admin/planValidations'
 import { validateForm } from '@/helpers/formUtils.js'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 import TreeSelect from '@/components/Reusable/FormField/TreeSelect.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'plans-edit'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const route = useRoute()
 const router = useRouter()
 
@@ -170,9 +170,9 @@ function removeRow(idx) {
 onMounted(async () => {
     try {
         const [pRes, cRes, planRes] = await Promise.all([
-            http.get(`${baseUrl}/dependency/periods`),
-            http.get(`${baseUrl}/dependency/currencies`),
-            http.get(`${baseUrl}/plan/${route.params.id}`),
+            http.get(`/dependency/periods`),
+            http.get(`/dependency/currencies`),
+            http.get(`/plan/${route.params.id}`),
         ])
         periods.value = pRes.data?.data?.periods ?? []
         currencies.value = cRes.data?.data?.currencies ?? []
@@ -234,7 +234,7 @@ async function submit() {
             renew_price:       form.prices.map(p => p.renew_price),
             offer_price:       form.prices.map(p => p.offer_price === '' ? null : p.offer_price),
         }
-        const res = await http.patch(`${baseUrl}/plan/${route.params.id}`, payload)
+        const res = await http.patch(`/plan/${route.params.id}`, payload)
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/products/plans'), 2000)
     } catch (e) {

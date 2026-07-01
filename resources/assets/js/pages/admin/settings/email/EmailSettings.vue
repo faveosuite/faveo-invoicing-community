@@ -99,8 +99,6 @@ import { validateForm } from '@/helpers/formUtils.js'
 import { buildEmailSettingsSchema } from '@/validations/admin/emailValidations'
 
 const COMPONENT = 'email-settings'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError, resetForm } = useForm()
 const loading = ref(true)
@@ -138,7 +136,7 @@ function onChange(val, name) {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/settings/email`)
+        const res = await http.get(`/settings/email`)
         const d = res.data?.data ?? {}
         Object.assign(form, {
             driver:     driverOptions.find(o => o.id === d.driver) ?? null,
@@ -168,7 +166,7 @@ async function submit() {
             driver:     form.driver?.id     ?? '',
             encryption: form.encryption?.id ?? '',
         }
-        const res = await http.patch(`${baseUrl}/settings/email`, payload)
+        const res = await http.patch(`/settings/email`, payload)
         successHandler(res, COMPONENT)
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { saving.value = false }

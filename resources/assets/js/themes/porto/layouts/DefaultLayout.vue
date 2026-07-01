@@ -84,6 +84,7 @@ import { useBreadcrumb }             from '@/core/composables/useBreadcrumb.js'
 import { useStickyHeader }           from '../composables/useStickyHeader.js'
 import { useAnalyticsScripts }       from '@/core/composables/useAnalyticsScripts.js'
 import { RecaptchaProvider }         from '@recaptcha'
+import { useBaseUrl }                from '@/core/composables/useBaseUrl'
 
 useStickyHeader()
 useAnalyticsScripts()
@@ -93,10 +94,9 @@ const alertStore   = useAlertStore()
 const notification = reactive(useNotification())
 const { pageTitle, breadcrumbs } = useBreadcrumb()
 
-const el           = document.getElementById('app-client')
 const showSidebar  = computed(() => route.meta?.sidebar !== false)
 const isStandalone = computed(() => route.meta?.standalone === true)
-const homeUrl      = computed(() => el?.dataset?.baseUrl ?? '/')
+const homeUrl      = useBaseUrl() || '/'
 
 watch(() => route.path, () => alertStore.unsetAlert())
 </script>

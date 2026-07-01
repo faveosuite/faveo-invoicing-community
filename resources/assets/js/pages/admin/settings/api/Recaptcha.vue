@@ -125,7 +125,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">{{ __('message.recaptcha_v2') }} {{ __('message.preview') }}</label>
-                                    <div class="border rounded p-3 bg-light" style="min-height: 100px;">
+                                    <div class="border rounded p-3 bg-light recaptcha-preview">
                                         <div id="v2_response"></div>
                                     </div>
                                 </div>
@@ -238,8 +238,6 @@ import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import { buildRecaptchaSchema } from '@/validations/admin/recaptchaValidations'
 
 const COMPONENT = 'recaptcha-settings'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -310,7 +308,7 @@ const selectedBadge    = computed(() => badgeOptions.find(o => o.id === form.bad
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/recaptcha-settings`)
+        const res = await http.get(`/recaptcha-settings`)
         const d = res.data?.data ?? {}
         Object.assign(form, {
             captcha_version:  d.captcha_version  ?? 'v2_checkbox',
@@ -431,7 +429,7 @@ async function save() {
             payload.v2_g_recaptcha_response = v2CheckboxToken.value ?? ''
         }
 
-        const res = await http.patch(`${baseUrl}/recaptcha-settings`, payload)
+        const res = await http.patch(`/recaptcha-settings`, payload)
         successHandler(res, COMPONENT)
     } catch (e) {
         if (e.response?.status === 422) {
@@ -447,3 +445,7 @@ async function save() {
     }
 }
 </script>
+
+<style scoped>
+.recaptcha-preview { min-height: 100px; }
+</style>

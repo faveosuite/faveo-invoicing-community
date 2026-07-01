@@ -42,11 +42,10 @@ import { h, ref, reactive } from 'vue'
 import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'license-permissions'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/get-license-permission`
+const apiUrl = `/get-license-permission`
 
 const dtRef = ref(null)
 const editLicense = ref(null)
@@ -67,7 +66,7 @@ async function savePerms() {
     saving.value = true
     const permissionid = editPerms.value.filter(p => p.assigned).map(p => p.id)
     try {
-        const res = await http.delete(`${baseUrl}/add-permission`, {
+        const res = await http.delete(`/add-permission`, {
             data: { licenseId: editLicense.value.id, permissionid },
         })
         successHandler(res, COMPONENT)
@@ -107,15 +106,7 @@ const tableOptions = reactive({
     },
     sortable: ['name'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'name',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('name'),
     responseAdapter({ data }) {
         const types = data?.data?.license_types
         return {

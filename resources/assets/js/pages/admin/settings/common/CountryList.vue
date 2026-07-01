@@ -20,9 +20,7 @@
 import { reactive } from 'vue'
 
 const COMPONENT = 'country-list'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/get-country`
+const apiUrl = `/get-country`
 
 const columns = ['country', 'count']
 

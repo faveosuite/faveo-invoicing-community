@@ -43,8 +43,6 @@ import { cacheDriverSchemas } from '@/validations/admin/cacheDriverValidations.j
 import { validateForm } from '@/helpers/formUtils.js'
 
 const COMPONENT = 'cache-driver-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const route  = useRoute()
 const driver = route.params.driver
@@ -59,7 +57,7 @@ const form    = reactive({})
 async function load() {
     loading.value = true
     try {
-        const res = await http.get(`${baseUrl}/cache-settings/${driver}/form`)
+        const res = await http.get(`/cache-settings/${driver}/form`)
         fields.value = res.data?.data?.fields ?? []
         fields.value.forEach(f => { form[f.name] = f.value ?? '' })
     } catch (e) {
@@ -75,7 +73,7 @@ async function save() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/cache-settings/${driver}`, { ...form })
+        const res = await http.post(`/cache-settings/${driver}`, { ...form })
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)

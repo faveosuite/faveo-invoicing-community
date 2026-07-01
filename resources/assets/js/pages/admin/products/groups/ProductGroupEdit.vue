@@ -72,10 +72,10 @@ import { validateForm } from '@/helpers/formUtils.js'
 import { productGroupSchema } from '@/validations/admin/productGroupValidations'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'groups-edit'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const route = useRoute()
 const router = useRouter()
 
@@ -105,7 +105,7 @@ function onChange(val, name) {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/group/${route.params.id}`)
+        const res = await http.get(`/group/${route.params.id}`)
         const g = res.data
         form.name = g.name ?? ''
         form.headline = g.headline ?? ''
@@ -129,7 +129,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.patch(`${baseUrl}/group/${route.params.id}`, {
+        const res = await http.patch(`/group/${route.params.id}`, {
             name:                form.name,
             headline:            form.headline || null,
             tagline:             form.tagline || null,

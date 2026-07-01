@@ -98,10 +98,10 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 import { msg91Schema } from '@/validations/admin/msg91Validations'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'msg91-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -143,7 +143,7 @@ function copyWebhookUrl() {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/settings/msg91`)
+        const res = await http.get(`/settings/msg91`)
         const d   = res.data?.data ?? {}
         Object.assign(form, {
             msg91_auth_key:    d.msg91_auth_key    ?? '',
@@ -171,7 +171,7 @@ async function save() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/updatemobileDetails`, {
+        const res = await http.post(`/updatemobileDetails`, {
             msg91_auth_key:    form.msg91_auth_key,
             msg91_sender:      form.msg91_sender,
             msg91_template_id: form.msg91_template_id,

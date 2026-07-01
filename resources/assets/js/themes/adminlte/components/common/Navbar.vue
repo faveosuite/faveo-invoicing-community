@@ -96,6 +96,7 @@ import {asset} from '@/core/utils/asset.js'
 import {useSidebar} from '@/core/composables/useSidebar.js'
 import {useNotification} from '@/core/composables/useNotification.js'
 import http, {parseErrorMessage} from '@/plugins/axios.js'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const {isOpen, toggle} = useSidebar()
 const {notify} = useNotification()
@@ -103,7 +104,7 @@ const {notify} = useNotification()
 const el = document.getElementById('app-root')
 
 // ── URLs ──────────────────────────────────────────────────────────────────────
-const baseUrl = el?.dataset?.baseUrl ?? '/'
+const baseUrl = useBaseUrl() || '/'
 
 // ── Logout ────────────────────────────────────────────────────────────────────
 async function logout() {

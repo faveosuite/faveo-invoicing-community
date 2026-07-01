@@ -53,11 +53,11 @@ class LicenseViewController extends Controller
 
     public function getLicenseInstallations(Request $request, mixed $license_id): JsonResponse
     {
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('limit', $request->input('perPage', 10));
         $page = $request->input('page', 1);
-        $searchQuery = $request->input('search_query');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'id');
+        $searchQuery = $request->input('search-query', $request->input('search-query', $request->input('search_query', '')));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
 
         $license = License::query()->select('id', 'user_id as client_id', 'license_code')->find($license_id);
         if (! $license) {
@@ -84,11 +84,11 @@ class LicenseViewController extends Controller
 
     public function getLicenseCallBacks(Request $request, mixed $license_id): JsonResponse
     {
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('limit', $request->input('perPage', 10));
         $page = $request->input('page', 1);
-        $searchQuery = $request->input('search_query');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'id');
+        $searchQuery = $request->input('search-query', $request->input('search-query', $request->input('search_query', '')));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
 
         $license = License::query()->select('id', 'user_id as client_id', 'license_code')->find($license_id);
         if (! $license) {
@@ -121,11 +121,11 @@ class LicenseViewController extends Controller
 
     public function getLicenseInstallationLogs(Request $request, mixed $license_id): JsonResponse
     {
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('limit', $request->input('perPage', 10));
         $page = $request->input('page', 1);
-        $searchQuery = $request->input('search_query');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'installation_last_active_date');
+        $searchQuery = $request->input('search-query', $request->input('search-query', $request->input('search_query', '')));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'installation_last_active_date'));
 
         $license = License::query()->select('id', 'license_code')->find($license_id);
         if (! $license) {

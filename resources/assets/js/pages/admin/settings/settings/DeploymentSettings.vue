@@ -80,8 +80,6 @@ import ToolTip from '@/components/Reusable/Tooltip.vue'
 import { deploymentSchema } from '@/validations/admin/deploymentValidations'
 
 const COMPONENT = 'deployment-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 const loading = ref(true)
@@ -94,7 +92,7 @@ const form    = reactive({
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/settings/deployment`)
+        const res = await http.get(`/settings/deployment`)
         const d   = res.data?.data ?? {}
         form.deployment_enabled       = d.deployment_enabled ?? true
         form.install_script_url       = d.install_script_url ?? ''
@@ -111,7 +109,7 @@ async function save() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/settings/deployment`, {
+        const res = await http.post(`/settings/deployment`, {
             deployment_enabled:       form.deployment_enabled,
             install_script_url:       form.install_script_url || null,
             manual_install_guide_url: form.manual_install_guide_url || null,

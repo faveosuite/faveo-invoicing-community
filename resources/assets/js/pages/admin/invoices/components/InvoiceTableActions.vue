@@ -36,6 +36,7 @@ import { ref } from 'vue'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const props = defineProps({
     invoiceId:  { type: [Number, String], required: true },
@@ -43,12 +44,12 @@ const props = defineProps({
     showDelete: { type: Boolean, default: false },
 })
 
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const showModal = ref(false)
 
 async function execute() {
     try {
-        const res = await http.post(`${baseUrl}/invoices/${props.invoiceId}/execute`)
+        const res = await http.post(`/invoices/${props.invoiceId}/execute`)
         successHandler(res, 'invoices-index')
     } catch (e) {
         errorHandler(e, 'invoices-index')

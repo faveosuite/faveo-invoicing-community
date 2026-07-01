@@ -57,10 +57,10 @@ import { resetSchema, passwordChecks } from '@/validations/client/authSchemas.js
 import AuthLayout from './partials/AuthLayout.vue'
 import Honeypot from '@/components/Reusable/Honeypot.vue'
 import { RecaptchaField } from '@recaptcha'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'client-page'
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const route   = useRoute()
 
 const { errors, setErrors, setFieldError } = useForm()
@@ -89,7 +89,7 @@ const passwordFocused = ref(false)
 
 onMounted(async () => {
     try {
-        const res  = await http.get(`${baseUrl}/auth/reset-validate/${route.params.token}`)
+        const res  = await http.get(`/auth/reset-validate/${route.params.token}`)
         const data = res.data?.data
 
         // 2FA-protected reset → backend tells us to verify first.
@@ -119,7 +119,7 @@ async function submit() {
         if (!captchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
             return
         }
-        const res = await http.post(`${baseUrl}/password/reset`, {
+        const res = await http.post(`/password/reset`, {
             token: form.token,
             email: form.email,
             password: form.password,

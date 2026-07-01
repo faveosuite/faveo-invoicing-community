@@ -38,11 +38,11 @@ class InstallationViewController extends Controller
 
     public function getInstallationCallbacks(Request $request, mixed $id): JsonResponse
     {
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('limit', $request->input('perPage', 10));
         $page = $request->input('page', 1);
-        $searchQuery = $request->input('search_query');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'id');
+        $searchQuery = $request->input('search-query', $request->input('search-query', $request->input('search_query', '')));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
         $installationDomain = Installation::where('id', $id)->value('installation_domain');
         $callbacks = LicenseCallback::where('callback_domain', $installationDomain)
             ->select('id', 'callback_ip', 'callback_domain', 'callback_date_time', 'callback_status')

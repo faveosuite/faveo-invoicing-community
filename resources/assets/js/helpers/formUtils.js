@@ -1,5 +1,10 @@
 import { nextTick } from 'vue'
 
+export function extractId(val) {
+    if (val === null || val === undefined) return null
+    return typeof val === 'object' ? val.id : val
+}
+
 export async function scrollToFirstError() {
     await nextTick()
     document.querySelector('.is-invalid')

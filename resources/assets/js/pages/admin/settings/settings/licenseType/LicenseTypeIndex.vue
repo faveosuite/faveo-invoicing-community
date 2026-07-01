@@ -115,15 +115,17 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { licenseTypeCreateSchema, licenseTypeEditSchema } from '@/validations/admin/licenseTypeValidations'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useTableSelection } from '@/core/composables/useTableSelection'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { errors, setErrors, setFieldError, resetForm } = useForm()
 
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/get-license-type`
+const baseUrl = useBaseUrl()
+const apiUrl = `/get-license-type`
 
 const dtRef = ref(null)
-const selected = ref([])
+const { selected, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 const deleting = ref(false)
 
 // Create
@@ -148,7 +150,7 @@ async function openEdit(id) {
     showEdit.value = true
     editLoading.value = true
     try {
-        const res = await http.get(`${baseUrl}/get-license-type/${id}`)
+        const res = await http.get(`/get-license-type/${id}`)
         const d = res.data?.data ?? res.data
         editName.value = d.name ?? ''
     } catch (e) {
@@ -172,33 +174,12 @@ function onDeleted() { closeDelete(); dtRef.value?.refresh() }
 const showBulkDelete = ref(false)
 function onBulkDeleted() { showBulkDelete.value = false; selected.value = []; dtRef.value?.refresh() }
 
-// Select all
-const allSelected = computed(() => {
-    const data = dtRef.value?.tableData ?? []
-    return data.length > 0 && data.every(row => selected.value.includes(row.id))
-})
-
-function toggleRow(id) {
-    const idx = selected.value.indexOf(id)
-    if (idx === -1) selected.value.push(id)
-    else selected.value.splice(idx, 1)
-}
-
-function toggleAll(e) {
-    const data = dtRef.value?.tableData ?? []
-    if (e.target.checked) {
-        selected.value.push(...data.map(r => r.id).filter(id => !selected.value.includes(id)))
-    } else {
-        const ids = new Set(data.map(r => r.id))
-        selected.value = selected.value.filter(id => !ids.has(id))
-    }
-}
 
 async function create() {
     if (!await validateForm(licenseTypeCreateSchema, { license_type_name: newName.value }, setErrors)) return
     creating.value = true
     try {
-        const res = await http.post(`${baseUrl}/create-license-type`, { name: newName.value })
+        const res = await http.post(`/create-license-type`, { name: newName.value })
         successHandler(res, 'license-type-index')
         closeCreate()
         dtRef.value?.refresh()
@@ -213,7 +194,7 @@ async function update() {
     if (!await validateForm(licenseTypeEditSchema, { license_type_edit_name: editName.value }, setErrors)) return
     saving.value = true
     try {
-        const res = await http.put(`${baseUrl}/update-license-type/${editId.value}`, { name: editName.value })
+        const res = await http.put(`/update-license-type/${editId.value}`, { name: editName.value })
         successHandler(res, 'license-type-index')
         closeEdit()
         dtRef.value?.refresh()
@@ -252,15 +233,7 @@ const tableOptions = reactive({
     },
     sortable: ['name'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at'),
     orderBy: { column: 'created_at', ascending: false },
 })
 </script>

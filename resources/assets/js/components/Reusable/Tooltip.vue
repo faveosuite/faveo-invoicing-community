@@ -1,6 +1,6 @@
 <template>
-    <span style="margin-left: 2px;position:relative;top:0px;color: #337ab7;" v-tooltip="message" :title="message">
-        <i class="fas fa-question-circle" :style="{fontSize: size}" style="cursor: help"></i>
+    <span class="tooltip-wrapper" v-tooltip="message" :title="message">
+        <i class="fas fa-question-circle tooltip-icon" :style="{fontSize: size}"></i>
     </span>
 </template>
 
@@ -11,3 +11,7 @@ defineProps({
 })
 </script>
 
+<style scoped>
+.tooltip-wrapper { margin-left: 2px; position: relative; top: 0; color: #337ab7; }
+.tooltip-icon { cursor: help; }
+</style>

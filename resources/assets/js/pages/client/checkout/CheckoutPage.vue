@@ -44,7 +44,7 @@
                       </a>
                       <span class="product-thumbnail-image d-inline-block">
                         <img v-if="item.image" :src="item.image" alt="" class="img-fluid" />
-                        <span v-else class="d-inline-flex align-items-center justify-content-center bg-light" style="width:90px;height:90px;">
+                        <span v-else class="d-inline-flex align-items-center justify-content-center bg-light product-placeholder">
                           <i class="fas fa-box text-color-grey fa-2x"></i>
                         </span>
                       </span>
@@ -71,16 +71,24 @@
                summary row, where it can also be removed — an invoice's totals are final) -->
           <div v-if="mode === 'cart' && !cartStore.couponCode" class="d-flex align-items-center mt-3">
             <input v-model="couponInput" type="text"
-                   class="form-control h-auto border-radius-0 line-height-1 py-3"
-                   style="max-width:280px;"
+                   class="form-control h-auto border-radius-0 line-height-1 py-3 coupon-input"
                    :placeholder="__('message.coupon_code')" @keyup.enter="applyCode" />
             <button type="button"
-                    class="btn btn-light btn-modern text-2 text-uppercase ms-2"
-                    style="background:#F4F4F4;"
+                    class="btn btn-light btn-modern text-2 text-uppercase ms-2 btn-apply-coupon"
                     :disabled="!couponInput || cartStore.loading"
                     @click="applyCode">
               {{ __('message.apply') }}
             </button>
+          </div>
+
+          <!-- Credit balance toggle. A single yes/no choice, like ticking a box —
+               not an amount to type. Re-fetches the totals below when changed
+               (invoice mode) or is simply carried forward to checkout (cart mode). -->
+          <div v-if="availableCreditNumber > 0" class="form-check mt-3">
+            <input id="use-credit" v-model="useCredit" type="checkbox" class="form-check-input" @change="onToggleCredit" />
+            <label for="use-credit" class="form-check-label">
+              {{ __('message.use_credit_balance', { amount: symbol + availableCredit }) }}
+            </label>
           </div>
         </div>
 
@@ -120,9 +128,14 @@
                   <span class="amount font-weight-medium">{{ symbol }}{{ tax.amount }}</span>
                 </div>
 
+                <div v-if="cartCreditPreview > 0" class="d-flex justify-content-between py-3 border-bottom">
+                  <strong class="text-color-dark">{{ __('message.credit_to_apply') }}</strong>
+                  <span class="amount text-success">−{{ symbol }}{{ cartCreditPreview.toFixed(2) }}</span>
+                </div>
+
                 <div class="d-flex justify-content-between py-3 border-bottom">
                   <strong class="text-color-dark text-4">{{ __('message.total') }}</strong>
-                  <strong class="text-color-dark text-4">{{ symbol }}{{ cartStore.grandTotal }}</strong>
+                  <strong class="text-color-dark text-4">{{ symbol }}{{ cartTotalPreview }}</strong>
                 </div>
               </template>
 
@@ -147,6 +160,14 @@
                   <strong class="text-color-dark">{{ __('message.coupon') }}<span v-if="invSummary.coupon_code" class="text-color-grey fw-normal"> : {{ invSummary.coupon_code }}</span></strong>
                   <span class="amount text-success">−{{ symbol }}{{ invSummary.discount }}</span>
                 </div>
+                <div v-if="invPaidNumber > 0" class="d-flex justify-content-between py-3 border-bottom">
+                  <strong class="text-color-dark">{{ __('message.credit_applied') }}</strong>
+                  <span class="amount text-success">−{{ symbol }}{{ invPaid }}</span>
+                </div>
+                <div v-if="invCreditAppliedNumber > 0" class="d-flex justify-content-between py-3 border-bottom">
+                  <strong class="text-color-dark">{{ __('message.credit_to_apply') }}</strong>
+                  <span class="amount text-success">−{{ symbol }}{{ invCreditApplied }}</span>
+                </div>
                 <div class="d-flex justify-content-between py-3 border-bottom">
                   <strong class="text-color-dark text-4">{{ __('message.amount_due') }}</strong>
                   <strong class="text-color-dark text-4">{{ symbol }}{{ grandTotal }}</strong>
@@ -162,7 +183,7 @@
                 </p>
 
                 <div v-for="gateway in gateways" :key="gateway.name" class="mb-3">
-                  <label class="d-flex align-items-center mb-0" :for="`gw_${gateway.name}`" style="cursor:pointer;">
+                  <label class="d-flex align-items-center mb-0 clickable" :for="`gw_${gateway.name}`">
                     <input :id="`gw_${gateway.name}`" v-model="selectedGateway" type="radio"
                            class="me-2" name="payment_gateway" :value="gateway.name" />
                     <img :src="`${baseUrl}/images/logo/${gateway.name}.png`" :alt="gateway.name" height="22"
@@ -177,7 +198,7 @@
 
               <button type="button"
                       class="btn btn-dark btn-modern w-100 text-uppercase border-radius-0 text-3 py-3"
-                      :disabled="!gateways.length || !selectedGateway || placing"
+                      :disabled="!gateways.length || placing || (requiresGateway && !selectedGateway)"
                       @click="proceed">
                 {{ placing ? __('message.please_wait') : __('message.proceed') }} <i v-if="!placing" class="fas fa-arrow-right ms-2"></i>
               </button>
@@ -191,15 +212,15 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '@/core/stores/cart'
 import { useAlertStore } from '@/core/stores/alert'
 import http, { parseErrorMessage } from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
-const el = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const route = useRoute()
 const router = useRouter()
@@ -210,12 +231,19 @@ const alertStore = useAlertStore()
 //  - cart    : checkout the current cart (creates the invoice on "proceed")
 //  - invoice : pay an existing invoice reached via /checkout?invoice=ID
 //              (e.g. the Pay action on the invoices list)
-const invoiceId = route.query.invoice ?? null
-const mode = invoiceId ? 'invoice' : 'cart'
+// Both are reactive (not a one-time snapshot) because the SPA reuses this
+// component instance when navigating from one invoice's checkout straight to
+// another's (e.g. Pay on invoice A, back to the list, Pay on invoice B) —
+// without that, the page would keep showing invoice A forever.
+const invoiceId = computed(() => route.query.invoice ?? null)
+const mode = computed(() => (invoiceId.value ? 'invoice' : 'cart'))
 
 const couponInput = ref('')
 const selectedGateway = ref(null)
 const placing = ref(false)
+// Credit is a single yes/no choice — when on, the full available balance
+// applies (no partial amount to pick). One toggle shared by both modes.
+const useCredit = ref(false)
 
 // Invoice-mode state (populated from pay-init).
 const invoiceLoading = ref(false)
@@ -224,18 +252,50 @@ const invItems = ref([])
 const invSummary = ref({})
 const invGateways = ref([])
 const invAmount = ref(0)
+const invPaid = ref(0)
+// credit_applied/available_credit are what the server actually used/has on
+// file for display — invAmount already has credit_applied netted out.
+const invCreditApplied = ref(0)
+const invAvailableCredit = ref(0)
 const invSymbol = ref('')
 const invError = ref('')
 
-const loading = computed(() => (mode === 'invoice' ? invoiceLoading.value : cartStore.loading))
-const symbol = computed(() => (mode === 'invoice' ? invSymbol.value : cartStore.currencySymbol))
-const gateways = computed(() => (mode === 'invoice' ? invGateways.value : cartStore.gateways))
-// In invoice mode this is the amount due; in cart mode the cart's grand total.
-const grandTotal = computed(() => (mode === 'invoice' ? invAmount.value : cartStore.grandTotal))
+// Money fields from the backend are currency-formatted for display (e.g. "3,000.00")
+// — strip thousands separators before treating them as numbers.
+function toNumber(v) {
+  return parseFloat(String(v).replace(/,/g, '')) || 0
+}
+
+const invPaidNumber = computed(() => toNumber(invPaid.value))
+const invCreditAppliedNumber = computed(() => toNumber(invCreditApplied.value))
+
+const loading = computed(() => (mode.value === 'invoice' ? invoiceLoading.value : cartStore.loading))
+const symbol = computed(() => (mode.value === 'invoice' ? invSymbol.value : cartStore.currencySymbol))
+const gateways = computed(() => (mode.value === 'invoice' ? invGateways.value : cartStore.gateways))
+// In invoice mode this is the amount due (already net of any auto-applied
+// credit); in cart mode the cart's grand total.
+const grandTotal = computed(() => (mode.value === 'invoice' ? invAmount.value : cartStore.grandTotal))
+const availableCredit = computed(() => (mode.value === 'invoice' ? invAvailableCredit.value : cartStore.availableCredit))
+const availableCreditNumber = computed(() => toNumber(availableCredit.value))
+// Cart mode has no invoice yet to ask the server for a real total, so this is
+// a display-only preview (both numbers already came from the server as-is;
+// this just takes their min) — the real amount is always recomputed once an
+// invoice exists, on the next (place-order) step.
+const cartCreditPreview = computed(() =>
+  useCredit.value ? Math.min(toNumber(cartStore.grandTotal), availableCreditNumber.value) : 0
+)
+// Keep the server's own comma-formatted string when there's nothing to
+// subtract, so the common case (no credit) doesn't lose thousands separators.
+const cartTotalPreview = computed(() => cartCreditPreview.value > 0
+  ? (toNumber(cartStore.grandTotal) - cartCreditPreview.value).toFixed(2)
+  : cartStore.grandTotal)
+// A gateway is only required when there's actually something left to charge —
+// credit alone can cover an invoice entirely, with nothing to pay via gateway.
+const requiresGateway = computed(() => mode.value !== 'invoice' || toNumber(invAmount.value) > 0)
 
 // One unified item shape for the table, regardless of source.
 const displayItems = computed(() => {
-  if (mode === 'invoice') {
+  if (mode.value === 'invoice') {
     return invItems.value.map((it) => ({
       id: it.id,
       name: it.product_name,
@@ -256,23 +316,35 @@ const displayItems = computed(() => {
 })
 
 const isEmpty = computed(() =>
-  mode === 'invoice' ? !invoice.value.id : cartStore.items.length === 0
+  mode.value === 'invoice' ? !invoice.value.id : cartStore.items.length === 0
 )
 
-onMounted(() => {
-  if (mode === 'invoice') return loadInvoice()
-  return cartStore.fetchCheckout()
-})
+// Re-run whenever the invoice id changes — including switching from one
+// invoice straight to another, or from an invoice back to plain cart checkout.
+watch(invoiceId, (id) => {
+  selectedGateway.value = null
+  useCredit.value = false
+  if (id) {
+    loadInvoice()
+    return
+  }
+  cartStore.fetchCheckout()
+}, { immediate: true })
 
 async function loadInvoice() {
   invoiceLoading.value = true
   invError.value = ''
   try {
-    const { data } = await http.get(`${baseUrl}/invoice/${invoiceId}/pay-init`)
+    const { data } = await http.get(`/invoice/${invoiceId.value}/pay-init`, {
+      params: { use_credit: useCredit.value ? 1 : 0 },
+    })
     invoice.value = data.data.invoice
     invItems.value = data.data.items
     invSummary.value = data.data.summary ?? {}
     invAmount.value = data.data.amount
+    invPaid.value = data.data.paid
+    invCreditApplied.value = data.data.credit_applied
+    invAvailableCredit.value = data.data.available_credit
     invSymbol.value = data.data.currency_symbol
     invGateways.value = data.data.gateways
   } catch (e) {
@@ -280,6 +352,12 @@ async function loadInvoice() {
   } finally {
     invoiceLoading.value = false
   }
+}
+
+// Toggling credit only needs a re-fetch in invoice mode (it changes the
+// amount due there); in cart mode it's just carried forward to checkout.
+function onToggleCredit() {
+  if (mode.value === 'invoice') loadInvoice()
 }
 
 // Default to the first available gateway once they load (either mode).
@@ -322,19 +400,27 @@ function onLogoError(event, name) {
 //  - invoice mode: the invoice already exists, just carry its id forward.
 //  - cart mode   : create (or reuse) the invoice from the cart first.
 async function proceed() {
-  if (!selectedGateway.value || placing.value) return
+  if ((requiresGateway.value && !selectedGateway.value) || placing.value) return
   placing.value = true
   alertStore.unsetAlert()
   try {
-    if (mode === 'invoice') {
-      router.push({ path: '/place-order', query: { invoice: invoiceId, gateway: selectedGateway.value } })
+    const credit = useCredit.value ? '1' : '0'
+    if (mode.value === 'invoice') {
+      router.push({ path: '/place-order', query: { invoice: invoiceId.value, gateway: selectedGateway.value, use_credit: credit } })
       return
     }
-    const { data } = await http.post(`${baseUrl}/cart/place-order`, { gateway: selectedGateway.value })
-    router.push({ path: '/place-order', query: { invoice: data.data.invoice_id, gateway: selectedGateway.value } })
+    const { data } = await http.post(`/cart/place-order`, { gateway: selectedGateway.value })
+    router.push({ path: '/place-order', query: { invoice: data.data.invoice_id, gateway: selectedGateway.value, use_credit: credit } })
   } catch (e) {
     alertStore.setAlert({ message: parseErrorMessage(e), type: 'danger', component_name: 'client-page' })
     placing.value = false
   }
 }
 </script>
+
+<style scoped>
+.product-placeholder { width: 90px; height: 90px; }
+.coupon-input { max-width: 280px; }
+.btn-apply-coupon { background: #F4F4F4; }
+.clickable { cursor: pointer; }
+</style>

@@ -59,10 +59,10 @@
                       <strong class="d-block text-color-dark line-height-1 font-weight-semibold">
                         {{ o.product_name }} <span class="product-qty">x {{ o.qty }}</span>
                       </strong>
-                      <ul class="wc-item-meta" style="list-style: none; padding: 0;">
-                        <li style="display: inline-block;">
+                      <ul class="wc-item-meta order-meta-list">
+                        <li class="order-meta-item">
                           <strong class="wc-item-meta-label">{{ __('message.order_number') }}:</strong>
-                          <p style="display: inline;">{{ o.number }}</p>
+                          <p class="order-meta-value">{{ o.number }}</p>
                         </li>
                       </ul>
                     </td>
@@ -109,9 +109,6 @@ import { useRoute } from 'vue-router'
 import http, { parseErrorMessage } from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 
-const el = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-
 const route = useRoute()
 const invoiceId = route.query.invoice
 
@@ -126,7 +123,7 @@ const symbol = ref('')
 onMounted(async () => {
   if (!invoiceId) { loading.value = false; error.value = __('message.err_msg'); return }
   try {
-    const { data } = await http.get(`${baseUrl}/invoice/${invoiceId}/pay-success`)
+    const { data } = await http.get(`/invoice/${invoiceId}/pay-success`)
     invoice.value = data.data.invoice
     orders.value = data.data.orders
     paymentMethod.value = data.data.payment_method
@@ -138,3 +135,9 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.order-meta-list { list-style: none; padding: 0; }
+.order-meta-item { display: inline-block; }
+.order-meta-value { display: inline; }
+</style>

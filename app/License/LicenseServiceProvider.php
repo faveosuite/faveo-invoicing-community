@@ -41,9 +41,6 @@ class LicenseServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/Routes/license.php');
 
-        // Load views from module's Resources/Views directory
-        $this->loadViewsFrom(__DIR__.'/Resources/Views', 'license');
-
         // Load translations from module's Lang directory
         $this->loadTranslationsFrom(__DIR__.'/Lang', 'license');
 

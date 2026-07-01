@@ -85,10 +85,10 @@ import { validateForm } from '@/helpers/formUtils.js'
 import { couponSchema } from '@/validations/admin/couponValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'coupons-edit'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const route = useRoute()
 const router = useRouter()
 
@@ -123,7 +123,7 @@ function onChange(val, name) {
 async function generateCode() {
     generating.value = true
     try {
-        const res = await http.get(`${baseUrl}/getPromotionCode`)
+        const res = await http.get(`/getPromotionCode`)
         form.code = res.data?.data ?? res.data ?? ''
         setFieldError('code', undefined)
     } catch (e) {
@@ -136,8 +136,8 @@ async function generateCode() {
 onMounted(async () => {
     try {
         const [typesRes, promoRes] = await Promise.all([
-            http.get(`${baseUrl}/dependency/promotion-types`),
-            http.get(`${baseUrl}/promotion/${route.params.id}`),
+            http.get(`/dependency/promotion-types`),
+            http.get(`/promotion/${route.params.id}`),
         ])
         promotionTypes.value = typesRes.data?.data?.promotion_types ?? []
 
@@ -168,7 +168,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.patch(`${baseUrl}/updatePromotion/${route.params.id}`, {
+        const res = await http.patch(`/updatePromotion/${route.params.id}`, {
             code:   form.code,
             type:   form.type,
             value:  form.value,

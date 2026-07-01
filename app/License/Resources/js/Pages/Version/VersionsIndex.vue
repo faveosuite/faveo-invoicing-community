@@ -19,26 +19,18 @@ import { reactive, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
 import { useDateTime } from '@/core/composables/useDateTime'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDateTime } = useDateTime()
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
-const endPoint = baseUrl + '/api/admin/viewVersions'
+const endPoint = '/api/admin/viewVersions'
 
 const columns = ['version_number', 'product_title', 'version_date', 'version_install_count', 'callback_count', 'version_status', 'actions']
 
 const options = reactive({
     sortable: ['product_title', 'version_date', 'version_install_count', 'callback_count', 'version_status'],
     filterable: ['product_title'],
-    requestAdapter(data) {
-        return {
-            'sort_field': data.orderBy ? data.orderBy : 'id',
-            'sort_order': data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search_query': data.query.trim(),
-            perPage: data.limit,
-            page: data.page,
-        }
-    },
+    requestAdapter: makeRequestAdapter('id'),
     responseAdapter({ data }) {
         return {
             data: data.data.data.map(data => {

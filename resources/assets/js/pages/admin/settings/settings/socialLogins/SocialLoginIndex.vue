@@ -21,10 +21,8 @@
 <script setup>
 import { h, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
-
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/social-logins`
+import { makeRequestAdapter } from '@/helpers/tableUtils'
+const apiUrl = `/social-logins`
 
 const columns = ['type', 'status', 'action']
 
@@ -48,15 +46,7 @@ const tableOptions = reactive({
     },
     sortable: ['type', 'status'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at'),
     orderBy: { column: 'created_at', ascending: false },
 })
 </script>

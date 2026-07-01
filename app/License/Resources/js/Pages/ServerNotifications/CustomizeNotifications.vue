@@ -139,8 +139,6 @@ import { buildNotificationsSchema } from '@/validations/admin/licenseValidations
 import { validateForm } from '@/helpers/formUtils.js'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
-
 const { errors, setErrors, setFieldError } = useForm()
 const loading = ref(true)
 const saving = ref(false)
@@ -189,7 +187,7 @@ function updateStatesWithData(data) {
 
 function getInitialValues() {
     loading.value = true
-    axios.get(baseUrl + '/api/admin/viewNotifications').then(res => {
+    axios.get('/api/admin/viewNotifications').then(res => {
         updateStatesWithData(res.data.data)
     }).catch(() => {}).finally(() => {
         loading.value = false
@@ -202,7 +200,7 @@ async function onSubmit() {
     if (!await validateForm(buildNotificationsSchema(Object.keys(fieldRefs)), data, setErrors)) return
     saving.value = true
 
-    axios.post(baseUrl + '/api/admin/notifications/' + notification_id.value, data).then(res => {
+    axios.post('/api/admin/notifications/' + notification_id.value, data).then(res => {
         successHandler(res, 'custom-note')
         getInitialValues()
     }).catch(err => {

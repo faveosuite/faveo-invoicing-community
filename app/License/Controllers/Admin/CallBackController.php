@@ -15,11 +15,11 @@ class CallBackController extends Controller
 {
     public function licneseCallbacks(Request $request): JsonResponse
     {
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('limit', $request->input('perPage', 10));
         $page = $request->input('page', 1);
-        $searchQuery = str_replace('-', '', $request->input('search_query'));
-        $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'id');
+        $searchQuery = str_replace('-', '', $request->input('search-query', $request->input('search-query', $request->input('search_query', ''))));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
         $allowedSortFields = ['id', 'product_id', 'user_id', 'license_code', 'callback_domain', 'callback_ip', 'callback_date_time', 'callback_status'];
         $sortField = in_array($sortField, $allowedSortFields, strict: true) ? $sortField : 'id';
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';
@@ -63,11 +63,11 @@ class CallBackController extends Controller
 
     public function updateCallbacks(Request $request): JsonResponse
     {
-        $perPage = $request->input('perPage', 10); // Number of items per page
+        $perPage = $request->input('limit', $request->input('perPage', 10)); // Number of items per page
         $page = $request->input('page', 1); // Get the current page from the request
-        $searchQuery = str_replace('-', '', $request->input('search_query'));
-        $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'id');
+        $searchQuery = str_replace('-', '', $request->input('search-query', $request->input('search-query', $request->input('search_query', ''))));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
         $allowedSortFields = ['id', 'version_id', 'callback_ip', 'callback_type', 'callback_date_time', 'callback_status'];
         $sortField = in_array($sortField, $allowedSortFields, strict: true) ? $sortField : 'id';
         $sortOrder = strtolower((string) $sortOrder) === 'asc' ? 'asc' : 'desc';

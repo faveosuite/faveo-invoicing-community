@@ -310,6 +310,7 @@ Route::middleware('installAgora')->group(function (): void {
     // --- Invoices (client) ---
     Route::get('get-my-invoices', [ClientController::class, 'getInvoices'])->name('get-my-invoices');
     Route::delete('my-invoice/{id}', [ClientController::class, 'deleteInvoice'])->name('my-invoice.delete');
+    Route::get('get-credit-balance', [ClientController::class, 'getCreditBalance'])->name('get-credit-balance');
 
     // --- Orders (client) ---
     Route::get('get-my-orders', [ClientController::class, 'getClientOrder'])->name('get-my-orders');
@@ -336,6 +337,7 @@ Route::middleware('installAgora')->group(function (): void {
         Route::post('invoice/{invoice}/stripe/session', [PaymentController::class, 'stripeSession'])->name('invoice.pay.stripe.session');
         Route::post('invoice/{invoice}/stripe/confirm', [PaymentController::class, 'stripeConfirm'])->name('invoice.pay.stripe.confirm');
         Route::post('invoice/{invoice}/razorpay/order', [PaymentController::class, 'razorpayOrder'])->name('invoice.pay.razorpay.order');
+        Route::post('invoice/{invoice}/apply-credit', [PaymentController::class, 'applyCredit'])->name('invoice.pay.apply-credit');
     });
 
     // --- Auto-renewal (client) ---
@@ -484,6 +486,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::post('newPayment/receive/{clientid}', [InvoiceController::class, 'postNewPayment']);
     Route::post('newMultiplePayment/receive/{clientid}', [InvoiceController::class, 'postNewMultiplePayment']);
     Route::post('newMultiplePayment/update/{clientid}', [InvoiceController::class, 'updateNewMultiplePayment']);
+    Route::get('payments/{id}/edit', [InvoiceController::class, 'paymentEditById']);
 
     // --------------------------------------------------------
     // Pages & Widgets (Admin CMS)

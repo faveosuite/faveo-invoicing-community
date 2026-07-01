@@ -32,11 +32,12 @@
 <script setup>
 import { h, reactive, ref } from 'vue'
 import MSG91Filter from './MSG91Filter.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'msg91-reports'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/getMsgReports`
+const baseUrl = useBaseUrl()
+const apiUrl  = `/getMsgReports`
 
 // ── filter ────────────────────────────────────────────────────────────────────
 const dtRef         = ref(null)
@@ -133,16 +134,7 @@ const tableOptions = reactive({
     },
     sortable: ['mobile_number', 'status', 'created_at', 'delivery_date'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-            ...activeFilters.value,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at', activeFilters),
     orderBy: { column: 'created_at', ascending: false },
 })
 </script>

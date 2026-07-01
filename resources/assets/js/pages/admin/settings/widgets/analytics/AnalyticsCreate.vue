@@ -82,8 +82,6 @@ import { buildAnalyticsSchema } from '@/validations/admin/widgetValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'analytics-create'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const router  = useRouter()
 
 const { errors, setErrors, setFieldError } = useForm()
@@ -117,7 +115,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/chat/create`, {
+        const res = await http.post(`/chat/create`, {
             name:                 form.name,
             on_registration:      form.on_registration,
             google_analytics:     form.google_analytics,

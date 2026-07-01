@@ -114,11 +114,11 @@ class BannedHostController extends Controller
      */
     public function show(Request $request): JsonResponse
     {
-        $perPage = $request->input('perPage', 10); // Number of items per page
+        $perPage = $request->input('limit', $request->input('perPage', 10)); // Number of items per page
         $page = $request->input('page', 1); // Get the current page from the request
-        $searchQuery = $request->input('search_query');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'id');
+        $searchQuery = $request->input('search-query', $request->input('search-query', $request->input('search_query', '')));
+        $sortOrder = $request->input('sort-order', $request->input('sort_order', 'desc'));
+        $sortField = $request->input('sort-field', $request->input('sort_field', 'id'));
 
         $banned = LicenseBannedHost::where(function (Builder $query) use ($searchQuery): void {
             $query->where('banned_host_ip', 'LIKE', '%'.$searchQuery.'%')

@@ -80,8 +80,6 @@ import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { buildMobileValidationSchema } from '@/validations/admin/mobileValidationProviderValidations'
 
 const COMPONENT = 'mobile-validation-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 
@@ -108,7 +106,7 @@ const form = reactive({
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/settings/mobile-validation`)
+        const res = await http.get(`/settings/mobile-validation`)
         const d   = res.data?.data ?? {}
         Object.assign(form, {
             provider:  d.provider   ?? 'vonage',
@@ -136,7 +134,7 @@ async function save() {
             payload.apisecret = form.apisecret
             payload.mode      = form.mode
         }
-        const res = await http.post(`${baseUrl}/mobile-settings-save`, payload)
+        const res = await http.post(`/mobile-settings-save`, payload)
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)

@@ -105,7 +105,7 @@
                             <thead class="visually-hidden"><tr><th>Field</th><th>Value</th></tr></thead>
                             <tbody>
                                 <tr>
-                                    <td class="table-secondary fw-semibold" style="width:40%;">Gateway</td>
+                                    <td class="table-secondary fw-semibold col-label-width">Gateway</td>
                                     <td>{{ selectedOrder.gateway }}</td>
                                 </tr>
                                 <tr>
@@ -131,7 +131,7 @@
                             <thead class="visually-hidden"><tr><th>Field</th><th>Value</th></tr></thead>
                             <tbody>
                                 <tr>
-                                    <td class="table-secondary fw-semibold" style="width:40%;">Base Amount</td>
+                                    <td class="table-secondary fw-semibold col-label-width">Base Amount</td>
                                     <td>{{ selectedOrder.currency_symbol || selectedOrder.currency }} {{ selectedOrder.base_amount }}</td>
                                 </tr>
                                 <tr>
@@ -162,13 +162,14 @@ import { h, reactive, ref } from 'vue'
 import { __ } from '@/plugins/i18n'
 import OpenPaymentsFilter from './OpenPaymentsFilter.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDateTime } = useDateTime()
 
 const COMPONENT = 'open-payments-list'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/pay/list`
+const baseUrl = useBaseUrl()
+const apiUrl  = `/pay/list`
 
 const openPaymentUrl = `${baseUrl}/pay`
 
@@ -255,16 +256,11 @@ const tableOptions = reactive({
     },
     sortable: ['name', 'company', 'email', 'amount', 'gateway', 'transaction_id', 'payment_status', 'created_at'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy   ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:  data.page,
-            limit: data.limit,
-            ...activeFilters.value,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at', activeFilters),
     orderBy: { column: 'created_at', ascending: false },
 })
 </script>
+
+<style scoped>
+.col-label-width { width: 40%; }
+</style>

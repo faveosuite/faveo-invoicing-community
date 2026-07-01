@@ -81,10 +81,10 @@ import { validateForm } from '@/helpers/formUtils.js'
 import { couponSchema } from '@/validations/admin/couponValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'coupons-create'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 const router = useRouter()
 
 const { errors, setErrors, setFieldError } = useForm()
@@ -117,7 +117,7 @@ function onChange(val, name) {
 async function generateCode() {
     generating.value = true
     try {
-        const res = await http.get(`${baseUrl}/getPromotionCode`)
+        const res = await http.get(`/getPromotionCode`)
         form.code = res.data?.data ?? res.data ?? ''
         setFieldError('code', undefined)
     } catch (e) {
@@ -129,7 +129,7 @@ async function generateCode() {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/dependency/promotion-types`)
+        const res = await http.get(`/dependency/promotion-types`)
         promotionTypes.value = res.data?.data?.promotion_types ?? []
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -141,7 +141,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.put(`${baseUrl}/promotionCreate`, {
+        const res = await http.put(`/promotionCreate`, {
             code:   form.code,
             type:   form.type,
             value:  form.value,

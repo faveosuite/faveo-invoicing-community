@@ -6,12 +6,12 @@
             <div class="card-header p-0 pt-1 border-bottom-0">
                 <ul class="nav nav-tabs" id="callbacks-tab" role="tablist">
                     <li class="nav-item" @click="updateData('license')">
-                        <span class="nav-link" :class="{ active: activeTab === 'license' }" role="tab" style="cursor:pointer">
+                        <span class="nav-link clickable" :class="{ active: activeTab === 'license' }" role="tab">
                             {{ lang('license_callbacks') }}
                         </span>
                     </li>
                     <li class="nav-item" @click="updateData('update')">
-                        <span class="nav-link" :class="{ active: activeTab === 'update' }" role="tab" style="cursor:pointer">
+                        <span class="nav-link clickable" :class="{ active: activeTab === 'update' }" role="tab">
                             {{ lang('update_callbacks') }}
                         </span>
                     </li>
@@ -34,8 +34,6 @@ import { lang } from '@/helpers/extraLogics'
 import { useDateTime } from '@/core/composables/useDateTime'
 
 const { formatDateTime } = useDateTime()
-
-const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const endPoint = ref('')
 const columns = ref([])
@@ -66,7 +64,7 @@ function updateData(value) {
     activeTab.value = value
 
     if (value === 'license') {
-        endPoint.value = baseUrl + '/api/admin/showLicenseCallbacks'
+        endPoint.value = '/api/admin/showLicenseCallbacks'
         columns.value = ['product_title', 'license', 'callback_ip', 'callback_domain', 'callback_date_time', 'callback_status']
         tableOptions.value = {
             sortable: ['product_title', 'callback_date_time', 'callback_status'],
@@ -117,7 +115,7 @@ function updateData(value) {
             },
         }
     } else {
-        endPoint.value = baseUrl + '/api/admin/showUpdateCallbacks'
+        endPoint.value = '/api/admin/showUpdateCallbacks'
         columns.value = ['product_title', 'version', 'callback_ip', 'callback_types', 'callback_date_time', 'callback_status']
         tableOptions.value = {
             sortable: ['product_title', 'callback_types', 'callback_date_time', 'callback_status'],
@@ -167,3 +165,8 @@ onBeforeMount(() => {
     updateData('license')
 })
 </script>
+
+
+<style scoped>
+.clickable { cursor: pointer; }
+</style>

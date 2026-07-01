@@ -2,7 +2,7 @@
     <FormFieldTemplate :label="label" :labelStyle="labelStyle" :name="name"
                        :classname="classname" :hint="hint" :required="required">
 
-        <input ref="fileInput" type="file" @change="onFileSelected" style="display:none"
+        <input ref="fileInput" type="file" @change="onFileSelected" class="hidden-input"
                multiple :disabled="is_default" />
 
         <div class="image-container" @click="fileInput.click()">
@@ -214,6 +214,7 @@ function changeRatio(value) {
 </script>
 
 <style scoped>
+.hidden-input { display: none; }
 .img-click { width: 100px !important; height: 100px !important; }
 .profile-user-img { border: 3px solid #adb5bd; margin: 0 auto; padding: 3px; width: 100px; }
 .img-rounder { border-radius: 50% !important; }

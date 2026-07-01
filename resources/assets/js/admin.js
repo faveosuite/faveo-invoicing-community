@@ -77,10 +77,8 @@ import(`./themes/${theme}/index.js`).then(async themeModule => {
     app.use(FloatingVue)
 
     // Boot datetime settings — non-blocking, UTC fallback stays active until resolved
-    const el = document.getElementById('app-root')
-    const baseUrl = el?.dataset?.baseUrl ?? ''
 
-    axios.get(`${baseUrl}/settings/system-data`).then(res => {
+    axios.get(`/settings/system-data`).then(res => {
         const s = res.data?.data?.settings ?? {}
         useDateTimeStore().init({
             timezone:   s.timezone?.name ?? 'UTC',

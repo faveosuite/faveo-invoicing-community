@@ -77,6 +77,7 @@ class WebhookDispatcher
             if ($invoice) {
                 resolve(InvoicePaymentService::class)->confirm($invoice, 'Stripe', [
                     'payment_intent' => $object['payment_intent'] ?? $object['id'] ?? null,
+                    'credit_applied' => $object['metadata']['credit_applied'] ?? 0,
                 ]);
             }
 
@@ -124,6 +125,7 @@ class WebhookDispatcher
             if ($invoice2 && $type === 'payment.captured') {
                 resolve(InvoicePaymentService::class)->confirm($invoice2, 'Razorpay', [
                     'razorpay_payment_id' => $payment['id'] ?? null,
+                    'credit_applied' => $payment['notes']['credit_applied'] ?? 0,
                 ]);
             }
 

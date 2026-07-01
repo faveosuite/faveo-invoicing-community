@@ -19,10 +19,8 @@
 import { ref, computed, watch } from 'vue'
 import Editor from '@tinymce/tinymce-vue'
 import { editorInit } from './tinyMceDefaults.js'
-
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const tinymceSrc = `${baseUrl}/themes/default/common/tinymce/js/tinymce/tinymce.min.js`
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+const tinymceSrc = `${useBaseUrl()}/themes/default/common/tinymce/js/tinymce/tinymce.min.js`
 
 const props = defineProps({
     name:     { type: String,   required: true },

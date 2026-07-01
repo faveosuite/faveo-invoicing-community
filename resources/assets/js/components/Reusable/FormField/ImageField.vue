@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="d-flex align-items-center gap-3">
-            <img v-if="previewUrl" :src="previewUrl" alt="" class="rounded border flex-shrink-0" style="height: 80px; width: 80px; object-fit: cover;" />
+            <img v-if="previewUrl" :src="previewUrl" alt="" class="rounded border flex-shrink-0 image-preview" />
             <div class="flex-grow-1">
                 <label :for="name" class="form-label fw-bold">
                     {{ label }}<span v-if="required" class="text-danger ms-1">*</span>
@@ -190,6 +190,7 @@ function showAlert(message) {
 </script>
 
 <style scoped>
+.image-preview { height: 80px; width: 80px; object-fit: cover; }
 .rotate-button { text-align: center; }
 #rotate { margin-top: 15px; margin-bottom: 5px; }
 #rotate, .m-1 { border-radius: 5px; }

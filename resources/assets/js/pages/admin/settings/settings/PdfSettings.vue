@@ -52,8 +52,6 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const COMPONENT = 'pdf-settings'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -70,7 +68,7 @@ function onChange(val, name) {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/pdf-settings`)
+        const res = await http.get(`/pdf-settings`)
         const d = res.data?.data ?? {}
         Object.assign(form, {
             node_path:   d.node_path ?? '',
@@ -84,7 +82,7 @@ onMounted(async () => {
 async function submit() {
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/pdf-settings`, { ...form })
+        const res = await http.post(`/pdf-settings`, { ...form })
         successHandler(res, COMPONENT)
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { saving.value = false }

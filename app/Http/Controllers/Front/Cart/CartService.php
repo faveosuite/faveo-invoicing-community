@@ -11,6 +11,7 @@ use App\Model\Order\InvoiceTaxLine;
 use App\Model\Payment\Plan;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\TaxOption;
+use App\Services\Payment\InvoicePaymentService;
 use App\Services\Payment\ProcessingFee;
 use App\Services\Tax\TaxService;
 use Exception;
@@ -22,8 +23,10 @@ use Throwable;
 
 class CartService
 {
-    public function __construct(private readonly GuestCart $guest)
-    {
+    public function __construct(
+        private readonly GuestCart $guest,
+        private readonly InvoicePaymentService $invoices,
+    ) {
     }
 
     // --- Cart resolution ---
@@ -170,6 +173,7 @@ class CartService
             'tax_label' => collect($summary['taxes'])->pluck('label')->unique()->implode(' + '),
             'gateways' => $this->activeGateways($currency),
             'grand_total' => currencyFormat($summary['grand_total'], $currency, includeSymbol: false),
+            'available_credit' => currencyFormat($this->invoices->availableCredit((int) $user->getAuthIdentifier()), $currency, includeSymbol: false),
         ];
     }
 
@@ -498,6 +502,10 @@ class CartService
 
         if (! $promo || ! $this->withinValidityWindow($promo)) {
             throw new Exception(__('message.invalid_coupon_code'));
+        }
+
+        if (Invoice::where('coupon_code', $code)->count() >= $promo->uses) {
+            throw new Exception(__('message.usage-of-code-completed'));
         }
 
         return $promo;

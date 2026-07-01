@@ -33,9 +33,6 @@ import { __ } from '@/plugins/i18n'
 import { errorHandler } from '@/helpers/responseHandler.js'
 import { setPageTitle } from '@/core/composables/useBreadcrumb.js'
 
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-
 const route  = useRoute()
 const router = useRouter()
 
@@ -51,7 +48,7 @@ const loadingProducts = ref(false)
 
 async function loadGroups() {
     try {
-        const res = await http.get(`${baseUrl}/store/groups`)
+        const res = await http.get(`/store/groups`)
         groups.value = res.data?.data ?? []
 
         if (groups.value.length === 0) return
@@ -74,7 +71,7 @@ async function selectGroup(groupId) {
     loadingProducts.value = true
 
     try {
-        const res  = await http.get(`${baseUrl}/store/${groupId}/products`)
+        const res  = await http.get(`/store/${groupId}/products`)
         const data = res.data?.data ?? {}
 
         currentGroup.value    = data.group ?? null

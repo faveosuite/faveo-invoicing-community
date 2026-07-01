@@ -313,6 +313,7 @@ import BookDemoModal from '../store/BookDemoModal.vue'
 import { useRouter } from 'vue-router'
 import { __ } from '@/plugins/i18n'
 import { useAuthStore } from '@/core/stores/auth'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const {toggle: toggleLanguage} = useNavFeatureToggle()
 
@@ -359,9 +360,9 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
 const isAdmin         = computed(() => authStore.isAdmin)
 const logoUrl         = computed(() => el?.dataset?.appLogo ?? '')
 const appCompany      = computed(() => el?.dataset?.company ?? '')
-const baseUrl         = computed(() => el?.dataset?.baseUrl ?? '')
-const logoutUrl       = computed(() => `${baseUrl.value}/auth/logout`)
-const adminDashboardUrl = computed(() => `${baseUrl.value}/admin/dashboard`)
+const baseUrl           = useBaseUrl()
+const logoutUrl         = computed(() => `${baseUrl}/auth/logout`)
+const adminDashboardUrl = computed(() => `${baseUrl}/admin/dashboard`)
 
 const phone = computed(() => el?.dataset?.phone ?? '')
 const phoneCode = computed(() => el?.dataset?.phoneCode ?? '')

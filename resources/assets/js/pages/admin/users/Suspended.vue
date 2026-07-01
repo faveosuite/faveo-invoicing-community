@@ -63,45 +63,25 @@ import { errorHandler } from '@/helpers/responseHandler.js'
 import { useDateTime } from '@/core/composables/useDateTime'
 import SuspendedTableActions from './components/SuspendedTableActions.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import { useTableSelection } from '@/core/composables/useTableSelection'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDate } = useDateTime()
 
 const COMPONENT = 'suspended-index'
 
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/soft-delete`
+const baseUrl = useBaseUrl()
+const apiUrl  = `/soft-delete`
 
 const dtRef  = ref(null)
-const selected = ref([])
+const { selected, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 const pendingBulkDelete = ref(null)
-
-const allSelected = computed(() => {
-    const data = dtRef.value?.tableData ?? []
-    return data.length > 0 && data.every(row => selected.value.includes(row.id))
-})
-
-function toggleRow(id) {
-    const idx = selected.value.indexOf(id)
-    if (idx === -1) selected.value.push(id)
-    else selected.value.splice(idx, 1)
-}
-
-function toggleAll(e) {
-    const data = dtRef.value?.tableData ?? []
-    if (e.target.checked) {
-        const ids = data.map(r => r.id).filter(id => !selected.value.includes(id))
-        selected.value.push(...ids)
-    } else {
-        const ids = new Set(data.map(r => r.id))
-        selected.value = selected.value.filter(id => !ids.has(id))
-    }
-}
 
 async function bulkRestore() {
     if (!selected.value.length) return
     try {
-        const promises = selected.value.map(id => http.get(`${baseUrl}/user/restore/${id}`))
+        const promises = selected.value.map(id => http.get(`/user/restore/${id}`))
         await Promise.all(promises)
         selected.value = []
         dtRef.value?.refresh()
@@ -168,15 +148,7 @@ const tableOptions = reactive({
     sortable:   ['email', 'mobile', 'country', 'created_at'],
     filterable: true,
 
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy || 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at'),
 
     orderBy: { column: 'created_at', ascending: false },
 })

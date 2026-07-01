@@ -36,8 +36,7 @@
                                 <li
                                     v-for="(shortcode, label) in form.codes"
                                     :key="label"
-                                    class="list-inline-item mb-1"
-                                    style="width: 23%"
+                                    class="list-inline-item mb-1 shortcode-item"
                                 >
                                     <span v-tooltip="label">{{ shortcode }}</span>
                                 </li>
@@ -111,8 +110,6 @@ import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 import { templateEditSchema } from '@/validations/admin/emailValidations'
 
 const COMPONENT = 'template-edit'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const route  = useRoute()
 const router = useRouter()
 const id = route.params.id
@@ -173,7 +170,7 @@ function onContentChange(val, key) {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/template/edit/${id}`)
+        const res = await http.get(`/template/edit/${id}`)
         const d = res.data?.data ?? {}
 
         form.name    = d.template?.name     ?? ''
@@ -198,7 +195,7 @@ async function save() {
 
     saving.value = true
     try {
-        const res = await http.put(`${baseUrl}/template/update/${id}`, {
+        const res = await http.put(`/template/update/${id}`, {
             name:     form.name,
             type:     form.type,
             reply_to: form.reply_to,
@@ -213,3 +210,7 @@ async function save() {
     }
 }
 </script>
+
+<style scoped>
+.shortcode-item { width: 23%; }
+</style>

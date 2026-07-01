@@ -1,5 +1,11 @@
 <template>
   <div>
+    <div class="d-flex justify-content-end mb-2">
+      <button type="button" class="btn btn-outline-primary btn-sm" @click="showCreditModal = true">
+        <i class="fas fa-credit-card me-1"></i>{{ __('message.credits') }} {{ creditBalance }}
+      </button>
+    </div>
+
     <AppCard :title="__('message.my_invoices')">
       <DataTable :url="apiUrl" :dataColumns="columns" :option="tableOptions">
         <template #number="{ row }">
@@ -61,23 +67,56 @@
         </template>
     </AppModal>
 
+    <AppModal
+        :showModal="showCreditModal"
+        :onClose="() => showCreditModal = false"
+        :showControls="false"
+    >
+        <template #title>
+            <h5 class="mb-0">{{ __('message.credit_balance') }} {{ creditBalance }}</h5>
+        </template>
+        <template #fields>
+            <h6>{{ __('message.credit_balance_history') }}</h6>
+            <ul class="list-group mt-2">
+                <li v-if="!creditActivity.length" class="list-group-item text-center">
+                    {{ __('message.no_records_found') }}
+                </li>
+                <li v-for="(item, i) in creditActivity" :key="i" class="list-group-item">
+                    <div class="text-muted small">{{ formatDateTime(item.created_at) }}</div>
+                    <div v-html="item.text"></div>
+                </li>
+            </ul>
+        </template>
+    </AppModal>
+
   </div>
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { __ } from '@/plugins/i18n'
 import { useDateTime } from '@/core/composables/useDateTime'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
-const { formatDate } = useDateTime()
+const { formatDate, formatDateTime } = useDateTime()
+
+const showCreditModal = ref(false)
+const creditBalance    = ref('')
+const creditActivity   = ref([])
+
+onMounted(async () => {
+  try {
+    const res = await http.get('/get-credit-balance')
+    const data = res.data?.data ?? res.data
+    creditBalance.value  = data?.balance ?? ''
+    creditActivity.value = data?.activity ?? []
+  } catch (e) { errorHandler(e, 'my-invoices') }
+})
 
 const router = useRouter()
-const el = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/get-my-invoices`
+const apiUrl = `/get-my-invoices`
 
 const columns = ['number', 'date', 'orders', 'grand_total', 'paid', 'balance', 'status', 'action']
 
@@ -113,7 +152,7 @@ async function doDelete() {
   if (!deleteTarget.value) return
   deleteLoading.value = true
   try {
-    const res = await http.delete(`${baseUrl}/my-invoice/${deleteTarget.value.id}`)
+    const res = await http.delete(`/my-invoice/${deleteTarget.value.id}`)
     successHandler(res, COMPONENT)
     deleteTarget.value = null
     globalThis.emitter?.emit('refreshData')

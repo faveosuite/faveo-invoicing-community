@@ -111,8 +111,6 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 
 const COMPONENT = 'zoho-mapping'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const route   = useRoute()
 
 const platform = route.params.platform
@@ -141,7 +139,7 @@ const zohoFieldOptions = computed(() =>
 )
 
 async function fetchOptions(zohoId) {
-    const res = await http.get(`${baseUrl}/zoho/options/${zohoId}`)
+    const res = await http.get(`/zoho/options/${zohoId}`)
     return (res.data ?? []).map(o => ({ id: o.value, name: o.label, type: o.type }))
 }
 
@@ -169,8 +167,8 @@ async function loadMappings() {
     const mod = activeModule.value
 
     const [fieldsRes, mappingRes] = await Promise.all([
-        http.get(`${baseUrl}/zoho/${platform}/${mod}/fields`),
-        http.get(`${baseUrl}/zoho/${platform}/${mod}/mapping/data`),
+        http.get(`/zoho/${platform}/${mod}/fields`),
+        http.get(`/zoho/${platform}/${mod}/mapping/data`),
     ])
 
     zohoFields.value = fieldsRes.data?.data ?? []
@@ -216,7 +214,7 @@ async function switchTab(tabId) {
 onMounted(async () => {
     loading.value = true
     try {
-        const res = await http.get(`${baseUrl}/zoho/integrations`)
+        const res = await http.get(`/zoho/integrations`)
         const integration = (res.data?.data ?? []).find(i => i.platform === platform)
         integrationId.value = integration?.id ?? null
 
@@ -231,7 +229,7 @@ onMounted(async () => {
 async function syncFields() {
     syncing.value = true
     try {
-        const res = await http.get(`${baseUrl}/zoho/${platform}/sync`)
+        const res = await http.get(`/zoho/${platform}/sync`)
         successHandler(res, COMPONENT)
         await loadMappings()
     } catch (e) {
@@ -251,7 +249,7 @@ async function save() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/zoho/mapping/save`, {
+        const res = await http.post(`/zoho/mapping/save`, {
             module:         activeModule.value,
             integration_id: integrationId.value,
             mappings,

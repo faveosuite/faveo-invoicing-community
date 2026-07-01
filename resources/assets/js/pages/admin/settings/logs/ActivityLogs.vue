@@ -84,11 +84,12 @@ import { useDateTimeStore } from '@/core/stores/dateTimeStore'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import ActivityFilter from './ActivityFilter.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'activity-logs'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/get-activity-api`
+const baseUrl = useBaseUrl()
+const apiUrl  = `/get-activity-api`
 
 // ── filter state ──────────────────────────────────────────────────────────────
 const dtRef        = ref(null)
@@ -128,17 +129,7 @@ const tableOptions = reactive({
     },
     sortable: ['module', 'event', 'created_at', 'role', 'performed_by'],
     filterable: true,
-    requestAdapter(data) {
-        const columnMap = { module: 'module', event: 'event' }
-        return {
-            'sort-field':   columnMap[data.orderBy] ?? data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:  data.page,
-            limit: data.limit,
-            ...activeFilters.value,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at', activeFilters, { module: 'module', event: 'event' }),
     orderBy: { column: 'created_at', ascending: false },
     templates: {
         performed_by: (f, row) => {
@@ -190,7 +181,7 @@ async function confirmDelete() {
     }
     deleting.value = true
     try {
-        const res = await http.delete(`${baseUrl}/logs/delete`, {
+        const res = await http.delete(`/logs/delete`, {
             data: { to_date: deleteDate.value, log_types: ['systemLogs'] },
         })
         successHandler(res, COMPONENT)

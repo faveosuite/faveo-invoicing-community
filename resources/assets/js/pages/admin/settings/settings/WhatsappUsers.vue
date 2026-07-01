@@ -47,13 +47,14 @@ import DataTable from '@/components/Reusable/DataTable.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { webhookUrlSchema } from '@/validations/admin/systemSettingsValidations'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const { formatDateTime } = useDateTime()
 
 const COMPONENT = 'whatsapp-users'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/whatsapp-users-api`
+const baseUrl = useBaseUrl()
+const apiUrl  = `/whatsapp-users-api`
 const tableRef = ref(null)
 
 const { errors, setErrors, setFieldError, resetForm } = useForm()
@@ -78,7 +79,7 @@ async function saveWebhook() {
     if (!await validateForm(webhookUrlSchema, { editWebhookUrl: editWebhookUrl.value }, setErrors)) return
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/webhook-url-edit`, {
+        const res = await http.post(`/webhook-url-edit`, {
             id:  editRow.value.id,
             url: editWebhookUrl.value,
         })
@@ -110,7 +111,7 @@ async function copyToClipboard(id, text) {
 async function remove(row) {
     if (!confirm(`${__('message.delete_whatsapp_user_confirm')} ${row.phone_number || row.user_name}?`)) return
     try {
-        const res = await http.post(`${baseUrl}/whatsapp-deregister`, { id: row.id })
+        const res = await http.post(`/whatsapp-deregister`, { id: row.id })
         successHandler(res, COMPONENT)
         tableRef.value?.refresh()
     } catch (e) {
@@ -123,15 +124,7 @@ const columns = ['user_name', 'phone_number', 'waba_id', 'phone_number_id', 'bus
 const options = {
     sortable: ['phone_number', 'waba_id', 'phone_number_id', 'business_id', 'created_at'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at'),
     orderBy: { column: 'created_at', ascending: false },
     headings: {
         user_name:       __('message.user'),

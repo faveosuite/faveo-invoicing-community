@@ -22,11 +22,10 @@ import { h, ref, reactive } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import CurrencyTableActions from './CurrencyTableActions.vue'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'currency'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/currency/list`
+const apiUrl  = `/currency/list`
 
 const dtRef            = ref(null)
 const toggling         = ref(null)
@@ -36,7 +35,7 @@ const settingDashboard = ref(null)
 async function toggleStatus(row) {
     toggling.value = row.id
     try {
-        const res = await http.post(`${baseUrl}/currency/update-currency`, {
+        const res = await http.post(`/currency/update-currency`, {
             current_id:     row.id,
             current_status: row.status ? '1' : '0',
         })
@@ -52,7 +51,7 @@ async function toggleStatus(row) {
 async function setDefault(id) {
     settingDefault.value = id
     try {
-        const res = await http.post(`${baseUrl}/currency/default-currency/${id}`)
+        const res = await http.post(`/currency/default-currency/${id}`)
         successHandler(res, COMPONENT)
         dtRef.value?.refresh()
     } catch (e) {
@@ -65,7 +64,7 @@ async function setDefault(id) {
 async function setDashboard(id) {
     settingDashboard.value = id
     try {
-        const res = await http.post(`${baseUrl}/currency/dashboard-currency/${id}`)
+        const res = await http.post(`/currency/dashboard-currency/${id}`)
         successHandler(res, COMPONENT)
         dtRef.value?.refresh()
     } catch (e) {
@@ -118,15 +117,7 @@ const tableOptions = reactive({
     },
     sortable:   ['name', 'code', 'symbol'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy  ?? 'status',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query   ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('status'),
     orderBy: { column: 'status', ascending: false },
 })
 </script>

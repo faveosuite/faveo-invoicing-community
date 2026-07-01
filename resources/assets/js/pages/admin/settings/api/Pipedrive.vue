@@ -70,12 +70,11 @@
                                 <div class="col-md-6">
                                     <div class="form-check form-switch">
                                         <input
-                                            class="form-check-input"
+                                            class="form-check-input clickable"
                                             type="checkbox"
                                             role="switch"
                                             id="requireVerification"
                                             v-model="form.requireVerification"
-                                            style="cursor:pointer"
                                         />
                                         <label class="form-check-label" for="requireVerification" v-tooltip="__('message.pipedrive_user_verification_tooltip')">
                                             {{ __('message.user_verification') }}
@@ -181,8 +180,6 @@ import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 import { apiKeySchema } from '@/validations/admin/pipedriveValidations'
 
 const COMPONENT = 'pipedrive-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 
@@ -219,7 +216,7 @@ watch(activeTab, async tab => {
 // ── Init ──────────────────────────────────────────────────────────────────
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/settings/pipedrive`)
+        const res = await http.get(`/settings/pipedrive`)
         const d   = res.data?.data ?? {}
 
         form.apiKey              = d.pipedrive_key                       ?? ''
@@ -253,7 +250,7 @@ async function connect() {
 
     connecting.value = true
     try {
-        const res = await http.post(`${baseUrl}/updatepipedriveDetails`, {
+        const res = await http.post(`/updatepipedriveDetails`, {
             pipedrive_key:                      form.apiKey,
             require_pipedrive_user_verification: form.requireVerification,
             status: 1,
@@ -275,7 +272,7 @@ async function connect() {
 async function saveSettings() {
     savingSettings.value = true
     try {
-        const res = await http.patch(`${baseUrl}/settings/pipedrive`, {
+        const res = await http.patch(`/settings/pipedrive`, {
             pipedrive_key:                      form.apiKey,
             require_pipedrive_user_verification: form.requireVerification,
             status: true,
@@ -293,7 +290,7 @@ async function loadMappingForGroup(groupId) {
     if (!groupId) return
     loadingMapping.value = true
     try {
-        const res = await http.get(`${baseUrl}/pipedrive/mapping/${groupId}`)
+        const res = await http.get(`/pipedrive/mapping/${groupId}`)
         applyMapping(res.data?.data ?? {})
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -351,7 +348,7 @@ async function onPipedriveChange(index, val) {
     }
 
     try {
-        const res = await http.post(`${baseUrl}/pipedrive/get-dropdown`, { pipedrive_field_id: val.id })
+        const res = await http.post(`/pipedrive/get-dropdown`, { pipedrive_field_id: val.id })
         const d = res.data?.data ?? {}
         rows.value[index].faveoOptions = toOptions(d.options ?? [], 'value')
         rows.value[index].isFaveoField = d.is_faveo_options ?? true
@@ -389,7 +386,7 @@ async function saveMapping() {
 
     savingMapping.value = true
     try {
-        const res = await http.post(`${baseUrl}/sync/pipedrive`, {
+        const res = await http.post(`/sync/pipedrive`, {
             group_id: activeGroupId.value,
             select1:  rows.value.map(r => ({ id: r.pipedriveField.id })),
             select2:  rows.value.map(r => ({ id: r.faveoField.id, faveo_fields: r.isFaveoField })),
@@ -406,7 +403,7 @@ async function saveMapping() {
 async function syncFields() {
     syncing.value = true
     try {
-        const res = await http.get(`${baseUrl}/syncing/pipedriveFields`)
+        const res = await http.get(`/syncing/pipedriveFields`)
         successHandler(res, COMPONENT)
         await loadMappingForGroup(activeGroupId.value)
     } catch (e) {
@@ -416,3 +413,7 @@ async function syncFields() {
     }
 }
 </script>
+
+<style scoped>
+.clickable { cursor: pointer; }
+</style>

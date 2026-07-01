@@ -78,7 +78,7 @@
                 <table v-else class="table table-bordered table-hover mb-0">
                     <thead>
                         <tr>
-                            <th style="width:40px;"></th>
+                            <th class="th-checkbox"></th>
                             <th>{{ __('message.date') }}</th>
                             <th>{{ __('message.invoice_number') }}</th>
                             <th>{{ __('message.total') }}</th>
@@ -101,8 +101,7 @@
                             <td>
                                 <input
                                     type="number"
-                                    class="form-control form-control-sm"
-                                    style="width:120px;"
+                                    class="form-control form-control-sm input-amount"
                                     v-model="inv.payAmount"
                                     :disabled="!inv.checked"
                                     min="0"
@@ -129,8 +128,6 @@ import { useAlertStore } from '@/core/stores/alert'
 import { __ } from '@/plugins/i18n'
 
 const COMPONENT = 'user-payment-create'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const route   = useRoute()
 const router  = useRouter()
@@ -237,7 +234,7 @@ async function submit() {
     const invoiceAmount  = checked.map(i => parseFloat(i.payAmount) || 0)
 
     try {
-        await http.post(`${baseUrl}/newMultiplePayment/receive/${userId}`, {
+        await http.post(`/newMultiplePayment/receive/${userId}`, {
             totalAmt:       form.value.amount,
             payment_date:   form.value.payment_date,
             payment_method: form.value.payment_method,
@@ -262,7 +259,7 @@ async function submit() {
 
 onMounted(async () => {
     try {
-        const { data } = await http.get(`${baseUrl}/newPayment/receive`, {
+        const { data } = await http.get(`/newPayment/receive`, {
             params: { clientid: userId },
         })
         currencies.value = data.data.currencies ?? []
@@ -282,3 +279,8 @@ onMounted(async () => {
     }
 })
 </script>
+
+<style scoped>
+.th-checkbox { width: 40px; }
+.input-amount { width: 120px; }
+</style>

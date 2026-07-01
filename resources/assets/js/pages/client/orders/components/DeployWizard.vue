@@ -59,7 +59,7 @@
                 <div class="card-body">
 
                     <!-- Segment: SSH Connectivity -->
-                    <h6 class="text-color-grey text-uppercase fw-semibold mb-3" style="font-size:0.7rem;letter-spacing:.08em;">
+                    <h6 class="text-color-grey text-uppercase fw-semibold mb-3 section-label">
                         SSH Connectivity
                     </h6>
                     <div class="row">
@@ -83,11 +83,11 @@
                             <div class="mb-3">
                                 <label class="form-label text-dark">Auth Method</label>
                                 <div class="d-flex align-items-center gap-4">
-                                    <label class="d-flex align-items-center mb-0" style="cursor:pointer;">
+                                    <label class="d-flex align-items-center mb-0 clickable">
                                         <input type="radio" class="me-2" name="auth_method" value="password" v-model="form.auth_method" />
                                         Password
                                     </label>
-                                    <label class="d-flex align-items-center mb-0" style="cursor:pointer;">
+                                    <label class="d-flex align-items-center mb-0 clickable">
                                         <input type="radio" class="me-2" name="auth_method" value="private_key" v-model="form.auth_method" />
                                         Private Key
                                     </label>
@@ -132,7 +132,7 @@
 
                     <!-- Segment: Deployment Path (extract_only) -->
                     <template v-if="form.deploy_mode === 'extract_only'">
-                        <h6 class="text-color-grey text-uppercase fw-semibold mb-3" style="font-size:0.7rem;letter-spacing:.08em;">
+                        <h6 class="text-color-grey text-uppercase fw-semibold mb-3 section-label">
                             Deployment Path
                         </h6>
                         <div class="row">
@@ -158,7 +158,7 @@
 
                     <!-- Segment: Installation Details (fresh_install) -->
                     <template v-if="form.deploy_mode === 'fresh_install'">
-                        <h6 class="text-color-grey text-uppercase fw-semibold mb-3" style="font-size:0.7rem;letter-spacing:.08em;">
+                        <h6 class="text-color-grey text-uppercase fw-semibold mb-3 section-label">
                             Installation Details
                         </h6>
                         <div class="row">
@@ -176,11 +176,11 @@
                                 <div class="mb-3">
                                     <label class="form-label text-dark">Web Server <span class="text-danger">*</span></label>
                                     <div class="d-flex align-items-center gap-4">
-                                        <label class="d-flex align-items-center mb-0" style="cursor:pointer;">
+                                        <label class="d-flex align-items-center mb-0 clickable">
                                             <input type="radio" class="me-2" name="web_server" :value="1" v-model="form.web_server" />
                                             Apache
                                         </label>
-                                        <label class="d-flex align-items-center mb-0" style="cursor:pointer;">
+                                        <label class="d-flex align-items-center mb-0 clickable">
                                             <input type="radio" class="me-2" name="web_server" :value="2" v-model="form.web_server" />
                                             Nginx
                                         </label>
@@ -192,7 +192,7 @@
                                     <label class="form-label text-dark">SSL Certificate <span class="text-danger">*</span></label>
                                     <div class="d-flex align-items-center gap-4">
                                         <label v-for="opt in sslOptions" :key="opt.value"
-                                               class="d-flex align-items-center mb-0" style="cursor:pointer;">
+                                               class="d-flex align-items-center mb-0 clickable">
                                             <input type="radio" class="me-2" name="ssl_type" :value="opt.value" v-model="form.ssl_type" />
                                             {{ opt.label }}
                                         </label>
@@ -216,7 +216,7 @@
                     </template>
 
                     <!-- Segment: Version -->
-                    <h6 class="text-color-grey text-uppercase fw-semibold mb-3" style="font-size:0.7rem;letter-spacing:.08em;">
+                    <h6 class="text-color-grey text-uppercase fw-semibold mb-3 section-label">
                         Version to Deploy
                     </h6>
                     <div class="row">
@@ -276,7 +276,7 @@
         <template v-else-if="step === 3">
             <AppCard>
                 <div class="text-center py-2">
-                    <i class="fas fa-check-circle text-success" style="font-size:3rem;"></i>
+                    <i class="fas fa-check-circle text-success icon-3rem"></i>
                     <h4 class="text-4 mt-3 mb-1">Setup Complete!</h4>
                     <p class="text-muted text-2">Your Faveo instance has been successfully deployed.</p>
                 </div>
@@ -328,8 +328,6 @@ const props = defineProps({
 const { errors, setErrors, setFieldError } = useForm()
 
 const COMPONENT       = 'deploy-wizard'
-const el              = document.getElementById('app-root')
-const baseUrl         = el?.dataset?.baseUrl ?? ''
 
 const step            = ref(0)
 const showSudo        = ref(false)
@@ -376,7 +374,7 @@ async function goToConfigure() {
     if (versions.value.length === 0) {
         loadingVersions.value = true
         try {
-            const res = await http.get(`${baseUrl}/get-deploy-versions/${props.orderId}`)
+            const res = await http.get(`/get-deploy-versions/${props.orderId}`)
             versions.value = res.data?.data ?? []
         } catch (e) {
             errorHandler(e, COMPONENT)
@@ -420,7 +418,7 @@ async function runStep(stepName, extra = {}) {
         ssl_key_path:    form.ssl_key_path    || undefined,
         ...extra,
     }
-    const res = await http.post(`${baseUrl}/deploy-product-step`, payload)
+    const res = await http.post(`/deploy-product-step`, payload)
     return res.data?.data ?? {}
 }
 
@@ -472,3 +470,9 @@ function resetWizard() {
     form.deploy_mode   = ''
 }
 </script>
+
+<style scoped>
+.section-label { font-size: 0.7rem; letter-spacing: .08em; }
+.clickable { cursor: pointer; }
+.icon-3rem { font-size: 3rem; }
+</style>

@@ -51,9 +51,6 @@ import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { passwordChangeSchema } from '@/validations/client/profile.js'
 
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-
 const COMPONENT = 'client-page'
 
 const saving = ref(false)
@@ -72,7 +69,7 @@ async function submitPassword() {
         const data = new FormData()
         Object.entries(form).forEach(([k, v]) => { if (v != null) data.append(k, v) })
         data.append('_method', 'PATCH')
-        const res = await http.post(`${baseUrl}/my-password`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
+        const res = await http.post(`/my-password`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
         successHandler(res, COMPONENT)
         form.current_password = ''
         form.password = ''

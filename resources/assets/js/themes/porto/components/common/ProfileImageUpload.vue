@@ -8,7 +8,7 @@
             <i class="fas fa-camera text-white"></i>
         </div>
     </div>
-    <input ref="fileInput" type="file" accept="image/png,image/jpeg,image/jpg" style="display:none" @change="onFileSelected">
+    <input ref="fileInput" type="file" accept="image/png,image/jpeg,image/jpg" class="hidden-input" @change="onFileSelected">
 
     <AppModal :showModal="showModal" :onClose="closeModal" :showCloseBtn="false" classname="modal-lg">
         <template #title>
@@ -147,6 +147,7 @@ function b64toBlob(b64Data, contentType = '', sliceSize = 512) {
 </script>
 
 <style scoped>
+.hidden-input { display: none; }
 .client-avatar-wrapper {
     position: relative;
     width: 110px;

@@ -123,7 +123,7 @@
                   <div class="mb-3">
                     <label class="form-label text-dark">{{ __('message.op_payment_gateway') }}</label>
                     <div v-for="gw in enabledGateways" :key="gw.name" class="mb-3">
-                      <label class="d-flex align-items-center mb-0" :for="`gw_${gw.name}`" style="cursor:pointer;">
+                      <label class="d-flex align-items-center mb-0 clickable" :for="`gw_${gw.name}`">
                         <input :id="`gw_${gw.name}`" v-model="form.gateway" type="radio"
                                class="me-2" name="payment_gateway" :value="gw.name" />
                         <img :src="`${baseUrl}/images/logo/${gw.name}.png`" :alt="gw.name" height="22"
@@ -447,10 +447,10 @@ import { openPaymentSchema } from '@/validations/client/openPaymentSchema'
 import { __ } from '@/plugins/i18n'
 import GlobalLoader from '@/components/Reusable/GlobalLoader.vue'
 import { useLoaderStore } from '@/core/stores/loader'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
-const API     = `${baseUrl}/pay`
+const baseUrl = useBaseUrl()
+const API     = `/pay`
 
 const steps = computed(() => [
   { key: 'form',    label: __('message.op_step_details'), icon: 'fa-user'           },
@@ -835,7 +835,7 @@ const autoDetectCountry = async () => {
     const code = geo?.country_code
     if (!code) return
 
-    const res   = await http.get(`${baseUrl}/dependency/countries`)
+    const res   = await http.get(`/dependency/countries`)
     const match = (res.data?.data?.countries ?? []).find(c => c.code === code)
     if (match) onCountryChange(match)
   } catch { /* best-effort */ }
@@ -975,4 +975,8 @@ onMounted(async () => {
   .border-end { border-right: none !important; border-bottom: 1px solid #dee2e6 !important; }
 }
 
+</style>
+
+<style scoped>
+.clickable { cursor: pointer; }
 </style>

@@ -89,13 +89,13 @@
                                         :class="['faveo-dynamic-select', { 'is-invalid': errors.listId }]"
                                     >
                                         <template #list-footer>
-                                            <ul style="list-style:none;margin:0;padding:0">
+                                            <ul class="list-unstyled m-0 p-0">
                                             <li v-if="listsLoading" class="text-center py-2 text-muted small">
                                                 <span class="spinner-border spinner-border-sm me-1"></span>
                                                 {{ __('message.loading') }}…
                                             </li>
                                             <li v-else-if="listsHasMore" ref="listSentinelRef"
-                                                class="py-1 text-muted small text-center" style="list-style:none">
+                                                class="py-1 text-muted small text-center list-unstyled">
                                                 {{ __('message.loading') }}…
                                             </li>
                                             </ul>
@@ -206,7 +206,7 @@
                                     </div>
                                     <div class="form-check form-switch mb-0 flex-shrink-0">
                                         <input class="form-check-input" type="checkbox" role="switch"
-                                            v-model="isPaidStatus" style="cursor:pointer" />
+                                            v-model="isPaidStatus" class="clickable" />
                                     </div>
                                 </div>
 
@@ -239,7 +239,7 @@
                                     </div>
                                     <div class="form-check form-switch mb-0 flex-shrink-0">
                                         <input class="form-check-input" type="checkbox" role="switch"
-                                            v-model="productStatus" style="cursor:pointer" />
+                                            v-model="productStatus" class="clickable" />
                                     </div>
                                 </div>
 
@@ -333,8 +333,6 @@ import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 import { connectionSchema, listSchema } from '@/validations/admin/mailchimpValidations'
 
 const COMPONENT = 'mailchimp-settings'
-const el        = document.getElementById('app-root')
-const baseUrl   = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 
@@ -449,7 +447,7 @@ function removeProductRow(idx) { productRows.value.splice(idx, 1) }
 // ── Init ───────────────────────────────────────────────────────────────────
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/settings/mailchimp`)
+        const res = await http.get(`/settings/mailchimp`)
         const d   = res.data?.data ?? {}
 
         form.apiKey          = d.api_key          ?? ''
@@ -474,7 +472,7 @@ async function connect() {
     catch (err) { setErrors({ apiKey: err.message }); return }
     connecting.value = true
     try {
-        const res = await http.post(`${baseUrl}/updateMailchimpDetails`, {
+        const res = await http.post(`/updateMailchimpDetails`, {
             mailchimp_auth_key: form.apiKey,
             status: 1,
         })
@@ -511,7 +509,7 @@ async function saveConnection() {
     }
     savingConnection.value = true
     try {
-        const res = await http.patch(`${baseUrl}/mailchimp`, {
+        const res = await http.patch(`/mailchimp`, {
             list_id:          form.listId,
             subscribe_status: form.subscribeStatus,
         })
@@ -541,7 +539,7 @@ async function loadMoreLists() {
     if (listsLoading.value || !listsHasMore.value) return
     listsLoading.value = true
     try {
-        const res = await http.get(`${baseUrl}/mailchimp/lists`, { params: { count: PAGE_SIZE, offset: listsOffset.value } })
+        const res = await http.get(`/mailchimp/lists`, { params: { count: PAGE_SIZE, offset: listsOffset.value } })
         const d   = res.data?.data ?? {}
         const ids = new Set(lists.value.map(l => l.id))
         lists.value.push(...(d.lists ?? []).filter(l => !ids.has(l.id)))
@@ -557,7 +555,7 @@ async function loadMoreLists() {
 // ── Load mapping data ──────────────────────────────────────────────────────
 async function loadMappingData() {
     try {
-        const res = await http.get(`${baseUrl}/mailchimp/mapping-data`)
+        const res = await http.get(`/mailchimp/mapping-data`)
         const d   = res.data?.data ?? {}
 
         // Merge tags
@@ -594,7 +592,7 @@ async function loadMappingData() {
 async function syncFields() {
     syncingFields.value = true
     try {
-        const res    = await http.post(`${baseUrl}/mailchimp/sync-fields`)
+        const res    = await http.post(`/mailchimp/sync-fields`)
         const fields = res.data?.data?.fields ?? {}
         mergeTags.value = Object.entries(fields).map(([tag, name]) => ({ tag, name }))
         successHandler(res, COMPONENT)
@@ -624,7 +622,7 @@ async function saveMapping() {
     })
     savingMapping.value = true
     try {
-        const res = await http.patch(`${baseUrl}/mail-chimp/mapping`, payload)
+        const res = await http.patch(`/mail-chimp/mapping`, payload)
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -637,7 +635,7 @@ async function saveMapping() {
 async function syncGroups() {
     syncingGroups.value = true
     try {
-        const res = await http.post(`${baseUrl}/mailchimp/sync-groups`)
+        const res = await http.post(`/mailchimp/sync-groups`)
         const d   = res.data?.data ?? {}
         interestGroups.value     = d.groups     ?? interestGroups.value
         interestCategories.value = d.categories ?? interestCategories.value
@@ -671,17 +669,17 @@ async function saveInterestGroups() {
     savingGroups.value = true
     try {
         await Promise.all([
-            http.post(`${baseUrl}/mailchimp-prod-status`, { status: productStatus.value ? 1 : 0 }),
-            http.post(`${baseUrl}/mailchimp-paid-status`, { status: isPaidStatus.value  ? 1 : 0 }),
+            http.post(`/mailchimp-prod-status`, { status: productStatus.value ? 1 : 0 }),
+            http.post(`/mailchimp-paid-status`, { status: isPaidStatus.value  ? 1 : 0 }),
         ])
         const extra = []
         if (productStatus.value) {
             const rows = productRows.value.filter(r => r.productId && r.groupId)
             if (rows.length)
-                extra.push(http.patch(`${baseUrl}/mailchimp-group/mapping`, { row: rows.map(r => [r.productId, r.groupId]) }))
+                extra.push(http.patch(`/mailchimp-group/mapping`, { row: rows.map(r => [r.productId, r.groupId]) }))
         }
         if (isPaidStatus.value && isPaidCategoryId.value)
-            extra.push(http.patch(`${baseUrl}/mailchimp-ispaid/mapping`, { group: isPaidCategoryId.value }))
+            extra.push(http.patch(`/mailchimp-ispaid/mapping`, { group: isPaidCategoryId.value }))
         if (extra.length) await Promise.all(extra)
 
         successHandler({ data: { message: __('message.updated-successfully') } }, COMPONENT)
@@ -692,3 +690,7 @@ async function saveInterestGroups() {
     }
 }
 </script>
+
+<style scoped>
+.clickable { cursor: pointer; }
+</style>

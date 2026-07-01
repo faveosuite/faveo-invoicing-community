@@ -165,11 +165,11 @@
 
                         <div v-if="pwForm.new_password.length > 0" class="mb-3">
                             <strong>{{ __('message.password_requirements') }}</strong>
-                            <ul class="mt-1" style="padding-left: 1.25rem">
+                            <ul class="mt-1 password-rules-list">
                                 <li
                                     v-for="rule in passwordRules"
                                     :key="rule.key"
-                                    :style="{ color: rule.valid ? 'green' : 'red', fontSize: '14px', marginBottom: '4px' }"
+                                    :class="rule.valid ? 'rule-valid' : 'rule-invalid'"
                                 >
                                     {{ rule.label }}
                                 </li>
@@ -200,7 +200,7 @@
                         <div class="row align-items-center">
                             <div class="col-md-9">
                                 <span>
-                                    <i class="fas fa-shield-alt me-1 text-secondary" style="font-size:20px; vertical-align:middle;"></i>
+                                    <i class="fas fa-shield-alt me-1 text-secondary shield-icon"></i>
                                     {{
                                         is2faEnabled
                                             ? __('message.2_step_verification') + ' ' + dateSinceEnabled
@@ -323,7 +323,7 @@
                 <!-- Step: Done -->
                 <template v-if="twoFaStep === 'done'">
                     <div class="text-center py-3">
-                        <i class="fas fa-check-circle text-success" style="font-size:3rem;"></i>
+                        <i class="fas fa-check-circle text-success icon-3rem"></i>
                         <p class="mt-3 mb-0 fw-bold">{{ __('message.you_are_all_set') }}</p>
                     </div>
                 </template>
@@ -410,8 +410,6 @@ import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { profileSchema, passwordChangeSchema } from '@/validations/admin/profileValidations'
 
 const COMPONENT = 'profile-index'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 
@@ -483,8 +481,8 @@ const passwordRules = computed(() => [
 onMounted(async () => {
     try {
         const [profileRes, countriesRes] = await Promise.all([
-            http.get(`${baseUrl}/profile`),
-            http.get(`${baseUrl}/profile/countries`),
+            http.get(`/profile`),
+            http.get(`/profile/countries`),
         ])
 
         const d    = profileRes.data?.data ?? {}
@@ -533,7 +531,7 @@ onMounted(async () => {
 
 async function loadStates(countryCode) {
     try {
-        const res = await http.get(`${baseUrl}/profile/states/${countryCode}`)
+        const res = await http.get(`/profile/states/${countryCode}`)
         states.value = res.data?.data?.states ?? []
     } catch {
         states.value = []
@@ -590,7 +588,7 @@ async function submitProfile() {
         }
         data.append('_method', 'PATCH')
 
-        const res = await http.post(`${baseUrl}/profile`, data, {
+        const res = await http.post(`/profile`, data, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
         successHandler(res, COMPONENT)
@@ -606,7 +604,7 @@ async function submitPassword() {
 
     savingPassword.value = true
     try {
-        const res = await http.patch(`${baseUrl}/password`, {
+        const res = await http.patch(`/password`, {
             old_password:     pwForm.old_password,
             new_password:     pwForm.new_password,
             confirm_password: pwForm.confirm_password,
@@ -640,10 +638,10 @@ async function openEnableModal() {
     showEnableModal.value = true
 
     try {
-        await http.get(`${baseUrl}/show/verify-password`)
+        await http.get(`/show/verify-password`)
         // Password already confirmed — skip straight to recovery codes
         twoFaStep.value    = 'recovery'
-        const res = await http.post(`${baseUrl}/2fa-recovery-code`)
+        const res = await http.post(`/2fa-recovery-code`)
         recoveryCodes.value = res.data?.data?.code ?? []
     } catch {
         // Not yet confirmed — stay on password step
@@ -668,11 +666,11 @@ async function validatePassword() {
     modalError.value        = ''
     verifyingPassword.value = true
     try {
-        await http.post(`${baseUrl}/verify-password`, { user_password: userPassword.value })
+        await http.post(`/verify-password`, { user_password: userPassword.value })
         // Password verified — load recovery codes
         twoFaLoading.value = true
         twoFaStep.value    = 'recovery'
-        const res = await http.post(`${baseUrl}/2fa-recovery-code`)
+        const res = await http.post(`/2fa-recovery-code`)
         recoveryCodes.value = res.data?.data?.code ?? []
     } catch (e) {
         setModalError(e)
@@ -691,7 +689,7 @@ function copyRecovery() {
 async function goToQr() {
     enabling2fa.value = true
     try {
-        const res      = await http.post(`${baseUrl}/2fa/enable`)
+        const res      = await http.post(`/2fa/enable`)
         qrImage.value  = res.data?.data?.image  ?? ''
         qrSecret.value = res.data?.data?.secret ?? ''
         twoFaStep.value = 'qr'
@@ -707,7 +705,7 @@ async function verify2fa() {
     modalError.value   = ''
     verifying2fa.value = true
     try {
-        const res = await http.post(`${baseUrl}/2fa/setupValidate`, { totp: totp.value })
+        const res = await http.post(`/2fa/setupValidate`, { totp: totp.value })
         successHandler(res, COMPONENT)
         twoFaStep.value = 'done'
     } catch (e) {
@@ -730,7 +728,7 @@ function closeDisableModal() { showDisableModal.value = false }
 async function disable2fa() {
     disabling2fa.value = true
     try {
-        const res = await http.post(`${baseUrl}/2fa/disable/${userId.value}`)
+        const res = await http.post(`/2fa/disable/${userId.value}`)
         successHandler(res, COMPONENT)
         is2faEnabled.value     = false
         dateSinceEnabled.value = null
@@ -743,3 +741,11 @@ async function disable2fa() {
 }
 </script>
 
+
+<style scoped>
+.password-rules-list { padding-left: 1.25rem; }
+.rule-valid   { color: green; font-size: 14px; margin-bottom: 4px; }
+.rule-invalid { color: red;   font-size: 14px; margin-bottom: 4px; }
+.shield-icon  { font-size: 20px; vertical-align: middle; }
+.icon-3rem    { font-size: 3rem; }
+</style>

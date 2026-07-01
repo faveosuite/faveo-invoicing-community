@@ -43,8 +43,6 @@ import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { termsSchema } from '@/validations/admin/termsValidations'
 
 const COMPONENT = 'terms-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -55,7 +53,7 @@ const form = reactive({ terms_url: '' })
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/settings/terms`)
+        const res = await http.get(`/settings/terms`)
         form.terms_url = res.data?.data?.terms_url ?? ''
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -69,7 +67,7 @@ async function save() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/updateTermsDetails`, {
+        const res = await http.post(`/updateTermsDetails`, {
             terms_url: form.terms_url,
             status:    1,
         })

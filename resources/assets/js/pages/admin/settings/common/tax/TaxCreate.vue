@@ -149,8 +149,6 @@ import { buildTaxCreateSchema } from '@/validations/admin/taxValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'tax-create'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const router  = useRouter()
 const route   = useRoute()
 
@@ -176,14 +174,14 @@ async function onCountrySelect(val) {
     states.value = []
     if (!form.country) return
     try {
-        const res = await http.get(`${baseUrl}/get-state/${form.country}`)
+        const res = await http.get(`/get-state/${form.country}`)
         states.value = (res.data?.data?.states ?? []).map(s => ({ id: s.iso2, name: s.state_subdivision_name }))
     } catch (e) { /* ignore */ }
 }
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/tax-options`)
+        const res = await http.get(`/tax-options`)
         const d   = res.data?.data ?? {}
         countries.value = Object.entries(d.countries ?? {}).map(([id, name]) => ({ id, name }))
         classOptions.value = (d.classes ?? []).map(c => ({ id: c.slug, name: c.name }))
@@ -206,7 +204,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/create/tax-class`, form)
+        const res = await http.post(`/create/tax-class`, form)
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/settings/common/tax'), 2000)
     } catch (e) {

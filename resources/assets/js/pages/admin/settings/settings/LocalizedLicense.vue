@@ -30,10 +30,11 @@
 <script setup>
 import { h, ref, reactive } from 'vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'localized-license'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const dtRef          = ref(null)
 const deleteFileName = ref(null)
@@ -72,15 +73,7 @@ const tableOptions = reactive({
     },
     sortable:   ['file_name', 'order_number'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy  ?? 'file_name',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query   ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('file_name'),
     orderBy: { column: 'file_name', ascending: true },
 })
 </script>

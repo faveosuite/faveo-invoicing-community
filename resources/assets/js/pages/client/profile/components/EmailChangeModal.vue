@@ -60,9 +60,6 @@ const props = defineProps({
     currentEmail: { type: String,  default: '' },
 })
 const emit = defineEmits(['update:show', 'updated'])
-
-const el      = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 const COMPONENT = 'email-change'
 const COOLDOWN  = 120
 
@@ -124,7 +121,7 @@ async function submitEmail() {
     }
     busy.value = true
     try {
-        const res = await http.post(`${baseUrl}/profile/email/send-otp`, {
+        const res = await http.post(`/profile/email/send-otp`, {
             email_to_verify: newEmail.value,
             new_email: newEmail.value,
         })
@@ -148,18 +145,18 @@ async function submitOtp() {
     busy.value = true
     try {
         if (step.value === 'verify_old') {
-            await http.post(`${baseUrl}/profile/email/verify-otp`, {
+            await http.post(`/profile/email/verify-otp`, {
                 email_to_verify: props.currentEmail,
                 otp: otp.value,
                 verify_type: 'old_email',
             })
             // Old email confirmed → now send + verify the new email.
-            await http.post(`${baseUrl}/profile/email/send-otp`, { email_to_verify: newEmail.value })
+            await http.post(`/profile/email/send-otp`, { email_to_verify: newEmail.value })
             step.value = 'verify_new'
             otp.value = ''
             startCooldown()
         } else {
-            const res = await http.post(`${baseUrl}/profile/email/verify-otp`, {
+            const res = await http.post(`/profile/email/verify-otp`, {
                 email_to_verify: newEmail.value,
                 otp: otp.value,
                 verify_type: 'new_email',
@@ -176,7 +173,7 @@ async function submitOtp() {
 async function resend() {
     if (cooldown.value > 0) return
     try {
-        const res = await http.post(`${baseUrl}/profile/resend-otp`, {
+        const res = await http.post(`/profile/resend-otp`, {
             type: 'email',
             email_to_verify: step.value === 'verify_old' ? props.currentEmail : newEmail.value,
         })

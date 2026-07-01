@@ -53,12 +53,13 @@ const router = createRouter({
 // Login is handled by the client panel (not the admin Vue SPA).
 // If the session expires mid-session, redirect back to the client panel login.
 import { useAuthStore } from '@/core/stores/auth'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 router.beforeEach((to, from, next) => {
     const requiresAuth = to.meta?.requiresAuth !== false
 
     if (requiresAuth && !useAuthStore().isAuthenticated) {
-        globalThis.location.href = (el?.dataset?.baseUrl ?? '') + '/login'
+        globalThis.location.href = useBaseUrl() + '/login'
     } else {
         next()
     }

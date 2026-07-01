@@ -77,8 +77,6 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 
 const COMPONENT = 'system-settings'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setFieldError } = useForm()
 
@@ -108,7 +106,7 @@ const timePreview = computed(() => {
 
 onMounted(async () => {
     try {
-        const res  = await http.get(`${baseUrl}/settings/system-data`)
+        const res  = await http.get(`/settings/system-data`)
         const data = res.data?.data ?? {}
         const s    = data.settings ?? {}
 
@@ -147,7 +145,7 @@ async function save() {
         fd.append('time_format',  form.time_format?.id ?? '')
         fd.append('_method', 'PATCH')
 
-        const res = await http.post(`${baseUrl}/settings/datetime-data`, fd, {
+        const res = await http.post(`/settings/datetime-data`, fd, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
         successHandler(res, COMPONENT)

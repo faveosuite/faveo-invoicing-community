@@ -22,10 +22,11 @@ import { h, ref, reactive } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import LanguageTableActions from './LanguageTableActions.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'language-index'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const dtRef          = ref(null)
 const toggling       = ref(null)
@@ -34,7 +35,7 @@ const settingDefault = ref(null)
 async function toggleStatus(row) {
     toggling.value = row.locale
     try {
-        const res = await http.post(`${baseUrl}/language-toggle`, {
+        const res = await http.post(`/language-toggle`, {
             locale: row.locale,
             status: row.status ? 0 : 1,
         })
@@ -50,7 +51,7 @@ async function toggleStatus(row) {
 async function setDefault(row) {
     settingDefault.value = row.locale
     try {
-        const res = await http.post(`${baseUrl}/language-set-default`, { locale: row.locale })
+        const res = await http.post(`/language-set-default`, { locale: row.locale })
         successHandler(res, COMPONENT)
         dtRef.value?.refresh()
     } catch (e) {
@@ -95,15 +96,7 @@ const tableOptions = reactive({
     },
     sortable:   ['name', 'translation', 'locale'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy  ?? 'name',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query   ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('name'),
     responseAdapter({ data }) {
         const res = data?.data ?? {}
         return {

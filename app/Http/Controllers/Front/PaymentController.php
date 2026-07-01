@@ -49,7 +49,11 @@ class PaymentController extends Controller
         $model = $this->authorizedInvoice($request, $invoice);
 
         $items = $model->invoiceItem()->get();
-        $outstanding = $this->invoices->outstanding($model);
+        // Using credit is a single yes/no choice ("use_credit") — when on, the
+        // full available balance applies (no partial amount to pick), so what's
+        // actually left to charge via a gateway is net of it.
+        $creditApplied = $request->boolean('use_credit') ? $this->invoices->creditApplied($model) : 0.0;
+        $outstanding = $this->invoices->outstanding($model) - $creditApplied;
 
         // Each gateway carries its processing fee; surface the fee amount and the
         // resulting payable total so the pay page shows exactly what's charged.
@@ -75,11 +79,33 @@ class PaymentController extends Controller
             'summary' => $this->invoiceSummary($model, $items),
             'paid' => currencyFormat($model->payment()->sum('amount'), $model->currency, includeSymbol: false),
             'amount' => currencyFormat($outstanding, $model->currency, includeSymbol: false),
+            'credit_applied' => currencyFormat($creditApplied, $model->currency, includeSymbol: false),
+            'available_credit' => currencyFormat($this->invoices->availableCredit((int) $model->user_id), $model->currency, includeSymbol: false),
             'currency' => $model->currency,
             'currency_symbol' => Currency::where('code', $model->currency)->value('symbol'),
             'gateways' => $gateways,
             'stripe_key' => $this->invoices->publishableKey(),
         ]);
+    }
+
+    /**
+     * Pay an invoice entirely out of the client's own credit balance — used only
+     * when the available balance fully covers what's owed, so fulfilment can run
+     * immediately with no gateway step. A partial balance is never committed here;
+     * it's carried through the Stripe/Razorpay session instead (see {@see stripeSession}
+     * / {@see razorpayOrder}) and only actually spent once that payment is confirmed.
+     */
+    public function applyCredit(Request $request, int $invoice): JsonResponse
+    {
+        $model = $this->authorizedInvoice($request, $invoice);
+
+        try {
+            $result = $this->invoices->applyCredit($model);
+
+            return successResponse(__('message.payment_updated_succcessfully'), $result);
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
+        }
     }
 
     /**
@@ -191,7 +217,7 @@ class PaymentController extends Controller
         $model = $this->authorizedInvoice($request, $invoice);
 
         try {
-            return successResponse('', $this->invoices->start($model, 'Stripe')->clientConfig);
+            return successResponse('', $this->invoices->start($model, 'Stripe', $request->boolean('use_credit'))->clientConfig);
         } catch (Throwable $throwable) {
             return errorResponse($throwable->getMessage());
         }
@@ -226,7 +252,7 @@ class PaymentController extends Controller
         $model = $this->authorizedInvoice($request, $invoice);
 
         try {
-            return successResponse('', ['razorpay' => $this->invoices->start($model, 'Razorpay')->clientConfig]);
+            return successResponse('', ['razorpay' => $this->invoices->start($model, 'Razorpay', $request->boolean('use_credit'))->clientConfig]);
         } catch (Throwable $throwable) {
             return errorResponse($throwable->getMessage());
         }

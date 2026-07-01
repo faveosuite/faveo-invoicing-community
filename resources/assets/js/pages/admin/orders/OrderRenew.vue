@@ -74,10 +74,10 @@ import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'orders-renew'
-const el = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const baseUrl = useBaseUrl()
 
 const router = useRouter()
 const route  = useRoute()
@@ -113,7 +113,7 @@ const planEndpoint = computed(() =>
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/order/${orderId}`)
+        const res = await http.get(`/order/${orderId}`)
         const order = res.data?.data?.order
         if (order) {
             productId.value = order.product
@@ -144,7 +144,7 @@ function onPlanChange(val) {
 
 async function fetchCost(planId) {
     try {
-        const res = await http.get(`${baseUrl}/get-renew-cost`, {
+        const res = await http.get(`/get-renew-cost`, {
             params: { plan: planId, order: orderId },
         })
         const data = res.data?.data
@@ -167,7 +167,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/admin/renew/${orderId}`, {
+        const res = await http.post(`/admin/renew/${orderId}`, {
             plan:           planId,
             payment_method: form.payment_method,
             cost:           form.cost,

@@ -154,9 +154,10 @@ import {profileSchema} from '@/validations/client/profile.js'
 import ProfileImageUpload from '@/themes/porto/components/common/ProfileImageUpload.vue'
 import EmailChangeModal from './components/EmailChangeModal.vue'
 import MobileChangeModal from './components/MobileChangeModal.vue'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
-const el = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const el      = document.getElementById('app-client')
+const baseUrl = useBaseUrl()
 const avatarPreview = ref(el?.dataset?.userAvatar ?? '')
 const selectedImage = ref(null)
 
@@ -189,8 +190,8 @@ const selectedTimezone = ref(null)
 onMounted(async () => {
   try {
     const [profileRes, countriesRes] = await Promise.all([
-      http.get(`${baseUrl}/get-my-profile`),
-      http.get(`${baseUrl}/dependency/countries`, {params: {limit: 'all'}}),
+      http.get(`/get-my-profile`),
+      http.get(`/dependency/countries`, {params: {limit: 'all'}}),
     ])
     countries.value = countriesRes.data?.data?.countries ?? []
     const d = profileRes.data?.data ?? {}
@@ -227,7 +228,7 @@ async function loadStates(code) {
     return
   }
   try {
-    const res = await http.get(`${baseUrl}/dependency/states`, {params: {country: code, limit: 'all'}})
+    const res = await http.get(`/dependency/states`, {params: {country: code, limit: 'all'}})
     states.value = (res.data?.data?.states ?? []).map(st => ({
       id: st.iso2,
       name: st.name,
@@ -272,7 +273,7 @@ async function submitProfile() {
       data.append('profile_pic', selectedImage.value, 'profile_pic.jpg')
     }
     data.append('_method', 'PATCH')
-    const res = await http.post(`${baseUrl}/my-profile`, data, {headers: {'Content-Type': 'multipart/form-data'}})
+    const res = await http.post(`/my-profile`, data, {headers: {'Content-Type': 'multipart/form-data'}})
     successHandler(res, COMPONENT)
   } catch (e) {
     errorHandler(e, COMPONENT)

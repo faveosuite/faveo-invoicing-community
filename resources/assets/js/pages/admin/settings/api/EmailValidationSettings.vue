@@ -94,8 +94,6 @@ import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { emailValidationProviderSchema } from '@/validations/admin/emailValidationProviderValidations'
 
 const COMPONENT = 'email-validation-settings'
-const el      = document.getElementById('app-root')
-const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
 
@@ -125,7 +123,7 @@ const acceptedOutput = computed(() =>
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/settings/email-validation`)
+        const res = await http.get(`/settings/email-validation`)
         const d   = res.data?.data ?? {}
         Object.assign(form, {
             provider: d.provider ?? 'reoon',
@@ -153,7 +151,7 @@ async function save() {
         }
         if (form.mode === 'power') payload.accepted_output = acceptedOutput.value
 
-        const res = await http.post(`${baseUrl}/email-settings-save`, payload)
+        const res = await http.post(`/email-settings-save`, payload)
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)
