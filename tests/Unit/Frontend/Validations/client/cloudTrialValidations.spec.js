@@ -1,6 +1,8 @@
-import { cloudTrialSchema } from '@/validations/client/cloudTrialValidations'
+import { buildCloudTrialSchema } from '@/validations/client/cloudTrialValidations'
 
 describe('cloudTrialSchema', () => {
+    const cloudTrialSchema = buildCloudTrialSchema({ hasProducts: true, hasDataCenters: true })
+
     const valid = {
         domain:             'my-cloud',
         selectedProduct:    { id: 1, name: 'Product A' },
@@ -50,5 +52,28 @@ describe('cloudTrialSchema', () => {
 
     it('fails when selectedDataCenter has object with null id', async () => {
         await expect(cloudTrialSchema.validate({ ...valid, selectedDataCenter: { id: null } })).rejects.toThrow()
+    })
+})
+
+describe('buildCloudTrialSchema dynamic requiredness', () => {
+    it('does not require selectedProduct when hasProducts is false', async () => {
+        const schema = buildCloudTrialSchema({ hasProducts: false, hasDataCenters: true })
+        await expect(schema.validate({
+            domain: 'my-cloud',
+            selectedDataCenter: { id: 2, name: 'US East' },
+        })).resolves.toBeTruthy()
+    })
+
+    it('does not require selectedDataCenter when hasDataCenters is false', async () => {
+        const schema = buildCloudTrialSchema({ hasProducts: true, hasDataCenters: false })
+        await expect(schema.validate({
+            domain: 'my-cloud',
+            selectedProduct: { id: 1, name: 'Product A' },
+        })).resolves.toBeTruthy()
+    })
+
+    it('requires neither when both lists are empty', async () => {
+        const schema = buildCloudTrialSchema({ hasProducts: false, hasDataCenters: false })
+        await expect(schema.validate({ domain: 'my-cloud' })).resolves.toBeTruthy()
     })
 })

@@ -18,6 +18,7 @@
 
 <script setup>
 import { reactive } from 'vue'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'country-list'
 const apiUrl = `/get-country`
@@ -39,19 +40,7 @@ const tableOptions = reactive({
     },
     sortable: ['country', 'count'],
     filterable: true,
-    requestAdapter(data) {
-        let sortField = data.orderBy ?? 'country_name'
-        if (sortField === 'country') sortField = 'country_name'
-        if (sortField === 'count')   sortField = 'users_count'
-
-        return {
-            'sort-field': sortField,
-            'sort-order': data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page: data.page,
-            limit: data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('country_name', null, { country: 'country_name', count: 'users_count' }),
     orderBy: { column: 'country', ascending: true },
 })
 </script>

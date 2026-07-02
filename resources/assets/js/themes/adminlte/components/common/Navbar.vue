@@ -53,6 +53,10 @@
             <li v-if="loadingLangs" class="d-flex justify-content-center py-2">
               <spinner-loader :size="18"/>
             </li>
+
+            <li v-else-if="loadFailed && !languages.length" class="d-flex justify-content-center py-2">
+              <button type="button" class="btn btn-sm btn-link" @click="loadLanguages">{{ __('message.retry') }}</button>
+            </li>
           </ul>
         </li>
 
@@ -104,7 +108,9 @@ const {notify} = useNotification()
 const el = document.getElementById('app-root')
 
 // ── URLs ──────────────────────────────────────────────────────────────────────
-const baseUrl = useBaseUrl() || '/'
+// Deliberately no '/' fallback here — baseUrl + '/login' must never produce
+// a protocol-relative URL like '//login' when useBaseUrl() is empty.
+const baseUrl = useBaseUrl()
 
 // ── Logout ────────────────────────────────────────────────────────────────────
 async function logout() {
@@ -125,6 +131,7 @@ const currentLocale = ref((el?.dataset?.locale ?? 'en').toLowerCase())
 
 const languages = ref([])
 const loadingLangs = ref(false)
+const loadFailed = ref(false)
 const hasMore = ref(true)
 const page = ref(1)
 const langMenu = ref(null)
@@ -172,7 +179,9 @@ function nativeName(locale) {
 async function loadLanguages() {
   if (loadingLangs.value || !hasMore.value) return
   loadingLangs.value = true
+  loadFailed.value = false
   try {
+    const isFirstBatch = languages.value.length === 0
     const {data} = await http.get('languages', {
       params: {'sort-order': 'asc', limit: LIMIT, page: page.value},
     })
@@ -182,11 +191,12 @@ async function loadLanguages() {
     hasMore.value = batch.length === LIMIT
     page.value++
     // Use API default locale if blade locale not set
-    if (page.value === 2 && defaultLocale && !el?.dataset?.locale) {
+    if (isFirstBatch && defaultLocale && !el?.dataset?.locale) {
       currentLocale.value = defaultLocale.toLowerCase()
     }
   } catch (err) {
     console.error('Failed to load languages', err)
+    loadFailed.value = true
   } finally {
     loadingLangs.value = false
   }

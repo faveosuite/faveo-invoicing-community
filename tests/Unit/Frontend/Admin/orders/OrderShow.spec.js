@@ -48,7 +48,7 @@ describe('OrderShow.vue', () => {
         globalThis.mockHttp.onGet(/\/getOrderInvoices\/0/).reply(200, { data: [] })
         globalThis.mockHttp.onGet(/\/getOrderPayments\/0/).reply(200, { data: [] })
         globalThis.mockHttp.onPatch(/\/reissue-license/).reply(200, { data: { message: 'Reissued' } })
-        globalThis.mockHttp.onPost(/\/renewal-disable/).reply(200, { data: { message: 'Disabled' } })
+        globalThis.mockHttp.onPost(/\/auto-renewal\/\d+\/disable/).reply(200, { data: { message: 'Disabled' } })
         globalThis.mockHttp.onPost(/\/switch-license-mode/).reply(200, { data: { message: 'Switched' } })
         globalThis.mockHttp.onPost(/\/update-license-details/).reply(200, { data: { message: 'Updated' } })
         wrapper = mount(OrderShow, {
@@ -116,11 +116,11 @@ describe('OrderShow.vue', () => {
         expect(errorHandler).toHaveBeenCalled()
     })
 
-    it('disableRenewal sends POST /renewal-disable', async () => {
+    it('disableRenewal sends POST /auto-renewal/{orderId}/disable', async () => {
         await flushPromises()
         await wrapper.vm.disableRenewal()
         await flushPromises()
-        expect(globalThis.mockHttp.history.post.some(r => /\/renewal-disable/.test(r.url))).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => /\/auto-renewal\/\d+\/disable/.test(r.url))).toBe(true)
         expect(successHandler).toHaveBeenCalled()
     })
 

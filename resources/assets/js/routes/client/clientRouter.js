@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/core/stores/auth'
+import { resolveBasePath } from '@/core/composables/useBaseUrl'
 
-const el        = document.getElementById('app-client')
-const clientUrl = el?.dataset?.clientUrl ?? ''
-const base      = clientUrl ? new URL(clientUrl).pathname : '/'
+const el   = document.getElementById('app-client')
+const base = resolveBasePath(el?.dataset?.clientUrl, '/')
 
 const routes = [
     { path: '/', redirect: '/client-dashboard' },

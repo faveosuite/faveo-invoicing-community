@@ -66,8 +66,8 @@ async function savePerms() {
     saving.value = true
     const permissionid = editPerms.value.filter(p => p.assigned).map(p => p.id)
     try {
-        const res = await http.delete(`/add-permission`, {
-            data: { licenseId: editLicense.value.id, permissionid },
+        const res = await http.post(`/add-permission`, {
+            licenseId: editLicense.value.id, permissionid,
         })
         successHandler(res, COMPONENT)
         closeModal()

@@ -54,6 +54,7 @@
 
 <script setup>
 import { ref, nextTick } from 'vue'
+import { b64toBlob } from '@/helpers/imageUtils'
 import VueCropper from 'vue-cropperjs'
 import 'cropperjs/dist/cropper.css'
 
@@ -133,17 +134,6 @@ function onSubmit() {
     closeModal()
 }
 
-function b64toBlob(b64Data, contentType = '', sliceSize = 512) {
-    const byteCharacters = atob(b64Data)
-    const byteArrays = []
-    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        const slice = byteCharacters.slice(offset, offset + sliceSize)
-        const bytes = new Array(slice.length)
-        for (let i = 0; i < slice.length; i++) bytes[i] = slice.charCodeAt(i)
-        byteArrays.push(new Uint8Array(bytes))
-    }
-    return new Blob(byteArrays, { type: contentType })
-}
 </script>
 
 <style scoped>

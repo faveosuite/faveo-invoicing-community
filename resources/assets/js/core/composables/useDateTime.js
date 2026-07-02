@@ -1,4 +1,5 @@
 import { computed } from 'vue'
+import { DateTime } from 'luxon'
 import { useDateTimeStore } from '../stores/dateTimeStore'
 import { formatWithPattern, toUTC as _toUTC } from '../../helpers/luxonHelpers'
 
@@ -30,12 +31,19 @@ export function useDateTime() {
         return _toUTC(localString, timezone.value, inputFormat)
     }
 
+    // Current moment in the app's configured timezone — use instead of `new Date()`
+    // for any "today"/date-range math so it respects the user's timezone setting.
+    function now() {
+        return DateTime.now().setZone(timezone.value)
+    }
+
     return {
         formatDate,
         formatTime,
         formatDateTime,
         formatCustom,
         toUTC,
+        now,
         timezone,
         dateFormat,
         timeFormat,

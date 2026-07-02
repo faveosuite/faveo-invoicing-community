@@ -458,7 +458,7 @@ import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { useDateTime } from '@/core/composables/useDateTime'
 
-const { formatDate: dtFormatDate, formatCustom } = useDateTime()
+const { formatDate: dtFormatDate, formatCustom, now } = useDateTime()
 
 const loading = ref(true)
 const data = ref({
@@ -478,16 +478,13 @@ const data = ref({
   totalProductsSold: []
 })
 
-const startingDateOfYear = ref(new Date().getFullYear() + '-01-01')
-const d = new Date();
-const startMonthDate = ref(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`)
-const endMonthDate = ref(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()}`)
-const fmt = (dt) => `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
-const today = fmt(d)
-const p30 = new Date(d); p30.setDate(p30.getDate() - 30)
-const thirtyDaysAgo = fmt(p30)
-const p31 = new Date(d); p31.setDate(p31.getDate() - 31)
-const thirtyOneDaysAgo = fmt(p31)
+const n = now()
+const startingDateOfYear = ref(n.startOf('year').toFormat('yyyy-MM-dd'))
+const startMonthDate = ref(n.startOf('month').toFormat('yyyy-MM-dd'))
+const endMonthDate = ref(n.endOf('month').toFormat('yyyy-MM-dd'))
+const today = n.toFormat('yyyy-MM-dd')
+const thirtyDaysAgo = n.minus({ days: 30 }).toFormat('yyyy-MM-dd')
+const thirtyOneDaysAgo = n.minus({ days: 31 }).toFormat('yyyy-MM-dd')
 
 onMounted(async () => {
   try {
@@ -510,14 +507,13 @@ const formatRate = (rate) => {
 
 const formatDateForUser = (dateStr) => {
   if (!dateStr) return ''
-  const date = new Date(dateStr)
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
+  const dateKey     = formatCustom(dateStr, 'yyyy-MM-dd')
+  const todayKey     = now().toFormat('yyyy-MM-dd')
+  const yesterdayKey = now().minus({ days: 1 }).toFormat('yyyy-MM-dd')
 
-  if (date.toDateString() === today.toDateString()) {
+  if (dateKey === todayKey) {
     return __('message.today') || 'Today'
-  } else if (date.toDateString() === yesterday.toDateString()) {
+  } else if (dateKey === yesterdayKey) {
     return __('message.yesterday') || 'Yesterday'
   }
   return formatCustom(dateStr, 'MMM d')

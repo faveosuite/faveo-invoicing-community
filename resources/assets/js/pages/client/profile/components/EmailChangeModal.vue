@@ -48,12 +48,13 @@
 </template>
 
 <script setup>
-import { ref, watch, onBeforeUnmount } from 'vue'
+import { ref, watch } from 'vue'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import Modal from '@/themes/porto/components/common/Modal.vue'
 import AppAlert from '@/components/Reusable/Alert.vue'
+import { useCooldown } from '@/core/composables/useCooldown'
 
 const props = defineProps({
     show:         { type: Boolean, default: false },
@@ -69,12 +70,11 @@ const otp        = ref('')
 const emailError = ref('')
 const otpError   = ref('')
 const busy       = ref(false)
-const cooldown   = ref(0)
-let timer = null
+const { cooldown, start: startCooldown, stop: stopCooldown } = useCooldown(COOLDOWN)
 
 watch(() => props.show, (open) => {
     if (open) reset()
-    else clearInterval(timer)
+    else stopCooldown()
 })
 
 // Keep OTP numeric / 6 digits.
@@ -90,21 +90,12 @@ function reset() {
     otp.value = ''
     emailError.value = ''
     otpError.value = ''
-    cooldown.value = 0
-    clearInterval(timer)
+    stopCooldown()
 }
 
 function close() {
-    clearInterval(timer)
+    stopCooldown()
     emit('update:show', false)
-}
-
-function startCooldown() {
-    cooldown.value = COOLDOWN
-    clearInterval(timer)
-    timer = setInterval(() => {
-        if (--cooldown.value <= 0) clearInterval(timer)
-    }, 1000)
 }
 
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) // NOSONAR
@@ -188,6 +179,4 @@ function finish(email) {
     emit('updated', email)
     close()
 }
-
-onBeforeUnmount(() => clearInterval(timer))
 </script>

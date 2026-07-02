@@ -1,7 +1,6 @@
 import * as yup from 'yup'
 import { __ } from '@/plugins/i18n'
-
-const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+import { EMAIL_RE } from './authSchemas'
 
 export const demoSchema = yup.object({
     name:    yup.string().trim().required(() => __('message.contact_error_name')),

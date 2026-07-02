@@ -440,6 +440,7 @@ import InvoiceTableActions          from '../invoices/components/InvoiceTableAct
 import OrderTableActions            from '../orders/components/OrderTableActions.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 import { makeRequestAdapter } from '@/helpers/tableUtils'
+import { useTableSelection } from '@/core/composables/useTableSelection'
 
 const COMPONENT  = 'user-show'
 const route      = useRoute()
@@ -460,30 +461,12 @@ const invDtRef = ref(null)
 const payDtRef = ref(null)
 const ordDtRef = ref(null)
 
-const selInvoices = ref([])
-const selPayments = ref([])
-const selOrders   = ref([])
+const { selected: selInvoices, allSelected: allInvSelected, toggleRow: toggleInvoiceRow, toggleAll: toggleAllInvoices } = useTableSelection(invDtRef)
+const { selected: selPayments, allSelected: allPaySelected, toggleRow: togglePaymentRow, toggleAll: toggleAllPayments } = useTableSelection(payDtRef)
+const { selected: selOrders,   allSelected: allOrdSelected, toggleRow: toggleOrderRow,   toggleAll: toggleAllOrders }   = useTableSelection(ordDtRef)
 
-const allInvSelected = computed(() => { const d = invDtRef.value?.tableData ?? []; return d.length > 0 && d.every(r => selInvoices.value.includes(r.id)) })
-const allPaySelected = computed(() => { const d = payDtRef.value?.tableData ?? []; return d.length > 0 && d.every(r => selPayments.value.includes(r.id)) })
-const allOrdSelected = computed(() => { const d = ordDtRef.value?.tableData ?? []; return d.length > 0 && d.every(r => selOrders.value.includes(r.id)) })
-
-function toggleAll(selRef, dtRef, e) {
-    const data = dtRef.value?.tableData ?? []
-    if (e.target.checked) {
-        selRef.value.push(...data.map(r => r.id).filter(id => !selRef.value.includes(id)))
-    } else {
-        const ids = new Set(data.map(r => r.id))
-        selRef.value = selRef.value.filter(id => !ids.has(id))
-    }
-}
-function toggleRow(selRef, id) {
-    const i = selRef.value.indexOf(id)
-    if (i === -1) selRef.value.push(id)
-    else selRef.value.splice(i, 1)
-}
-function selectCheckbox(selRef, row) {
-    return h('input', { type: 'checkbox', checked: selRef.value.includes(row.id), onChange: () => toggleRow(selRef, row.id) })
+function selectCheckbox(selRef, toggleRow, row) {
+    return h('input', { type: 'checkbox', checked: selRef.value.includes(row.id), onChange: () => toggleRow(row.id) })
 }
 
 const bulkDelete = ref(null)
@@ -667,7 +650,7 @@ function statusBadge(status, map) {
 const invoiceColumns = ['select', 'date', 'number', 'grand_total', 'paid', 'balance', 'status', 'action']
 const invoiceOptions = {
     headings: {
-        select:      () => h('input', { type: 'checkbox', checked: allInvSelected.value, onChange: (e) => toggleAll(selInvoices, invDtRef, e) }),
+        select:      () => h('input', { type: 'checkbox', checked: allInvSelected.value, onChange: toggleAllInvoices }),
         date:        __('message.date')       || 'Date',
         number:      __('message.invoice_no') || 'Invoice No',
         grand_total: __('message.total')      || 'Total',
@@ -687,14 +670,14 @@ const invoiceOptions = {
         action: 'dt-action',
     },
     templates: {
-        select:      (_, row) => selectCheckbox(selInvoices, row),
+        select:      (_, row) => selectCheckbox(selInvoices, toggleInvoiceRow, row),
         number:      (_, row) => row.number && row.id ? h(RouterLink, { to: '/invoices/' + row.id }, () => row.number) : (row.number || '—'),
         date:        (_, row) => fmtDate(row.date),
         grand_total: (_, row) => formatMoney(row.grand_total, row.currency),
         paid:        (_, row) => formatMoney(row.paid, row.currency),
         balance:     (_, row) => h('span', { class: row.balance > 0 ? 'text-danger' : '' }, formatMoney(row.balance, row.currency)),
         status:      (_, row) => statusBadge(row.status, { success: 'bg-success', pending: 'bg-warning text-dark', 'partially paid': 'bg-info text-dark' }),
-        action:      (_, row) => h(InvoiceTableActions, { invoiceId: row.id, showDelete: true }),
+        action:      (_, row) => h(InvoiceTableActions, { invoiceId: row.id, showDelete: true, componentName: COMPONENT }),
     },
     sortable:   ['date', 'number', 'grand_total', 'status'],
     filterable: true,
@@ -705,7 +688,7 @@ const invoiceOptions = {
 const paymentColumns = ['select', 'invoice_number', 'date', 'payment_method', 'amount', 'status', 'action']
 const paymentOptions = {
     headings: {
-        select:         () => h('input', { type: 'checkbox', checked: allPaySelected.value, onChange: (e) => toggleAll(selPayments, payDtRef, e) }),
+        select:         () => h('input', { type: 'checkbox', checked: allPaySelected.value, onChange: toggleAllPayments }),
         invoice_number: __('message.invoice_no')     || 'Invoice No',
         date:           __('message.date')           || 'Date',
         payment_method: __('message.payment-method') || 'Payment Method',
@@ -723,7 +706,7 @@ const paymentOptions = {
         action: 'dt-action',
     },
     templates: {
-        select:         (_, row) => selectCheckbox(selPayments, row),
+        select:         (_, row) => selectCheckbox(selPayments, togglePaymentRow, row),
         invoice_number: (_, row) => row.invoice_number && row.invoice_id ? h(RouterLink, { to: '/invoices/' + row.invoice_id }, () => row.invoice_number) : (row.invoice_number || '—'),
         date:           (_, row) => fmtDate(row.date),
         amount:         (_, row) => formatMoney(row.amount, row.currency),
@@ -744,7 +727,7 @@ const paymentOptions = {
 const orderColumns = ['select', 'order_date', 'product_name', 'number', 'version', 'order_status', 'action']
 const orderOptions = {
     headings: {
-        select:       () => h('input', { type: 'checkbox', checked: allOrdSelected.value, onChange: (e) => toggleAll(selOrders, ordDtRef, e) }),
+        select:       () => h('input', { type: 'checkbox', checked: allOrdSelected.value, onChange: toggleAllOrders }),
         order_date:   __('message.date')     || 'Date',
         product_name: __('message.product')  || 'Product',
         number:       __('message.order_no') || 'Order No',
@@ -762,7 +745,7 @@ const orderOptions = {
         action: 'dt-action',
     },
     templates: {
-        select:       (_, row) => selectCheckbox(selOrders, row),
+        select:       (_, row) => selectCheckbox(selOrders, toggleOrderRow, row),
         order_date:   (_, row) => fmtDate(row.order_date),
         product_name: (_, row) => row.product_name && row.product_id ? h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => row.product_name) : (row.product_name || '—'),
         number:       (_, row) => row.number && row.id ? h(RouterLink, { to: `/orders/${row.id}` }, () => `#${row.number}`) : (row.number ? `#${row.number}` : '—'),
@@ -782,20 +765,11 @@ const orderOptions = {
             )
         },
         order_status: (_, row) => statusBadge(row.order_status, { active: 'bg-success', pending: 'bg-warning text-dark', cancelled: 'bg-danger', expired: 'bg-secondary', terminated: 'bg-dark' }),
-        action:       (_, row) => h(OrderTableActions, { orderId: row.id, showDelete: true }),
+        action:       (_, row) => h(OrderTableActions, { orderId: row.id, showDelete: true, componentName: COMPONENT }),
     },
     sortable:   ['order_date', 'number', 'order_status'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy === 'order_date' ? 'created_at' : (data.orderBy ?? 'created_at'),
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-            client:         userId,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at', ref({ client: userId }), { order_date: 'created_at' }),
     orderBy: { column: 'order_date', ascending: false },
 }
 </script>

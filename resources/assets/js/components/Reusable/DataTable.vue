@@ -50,6 +50,7 @@
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import http from '@/plugins/axios'
 import SimplePagination from '@/components/Reusable/SimplePagination.vue'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const props = defineProps({
   url: { type: String, required: true },
@@ -126,15 +127,7 @@ const computedOptions = computed(() => ({
     up:   'fa-chevron-down',
     down: 'fa-chevron-up',
   },
-  requestAdapter(data) {
-    return {
-      'sort-field': data.orderBy,
-      'sort-order': data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-      'search-query': (data.query ?? '').trim(),
-      page: data.page,
-      limit: data.limit,
-    }
-  },
+  requestAdapter: makeRequestAdapter('created_at'),
   requestFunction(data) {
     return http.get(props.url, { params: data }).catch(e => {
       console.error('[DataTable] request error:', e)

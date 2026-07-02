@@ -624,7 +624,7 @@ const payNow = async () => {
         // (rate changed between config load and Pay click), alert the user
         const confirmedTotal = parseFloat(order.value?.amount)
         const estimatedTotal = parseFloat(calculation.total)
-        if (!Number.Number.isNaN(confirmedTotal) && Math.abs(confirmedTotal - estimatedTotal) > 0.01) {
+        if (!Number.isNaN(confirmedTotal) && Math.abs(confirmedTotal - estimatedTotal) > 0.01) {
           alertStore.setAlert({
             message: `The total has been updated to ${selectedCurrencySymbol.value} ${confirmedTotal} due to a fee rate change.`,
             type: 'warning',

@@ -8,12 +8,12 @@ const visible = ref(false)
 let timer = null
 
 export function useNotification() {
-    function notify(msg, msgType = 'success') {
+    function notify(msg, msgType = 'success', duration = 7000) {
         message.value = msg
         type.value    = msgType
         visible.value = true
         clearTimeout(timer)
-        timer = setTimeout(() => { visible.value = false }, 40000)
+        timer = setTimeout(() => { visible.value = false }, duration)
     }
 
     function dismiss() {

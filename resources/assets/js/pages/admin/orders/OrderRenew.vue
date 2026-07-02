@@ -73,6 +73,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
+import { extractId } from '@/helpers/formUtils.js'
 import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
@@ -139,7 +140,7 @@ function onPlanChange(val) {
     form.plan = val
     form.cost = ''
     currencySymbol.value = ''
-    if (val) fetchCost(typeof val === 'object' ? val.id : val)
+    if (val) fetchCost(extractId(val))
 }
 
 async function fetchCost(planId) {
@@ -157,7 +158,7 @@ async function fetchCost(planId) {
 }
 
 async function submit() {
-    const planId = typeof form.plan === 'object' ? form.plan?.id : form.plan
+    const planId = extractId(form.plan)
 
     const errs = {}
     if (!planId) errs.plan = __('message.renew_plan')

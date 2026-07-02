@@ -65,10 +65,19 @@ function onValueChange(val) {
     props.onChange(val, props.name)
 }
 
+function optionExists(val) {
+    if (val == null) return true
+    return props.elements.some(el =>
+        el === val || (el && typeof el === 'object' && typeof val === 'object' && 'id' in el && 'id' in val && el.id === val.id)
+    )
+}
+
 watch(() => props.value,    (val) => { selectedValue.value = val })
 watch(() => props.elements, () => {
-    if (!props.elements.includes(selectedValue.value)) {
-        selectedValue.value = null
+    const current = selectedValue.value
+    const stillValid = Array.isArray(current) ? current.every(optionExists) : optionExists(current)
+    if (!stillValid) {
+        selectedValue.value = props.multiple ? [] : null
     }
 })
 </script>

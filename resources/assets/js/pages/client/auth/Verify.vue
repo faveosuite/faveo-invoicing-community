@@ -90,7 +90,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { reactive, ref, computed, onMounted, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
@@ -99,6 +99,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { otpSchema } from '@/validations/client/authSchemas.js'
 import { RecaptchaField } from '@recaptcha'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useCooldown } from '@/core/composables/useCooldown'
 
 const COMPONENT = 'client-page'
 const COOLDOWN  = 120
@@ -114,8 +115,7 @@ const done      = ref(false)
 const eid       = ref('')
 const steps     = ref([])
 const stepIndex = ref(0)
-const cooldown  = ref(0)
-let timer = null
+const { cooldown, start: startCooldown, stop: stopCooldown } = useCooldown(COOLDOWN)
 
 const current = computed(() => steps.value[stepIndex.value] ?? null)
 
@@ -169,18 +169,7 @@ onMounted(async () => {
     }
 })
 
-onUnmounted(() => clearInterval(timer))
-
 watch(stepIndex, () => captchaRef.value?.reset())
-
-function startCooldown() {
-    cooldown.value = COOLDOWN
-    clearInterval(timer)
-    timer = setInterval(() => {
-        cooldown.value--
-        if (cooldown.value <= 0) clearInterval(timer)
-    }, 1000)
-}
 
 function onOtpInput(value) {
     form.otp = String(value).replace(/\D/g, '').slice(0, 6)
@@ -228,13 +217,12 @@ async function verify() {
 
         if (stepIndex.value < steps.value.length - 1) {
             stepIndex.value++
-            clearInterval(timer)
-            cooldown.value = 0
+            stopCooldown()
             sendInitial()
         } else {
             // All steps verified — show the success state, then redirect to login.
             done.value = true
-            clearInterval(timer)
+            stopCooldown()
             setTimeout(() => { globalThis.location.href = `${baseUrl}/login` }, 1500)
         }
     } catch (e) {

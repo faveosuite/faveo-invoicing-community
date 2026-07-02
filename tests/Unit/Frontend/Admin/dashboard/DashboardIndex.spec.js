@@ -2,12 +2,22 @@ jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: je
 jest.mock('@/helpers/responseHandler', () => ({ successHandler: jest.fn(), errorHandler: jest.fn() }))
 jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
 jest.mock('vue-router', () => ({ useRouter: () => ({ push: jest.fn() }), useRoute: () => ({ params: {}, query: {} }), RouterLink: { template: '<a><slot/></a>' } }))
-jest.mock('@/core/composables/useDateTime', () => ({
-    useDateTime: () => ({
-        formatDate: (v) => v,
-        formatCustom: (v) => v,
-    }),
-}))
+jest.mock('@/core/composables/useDateTime', () => {
+    const { DateTime } = require('luxon')
+    return {
+        useDateTime: () => ({
+            formatDate: (v) => v,
+            formatCustom: (v, fmt) => {
+                if (fmt === 'yyyy-MM-dd') {
+                    const dt = DateTime.fromISO(v)
+                    return dt.isValid ? dt.toFormat(fmt) : v
+                }
+                return v
+            },
+            now: () => DateTime.now(),
+        }),
+    }
+})
 
 import { mount } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'

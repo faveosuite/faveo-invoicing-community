@@ -58,6 +58,8 @@
       />
 
       <RecaptchaField ref="captchaRef" action="demo" class="mt-2" />
+
+      <Honeypot ref="honeypotRef" name="demo" v-model="honeypotPayload" />
     </template>
 
     <template #controls>
@@ -86,6 +88,7 @@ import Modal from '../common/Modal.vue'
 import Alert from '@/components/Reusable/Alert.vue'
 import ClientField from '../forms/ClientField.vue'
 import PhoneField from '@/components/Reusable/FormField/PhoneField.vue'
+import Honeypot from '@/components/Reusable/Honeypot.vue'
 import { RecaptchaField } from '@recaptcha'
 
 const props = defineProps({
@@ -99,7 +102,8 @@ const { errors, setErrors, setFieldError } = useForm()
 
 const captchaRef = ref(null)
 const submitting = ref(false)
-const honeypot = ref(null)
+const honeypotRef = ref(null)
+const honeypotPayload = ref({})
 
 const form = reactive({
   name: '',
@@ -118,12 +122,7 @@ watch(() => props.show, async (val) => {
     form.message = ''
     setErrors({})
     captchaRef.value?.reset()
-    try {
-      const { data } = await http.get('honeypot')
-      honeypot.value = data?.data ?? null
-    } catch {
-      honeypot.value = null
-    }
+    honeypotRef.value?.reload()
   }
 })
 
@@ -168,11 +167,8 @@ async function submit() {
       demomessage:  form.message,
       ...captchaPayload,
     }
-    if (honeypot.value) {
-      payload.demo = {
-        [honeypot.value.pot]:  '',
-        [honeypot.value.time]: honeypot.value.token,
-      }
+    if (Object.keys(honeypotPayload.value).length) {
+      payload.demo = honeypotPayload.value
     }
     const res = await http.post('demo-request', payload)
     form.name = ''

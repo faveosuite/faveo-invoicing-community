@@ -45,6 +45,9 @@ const props = defineProps({
     iconOnly: { type: Boolean,           default: null },
     type:     { type: String,            default: 'button' },
     to:       { type: [String, Object],  default: null },
+    // Porto/client theme's subdued palette: neutral actions render as
+    // btn-light instead of btn-secondary.
+    light:    { type: Boolean,           default: false },
 })
 
 const ACTION_MAP = {
@@ -75,7 +78,11 @@ const ACTION_MAP = {
 }
 
 const meta           = computed(() => ACTION_MAP[props.action] || {})
-const resolvedVariant = computed(() => props.variant || meta.value.variant || 'secondary')
+const resolvedVariant = computed(() => {
+    if (props.variant) return props.variant
+    const base = meta.value.variant || 'secondary'
+    return (props.light && base === 'secondary') ? 'light' : base
+})
 const resolvedIcon    = computed(() => props.icon    || meta.value.icon    || '')
 const resolvedLabel   = computed(() => {
     if (props.label) return props.label
@@ -101,10 +108,13 @@ const classes     = computed(() => [
 </script>
 
 <style scoped>
+/* Deliberately not display:flex — a flex row with no label child (icon-only
+   table buttons) collapses to the icon's tight line-height instead of the
+   button's normal line-height-driven height. Plain inline layout always
+   reserves that height regardless of content, so icon-only buttons stay the
+   same height as labeled ones. Icon/label spacing comes from margin instead
+   of gap below. */
 .action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
     white-space: nowrap;
     vertical-align: middle;
 }
@@ -117,7 +127,6 @@ const classes     = computed(() => [
     border-right-color: transparent;
     border-radius: 50%;
     animation: action-btn-spin 0.65s linear infinite;
-    flex-shrink: 0;
     vertical-align: middle;
 }
 
@@ -126,7 +135,11 @@ const classes     = computed(() => [
 }
 
 .action-btn-icon {
-    flex-shrink: 0;
     line-height: 1;
+}
+
+.action-btn-icon:not(:last-child),
+.action-btn-spinner:not(:last-child) {
+    margin-right: 6px;
 }
 </style>

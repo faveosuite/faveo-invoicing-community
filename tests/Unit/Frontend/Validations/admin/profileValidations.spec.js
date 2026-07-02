@@ -57,8 +57,8 @@ describe('profileSchema', () => {
 describe('passwordChangeSchema', () => {
     const valid = {
         old_password:     'OldPass1',
-        new_password:     'NewPass1',
-        confirm_password: 'ConfirmPass1',
+        new_password:     'Secure@123',
+        confirm_password: 'Secure@123',
     }
 
     it('passes with valid data', async () => {
@@ -78,7 +78,15 @@ describe('passwordChangeSchema', () => {
         await expect(passwordChangeSchema.validate({ ...valid, new_password: '' })).rejects.toThrow()
     })
 
+    it('fails when new_password does not meet strength requirements', async () => {
+        await expect(passwordChangeSchema.validate({ ...valid, new_password: 'weakpass', confirm_password: 'weakpass' })).rejects.toThrow()
+    })
+
     it('fails when confirm_password is empty', async () => {
         await expect(passwordChangeSchema.validate({ ...valid, confirm_password: '' })).rejects.toThrow()
+    })
+
+    it('fails when confirm_password does not match new_password', async () => {
+        await expect(passwordChangeSchema.validate({ ...valid, confirm_password: 'Secure@999' })).rejects.toThrow()
     })
 })

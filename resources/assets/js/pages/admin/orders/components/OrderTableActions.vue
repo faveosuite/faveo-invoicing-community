@@ -29,7 +29,7 @@
                 :deleteData="{ order_ids: [orderId] }"
                 :title="__('message.confirm_delete') || 'Confirm Delete'"
                 :message="__('message.are_you_sure') || 'Are you sure?'"
-                componentName="user-show"
+                :componentName="componentName"
             />
         </template>
     </div>
@@ -41,10 +41,11 @@ import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const props = defineProps({
-    orderId:   { type: Number, required: true },
-    canRenew:  { type: Boolean, default: false },
-    baseUrl:   { type: String, default: '' },
-    showDelete: { type: Boolean, default: false },
+    orderId:       { type: Number, required: true },
+    canRenew:      { type: Boolean, default: false },
+    baseUrl:       { type: String, default: '' },
+    showDelete:    { type: Boolean, default: false },
+    componentName: { type: String, default: 'orders-index' },
 })
 
 const resolvedBaseUrl = props.baseUrl || useBaseUrl()

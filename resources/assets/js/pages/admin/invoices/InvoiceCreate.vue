@@ -153,7 +153,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
-import { validateForm } from '@/helpers/formUtils.js'
+import { validateForm, extractId } from '@/helpers/formUtils.js'
 import { buildInvoiceCreateSchema } from '@/validations/admin/invoiceValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import NumberField from '@/components/Reusable/FormField/NumberField.vue'
@@ -191,7 +191,7 @@ const dynamic = reactive({
 
 const productId = computed(() => {
     if (!form.product) return ''
-    return typeof form.product === 'object' ? form.product.id : form.product
+    return extractId(form.product)
 })
 
 onMounted(async () => {
@@ -248,8 +248,8 @@ function resetDynamicFields() {
 
 async function fetchPrice() {
     const pid = productId.value
-    const planId = typeof form.plan === 'object' ? form.plan?.id : form.plan
-    const userId = typeof form.user === 'object' ? form.user?.id : form.user
+    const planId = extractId(form.plan)
+    const userId = extractId(form.user)
     if (!pid || !planId) return
 
     try {
@@ -280,10 +280,10 @@ async function fetchPrice() {
 async function submit() {
     if (!await validateForm(buildInvoiceCreateSchema(dynamic), form, setErrors)) return
 
-    const planId = typeof form.plan === 'object' ? form.plan?.id : form.plan
+    const planId = extractId(form.plan)
 
     const payload = {
-        user:         typeof form.user    === 'object' ? form.user?.id    : form.user,
+        user:         extractId(form.user),
         date:         form.date,
         product:      productId.value,
         plan:         planId || null,

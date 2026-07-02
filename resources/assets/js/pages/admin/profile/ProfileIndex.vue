@@ -408,6 +408,7 @@ import { validateForm } from '@/helpers/formUtils.js'
 import ImageUpload from '@/components/Reusable/FormField/ImageUpload.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { profileSchema, passwordChangeSchema } from '@/validations/admin/profileValidations'
+import { passwordChecks } from '@/validations/client/authSchemas'
 
 const COMPONENT = 'profile-index'
 
@@ -470,13 +471,18 @@ const pwForm = reactive({
     confirm_password: '',
 })
 
-const passwordRules = computed(() => [
-    { key: 'length',  label: 'Between 8-16 characters',           valid: pwForm.new_password.length >= 8 && pwForm.new_password.length <= 16 },
-    { key: 'lower',   label: 'Lowercase characters (a-z)',         valid: /[a-z]/.test(pwForm.new_password) },
-    { key: 'upper',   label: 'Uppercase characters (A-Z)',         valid: /[A-Z]/.test(pwForm.new_password) },
-    { key: 'number',  label: 'Numbers (0-9)',                      valid: /\d/.test(pwForm.new_password) },
-    { key: 'special', label: 'Special characters (~*!@$#%_+.?:)', valid: /[~*!@$#%_+:?.;(){}]/.test(pwForm.new_password) },
-])
+const PASSWORD_RULE_LABELS = {
+    length:  'Between 8-16 characters',
+    lower:   'Lowercase characters (a-z)',
+    upper:   'Uppercase characters (A-Z)',
+    number:  'Numbers (0-9)',
+    special: 'Special characters (~*!@$#%_+.?:)',
+}
+
+const passwordRules = computed(() => {
+    const checks = passwordChecks(pwForm.new_password)
+    return Object.entries(PASSWORD_RULE_LABELS).map(([key, label]) => ({ key, label, valid: checks[key] }))
+})
 
 onMounted(async () => {
     try {

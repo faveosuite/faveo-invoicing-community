@@ -1,29 +1,29 @@
-import VersionsIndex from '../../../../../app/License/Resources/js/Pages/Version/VersionsIndex.vue';
-import VersionsView from '../../../../../app/License/Resources/js/Pages/Version/VersionsView.vue';
+const VersionsIndex = () => import('../../../../../app/License/Resources/js/Pages/Version/VersionsIndex.vue');
+const VersionsView = () => import('../../../../../app/License/Resources/js/Pages/Version/VersionsView.vue');
 
-import LicenseCreateEdit from '../../../../../app/License/Resources/js/Pages/License/LicenseCreateEdit.vue';
-import LicensesIndex from '../../../../../app/License/Resources/js/Pages/License/LicensesIndex.vue';
-import LicensesView from '../../../../../app/License/Resources/js/Pages/License/LicensesView.vue';
+const LicenseCreateEdit = () => import('../../../../../app/License/Resources/js/Pages/License/LicenseCreateEdit.vue');
+const LicensesIndex = () => import('../../../../../app/License/Resources/js/Pages/License/LicensesIndex.vue');
+const LicensesView = () => import('../../../../../app/License/Resources/js/Pages/License/LicensesView.vue');
 
-import InstallationsIndex from '../../../../../app/License/Resources/js/Pages/Installations/InstallationsIndex.vue';
-import InstallationCreateEdit from '../../../../../app/License/Resources/js/Pages/Installations/InstallationCreateEdit.vue';
-import InstallationsView from '../../../../../app/License/Resources/js/Pages/Installations/InstallationsView.vue';
+const InstallationsIndex = () => import('../../../../../app/License/Resources/js/Pages/Installations/InstallationsIndex.vue');
+const InstallationCreateEdit = () => import('../../../../../app/License/Resources/js/Pages/Installations/InstallationCreateEdit.vue');
+const InstallationsView = () => import('../../../../../app/License/Resources/js/Pages/Installations/InstallationsView.vue');
 
-import CallbacksIndex from '../../../../../app/License/Resources/js/Pages/Callbacks/CallbacksIndex.vue';
+const CallbacksIndex = () => import('../../../../../app/License/Resources/js/Pages/Callbacks/CallbacksIndex.vue');
 
-import BannedHostCreateEdit from '../../../../../app/License/Resources/js/Pages/BannedHost/BannedHostCreateEdit.vue';
-import BannedHostsIndex from '../../../../../app/License/Resources/js/Pages/BannedHost/BannedHostsIndex.vue';
+const BannedHostCreateEdit = () => import('../../../../../app/License/Resources/js/Pages/BannedHost/BannedHostCreateEdit.vue');
+const BannedHostsIndex = () => import('../../../../../app/License/Resources/js/Pages/BannedHost/BannedHostsIndex.vue');
 
-import CustomizeNotifications from '../../../../../app/License/Resources/js/Pages/ServerNotifications/CustomizeNotifications.vue';
-import CustomizeUpdateNotifications from '../../../../../app/License/Resources/js/Pages/ServerNotifications/CustomizeUpdateNotifications.vue';
+const CustomizeNotifications = () => import('../../../../../app/License/Resources/js/Pages/ServerNotifications/CustomizeNotifications.vue');
+const CustomizeUpdateNotifications = () => import('../../../../../app/License/Resources/js/Pages/ServerNotifications/CustomizeUpdateNotifications.vue');
 
-import WhiteList from '../../../../../app/License/Resources/js/Pages/WhiteList/WhiteList.vue';
-import WhiteListCreate from '../../../../../app/License/Resources/js/Pages/WhiteList/WhiteListCreate.vue';
+const WhiteList = () => import('../../../../../app/License/Resources/js/Pages/WhiteList/WhiteList.vue');
+const WhiteListCreate = () => import('../../../../../app/License/Resources/js/Pages/WhiteList/WhiteListCreate.vue');
 
-import ViewCrackingReports from '../../../../../app/License/Resources/js/Pages/Report/ViewCrackingReports.vue';
-import ViewLicenseReports from '../../../../../app/License/Resources/js/Pages/Report/ViewLicenseReports.vue';
-import ViewUpdateReports from '../../../../../app/License/Resources/js/Pages/Report/ViewUpdateReports.vue';
-import ViewSystemReports from '../../../../../app/License/Resources/js/Pages/Report/ViewSystemReports.vue';
+const ViewCrackingReports = () => import('../../../../../app/License/Resources/js/Pages/Report/ViewCrackingReports.vue');
+const ViewLicenseReports = () => import('../../../../../app/License/Resources/js/Pages/Report/ViewLicenseReports.vue');
+const ViewUpdateReports = () => import('../../../../../app/License/Resources/js/Pages/Report/ViewUpdateReports.vue');
+const ViewSystemReports = () => import('../../../../../app/License/Resources/js/Pages/Report/ViewSystemReports.vue');
 
 export default [
     { path: '/versions', redirect: '/versions/list' },
@@ -57,7 +57,7 @@ export default [
     { path: '/server', redirect: '/server/notifications' },
     { path: '/server/notifications', component: CustomizeNotifications, meta: { title: 'License Custom Notification', titleKey: 'message.server_notifications' } },
     { path: '/server/update-notifications', component: CustomizeUpdateNotifications, meta: { title: 'Update Custom Notification', titleKey: 'message.server_notifications' } },
-    
+
     { path: '/log-reports', redirect: '/log-reports/license' },
     { path: '/log-reports/crack', component: ViewCrackingReports, meta: { title: 'Cracking Reports' } },
     { path: '/log-reports/license', component: ViewLicenseReports, meta: { title: 'License Reports' } },

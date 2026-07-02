@@ -163,32 +163,18 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import { useTableSelection } from '@/core/composables/useTableSelection'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'tax-index'
 const baseUrl = useBaseUrl()
 const apiUrl  = `/tax-tables`
 
 const dtRef          = ref(null)
-const selected       = ref([])
+const { selected, allSelected, toggleRow, toggleAll } = useTableSelection(dtRef)
 const optionsLoading = ref(true)
 const savingOptions  = ref(false)
 const pendingBulkDelete = ref(null)
-
-const allSelected = computed(() => {
-    const data = dtRef.value?.tableData ?? []
-    return data.length > 0 && data.every(row => selected.value.includes(row.id))
-})
-
-function toggleAll(e) {
-    const data = dtRef.value?.tableData ?? []
-    if (e.target.checked) {
-        const ids = data.map(r => r.id).filter(id => !selected.value.includes(id))
-        selected.value.push(...ids)
-    } else {
-        const ids = new Set(data.map(r => r.id))
-        selected.value = selected.value.filter(id => !ids.has(id))
-    }
-}
 
 const enabledOptions   = [{ id: 1, name: __('message.caps_enabled') }, { id: 0, name: __('message.caps_disabled') }]
 const inclusiveOptions = [{ id: 1, name: __('message.caps_inclusive') }, { id: 0, name: __('message.caps_exclusive') }]
@@ -311,10 +297,7 @@ const tableOptions = reactive({
         select: (f, row) => h('input', {
             type:     'checkbox',
             checked:  selected.value.includes(row.id),
-            onChange: (e) => {
-                if (e.target.checked) selected.value = [...selected.value, row.id]
-                else selected.value = selected.value.filter(id => id !== row.id)
-            },
+            onChange: () => toggleRow(row.id),
         }),
         name:     (f, row) => row.name     || '—',
         country:  (f, row) => row.country  || '—',
@@ -331,16 +314,7 @@ const tableOptions = reactive({
     },
     sortable:   ['name', 'country', 'state', 'rate', 'priority'],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'sort-field':   data.orderBy   ?? 'created_at',
-            'sort-order':   data.orderBy ? (data.ascending ? 'asc' : 'desc') : 'desc',
-            'search-query': (data.query ?? '').trim(),
-            tax_class:      activeClass.value,
-            page:  data.page,
-            limit: data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('created_at', computed(() => ({ tax_class: activeClass.value }))),
     orderBy: { column: 'created_at', ascending: false },
 })
 </script>

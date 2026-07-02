@@ -447,7 +447,7 @@ async function reissueLicense() {
 async function disableRenewal() {
     saving.renewal = true
     try {
-        const res = await http.post(`/renewal-disable`, { order_id: orderId })
+        const res = await http.post(`/auto-renewal/${orderId}/disable`)
         successHandler(res, COMPONENT)
         await reload()
     } catch (e) {

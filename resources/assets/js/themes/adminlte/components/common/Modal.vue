@@ -21,7 +21,7 @@
                         <button v-if="showCloseBtn" type="button" class="btn btn-light" @click="onClose">
                             <i class="fas fa-times"></i>&nbsp;
                             <span v-if="showbuttonName">{{ showbuttonName }}</span>
-                            <span v-else>{{ lang('close') }}</span>
+                            <span v-else>{{ __('message.close') }}</span>
                         </button>
                         <slot name="controls"></slot>
                     </div>
@@ -34,7 +34,6 @@
 
 <script setup>
 import { watch } from 'vue'
-import { lang } from '@/helpers/extraLogics'
 
 const props = defineProps({
     showModal:      { type: Boolean,  default: false },

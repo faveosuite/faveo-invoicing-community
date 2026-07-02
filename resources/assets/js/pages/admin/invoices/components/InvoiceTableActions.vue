@@ -25,7 +25,7 @@
                 :deleteData="{ invoice_ids: [invoiceId] }"
                 :title="__('message.confirm_delete') || 'Confirm Delete'"
                 :message="__('message.are_you_sure') || 'Are you sure?'"
-                componentName="user-show"
+                :componentName="componentName"
             />
         </template>
     </div>
@@ -39,9 +39,10 @@ import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const props = defineProps({
-    invoiceId:  { type: [Number, String], required: true },
-    isExecuted: { type: Boolean, default: false },
-    showDelete: { type: Boolean, default: false },
+    invoiceId:     { type: [Number, String], required: true },
+    isExecuted:    { type: Boolean, default: false },
+    showDelete:    { type: Boolean, default: false },
+    componentName: { type: String, default: 'invoices-index' },
 })
 
 const baseUrl = useBaseUrl()
@@ -50,9 +51,9 @@ const showModal = ref(false)
 async function execute() {
     try {
         const res = await http.post(`/invoices/${props.invoiceId}/execute`)
-        successHandler(res, 'invoices-index')
+        successHandler(res, props.componentName)
     } catch (e) {
-        errorHandler(e, 'invoices-index')
+        errorHandler(e, props.componentName)
     }
 }
 </script>

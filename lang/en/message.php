@@ -2244,7 +2244,26 @@ return [
         'terms_conditions_required' => 'You must agree to the terms and conditions',
 
     ],
+    'open_payment' => [
+        'name_required' => 'Please enter your name.',
+        'name_max' => 'Name cannot exceed 100 characters.',
+        'email_required' => 'Please enter your email address.',
+        'email_invalid' => 'Please enter a valid email address.',
+        'mobile_required' => 'Please enter your mobile number.',
+        'mobile_min' => 'Mobile number must be at least 8 characters.',
+        'company_required' => 'Please enter your company name.',
+        'address_required' => 'Please enter your address.',
+        'city_required' => 'Please enter your city.',
+        'state_required' => 'Please select your state.',
+        'zip_required' => 'Please enter your ZIP / postal code.',
+        'zip_max' => 'ZIP code cannot exceed 15 characters.',
+        'country_required' => 'Please select your country.',
+        'amount_invalid' => 'Amount must be a valid number.',
+        'amount_required' => 'Please enter the payment amount.',
+        'amount_min' => 'Amount must be at least 1.',
+    ],
     'caps_items' => 'ITEMS',
+    'retry' => 'Retry',
 
     // Guest auth SPA (login / register / verify / 2FA) UI strings
     'sign_in' => 'Sign In',

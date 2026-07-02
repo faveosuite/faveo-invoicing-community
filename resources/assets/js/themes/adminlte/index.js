@@ -7,7 +7,6 @@ import Sidebar from './components/common/Sidebar.vue';
 import Navbar from './components/common/Navbar.vue';
 import AppFooter from './components/common/Footer.vue';
 import AppButton from './components/common/Button.vue';
-import AppBadge from './components/common/Badge.vue';
 import AppAlert        from '@/components/Reusable/Alert.vue'
 import DeleteModal     from '@/components/Reusable/DeleteModal.vue'
 import StaticAlert     from './components/common/StaticAlert.vue'
@@ -17,8 +16,6 @@ import AppBreadcrumb   from './components/common/Breadcrumb.vue';
 const DataTable        = defineAsyncComponent(() => import('@/components/Reusable/DataTable.vue'));
 const SimplePagination = defineAsyncComponent(() => import('@/components/Reusable/SimplePagination.vue'));
 const AppModal         = defineAsyncComponent(() => import('./components/common/Modal.vue'));
-const AppPagination    = defineAsyncComponent(() => import('./components/common/Pagination.vue'));
-const AppCard          = defineAsyncComponent(() => import('./components/common/Card.vue'));
 const TextField        = defineAsyncComponent(() => import('@/components/Reusable/FormField/TextField.vue'));
 const SelectField      = defineAsyncComponent(() => import('@/components/Reusable/FormField/SelectField.vue'));
 const TextareaField    = defineAsyncComponent(() => import('@/components/Reusable/FormField/TextareaField.vue'));
@@ -35,7 +32,6 @@ export const components = {
     Navbar,
     AppFooter,
     AppButton,
-    AppBadge,
     AppAlert,
     StaticAlert,
     DeleteModal,
@@ -43,8 +39,6 @@ export const components = {
     DataTable,
     SimplePagination,
     AppModal,
-    AppPagination,
-    AppCard,
     TextField,
     SelectField,
     TextareaField,

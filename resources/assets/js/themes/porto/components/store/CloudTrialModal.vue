@@ -81,7 +81,7 @@ import { ref, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import { __ } from '@/plugins/i18n'
 import { useAlertStore } from '@/core/stores/alert'
-import { cloudTrialSchema } from '@/validations/client/cloudTrialValidations'
+import { buildCloudTrialSchema } from '@/validations/client/cloudTrialValidations'
 import http from '@/plugins/axios'
 import Modal from '../common/Modal.vue'
 import Alert from '@/components/Reusable/Alert.vue'
@@ -139,7 +139,7 @@ function closeModal() {
 
 async function submit() {
   try {
-    cloudTrialSchema.validateSync(
+    buildCloudTrialSchema({ hasProducts: products.value.length > 0, hasDataCenters: dataCenters.value.length > 0 }).validateSync(
       { domain: domain.value, selectedProduct: selectedProduct.value, selectedDataCenter: selectedDataCenter.value },
       { abortEarly: false },
     )

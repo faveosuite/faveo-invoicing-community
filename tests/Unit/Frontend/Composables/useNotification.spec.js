@@ -44,20 +44,20 @@ describe('useNotification', () => {
         expect(visible.value).toBe(false)
     })
 
-    it('auto-dismisses after 40 seconds', () => {
+    it('auto-dismisses after 7 seconds', () => {
         jest.useFakeTimers()
         const { visible, notify } = useNotification()
         notify('Hello', 'success')
         expect(visible.value).toBe(true)
-        jest.advanceTimersByTime(40000)
+        jest.advanceTimersByTime(7000)
         expect(visible.value).toBe(false)
     })
 
-    it('does not dismiss before 40 seconds', () => {
+    it('does not dismiss before 7 seconds', () => {
         jest.useFakeTimers()
         const { visible, notify } = useNotification()
         notify('Hello', 'success')
-        jest.advanceTimersByTime(39999)
+        jest.advanceTimersByTime(6999)
         expect(visible.value).toBe(true)
     })
 
@@ -65,14 +65,24 @@ describe('useNotification', () => {
         jest.useFakeTimers()
         const { visible, notify } = useNotification()
         notify('First', 'success')
-        jest.advanceTimersByTime(30000)
-        // Second notify should reset the 40s timer
+        jest.advanceTimersByTime(5000)
+        // Second notify should reset the 7s timer
         notify('Second', 'info')
-        jest.advanceTimersByTime(30000)
-        // Timer from first notify would have fired by now (30+30=60s), but it was reset
+        jest.advanceTimersByTime(5000)
+        // Timer from first notify would have fired by now (5+5=10s), but it was reset
         expect(visible.value).toBe(true)
-        jest.advanceTimersByTime(10000)
-        // Now 40s from second notify have elapsed
+        jest.advanceTimersByTime(2000)
+        // Now 7s from second notify have elapsed
+        expect(visible.value).toBe(false)
+    })
+
+    it('respects a custom duration argument', () => {
+        jest.useFakeTimers()
+        const { visible, notify } = useNotification()
+        notify('Hello', 'success', 40000)
+        jest.advanceTimersByTime(7000)
+        expect(visible.value).toBe(true)
+        jest.advanceTimersByTime(33000)
         expect(visible.value).toBe(false)
     })
 

@@ -62,6 +62,7 @@
 import { ref, watch, onBeforeMount, nextTick } from 'vue'
 import { lang } from '@/helpers/extraLogics'
 import { useAlertStore } from '@/core/stores/alert'
+import { b64toBlob } from '@/helpers/imageUtils'
 import VueCropper from 'vue-cropperjs'
 import 'cropperjs/dist/cropper.css'
 import FormFieldTemplate from './FormFieldTemplate.vue'
@@ -113,6 +114,7 @@ watch(() => props.value, (newVal) => {
 
 function onFileSelected(event) {
     const file = event.target.files[0]
+    if (!file) return
 
     if (!file.type.includes('image/')) {
         showCustomAlert(lang('select_image'))
@@ -180,20 +182,6 @@ function onSubmit() {
     }, props.name)
 
     onClose()
-}
-
-function b64toBlob(b64Data, contentType = '', sliceSize = 512) {
-    const byteCharacters = atob(b64Data)
-    const byteArrays = []
-    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        const slice = byteCharacters.slice(offset, offset + sliceSize)
-        const byteNumbers = new Array(slice.length)
-        for (let i = 0; i < slice.length; i++) {
-            byteNumbers[i] = slice.charCodeAt(i)
-        }
-        byteArrays.push(new Uint8Array(byteNumbers))
-    }
-    return new Blob(byteArrays, { type: contentType })
 }
 
 function tooltipValue(file) {

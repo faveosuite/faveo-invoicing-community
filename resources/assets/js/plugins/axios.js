@@ -33,7 +33,7 @@ http.interceptors.response.use(
 
         // 401 — session expired; skip if the caller flagged this request
         // (e.g. auth.hydrate() which expects 401 for guests)
-        if (status === 401 && !error.config?._skipAuthRedirect && !globalThis.location.href.endsWith('/login')) {
+        if (status === 401 && !error.config?._skipAuthRedirect && !globalThis.location.pathname.endsWith('/login')) {
             globalThis.location.href = loginUrl
         }
 

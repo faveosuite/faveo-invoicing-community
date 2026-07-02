@@ -217,21 +217,21 @@ describe('UserShow.vue', () => {
         expect(navigator.clipboard.writeText).toHaveBeenCalledWith('test@example.com')
     })
 
-    it('toggleAll selects all rows when checked', async () => {
+    it('toggleAllInvoices selects all rows when checked', async () => {
         await flushPromises()
-        const selRef = { value: [] }
-        const dtRef  = { value: { tableData: [{ id: 1 }, { id: 2 }] } }
-        wrapper.vm.toggleAll(selRef, dtRef, { target: { checked: true } })
-        expect(selRef.value).toContain(1)
-        expect(selRef.value).toContain(2)
+        wrapper.vm.invDtRef = { tableData: [{ id: 1 }, { id: 2 }] }
+        wrapper.vm.selInvoices = []
+        wrapper.vm.toggleAllInvoices({ target: { checked: true } })
+        expect(wrapper.vm.selInvoices).toContain(1)
+        expect(wrapper.vm.selInvoices).toContain(2)
     })
 
-    it('toggleAll deselects all rows when unchecked', async () => {
+    it('toggleAllInvoices deselects all rows when unchecked', async () => {
         await flushPromises()
-        const selRef = { value: [1, 2] }
-        const dtRef  = { value: { tableData: [{ id: 1 }, { id: 2 }] } }
-        wrapper.vm.toggleAll(selRef, dtRef, { target: { checked: false } })
-        expect(selRef.value).toHaveLength(0)
+        wrapper.vm.invDtRef = { tableData: [{ id: 1 }, { id: 2 }] }
+        wrapper.vm.selInvoices = [1, 2]
+        wrapper.vm.toggleAllInvoices({ target: { checked: false } })
+        expect(wrapper.vm.selInvoices).toHaveLength(0)
     })
 
     it('loadSummary sets summary data on success', async () => {

@@ -80,16 +80,17 @@ describe('axios request interceptor', () => {
 
 // ── Response error interceptor ────────────────────────────────────────────────
 describe('axios response error interceptor', () => {
-    let originalHref
+    let originalHref, originalPathname
 
     beforeEach(() => {
         originalHref = globalThis.location.href
+        originalPathname = globalThis.location.pathname
     })
 
     afterEach(() => {
         Object.defineProperty(window, 'location', {
             writable: true,
-            value: { href: originalHref },
+            value: { href: originalHref, pathname: originalPathname },
         })
     })
 
@@ -98,7 +99,7 @@ describe('axios response error interceptor', () => {
         globalThis.mockHttp.onGet('/protected').reply(401)
         Object.defineProperty(window, 'location', {
             writable: true,
-            value: { href: 'http://localhost/' },
+            value: { href: 'http://localhost/', pathname: '/' },
         })
         try { await http.get('/protected') } catch { /* expected */ }
         expect(globalThis.location.href).toContain('/login')
@@ -109,7 +110,7 @@ describe('axios response error interceptor', () => {
         globalThis.mockHttp.onGet('/hydrate').reply(401)
         Object.defineProperty(window, 'location', {
             writable: true,
-            value: { href: 'http://localhost/' },
+            value: { href: 'http://localhost/', pathname: '/' },
         })
         try {
             await http.get('/hydrate', { _skipAuthRedirect: true })

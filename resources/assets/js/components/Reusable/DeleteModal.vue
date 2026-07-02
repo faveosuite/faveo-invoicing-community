@@ -11,7 +11,7 @@
                     </div>
 
                     <div class="modal-body">
-                        <AppAlert componentName="delete-modal" />
+                        <AppAlert :componentName="props.componentName" />
                         <p class="mb-0">{{ message }}</p>
                     </div>
 
@@ -66,7 +66,7 @@ async function onSubmit() {
         globalThis.emitter?.emit('refreshData')
         props.onClose()
     } catch (e) {
-        errorHandler(e, 'delete-modal')
+        errorHandler(e, props.componentName)
     } finally {
         loading.value = false
     }

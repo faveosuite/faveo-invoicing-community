@@ -18,7 +18,6 @@ import { setupLoaderInterceptors } from './plugins/axios.js'
 import DateTimePlugin from './plugins/dateTime.js'
 import { useDateTimeStore } from './core/stores/dateTimeStore.js'
 import { useAuthStore } from './core/stores/auth.js'
-import axios from './plugins/axios.js'
 
 const progressBarOptions = {
     color: 'rgb(0, 154, 186)',
@@ -64,23 +63,8 @@ app.use(i18n)
 app.use(VueProgressBar, progressBarOptions)
 app.use(FloatingVue)
 
-const clientEl = document.getElementById('app-client')
-const clientBaseUrl = clientEl?.dataset?.baseUrl ?? ''
-
 // Load system date/time settings non-blocking; auth store provides user timezone
-axios.get(`${clientBaseUrl}/settings/system-data`).then(res => {
-    const s = res.data?.data?.settings ?? {}
-    useDateTimeStore().init({
-        timezone:   s.timezone?.name ?? 'UTC',
-        dateFormat: s.date_format    ?? 'd/m/Y',
-        timeFormat: s.time_format    ?? 'H:i',
-    })
-    // Re-apply user timezone after system data loads so it isn't overwritten
-    const userTz = useAuthStore().user?.timezone?.name
-    if (userTz) useDateTimeStore().setUserTimezone(userTz)
-}).catch(() => {
-    useDateTimeStore().init({ timezone: 'UTC', dateFormat: 'd/m/Y', timeFormat: 'H:i' })
-})
+useDateTimeStore().bootstrap()
 
 setupLoaderInterceptors(app.config.globalProperties.$Progress)
 

@@ -119,6 +119,7 @@ export const getSubStringValue = (name, count) => {
             return name;
         }
     }
+    return '';
 };
 
 /**

@@ -1,6 +1,10 @@
 jest.mock('@/helpers/extraLogics', () => ({ lang: (key) => key, getIdFromUrl: jest.fn(() => 0) }))
 jest.mock('@/helpers/responseHandler', () => ({ successHandler: jest.fn(), errorHandler: jest.fn() }))
-jest.mock('@/helpers/formUtils.js', () => ({ validateForm: jest.fn(() => Promise.resolve(true)), scrollToFirstError: jest.fn() }))
+jest.mock('@/helpers/formUtils.js', () => ({
+    validateForm: jest.fn(() => Promise.resolve(true)),
+    scrollToFirstError: jest.fn(),
+    extractId: (val) => (val === null || val === undefined ? null : (typeof val === 'object' ? val.id : val)),
+}))
 jest.mock('vue-router', () => ({
     useRouter: () => ({ push: jest.fn() }),
     useRoute: () => ({ params: {}, query: {} }),

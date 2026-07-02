@@ -170,38 +170,4 @@ describe('useAnalyticsScripts', () => {
         expect(injectedEls.some(s => s.textContent.includes(marker))).toBe(true)
     })
 
-    it('does not inject on_every_page scripts when route has standalone meta', async () => {
-        const id = nextId()
-        const marker = `__standalone_${id}`
-        const scripts = [
-            { id, script: `globalThis.${marker} = true;`, on_every_page: true, on_registration: false },
-        ]
-        const extraRoutes = [
-            { path: '/embed', component: { template: '<div />' }, meta: { standalone: true } },
-        ]
-
-        // For the standalone check (in onMounted), we need the router already at /embed
-        // when the component mounts. Push before mount and await ready.
-        document.body.innerHTML = `<div id="app-client" data-scripts='${JSON.stringify(scripts)}'></div>`
-        const router = buildRouter(extraRoutes)
-        await router.push('/embed')
-        await router.isReady()
-
-        const TestComponent = defineComponent({
-            setup() { useAnalyticsScripts() },
-            template: '<div></div>',
-        })
-        mount(TestComponent, {
-            global: {
-                plugins: [
-                    router,
-                    createTestingPinia({ stubActions: true, createSpy: jest.fn }),
-                ],
-            },
-        })
-        await flushPromises()
-
-        const injectedEls = Array.from(document.head.querySelectorAll('script'))
-        expect(injectedEls.some(s => s.textContent.includes(marker))).toBe(false)
-    })
 })

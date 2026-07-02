@@ -32,17 +32,18 @@ const routes = [
     ...commonRoutes,
     ...widgetRoutes,
     ...licenseRoutes,
-    { path: '/404', name: 'NotFound',    meta: { title: 'Not Found',    isErrorPage: true }, component: () => import('@/pages/admin/errors/NotFound.vue') },
-    { path: '/403', name: 'Forbidden',   meta: { title: 'Forbidden',    isErrorPage: true }, component: () => import('@/pages/admin/errors/Forbidden.vue') },
-    { path: '/500', name: 'ServerError', meta: { title: 'Server Error', isErrorPage: true }, component: () => import('@/pages/admin/errors/ServerError.vue') },
-    { path: '/:pathMatch(.*)*',          meta: { title: 'Not Found',    isErrorPage: true }, component: () => import('@/pages/admin/errors/NotFound.vue') },
+    { path: '/404', name: 'NotFound',    meta: { title: 'Not Found',    isErrorPage: true, requiresAuth: false }, component: () => import('@/pages/admin/errors/NotFound.vue') },
+    { path: '/403', name: 'Forbidden',   meta: { title: 'Forbidden',    isErrorPage: true, requiresAuth: false }, component: () => import('@/pages/admin/errors/Forbidden.vue') },
+    { path: '/500', name: 'ServerError', meta: { title: 'Server Error', isErrorPage: true, requiresAuth: false }, component: () => import('@/pages/admin/errors/ServerError.vue') },
+    { path: '/:pathMatch(.*)*',          meta: { title: 'Not Found',    isErrorPage: true, requiresAuth: false }, component: () => import('@/pages/admin/errors/NotFound.vue') },
 ]
 
 // Read the admin base path from the blade-rendered data attribute.
 // Falls back to '/admin' if the attribute is missing.
+import { useBaseUrl, resolveBasePath } from '@/core/composables/useBaseUrl'
+
 const el = document.getElementById('app-root')
-const adminUrl = el?.dataset?.adminUrl ?? ''
-const base = adminUrl ? new URL(adminUrl).pathname : '/admin'
+const base = resolveBasePath(el?.dataset?.adminUrl, '/admin')
 
 const router = createRouter({
     history: createWebHistory(base),
@@ -53,7 +54,6 @@ const router = createRouter({
 // Login is handled by the client panel (not the admin Vue SPA).
 // If the session expires mid-session, redirect back to the client panel login.
 import { useAuthStore } from '@/core/stores/auth'
-import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 router.beforeEach((to, from, next) => {
     const requiresAuth = to.meta?.requiresAuth !== false

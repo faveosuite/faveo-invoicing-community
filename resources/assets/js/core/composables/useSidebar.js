@@ -30,6 +30,10 @@ if (isDesktop()) {
         document.body.classList.add('sidebar-open')
     }
     // No saved value → leave blade default as-is
+} else {
+    // Mobile always starts closed, regardless of the blade-rendered default classes
+    document.body.classList.add('sidebar-collapse')
+    document.body.classList.remove('sidebar-open')
 }
 
 // Module-level so Navbar and DefaultLayout share the same reactive state

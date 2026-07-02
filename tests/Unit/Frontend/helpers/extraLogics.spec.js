@@ -225,16 +225,16 @@ describe('getSubStringValue', () => {
         expect(getSubStringValue('Hi', 10)).toBe('Hi')
     })
 
-    it('returns undefined for empty string (falsy guard)', () => {
-        expect(getSubStringValue('', 5)).toBeUndefined()
+    it('returns empty string for empty string (falsy guard)', () => {
+        expect(getSubStringValue('', 5)).toBe('')
     })
 
-    it('returns undefined for null input', () => {
-        expect(getSubStringValue(null, 5)).toBeUndefined()
+    it('returns empty string for null input', () => {
+        expect(getSubStringValue(null, 5)).toBe('')
     })
 
-    it('returns undefined for undefined input', () => {
-        expect(getSubStringValue(undefined, 5)).toBeUndefined()
+    it('returns empty string for undefined input', () => {
+        expect(getSubStringValue(undefined, 5)).toBe('')
     })
 
     it('truncates correctly at count = 0', () => {

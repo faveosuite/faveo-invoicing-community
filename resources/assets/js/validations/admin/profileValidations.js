@@ -1,5 +1,6 @@
 import * as yup from 'yup'
 import { reqSelect } from '../shared/helpers'
+import { STRONG_PASS } from '../client/authSchemas'
 
 export const profileSchema = yup.object({
     first_name:  yup.string().required(() => __('validation.users.first_name.required')),
@@ -14,6 +15,8 @@ export const profileSchema = yup.object({
 
 export const passwordChangeSchema = yup.object({
     old_password:     yup.string().required(() => __('message.field_required')),
-    new_password:     yup.string().required(() => __('message.field_required')),
-    confirm_password: yup.string().required(() => __('message.field_required')),
+    new_password:      yup.string().required(() => __('message.field_required'))
+                           .matches(STRONG_PASS, () => __('message.strong_password')),
+    confirm_password: yup.string().required(() => __('message.field_required'))
+                           .oneOf([yup.ref('new_password')], () => __('message.login_validation.confirm_password_equalto')),
 })

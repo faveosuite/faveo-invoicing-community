@@ -22,6 +22,7 @@ import { h, ref, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { makeRequestAdapter } from '@/helpers/tableUtils'
 
 const COMPONENT = 'third-party-integrations'
 const apiUrl  = `/module-settings`
@@ -104,13 +105,7 @@ const tableOptions = reactive({
     },
     sortable:   [],
     filterable: true,
-    requestAdapter(data) {
-        return {
-            'search-query': (data.query ?? '').trim(),
-            page:           data.page,
-            limit:          data.limit,
-        }
-    },
+    requestAdapter: makeRequestAdapter('name'),
 })
 </script>
 

@@ -143,7 +143,7 @@ class AutoRenewalController extends Controller
      */
     public function disable(Request $request, int $order): JsonResponse
     {
-        $order = $this->authorizedOrder($order);
+        $order = $this->authorizedOrder($order, allowAdmin: true);
         try {
             $subscription = Subscription::where('order_id', $order->id)->firstOrFail();
             $this->cancelSubscription($subscription);
@@ -156,10 +156,10 @@ class AutoRenewalController extends Controller
 
     // ── Private helpers ────────────────────────────────────────────────────────
 
-    private function authorizedOrder(int $orderId): Order
+    private function authorizedOrder(int $orderId, bool $allowAdmin = false): Order
     {
         $order = Order::findOrFail($orderId);
-        abort_if(! authorizeOwnership($order->client), 403, __('message.unauthorized_action'));
+        abort_if(! authorizeOwnership($order->client, $allowAdmin), 403, __('message.unauthorized_action'));
 
         return $order;
     }

@@ -3,9 +3,9 @@ import { reqSelect } from '../shared/helpers'
 import { __ } from '@/plugins/i18n'
 
 // Mirrors the client-side rules used by the legacy blade auth forms.
-const NAME_RE     = /^[a-zA-Z][a-zA-Z' -]{0,98}$/
-const EMAIL_RE    = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-const STRONG_PASS = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[~*!@$#%_+.?:,{ }])[A-Za-z\d~*!@$#%_+.?:,{ }]{8,16}$/
+export const NAME_RE     = /^[a-zA-Z][a-zA-Z' -]{0,98}$/
+export const EMAIL_RE    = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+export const STRONG_PASS = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[~*!@$#%_+.?:,{ }])[A-Za-z\d~*!@$#%_+.?:,{ }]{8,16}$/
 const OTP_RE      = /^\d{6}$/
 
 export const loginSchema = yup.object({

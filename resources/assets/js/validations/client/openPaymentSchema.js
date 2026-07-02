@@ -1,17 +1,18 @@
 import * as yup from 'yup'
+import { __ } from '@/plugins/i18n'
 
 export const openPaymentSchema = yup.object({
-    name:    yup.string().required('Please enter your name.').max(100, 'Name cannot exceed 100 characters.'),
-    email:   yup.string().required('Please enter your email address.').email('Please enter a valid email address.'),
-    mobile:  yup.string().required('Please enter your mobile number.').min(8, 'Mobile number must be at least 8 characters.'),
-    company: yup.string().required('Please enter your company name.'),
-    address: yup.string().required('Please enter your address.'),
-    city:    yup.string().required('Please enter your city.'),
-    state:   yup.string().required('Please select your state.'),
-    zip:     yup.string().required('Please enter your ZIP / postal code.').max(15, 'ZIP code cannot exceed 15 characters.'),
-    country: yup.string().required('Please select your country.'),
+    name:    yup.string().required(() => __('message.open_payment.name_required')).max(100, () => __('message.open_payment.name_max')),
+    email:   yup.string().required(() => __('message.open_payment.email_required')).email(() => __('message.open_payment.email_invalid')),
+    mobile:  yup.string().required(() => __('message.open_payment.mobile_required')).min(8, () => __('message.open_payment.mobile_min')),
+    company: yup.string().required(() => __('message.open_payment.company_required')),
+    address: yup.string().required(() => __('message.open_payment.address_required')),
+    city:    yup.string().required(() => __('message.open_payment.city_required')),
+    state:   yup.string().required(() => __('message.open_payment.state_required')),
+    zip:     yup.string().required(() => __('message.open_payment.zip_required')).max(15, () => __('message.open_payment.zip_max')),
+    country: yup.string().required(() => __('message.open_payment.country_required')),
     amount:  yup.number()
-        .typeError('Amount must be a valid number.')
-        .required('Please enter the payment amount.')
-        .min(1, 'Amount must be at least 1.'),
+        .typeError(() => __('message.open_payment.amount_invalid'))
+        .required(() => __('message.open_payment.amount_required'))
+        .min(1, () => __('message.open_payment.amount_min')),
 })
