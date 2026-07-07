@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Services\Seo;
 
 use App\Facades\Attach;
-use App\Model\Common\Setting;
 use App\Model\Common\SeoDefaultPage;
+use App\Model\Common\Setting;
 use App\Model\Front\FrontendPage;
 use App\Model\Product\ProductGroup;
 
@@ -23,7 +23,9 @@ class SeoMetaService
 
     private const NOINDEX = 'noindex, nofollow';
 
-    public function __construct(private readonly SeoTemplateFormatter $formatter) {}
+    public function __construct(private readonly SeoTemplateFormatter $formatter)
+    {
+    }
 
     /**
      * @return array{title:string,description:string,robots:string,canonical:string,image:?string,og_title:string,og_description:string}
