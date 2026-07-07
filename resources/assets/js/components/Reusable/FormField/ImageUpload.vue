@@ -83,6 +83,7 @@ const props = defineProps({
     btnName:       { type: String,           default: '' },
     buttonName:    { type: String,           default: '' },
     labelCss:      { type: Object,           default: () => ({}) },
+    allowedTypes:  { type: Array,            default: () => ['image/png', 'image/jpg', 'image/jpeg'] },
 })
 
 const alertStore = useAlertStore()
@@ -120,7 +121,7 @@ function onFileSelected(event) {
         showCustomAlert(lang('select_image'))
         return
     }
-    if (!['image/png', 'image/jpg', 'image/jpeg'].some(t => file.type.includes(t))) {
+    if (!props.allowedTypes.some(t => file.type.includes(t))) {
         showCustomAlert(lang('restricted_image_file'))
         return
     }

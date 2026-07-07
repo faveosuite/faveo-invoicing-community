@@ -52,6 +52,17 @@
                             </div>
                         </div>
                     </div>
+
+                    <SeoFieldsCard
+                        :form="form"
+                        :errors="errors"
+                        :onChange="onChange"
+                        :ogSameAsMeta="ogSameAsMeta"
+                        @update:ogSameAsMeta="ogSameAsMeta = $event"
+                        :ogImagePreview="ogImagePreview"
+                        :componentName="COMPONENT"
+                        @image-change="onImageChange"
+                    />
                 </div>
 
                 <div class="card-footer">
@@ -72,6 +83,7 @@ import { validateForm } from '@/helpers/formUtils.js'
 import { productGroupSchema } from '@/validations/admin/productGroupValidations'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import SeoFieldsCard from '@/components/Reusable/FormField/SeoFieldsCard.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'groups-edit'
@@ -83,6 +95,18 @@ const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving = ref(false)
+
+const ogImagePreview = ref('')
+const selectedOgImage = ref(null)
+const selectedOgImageName = ref('')
+const ogSameAsMeta = ref(false)
+
+function onImageChange(value) {
+    ogImagePreview.value = value.image
+    selectedOgImage.value = value.file
+    selectedOgImageName.value = value.name
+}
+
 const form = reactive({
     name: '',
     headline: '',
@@ -91,6 +115,10 @@ const form = reactive({
     pricing_templates_id: null,
     templateObj: null,
     status: 0,
+    meta_title: '',
+    meta_description: '',
+    og_title: '',
+    og_description: '',
 })
 
 function onChange(val, name) {
@@ -106,13 +134,19 @@ function onChange(val, name) {
 onMounted(async () => {
     try {
         const res = await http.get(`/group/${route.params.id}`)
-        const g = res.data
+        const g = res.data?.data ?? res.data
         form.name = g.name ?? ''
         form.headline = g.headline ?? ''
         form.tagline = g.tagline ?? ''
         form.hidden = g.hidden ?? 0
         form.status = g.status ?? 0
         form.pricing_templates_id = g.pricing_templates_id ?? null
+        form.meta_title = g.meta_title ?? ''
+        form.meta_description = g.meta_description ?? ''
+        form.og_title = g.og_title ?? ''
+        form.og_description = g.og_description ?? ''
+        ogImagePreview.value = g.og_image ?? ''
+        ogSameAsMeta.value = Boolean(g.og_same_as_meta)
         const pt = g.pricing_template ?? g.pricingTemplate
         if (pt) {
             form.templateObj = { id: pt.id, name: pt.name }
@@ -129,13 +163,25 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.patch(`/group/${route.params.id}`, {
-            name:                form.name,
-            headline:            form.headline || null,
-            tagline:             form.tagline || null,
-            hidden:              form.hidden ? 1 : 0,
-            pricing_templates_id: form.pricing_templates_id,
-            status:              form.status,
+        const fd = new FormData()
+        fd.append('name', form.name)
+        fd.append('headline', form.headline ?? '')
+        fd.append('tagline', form.tagline ?? '')
+        fd.append('hidden', form.hidden ? 1 : 0)
+        fd.append('pricing_templates_id', form.pricing_templates_id ?? '')
+        fd.append('status', form.status)
+        fd.append('meta_title', form.meta_title ?? '')
+        fd.append('meta_description', form.meta_description ?? '')
+        fd.append('og_title', form.og_title ?? '')
+        fd.append('og_description', form.og_description ?? '')
+        fd.append('og_same_as_meta', ogSameAsMeta.value ? 1 : 0)
+        if (selectedOgImage.value) {
+            fd.append('og_image', selectedOgImage.value, selectedOgImageName.value)
+        }
+        fd.append('_method', 'PATCH')
+
+        const res = await http.post(`/group/${route.params.id}`, fd, {
+            headers: { 'Content-Type': 'multipart/form-data' },
         })
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/products/groups'), 2000)

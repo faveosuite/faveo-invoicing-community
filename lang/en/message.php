@@ -3,6 +3,49 @@
 return [
 
     /*
+    * SEO
+    */
+    'seo' => 'SEO',
+    'edit_seo' => 'Edit SEO',
+    'default_pages' => 'Default Pages',
+    'meta_title' => 'Meta Title',
+    'meta_description' => 'Meta Description',
+    'meta_title_hint' => 'The title shown in search engine results and browser tabs.',
+    'meta_description_hint' => 'A short summary shown under the title in search engine results.',
+    'meta_title_placeholder' => 'Enter meta title',
+    'meta_description_placeholder' => 'Enter meta description',
+    'seo_max_chars_recommended' => 'A maximum of :n characters is recommended.',
+    'seo_login_and_register' => 'Login & Register',
+    'seo_general_settings' => 'General SEO Settings',
+    'seo_pages_title_format' => 'Pages Title Format',
+    'seo_groups_title_format' => 'Product Groups Title Format',
+    'seo_pages_description_format' => 'Pages Description Format',
+    'seo_groups_description_format' => 'Product Groups Description Format',
+    'seo_pages_og_image' => 'Pages Open Graph Image',
+    'seo_pages_og_image_hint' => 'Shown as the preview image when a Page is shared on social media or messaging apps, if that Page has no image of its own. Falls back to your site logo if not set.',
+    'seo_groups_og_image' => 'Product Groups Open Graph Image',
+    'seo_groups_og_image_hint' => 'Shown as the preview image when a Group is shared on social media or messaging apps, if that Group has no image of its own. Falls back to your site logo if not set.',
+    'open_graph' => 'Open Graph',
+    'open_graph_hint' => 'Controls how this page looks when shared on social media or messaging apps (Facebook, LinkedIn, WhatsApp, Slack, etc). Leave blank to reuse the Meta Title/Description above.',
+    'og_title' => 'Open Graph Title',
+    'og_title_hint' => 'The headline shown on the share preview card. Falls back to the Meta Title above if left blank.',
+    'og_description' => 'Open Graph Description',
+    'og_description_hint' => 'The summary shown under the title on the share preview card. Falls back to the Meta Description above if left blank.',
+    'og_image' => 'Open Graph Image',
+    'og_image_hint' => 'The preview image shown on the share card. Falls back to the site-wide default image (Settings → SEO) if left blank.',
+    'seo_pages_og_title_format' => 'Pages Open Graph Title Format',
+    'seo_groups_og_title_format' => 'Product Groups Open Graph Title Format',
+    'seo_pages_og_description_format' => 'Pages Open Graph Description Format',
+    'seo_groups_og_description_format' => 'Product Groups Open Graph Description Format',
+    'seo_same_as_meta' => 'Same as meta title and description.',
+    'seo_general_description' => 'General Description',
+    'seo_general_description_hint' => 'Used for authenticated/admin pages that don\'t have their own description, instead of a generic default.',
+    'seo_general_og_title' => 'General Open Graph Title',
+    'seo_general_og_description' => 'General Open Graph Description',
+    'seo_general_og_image' => 'General Open Graph Image',
+    'seo_general_og_image_hint' => 'Shown as the preview image when an authenticated/admin page is shared on social media or messaging apps. Falls back to your site logo if not set.',
+
+    /*
     * Free Trail
     */
     'free-login' => 'Sign in to start your session',

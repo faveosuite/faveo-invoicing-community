@@ -7,6 +7,7 @@ use App\Model\CloudDataCenters;
 use App\Model\Payment\Currency;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
+use App\Services\Seo\SeoTemplateFormatter;
 use App\User;
 use Auth;
 use Illuminate\Contracts\Database\Query\Builder;
@@ -14,21 +15,25 @@ use Illuminate\Http\JsonResponse;
 
 class StoreController extends Controller
 {
-    public function getGroups(): JsonResponse
+    public function getGroups(SeoTemplateFormatter $formatter): JsonResponse
     {
         $groups = ProductGroup::where('hidden', '0')
-            ->select('id', 'name', 'headline', 'tagline', 'status')
+            ->select('id', 'name', 'headline', 'tagline', 'status', 'meta_title', 'meta_description')
             ->orderBy('id')
             ->get()
             ->map(fn ($g): array => array_merge(
                 $g->only(['id', 'name', 'headline', 'tagline']),
-                ['status' => (bool) $g->status]
+                [
+                    'status' => (bool) $g->status,
+                    'meta_title' => $formatter->resolveShortcodes($g->meta_title, $g->name),
+                    'meta_description' => $formatter->resolveShortcodes($g->meta_description, $g->name),
+                ]
             ));
 
         return successResponse('', $groups);
     }
 
-    public function getProducts(int $groupId): JsonResponse
+    public function getProducts(int $groupId, SeoTemplateFormatter $formatter): JsonResponse
     {
         $group = ProductGroup::findOrFail($groupId);
 
@@ -62,7 +67,11 @@ class StoreController extends Controller
         return successResponse('', [
             'group' => array_merge(
                 $group->only(['id', 'name', 'headline', 'tagline']),
-                ['status' => (bool) $group->status]
+                [
+                    'status' => (bool) $group->status,
+                    'meta_title' => $formatter->resolveShortcodes($group->meta_title, $group->name),
+                    'meta_description' => $formatter->resolveShortcodes($group->meta_description, $group->name),
+                ]
             ),
             'currency' => $currency,
             'currency_symbol' => $symbol,

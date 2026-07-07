@@ -26,6 +26,12 @@ use Spatie\Activitylog\Models\Activity;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string $status
+ * @property string|null $meta_title
+ * @property string|null $meta_description
+ * @property string|null $og_title
+ * @property string|null $og_description
+ * @property string|null $og_image
+ * @property bool $og_same_as_meta
  * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read Collection<int, ConfigurableOption> $config
@@ -65,7 +71,7 @@ class ProductGroup extends BaseModel
 
     protected $table = 'product_groups';
 
-    protected $fillable = ['id', 'name', 'headline', 'tagline', 'available_payment', 'hidden', 'cart_link', 'pricing_templates_id', 'status'];
+    protected $fillable = ['id', 'name', 'headline', 'tagline', 'available_payment', 'hidden', 'cart_link', 'pricing_templates_id', 'status', 'meta_title', 'meta_description', 'og_title', 'og_description', 'og_image', 'og_same_as_meta'];
 
     protected string $logName = 'group';
 
@@ -74,7 +80,7 @@ class ProductGroup extends BaseModel
     /**
      * @var array<mixed>
      */
-    protected array $logAttributes = ['name', 'headline', 'tagline', 'available_payment', 'hidden', 'cart_link', 'pricing_templates_id', 'status'];
+    protected array $logAttributes = ['name', 'headline', 'tagline', 'available_payment', 'hidden', 'cart_link', 'pricing_templates_id', 'status', 'meta_title', 'meta_description', 'og_title', 'og_description', 'og_image', 'og_same_as_meta'];
 
     /**
      * @var array<mixed>
@@ -138,6 +144,12 @@ class ProductGroup extends BaseModel
             'cart_link' => ['Cart Link', fn ($value) => $value],
             'pricing_templates_id' => ['Pricing Template', fn ($value) => $value],
             'status' => ['Status', fn ($value) => $value],
+            'meta_title' => ['Meta Title', fn ($value) => $value],
+            'meta_description' => ['Meta Description', fn ($value) => $value],
+            'og_title' => ['Open Graph Title', fn ($value) => $value],
+            'og_description' => ['Open Graph Description', fn ($value) => $value],
+            'og_image' => ['Open Graph Image', fn ($value) => $value],
+            'og_same_as_meta' => ['Open Graph Same As Meta', fn ($value): array|string => $value ? __('message.yes') : __('message.no')],
         ];
     }
 }

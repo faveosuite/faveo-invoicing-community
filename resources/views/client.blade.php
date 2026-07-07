@@ -35,6 +35,35 @@ $productGroups = \App\Model\Product\ProductGroup::select('id', 'name')
     ->mapWithKeys(fn($g): array => [$g->id => [
         'name' => $g->name,
     ]]);
+
+$seo = app(\App\Services\Seo\SeoMetaService::class)->resolve(request()->path());
+$seoFormatter = app(\App\Services\Seo\SeoTemplateFormatter::class);
+
+// Guest auth pages (login/forgot/reset) render via the client-side router,
+// not their own Blade view — ship all 3 rows so the SPA can keep its title
+// in sync with the admin-configured SEO text when navigating between them
+// without a full page reload, instead of using a stale hardcoded title.
+// {name}/{company} shortcodes are resolved here too, same as the hard-load
+// path (SeoMetaService::fromDefaultPage), so SPA nav doesn't leak raw
+// placeholder text.
+$defaultPagesSeo = \App\Model\Common\SeoDefaultPage::whereIn('page_key', ['login', 'forgot_password', 'reset_password'])
+    ->get(['page_key', 'meta_title', 'meta_description'])
+    ->keyBy('page_key')
+    ->map(function ($row) use ($seoFormatter): array {
+        $name = ucwords(str_replace('_', ' ', $row->page_key));
+
+        return [
+            'meta_title' => $seoFormatter->resolveShortcodes($row->meta_title, $name),
+            'meta_description' => $seoFormatter->resolveShortcodes($row->meta_description, $name),
+        ];
+    });
+
+// Same General Description used by SeoMetaService's fallback() for
+// authenticated/unknown routes — shipped down so clientRouter.js's
+// afterEach can keep the client-rendered <meta name="description"> in
+// sync with it on SPA navigation, instead of a stale per-route string.
+$generalDescription = $seoFormatter->generalDescription()
+    ?: 'Manage your billing, invoices, and subscriptions online.';
 ?>
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" dir="{{ $rtl ? 'rtl' : 'ltr' }}">
@@ -42,7 +71,17 @@ $productGroups = \App\Model\Product\ProductGroup::select('id', 'name')
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $set->favicon_title_client }}</title>
+    <title>{{ $seo['title'] }}</title>
+    <meta name="description" content="{{ $seo['description'] }}">
+    <meta name="robots" content="{{ $seo['robots'] }}">
+    <link rel="canonical" href="{{ $seo['canonical'] }}">
+    <meta property="og:title" content="{{ $seo['og_title'] }}">
+    <meta property="og:description" content="{{ $seo['og_description'] }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ $seo['canonical'] }}">
+    @if(!empty($seo['image']))
+    <meta property="og:image" content="{{ $seo['image'] }}">
+    @endif
 
     @if($set->fav_icon)
         <link rel="shortcut icon" href="{{ $set->fav_icon }}" type="image/x-icon">
@@ -110,7 +149,9 @@ $productGroups = \App\Model\Product\ProductGroup::select('id', 'name')
      data-scripts="{{ $chatScripts->toJson() }}"
      data-languages="{{ $languages->toJson() }}"
      data-published-pages="{{ $publishedPages->toJson() }}"
-     data-product-groups="{{ $productGroups->toJson() }}">
+     data-product-groups="{{ $productGroups->toJson() }}"
+     data-default-pages-seo="{{ $defaultPagesSeo->toJson() }}"
+     data-general-description="{{ $generalDescription }}">
 </div>
 
 {{-- Bootstrap 5 bundle JS (includes Popper) — used for dropdowns, collapse, tooltips. --}}

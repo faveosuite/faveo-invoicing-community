@@ -3,6 +3,7 @@
 namespace Database\Seeders\v4_0_3;
 
 use App\Model\Common\CommonSettings;
+use App\Model\Common\SeoDefaultPage;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 use App\ReportColumn;
@@ -24,6 +25,64 @@ class DatabaseSeeder extends Seeder
         $this->seedSentrySettings();
         $this->seedCacheSessionDefaults();
         $this->seedLicensesReportColumns();
+        $this->seedSeoDefaultPages();
+        $this->seedSeoSettings();
+    }
+
+    /**
+     * Default title/description templates used for Pages-module pages and
+     * Product Groups that don't have their own specific meta_title/
+     * meta_description — e.g. "{name} | {company}" instead of a bare name.
+     * See App\Services\Seo\SeoTemplateFormatter.
+     */
+    public function seedSeoSettings(): void
+    {
+        $defaults = [
+            'pages_title_format' => '{name} | {company}',
+            'groups_title_format' => '{name} | {company}',
+            'pages_description_format' => 'Learn more about {name} at {company}.',
+            'groups_description_format' => 'Learn more about {name} at {company}.',
+            'pages_og_title_format' => '{name} | {company}',
+            'groups_og_title_format' => '{name} | {company}',
+            'pages_og_description_format' => 'Learn more about {name} at {company}.',
+            'groups_og_description_format' => 'Learn more about {name} at {company}.',
+        ];
+
+        foreach ($defaults as $field => $value) {
+            CommonSettings::firstOrCreate(
+                ['option_name' => 'seo', 'optional_field' => $field],
+                ['option_value' => $value, 'status' => '']
+            );
+        }
+    }
+
+    /**
+     * Fixed 3-row SEO editor for non-authenticated default pages
+     * (login/forgot-password/reset-password). No separate "home" or
+     * "register" rows: "/" always redirects through to /login for any
+     * unauthenticated visitor (i.e. every crawler), so it's the same page,
+     * not distinct content — and `/login` (clientRouter.js) renders
+     * LoginRegister.vue, which shows the login and register forms side by
+     * side on one page (verified in the component template, not assumed).
+     * There is no distinct /register URL, so "login" covers both.
+     */
+    public function seedSeoDefaultPages(): void
+    {
+        $pages = [
+            ['page_key' => 'login', 'meta_title' => 'Login & Register', 'meta_description' => 'Sign in or create a new account to access your dashboard, invoices, and orders.'],
+            ['page_key' => 'forgot_password', 'meta_title' => 'Forgot Password', 'meta_description' => 'Reset your account password securely.'],
+            ['page_key' => 'reset_password', 'meta_title' => 'Reset Password', 'meta_description' => 'Choose a new password for your account.'],
+        ];
+
+        // Insertion order (above) determines display order via `id` — this
+        // fixed list is edit-only (no create/delete endpoint), so id order
+        // won't drift.
+        foreach ($pages as $page) {
+            SeoDefaultPage::firstOrCreate(
+                ['page_key' => $page['page_key']],
+                ['meta_title' => $page['meta_title'], 'meta_description' => $page['meta_description']]
+            );
+        }
     }
 
     /**

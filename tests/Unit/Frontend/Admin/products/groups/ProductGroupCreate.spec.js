@@ -14,7 +14,7 @@ describe('ProductGroupCreate.vue', () => {
     let wrapper
 
     beforeEach(() => {
-        globalThis.mockHttp.onPut(/\/group/).reply(200, { data: { message: 'Created' } })
+        globalThis.mockHttp.onPost(/\/group/).reply(200, { data: { message: 'Created' } })
         wrapper = mount(ProductGroupCreate, {
             global: {
                 plugins: [createTestingPinia()],
@@ -38,10 +38,12 @@ describe('ProductGroupCreate.vue', () => {
         expect(wrapper.find('action-button-stub').exists()).toBe(true)
     })
 
-    it('calls PUT /group on submit', async () => {
+    it('calls PUT /group on submit (via POST + _method=PUT override)', async () => {
         await wrapper.vm.submit()
         await flushPromises()
-        expect(globalThis.mockHttp.history.put.some(r => /\/group/.test(r.url))).toBe(true)
+        const call = globalThis.mockHttp.history.post.find(r => /\/group/.test(r.url))
+        expect(call).toBeTruthy()
+        expect(call.data.get('_method')).toBe('PUT')
     })
 
     it('calls successHandler on successful create', async () => {
@@ -52,7 +54,7 @@ describe('ProductGroupCreate.vue', () => {
 
     it('calls errorHandler on submit failure', async () => {
         globalThis.mockHttp.reset()
-        globalThis.mockHttp.onPut(/\/group/).reply(500)
+        globalThis.mockHttp.onPost(/\/group/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -68,7 +70,7 @@ describe('ProductGroupCreate.vue', () => {
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.submit()
         await flushPromises()
-        expect(globalThis.mockHttp.history.put.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('saving starts as false', () => {

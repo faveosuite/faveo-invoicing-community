@@ -4,14 +4,18 @@ namespace App\Http\Controllers\Front;
 
 use App\DefaultPage;
 use App\Demo_page;
+use App\Facades\Attach;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Front\ContactRequest;
+use App\Http\Requests\Front\PageRequest;
 use App\Model\Common\Setting;
 use App\Model\Common\TemplateType;
 use App\Model\Front\FrontendPage;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
+use App\Services\Seo\SeoFileGenerator;
+use App\Services\Seo\SeoTemplateFormatter;
 use Config;
 use DateTime;
 use Exception;
@@ -42,13 +46,20 @@ class PageController extends Controller
      * Returns null data (200) when not found so the client can show a
      * "page not found" state instead of being redirected.
      */
-    public function pageBySlug(string $slug): JsonResponse
+    public function pageBySlug(string $slug, SeoTemplateFormatter $formatter): JsonResponse
     {
         try {
             $page = FrontendPage::where('slug', $slug)
                 ->where('publish', 1)
-                ->select('id', 'name', 'slug', 'content', 'type')
+                ->select('id', 'name', 'slug', 'content', 'type', 'meta_title', 'meta_description', 'og_title', 'og_description')
                 ->first();
+
+            if ($page) {
+                $page->meta_title = $formatter->resolveShortcodes($page->meta_title, $page->name);
+                $page->meta_description = $formatter->resolveShortcodes($page->meta_description, $page->name);
+                $page->og_title = $formatter->resolveShortcodes($page->og_title, $page->name);
+                $page->og_description = $formatter->resolveShortcodes($page->og_description, $page->name);
+            }
 
             return successResponse('', $page);
         } catch (Exception $exception) {
@@ -357,7 +368,18 @@ class PageController extends Controller
 
         FrontendPage::whereIn('id', $ids)->where('id', '!=', $defaultPageId)->delete();
 
+        $this->regenerateSeoFiles();
+
         return successResponse(__('message.deleted-successfully'));
+    }
+
+    private function regenerateSeoFiles(): void
+    {
+        try {
+            app(SeoFileGenerator::class)->generateAll();
+        } catch (Throwable $throwable) {
+            report($throwable);
+        }
     }
 
     public function currencyFormatWithSpan(float|int $amount, string $currency, ?int $id = null): string
@@ -384,7 +406,7 @@ class PageController extends Controller
         return $formatted.$span;
     }
 
-    public function createPage(Request $request): JsonResponse
+    public function createPage(PageRequest $request): JsonResponse
     {
         try {
             $pagesCount = FrontendPage::count();
@@ -392,20 +414,33 @@ class PageController extends Controller
                 return errorResponse(__('message.limit_exceed'));
             }
 
-            $url = $request->input('url');
-            if ($request->input('type') === 'contactus') {
+            $url = $request->validated('url');
+            if ($request->validated('type') === 'contactus') {
                 $url = url('/contact-us');
             }
 
+            $ogImage = null;
+            if ($request->hasFile('og_image')) {
+                $ogImage = basename((string) Attach::put('images', $request->file('og_image'), null, true));
+            }
+
             $page = FrontendPage::create([
-                'name' => $request->input('name'),
-                'publish' => $request->input('publish', 0),
-                'slug' => $request->input('slug'),
+                'name' => $request->validated('name'),
+                'publish' => $request->validated('publish') ?? 0,
+                'slug' => $request->validated('slug'),
                 'url' => $url,
-                'parent_page_id' => $request->input('parent_page_id') ?? 0,
-                'type' => $request->input('type'),
-                'content' => $request->input('content'),
+                'parent_page_id' => $request->validated('parent_page_id') ?? 0,
+                'type' => $request->validated('type'),
+                'content' => $request->validated('content'),
+                'meta_title' => $request->validated('meta_title'),
+                'meta_description' => $request->validated('meta_description'),
+                'og_title' => $request->validated('og_title'),
+                'og_description' => $request->validated('og_description'),
+                'og_image' => $ogImage,
+                'og_same_as_meta' => $request->boolean('og_same_as_meta'),
             ]);
+
+            $this->regenerateSeoFiles();
 
             return successResponse(__('message.saved-successfully'), $page);
         } catch (Exception $exception) {
@@ -420,6 +455,7 @@ class PageController extends Controller
             $defaultPageId = DefaultPage::value('page_id');
             $data = $page->toArray();
             $data['is_default'] = (int) $page->id === (int) $defaultPageId;
+            $data['og_image'] = $page->og_image ? Attach::getUrlPath('images/'.$page->og_image) : null;
 
             return successResponse('', $data);
         } catch (Exception $exception) {
@@ -427,17 +463,21 @@ class PageController extends Controller
         }
     }
 
-    public function updatePage(Request $request, int $pageId): JsonResponse
+    public function updatePage(PageRequest $request, int $pageId): JsonResponse
     {
         try {
             $page = FrontendPage::findOrFail($pageId);
 
-            // Fill except created_at
-            $page->fill($request->except('created_at'));
+            // Fill except created_at/og_image (og_image is an uploaded file, not a mass-assignable string)
+            $page->fill($request->safe()->except(['created_at', 'og_image']));
 
             // parent_page_id is NOT NULL in the schema; default to 0 (no parent)
             if ($page->parent_page_id === null) { // @phpstan-ignore identical.alwaysFalse
                 $page->parent_page_id = 0;
+            }
+
+            if ($request->hasFile('og_image')) {
+                $page->og_image = basename((string) Attach::put('images', $request->file('og_image'), null, true));
             }
 
             // Handle created_at if provided and valid
@@ -459,6 +499,8 @@ class PageController extends Controller
                 'page_id' => $defaultPageId ?? 1,
                 'page_url' => $defaultUrl,
             ]);
+
+            $this->regenerateSeoFiles();
 
             return successResponse(__('message.updated-successfully'), $page);
         } catch (Throwable $throwable) {

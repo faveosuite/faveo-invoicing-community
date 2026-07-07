@@ -32,7 +32,7 @@ describe('FrontendPageEdit.vue', () => {
 
     beforeEach(() => {
         globalThis.mockHttp.onGet(/\/page\/0/).reply(200, { data: pageFixture })
-        globalThis.mockHttp.onPut(/\/page\/0/).reply(200, { data: { message: 'Updated' } })
+        globalThis.mockHttp.onPost(/\/page\/0/).reply(200, { data: { message: 'Updated' } })
         wrapper = mount(FrontendPageEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -93,11 +93,13 @@ describe('FrontendPageEdit.vue', () => {
         expect(errorHandler).toHaveBeenCalled()
     })
 
-    it('PUTs to /page/0 on submit', async () => {
+    it('PUTs to /page/0 on submit (via POST + _method=PUT override)', async () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(globalThis.mockHttp.history.put.some(r => /\/page\/0/.test(r.url))).toBe(true)
+        const call = globalThis.mockHttp.history.post.find(r => /\/page\/0/.test(r.url))
+        expect(call).toBeTruthy()
+        expect(call.data.get('_method')).toBe('PUT')
     })
 
     it('calls successHandler on successful update', async () => {
@@ -110,7 +112,7 @@ describe('FrontendPageEdit.vue', () => {
     it('calls errorHandler on update failure', async () => {
         await flushPromises()
         globalThis.mockHttp.reset()
-        globalThis.mockHttp.onPut(/\/page\/0/).reply(500)
+        globalThis.mockHttp.onPost(/\/page\/0/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -123,7 +125,7 @@ describe('FrontendPageEdit.vue', () => {
         globalThis.mockHttp.reset()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(globalThis.mockHttp.history.put.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 
     it('onChange sets type and updates url when type is contactus', async () => {

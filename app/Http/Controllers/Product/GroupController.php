@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Product;
 
+use App\Facades\Attach;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\GroupRequest;
 use App\Model\Payment\Plan;
@@ -9,11 +10,13 @@ use App\Model\Product\ConfigurableOption;
 use App\Model\Product\GroupFeatures;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
+use App\Services\Seo\SeoFileGenerator;
 use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Throwable;
 
 class GroupController extends Controller
 {
@@ -70,7 +73,7 @@ class GroupController extends Controller
         return successResponse('', $groups);
     }
 
-    public function getGroup(mixed $groupId, Request $request): JsonResponse
+    public function getGroup(string $groupId, Request $request): JsonResponse
     {
         try {
             $group = ProductGroup::with([
@@ -78,16 +81,18 @@ class GroupController extends Controller
                 'product:id,name,group',
             ])->findOrFail($groupId);
 
-            return successResponse('', $group);
+            $data = $group->toArray();
+            $data['og_image'] = $group->og_image ? Attach::getUrlPath('images/'.$group->og_image) : null;
+
+            return successResponse('', $data);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
 
-    public function updateGroup(mixed $groupId, GroupRequest $request): JsonResponse
+    public function updateGroup(string $groupId, GroupRequest $request): JsonResponse
     {
         try {
-            /** @var ProductGroup $group */
             $group = ProductGroup::findOrFail($groupId);
 
             // Get all visible, non-contact products
@@ -110,12 +115,19 @@ class GroupController extends Controller
                 return errorResponse(__('message.all_products_monthly_yearly_plan'));
             }
 
-            // Update group
-            $group->update($request->validated());
+            // Update group (og_image is an uploaded file, handled separately below)
+            $data = $request->validated();
+            unset($data['og_image']);
+            if ($request->hasFile('og_image')) {
+                $data['og_image'] = basename((string) Attach::put('images', $request->file('og_image'), null, true));
+            }
+            $group->update($data);
 
             // Update product statuses
             $productStatus = $request->status == 1 && $allProductsHavePlans ? 1 : 0;
             $group->product()->update(['status' => $productStatus]);
+
+            $this->regenerateSeoFiles();
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $exception) {
@@ -126,7 +138,14 @@ class GroupController extends Controller
     public function groupCreate(GroupRequest $request): JsonResponse
     {
         try {
-            ProductGroup::create($request->validated());
+            $data = $request->validated();
+            unset($data['og_image']);
+            if ($request->hasFile('og_image')) {
+                $data['og_image'] = basename((string) Attach::put('images', $request->file('og_image'), null, true));
+            }
+            ProductGroup::create($data);
+
+            $this->regenerateSeoFiles();
 
             return successResponse(__('message.saved-successfully'));
         } catch (Exception $exception) {
@@ -151,9 +170,20 @@ class GroupController extends Controller
                 }
             });
 
+            $this->regenerateSeoFiles();
+
             return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
+        }
+    }
+
+    private function regenerateSeoFiles(): void
+    {
+        try {
+            app(SeoFileGenerator::class)->generateAll();
+        } catch (Throwable $throwable) {
+            report($throwable);
         }
     }
 }

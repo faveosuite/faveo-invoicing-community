@@ -8,8 +8,30 @@
                 <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-6 g-3">
                     <div class="col" v-for="item in section.items" :key="item.to ?? item.href ?? item.monitor">
 
+                        <!-- Tiles with sub-links open a hover popover instead of navigating directly (e.g. SEO: Settings / Pages). -->
+                        <!-- The popover is anchored to the icon circle only (not the whole tile), matching favMer's pattern, -->
+                        <!-- so it starts right beside the icon instead of centering on the icon+label block. -->
+                        <a v-if="item.children" href="javascript:;" class="settings-tile d-flex flex-column align-items-center text-center text-decoration-none gap-2 py-2">
+                            <VDropdown placement="right" :distance="8"
+                                       :triggers="['hover']" :popperTriggers="['hover']" :delay="{ show: 0, hide: 300 }">
+                                <span class="settings-icon">
+                                    <i :class="item.icon"></i>
+                                </span>
+                                <template #popper>
+                                    <div class="settings-popup-content d-flex flex-column gap-2">
+                                        <RouterLink v-for="child in item.children" :key="child.to" :to="child.to"
+                                                    v-tooltip="child.label"
+                                                    class="settings-popup-mini d-flex align-items-center justify-content-center text-decoration-none">
+                                            <i :class="child.icon"></i>
+                                        </RouterLink>
+                                    </div>
+                                </template>
+                            </VDropdown>
+                            <small class="text-body-secondary lh-sm">{{ item.label }}</small>
+                        </a>
+
                         <!-- Monitoring tools: check subdirectory before opening -->
-                        <a v-if="item.monitor"
+                        <a v-else-if="item.monitor"
                            href="javascript:;"
                            class="settings-tile d-flex flex-column align-items-center text-center text-decoration-none gap-2 py-2"
                            @click="checkMonitoring(item.monitor, item.href)">
@@ -157,6 +179,12 @@ const sections = computed(() => [
             { to: '/settings/common/queues',   icon: 'fas fa-layer-group',  label: __('message.queues') },
             { to: '/settings/common/cache',    icon: 'fas fa-database',     label: __('message.cache') },
             { to: '/settings/debugging',       icon: 'fas fa-bug',          label: __('message.debugging') },
+            { to: '/settings/seo',             icon: 'fas fa-magnifying-glass-chart', label: __('message.seo'),
+                children: [
+                    { to: '/settings/seo',                      icon: 'fas fa-sliders-h', label: __('message.settings') },
+                    { to: '/settings/seo/pages',                 icon: 'fas fa-file-alt',  label: __('message.pages') },
+                ],
+            },
         ],
     },
     {
@@ -242,6 +270,23 @@ const sections = computed(() => [
 .settings-tile:hover .settings-icon {
     opacity: 0.82;
 }
+
+.settings-popup-content {
+    padding: 10px;
+}
+.settings-popup-mini {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    transition: opacity 0.15s;
+    border: 4px solid #C4D8E4;
+    color: #3c8dbc;
+}
+.settings-popup-mini:hover {
+    opacity: 0.82;
+}
+
 .modal-backdrop-dark { background: rgba(0,0,0,0.5); }
 .warning-badge { background-color: #fff3cd; color: #856d00; }
 </style>

@@ -32,6 +32,7 @@ import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { errorHandler } from '@/helpers/responseHandler.js'
 import { setPageTitle } from '@/core/composables/useBreadcrumb.js'
+import { setMetaDescription } from '@/core/composables/useSeoMeta.js'
 
 const route  = useRoute()
 const router = useRouter()
@@ -51,7 +52,15 @@ async function loadGroups() {
         const res = await http.get(`/store/groups`)
         groups.value = res.data?.data ?? []
 
-        if (groups.value.length === 0) return
+        if (groups.value.length === 0) {
+            // This route owns document.title (clientRouter.js's afterEach
+            // skips it entirely); selectGroup() is what normally sets it, so
+            // with no groups to select we must set a fallback here or the
+            // previous page's title stays in the tab.
+            setPageTitle(__('message.store'))
+            document.title = __('message.store')
+            return
+        }
 
         const paramId = route.params.groupId ? parseInt(route.params.groupId) : null
         const target  = paramId && groups.value.find(g => g.id === paramId)
@@ -80,7 +89,14 @@ async function selectGroup(groupId) {
         cloudSubdomain.value  = data.cloud_subdomain ?? ''
         dataCenters.value     = data.data_centers ?? []
 
-        setPageTitle(data.group?.name)
+        const groupTitle = data.group?.meta_title || data.group?.name
+        setPageTitle(groupTitle)
+        // No " | Company" suffix — this group has its own real SEO title
+        // (admin-editable, same one server-rendered in <title> before Vue
+        // mounted). Appending a suffix client-side would make the
+        // JS-rendered DOM title diverge from the indexed one.
+        if (groupTitle) document.title = groupTitle
+        setMetaDescription(data.group?.meta_description || data.group?.tagline || data.group?.headline)
 
         if (route.params.groupId !== String(groupId)) {
             router.replace({ path: `/store/${groupId}` })

@@ -58,7 +58,7 @@ class FrontendPage extends BaseModel
 
     protected $table = 'frontend_pages';
 
-    protected $fillable = ['parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at'];
+    protected $fillable = ['parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at', 'meta_title', 'meta_description', 'og_title', 'og_description', 'og_image', 'og_same_as_meta'];
 
     protected string $logName = 'pages';
 
@@ -69,6 +69,7 @@ class FrontendPage extends BaseModel
      */
     protected array $logAttributes = [
         'parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at',
+        'meta_title', 'meta_description', 'og_title', 'og_description', 'og_image', 'og_same_as_meta',
     ];
 
     /**
@@ -95,6 +96,12 @@ class FrontendPage extends BaseModel
                 'Publishing Date',
                 fn ($value) => Date::parse($value)->format('d M Y, h:i A'),
             ],
+            'meta_title' => ['Meta Title', fn ($value) => $value],
+            'meta_description' => ['Meta Description', fn ($value) => $value],
+            'og_title' => ['Open Graph Title', fn ($value) => $value],
+            'og_description' => ['Open Graph Description', fn ($value) => $value],
+            'og_image' => ['Open Graph Image', fn ($value) => $value],
+            'og_same_as_meta' => ['Open Graph Same As Meta', fn ($value): array|string => $value ? __('message.yes') : __('message.no')],
         ];
     }
 

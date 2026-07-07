@@ -108,15 +108,15 @@
                                     </div>
                                     <div class="col-md-4 text-center">
                                         <div class="d-inline-flex align-items-center gap-2">
-                                            <Switch name="uselogo" :value="uselogo" :onChange="(val) => uselogo = val" />
-                                            <span class="fw-normal">{{ __('message.use_logo') }}</span>
+                                            <Switch name="defaultclientlogo" :value="defaultclientlogo" :onChange="(val) => defaultclientlogo = val" />
+                                            <span class="fw-normal">{{ __('message.use_default') }}</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <ImageUpload :label="__('message.fav-icon')" :labelStyle="{ visibility: 'hidden' }" :value="icon" name="icon" :onChange="onImageChange" btnName="change_icon" classname="col-sm-4 text-center" :is_default="defaulticon" :componentName="COMPONENT" />
                                     <ImageUpload :label="__('message.admin-logo')" :labelStyle="{ visibility: 'hidden' }" :value="logo_admin_agent" name="logo_admin_agent" :onChange="onImageChange" classname="col-sm-4 text-center" :is_default="defaultlogo" :componentName="COMPONENT" />
-                                    <ImageUpload :label="__('message.client-logo')" :labelStyle="{ visibility: 'hidden' }" :value="logo" name="logo" :onChange="onImageChange" classname="col-sm-4 text-center" :componentName="COMPONENT" />
+                                    <ImageUpload :label="__('message.client-logo')" :labelStyle="{ visibility: 'hidden' }" :value="logo" name="logo" :onChange="onImageChange" classname="col-sm-4 text-center" :is_default="defaultclientlogo" :componentName="COMPONENT" />
                                 </div>
                             </div>
                         </div>
@@ -169,9 +169,9 @@ const selectedIconName            = ref('')
 const selectedLogoAdminAgentName  = ref('')
 const selectedLogoName            = ref('')
 
-const defaulticon = ref(false)
-const defaultlogo = ref(false)
-const uselogo     = ref(false)
+const defaulticon      = ref(false)
+const defaultlogo      = ref(false)
+const defaultclientlogo = ref(false)
 
 const form = reactive({
     company: '',
@@ -307,15 +307,15 @@ async function save() {
         fd.append('state',                form.state?.id            ?? '')
         fd.append('default_currency',     form.default_currency?.id ?? '')
         fd.append('language',             form.language?.id         ?? '')
-        fd.append('uselogo',              uselogo.value     ? 1 : 0)
-        fd.append('defaulticon',          defaulticon.value ? 1 : 0)
-        fd.append('defaultlogo',          defaultlogo.value ? 1 : 0)
+        fd.append('defaulticon',          defaulticon.value      ? 1 : 0)
+        fd.append('defaultlogo',          defaultlogo.value      ? 1 : 0)
+        fd.append('defaultclientlogo',    defaultclientlogo.value ? 1 : 0)
 
         if (!defaulticon.value && selectedIcon.value)
             fd.append('fav-icon',   selectedIcon.value,        selectedIconName.value)
         if (!defaultlogo.value && selectedLogoAdminAgent.value)
             fd.append('admin-logo', selectedLogoAdminAgent.value, selectedLogoAdminAgentName.value)
-        if (selectedLogo.value)
+        if (!defaultclientlogo.value && selectedLogo.value)
             fd.append('logo',       selectedLogo.value,        selectedLogoName.value)
 
         fd.append('_method', 'PATCH')

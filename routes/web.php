@@ -20,6 +20,8 @@ use App\Http\Controllers\Common\FileManagerController;
 use App\Http\Controllers\Common\Monitoring\MonitoringController;
 use App\Http\Controllers\Common\PaymentSettingsController;
 use App\Http\Controllers\Common\PipedriveController;
+use App\Http\Controllers\Common\SeoDefaultPageController;
+use App\Http\Controllers\Common\SeoSettingsController;
 use App\Http\Controllers\Common\SettingsController;
 use App\Http\Controllers\Common\Sms\MSG91Controller;
 use App\Http\Controllers\Common\SocialMediaController;
@@ -501,6 +503,20 @@ Route::middleware('installAgora')->group(function (): void {
 
     // Legacy page admin endpoints
     Route::post('save/demo', [PageController::class, 'saveDemoPage']);
+
+    // --------------------------------------------------------
+    // SEO (default pages: login, forgot/reset password; site-wide settings)
+    // --------------------------------------------------------
+    Route::prefix('seo')->group(function (): void {
+        Route::get('default-pages', [SeoDefaultPageController::class, 'index']);
+        Route::get('default-pages/{pageKey}', [SeoDefaultPageController::class, 'show']);
+        Route::patch('default-pages/{pageKey}', [SeoDefaultPageController::class, 'update']);
+
+        // POST (not PATCH) — PHP doesn't parse multipart/form-data bodies on
+        // PATCH requests, needed here for the og_image file upload.
+        Route::get('settings', [SeoSettingsController::class, 'show']);
+        Route::post('settings', [SeoSettingsController::class, 'update']);
+    });
 
     // Widget management
     Route::prefix('widgets')->group(function (): void {

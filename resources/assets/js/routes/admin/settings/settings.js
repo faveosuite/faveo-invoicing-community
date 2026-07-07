@@ -21,4 +21,19 @@ export default [
     { path: '/settings/contact-options',          component: () => import('../../../pages/admin/settings/settings/ContactOptions.vue'),      meta: { title: 'Contact Options',       titleKey: 'message.contact_options' } },
     { path: '/settings/open-payments',            component: () => import('../../../pages/admin/settings/common/openPayments/OpenPaymentsList.vue'), meta: { title: 'Open Payments' } },
     { path: '/settings/deployment',               component: () => import('../../../pages/admin/settings/settings/DeploymentSettings.vue'),          meta: { title: 'Deployment Settings', titleKey: 'message.deployment_settings' } },
+    { path: '/settings/seo',                      component: () => import('../../../pages/admin/settings/settings/seo/SeoSettingsIndex.vue'),        meta: { title: 'SEO',                   titleKey: 'message.seo' } },
+    { path: '/settings/seo/pages',                component: () => import('../../../pages/admin/settings/settings/seo/SeoPagesIndex.vue'),           meta: { title: 'SEO Pages',             titleKey: 'message.seo' } },
+    {
+        path: '/settings/seo/:pageKey/edit',
+        component: () => import('../../../pages/admin/settings/settings/seo/SeoDefaultPageEdit.vue'),
+        meta: {
+            title: 'Edit SEO',
+            titleKey: 'message.edit_seo',
+            breadcrumb: [
+                { title: 'Settings', titleKey: 'message.settings', to: '/settings' },
+                { title: 'Pages', titleKey: 'message.pages', to: '/settings/seo/pages' },
+                { title: 'Edit SEO', titleKey: 'message.edit_seo' },
+            ],
+        },
+    },
 ]

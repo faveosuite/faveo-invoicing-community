@@ -78,6 +78,17 @@
                     <div class="mb-3">
                         <TinyMCE name="content" :label="__('message.content')" :required="true" id="editor-content" :value="form.content" :onChange="onChange" :error="errors.content" />
                     </div>
+
+                    <SeoFieldsCard
+                        :form="form"
+                        :errors="errors"
+                        :onChange="onChange"
+                        :ogSameAsMeta="ogSameAsMeta"
+                        @update:ogSameAsMeta="ogSameAsMeta = $event"
+                        :ogImagePreview="ogImagePreview"
+                        :componentName="COMPONENT"
+                        @image-change="onImageChange"
+                    />
                 </div>
 
                 <div class="card-footer">
@@ -98,6 +109,7 @@ import { validateForm } from '@/helpers/formUtils.js'
 import { buildFrontendPageEditSchema } from '@/validations/admin/pageValidations'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import SeoFieldsCard from '@/components/Reusable/FormField/SeoFieldsCard.vue'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const COMPONENT = 'pages-edit'
@@ -110,6 +122,17 @@ const { errors, setErrors, setFieldError } = useForm()
 const loading = ref(true)
 const saving = ref(false)
 
+const ogImagePreview = ref('')
+const selectedOgImage = ref(null)
+const selectedOgImageName = ref('')
+const ogSameAsMeta = ref(false)
+
+function onImageChange(value) {
+    ogImagePreview.value = value.image
+    selectedOgImage.value = value.file
+    selectedOgImageName.value = value.name
+}
+
 const form = reactive({
     name:           '',
     slug:           '',
@@ -121,6 +144,10 @@ const form = reactive({
     parentObj:      null,
     created_at_date: '',
     is_default:     false,
+    meta_title:       '',
+    meta_description: '',
+    og_title:         '',
+    og_description:   '',
 })
 
 function onChange(val, name) {
@@ -149,6 +176,12 @@ onMounted(async () => {
         form.content        = p.content ?? ''
         form.parent_page_id = p.parent_page_id ?? null
         form.is_default     = Boolean(p.is_default)
+        form.meta_title       = p.meta_title ?? ''
+        form.meta_description = p.meta_description ?? ''
+        form.og_title         = p.og_title ?? ''
+        form.og_description   = p.og_description ?? ''
+        ogImagePreview.value  = p.og_image ?? ''
+        ogSameAsMeta.value    = Boolean(p.og_same_as_meta)
 
         if (p.parent) {
             form.parentObj = { id: p.parent_page_id, name: p.parent.name }
@@ -176,16 +209,28 @@ async function submit() {
             created_at = `${m}/${d}/${y}`
         }
 
-        const res = await http.put(`/page/${route.params.id}`, {
-            name:           form.name,
-            slug:           form.slug,
-            url:            form.url,
-            type:           form.type,
-            publish:        form.publish ? 1 : 0,
-            content:        form.content,
-            parent_page_id: form.parent_page_id,
-            created_at,
-            default_page_id: form.is_default ? route.params.id : null,
+        const fd = new FormData()
+        fd.append('name', form.name)
+        fd.append('slug', form.slug)
+        fd.append('url', form.url ?? '')
+        fd.append('type', form.type ?? '')
+        fd.append('publish', form.publish ? 1 : 0)
+        fd.append('content', form.content)
+        fd.append('parent_page_id', form.parent_page_id ?? '')
+        fd.append('created_at', created_at)
+        if (form.is_default) fd.append('default_page_id', route.params.id)
+        fd.append('meta_title', form.meta_title ?? '')
+        fd.append('meta_description', form.meta_description ?? '')
+        fd.append('og_title', form.og_title ?? '')
+        fd.append('og_description', form.og_description ?? '')
+        fd.append('og_same_as_meta', ogSameAsMeta.value ? 1 : 0)
+        if (selectedOgImage.value) {
+            fd.append('og_image', selectedOgImage.value, selectedOgImageName.value)
+        }
+        fd.append('_method', 'PUT')
+
+        const res = await http.post(`/page/${route.params.id}`, fd, {
+            headers: { 'Content-Type': 'multipart/form-data' },
         })
         successHandler(res, COMPONENT)
         setTimeout(() => router.push('/pages'), 2000)

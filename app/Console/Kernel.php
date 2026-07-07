@@ -8,6 +8,7 @@ use App\Console\Commands\CleanupMsg91Reports;
 use App\Console\Commands\DropTables;
 use App\Console\Commands\ExpiryCron;
 use App\Console\Commands\FailedMessageDelivery;
+use App\Console\Commands\GenerateSeoFiles;
 use App\Console\Commands\Inspire;
 use App\Console\Commands\Install;
 use App\Console\Commands\InstallDB;
@@ -58,6 +59,7 @@ class Kernel extends ConsoleKernel
         DeleteLogs::class,
         ReoonLogsDeletion::class,
         FailedMessageDelivery::class,
+        GenerateSeoFiles::class,
     ];
 
     /**
@@ -72,6 +74,7 @@ class Kernel extends ConsoleKernel
         $this->execute($schedule, 'deleteLogs');
         $schedule->command('renewal:cron')->everyFiveMinutes();
         $schedule->command('app:failed-message-delivery')->hourly();
+        $schedule->command('seo:generate-files')->hourly();
         $this->execute($schedule, 'subsExpirymail');
         $this->execute($schedule, 'postExpirymail');
         $this->execute($schedule, 'invoice');

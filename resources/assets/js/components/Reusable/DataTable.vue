@@ -200,12 +200,11 @@ table                             { border-collapse: collapse; }
   align-items: center;
 }
 
-.btn-light {
+.table_btn {
+  background: #dcdcdc !important;
   color: #333 !important;
-  background-color: #dcdcdc !important;
   border-color: #c6c7c8 !important;
 }
-.table_btn { background: #dcdcdc !important; }
 .user-table-actions .btn { margin-right: 4px; }
 .dt-success { color: #017701 !important; }
 .dt-danger { color: red !important; }

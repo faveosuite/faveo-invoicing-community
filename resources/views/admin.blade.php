@@ -1,11 +1,20 @@
-<?php $set = \App\Model\Common\Setting::findOrFail(1); $rtl = isRtlForLang(); ?>
+<?php
+$set = \App\Model\Common\Setting::findOrFail(1);
+$rtl = isRtlForLang();
+// Meta Title (Admin Panel) may itself contain {name}/{company} shortcodes
+// (Settings > SEO); {name} has no server-side value here (resolved
+// per-route client-side instead, see adminRouter.js), so it resolves empty.
+// No-op for the common case of a plain literal favicon_title.
+$favTitle = app(\App\Services\Seo\SeoTemplateFormatter::class)->resolveShortcodes($set->favicon_title, '');
+?>
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" dir="{{ $rtl ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $set->favicon_title }}</title>
+    <meta name="robots" content="noindex, nofollow">
+    <title>{{ $favTitle }}</title>
 
     @if($set->fav_icon)
         <link rel="shortcut icon" href="{{ $set->fav_icon }}" type="image/x-icon">

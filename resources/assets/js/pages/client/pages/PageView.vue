@@ -21,9 +21,8 @@ import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { errorHandler } from '@/helpers/responseHandler.js'
 import { setPageTitle } from '@/core/composables/useBreadcrumb.js'
+import { setMetaDescription } from '@/core/composables/useSeoMeta.js'
 
-const el      = document.getElementById('app-client')
-const appName = el?.dataset?.pageTitle || 'Client Panel'
 const route   = useRoute()
 const loading = ref(true)
 const page    = ref(null)
@@ -35,9 +34,20 @@ async function loadPage(slug) {
         const { data } = await http.get(`page-content/${slug}`)
         page.value = data?.data ?? null
         if (page.value?.name) {
-            // Page-header banner title + browser tab title = the page name.
+            // Page-header banner title = the page name.
             setPageTitle(page.value.name)
-            document.title = `${page.value.name} | ${appName}`
+            // No " | Company" suffix here — this page has its own real SEO
+            // title (admin-editable, same one server-rendered in <title>
+            // before Vue mounted). Appending a suffix client-side would make
+            // the JS-rendered DOM title diverge from the indexed one.
+            document.title = page.value.meta_title || page.value.name
+            setMetaDescription(page.value.meta_description)
+        } else {
+            // This route owns document.title (clientRouter.js's afterEach
+            // skips it entirely), so an unpublished/unknown slug must set its
+            // own title here or the previous page's title stays in the tab.
+            setPageTitle(__('message.page_not_found'))
+            document.title = __('message.page_not_found')
         }
     } catch (e) {
         errorHandler(e, 'client-page')

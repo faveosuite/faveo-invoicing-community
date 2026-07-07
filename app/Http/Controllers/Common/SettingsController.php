@@ -245,17 +245,23 @@ class SettingsController extends BaseSettingsController
             ]);
             $input['autorenewal_status'] = $request->boolean('autorenewal_status');
 
-            if ($request->hasFile('logo')) {
+            if ($request->boolean('defaultclientlogo')) {
+                $setting->logo = null;
+            } elseif ($request->hasFile('logo')) {
                 $path = Attach::put('images', $request->file('logo'), null, true);
                 $setting->logo = basename((string) $path);
             }
 
-            if ($request->hasFile('admin-logo')) {
+            if ($request->boolean('defaultlogo')) {
+                $setting->admin_logo = null;
+            } elseif ($request->hasFile('admin-logo')) {
                 $path = Attach::put('admin/images', $request->file('admin-logo'), null, true);
                 $setting->admin_logo = basename((string) $path);
             }
 
-            if ($request->hasFile('fav-icon')) {
+            if ($request->boolean('defaulticon')) {
+                $setting->fav_icon = null;
+            } elseif ($request->hasFile('fav-icon')) {
                 $path = Attach::put('common/images', $request->file('fav-icon'), null, true);
                 $setting->fav_icon = basename((string) $path);
             }

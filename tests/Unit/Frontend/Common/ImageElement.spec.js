@@ -33,14 +33,9 @@ describe('ImageElement.vue', () => {
         expect(wrapper.attributes('src')).toBe('https://example.com/photo.jpg')
     })
 
-    it('falls back to default image path when sourceUrl is empty', () => {
+    it('falls back to an inline placeholder image when sourceUrl is empty', () => {
         wrapper = mountImage({ sourceUrl: '' })
-        expect(wrapper.attributes('src')).toContain('default.png')
-    })
-
-    it('uses custom defaultImage', () => {
-        wrapper = mountImage({ sourceUrl: '', defaultImage: 'placeholder.png' })
-        expect(wrapper.attributes('src')).toContain('placeholder.png')
+        expect(wrapper.attributes('src')).toContain('data:image/svg+xml')
     })
 
     it('sets alt text', () => {
@@ -75,9 +70,9 @@ describe('ImageElement.vue', () => {
         expect(wrapper.classes()).toContain('img-circle')
     })
 
-    it('handles image load error by replacing src with default', async () => {
+    it('handles image load error by replacing src with the inline placeholder', async () => {
         await wrapper.trigger('error')
-        expect(wrapper.attributes('src')).toContain('default.png')
+        expect(wrapper.attributes('src')).toContain('data:image/svg+xml')
     })
 
     it('sets styleObject on the element', () => {

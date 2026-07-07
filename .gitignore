@@ -54,3 +54,10 @@ app/Http/Controllers/Front/GetPageTemplateController.php
 
 # Jest coverage output
 coverage/
+
+# SEO files regenerated at runtime by SeoFileGenerator (per-save + hourly
+# cron) — content is install-specific (URLs, company name, pages/products),
+# so it shouldn't be committed.
+/public/sitemap.xml
+/public/llms.txt
+/public/robots.txt

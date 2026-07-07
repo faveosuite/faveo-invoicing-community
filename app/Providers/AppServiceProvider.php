@@ -6,6 +6,7 @@ use App\Events\UserOrderDelete;
 use App\Helper\PdfManager\FaveoBrowserShot;
 use App\Listeners\CloudDeletion;
 use App\Services\NewsletterManager;
+use App\Services\Seo\SeoTemplateFormatter;
 use File;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -54,6 +55,12 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(NewsletterManager::class);
+
+        // Shared per-request: its constructor queries CommonSettings +
+        // Setting, and both SeoMetaService and client.blade.php resolve it
+        // independently — without this, every page render doubled those
+        // queries.
+        $this->app->singleton(SeoTemplateFormatter::class);
     }
 
     /**

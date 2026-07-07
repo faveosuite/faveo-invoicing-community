@@ -28,7 +28,7 @@ describe('ProductGroupEdit.vue', () => {
 
     beforeEach(() => {
         globalThis.mockHttp.onGet(/\/group\/0/).reply(200, groupResponse)
-        globalThis.mockHttp.onPatch(/\/group\/0/).reply(200, { data: { message: 'Updated' } })
+        globalThis.mockHttp.onPost(/\/group\/0/).reply(200, { data: { message: 'Updated' } })
         wrapper = mount(ProductGroupEdit, {
             global: {
                 plugins: [createTestingPinia()],
@@ -76,11 +76,13 @@ describe('ProductGroupEdit.vue', () => {
         expect(errorHandler).toHaveBeenCalled()
     })
 
-    it('calls PATCH /group/0 on submit', async () => {
+    it('calls PATCH /group/0 on submit (via POST + _method=PATCH override)', async () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
-        expect(globalThis.mockHttp.history.patch.some(r => /\/group\/0/.test(r.url))).toBe(true)
+        const call = globalThis.mockHttp.history.post.find(r => /\/group\/0/.test(r.url))
+        expect(call).toBeTruthy()
+        expect(call.data.get('_method')).toBe('PATCH')
     })
 
     it('calls successHandler on successful update', async () => {
@@ -93,7 +95,7 @@ describe('ProductGroupEdit.vue', () => {
     it('calls errorHandler on submit failure', async () => {
         await flushPromises()
         globalThis.mockHttp.reset()
-        globalThis.mockHttp.onPatch(/\/group\/0/).reply(500)
+        globalThis.mockHttp.onPost(/\/group\/0/).reply(500)
         await wrapper.vm.submit()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
@@ -102,11 +104,11 @@ describe('ProductGroupEdit.vue', () => {
     it('does not submit when validateForm returns false', async () => {
         await flushPromises()
         globalThis.mockHttp.reset()
-        globalThis.mockHttp.onPatch(/\/group\/0/).reply(200, { data: {} })
+        globalThis.mockHttp.onPost(/\/group\/0/).reply(200, { data: {} })
         const { validateForm } = require('@/helpers/formUtils.js')
         validateForm.mockResolvedValueOnce(false)
         await wrapper.vm.submit()
         await flushPromises()
-        expect(globalThis.mockHttp.history.patch.length).toBe(0)
+        expect(globalThis.mockHttp.history.post.length).toBe(0)
     })
 })

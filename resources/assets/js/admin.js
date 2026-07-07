@@ -80,9 +80,13 @@ import(`./themes/${theme}/index.js`).then(async themeModule => {
 
     setupLoaderInterceptors(app.config.globalProperties.$Progress)
 
-    // Hydrate auth state before mount — replaces data-authenticated DOM flag
-    await useAuthStore().hydrate()
     app.mount('#app-root')
+
+    // Hydrate auth state in the background — replaces the data-authenticated
+    // DOM flag with fresh profile data once it resolves. Not blocking mount
+    // on this lets the router resolve its initial route (and update
+    // document.title) immediately instead of waiting on a network round-trip.
+    useAuthStore().hydrate()
 }).catch(err => {
     console.error('[Theme load failed]', err)
 })

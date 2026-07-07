@@ -31,6 +31,12 @@ class GroupRequest extends Request
             'hidden' => ['nullable', 'integer'],
             'pricing_templates_id' => ['required', 'exists:pricing_templates,id'],
             'status' => ['nullable', 'boolean'],
+            'meta_title' => ['nullable', 'string'],
+            'meta_description' => ['nullable', 'string'],
+            'og_title' => ['nullable', 'string'],
+            'og_description' => ['nullable', 'string'],
+            'og_image' => ['sometimes', 'file', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'og_same_as_meta' => ['nullable', 'boolean'],
         ];
     }
 
