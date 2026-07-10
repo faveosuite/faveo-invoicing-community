@@ -801,12 +801,12 @@ Route::middleware('installAgora')->group(function (): void {
     // Localized License (file downloads)
     // --------------------------------------------------------
 
-    Route::get('downloadLicenseFile', [LocalizedLicenseController::class, 'downloadFile'])->name('event.rsvp')->middleware('signed');
-    Route::get('downloadPrivate/{orderNo}', [LocalizedLicenseController::class, 'downloadPrivate']);
-    Route::get('LocalizedLicense/downloadLicense/{fileName}', [LocalizedLicenseController::class, 'downloadFileAdmin']);
-    Route::get('LocalizedLicense/downloadPrivateKey/{fileName}', [LocalizedLicenseController::class, 'downloadPrivateKeyAdmin']);
-    Route::get('localized-license/files', [LocalizedLicenseController::class, 'filesApi']);
-    Route::delete('localized-license/files', [LocalizedLicenseController::class, 'deleteFileApi']);
+    Route::get('downloadLicenseFile', [LocalizedLicenseController::class, 'downloadFile']);
+    Route::get('LocalizedLicense/downloadLicense/{orderNo}/{productId?}', [LocalizedLicenseController::class, 'downloadFileAdmin']);
+    Route::get('LocalizedLicense/{orderNo}/plugins', [LocalizedLicenseController::class, 'pluginsForOrder']);
+    Route::post('license-binding', [LocalizedLicenseController::class, 'submitLicenseBinding']);
+    Route::get('localized-license/orders', [LocalizedLicenseController::class, 'listFileModeOrders']);
+    Route::post('localized-license/bulk-disable', [LocalizedLicenseController::class, 'bulkDisableLicenseMode']);
 
     // --------------------------------------------------------
     // Product Downloads

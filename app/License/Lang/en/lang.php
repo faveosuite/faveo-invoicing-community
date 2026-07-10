@@ -146,6 +146,7 @@ return [
     'license_updates_date' => 'Updates Expiration Date',
     'licensed_domain' => 'Licensed Domain(s)',
     'licensed_ip' => 'Licensed IP',
+    'licensed_machine_id' => 'Machine ID',
     'licenses' => 'Licenses',
     'license_status' => 'Licence Status',
     'max_size_new_added' => 'Upload Failed. Maximum file size supported is 2 MB ',

@@ -7,6 +7,7 @@ use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\User\AdvanceSearchController;
 use App\License\Models\Installation;
+use App\License\Models\License;
 use App\Model\Common\CreditActivity;
 use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
@@ -192,6 +193,8 @@ class ClientController extends BaseClientController
                 return errorResponse('Unauthorized', 401);
             }
 
+            $license = License::where('license_order_number', $order->number)->first(['license_domain', 'license_machine_id']);
+
             return successResponse('', [
                 'id' => $order->id,
                 'number' => $order->number,
@@ -203,6 +206,9 @@ class ClientController extends BaseClientController
                 'update_ends_at' => $order->subscription?->update_ends_at,
                 'license_ends_at' => $order->subscription?->ends_at,
                 'serial_key' => $order->serial_key,
+                'license_mode' => $order->license_mode,
+                'license_domain' => $license?->license_domain,
+                'license_machine_id' => $license?->license_machine_id,
                 'invoice_id' => $latestInvoice?->id,
                 'invoice_number' => $latestInvoice?->number,
                 'sub_id' => $order->subscription?->id,

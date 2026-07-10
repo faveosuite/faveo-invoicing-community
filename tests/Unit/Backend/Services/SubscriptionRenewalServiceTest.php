@@ -4,9 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Services;
 
+use App\License\Models\License;
+use App\License\Services\Ed25519SigningService;
+use App\Model\License\LicensePermission;
+use App\Model\License\LicenseType;
+use App\Model\Order\Order;
+use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Services\SubscriptionRenewalService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Storage;
 use Tests\DBTestCase;
 
 class SubscriptionRenewalServiceTest extends DBTestCase
@@ -28,6 +35,25 @@ class SubscriptionRenewalServiceTest extends DBTestCase
             'update_ends_at' => now()->addDays(30),
             'support_ends_at' => now()->addDays(30),
         ], $attrs));
+    }
+
+    /**
+     * Grants the given license-permission display names on a product, so
+     * LicensePermissionsController::getPermissionsForProduct() reports them
+     * as enabled (mirrors the pattern used in BaseOrderControllerTest).
+     */
+    private function grantPermissions(int $productId, array $permissionNames): void
+    {
+        $licenseType = LicenseType::updateOrCreate(['id' => 1], ['name' => 'Download Perpetual']);
+
+        foreach ($permissionNames as $name) {
+            LicensePermission::firstOrCreate(['permissions' => $name]);
+        }
+
+        $permissionIds = LicensePermission::whereIn('permissions', $permissionNames)->pluck('id');
+        $licenseType->permissions()->sync($permissionIds);
+
+        Product::where('id', $productId)->update(['type' => $licenseType->id]);
     }
 
     // --- computeExpiry via setDate ---
@@ -52,6 +78,48 @@ class SubscriptionRenewalServiceTest extends DBTestCase
         $this->service->setDate($sub, 'ends_at', now()->addDays(60)->toDateTimeString());
 
         $this->assertTrue(true); // no exception
+    }
+
+    public function test_set_date_regenerates_the_signed_license_file_for_file_mode_orders(): void
+    {
+        Storage::fake('public');
+
+        $order = Order::factory()->withRelations([
+            'number' => '90000200',
+            'license_mode' => 'File',
+            'serial_key' => 'LIC-RENEW-CODE',
+            'is_downloadable' => 0,
+        ])->create();
+
+        $this->grantPermissions((int) $order->product, ['Generate License Expiry Date']);
+
+        License::create([
+            'product_id' => $order->product,
+            'user_id' => $order->client,
+            'license_code' => 'LIC-RENEW-CODE',
+            'license_order_number' => $order->number,
+            'license_expire_date' => '2026-01-01',
+            'license_status' => 1,
+        ]);
+
+        $sub = Subscription::where('order_id', $order->id)->firstOrFail();
+
+        $this->service->setDate($sub, 'ends_at', '2028-01-01');
+
+        Storage::disk('public')->assertExists('faveo-license-{90000200}.txt');
+
+        $file = json_decode(Storage::disk('public')->get('faveo-license-{90000200}.txt'), true);
+        $this->assertStringContainsString('2028-01-01', $file['license']);
+        $this->assertStringNotContainsString('2026-01-01', $file['license']);
+
+        $this->assertTrue(
+            resolve(Ed25519SigningService::class)->verify($file['license'], $file['signature'])
+        );
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'is_downloadable' => 1,
+        ]);
     }
 
     // --- syncLicense ---

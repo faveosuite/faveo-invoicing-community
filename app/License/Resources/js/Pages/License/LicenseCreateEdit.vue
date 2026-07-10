@@ -54,6 +54,14 @@
 
                     <div class="row">
                         <div class="col-sm-6">
+                            <text-field :label="lang('licensed_machine_id')" :value="license_machine_id" type="text"
+                                        name="license_machine_id" :onChange="onChange">
+                            </text-field>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
                             <date-picker :label="lang('license_expire_date')" :value="license_expire_date" type="date"
                                          name="license_expire_date" :onChange="onChange" :required="true" format="DD-MM-YYYY"
                                          :clearable="true" :disabled="false" :confirm="false" :error="errors.license_expire_date">
@@ -148,6 +156,7 @@ const license_order_number = ref('')
 const api_key_secret = ref('')
 const license_ip = ref('')
 const license_domain = ref('')
+const license_machine_id = ref('')
 const license_limit = ref('')
 const license_expire_date = ref('')
 const license_updates_date = ref('')
@@ -166,7 +175,7 @@ function onChange(value, name) {
         setFieldError('client', undefined)
     } else {
         const map = {
-            license_code, license_order_number, license_ip, license_domain, license_limit,
+            license_code, license_order_number, license_ip, license_domain, license_machine_id, license_limit,
             license_expire_date, license_updates_date, license_support_date, license_comments,
             license_status, license_require_domain
         }
@@ -214,6 +223,7 @@ function getInitialValues(id) {
         license_require_domain.value = licenseData.license_require_domain
         license_status.value = licenseData.license_status
         license_domain.value = licenseData.license_domain
+        license_machine_id.value = licenseData.license_machine_id
         license_expire_date.value = licenseData.license_expire_date
         license_updates_date.value = licenseData.license_updates_date
         license_support_date.value = licenseData.license_support_date
@@ -235,6 +245,7 @@ async function onSubmit() {
     if (license_order_number.value) data['license_order_number'] = license_order_number.value
     data['license_ip'] = license_ip.value
     data['license_domain'] = license_domain.value
+    data['license_machine_id'] = license_machine_id.value
     if (license_limit.value) data['license_limit'] = license_limit.value
     data['license_comments'] = license_comments.value
     if (license_expire_date.value) data['license_expire_date'] = DateTime.fromFormat(String(license_expire_date.value), 'dd-MM-yyyy').toFormat('yyyy-MM-dd')

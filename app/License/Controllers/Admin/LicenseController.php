@@ -66,6 +66,7 @@ class LicenseController extends Controller
             'license_order_number' => $request->get('license_order_number'),
             'license_ip' => $request->get('license_ip'),
             'license_domain' => $request->get('license_domain'),
+            'license_machine_id' => $request->get('license_machine_id'),
             'license_require_domain' => $request->get('license_require_domain'),
             'license_limit' => $request->get('license_limit') ?: 1,
             'license_date' => now(),
@@ -114,6 +115,7 @@ class LicenseController extends Controller
             'license_order_number' => $request->get('license_order_number'),
             'license_ip' => $request->get('license_ip'),
             'license_domain' => $request->get('license_domain'),
+            'license_machine_id' => $request->get('license_machine_id'),
             'license_require_domain' => $request->get('license_require_domain'),
             'license_limit' => $request->get('license_limit'),
             'license_cancel_date' => $request->get('license_status') == 1 ? null : ($license->license_cancel_date ?: now()),
@@ -158,7 +160,7 @@ class LicenseController extends Controller
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search-query', $request->input('search_query', ''));
         $sortOrder = strtolower((string) $request->input('sort-order', $request->input('sort_order', 'desc'))) === 'asc' ? 'asc' : 'desc';
-        $sortField = in_array($request->input('sort-field', $request->input('sort_field', 'id')), ['id', 'product_id', 'user_id', 'license_code', 'license_ip', 'license_limit', 'license_expire_date', 'license_support_date', 'license_order_number', 'license_domain', 'license_date', 'license_updates_date', 'license_status'], strict: true) ? $request->input('sort-field', $request->input('sort_field', 'id')) : 'id';
+        $sortField = in_array($request->input('sort-field', $request->input('sort_field', 'id')), ['id', 'product_id', 'user_id', 'license_code', 'license_ip', 'license_machine_id', 'license_limit', 'license_expire_date', 'license_support_date', 'license_order_number', 'license_domain', 'license_date', 'license_updates_date', 'license_status'], strict: true) ? $request->input('sort-field', $request->input('sort_field', 'id')) : 'id';
 
         $licenses = License::query()
             ->with(['product:id,name', 'user:id,email'])
@@ -175,6 +177,7 @@ class LicenseController extends Controller
                         ->orWhere('license_support_date', 'like', '%'.$searchQuery.'%')
                         ->orWhere('license_order_number', 'like', '%'.$searchQuery.'%')
                         ->orWhere('license_domain', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('license_machine_id', 'like', '%'.$searchQuery.'%')
                         ->orWhere('license_date', 'like', '%'.$searchQuery.'%')
                         ->orWhere('license_updates_date', 'like', '%'.$searchQuery.'%')
                         ->orWhere('license_status', 'like', '%'.LicenseHelper::statusFormatter($searchQuery).'%');
@@ -194,6 +197,7 @@ class LicenseController extends Controller
             'license_support_date' => $license->license_support_date,
             'license_order_number' => $license->license_order_number,
             'license_domain' => $license->license_domain,
+            'license_machine_id' => $license->license_machine_id,
             'license_date' => $license->license_date,
             'license_updates_date' => $license->license_updates_date,
             'license_status' => $license->license_status,

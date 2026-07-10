@@ -37,6 +37,7 @@ class LicenseViewController extends Controller
             'license_support_date' => $license->license_support_date,
             'license_order_number' => $license->license_order_number,
             'license_domain' => $license->license_domain,
+            'license_machine_id' => $license->license_machine_id,
             'license_date' => $license->license_date,
             'license_updates_date' => $license->license_updates_date,
             'license_status' => $license->license_status,

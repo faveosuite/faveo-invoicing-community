@@ -19,6 +19,7 @@
         "ext-pcntl": "*",
         "ext-pdo": "*",
         "ext-zip": "*",
+        "ext-sodium": "*",
         "bacon/bacon-qr-code": "^v3.0.3",
         "coconutcraig/laravel-postmark": "^v3.3.1",
         "creativeorange/gravatar": "^v1.0.25",

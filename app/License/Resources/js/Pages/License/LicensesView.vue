@@ -74,6 +74,12 @@
                         </div>
                         <div class="col-sm-6 mb-3">
                             <div class="d-flex">
+                                <span class="fw-bold me-2">{{ lang('licensed_machine_id') }}:</span>
+                                <span>{{ license_machine_id || '—' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex">
                                 <span class="fw-bold me-2">{{ lang('installation_limit') }}:</span>
                                 <span>{{ installation_limit >= 0 ? installation_limit : '—' }}</span>
                             </div>
@@ -199,6 +205,7 @@ const product_title = ref('')
 const call_backs_count = ref(null)
 const license_order_number = ref('')
 const license_domain = ref('')
+const license_machine_id = ref('')
 const license_date = ref('')
 const license_updates_date = ref('')
 const license_status = ref(null)
@@ -238,6 +245,7 @@ function updateStatesWithData(data) {
     if (data.license_support_date) license_support_date.value = data.license_support_date
     if (data.license_ip) license_ip.value = data.license_ip
     if (data.license_domain) license_domain.value = data.license_domain
+    if (data.license_machine_id) license_machine_id.value = data.license_machine_id
     if (data.license_code) license_code.value = data.license_code
     if (data.license_status !== undefined) license_status.value = data.license_status
     if (data.installation_counts) installation_counts.value = data.installation_counts

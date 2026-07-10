@@ -31,13 +31,7 @@ class SubscriptionRenewalService
         $sub->support_ends_at = $supportExpiry ? Date::parse($supportExpiry) : null;
         $sub->save();
 
-        $order = Order::find($sub->order_id);
-
-        if ($order?->license_mode === 'File') {
-            $order->update(['is_downloadable' => 0]);
-        } else {
-            $this->syncLicenseServer($sub, $licenseExpiry, $updatesExpiry, $supportExpiry);
-        }
+        $this->syncLicenseServer($sub, $licenseExpiry, $updatesExpiry, $supportExpiry);
     }
 
     private function computeExpiry(bool $permission, mixed $currentDate, int $days, bool $fromNowIfExpired): ?string
@@ -76,13 +70,7 @@ class SubscriptionRenewalService
         $sub->$field = $date;
         $sub->save();
 
-        $order = Order::find($sub->order_id);
-
-        if ($order?->license_mode === 'File') {
-            $order->update(['is_downloadable' => 0]);
-        } else {
-            $this->syncLicense($sub);
-        }
+        $this->syncLicense($sub);
     }
 
     public function updateInstallationLimit(Subscription $sub, int $limit): void

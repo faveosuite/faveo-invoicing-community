@@ -107,13 +107,13 @@
                             <div class="col-sm-7 d-flex align-items-center gap-2">
                                 <span>{{ order.serial_key || '—' }}</span>
                                 <button v-if="order.serial_key"
-                                        class="btn btn-light btn-sm ms-2"
+                                        class="btn btn-light btn-sm ms-2 table_btn"
                                         v-tooltip="copied ? __('message.copied') : __('message.copy')"
                                         @click="copyLicense">
                                     <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'"></i>
                                 </button>
                                 <button v-if="order.serial_key && !order.is_cloud"
-                                        class="btn btn-light btn-sm"
+                                        class="btn btn-light btn-sm table_btn"
                                         :disabled="reissuing"
                                         v-tooltip="__('message.reissue_license')"
                                         @click="reissueLicense">
@@ -134,7 +134,7 @@
                             <div class="col-sm-7 d-flex align-items-center gap-2">
                                 <span>{{ formatDate(order.license_ends_at) }}</span>
                                 <button v-if="order.status !== 'Terminated'"
-                                        class="btn btn-light btn-sm ms-2"
+                                        class="btn btn-light btn-sm ms-2 table_btn"
                                         v-tooltip="__('message.renew')"
                                         @click="showRenewModal = true">
                                     <i class="fas fa-sync-alt"></i>
@@ -152,6 +152,23 @@
                             </div>
                             <div class="col-sm-7">{{ formatDate(order.update_ends_at) }}</div>
                         </div>
+
+                        <template v-if="order.license_mode === 'File'">
+                            <div class="row"><div class="col"><hr class="solid my-3"></div></div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="pe-3 pe-sm-5 pb-3 pb-sm-0 border-right-light">
+                                        <span class="fw-bold">{{ __('message.localized_license') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">
+                                    <button class="btn btn-light btn-sm table_btn" @click="handleDownloadClick">
+                                        <i class="fas fa-download me-1"></i>{{ __('message.download_license_file') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
 
                         <div class="row"><div class="col"><hr class="solid my-3"></div></div>
 
@@ -564,6 +581,66 @@
             </template>
         </Modal>
 
+        <!-- ── Bind license (domain + machine ID) before first download ── -->
+        <Modal :showModal="showBindingModal" :onClose="closeBindingModal" :showCloseBtn="false">
+            <template #title>
+                <h5 class="modal-title fw-bold">{{ __('message.localized_license') }}</h5>
+            </template>
+            <template #fields>
+                <AppAlert componentName="license-binding-modal" />
+                <p class="text-muted mb-3">{{ __('message.machine_id_tooltip') }}</p>
+                <ClientField type="text" name="bindingDomain" required
+                             :label="__('message.domain')"
+                             v-model="bindingForm.domain"
+                             placeholder="example.com" autocomplete="off" />
+                <ClientField type="text" name="bindingMachineId" required
+                             :label="__('message.machine_id')"
+                             v-model="bindingForm.machineId"
+                             :placeholder="__('message.enter_machine_id')" autocomplete="off" />
+            </template>
+            <template #controls>
+                <action-button action="confirm"
+                               :label="__('message.save_and_download')"
+                               :loading="bindingBusy"
+                               :disabled="!bindingForm.domain || !bindingForm.machineId"
+                               @click="submitBinding" />
+            </template>
+        </Modal>
+
+        <!-- ── Pick which license file to download (main product + entitled add-ons) ── -->
+        <Modal :showModal="showDownloadModal" :onClose="closeDownloadModal" classname="modal-dialog-scrollable download-license-modal">
+            <template #title>
+                <h5 class="modal-title fw-bold">{{ __('message.localized_license') }}</h5>
+            </template>
+            <template #fields>
+                <div class="download-section-label">{{ __('message.product') }}</div>
+                <ul class="list-group mb-3">
+                    <li class="list-group-item d-flex align-items-center justify-content-between">
+                        <span>{{ order?.product_name || __('message.product') }}</span>
+                        <button class="btn btn-light btn-sm table_btn" @click="selectDownload(null)">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </li>
+                </ul>
+
+                <template v-if="pluginLicenses.length">
+                    <div class="download-section-label">{{ __('message.addons') }}</div>
+                    <ul class="list-group">
+                        <li
+                            v-for="plugin in pluginLicenses"
+                            :key="plugin.id"
+                            class="list-group-item d-flex align-items-center justify-content-between"
+                        >
+                            <span>{{ plugin.name }}</span>
+                            <button class="btn btn-light btn-sm table_btn" @click="selectDownload(plugin.id)">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </template>
+            </template>
+        </Modal>
+
         <!-- ── Renew Order modal (shared with the orders list page) ── -->
         <RenewModal v-model:show="showRenewModal" :order="order" />
 
@@ -584,8 +661,10 @@ import RenewModal from './components/RenewModal.vue'
 import WhatsappPanel from './components/WhatsappPanel.vue'
 import DeployWizard from './components/DeployWizard.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
+import { useBaseUrl } from '@/core/composables/useBaseUrl'
 
 const { formatDate } = useDateTime()
+const baseUrl = useBaseUrl()
 const el      = document.getElementById('app-client')
 const userId  = el?.dataset?.userId  ?? ''
 
@@ -964,6 +1043,95 @@ async function reissueLicense() {
     }
 }
 
+/* ── License binding (domain + machine ID) before first download ─── */
+const showBindingModal = ref(false)
+const bindingBusy      = ref(false)
+const bindingForm      = reactive({ domain: '', machineId: '' })
+const pluginLicenses   = ref([])
+// null = main product's license file; otherwise the plugin product_id whose
+// download triggered the binding modal, so it resumes the right one after.
+const pendingDownloadProductId = ref(null)
+
+function isLicenseBound() {
+    return !!(order.value?.license_domain && order.value?.license_machine_id)
+}
+
+function triggerDownload(productId = null) {
+    const suffix = productId ? `&productId=${productId}` : ''
+    window.location.href = `${baseUrl}/downloadLicenseFile?orderNo=${order.value.number}${suffix}`
+}
+
+function requestDownload(productId = null) {
+    if (isLicenseBound()) {
+        triggerDownload(productId)
+        return
+    }
+    pendingDownloadProductId.value = productId
+    bindingForm.domain    = order.value?.license_domain ?? ''
+    bindingForm.machineId = order.value?.license_machine_id ?? ''
+    alertStore.unsetAlert()
+    showBindingModal.value = true
+}
+
+/* ── Pick which license file to download (main product + entitled add-ons) ── */
+const showDownloadModal = ref(false)
+
+function handleDownloadClick() {
+    showDownloadModal.value = true
+}
+
+function closeDownloadModal() {
+    showDownloadModal.value = false
+}
+
+function selectDownload(productId) {
+    // Only hide the picker if binding is about to be needed - otherwise its
+    // overlay would sit on top of the binding modal. It's restored in
+    // submitBinding() once binding's done. If already bound, leave it open
+    // so multiple items can be downloaded without reopening it each time.
+    if (!isLicenseBound()) {
+        showDownloadModal.value = false
+    }
+    requestDownload(productId)
+}
+
+async function loadPluginLicenses() {
+    if (!order.value?.number) return
+    try {
+        const res = await http.get(`/LocalizedLicense/${order.value.number}/plugins`)
+        pluginLicenses.value = res.data?.data ?? res.data ?? []
+    } catch (e) {
+        pluginLicenses.value = []
+    }
+}
+
+function closeBindingModal() {
+    showBindingModal.value = false
+    alertStore.unsetAlert()
+}
+
+async function submitBinding() {
+    if (!bindingForm.domain || !bindingForm.machineId) return
+    bindingBusy.value = true
+    try {
+        const res = await http.post('/license-binding', {
+            orderNo: order.value.number,
+            domain: bindingForm.domain,
+            machine_id: bindingForm.machineId,
+        })
+        order.value.license_domain     = bindingForm.domain
+        order.value.license_machine_id = bindingForm.machineId
+        successHandler(res, 'client-page')
+        closeBindingModal()
+        triggerDownload(pendingDownloadProductId.value)
+        showDownloadModal.value = true
+    } catch (e) {
+        errorHandler(e, 'license-binding-modal')
+    } finally {
+        bindingBusy.value = false
+    }
+}
+
 /* ── Renew order (shared modal) ───────────────────────────── */
 const showRenewModal = ref(false)
 
@@ -1103,6 +1271,7 @@ onMounted(async () => {
     try {
         const res = await http.get(`/get-my-orders`, { params: { id: orderId } })
         order.value = res.data?.data ?? null
+        await loadPluginLicenses()
     } catch (e) {
         errorHandler(e, 'client-page')
     } finally {
@@ -1113,4 +1282,21 @@ onMounted(async () => {
 
 <style scoped>
 .icon-lg { font-size: 20px; }
+.download-section-label {
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+</style>
+
+<!-- Modal.vue teleports to <body>, so scoped styles can't reach its internals -
+     this rule targets the unique classname passed to that one modal instance,
+     rather than being scoped (which teleport would silently defeat anyway). -->
+<style>
+.download-license-modal .modal-content {
+    max-height: 60vh;
+}
 </style>

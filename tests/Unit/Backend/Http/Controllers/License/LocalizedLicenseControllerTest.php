@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\License;
 
-use App\Http\Controllers\License\EncryptDecryptController;
+use App\License\Models\License;
+use App\License\Services\Ed25519SigningService;
 use App\Model\Order\Order;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Mockery\MockInterface;
 use Storage;
 use Tests\DBTestCase;
 
@@ -88,7 +88,8 @@ class LocalizedLicenseControllerTest extends DBTestCase
     {
         // Covers line 173: tempOrderLink returns signed URL when user is authenticated
         $controller = new \App\Http\Controllers\License\LocalizedLicenseController(
-            $this->app->make(\App\License\Services\InstallationService::class)
+            $this->app->make(\App\License\Services\InstallationService::class),
+            $this->app->make(Ed25519SigningService::class)
         );
 
         $url = $controller->tempOrderLink('ORD001', 1);
@@ -100,7 +101,8 @@ class LocalizedLicenseControllerTest extends DBTestCase
     public function test_temp_order_link_aborts_401_when_user_id_is_zero(): void
     {
         $controller = new \App\Http\Controllers\License\LocalizedLicenseController(
-            $this->app->make(\App\License\Services\InstallationService::class)
+            $this->app->make(\App\License\Services\InstallationService::class),
+            $this->app->make(Ed25519SigningService::class)
         );
 
         try {
@@ -111,23 +113,17 @@ class LocalizedLicenseControllerTest extends DBTestCase
         }
     }
 
-    public function test_it_sets_license_mode_to_file_and_generates_keys(): void
+    public function test_it_sets_license_mode_to_file(): void
     {
         Storage::fake('public');
 
         $order = Order::factory()->withRelations([
-            'number' => 'ORD123',
+            'number' => '90000123',
             'license_mode' => 'Database',
         ])->create();
 
-        $this->mock(EncryptDecryptController::class, function (MockInterface $mock): void {
-            $mock->shouldReceive('generateKeys')
-                ->once()
-                ->with('ORD123');
-        });
-
         $response = $this->postJson('/switch-license-mode', [
-            'orderNo' => 'ORD123',
+            'orderNo' => '90000123',
             'choose' => true,
         ]);
 
@@ -139,6 +135,55 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
             'license_mode' => 'File',
+        ]);
+
+        // No matching License row yet, so there's nothing to build a file from.
+        Storage::disk('public')->assertMissing('faveo-license-{90000123}.txt');
+    }
+
+    public function test_switching_to_file_mode_generates_a_signed_downloadable_license_file(): void
+    {
+        Storage::fake('public');
+
+        $order = Order::factory()->withRelations([
+            'number' => '90000124',
+            'license_mode' => 'Database',
+            'is_downloadable' => 0,
+        ])->create();
+
+        License::create([
+            'product_id' => $order->product,
+            'user_id' => $order->client,
+            'license_code' => 'LIC-90000124',
+            'license_order_number' => $order->number,
+            'license_expire_date' => '2027-06-01',
+            'license_status' => 1,
+        ]);
+
+        $response = $this->postJson('/switch-license-mode', [
+            'orderNo' => '90000124',
+            'choose' => true,
+        ]);
+
+        $response->assertStatus(200);
+
+        Storage::disk('public')->assertExists('faveo-license-{90000124}.txt');
+
+        $file = json_decode(Storage::disk('public')->get('faveo-license-{90000124}.txt'), true);
+        $this->assertArrayHasKey('license', $file);
+        $this->assertArrayHasKey('signature', $file);
+
+        $this->assertTrue(
+            resolve(Ed25519SigningService::class)->verify($file['license'], $file['signature'])
+        );
+
+        $fields = json_decode($file['license'], true);
+        $this->assertSame('LIC-90000124', $fields['license_code']);
+        $this->assertSame('2027-06-01', $fields['license_expire_date']);
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'is_downloadable' => 1,
         ]);
     }
 
@@ -218,26 +263,22 @@ class LocalizedLicenseControllerTest extends DBTestCase
         Storage::fake('public');
 
         $order = Order::factory()->withRelations([
-            'number' => 'ORD999',
-            'license_mode' => 'Database',
+            'number' => '90000999',
+            'license_mode' => 'File',
         ])->create();
 
-        Storage::disk('public')->put('publicKey-ORD999.txt', 'dummy');
-        Storage::disk('public')->put('privateKey-ORD999.txt', 'dummy');
-        Storage::disk('public')->put('faveo-license-ORD999.txt', 'dummy');
+        Storage::disk('public')->put('faveo-license-{90000999}.txt', 'dummy');
 
-        $this->assertTrue(Storage::disk('public')->exists('publicKey-ORD999.txt'));
+        $this->assertTrue(Storage::disk('public')->exists('faveo-license-{90000999}.txt'));
 
         $response = $this->postJson('/switch-license-mode', [
-            'orderNo' => 'ORD999',
+            'orderNo' => '90000999',
             'choose' => false,
         ]);
 
         $response->assertStatus(200);
 
-        $this->assertFalse(Storage::disk('public')->exists('publicKey-ORD999.txt'));
-        $this->assertFalse(Storage::disk('public')->exists('privateKey-ORD999.txt'));
-        $this->assertFalse(Storage::disk('public')->exists('faveo-license-ORD999.txt'));
+        $this->assertFalse(Storage::disk('public')->exists('faveo-license-{90000999}.txt'));
 
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,

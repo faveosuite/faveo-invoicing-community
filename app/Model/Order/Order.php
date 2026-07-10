@@ -38,7 +38,6 @@ use Spatie\Activitylog\Models\Activity;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string $license_mode
- * @property int $is_downloadable
  * @property-read Collection<int, Activity> $activitiesAsSubject
  * @property-read int|null $activities_as_subject_count
  * @property-read Collection<int, Installation> $installation
@@ -65,7 +64,6 @@ use Spatie\Activitylog\Models\Activity;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDomain($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereInvoiceItemId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereIsDownloadable($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereLicenseMode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderStatus($value)
@@ -92,7 +90,6 @@ class Order extends BaseModel
 
     protected $fillable = ['client', 'order_status', 'invoice_item_id',
         'serial_key', 'product', 'domain', 'price_override', 'qty', 'number', 'license_mode',
-        'is_downloadable',
     ];
 
     /**

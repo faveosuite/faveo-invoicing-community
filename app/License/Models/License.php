@@ -22,6 +22,7 @@ use Override;
  * @property string $license_code
  * @property string|null $license_order_number
  * @property string|null $license_ip
+ * @property string|null $license_machine_id
  * @property string|null $license_domain
  * @property bool $license_require_domain
  * @property int $license_limit
@@ -67,6 +68,7 @@ use Override;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseExpireDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseExpireEmailDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseIp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseMachineId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseLimit($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseOrderNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|License whereLicenseRequireDomain($value)
@@ -91,6 +93,7 @@ class License extends Model
         'license_code',
         'license_order_number',
         'license_ip',
+        'license_machine_id',
         'license_domain',
         'license_require_domain',
         'license_limit',

@@ -218,6 +218,8 @@ class OrderController extends BaseOrderController
                 'licence_code' => $order->serial_key,
                 'expiry_dates' => $expiryDates,
                 'installation_limit' => $license?->license_limit,
+                'license_domain' => $license?->license_domain,
+                'license_machine_id' => $license?->license_machine_id,
             ],
             'autorenewal' => $order->subscription?->autoRenew_status,
             'is_subscribed' => $order->subscription?->is_subscribed,
