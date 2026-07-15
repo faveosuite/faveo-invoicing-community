@@ -5,17 +5,18 @@ namespace App\License\Controllers\AfuCallbacks;
 use App\Facades\Attach;
 use App\License\Controllers\Traits\AfuCallbackHelpers;
 use App\License\Helpers\LicenseValidator;
+use App\License\Services\ProductBundleStampingService;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use RuntimeException;
 
 class DownloadFileController extends Controller
 {
     use AfuCallbackHelpers;
 
-    public function __construct(protected LicenseValidator $validator)
+    public function __construct(protected LicenseValidator $validator, protected ProductBundleStampingService $stampingService)
     {
     }
 
@@ -100,14 +101,11 @@ class DownloadFileController extends Controller
         $filename = basename($filePath);
         $signature = $this->generateSignature($product->id, $product_key);
 
-        $response = new StreamedResponse(function () use ($filePath): void {
-            $stream = Attach::readStream($filePath);
-            while (! feof($stream)) {
-                echo fread($stream, 1024 * 8);
-            }
-
-            fclose($stream);
-        });
+        try {
+            $response = $this->stampingService->downloadResponseFor($version, $product, $filePath);
+        } catch (RuntimeException) {
+            return $this->notificationResponse('notification_install_archive_not_found', []);
+        }
 
         $response->headers->set('Content-Type', 'application/octet-stream');
         $response->headers->set('Content-Disposition', 'attachment; filename="'.$filename.'"');

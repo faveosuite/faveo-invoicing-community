@@ -3,6 +3,7 @@
 namespace App\Traits\Upload;
 
 use App\Facades\Attach;
+use App\License\Services\ProductBundleStampingService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,7 +30,7 @@ trait ChunkUpload
             // check if the upload has finished (in chunk mode it will send smaller files)
 
             if ($save === false || ! ($save instanceof AbstractSave)) {
-                return response()->json(__('message.file_invalid'), 500);
+                return errorResponse(__('message.file_invalid'), 500);
             }
 
             if ($save->isFinished()) {
@@ -37,14 +38,26 @@ trait ChunkUpload
                 $filePath = $file->getPathname();
                 $zip = new ZipArchive;
                 $res = $zip->open($filePath);
-                if ($res === true && $zip->numFiles > 0) {
-                    return $this->saveFile($save->getFile());
+
+                if ($res !== true || $zip->numFiles === 0) {
+                    unlink($filePath);
+
+                    // nosemgrep: php.lang.security.unlink-use.unlink-use
+                    return errorResponse(__('message.file_invalid'), 500);
                 }
 
-                unlink($filePath);
+                $zip->close();
 
-                // nosemgrep: php.lang.security.unlink-use.unlink-use
-                return response()->json(__('message.file_invalid'), 500);
+                $structureError = app(ProductBundleStampingService::class)->validateBuildStructure($filePath);
+
+                if ($structureError !== null) {
+                    unlink($filePath);
+
+                    // nosemgrep: php.lang.security.unlink-use.unlink-use
+                    return errorResponse($structureError, 500);
+                }
+
+                return $this->saveFile($save->getFile());
 
                 // save the file and return any response you need, current example uses `move` function. If you are
                 // not using move, you need to manually delete the file by unlink($save->getFile()->getPathname())
@@ -59,7 +72,7 @@ trait ChunkUpload
                 'status' => true,
             ]);
         } catch (Exception $exception) {
-            return response()->json($exception->getMessage(), 500);
+            return errorResponse($exception->getMessage(), 500);
         }
     }
 

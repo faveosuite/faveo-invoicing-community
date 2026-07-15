@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Product;
 use App\Facades\Attach;
 use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\License\LicensePermissionsController;
+use App\License\Services\ProductBundleStampingService;
 use App\Model\Common\StatusSetting;
 use App\Model\License\LicenseType;
 use App\Model\Payment\Currency;
@@ -83,8 +84,10 @@ class ProductController extends BaseProductController
      */
     public $product_upload;
 
-    public function __construct()
+    public function __construct(ProductBundleStampingService $stampingService)
     {
+        parent::__construct($stampingService);
+
         $this->middleware('auth');
         $this->middleware('admin', ['except' => ['adminDownload', 'userDownload']]);
 
@@ -275,27 +278,94 @@ class ProductController extends BaseProductController
             $product = Product::findOrFail($productId);
 
             DB::transaction(function () use ($request, $validated, $product): void {
-                // Save the product upload
-                ProductUpload::create([
-                    'product_id' => $product->id,
-                    'title' => $validated['producttitle'],
-                    'description' => $validated['description'],
-                    'version' => $validated['version'],
-                    'file' => $validated['filename'],
-                    'is_private' => $request->boolean('is_private'),
-                    'is_restricted' => $request->boolean('is_restricted'),
-                    'release_type' => $validated['release_type'],
-                    'dependencies' => json_encode($validated['dependencies']),
-                ]);
-
-                // Update the product version
-                $product->update(['version' => $validated['version']]);
+                $this->createProductUpload($product, $validated['producttitle'], $validated['filename'], $validated['version'], $validated, $request->boolean('is_private'), $request->boolean('is_restricted'));
             });
 
             return successResponse(__('message.product_uploaded_successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
+    }
+
+    /**
+     * Applies one already-uploaded canonical build (chunk-uploaded via
+     * `chunkupload`, same as a single-product upload) to many products at
+     * once: each target just gets its own ProductUpload row pointing at that
+     * same canonical file — replacing what would otherwise be one manual
+     * productUploadCreate submission per product. No per-product file is
+     * created here: the build is stamped with each product's own identity
+     * (and filtered to that product's bundled plugins, via the existing
+     * product_plugin_group mapping) fresh, on demand, the moment it's
+     * actually downloaded — see ProductBundleStampingService and
+     * DownloadFileController::downloadFile.
+     *
+     * Each product carries its own `version` (not one shared value) — tier
+     * variants of the same core build typically share a version, but a
+     * product like a plugin can be released on its own independent cadence.
+     */
+    public function applyBuildToProducts(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'filename' => ['required', 'string', 'max:255'],
+            'dependencies' => ['required', 'array'],
+            'description' => ['required'],
+            'release_type' => ['required'],
+            'products' => ['required', 'array', 'min:1'],
+            'products.*.id' => ['integer', 'exists:products,id'],
+            'products.*.version' => ['required', 'string', 'max:50'],
+        ], [
+            'filename.required' => __('validation.product_validate.filename_required'),
+            'dependencies.required' => __('validation.product_validate.dependencies_required'),
+            'description' => __('validation.product_vaidation.discription_required'),
+            'release_type' => __('validation.product_validate.release_type_required'),
+            'products.required' => __('message.select-a-row'),
+            'products.*.version.required' => __('validation.product_validate.version_required'),
+        ]);
+
+        try {
+            DB::transaction(function () use ($validated, $request): void {
+                $versionsById = [];
+                foreach ($validated['products'] as $entry) {
+                    $versionsById[(int) $entry['id']] = (string) $entry['version'];
+                }
+
+                $products = Product::whereIn('id', array_keys($versionsById))->get();
+
+                foreach ($products as $product) {
+                    $version = $versionsById[$product->id];
+
+                    $this->createProductUpload($product, $product->name, $validated['filename'], $version, $validated, $request->boolean('is_private'), $request->boolean('is_restricted'));
+                }
+            });
+
+            return successResponse(__('message.product_uploaded_successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /**
+     * Shared by productUploadCreate (single product, admin-typed title) and
+     * applyBuildToProducts (many products, title defaults to the product's own
+     * name) — creates the ProductUpload row and bumps the product's version.
+     *
+     * @param  array<mixed>  $validated
+     */
+    private function createProductUpload(Product $product, string $title, string $file, string $version, array $validated, bool $isPrivate, bool $isRestricted): void
+    {
+        ProductUpload::create([
+            'product_id' => $product->id,
+            'title' => $title,
+            'description' => $validated['description'],
+            'version' => $version,
+            'file' => $file,
+            'is_private' => $isPrivate,
+            'is_restricted' => $isRestricted,
+            'release_type' => $validated['release_type'],
+            'dependencies' => json_encode($validated['dependencies']),
+        ]);
+
+        $product->update(['version' => $version]);
     }
 
     /**
@@ -412,6 +482,31 @@ class ProductController extends BaseProductController
             }
 
             return successResponse(__('message.product_updated_successfully'));
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /**
+     * Deletes one or more version uploads — used by both the single-row
+     * delete button and the Versions tab's bulk-select delete
+     * (VersionTableActions.vue / ProductEdit.vue's confirmBulkDeleteVersions),
+     * which both already send { select: [ids] } to this same endpoint.
+     */
+    public function deleteBulkProductUploads(Request $request): JsonResponse
+    {
+        $ids = $request->input('select', []);
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        try {
+            DB::transaction(function () use ($ids): void {
+                ProductUpload::whereIn('id', $ids)->get()->each->delete();
+            });
+
+            return successResponse(__('message.deleted-successfully'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }

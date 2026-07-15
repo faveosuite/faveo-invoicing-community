@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\License\Services\ProductBundleStampingService;
 use App\Model\Common\Setting;
 use App\Model\Order\Order;
 use App\Model\Product\ProductUpload;
@@ -12,10 +13,11 @@ use Illuminate\Support\Facades\Storage as Attach;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Net\SFTP;
 use phpseclib3\Net\SSH2;
+use RuntimeException;
 
 class DeployController extends Controller
 {
-    public function __construct()
+    public function __construct(protected ProductBundleStampingService $stampingService)
     {
         $this->middleware('auth');
     }
@@ -212,20 +214,17 @@ class DeployController extends Controller
             return errorResponse(__('message.deploy_file_not_found'));
         }
 
-        $stream = Attach::readStream($filePath);
-        if (! is_resource($stream)) {
+        $product = $upload->product;
+
+        if (! $product) {
             return errorResponse(__('message.deploy_file_not_found'));
         }
-        $tmpFile = (string) tempnam(sys_get_temp_dir(), 'deploy_');
-        $tmpHandle = fopen($tmpFile, 'wb');
-        if (! is_resource($tmpHandle)) {
-            fclose($stream);
 
+        try {
+            $tmpFile = $this->stampingService->stampToLocalFile($filePath, $product, $upload->version, $order);
+        } catch (RuntimeException) {
             return errorResponse(__('message.deploy_upload_failed'));
         }
-        stream_copy_to_stream($stream, $tmpHandle);
-        fclose($tmpHandle);
-        fclose($stream);
 
         $remotePath = '/tmp/'.basename($upload->file);
 

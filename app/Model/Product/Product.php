@@ -77,6 +77,7 @@ use Spatie\Activitylog\Models\Activity;
  * @property string|null $product_url_download
  * @property string|null $product_envato_id
  * @property string|null $product_key
+ * @property string|null $apl_salt
  * @property int $product_max_active_versions
  * @property string $whatsapp_integration
  * @property-read Collection<int, PromoProductRelation> $PromoRelation
@@ -208,7 +209,7 @@ class Product extends BaseModel
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
         'deny_after_subscription', 'version', 'parent', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
-        'status', 'whatsapp_integration',
+        'status', 'whatsapp_integration', 'apl_salt',
     ];
 
     protected string $logName = 'product';

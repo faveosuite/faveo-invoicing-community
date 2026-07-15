@@ -1,6 +1,7 @@
 export default [
     { path: '/products',                    component: () => import('../../pages/admin/products/ProductIndex.vue'),               meta: { title: 'Products',     titleKey: 'message.products' } },
     { path: '/products/create',             component: () => import('../../pages/admin/products/ProductCreate.vue'),              meta: { title: 'Create New Product', titleKey: 'message.create_new_product' } },
+    { path: '/products/apply-build',        component: () => import('../../pages/admin/products/ProductBuildApply.vue'),          meta: { title: 'Apply Build to Products', titleKey: 'message.apply_build_to_products' } },
     { path: '/products/:id/edit',           component: () => import('../../pages/admin/products/ProductEdit.vue'),                meta: { title: 'Edit Product', titleKey: 'message.edit_product' } },
     { path: '/products/:id/versions/create', component: () => import('../../pages/admin/products/ProductVersionCreate.vue'),      meta: { title: 'Add Version', titleKey: 'message.add_version' } },
     { path: '/products/:id/versions/:versionId/edit', component: () => import('../../pages/admin/products/ProductVersionEdit.vue'), meta: { title: 'Edit Version', titleKey: 'message.edit_version' } },

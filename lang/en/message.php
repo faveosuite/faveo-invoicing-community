@@ -70,6 +70,14 @@ return [
     'versions' => 'Versions',
     'add_version' => 'Add Version',
     'edit_version' => 'Edit Version',
+    'apply_build_to_products' => 'Apply Build to Products',
+    'apply_build_hint' => 'Upload one build and apply it to every selected product. Each product keeps its own identity, plugin bundling, and version.',
+    'default_version' => 'Default Version',
+    'default_version_hint' => 'Pre-fills the version when you check a product below — each one stays independently editable.',
+    'version_required_per_product' => 'Every selected product needs a version.',
+    'zip_unreadable' => 'Unable to open the uploaded file as a zip archive.',
+    'zip_wrapper_folder_detected' => 'This zip has everything nested inside a ":folder" folder. Re-zip just its contents (storage/, app/, etc. — or config.php for a plugin) directly at the top level, not the folder itself.',
+    'zip_missing_build_root' => 'This doesn\'t look like a Faveo build — no storage/ folder or config.php found at the root of the zip.',
     /*
      * Common for all
      */

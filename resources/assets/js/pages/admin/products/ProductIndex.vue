@@ -5,6 +5,9 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.products') }}</h4>
                 <div class="card-tools">
+                    <router-link to="/products/apply-build" class="btn btn-tool" v-tooltip="__('message.apply_build_to_products') || 'Apply Build to Products'">
+                        <i class="fas fa-upload"></i>
+                    </router-link>
                     <router-link to="/products/create" class="btn btn-tool" v-tooltip="__('message.add_product')">
                         <i class="fas fa-plus"></i>
                     </router-link>

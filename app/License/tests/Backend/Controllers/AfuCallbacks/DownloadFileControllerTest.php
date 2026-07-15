@@ -4,6 +4,7 @@ namespace App\License\tests\Backend\Controllers\AfuCallbacks;
 
 use App\License\Controllers\AfuCallbacks\DownloadFileController;
 use App\License\Helpers\LicenseValidator;
+use App\License\Services\ProductBundleStampingService;
 use App\License\tests\Backend\LicenseTestCase;
 use Mockery;
 use PHPUnit\Framework\Attributes\Group;
@@ -21,7 +22,9 @@ class DownloadFileControllerTest extends LicenseTestCase
         $validator->shouldReceive('isValidAfuRequest')->once()->andReturn(true);
         $validator->shouldReceive('isBanned')->once()->andReturn(false);
 
-        $response = new DownloadFileController($validator)->downloadFile($this->moduleRequest([
+        $stampingService = Mockery::mock(ProductBundleStampingService::class);
+
+        $response = new DownloadFileController($validator, $stampingService)->downloadFile($this->moduleRequest([
             'product_id' => $product->id,
             'product_key' => 'AFUKEY3',
             'version_number' => 'missing',

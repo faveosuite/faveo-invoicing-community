@@ -4,10 +4,9 @@ namespace App\Http\Controllers\License;
 
 use App\Http\Controllers\Controller;
 use App\License\Models\License;
-use App\License\Models\LicenseScheme;
 use App\License\Services\InstallationService;
+use App\License\Services\LicenseFileService;
 use App\License\Services\LicenseService;
-use App\License\Services\Ed25519SigningService;
 use App\Model\Order\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,7 +18,7 @@ class LocalizedLicenseController extends Controller
 {
     public function __construct(
         protected InstallationService $installationService,
-        protected Ed25519SigningService $signingService,
+        protected LicenseFileService $licenseFileService,
     ) {
         $this->middleware('auth');
         $this->middleware('admin', ['except' => ['downloadFile', 'submitLicenseBinding', 'pluginsForOrder']]);
@@ -257,74 +256,6 @@ class LocalizedLicenseController extends Controller
             return null;
         }
 
-        $payload = $this->buildLicensePayload($license, $pluginProductId);
-
-        if ($payload === false) {
-            return null;
-        }
-
-        $file = json_encode([
-            'license' => $payload,
-            'signature' => $this->signingService->sign($payload),
-        ]);
-
-        return $file === false ? null : $file;
-    }
-
-    /**
-     * Same field set returned by the online AFL license_verify callback, so the
-     * licensed product can parse a local file identically to a live response.
-     *
-     * With `$pluginProductId` set, builds the payload for that attached plugin
-     * instead: product_id becomes the plugin's own ID, and the scheme_query
-     * carries both the create and update table schemes (scheme_id 2 and 3) —
-     * the client decides at install time whether its local plugin_license
-     * table already exists. Fails if the product isn't actually attached to
-     * this license.
-     */
-    private function buildLicensePayload(License $license, ?int $pluginProductId = null): string|false
-    {
-        if ($pluginProductId !== null) {
-            if (! $license->addonProducts()->where('products.id', $pluginProductId)->exists()) {
-                return false;
-            }
-
-            $createScheme = LicenseScheme::where('id', 2)->where('scheme_status', 1)->first();
-            $updateScheme = LicenseScheme::where('id', 3)->where('scheme_status', 1)->first();
-
-            if (! $createScheme || ! $updateScheme) {
-                return false;
-            }
-
-            $productId = $pluginProductId;
-            $schemeQuery = [
-                'plugin_create_schema' => base64_encode($createScheme->scheme_query),
-                'plugin_update_schema' => base64_encode($updateScheme->scheme_query),
-            ];
-        } else {
-            // scheme_id 1 = product_schema, matching the online /api/licenseScheme flow's
-            // schemeId for a non-plugin install (see LicenseSchemeController::licenseScheme).
-            $scheme = LicenseScheme::where('id', 1)->where('scheme_status', 1)->first();
-
-            if (! $scheme) {
-                return false;
-            }
-
-            $productId = $license->product_id;
-            $schemeQuery = ['product_schema' => base64_encode($scheme->scheme_query)];
-        }
-
-        return json_encode([
-            'license_code' => $license->license_code,
-            'product_id' => $productId,
-            'license_status' => $license->license_status,
-            'license_expire_date' => $license->license_expire_date,
-            'license_updates_date' => $license->license_updates_date,
-            'license_support_date' => $license->license_support_date,
-            'license_domain' => $license->license_domain,
-            'license_ip' => $license->license_ip,
-            'license_machine_id' => $license->license_machine_id,
-            'scheme_query' => $schemeQuery,
-        ]);
+        return $this->licenseFileService->buildSignedLicenseFile($license, $pluginProductId);
     }
 }

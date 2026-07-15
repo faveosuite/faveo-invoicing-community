@@ -252,7 +252,8 @@ class HomeController extends BaseHomeController
 
         return resolve(ProductController::class)->adminDownload(
             $order->product,
-            $request->input('release', 'official')
+            $request->input('release', 'official'),
+            $order
         );
     }
 

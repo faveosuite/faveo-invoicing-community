@@ -7,6 +7,8 @@ use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
+use App\License\Services\ProductBundleStampingService;
+use App\Model\Order\Order;
 use App\Model\Payment\TaxProductRelation;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
@@ -21,6 +23,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExtendedBaseProductController extends Controller
 {
+    public function __construct(protected ProductBundleStampingService $stampingService)
+    {
+    }
+
     // Update the File Info
     public function uploadUpdate(mixed $id, Request $request): mixed
     {
@@ -65,7 +71,7 @@ class ExtendedBaseProductController extends Controller
         }
     }
 
-    public function adminDownload(mixed $id, mixed $release = 'official'): Response|JsonResponse
+    public function adminDownload(mixed $id, mixed $release = 'official', ?Order $order = null): Response|JsonResponse
     {
         try {
             $permissions = LicensePermissionsController::getPermissionsForProduct($id);
@@ -86,13 +92,21 @@ class ExtendedBaseProductController extends Controller
                 ->latest()
                 ->first();
 
-            return $this->download($product, $version, $tag);
+            return $this->download($product, $version, $tag, $order);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
 
-    public function download(Product $product, ?ProductUpload $version = null, ?string $tag = null): Response
+    /**
+     * Pass $order when this download is for a specific customer's order
+     * (e.g. My Orders, or the public order-number download link) — if that
+     * order has localized (File-mode) licensing enabled, the customer's own
+     * signed license file and the signing public key are embedded into the
+     * downloaded zip. Left null for admin-panel preview downloads that
+     * aren't tied to any customer.
+     */
+    public function download(Product $product, ?ProductUpload $version = null, ?string $tag = null, ?Order $order = null): Response
     {
         if ($product->github_owner && $product->github_repository) {
             if (! $tag) {
@@ -114,7 +128,7 @@ class ExtendedBaseProductController extends Controller
             throw new Exception(trans('message.file_not_exist'));
         }
 
-        return Attach::download($path);
+        return $this->stampingService->downloadResponseFor($version, $product, $path, $order);
     }
 
     public function checkSubscriptionExpiry(mixed $invoice): void

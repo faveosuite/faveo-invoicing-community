@@ -157,7 +157,7 @@ class BaseProductController extends ExtendedBaseProductController
                 throw new Exception(trans('message.renew_subscription_download'));
             }
 
-            return $this->download($product, $version);
+            return $this->download($product, $version, order: $order);
         } catch (Exception $exception) {
             Logger::exception($exception);
 

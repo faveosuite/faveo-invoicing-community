@@ -25,8 +25,8 @@
 
                     <div class="col-md-4">
                         <label class="form-label fw-bold d-block">{{ __('message.file') }}</label>
-                        <input type="file" class="form-control" accept=".zip" @change="onFile" />
-                        <small v-if="uploadedName" class="text-success d-block mt-1">{{ uploadedName }}</small>
+                        <input type="file" class="form-control" accept=".zip" :disabled="uploading" @change="onFile" />
+                        <UploadStatus v-if="file" :uploading="uploading" :progress="uploadProgress" :error="fileError" :uploadedName="uploadedName" />
                         <small v-else-if="form.file" class="text-muted d-block mt-1">{{ form.file }}</small>
                     </div>
 
@@ -53,7 +53,7 @@
             </div>
 
             <div class="card-footer">
-                <action-button action="update" :loading="saving" @click="submit" />
+                <action-button action="update" :loading="saving" :disabled="uploading" @click="submit" />
             </div>
         </div>
     </div>
@@ -67,6 +67,8 @@ import http from '@/plugins/axios'
 import { useAlertStore } from '@/core/stores/alert'
 import TextArea from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import UploadStatus from '@/components/Reusable/UploadStatus.vue'
+import { useChunkedFileUpload } from '@/core/composables/useChunkedFileUpload'
 const route = useRoute()
 const router = useRouter()
 const productId = route.params.id
@@ -76,18 +78,12 @@ const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving = ref(false)
-const file = ref(null)
-const uploadedName = ref('')
+const { file, uploading, uploadProgress, fileError, uploadedName, uploadedForFile, onFile } = useChunkedFileUpload()
 
 const form = ref({
     title: '', version: '', description: '', release_type: 'official',
     is_private: false, is_restricted: false, dependencies: '', file: '',
 })
-
-function onFile(e) {
-    file.value = e.target.files?.[0] ?? null
-    uploadedName.value = ''
-}
 
 const releaseTypes = [
     { name: __('message.official') || 'Official', value: 'official' },
@@ -97,37 +93,38 @@ const releaseTypes = [
 const selectedReleaseType = computed(() => releaseTypes.find(r => r.value === form.value.release_type) ?? releaseTypes[0])
 
 function parseDependencies() {
-    const raw = (form.value.dependencies || '').trim() || '{}'
+    const raw = (form.value.dependencies || '').trim() || '[]'
     try {
-        return { data: JSON.parse(raw) }
+        const data = JSON.parse(raw)
+
+        return Array.isArray(data) ? { data } : { error: 'invalid_json' }
     } catch {
         return { error: 'invalid_json' }
     }
 }
 
 async function submit() {
+    // A replacement file is optional here — only validate the upload if the
+    // admin actually picked one (useChunkedFileUpload already started it).
+    if (file.value) {
+        if (uploading.value) {
+            fileError.value = __('message.please_wait')
+        } else if (uploadedForFile.value !== file.value && !fileError.value) {
+            fileError.value = __('message.something_wrong')
+        }
+    }
+
     const errs = {}
     if (!form.value.title)   errs.title   = __('message.title')
     if (!form.value.version) errs.version = __('message.version')
     const deps = parseDependencies()
     if (deps.error) errs.dependencies = __('message.enter_json_format') || 'Enter valid JSON format.'
     setErrors(errs)
-    if (Object.keys(errs).length) return
+    if (Object.keys(errs).length || (file.value && fileError.value)) return
 
     saving.value = true
     alertStore.unsetAlert()
     try {
-        // Upload a replacement file only if the admin picked a new one.
-        let filename
-        if (file.value) {
-            const fd = new FormData()
-            fd.append('file', file.value)
-            const up = await http.post(`/chunkupload`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-            filename = up.data?.name
-            if (!filename) throw new Error(__('message.something_wrong'))
-            uploadedName.value = filename
-        }
-
         await http.patch(`/product/upload/${versionId}`, {
             title: form.value.title,
             version: form.value.version,
@@ -136,7 +133,7 @@ async function submit() {
             is_private: form.value.is_private,
             is_restricted: form.value.is_restricted,
             dependencies: deps.data,
-            ...(filename ? { filename } : {}),
+            ...(file.value ? { filename: uploadedName.value } : {}),
         })
         alertStore.setAlert({ message: __('message.product_updated_successfully'), type: 'success', component_name: 'products-edit' })
         router.push(`/products/${productId}/edit?tab=versions`)

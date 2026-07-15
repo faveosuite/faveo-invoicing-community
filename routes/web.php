@@ -433,6 +433,8 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('product/upload/{productUploadId}', [ProductController::class, 'getProductUpload']);
     Route::patch('product/upload/{productUploadId}', [ProductController::class, 'updateProductUpload']);
     Route::put('product/upload/{productId}/', [ProductController::class, 'productUploadCreate']);
+    Route::put('product/upload-build/apply', [ProductController::class, 'applyBuildToProducts']);
+    Route::delete('product/upload', [ProductController::class, 'deleteBulkProductUploads']);
 
     Route::post('get-price', [ProductController::class, 'getPrice']);
     Route::post('chunkupload', [ProductController::class, 'uploadFile']);
