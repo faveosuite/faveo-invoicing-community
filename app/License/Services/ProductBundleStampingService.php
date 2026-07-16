@@ -38,7 +38,7 @@ class ProductBundleStampingService
      * a signed license file and the signing public key are embedded too.
      *
      * @throws RuntimeException if the product has no product_key, or the
-     *                           canonical file can't be found/opened.
+     *                          canonical file can't be found/opened.
      */
     public function stampToLocalFile(string $canonicalFilePath, Product $targetProduct, string $version, ?Order $order = null): string
     {
@@ -73,7 +73,7 @@ class ProductBundleStampingService
      * wizard — none of them need to know how the file was produced.
      *
      * @throws RuntimeException if stamping fails; callers decide what
-     *                           that looks like in their own response.
+     *                          that looks like in their own response.
      */
     public function downloadResponseFor(ProductUpload $version, Product $product, string $storagePath, ?Order $order = null): Response
     {
@@ -91,7 +91,7 @@ class ProductBundleStampingService
      * reads/writes.
      *
      * @return string|null null when the structure is fine; otherwise an
-     *                      admin-facing message describing what's wrong.
+     *                     admin-facing message describing what's wrong.
      */
     public function validateBuildStructure(string $localZipPath): ?string
     {
@@ -135,7 +135,7 @@ class ProductBundleStampingService
      * temp path so ZipArchive has a real filesystem path to work with.
      *
      * @throws RuntimeException if the source file doesn't exist or the
-     *                           temp file can't be allocated/opened.
+     *                          temp file can't be allocated/opened.
      */
     private function copyToLocalTemp(string $canonicalFilePath): string
     {
@@ -449,7 +449,7 @@ class ProductBundleStampingService
      * file directly under storage/ is treated as the one to overwrite.
      *
      * @return string|null null if no .ini file exists there yet (a
-     *                      brand new build).
+     *                     brand new build).
      */
     private function findFaveoConfigEntryName(ZipArchive $zip): ?string
     {
