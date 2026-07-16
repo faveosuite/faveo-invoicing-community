@@ -3,7 +3,7 @@
         <AppAlert componentName="product-build-apply" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">{{ __('message.apply_build_to_products') || 'Apply Build to Products' }}</h4>
+                <h4 class="card-title">{{ __('message.apply_build_to_products') || 'Shared Build Release' }}</h4>
             </div>
 
             <div class="card-body">
@@ -11,49 +11,7 @@
                     {{ __('message.apply_build_hint') }}
                 </p>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-md-4">
-                        <TextField name="default_version" :label="__('message.default_version') || 'Default Version'" :value="defaultVersion"
-                            :hint="__('message.default_version_hint') || 'Pre-fills the version when you check a product below — each one stays independently editable.'"
-                            :onChange="(v) => defaultVersion = v" />
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <label class="form-label fw-bold mb-0">
-                        {{ __('message.products') }}
-                        <span class="text-danger ms-1">*</span>
-                    </label>
-                    <input type="text" class="form-control form-control-sm" style="width: 220px;"
-                        v-model="productSearch" :placeholder="__('message.search') || 'Search products...'" />
-                </div>
-                <small class="text-muted d-block mb-2">{{ selectedProductIds.length }} {{ __('message.selected') || 'selected' }}</small>
-                <div v-if="errors.products" class="invalid-feedback d-block mb-2">{{ errors.products }}</div>
-
-                <div v-if="loadingProducts" class="text-center py-4"><loader /></div>
-                <div v-else-if="!groupedProducts.length" class="text-muted small">{{ __('message.no_records_found') || 'No products found.' }}</div>
-                <div v-else class="border rounded p-3" style="max-height: 480px; overflow-y: auto;">
-                    <div v-for="(group, index) in groupedProducts" :key="group.groupName" :class="{ 'mt-3': index > 0 }">
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <input class="form-check-input mt-0" type="checkbox"
-                                :checked="isGroupFullySelected(group)" @change="toggleGroup(group)" />
-                            <strong>{{ group.groupName }}</strong>
-                            <span class="text-muted small">({{ countSelectedInGroup(group) }}/{{ group.products.length }})</span>
-                        </div>
-
-                        <div v-for="p in group.products" :key="p.id" class="d-flex align-items-center gap-2 mb-1 ms-4">
-                            <input class="form-check-input mt-0" type="checkbox" :id="`product-${p.id}`"
-                                :checked="selectedProductIds.includes(p.id)" @change="toggleProduct(p.id)" />
-                            <label class="mb-0 flex-grow-1" :for="`product-${p.id}`">{{ p.name }}</label>
-                            <input type="text" class="form-control form-control-sm" style="width: 140px;"
-                                :disabled="!selectedProductIds.includes(p.id)"
-                                :placeholder="__('message.version') || 'Version'"
-                                v-model="productVersions[p.id]" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-3 mt-3">
+                <div class="row g-3">
                     <div class="col-md-6">
                         <SelectField name="release_type" :label="__('message.release_type')" :required="true"
                             :elements="releaseTypes" :value="selectedReleaseType"
@@ -84,6 +42,65 @@
                         <TextArea name="dependencies" type="textarea" :rows="6" :length="100000" :label="__('message.dependencies')" :required="true"
                             :hint="__('message.enter_json_format')" :value="form.dependencies"
                             :onChange="(v) => { form.dependencies = v; setFieldError('dependencies', undefined) }" :error="errors.dependencies" />
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <TextField name="main_version" :label="__('message.main_version') || 'Main Version'" :value="mainVersion"
+                            :hint="__('message.main_version_hint') || 'Applied to every product below. A group\'s own version overrides this for that group; editing a product directly overrides both.'"
+                            :onChange="onMainVersionChange" />
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label fw-bold mb-0">
+                        {{ __('message.products') }}
+                        <span class="text-danger ms-1">*</span>
+                    </label>
+                    <input type="text" class="form-control form-control-sm" style="width: 220px;"
+                        v-model="productSearch" :placeholder="__('message.search') || 'Search products...'" />
+                </div>
+                <small class="text-muted d-block mb-2">{{ selectedProductIds.length }} {{ __('message.selected') || 'selected' }}</small>
+                <div v-if="errors.products" class="invalid-feedback d-block mb-2">{{ errors.products }}</div>
+
+                <div v-if="loadingProducts" class="text-center py-4"><loader /></div>
+                <div v-else-if="!groupedProducts.length" class="text-muted small">{{ __('message.no_records_found') || 'No products found.' }}</div>
+                <div v-else class="masonry-container">
+                    <div v-for="group in groupedProducts" :key="group.groupName" class="masonry-item">
+                        <div class="card card-light mb-3">
+                            <div class="card-body bg-light p-2">
+                                <h6 class="border-bottom pb-2">
+                                    <span class="text-uppercase"> {{ group.groupName }}</span>
+
+                                    <span class="float-end fs-8 text-muted">
+                                        <input class="all_check" type="checkbox"
+                                            :checked="isGroupFullySelected(group)" @change="toggleGroup(group)">&nbsp;
+                                        {{ __('message.select_all') || 'Select All' }}
+                                    </span>
+                                </h6>
+
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <label class="mb-0 small text-muted flex-shrink-0">{{ __('message.group_version') || 'Version for all' }}</label>
+                                    <input type="text" class="form-control form-control-sm" style="width: 120px;"
+                                        :value="groupVersions[group.groupName] || ''"
+                                        @input="onGroupVersionChange(group, $event.target.value)"
+                                        :placeholder="__('message.version') || 'Version'">
+                                </div>
+
+                                <div v-for="p in group.products" :key="p.id" class="d-flex align-items-center gap-2 mb-2">
+                                    <input class="form-check-input mt-0 flex-shrink-0" type="checkbox" :id="`product-${p.id}`"
+                                        :checked="selectedProductIds.includes(p.id)" @change="toggleProduct(p.id)">
+                                    <label class="form-check-label fw-normal flex-grow-1 mb-0" :for="`product-${p.id}`">{{ p.name }}</label>
+                                    <input type="text" class="form-control form-control-sm flex-shrink-0" style="width: 120px;"
+                                        :disabled="!selectedProductIds.includes(p.id)"
+                                        :placeholder="__('message.version') || 'Version'"
+                                        v-model="productVersions[p.id]">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -119,27 +136,75 @@ const saving = ref(false)
 const { file, uploading, uploadProgress, fileError, uploadedName, uploadedForFile, onFile } = useChunkedFileUpload()
 
 const loadingProducts = ref(true)
-const products = ref([])
+const rawGroups = ref([]) // [{ groupName, products: [{id, name}] }] — pre-grouped + permission-filtered server-side
 const productSearch = ref('')
 const selectedProductIds = ref([])
-const productVersions = ref({}) // { [productId]: version } — independently editable per row
-const defaultVersion = ref('') // pre-fills a product's version the moment it's checked, not sent as-is
+const productVersions = ref({}) // { [productId]: version } — cascades main -> group -> individual, last one touched wins
+const groupVersions = ref({}) // { [groupName]: version } — bulk-stamps every product in that group the moment it changes
+const mainVersion = ref('') // bulk-stamps every product across every group the moment it changes
 
-const filteredProducts = computed(() => {
-    const q = productSearch.value.trim().toLowerCase()
-    if (!q) return products.value
-    return products.value.filter(p => p.name?.toLowerCase().includes(q) || p.group?.toLowerCase().includes(q))
-})
+function onMainVersionChange(value) {
+    mainVersion.value = value
+    rawGroups.value.forEach(group => {
+        group.products.forEach(p => {
+            productVersions.value[p.id] = value
+        })
+    })
+}
+
+function onGroupVersionChange(group, value) {
+    groupVersions.value[group.groupName] = value
+    group.products.forEach(p => {
+        productVersions.value[p.id] = value
+    })
+}
 
 const groupedProducts = computed(() => {
-    const groups = new Map()
-    filteredProducts.value.forEach(p => {
-        const groupName = p.group || 'Ungrouped'
-        if (!groups.has(groupName)) groups.set(groupName, [])
-        groups.get(groupName).push(p)
-    })
-    return Array.from(groups, ([groupName, groupProducts]) => ({ groupName, products: groupProducts }))
+    const q = productSearch.value.trim().toLowerCase()
+    if (!q) return rawGroups.value
+    return rawGroups.value
+        .map(group => {
+            const groupMatches = group.groupName?.toLowerCase().includes(q)
+            const products = groupMatches ? group.products : group.products.filter(p => p.name?.toLowerCase().includes(q))
+            return { ...group, products }
+        })
+        .filter(group => group.products.length)
 })
+
+onMounted(async () => {
+    try {
+        const res = await http.get('/dependency/products', { params: { permission: 'downloadPermission' } })
+        const groups = res.data?.data?.products ?? []
+        rawGroups.value = groups.map(g => ({ groupName: g.name, products: g.children ?? [] }))
+        if (mainVersion.value) onMainVersionChange(mainVersion.value)
+    } finally {
+        loadingProducts.value = false
+    }
+})
+
+function toggleProduct(id) {
+    const idx = selectedProductIds.value.indexOf(id)
+    if (idx === -1) {
+        selectedProductIds.value.push(id)
+    } else {
+        selectedProductIds.value.splice(idx, 1)
+    }
+    setFieldError('products', undefined)
+}
+
+function isGroupFullySelected(group) {
+    return group.products.length > 0 && group.products.every(p => selectedProductIds.value.includes(p.id))
+}
+
+function toggleGroup(group) {
+    const groupIds = group.products.map(p => p.id)
+    if (isGroupFullySelected(group)) {
+        selectedProductIds.value = selectedProductIds.value.filter(id => !groupIds.includes(id))
+    } else {
+        selectedProductIds.value = [...new Set([...selectedProductIds.value, ...groupIds])]
+    }
+    setFieldError('products', undefined)
+}
 
 const form = ref({
     description: '', release_type: 'official',
@@ -152,47 +217,6 @@ const releaseTypes = [
     { name: __('message.beta') || 'Beta', value: 'beta' },
 ]
 const selectedReleaseType = computed(() => releaseTypes.find(r => r.value === form.value.release_type) ?? releaseTypes[0])
-
-onMounted(async () => {
-    try {
-        const res = await http.get('/products', { params: { limit: 500 } })
-        products.value = res.data?.data?.data ?? []
-    } finally {
-        loadingProducts.value = false
-    }
-})
-
-function toggleProduct(id) {
-    const idx = selectedProductIds.value.indexOf(id)
-    if (idx === -1) {
-        selectedProductIds.value.push(id)
-        if (!productVersions.value[id]) productVersions.value[id] = defaultVersion.value
-    } else {
-        selectedProductIds.value.splice(idx, 1)
-    }
-    setFieldError('products', undefined)
-}
-
-function isGroupFullySelected(group) {
-    return group.products.length > 0 && group.products.every(p => selectedProductIds.value.includes(p.id))
-}
-
-function countSelectedInGroup(group) {
-    return group.products.filter(p => selectedProductIds.value.includes(p.id)).length
-}
-
-function toggleGroup(group) {
-    const groupIds = group.products.map(p => p.id)
-    if (isGroupFullySelected(group)) {
-        selectedProductIds.value = selectedProductIds.value.filter(id => !groupIds.includes(id))
-    } else {
-        selectedProductIds.value = [...new Set([...selectedProductIds.value, ...groupIds])]
-        groupIds.forEach(id => {
-            if (!productVersions.value[id]) productVersions.value[id] = defaultVersion.value
-        })
-    }
-    setFieldError('products', undefined)
-}
 
 function parseDependencies() {
     const raw = (form.value.dependencies || '').trim() || '[]'
@@ -261,3 +285,24 @@ async function submit() {
     }
 }
 </script>
+
+<style scoped>
+.masonry-container {
+    column-count: 2;
+    column-gap: 1rem;
+}
+
+.masonry-item {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+}
+
+.all_check {
+    width: 13px;
+    height: 13px;
+    vertical-align: bottom;
+    position: relative;
+    top: -1px;
+    overflow: hidden;
+}
+</style>

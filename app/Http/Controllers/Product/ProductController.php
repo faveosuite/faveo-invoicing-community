@@ -517,6 +517,7 @@ class ProductController extends BaseProductController
         $validated = $request->validate([
             'name' => ['required', 'unique:products,name'],
             'type' => ['required'],
+            'product_type' => ['required', 'in:independent,addon'],
             'description' => ['required'],
             'product_description' => ['required'],
             'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
@@ -571,6 +572,7 @@ class ProductController extends BaseProductController
         $validated = $request->validate([
             'name' => ['required'],
             'type' => ['required'],
+            'product_type' => ['required', 'in:independent,addon'],
             'description' => ['required'],
             'product_description' => ['required'],
             'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],

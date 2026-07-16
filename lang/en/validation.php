@@ -540,6 +540,9 @@ return [
         'type' => [
             'required' => 'The type field is required.',
         ],
+        'product_type' => [
+            'required' => 'The product category field is required.',
+        ],
         'group' => [
             'required' => 'The group field is required.',
         ],

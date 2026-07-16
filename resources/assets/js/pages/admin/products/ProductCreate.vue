@@ -56,7 +56,17 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-12 mb-3">
+                                        <div class="col-md-6 mb-3">
+                                            <RadioButton
+                                                name="product_type"
+                                                :label="__('message.product_category') || 'Product Category'"
+                                                :options="[{ name: __('message.independent') || 'Independent', value: 'independent' }, { name: __('message.addon') || 'Addon / Plugin', value: 'addon' }]"
+                                                :value="form.product_type"
+                                                :onChange="onChange"
+                                                classname="mb-0"
+                                            />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
                                             <DynamicSelect
                                                 name="parent"
                                                 :label="__('message.parent')"
@@ -250,6 +260,7 @@ const form = reactive({
     name: '',
     type: null,
     typeObj: null,
+    product_type: 'independent',
     group: null,
     groupObj: null,
     parent: null,
@@ -317,6 +328,7 @@ async function submit() {
         const fd = new FormData()
         fd.append('name', form.name)
         fd.append('type', form.type ?? '')
+        fd.append('product_type', form.product_type)
         fd.append('group', form.group ?? '')
         fd.append('parent', form.parent ?? '')
         fd.append('description', form.description)

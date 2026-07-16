@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
-use App\Model\License\LicenseType;
 use App\Model\Product\Product;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -24,11 +23,10 @@ class ProductPluginController extends Controller
             /** @var Product $product */
             $product = Product::findOrFail($productId);
 
-            $pluginTypeId = LicenseType::where('name', 'plugin')->value('id');
             $bundledIds = $product->bundledPlugins()->pluck('products.id')->toArray();
             $compatibleIds = $product->compatiblePlugins()->pluck('products.id')->toArray();
 
-            $plugins = Product::where('type', $pluginTypeId)
+            $plugins = Product::where('product_type', 'addon')
                 ->where('id', '!=', $productId)
                 ->orderBy('name')
                 ->get(['id', 'name'])
@@ -58,8 +56,7 @@ class ProductPluginController extends Controller
             /** @var Product $product */
             $product = Product::findOrFail($productId);
 
-            $pluginTypeId = LicenseType::where('name', 'plugin')->value('id');
-            $validIds = Product::where('type', $pluginTypeId)
+            $validIds = Product::where('product_type', 'addon')
                 ->where('id', '!=', $productId)
                 ->pluck('id')->toArray();
 

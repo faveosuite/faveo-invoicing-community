@@ -42,7 +42,7 @@ trait SystemActivityLogsTrait
     /**
      * Tap into the activity before saving.
      */
-    public function tapActivity(Activity $activity, string $eventName): void
+    public function beforeActivityLogged(Activity $activity, string $eventName): void
     {
         $this->generateDescriptionForLogs($activity, $eventName);
         $this->tapActivityLogs($activity);
@@ -156,7 +156,7 @@ trait SystemActivityLogsTrait
      */
     private function getLogName(): string
     {
-        return static::$logName ?? ''; // @phpstan-ignore property.staticAccess, nullCoalesce.property
+        return $this->logName ?? ''; // @phpstan-ignore nullCoalesce.property
     }
 
     private function getLogNameColumn(): string

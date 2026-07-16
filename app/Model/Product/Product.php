@@ -209,7 +209,7 @@ class Product extends BaseModel
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
         'deny_after_subscription', 'version', 'parent', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
-        'status', 'whatsapp_integration', 'apl_salt',
+        'status', 'whatsapp_integration', 'apl_salt', 'product_type',
     ];
 
     protected string $logName = 'product';
@@ -225,7 +225,7 @@ class Product extends BaseModel
         'setup_order_placed', 'setup_first_payment', 'setup_accept_manually',
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
-        'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'invoice_hidden',
+        'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'invoice_hidden', 'product_type',
     ];
 
     /**
@@ -268,6 +268,7 @@ class Product extends BaseModel
             'product_sku' => ['Product SKU', fn ($value) => $value],
             'perpetual_license' => ['Perpetual License', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'invoice_hidden' => ['Hide on Invoice', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
+            'product_type' => ['Product Category', fn ($value) => $value === 'addon' ? 'Addon' : 'Independent'],
         ];
     }
 

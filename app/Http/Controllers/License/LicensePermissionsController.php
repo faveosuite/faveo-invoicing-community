@@ -122,6 +122,24 @@ class LicensePermissionsController extends Controller
     //    }
 
     /**
+     * Maps the human-readable permission labels stored in `license_permissions.permissions`
+     * to the camelCase keys used throughout the codebase (e.g. `$permissions['downloadPermission']`).
+     *
+     * @return array<string, string>
+     */
+    public static function permissionMap(): array
+    {
+        return [
+            'Generate Updates Expiry Date' => 'generateUpdatesxpiryDate',
+            'Generate License Expiry Date' => 'generateLicenseExpiryDate',
+            'Generate Support Expiry Date' => 'generateSupportExpiryDate',
+            'Can be Downloaded' => 'downloadPermission',
+            'No Permissions' => 'noPermissions',
+            'Allow Downloads Before Updates Expire' => 'allowDownloadTillExpiry',
+        ];
+    }
+
+    /**
      * Get All the Permissions Allowed for a Product.
      *
      * @param  int  $productid  Id of the Product
@@ -130,14 +148,7 @@ class LicensePermissionsController extends Controller
     public static function getPermissionsForProduct(int $productid)
     {
         try {
-            $map = [
-                'Generate Updates Expiry Date' => 'generateUpdatesxpiryDate',
-                'Generate License Expiry Date' => 'generateLicenseExpiryDate',
-                'Generate Support Expiry Date' => 'generateSupportExpiryDate',
-                'Can be Downloaded' => 'downloadPermission',
-                'No Permissions' => 'noPermissions',
-                'Allow Downloads Before Updates Expire' => 'allowDownloadTillExpiry',
-            ];
+            $map = self::permissionMap();
 
             $result = array_fill_keys(array_values($map), 0);
 

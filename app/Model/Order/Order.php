@@ -86,7 +86,7 @@ class Order extends BaseModel
 
     protected $table = 'orders';
 
-    protected static string $logName = 'order';
+    protected string $logName = 'order';
 
     protected $fillable = ['client', 'order_status', 'invoice_item_id',
         'serial_key', 'product', 'domain', 'price_override', 'qty', 'number', 'license_mode',

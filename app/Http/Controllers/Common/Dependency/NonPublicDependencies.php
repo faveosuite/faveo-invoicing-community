@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Common\Dependency;
 
+use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\Bussiness;
 use App\Model\Common\PricingTemplate;
 use App\Model\License\LicenseType;
@@ -97,6 +98,12 @@ class NonPublicDependencies extends BaseDependencyController
     {
         $products = Product::where('invoice_hidden', 0)
             ->when($this->searchQuery, fn ($q, string $s) => $q->where('name', 'like', "%{$s}%"))
+            ->when($this->request->input('permission'), function ($query, string $permission): void {
+                $label = array_search($permission, LicensePermissionsController::permissionMap(), true) ?: $permission;
+                $query->whereHas('licenseType.permissions', function ($q) use ($label): void {
+                    $q->where('permissions', $label);
+                });
+            })
             ->with('groupRelation:id,name')
             ->orderBy('group')
             ->orderBy('name')
@@ -288,13 +295,11 @@ class NonPublicDependencies extends BaseDependencyController
         $this->sortField = 'name';
         $this->sortOrder = 'asc';
 
-        $pluginTypeId = LicenseType::where('name', 'plugin')->value('id');
-
         $excludeId = (int) $this->request->input('exclude');
 
         $baseQuery = $this->baseQuery(new Product)
             ->select('id', 'name')
-            ->where('type', $pluginTypeId)
+            ->where('product_type', 'addon')
             ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
             ->when($this->searchQuery, function ($query, string $searchQuery): void {
                 $query->where('name', 'like', sprintf('%%%s%%', $searchQuery));

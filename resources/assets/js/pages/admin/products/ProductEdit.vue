@@ -85,7 +85,17 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-md-12 mb-3">
+                                                <div class="col-md-6 mb-3">
+                                                    <RadioButton
+                                                        name="product_type"
+                                                        :label="__('message.product_category') || 'Product Category'"
+                                                        :options="[{ name: __('message.independent') || 'Independent', value: 'independent' }, { name: __('message.addon') || 'Addon / Plugin', value: 'addon' }]"
+                                                        :value="form.product_type"
+                                                        :onChange="onChange"
+                                                        classname="mb-0"
+                                                    />
+                                                </div>
+                                                <div class="col-md-6 mb-3">
                                                     <DynamicSelect
                                                         name="parent"
                                                         :label="__('message.parent')"
@@ -409,7 +419,7 @@ const taxClasses = ref([])
 const tab = ref(route.query.tab === 'versions' ? 'versions' : 'details')
 const githubEnabled = ref(false)
 
-const isPluginProduct = computed(() => form.typeObj?.name?.toLowerCase() === 'plugin')
+const isPluginProduct = computed(() => form.product_type === 'addon')
 
 const fileSourceOptions = computed(() => {
     const list = [
@@ -476,7 +486,7 @@ const versionTableOptions = reactive({
     templates: {
         select:       (f, row) => h('div', {}, [h('input', { type: 'checkbox', checked: selectedVersions.value.includes(row.id), onChange: () => toggleVersion(row.id) })]),
         version:      (f, row) => row.version || '—',
-        description:  (f, row) => row.description || '—',
+        description:  (f, row) => h('span', { innerHTML: row.description || '—' }),
         release_type: (f, row) => row.release_type || '—',
         file:         (f, row) => row.file || '—',
         action:       (f, row) => h(VersionTableActions, { productId: route.params.id, versionId: row.id, baseUrl, onDeleted: () => dtVersionRef.value?.refresh() }),
@@ -541,6 +551,7 @@ const form = reactive({
     name: '',
     type: null,
     typeObj: null,
+    product_type: 'independent',
     group: null,
     groupObj: null,
     parent: null,
@@ -617,6 +628,7 @@ onMounted(async () => {
         form.invoice_hidden       = Boolean(p.invoice_hidden)
         form.whatsapp_integration = Boolean(p.whatsapp_integration)
         form.type                 = p.type ?? null
+        form.product_type         = p.product_type ?? 'independent'
         form.group                = p.group ?? null
         form.parent               = p.parent ?? null
         // Tax status is driven by whether the product has a tax class assigned.
@@ -653,6 +665,7 @@ async function submit() {
         const fd = new FormData()
         fd.append('name', form.name)
         fd.append('type', form.type ?? '')
+        fd.append('product_type', form.product_type)
         fd.append('group', form.group ?? '')
         fd.append('parent', form.parent ?? '')
         fd.append('description', form.description)

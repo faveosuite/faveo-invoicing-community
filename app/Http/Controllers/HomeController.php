@@ -11,7 +11,6 @@ use App\License\Models\License;
 use App\License\Services\LicenseService;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
-use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -544,9 +543,7 @@ class HomeController extends BaseHomeController
 
         $user = User::where('email', $client)->value('id');
 
-        $licenseType = LicenseType::where('name', 'plugin')->value('id');
-
-        $products = Product::where('type', $licenseType)->pluck('id')->toArray();
+        $products = Product::where('product_type', 'addon')->pluck('id')->toArray();
 
         $productComp = PluginCompatibleWithProducts::where('product_id', $product_id)->pluck('plugin_id')->toArray();
 
