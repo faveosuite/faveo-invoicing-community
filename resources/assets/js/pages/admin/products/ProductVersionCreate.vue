@@ -22,8 +22,25 @@
                             :onChange="(v) => form.release_type = v?.value ?? ''" :clearable="false" :searchable="false" />
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-4" v-if="!loadingProduct && !buildType">
                         <label class="form-label fw-bold d-block">{{ __('message.file') }}<span class="text-danger ms-1">*</span></label>
+                        <input type="file" class="form-control" accept=".zip" :disabled="uploading" @change="onFile" />
+                        <UploadStatus :uploading="uploading" :progress="uploadProgress" :error="fileError" :uploadedName="uploadedName" />
+                    </div>
+
+                    <div class="col-md-4" v-if="buildType">
+                        <label class="form-label fw-bold d-block">
+                            {{ __('message.source') || 'Source' }}
+                            <span v-if="buildType === 'source'" class="text-danger ms-1">*</span>
+                        </label>
+                        <input type="file" class="form-control" accept=".zip" :disabled="sourceUploading" @change="onSourceFile" />
+                        <UploadStatus :uploading="sourceUploading" :progress="sourceUploadProgress" :error="sourceFileError" :uploadedName="sourceUploadedName" />
+                    </div>
+                    <div class="col-md-4" v-if="buildType">
+                        <label class="form-label fw-bold d-block">
+                            {{ __('message.obfuscated') || 'Obfuscated / Encoded' }}
+                            <span v-if="buildType === 'obfuscated'" class="text-danger ms-1">*</span>
+                        </label>
                         <input type="file" class="form-control" accept=".zip" :disabled="uploading" @change="onFile" />
                         <UploadStatus :uploading="uploading" :progress="uploadProgress" :error="fileError" :uploadedName="uploadedName" />
                     </div>
@@ -64,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
@@ -80,7 +97,27 @@ const alertStore = useAlertStore()
 const { errors, setErrors, setFieldError } = useForm()
 
 const saving = ref(false)
+const loadingProduct = ref(true)
+const buildType = ref('') // '' | 'obfuscated' | 'source' — this product's own build_type
 const { file, uploading, uploadProgress, fileError, uploadedName, uploadedForFile, onFile } = useChunkedFileUpload()
+// Independent instance — only relevant once buildType is known to be set.
+const {
+    file: sourceFile, uploading: sourceUploading, uploadProgress: sourceUploadProgress,
+    fileError: sourceFileError, uploadedName: sourceUploadedName, uploadedForFile: sourceUploadedForFile,
+    onFile: onSourceFile,
+} = useChunkedFileUpload()
+
+onMounted(async () => {
+    try {
+        const { data } = await http.get(`/product/${productId}`)
+        const p = data.data?.product ?? data.data
+        buildType.value = p?.build_type ?? ''
+    } catch {
+        // Non-fatal — falls back to the plain single-file form below.
+    } finally {
+        loadingProduct.value = false
+    }
+})
 
 const form = ref({
     title: '', version: '', description: '', release_type: 'official',
@@ -105,16 +142,22 @@ function parseDependencies() {
     }
 }
 
-async function submit() {
-    // The file has its own independent upload step (useChunkedFileUpload) —
-    // this just checks it actually succeeded for the currently-picked file.
-    if (!file.value) {
+// The file has its own independent upload step (useChunkedFileUpload) — this
+// just checks it actually succeeded, requiring one only if `required` is true
+// for that slot (which of the two slots is required depends on buildType).
+function validateSlot(required, { file, uploading, uploadedForFile, fileError }) {
+    if (required && !file.value) {
         fileError.value = __('message.file')
-    } else if (uploading.value) {
+    } else if (file.value && uploading.value) {
         fileError.value = __('message.please_wait')
-    } else if (uploadedForFile.value !== file.value && !fileError.value) {
+    } else if (file.value && uploadedForFile.value !== file.value && !fileError.value) {
         fileError.value = __('message.something_wrong')
     }
+}
+
+async function submit() {
+    validateSlot(!buildType.value || buildType.value === 'obfuscated', { file, uploading, uploadedForFile, fileError })
+    validateSlot(buildType.value === 'source', { file: sourceFile, uploading: sourceUploading, uploadedForFile: sourceUploadedForFile, fileError: sourceFileError })
 
     const errs = {}
     if (!form.value.title)   errs.title   = __('message.title')
@@ -122,7 +165,7 @@ async function submit() {
     const deps = parseDependencies()
     if (deps.error) errs.dependencies = __('message.enter_json_format') || 'Enter valid JSON format.'
     setErrors(errs)
-    if (Object.keys(errs).length || fileError.value) return
+    if (Object.keys(errs).length || fileError.value || sourceFileError.value) return
 
     saving.value = true
     alertStore.unsetAlert()
@@ -130,7 +173,8 @@ async function submit() {
         await http.put(`/product/upload/${productId}`, {
             producttitle: form.value.title,
             version: form.value.version,
-            filename: uploadedName.value,
+            filename: uploadedName.value || null,
+            filename_source: sourceUploadedName.value || null,
             description: form.value.description,
             release_type: form.value.release_type,
             is_private: form.value.is_private,

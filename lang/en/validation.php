@@ -914,8 +914,11 @@ return [
         'version_required' => 'Version is required.',
         'filename_required' => 'Please upload a file.',
         'dependencies_required' => 'Dependencies field is required.',
+        'source_build_required' => 'A source build file is required for: :products.',
+        'obfuscated_build_required_for' => 'An obfuscated build file is required for: :products.',
     ],
     'product_sku_unique' => 'Product SKU should be unique',
+    'product_slug_unique' => 'A product with this slug and build type already exists.',
     'product_name_unique' => 'Name should be unique',
     'product_show_agent_required' => 'Select you Cart Page Preference',
     'product_controller' => [

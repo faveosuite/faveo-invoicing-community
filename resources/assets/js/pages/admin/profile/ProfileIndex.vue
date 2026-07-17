@@ -20,6 +20,7 @@
                                 :componentName="COMPONENT"
                                 :value="profilePicUrl"
                                 :onChange="onImageChange"
+                                placeholderType="avatar"
                             />
                         </div>
 

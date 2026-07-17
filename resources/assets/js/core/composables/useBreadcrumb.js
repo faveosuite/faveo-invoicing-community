@@ -52,7 +52,12 @@ export function useBreadcrumb() {
             const partialPath = '/' + segments.slice(0, i).join('/')
             const resolved    = router.resolve(partialPath)
 
-            if (!resolved.matched.length || !resolved.meta?.title) continue
+            // The catch-all route (adminRouter.js's `/:pathMatch(.*)*`) matches
+            // any partial path that isn't a real route — e.g. `/products/8/versions`
+            // has no index page of its own, only `.../create` and `.../:id/edit`
+            // do. Without this check, that partial match's "Not Found" title
+            // would get inserted as a spurious crumb.
+            if (!resolved.matched.length || !resolved.meta?.title || resolved.meta?.isErrorPage) continue
 
             const isLast = i === segments.length
             const title  = translateTitle(resolved.meta)

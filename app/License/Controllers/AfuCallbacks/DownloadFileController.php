@@ -88,9 +88,10 @@ class DownloadFileController extends Controller
             return $this->notificationResponse('notification_version_expired', []);
         }
 
-        $filePath = 'products/'.$version->file;
+        $resolvedFile = $version->resolvedFile();
+        $filePath = 'products/'.$resolvedFile;
 
-        if (empty($version->file) || ! Attach::exists($filePath)) {
+        if (empty($resolvedFile) || ! Attach::exists($filePath)) {
             return $this->notificationResponse('notification_install_archive_not_found', []);
         }
 

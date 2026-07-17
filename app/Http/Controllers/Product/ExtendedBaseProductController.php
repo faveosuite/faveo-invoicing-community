@@ -118,11 +118,13 @@ class ExtendedBaseProductController extends Controller
             ));
         }
 
-        if (! $version?->file) {
+        $resolvedFile = $version?->resolvedFile();
+
+        if (! $resolvedFile) {
             throw new Exception(trans('message.file_not_exist'));
         }
 
-        $path = 'products/'.$version->file;
+        $path = 'products/'.$resolvedFile;
 
         if (! Attach::exists($path)) {
             throw new Exception(trans('message.file_not_exist'));

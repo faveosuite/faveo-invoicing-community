@@ -219,11 +219,17 @@ class ProductBundleStampingService
      * identity. Every unmatched folder is stripped. A product with no
      * bundled plugins ends up with app/Plugins/ empty.
      *
-     * Folders are matched to a plugin by the product_id already embedded
-     * in their own config.php — not by name, since a folder name and a
-     * product's display name aren't guaranteed to match. Falls back to a
-     * normalized name comparison only when a folder has no readable
-     * config.php.
+     * Folders are matched to a plugin by their own folder name (e.g.
+     * 'AdHocApproval'), compared against that plugin's own `slug` column
+     * — the folder name already *is* the plugin's path, since that's
+     * exactly what it was written as (app/Plugins/<path>/), so there's no
+     * need to open config.php just to confirm it. Not matched by
+     * product_id: real plugin config.php files write product_id as a
+     * bare, unquoted integer rather than a quoted string, which makes it
+     * unreliable to pull back out of PHP source text. Not matched by
+     * display name either, since a folder name and a product's display
+     * name aren't guaranteed to match — name is only used as a fallback,
+     * for a plugin that has no slug set yet.
      *
      * When $order is set and in File mode, also writes each kept plugin's
      * own signed license.json into its folder — favMer verifies a bundled
@@ -233,12 +239,13 @@ class ProductBundleStampingService
     private function filterBundledPluginFolders(ZipArchive $zip, Product $targetProduct, string $version, ?Order $order = null): void
     {
         $bundledPlugins = $targetProduct->productPluginGroupsAsProduct()
-            ->with('plugin:id,name,product_key')
+            ->with('plugin:id,name,slug,product_key')
             ->get()
             ->map(fn (ProductPluginGroup $row): Product => $row->plugin)
             ->filter();
 
-        $bundledById = $bundledPlugins->keyBy(fn (Product $plugin): int => $plugin->id);
+        $bundledBySlug = $bundledPlugins->filter(fn (Product $plugin): bool => ! empty($plugin->slug))
+            ->keyBy(fn (Product $plugin): string => (string) $plugin->slug);
         $bundledByNormalizedName = $bundledPlugins->keyBy(fn (Product $plugin): string => $this->normalizeForMatch($plugin->name));
 
         $entriesByFolder = [];
@@ -254,14 +261,14 @@ class ProductBundleStampingService
         $foldersToStamp = [];
 
         foreach ($entriesByFolder as $folderName => $entries) {
-            // Read each folder's config.php once and reuse it for both the
-            // matching decision and the eventual patch — no second lookup.
+            // The folder name already is the plugin's path/slug — that's
+            // exactly what it was written as (app/Plugins/<path>/) — so no
+            // file needs to be opened just to confirm that. config.php is
+            // still read here, but only so it's ready to patch below.
             $configContent = $this->readEntry($zip, "app/Plugins/{$folderName}/config.php");
-            $existingProductId = $configContent !== null ? $this->extractProductId($configContent) : null;
 
-            $matchedPlugin = $existingProductId !== null
-                ? $bundledById->get($existingProductId)
-                : $bundledByNormalizedName->get($this->normalizeForMatch($folderName));
+            $matchedPlugin = $bundledBySlug->get($folderName)
+                ?? $bundledByNormalizedName->get($this->normalizeForMatch($folderName));
 
             if (! $matchedPlugin) {
                 array_push($entriesToDelete, ...$entries);
@@ -306,16 +313,6 @@ class ProductBundleStampingService
     }
 
     /**
-     * Pulls the product_id value out of a plugin's config.php source.
-     *
-     * @return int|null null if no product_id entry is found.
-     */
-    private function extractProductId(string $configContent): ?int
-    {
-        return preg_match("/'product_id'\s*=>\s*'(\d+)'/", $configContent, $matches) ? (int) $matches[1] : null;
-    }
-
-    /**
      * Lowercases and strips non-alphanumeric characters, for comparing a
      * plugin's display name against a zip folder name.
      */
@@ -333,15 +330,20 @@ class ProductBundleStampingService
      */
     private function patchPluginConfig(string $existingContent, Product $targetProduct, string $version): string
     {
-        $replacements = [
-            'product_id' => $targetProduct->id,
-            'product_key' => $targetProduct->product_key,
-            'version' => $version,
-        ];
-
         $content = $existingContent;
 
-        foreach ($replacements as $key => $value) {
+        // product_id ships as a bare, unquoted integer in real plugin
+        // config.php files — match either that or a quoted-string form on
+        // the way in (so older/differently-generated files still patch),
+        // but always write the bare-integer form back out, matching the
+        // convention the shipped product actually uses.
+        $content = preg_replace(
+            "/'product_id'\s*=>\s*(?:'[^']*'|\d+)/",
+            "'product_id' => ".(int) $targetProduct->id,
+            $content
+        ) ?? $content;
+
+        foreach (['product_key' => $targetProduct->product_key, 'version' => $version] as $key => $value) {
             $content = preg_replace_callback(
                 "/'{$key}'\s*=>\s*'[^']*'/",
                 fn () => "'{$key}' => '".addslashes((string) $value)."'",

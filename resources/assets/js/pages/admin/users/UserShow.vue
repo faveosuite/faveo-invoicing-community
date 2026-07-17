@@ -16,7 +16,7 @@
                                 :src="user.profile_pic || fallbackAvatar"
                                 class="profile-user-img img-fluid img-circle"
                                 alt="User avatar"
-                                @error="e => e.target.src = fallbackAvatar"
+                                @error="e => { e.target.onerror = null; e.target.src = fallbackAvatar }"
                             />
                         </div>
 
@@ -449,7 +449,7 @@ const { notify } = useNotification()
 const { formatDate } = useDateTime()
 
 const baseUrl = useBaseUrl()
-const fallbackAvatar = asset('themes/adminlte/assets/img/avatar.png')
+const fallbackAvatar = asset('images/avatar.png')
 
 // ── API URLs ──────────────────────────────────────────────────────────────────
 const invoicesUrl = `/user/${userId}/invoices`

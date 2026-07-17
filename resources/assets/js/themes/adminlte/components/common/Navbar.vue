@@ -70,7 +70,7 @@
             <span class="d-none d-md-inline">{{ userName }}</span>
 
             <img :src="avatarUrl" class="user-image rounded-circle" alt="Avatar"
-                 @error="e => e.target.src = fallbackAvatar"/>
+                 @error="e => { e.target.onerror = null; e.target.src = fallbackAvatar }"/>
           </a>
 
           <ul class="dropdown-menu dropdown-menu-end user-dropdown" aria-label="User menu">
@@ -120,8 +120,8 @@ async function logout() {
 
 // ── User ──────────────────────────────────────────────────────────────────────
 const userName = el?.dataset?.userName ?? 'Admin';
-const avatarUrl = el?.dataset?.userAvatar || asset('themes/adminlte/assets/img/avatar.png')
-const fallbackAvatar = asset('themes/adminlte/assets/img/avatar.png')
+const fallbackAvatar = asset('images/avatar.png')
+const avatarUrl = el?.dataset?.userAvatar || fallbackAvatar
 
 // ── Language ──────────────────────────────────────────────────────────────────
 const LIMIT = 10

@@ -18,7 +18,21 @@
                             :onChange="(v) => form.release_type = v?.value ?? ''" :clearable="false" :searchable="false" />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold d-block">{{ __('message.file') }}<span class="text-danger ms-1">*</span></label>
+                        <label class="form-label fw-bold d-block">
+                            {{ __('message.source') || 'Source' }}
+                            <span v-if="needsSource" class="text-danger ms-1">*</span>
+                            <ToolTip :message="__('message.source_build_file_hint') || 'Use this for a regular release. It covers every selected product, except any that specifically use an encoded build.'" size="small" />
+                        </label>
+                        <input type="file" class="form-control" accept=".zip" :disabled="sourceUploading" @change="onSourceFile" />
+                        <UploadStatus :uploading="sourceUploading" :progress="sourceUploadProgress" :error="sourceFileError" :uploadedName="sourceUploadedName" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold d-block">
+                            {{ __('message.obfuscated') || 'Obfuscated / Encoded' }}
+                            <span v-if="needsObfuscated" class="text-danger ms-1">*</span>
+                            <ToolTip :message="__('message.build_file_hint') || 'Only needed if one of the selected products uses an encoded build.'" size="small" />
+                        </label>
                         <input type="file" class="form-control" accept=".zip" :disabled="uploading" @change="onFile" />
                         <UploadStatus :uploading="uploading" :progress="uploadProgress" :error="fileError" :uploadedName="uploadedName" />
                     </div>
@@ -93,7 +107,11 @@
                                 <div v-for="p in group.products" :key="p.id" class="d-flex align-items-center gap-2 mb-2">
                                     <input class="form-check-input mt-0 flex-shrink-0" type="checkbox" :id="`product-${p.id}`"
                                         :checked="selectedProductIds.includes(p.id)" @change="toggleProduct(p.id)">
-                                    <label class="form-check-label fw-normal flex-grow-1 mb-0" :for="`product-${p.id}`">{{ p.name }}</label>
+                                    <label class="form-check-label fw-normal flex-grow-1 mb-0" :for="`product-${p.id}`">
+                                        {{ p.name }}
+                                        <span v-if="p.build_type === 'obfuscated'" class="badge bg-warning-subtle text-warning-emphasis ms-1">{{ __('message.obfuscated') || 'Obfuscated / Encoded' }}</span>
+                                        <span v-else-if="p.build_type === 'source'" class="badge bg-info-subtle text-info-emphasis ms-1">{{ __('message.source') || 'Source' }}</span>
+                                    </label>
                                     <input type="text" class="form-control form-control-sm flex-shrink-0" style="width: 120px;"
                                         :disabled="!selectedProductIds.includes(p.id)"
                                         :placeholder="__('message.version') || 'Version'"
@@ -107,7 +125,7 @@
 
             <div class="card-footer">
                 <AppButton>
-                    <button type="button" class="btn btn-primary" :disabled="saving || uploading" @click="submit">
+                    <button type="button" class="btn btn-primary" :disabled="saving || uploading || sourceUploading" @click="submit">
                         <i class="fas fa-circle-notch fa-spin me-1" v-if="saving"></i>
                         <i class="fas fa-save me-1" v-else></i>
                         {{ saving ? __('message.please_wait') : __('message.save') }}
@@ -126,6 +144,7 @@ import http from '@/plugins/axios'
 import TextArea from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import UploadStatus from '@/components/Reusable/UploadStatus.vue'
+import ToolTip from '@/components/Reusable/Tooltip.vue'
 import { useChunkedFileUpload } from '@/core/composables/useChunkedFileUpload'
 import { successHandler, applyServerValidation } from '@/helpers/responseHandler.js'
 
@@ -134,6 +153,13 @@ const { errors, setErrors, setFieldError } = useForm()
 
 const saving = ref(false)
 const { file, uploading, uploadProgress, fileError, uploadedName, uploadedForFile, onFile } = useChunkedFileUpload()
+// Independent instance — its own file/uploading/progress/error refs — for the
+// obfuscated build. Only required if a selected product is build_type=obfuscated.
+const {
+    file: sourceFile, uploading: sourceUploading, uploadProgress: sourceUploadProgress,
+    fileError: sourceFileError, uploadedName: sourceUploadedName, uploadedForFile: sourceUploadedForFile,
+    onFile: onSourceFile,
+} = useChunkedFileUpload()
 
 const loadingProducts = ref(true)
 const rawGroups = ref([]) // [{ groupName, products: [{id, name}] }] — pre-grouped + permission-filtered server-side
@@ -158,6 +184,19 @@ function onGroupVersionChange(group, value) {
         productVersions.value[p.id] = value
     })
 }
+
+const productsById = computed(() => {
+    const map = {}
+    rawGroups.value.forEach(group => group.products.forEach(p => { map[p.id] = p }))
+    return map
+})
+
+const selectedProducts = computed(() => selectedProductIds.value.map(id => productsById.value[id]).filter(Boolean))
+// Source is the default file — required for anything selected that isn't
+// explicitly opted into obfuscation. Obfuscated is only required when
+// something obfuscated-tagged was actually selected.
+const needsObfuscated = computed(() => selectedProducts.value.some(p => p.build_type === 'obfuscated'))
+const needsSource = computed(() => selectedProducts.value.some(p => p.build_type !== 'obfuscated'))
 
 const groupedProducts = computed(() => {
     const q = productSearch.value.trim().toLowerCase()
@@ -229,16 +268,23 @@ function parseDependencies() {
     }
 }
 
-async function submit() {
-    // The file has its own independent upload step (useChunkedFileUpload) —
-    // this just checks it actually succeeded for the currently-picked file.
-    if (!file.value) {
+// Each box's own upload has an independent upload step (useChunkedFileUpload)
+// — this checks it actually succeeded, requiring one only if `required` is
+// true (which depends on what's currently selected — see needsObfuscated /
+// needsSource).
+function validateSlot(required, { file, uploading, uploadedForFile, fileError }) {
+    if (required && !file.value) {
         fileError.value = __('message.file')
-    } else if (uploading.value) {
+    } else if (file.value && uploading.value) {
         fileError.value = __('message.please_wait')
-    } else if (uploadedForFile.value !== file.value && !fileError.value) {
+    } else if (file.value && uploadedForFile.value !== file.value && !fileError.value) {
         fileError.value = __('message.something_wrong')
     }
+}
+
+async function submit() {
+    validateSlot(needsSource.value, { file: sourceFile, uploading: sourceUploading, uploadedForFile: sourceUploadedForFile, fileError: sourceFileError })
+    validateSlot(needsObfuscated.value, { file, uploading, uploadedForFile, fileError })
 
     const errs = {}
     if (!selectedProductIds.value.length) {
@@ -252,16 +298,19 @@ async function submit() {
     const deps = parseDependencies()
     if (deps.error) errs.dependencies = __('message.enter_json_format') || 'Enter valid JSON format.'
     setErrors(errs)
-    if (Object.keys(errs).length || fileError.value) return
+    if (Object.keys(errs).length || fileError.value || sourceFileError.value) return
 
     saving.value = true
     try {
-        // Fan the already-uploaded build out — each selected product with its
-        // own version. Which bundled plugins each product's build keeps is
+        // Fan the already-uploaded build(s) out — each selected product with
+        // its own version. Source is the default file; a product only uses
+        // the Obfuscated one instead if it's explicitly tagged build_type=
+        // obfuscated. Which bundled plugins each product's build keeps is
         // resolved automatically on the backend from the product's own
         // Plugins-tab configuration.
         const res = await http.put(`/product/upload-build/apply`, {
-            filename: uploadedName.value,
+            filename: uploadedName.value || null,
+            filename_source: sourceUploadedName.value || null,
             description: form.value.description,
             release_type: form.value.release_type,
             is_private: form.value.is_private,

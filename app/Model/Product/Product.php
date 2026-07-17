@@ -72,6 +72,8 @@ use Spatie\Activitylog\Models\Activity;
  * @property string $status
  * @property string $add_to_contact
  * @property string|null $product_type
+ * @property string|null $slug
+ * @property string|null $build_type
  * @property string $product_description
  * @property string|null $product_url_homepage
  * @property string|null $product_url_download
@@ -209,7 +211,7 @@ class Product extends BaseModel
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
         'deny_after_subscription', 'version', 'parent', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
-        'status', 'whatsapp_integration', 'apl_salt', 'product_type',
+        'status', 'whatsapp_integration', 'apl_salt', 'product_type', 'slug', 'build_type',
     ];
 
     protected string $logName = 'product';
@@ -225,7 +227,7 @@ class Product extends BaseModel
         'setup_order_placed', 'setup_first_payment', 'setup_accept_manually',
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
-        'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'invoice_hidden', 'product_type',
+        'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'invoice_hidden', 'product_type', 'slug', 'build_type',
     ];
 
     /**

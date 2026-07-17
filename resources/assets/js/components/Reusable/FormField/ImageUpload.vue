@@ -8,7 +8,8 @@
         <div class="image-container" @click="fileInput.click()">
             <ImageElement id="profile-pic"
                           :classes="['profile-user-img', 'img-responsive', 'img-rounder', 'img-click']"
-                          :sourceUrl="previewUrl" :title="lang(tooltip)" :style-object="styleObj" />
+                          :sourceUrl="previewUrl" :title="lang(tooltip)" :style-object="styleObj"
+                          :placeholder-type="placeholderType" />
             <div class="camera_logo translateCameraIcon">
                 <i class="fas fa-camera text-lg text-white"></i>
             </div>
@@ -84,6 +85,7 @@ const props = defineProps({
     buttonName:    { type: String,           default: '' },
     labelCss:      { type: Object,           default: () => ({}) },
     allowedTypes:  { type: Array,            default: () => ['image/png', 'image/jpg', 'image/jpeg'] },
+    placeholderType: { type: String,         default: 'generic' },
 })
 
 const alertStore = useAlertStore()

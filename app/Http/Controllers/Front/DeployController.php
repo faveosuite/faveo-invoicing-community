@@ -208,15 +208,16 @@ class DeployController extends Controller
             return errorResponse(__('message.deploy_no_file_attached'));
         }
 
-        $filePath = 'products/'.$upload->file;
-
-        if (! Attach::exists($filePath)) {
-            return errorResponse(__('message.deploy_file_not_found'));
-        }
-
         $product = $upload->product;
 
         if (! $product) {
+            return errorResponse(__('message.deploy_file_not_found'));
+        }
+
+        $resolvedFile = $upload->resolvedFile();
+        $filePath = 'products/'.$resolvedFile;
+
+        if (empty($resolvedFile) || ! Attach::exists($filePath)) {
             return errorResponse(__('message.deploy_file_not_found'));
         }
 

@@ -86,16 +86,6 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
-                                                    <RadioButton
-                                                        name="product_type"
-                                                        :label="__('message.product_category') || 'Product Category'"
-                                                        :options="[{ name: __('message.independent') || 'Independent', value: 'independent' }, { name: __('message.addon') || 'Addon / Plugin', value: 'addon' }]"
-                                                        :value="form.product_type"
-                                                        :onChange="onChange"
-                                                        classname="mb-0"
-                                                    />
-                                                </div>
-                                                <div class="col-md-6 mb-3">
                                                     <DynamicSelect
                                                         name="parent"
                                                         :label="__('message.parent')"
@@ -104,6 +94,35 @@
                                                         :value="form.parentObj"
                                                         :onChange="onChange"
                                                         :placeholder="__('message.select_parent')"
+                                                    />
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <SelectField
+                                                        name="build_type"
+                                                        :label="__('message.build_type') || 'Build Type'"
+                                                        :tooltip="__('message.build_type_hint') || 'Only set this if this product ships as two variants (encoded and source) that need to be told apart automatically.'"
+                                                        :elements="buildTypes"
+                                                        :value="selectedBuildType"
+                                                        :onChange="onChange"
+                                                        :clearable="false"
+                                                        :searchable="false"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <TextField name="slug" :label="__('message.slug') || 'Slug'"
+                                                        :hint="__('message.slug_hint') || 'Only needed for a plugin whose folder needs to be matched inside a shared build — must match that folder\'s name exactly.'"
+                                                        :value="form.slug" :onChange="onChange" :error="errors.slug" />
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <RadioButton
+                                                        name="product_type"
+                                                        :label="__('message.product_category') || 'Product Category'"
+                                                        :options="[{ name: __('message.independent') || 'Independent', value: 'independent' }, { name: __('message.addon') || 'Addon / Plugin', value: 'addon' }]"
+                                                        :value="form.product_type"
+                                                        :onChange="onChange"
+                                                        classname="mb-0"
                                                     />
                                                 </div>
                                             </div>
@@ -552,6 +571,8 @@ const form = reactive({
     type: null,
     typeObj: null,
     product_type: 'independent',
+    build_type: '',
+    slug: '',
     group: null,
     groupObj: null,
     parent: null,
@@ -579,11 +600,20 @@ const form = reactive({
     shoping_cart_link: '',
 })
 
+const buildTypes = [
+    { name: __('message.none') || 'None', value: '' },
+    { name: __('message.obfuscated') || 'Obfuscated / Encoded', value: 'obfuscated' },
+    { name: __('message.source') || 'Source', value: 'source' },
+]
+const selectedBuildType = computed(() => buildTypes.find(b => b.value === form.build_type) ?? buildTypes[0])
+
 function onChange(val, name) {
     setFieldError(name, undefined)
     if (name === 'type') {
         form.typeObj = val
         form.type = val?.id ?? null
+    } else if (name === 'build_type') {
+        form.build_type = val?.value ?? ''
     } else if (name === 'group') {
         form.groupObj = val
         form.group = val?.id ?? null
@@ -613,6 +643,8 @@ onMounted(async () => {
         githubEnabled.value = resData?.github_status ?? false
 
         form.name                 = p.name ?? ''
+        form.build_type           = p.build_type ?? ''
+        form.slug                 = p.slug ?? ''
         form.product_sku          = p.product_sku ?? ''
         form.description          = p.description ?? ''
         form.short_description    = p.short_description ?? ''
@@ -666,6 +698,8 @@ async function submit() {
         fd.append('name', form.name)
         fd.append('type', form.type ?? '')
         fd.append('product_type', form.product_type)
+        fd.append('build_type', form.build_type ?? '')
+        fd.append('slug', form.slug ?? '')
         fd.append('group', form.group ?? '')
         fd.append('parent', form.parent ?? '')
         fd.append('description', form.description)

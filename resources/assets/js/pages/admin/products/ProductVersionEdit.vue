@@ -23,11 +23,24 @@
                             :onChange="(v) => form.release_type = v?.value ?? ''" :clearable="false" :searchable="false" />
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-4" v-if="!form.build_type">
                         <label class="form-label fw-bold d-block">{{ __('message.file') }}</label>
                         <input type="file" class="form-control" accept=".zip" :disabled="uploading" @change="onFile" />
                         <UploadStatus v-if="file" :uploading="uploading" :progress="uploadProgress" :error="fileError" :uploadedName="uploadedName" />
                         <small v-else-if="form.file" class="text-muted d-block mt-1">{{ form.file }}</small>
+                    </div>
+
+                    <div class="col-md-4" v-if="form.build_type">
+                        <label class="form-label fw-bold d-block">{{ __('message.source') || 'Source' }}</label>
+                        <input type="file" class="form-control" accept=".zip" :disabled="sourceUploading" @change="onSourceFile" />
+                        <UploadStatus v-if="sourceFile" :uploading="sourceUploading" :progress="sourceUploadProgress" :error="sourceFileError" :uploadedName="sourceUploadedName" />
+                        <small v-else-if="form.build_files.source" class="text-muted d-block mt-1">{{ form.build_files.source }}</small>
+                    </div>
+                    <div class="col-md-4" v-if="form.build_type">
+                        <label class="form-label fw-bold d-block">{{ __('message.obfuscated') || 'Obfuscated / Encoded' }}</label>
+                        <input type="file" class="form-control" accept=".zip" :disabled="uploading" @change="onFile" />
+                        <UploadStatus v-if="file" :uploading="uploading" :progress="uploadProgress" :error="fileError" :uploadedName="uploadedName" />
+                        <small v-else-if="form.build_files.obfuscated" class="text-muted d-block mt-1">{{ form.build_files.obfuscated }}</small>
                     </div>
 
                     <div class="col-md-4">
@@ -79,10 +92,17 @@ const { errors, setErrors, setFieldError } = useForm()
 const loading = ref(true)
 const saving = ref(false)
 const { file, uploading, uploadProgress, fileError, uploadedName, uploadedForFile, onFile } = useChunkedFileUpload()
+// Independent instance — only relevant once form.build_type is known to be set.
+const {
+    file: sourceFile, uploading: sourceUploading, uploadProgress: sourceUploadProgress,
+    fileError: sourceFileError, uploadedName: sourceUploadedName, uploadedForFile: sourceUploadedForFile,
+    onFile: onSourceFile,
+} = useChunkedFileUpload()
 
 const form = ref({
     title: '', version: '', description: '', release_type: 'official',
     is_private: false, is_restricted: false, dependencies: '', file: '',
+    build_type: '', build_files: {},
 })
 
 const releaseTypes = [
@@ -103,16 +123,21 @@ function parseDependencies() {
     }
 }
 
-async function submit() {
-    // A replacement file is optional here — only validate the upload if the
-    // admin actually picked one (useChunkedFileUpload already started it).
-    if (file.value) {
-        if (uploading.value) {
-            fileError.value = __('message.please_wait')
-        } else if (uploadedForFile.value !== file.value && !fileError.value) {
-            fileError.value = __('message.something_wrong')
-        }
+// A replacement file is optional here — only validate the upload if the
+// admin actually picked one for that slot (useChunkedFileUpload already
+// started it).
+function validateSlot({ file, uploading, uploadedForFile, fileError }) {
+    if (!file.value) return
+    if (uploading.value) {
+        fileError.value = __('message.please_wait')
+    } else if (uploadedForFile.value !== file.value && !fileError.value) {
+        fileError.value = __('message.something_wrong')
     }
+}
+
+async function submit() {
+    validateSlot({ file, uploading, uploadedForFile, fileError })
+    validateSlot({ file: sourceFile, uploading: sourceUploading, uploadedForFile: sourceUploadedForFile, fileError: sourceFileError })
 
     const errs = {}
     if (!form.value.title)   errs.title   = __('message.title')
@@ -120,7 +145,7 @@ async function submit() {
     const deps = parseDependencies()
     if (deps.error) errs.dependencies = __('message.enter_json_format') || 'Enter valid JSON format.'
     setErrors(errs)
-    if (Object.keys(errs).length || (file.value && fileError.value)) return
+    if (Object.keys(errs).length || (file.value && fileError.value) || (sourceFile.value && sourceFileError.value)) return
 
     saving.value = true
     alertStore.unsetAlert()
@@ -134,6 +159,7 @@ async function submit() {
             is_restricted: form.value.is_restricted,
             dependencies: deps.data,
             ...(file.value ? { filename: uploadedName.value } : {}),
+            ...(sourceFile.value ? { filename_source: sourceUploadedName.value } : {}),
         })
         alertStore.setAlert({ message: __('message.product_updated_successfully'), type: 'success', component_name: 'products-edit' })
         router.push(`/products/${productId}/edit?tab=versions`)
@@ -156,6 +182,8 @@ onMounted(async () => {
             is_private: !!u.is_private, is_restricted: !!u.is_restricted,
             dependencies: JSON.stringify(u.dependencies ?? [], null, 2),
             file: u.file ?? '',
+            build_type: u.build_type ?? '',
+            build_files: u.build_files ?? {},
         }
     } catch (err) {
         alertStore.setAlert({ message: err.response?.data?.message || __('message.something_wrong'), type: 'danger', component_name: 'product-version-edit' })
