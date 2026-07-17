@@ -17,6 +17,7 @@ use App\Console\Commands\moveImages;
 use App\Console\Commands\PostExpiryCron;
 use App\Console\Commands\RenewalCron;
 use App\Console\Commands\ReoonLogsDeletion;
+use App\Console\Commands\SentryRelease;
 use App\Console\Commands\SetupTestEnv;
 use App\Console\Commands\SyncDatabaseToLatestVersion;
 use App\Http\Controllers\Common\PhpMailController;
@@ -60,6 +61,7 @@ class Kernel extends ConsoleKernel
         ReoonLogsDeletion::class,
         FailedMessageDelivery::class,
         GenerateSeoFiles::class,
+        SentryRelease::class,
     ];
 
     /**

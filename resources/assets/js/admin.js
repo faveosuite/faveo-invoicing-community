@@ -21,6 +21,7 @@ import { setupLoaderInterceptors } from './plugins/axios.js'
 import DateTimePlugin from './plugins/dateTime.js'
 import { useDateTimeStore } from './core/stores/dateTimeStore.js'
 import { useAuthStore } from './core/stores/auth.js'
+import { initSentry, Sentry } from './plugins/sentry.js'
 
 const progressBarOptions = {
     color: 'rgb(0, 154, 186)',
@@ -43,10 +44,12 @@ globalThis.emitter = emitter
 // load theme first, then mount
 import(`./themes/${theme}/index.js`).then(async themeModule => {
     const app = createApp(App)
+    initSentry(app, el)
 
     // surface Vue runtime errors in the console
     app.config.errorHandler = (err, instance, info) => {
         console.error('[Vue error]', info, err)
+        Sentry.captureException(err)
     }
 
     // register all theme components globally

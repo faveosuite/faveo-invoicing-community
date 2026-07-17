@@ -18,6 +18,7 @@ import { setupLoaderInterceptors } from './plugins/axios.js'
 import DateTimePlugin from './plugins/dateTime.js'
 import { useDateTimeStore } from './core/stores/dateTimeStore.js'
 import { useAuthStore } from './core/stores/auth.js'
+import { initSentry, Sentry } from './plugins/sentry.js'
 
 const progressBarOptions = {
     color: 'rgb(0, 154, 186)',
@@ -33,9 +34,12 @@ const progressBarOptions = {
 globalThis.emitter = mitt()
 
 const app = createApp(Client)
+const el = document.getElementById('app-client')
+initSentry(app, el)
 
 app.config.errorHandler = (err, instance, info) => {
     console.error('[Vue client error]', info, err)
+    Sentry.captureException(err)
 }
 
 Object.entries(themeComponents).forEach(([name, component]) => {
