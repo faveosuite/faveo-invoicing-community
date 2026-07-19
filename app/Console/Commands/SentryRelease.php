@@ -28,7 +28,7 @@ class SentryRelease extends Command
      */
     public function handle(): int
     {
-        $token = $this->option('auth-token') ?: env('SENTRY_AUTH_TOKEN');
+        $token = $this->option('auth-token') ?: config('services.sentry.auth_token');
 
         if (! $token) {
             $this->error('Sentry auth token is required: pass --auth-token= or set SENTRY_AUTH_TOKEN env var (Sentry -> Settings -> Auth Tokens).');
@@ -44,13 +44,16 @@ class SentryRelease extends Command
             return self::FAILURE;
         }
 
+        $version = (string) $version;
+
         $env = [
-            'SENTRY_AUTH_TOKEN' => $token,
-            'SENTRY_ORG' => env('SENTRY_ORG', 'ladybird-web-solution-pvt-ltd'),
-            'SENTRY_PROJECT' => env('SENTRY_PROJECT', 'faveo-invoicing'),
+            'SENTRY_AUTH_TOKEN' => (string) $token,
+            'SENTRY_ORG' => (string) config('services.sentry.org'),
+            'SENTRY_PROJECT' => (string) config('services.sentry.project'),
         ];
 
-        $environment = $this->option('environment');
+        $environmentOption = $this->option('environment');
+        $environment = is_string($environmentOption) ? $environmentOption : 'production';
 
         $this->info("Creating Sentry release {$version} for {$env['SENTRY_ORG']}/{$env['SENTRY_PROJECT']}...");
 

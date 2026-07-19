@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Common;
 
+use App\Model\License\LicensePermission;
+use App\Model\License\LicenseType;
+use App\Model\Product\Product;
 use Tests\DBTestCase;
 
 class DependencyControllerTest extends DBTestCase
@@ -66,6 +69,43 @@ class DependencyControllerTest extends DBTestCase
     {
         $response = $this->getJson('/dependency/products');
         $response->assertStatus(200);
+    }
+
+    private function productChildren($response): array
+    {
+        return collect($response->json('data.products'))
+            ->flatMap(fn ($group) => $group['children'] ?? [])
+            ->all();
+    }
+
+    public function test_products_dependency_includes_build_type_in_each_child(): void
+    {
+        Product::factory()->create(['invoice_hidden' => 0, 'build_type' => 'obfuscated']);
+
+        $response = $this->getJson('/dependency/products');
+
+        $response->assertStatus(200);
+        $children = $this->productChildren($response);
+        $this->assertNotEmpty($children);
+        $this->assertArrayHasKey('build_type', $children[0]);
+    }
+
+    public function test_products_dependency_filters_by_permission(): void
+    {
+        $permission = LicensePermission::create(['permissions' => 'Can be Downloaded']);
+        $type = LicenseType::factory()->create();
+        $type->permissions()->attach($permission->id);
+
+        $withPermission = Product::factory()->create(['invoice_hidden' => 0, 'type' => $type->id, 'name' => 'Downloadable '.uniqid()]);
+        $withoutPermission = Product::factory()->create(['invoice_hidden' => 0, 'name' => 'Not Downloadable '.uniqid()]);
+
+        $response = $this->getJson('/dependency/products?permission=downloadPermission');
+
+        $response->assertStatus(200);
+        $childIds = array_column($this->productChildren($response), 'id');
+
+        $this->assertContains($withPermission->id, $childIds);
+        $this->assertNotContains($withoutPermission->id, $childIds);
     }
 
     public function test_periods_dependency_returns_200(): void

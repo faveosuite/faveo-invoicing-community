@@ -53,7 +53,7 @@ class WhatsappIntegrationUser extends BaseModel
 
     protected $fillable = ['waba_id', 'phone_number_id', 'phone_number', 'user_id', 'access_token', 'user_callback_url', 'business_id', 'order_id'];
 
-    protected static string $logName = 'phoneNumber';
+    protected string $logName = 'phoneNumber';
 
     /**
      * @var array<mixed>

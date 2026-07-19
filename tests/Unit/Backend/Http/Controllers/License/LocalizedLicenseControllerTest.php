@@ -3,22 +3,49 @@
 namespace Tests\Unit\Backend\Http\Controllers\License;
 
 use App\License\Models\License;
+use App\License\Models\LicensePlugin;
 use App\License\Services\Ed25519SigningService;
 use App\Model\Order\Order;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Storage;
+use App\Model\Product\Product;
+use App\User;
 use Tests\DBTestCase;
 
 class LocalizedLicenseControllerTest extends DBTestCase
 {
-    use DatabaseTransactions;
-
     protected function setUp(): void
     {
         parent::setUp();
         $this->withoutMiddleware();
         $this->getLoggedInUser('admin');
     }
+
+    private function createProduct(): Product
+    {
+        return Product::factory()->create();
+    }
+
+    private function createOrder(int $clientId, array $overrides = []): Order
+    {
+        return Order::create(array_merge([
+            'client' => $clientId,
+            'order_status' => 'executed',
+            'number' => (string) mt_rand(10000000, 99999999),
+        ], $overrides));
+    }
+
+    private function createLicense(string $orderNumber, int $productId, array $overrides = []): License
+    {
+        return License::create(array_merge([
+            'product_id' => $productId,
+            'license_code' => 'LIC-'.uniqid(),
+            'license_order_number' => $orderNumber,
+            'license_status' => 1,
+        ], $overrides));
+    }
+
+    // =========================================================================
+    // downloadFile
+    // =========================================================================
 
     public function test_download_file_returns_401_when_not_authenticated(): void
     {
@@ -27,259 +54,285 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $response->assertStatus(401);
     }
 
-    public function test_download_file_returns_file_when_authenticated(): void
+    public function test_download_file_returns_403_when_order_not_owned(): void
     {
-        // Covers lines 35-39: authenticated user downloads license file
-        $orderNo = 'TEST_DL_'.uniqid();
-        $filePath = storage_path('app/public/faveo-license-{'.$orderNo.'}.txt');
-        file_put_contents($filePath, 'license-content');
+        $owner = User::factory()->create(['role' => 'user']);
+        $order = $this->createOrder($owner->id);
 
-        $response = $this->get('/downloadLicenseFile?orderNo='.$orderNo);
+        $this->getLoggedInUser('user');
 
-        @unlink($filePath);
+        $response = $this->get('/downloadLicenseFile?orderNo='.$order->number);
+        $response->assertStatus(403);
+    }
+
+    public function test_download_file_returns_404_when_no_license(): void
+    {
+        $this->getLoggedInUser('user');
+        $order = $this->createOrder($this->user->id);
+
+        $response = $this->get('/downloadLicenseFile?orderNo='.$order->number);
+        $response->assertStatus(404);
+    }
+
+    public function test_download_file_returns_signed_file_when_owned(): void
+    {
+        $this->getLoggedInUser('user');
+        $product = $this->createProduct();
+        $order = $this->createOrder($this->user->id, ['product' => $product->id]);
+        $this->createLicense($order->number, $product->id);
+
+        $response = $this->get('/downloadLicenseFile?orderNo='.$order->number);
 
         $response->assertStatus(200);
-    }
-
-    public function test_download_file_admin_returns_file(): void
-    {
-        // Covers lines 50-54: admin downloads license file
-        $fileName = 'faveo-license-{TEST_ADMIN}.txt';
-        $filePath = storage_path('app/public/'.$fileName);
-        file_put_contents($filePath, 'admin-license-content');
-
-        $response = $this->get('/LocalizedLicense/downloadLicense/'.$fileName);
-
-        @unlink($filePath);
-
-        $response->assertStatus(200);
-    }
-
-    public function test_download_private_returns_file(): void
-    {
-        // Covers lines 58-62: download private key
-        $orderNo = 'TEST_PRIV_'.uniqid();
-        $filePath = storage_path('app/public/privateKey-'.$orderNo.'.txt');
-        file_put_contents($filePath, 'private-key-content');
-
-        $response = $this->get('/downloadPrivate/'.$orderNo);
-
-        @unlink($filePath);
-
-        $response->assertStatus(200);
-    }
-
-    public function test_download_private_key_admin_returns_file(): void
-    {
-        // Covers lines 68-74: admin downloads private key
-        $orderNo = 'TESTADM';
-        $fileName = 'faveo-license-{'.$orderNo.'}.txt';
-        $keyPath = storage_path('app/public/privateKey-'.$orderNo.'.txt');
-        file_put_contents($keyPath, 'private-key-admin');
-
-        $response = $this->get('/LocalizedLicense/downloadPrivateKey/'.$fileName);
-
-        @unlink($keyPath);
-
-        $response->assertStatus(200);
-    }
-
-    public function test_temp_order_link_generates_signed_url_when_authenticated(): void
-    {
-        // Covers line 173: tempOrderLink returns signed URL when user is authenticated
-        $controller = new \App\Http\Controllers\License\LocalizedLicenseController(
-            $this->app->make(\App\License\Services\InstallationService::class),
-            $this->app->make(Ed25519SigningService::class)
-        );
-
-        $url = $controller->tempOrderLink('ORD001', 1);
-
-        $this->assertIsString($url);
-        $this->assertStringContainsString('downloadLicenseFile', $url);
-    }
-
-    public function test_temp_order_link_aborts_401_when_user_id_is_zero(): void
-    {
-        $controller = new \App\Http\Controllers\License\LocalizedLicenseController(
-            $this->app->make(\App\License\Services\InstallationService::class),
-            $this->app->make(Ed25519SigningService::class)
-        );
-
-        try {
-            $controller->tempOrderLink('ORD001', 0);
-            $this->fail('Expected HttpException was not thrown');
-        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
-            $this->assertEquals(401, $e->getStatusCode());
-        }
-    }
-
-    public function test_it_sets_license_mode_to_file(): void
-    {
-        Storage::fake('public');
-
-        $order = Order::factory()->withRelations([
-            'number' => '90000123',
-            'license_mode' => 'Database',
-        ])->create();
-
-        $response = $this->postJson('/switch-license-mode', [
-            'orderNo' => '90000123',
-            'choose' => true,
-        ]);
-
-        $response->assertStatus(200)
-            ->assertJsonFragment([
-                'message' => __('message.status_change_successfully'),
-            ]);
-
-        $this->assertDatabaseHas('orders', [
-            'id' => $order->id,
-            'license_mode' => 'File',
-        ]);
-
-        // No matching License row yet, so there's nothing to build a file from.
-        Storage::disk('public')->assertMissing('faveo-license-{90000123}.txt');
-    }
-
-    public function test_switching_to_file_mode_generates_a_signed_downloadable_license_file(): void
-    {
-        Storage::fake('public');
-
-        $order = Order::factory()->withRelations([
-            'number' => '90000124',
-            'license_mode' => 'Database',
-            'is_downloadable' => 0,
-        ])->create();
-
-        License::create([
-            'product_id' => $order->product,
-            'user_id' => $order->client,
-            'license_code' => 'LIC-90000124',
-            'license_order_number' => $order->number,
-            'license_expire_date' => '2027-06-01',
-            'license_status' => 1,
-        ]);
-
-        $response = $this->postJson('/switch-license-mode', [
-            'orderNo' => '90000124',
-            'choose' => true,
-        ]);
-
-        $response->assertStatus(200);
-
-        Storage::disk('public')->assertExists('faveo-license-{90000124}.txt');
-
-        $file = json_decode(Storage::disk('public')->get('faveo-license-{90000124}.txt'), true);
+        $file = json_decode($response->streamedContent(), true);
         $this->assertArrayHasKey('license', $file);
         $this->assertArrayHasKey('signature', $file);
-
         $this->assertTrue(
             resolve(Ed25519SigningService::class)->verify($file['license'], $file['signature'])
         );
-
-        $fields = json_decode($file['license'], true);
-        $this->assertSame('LIC-90000124', $fields['license_code']);
-        $this->assertSame('2027-06-01', $fields['license_expire_date']);
-
-        $this->assertDatabaseHas('orders', [
-            'id' => $order->id,
-            'is_downloadable' => 1,
-        ]);
     }
 
-    public function test_files_api_returns_paginated_list(): void
+    // =========================================================================
+    // downloadFileAdmin
+    // =========================================================================
+
+    public function test_download_file_admin_returns_404_when_no_license(): void
     {
-        Storage::fake('public');
+        $response = $this->get('/LocalizedLicense/downloadLicense/NO_SUCH_ORDER');
+        $response->assertStatus(404);
+    }
 
-        // Create some license files
-        Storage::disk('public')->put('faveo-license-{ORD001}.txt', 'data1');
-        Storage::disk('public')->put('faveo-license-{ORD002}.txt', 'data2');
-        Storage::disk('public')->put('other-file.txt', 'not a license');
+    public function test_download_file_admin_returns_signed_file(): void
+    {
+        $product = $this->createProduct();
+        $order = $this->createOrder($this->user->id, ['product' => $product->id]);
+        $this->createLicense($order->number, $product->id);
 
-        $response = $this->getJson('/localized-license/files');
+        $response = $this->get('/LocalizedLicense/downloadLicense/'.$order->number);
 
         $response->assertStatus(200);
-        $data = $response->json('data');
-        $this->assertArrayHasKey('data', $data);
-        $this->assertCount(2, $data['data']);
+        $file = json_decode($response->streamedContent(), true);
+        $this->assertArrayHasKey('license', $file);
+        $this->assertArrayHasKey('signature', $file);
     }
 
-    public function test_files_api_filters_by_search_query(): void
+    // =========================================================================
+    // submitLicenseBinding
+    // =========================================================================
+
+    public function test_submit_license_binding_returns_401_when_not_authenticated(): void
     {
-        Storage::fake('public');
-        Storage::disk('public')->put('faveo-license-{ORD001}.txt', 'data');
-        Storage::disk('public')->put('faveo-license-{ORD002}.txt', 'data');
-
-        $response = $this->getJson('/localized-license/files?search-query=ORD001');
-
-        $response->assertStatus(200);
-        $items = $response->json('data.data');
-        $this->assertCount(1, $items);
-        $this->assertStringContainsString('ORD001', $items[0]['file_name']);
+        auth()->logout();
+        $response = $this->postJson('/license-binding', ['orderNo' => 'ORD001']);
+        $response->assertStatus(401);
     }
 
-    public function test_delete_file_api_removes_file(): void
+    public function test_submit_license_binding_returns_403_when_not_owner_and_not_admin(): void
     {
-        Storage::fake('public');
-        Storage::disk('public')->put('faveo-license-{ORD999}.txt', 'data');
+        $owner = User::factory()->create(['role' => 'user']);
+        $order = $this->createOrder($owner->id);
 
-        $response = $this->deleteJson('/localized-license/files', [
-            'file_name' => 'faveo-license-{ORD999}.txt',
+        $this->getLoggedInUser('user');
+
+        $response = $this->postJson('/license-binding', [
+            'orderNo' => $order->number,
+            'domain' => 'example.com',
+            'machine_id' => 'machine-1',
         ]);
-
-        $response->assertStatus(200);
-        $response->assertJson(['success' => true]);
-        $this->assertFalse(Storage::disk('public')->exists('faveo-license-{ORD999}.txt'));
+        $response->assertStatus(403);
     }
 
-    public function test_delete_file_api_rejects_invalid_filename(): void
+    public function test_submit_license_binding_returns_400_for_invalid_input(): void
     {
-        Storage::fake('public');
+        $order = $this->createOrder($this->user->id);
 
-        $response = $this->deleteJson('/localized-license/files', [
-            'file_name' => 'some-other-file.txt',
+        $response = $this->postJson('/license-binding', [
+            'orderNo' => $order->number,
+            'domain' => '',
+            'machine_id' => '',
         ]);
-
         $response->assertStatus(400);
         $response->assertJson(['success' => false]);
     }
 
-    public function test_files_api_sorts_results(): void
+    public function test_submit_license_binding_returns_404_when_no_license_row(): void
     {
-        Storage::fake('public');
-        Storage::disk('public')->put('faveo-license-{ZZZ}.txt', 'data');
-        Storage::disk('public')->put('faveo-license-{AAA}.txt', 'data');
+        $order = $this->createOrder($this->user->id);
 
-        $response = $this->getJson('/localized-license/files?sort-field=file_name&sort-order=asc');
-
-        $response->assertStatus(200);
-        $items = $response->json('data.data');
-        $this->assertCount(2, $items);
-        $this->assertStringContainsString('AAA', $items[0]['file_name']);
+        $response = $this->postJson('/license-binding', [
+            'orderNo' => $order->number,
+            'domain' => 'example.com',
+            'machine_id' => 'machine-1',
+        ]);
+        $response->assertStatus(404);
     }
 
-    public function test_it_sets_license_mode_to_database_and_deletes_files(): void
+    public function test_submit_license_binding_updates_license_successfully(): void
     {
-        Storage::fake('public');
+        $product = $this->createProduct();
+        $order = $this->createOrder($this->user->id, ['product' => $product->id]);
+        $license = $this->createLicense($order->number, $product->id);
 
-        $order = Order::factory()->withRelations([
-            'number' => '90000999',
+        $response = $this->postJson('/license-binding', [
+            'orderNo' => $order->number,
+            'domain' => 'example.com',
+            'machine_id' => 'machine-123',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('licenses', [
+            'id' => $license->id,
+            'license_domain' => 'example.com',
+            'license_machine_id' => 'machine-123',
+        ]);
+    }
+
+    // =========================================================================
+    // pluginsForOrder
+    // =========================================================================
+
+    public function test_plugins_for_order_returns_401_when_not_authenticated(): void
+    {
+        auth()->logout();
+        $response = $this->get('/LocalizedLicense/ORD001/plugins');
+        $response->assertStatus(401);
+    }
+
+    public function test_plugins_for_order_returns_403_when_not_owner_and_not_admin(): void
+    {
+        $owner = User::factory()->create(['role' => 'user']);
+        $order = $this->createOrder($owner->id);
+
+        $this->getLoggedInUser('user');
+
+        $response = $this->get('/LocalizedLicense/'.$order->number.'/plugins');
+        $response->assertStatus(403);
+    }
+
+    public function test_plugins_for_order_returns_404_when_no_license(): void
+    {
+        $order = $this->createOrder($this->user->id);
+
+        $response = $this->get('/LocalizedLicense/'.$order->number.'/plugins');
+        $response->assertStatus(404);
+    }
+
+    public function test_plugins_for_order_returns_addon_products(): void
+    {
+        $product = $this->createProduct();
+        $addon = $this->createProduct();
+        $order = $this->createOrder($this->user->id, ['product' => $product->id]);
+        $license = $this->createLicense($order->number, $product->id);
+        LicensePlugin::create(['license_id' => $license->id, 'product_id' => $addon->id]);
+
+        $response = $this->get('/LocalizedLicense/'.$order->number.'/plugins');
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['id' => $addon->id]);
+    }
+
+    // =========================================================================
+    // listFileModeOrders
+    // =========================================================================
+
+    public function test_list_file_mode_orders_returns_orders_in_file_mode(): void
+    {
+        $product = $this->createProduct();
+        $fileModeOrder = $this->createOrder($this->user->id, [
+            'product' => $product->id,
             'license_mode' => 'File',
-        ])->create();
+        ]);
+        $this->createOrder($this->user->id, [
+            'product' => $product->id,
+            'license_mode' => 'Database',
+        ]);
 
-        Storage::disk('public')->put('faveo-license-{90000999}.txt', 'dummy');
+        $response = $this->getJson('/localized-license/orders');
 
-        $this->assertTrue(Storage::disk('public')->exists('faveo-license-{90000999}.txt'));
+        $response->assertStatus(200);
+        $numbers = collect($response->json('data.data'))->pluck('number');
+        $this->assertContains((int) $fileModeOrder->number, $numbers);
+    }
+
+    public function test_list_file_mode_orders_filters_by_search_query(): void
+    {
+        $matchingProduct = Product::factory()->create(['name' => 'UniqueSearchable'.uniqid()]);
+        $otherProduct = Product::factory()->create(['name' => 'OtherProduct'.uniqid()]);
+        $match = $this->createOrder($this->user->id, [
+            'product' => $matchingProduct->id,
+            'license_mode' => 'File',
+        ]);
+        $this->createOrder($this->user->id, [
+            'product' => $otherProduct->id,
+            'license_mode' => 'File',
+        ]);
+
+        $response = $this->getJson('/localized-license/orders?search-query='.$matchingProduct->name);
+
+        $response->assertStatus(200);
+        $numbers = collect($response->json('data.data'))->pluck('number');
+        $this->assertContains((int) $match->number, $numbers);
+        $this->assertNotContains((int) $otherProduct->id, $numbers);
+        $this->assertCount(1, $numbers);
+    }
+
+    // =========================================================================
+    // bulkDisableLicenseMode
+    // =========================================================================
+
+    public function test_bulk_disable_license_mode_returns_error_when_no_ids_selected(): void
+    {
+        $response = $this->postJson('/localized-license/bulk-disable', []);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_bulk_disable_license_mode_updates_orders_to_database_mode(): void
+    {
+        $order = $this->createOrder($this->user->id, ['license_mode' => 'File']);
+
+        $response = $this->postJson('/localized-license/bulk-disable', ['select' => [$order->id]]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'license_mode' => 'Database',
+        ]);
+    }
+
+    // =========================================================================
+    // chooseLicenseMode
+    // =========================================================================
+
+    public function test_choose_license_mode_sets_to_file(): void
+    {
+        $order = $this->createOrder($this->user->id, ['license_mode' => 'Database']);
 
         $response = $this->postJson('/switch-license-mode', [
-            'orderNo' => '90000999',
+            'orderNo' => $order->number,
+            'choose' => true,
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'license_mode' => 'File',
+        ]);
+    }
+
+    public function test_choose_license_mode_sets_to_database(): void
+    {
+        $order = $this->createOrder($this->user->id, ['license_mode' => 'File']);
+
+        $response = $this->postJson('/switch-license-mode', [
+            'orderNo' => $order->number,
             'choose' => false,
         ]);
 
         $response->assertStatus(200);
-
-        $this->assertFalse(Storage::disk('public')->exists('faveo-license-{90000999}.txt'));
-
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
             'license_mode' => 'Database',

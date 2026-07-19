@@ -405,6 +405,14 @@ class RootModelsTest extends TestCase
         $this->assertSame('not-encrypted', $model->access_token);
     }
 
+    public function test_whatsapp_integration_user_log_name_is_instance_property_not_static(): void
+    {
+        // Regression: SystemActivityLogsTrait::getLogName() reads $this->logName (instance),
+        // so declaring it `protected static` silently resolves to an empty log name.
+        $model = new WhatsappIntegrationUser();
+        $this->assertSame('message.phoneNumber', $model->getActivitylogOptions()->logName);
+    }
+
     // ───────────── Payment_log – relationships ─────────────
 
     public function test_payment_log_user_is_belongs_to(): void

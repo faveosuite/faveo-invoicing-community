@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Product;
 
+use App\Facades\Attach;
 use App\Model\Product\ProductGroup;
+use App\Services\Seo\SeoFileGenerator;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
+use Mockery;
 use Tests\DBTestCase;
 
 class GroupControllerTest extends DBTestCase
@@ -194,5 +198,90 @@ class GroupControllerTest extends DBTestCase
         ]);
         // Either succeeds or returns error about missing plans
         $this->assertContains($response->status(), [200, 400]);
+    }
+
+    // --- SEO fields ---
+
+    public function test_create_group_persists_seo_fields_and_regenerates_seo_files(): void
+    {
+        $generator = Mockery::mock(SeoFileGenerator::class);
+        $generator->shouldReceive('generateAll')->once();
+        $this->app->instance(SeoFileGenerator::class, $generator);
+
+        $this->getLoggedInUser('admin');
+        $response = $this->putJson('/group', [
+            'name' => 'SEO Group '.uniqid(),
+            'pricing_templates_id' => 1,
+            'hidden' => 0,
+            'meta_title' => 'Meta Title',
+            'meta_description' => 'Meta Description',
+            'og_title' => 'OG Title',
+            'og_description' => 'OG Description',
+            'og_same_as_meta' => 1,
+        ]);
+
+        $response->assertStatus(200);
+        $group = ProductGroup::latest('id')->first();
+        $this->assertSame('Meta Title', $group->meta_title);
+        $this->assertSame('Meta Description', $group->meta_description);
+        $this->assertSame('OG Title', $group->og_title);
+        $this->assertSame('OG Description', $group->og_description);
+        $this->assertSame(1, (int) $group->og_same_as_meta);
+    }
+
+    public function test_create_group_uploads_and_persists_an_og_image_filename(): void
+    {
+        $this->app->instance(SeoFileGenerator::class, Mockery::mock(SeoFileGenerator::class)->shouldReceive('generateAll')->getMock());
+        Attach::shouldReceive('put')->once()->andReturn('group-og-abc123.png');
+
+        $this->getLoggedInUser('admin');
+        $response = $this->putJson('/group', [
+            'name' => 'Image Group '.uniqid(),
+            'pricing_templates_id' => 1,
+            'hidden' => 0,
+            'og_image' => UploadedFile::fake()->image('cover.jpg'),
+        ]);
+
+        $response->assertStatus(200);
+        $group = ProductGroup::latest('id')->first();
+        $this->assertSame('group-og-abc123.png', $group->og_image);
+    }
+
+    public function test_update_group_persists_seo_fields(): void
+    {
+        $this->app->instance(SeoFileGenerator::class, Mockery::mock(SeoFileGenerator::class)->shouldReceive('generateAll')->getMock());
+
+        $this->getLoggedInUser('admin');
+        $group = ProductGroup::create(['name' => 'SEO Update '.uniqid(), 'hidden' => 0, 'pricing_templates_id' => 1]);
+
+        $response = $this->patchJson('/group/'.$group->id, [
+            'name' => $group->name,
+            'pricing_templates_id' => 1,
+            'hidden' => 0,
+            'meta_title' => 'Updated Meta Title',
+            'og_description' => 'Updated OG Description',
+        ]);
+
+        $response->assertStatus(200);
+        $group->refresh();
+        $this->assertSame('Updated Meta Title', $group->meta_title);
+        $this->assertSame('Updated OG Description', $group->og_description);
+    }
+
+    public function test_group_create_swallows_seo_file_generation_failures(): void
+    {
+        $generator = Mockery::mock(SeoFileGenerator::class);
+        $generator->shouldReceive('generateAll')->once()->andThrow(new \RuntimeException('disk full'));
+        $this->app->instance(SeoFileGenerator::class, $generator);
+
+        $this->getLoggedInUser('admin');
+        $response = $this->putJson('/group', [
+            'name' => 'Resilient Group '.uniqid(),
+            'pricing_templates_id' => 1,
+            'hidden' => 0,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
     }
 }

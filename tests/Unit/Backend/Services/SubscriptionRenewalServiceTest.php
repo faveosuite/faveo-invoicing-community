@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Services;
 
 use App\License\Models\License;
-use App\License\Services\Ed25519SigningService;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Order\Order;
@@ -13,7 +12,6 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Services\SubscriptionRenewalService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Storage;
 use Tests\DBTestCase;
 
 class SubscriptionRenewalServiceTest extends DBTestCase
@@ -80,20 +78,17 @@ class SubscriptionRenewalServiceTest extends DBTestCase
         $this->assertTrue(true); // no exception
     }
 
-    public function test_set_date_regenerates_the_signed_license_file_for_file_mode_orders(): void
+    public function test_set_date_updates_the_license_expire_date_for_file_mode_orders(): void
     {
-        Storage::fake('public');
-
         $order = Order::factory()->withRelations([
             'number' => '90000200',
             'license_mode' => 'File',
             'serial_key' => 'LIC-RENEW-CODE',
-            'is_downloadable' => 0,
         ])->create();
 
         $this->grantPermissions((int) $order->product, ['Generate License Expiry Date']);
 
-        License::create([
+        $license = License::create([
             'product_id' => $order->product,
             'user_id' => $order->client,
             'license_code' => 'LIC-RENEW-CODE',
@@ -106,19 +101,9 @@ class SubscriptionRenewalServiceTest extends DBTestCase
 
         $this->service->setDate($sub, 'ends_at', '2028-01-01');
 
-        Storage::disk('public')->assertExists('faveo-license-{90000200}.txt');
-
-        $file = json_decode(Storage::disk('public')->get('faveo-license-{90000200}.txt'), true);
-        $this->assertStringContainsString('2028-01-01', $file['license']);
-        $this->assertStringNotContainsString('2026-01-01', $file['license']);
-
-        $this->assertTrue(
-            resolve(Ed25519SigningService::class)->verify($file['license'], $file['signature'])
-        );
-
-        $this->assertDatabaseHas('orders', [
-            'id' => $order->id,
-            'is_downloadable' => 1,
+        $this->assertDatabaseHas('licenses', [
+            'id' => $license->id,
+            'license_expire_date' => '2028-01-01',
         ]);
     }
 

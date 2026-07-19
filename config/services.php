@@ -23,6 +23,12 @@ return [
         'scheme' => 'https',
     ],
 
+    'sentry' => [
+        'auth_token' => env('SENTRY_AUTH_TOKEN'),
+        'org' => env('SENTRY_ORG', 'ladybird-web-solution-pvt-ltd'),
+        'project' => env('SENTRY_PROJECT', 'faveo-invoicing'),
+    ],
+
     'mandrill' => [
         'secret' => '',
     ],

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers\Order;
 
+use App\License\Models\License;
 use App\Model\Order\Order;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
@@ -288,6 +289,27 @@ class OrderControllerTest extends DBTestCase
         $response = $this->getJson('/order/'.$order->id);
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_order_includes_license_domain_and_machine_id_from_the_matching_license(): void
+    {
+        $this->getLoggedInUser('admin');
+        $order = Order::factory()->withRelations()->create();
+
+        License::create([
+            'product_id' => $order->product,
+            'user_id' => $order->client,
+            'license_code' => $order->serial_key,
+            'license_domain' => 'client.example.test',
+            'license_machine_id' => 'MACHINE-42',
+            'license_status' => 1,
+        ]);
+
+        $response = $this->getJson('/order/'.$order->id);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.license_details.license_domain', 'client.example.test');
+        $response->assertJsonPath('data.license_details.license_machine_id', 'MACHINE-42');
     }
 
     // =========================================================================

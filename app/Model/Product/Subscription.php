@@ -84,6 +84,8 @@ class Subscription extends Model
 
     protected string $logName = 'subscriptions';
 
+    protected string $logNameColumn = 'Subscription';
+
     /**
      * @var array<mixed>
      */

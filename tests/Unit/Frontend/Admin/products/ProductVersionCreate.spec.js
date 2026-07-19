@@ -71,15 +71,18 @@ describe('ProductVersionCreate.vue', () => {
         wrapper.vm.form.title = 'Test Title'
         wrapper.vm.form.version = '1.0.0'
         await wrapper.vm.submit()
-        expect(wrapper.vm.errors.file).toBeTruthy()
+        expect(wrapper.vm.fileError).toBeTruthy()
     })
 
     it('pushes to product edit after successful submit', async () => {
         wrapper.vm.form.title = 'Test Title'
         wrapper.vm.form.version = '1.0.0'
         wrapper.vm.form.dependencies = '[]'
-        // Simulate a file being set via vm (bypassing DOM file input)
-        wrapper.vm.file = new File(['content'], 'test.zip', { type: 'application/zip' })
+        // Drive the file through the same chunked-upload flow the DOM input
+        // triggers, so uploadedName/uploadedForFile are populated for submit().
+        const file = new File(['content'], 'test.zip', { type: 'application/zip' })
+        wrapper.vm.onFile({ target: { files: [file] } })
+        await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
         expect(mockPush).toHaveBeenCalledWith('/products/42/edit?tab=versions')

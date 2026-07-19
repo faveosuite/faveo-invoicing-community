@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Backend\Http\Controllers\Front;
 
+use App\License\Models\License;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
@@ -175,6 +176,37 @@ class ClientControllerTest extends DBTestCase
         $this->assertEquals($order->number, $data['number']);
         $this->assertArrayHasKey('product_name', $data);
         $this->assertArrayHasKey('status', $data);
+    }
+
+    public function test_get_client_order_includes_license_mode_domain_and_machine_id(): void
+    {
+        $product = Product::first() ?? Product::create(['name' => 'Test Product '.uniqid()]);
+
+        $order = Order::create([
+            'client' => $this->user->id,
+            'product' => $product->id,
+            'order_status' => 'executed',
+            'number' => mt_rand(10000000, 99999999),
+            'price_override' => 0,
+            'license_mode' => 'File',
+        ]);
+
+        License::create([
+            'product_id' => $product->id,
+            'user_id' => $this->user->id,
+            'license_code' => 'LIC'.uniqid(),
+            'license_order_number' => $order->number,
+            'license_domain' => 'client.example.test',
+            'license_machine_id' => 'MACHINE-99',
+            'license_status' => 1,
+        ]);
+
+        $response = $this->getJson('/get-my-orders?id='.$order->id);
+
+        $response->assertStatus(200);
+        $this->assertSame('File', $response->json('data.license_mode'));
+        $this->assertSame('client.example.test', $response->json('data.license_domain'));
+        $this->assertSame('MACHINE-99', $response->json('data.license_machine_id'));
     }
 
     // -------------------------------------------------------------------------

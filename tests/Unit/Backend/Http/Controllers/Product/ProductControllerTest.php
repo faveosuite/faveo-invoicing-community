@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Http\Controllers\Product;
 
 use App\Model\Product\Product;
+use App\Model\Product\ProductUpload;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -165,6 +166,7 @@ class ProductControllerTest extends DBTestCase
         $response = $this->putJson('/product', [
             'name' => 'Test Product '.uniqid(),
             'type' => $product->type ?? 1,
+            'product_type' => 'independent',
             'group' => $product->group ?? 1,
             'require_domain' => 0,
             'description' => 'Test description',
@@ -187,6 +189,7 @@ class ProductControllerTest extends DBTestCase
         $response = $this->patchJson('/product/'.$product->id, [
             'name' => 'Updated Product',
             'type' => $product->type ?? 1,
+            'product_type' => 'independent',
             'group' => $product->group ?? 1,
             'require_domain' => 0,
             'description' => 'Updated description',
@@ -241,7 +244,7 @@ class ProductControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $controller = new \App\Http\Controllers\Product\ProductController;
+        $controller = new \App\Http\Controllers\Product\ProductController($this->app->make(\App\License\Services\ProductBundleStampingService::class));
         $request = new \Illuminate\Http\Request;
         $request->merge(['limit' => 10, 'page' => 1]);
 
@@ -256,7 +259,7 @@ class ProductControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $controller = new \App\Http\Controllers\Product\ProductController;
+        $controller = new \App\Http\Controllers\Product\ProductController($this->app->make(\App\License\Services\ProductBundleStampingService::class));
         $request = new \Illuminate\Http\Request;
         $request->merge(['search-query' => '__no_match_xyzzy__', 'limit' => 10]);
 
@@ -275,7 +278,7 @@ class ProductControllerTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        $controller = new \App\Http\Controllers\Product\ProductController;
+        $controller = new \App\Http\Controllers\Product\ProductController($this->app->make(\App\License\Services\ProductBundleStampingService::class));
         $request = new \Illuminate\Http\Request;
         $request->merge(['limit' => 10]);
 
@@ -292,7 +295,7 @@ class ProductControllerTest extends DBTestCase
 
         $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'Test Product '.uniqid()]);
 
-        $controller = new \App\Http\Controllers\Product\ProductController;
+        $controller = new \App\Http\Controllers\Product\ProductController($this->app->make(\App\License\Services\ProductBundleStampingService::class));
         $request = new \Illuminate\Http\Request;
         $request->merge(['search-query' => '__no_plan_xyzzy__', 'limit' => 10]);
 
@@ -338,9 +341,26 @@ class ProductControllerTest extends DBTestCase
 
         $response->assertStatus(422);
         $errors = $response->json('errors');
-        foreach (['producttitle', 'version', 'filename', 'dependencies'] as $field) {
+        foreach (['producttitle', 'version', 'dependencies'] as $field) {
             $this->assertArrayHasKey($field, $errors, "Expected '$field' validation error");
         }
+    }
+
+    public function test_product_upload_create_without_filename_returns_error(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+
+        $response = $this->putJson("/product/upload/{$product->id}", [
+            'producttitle' => 'Version 2.0 Release',
+            'version' => '2.0.0',
+            'dependencies' => ['core'],
+            'description' => 'Major release',
+            'release_type' => 'official',
+        ]);
+
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
     }
 
     public function test_product_upload_create_with_valid_data_returns_200(): void
@@ -590,5 +610,153 @@ class ProductControllerTest extends DBTestCase
         $this->assertArrayHasKey('id', $data[0]);
         $this->assertArrayHasKey('name', $data[0]);
         $this->assertArrayHasKey('action', $data[0]);
+    }
+
+    // =========================================================================
+    // applyBuildToProducts — PUT /product/upload-build/apply
+    // =========================================================================
+
+    public function test_apply_build_to_products_creates_an_upload_for_each_selected_product(): void
+    {
+        $this->getLoggedInUser('admin');
+        $productA = Product::factory()->create();
+        $productB = Product::factory()->create();
+
+        $response = $this->putJson('/product/upload-build/apply', [
+            'filename' => 'core-obfuscated.zip',
+            'filename_source' => 'core-source.zip',
+            'dependencies' => ['core'],
+            'description' => 'Bulk apply',
+            'release_type' => 'official',
+            'products' => [
+                ['id' => $productA->id, 'version' => '1.0.0'],
+                ['id' => $productB->id, 'version' => '2.0.0'],
+            ],
+        ]);
+
+        $response->assertStatus(200)->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('product_uploads', ['product_id' => $productA->id, 'version' => '1.0.0']);
+        $this->assertDatabaseHas('product_uploads', ['product_id' => $productB->id, 'version' => '2.0.0']);
+        $this->assertSame('1.0.0', $productA->fresh()->version);
+        $this->assertSame('2.0.0', $productB->fresh()->version);
+    }
+
+    public function test_apply_build_to_products_requires_the_obfuscated_file_for_an_obfuscated_product(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create(['build_type' => 'obfuscated']);
+
+        $response = $this->putJson('/product/upload-build/apply', [
+            'filename_source' => 'core-source.zip',
+            'dependencies' => ['core'],
+            'description' => 'Bulk apply',
+            'release_type' => 'official',
+            'products' => [['id' => $product->id, 'version' => '1.0.0']],
+        ]);
+
+        $response->assertStatus(400)->assertJson(['success' => false]);
+        $this->assertDatabaseMissing('product_uploads', ['product_id' => $product->id]);
+    }
+
+    public function test_apply_build_to_products_requires_the_source_file_for_a_non_obfuscated_product(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create(['build_type' => null]);
+
+        $response = $this->putJson('/product/upload-build/apply', [
+            'filename' => 'core-obfuscated.zip',
+            'dependencies' => ['core'],
+            'description' => 'Bulk apply',
+            'release_type' => 'official',
+            'products' => [['id' => $product->id, 'version' => '1.0.0']],
+        ]);
+
+        $response->assertStatus(400)->assertJson(['success' => false]);
+        $this->assertDatabaseMissing('product_uploads', ['product_id' => $product->id]);
+    }
+
+    // =========================================================================
+    // deleteBulkProductUploads — DELETE /product/upload
+    // =========================================================================
+
+    public function test_delete_bulk_product_uploads_without_ids_returns_400(): void
+    {
+        $this->getLoggedInUser('admin');
+
+        $response = $this->deleteJson('/product/upload', []);
+
+        $response->assertStatus(400)->assertJson(['success' => false]);
+    }
+
+    public function test_delete_bulk_product_uploads_with_ids_deletes_the_rows(): void
+    {
+        $this->getLoggedInUser('admin');
+        $product = Product::factory()->create();
+        $upload = ProductUpload::factory()->create(['product_id' => $product->id]);
+
+        $response = $this->deleteJson('/product/upload', ['select' => [$upload->id]]);
+
+        $response->assertStatus(200)->assertJson(['success' => true]);
+        $this->assertDatabaseMissing('product_uploads', ['id' => $upload->id]);
+    }
+
+    // =========================================================================
+    // productCreate — slug uniqueness scoped by build_type
+    // =========================================================================
+
+    private function productCreatePayload(array $overrides = []): array
+    {
+        return array_merge([
+            'name' => 'Test Product '.uniqid(),
+            'type' => 1,
+            'product_type' => 'independent',
+            'group' => 1,
+            'require_domain' => 0,
+            'description' => 'Test description',
+            'product_description' => 'Full description',
+            'product_sku' => 'SKU-'.uniqid(),
+            'show_agent' => 0,
+            'can_modify_agent' => 0,
+            'can_modify_quantity' => 0,
+        ], $overrides);
+    }
+
+    public function test_product_create_rejects_a_duplicate_slug_with_the_same_build_type(): void
+    {
+        $this->getLoggedInUser('admin');
+        Product::factory()->create(['slug' => 'shared-slug', 'build_type' => 'obfuscated']);
+
+        $response = $this->putJson('/product', $this->productCreatePayload([
+            'slug' => 'shared-slug',
+            'build_type' => 'obfuscated',
+        ]));
+
+        $response->assertStatus(422);
+        $this->assertArrayHasKey('slug', $response->json('errors'));
+    }
+
+    public function test_product_create_allows_the_same_slug_with_a_different_build_type(): void
+    {
+        $this->getLoggedInUser('admin');
+        Product::factory()->create(['slug' => 'shared-slug-2', 'build_type' => 'obfuscated']);
+
+        $response = $this->putJson('/product', $this->productCreatePayload([
+            'slug' => 'shared-slug-2',
+            'build_type' => 'source',
+        ]));
+
+        $response->assertStatus(200)->assertJson(['success' => true]);
+        $this->assertDatabaseHas('products', ['slug' => 'shared-slug-2', 'build_type' => 'source']);
+    }
+
+    public function test_product_create_allows_the_same_blank_slug_across_multiple_products(): void
+    {
+        $this->getLoggedInUser('admin');
+        Product::factory()->create(['slug' => null, 'build_type' => null]);
+
+        $response = $this->putJson('/product', $this->productCreatePayload(['slug' => null, 'build_type' => null]));
+
+        $response->assertStatus(200)->assertJson(['success' => true]);
     }
 }

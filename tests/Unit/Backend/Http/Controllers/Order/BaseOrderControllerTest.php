@@ -115,26 +115,6 @@ class BaseOrderControllerTest extends DBTestCase
         $response->assertStatus(422);
     }
 
-    public function test_edit_update_expiry_file_license_handling(): void
-    {
-        $order = Order::factory()
-            ->withRelations(['license_mode' => 'File', 'is_downloadable' => 1])
-            ->create();
-
-        $this->mockPermissions($order->product, ['generateUpdatesxpiryDate' => 1]);
-        $this->mockLicenseController();
-
-        $this->postJson('/update-license-details', [
-            'orderid' => $order->id,
-            'update_end' => $this->date(),
-        ]);
-
-        $this->assertDatabaseHas('orders', [
-            'id' => $order->id,
-            'is_downloadable' => 0,
-        ]);
-    }
-
     // ========================================================= LICENSE EXPIRY
 
     public function test_edit_license_expiry_success(): void
@@ -160,26 +140,6 @@ class BaseOrderControllerTest extends DBTestCase
         $response->assertStatus(422);
     }
 
-    public function test_edit_license_expiry_file_license_handling(): void
-    {
-        $order = Order::factory()
-            ->withRelations(['license_mode' => 'File', 'is_downloadable' => 1])
-            ->create();
-
-        $this->mockPermissions($order->product, ['generateLicenseExpiryDate' => 1]);
-        $this->mockLicenseController();
-
-        $this->postJson('/update-license-details', [
-            'orderid' => $order->id,
-            'subscription_end' => $this->date(),
-        ]);
-
-        $this->assertDatabaseHas('orders', [
-            'id' => $order->id,
-            'is_downloadable' => 0,
-        ]);
-    }
-
     // ========================================================= SUPPORT EXPIRY
 
     public function test_edit_support_expiry_success(): void
@@ -203,26 +163,6 @@ class BaseOrderControllerTest extends DBTestCase
     {
         $response = $this->postJson('/update-license-details', []);
         $response->assertStatus(422);
-    }
-
-    public function test_edit_support_expiry_file_license_handling(): void
-    {
-        $order = Order::factory()
-            ->withRelations(['license_mode' => 'File', 'is_downloadable' => 1])
-            ->create();
-
-        $this->mockPermissions($order->product, ['generateSupportExpiryDate' => 1]);
-        $this->mockLicenseController();
-
-        $this->postJson('/update-license-details', [
-            'orderid' => $order->id,
-            'support_end' => $this->date(),
-        ]);
-
-        $this->assertDatabaseHas('orders', [
-            'id' => $order->id,
-            'is_downloadable' => 0,
-        ]);
     }
 
     // ========================================================= INSTALLATION LIMIT

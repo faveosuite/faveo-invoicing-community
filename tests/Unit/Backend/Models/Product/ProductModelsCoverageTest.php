@@ -105,6 +105,65 @@ class ProductModelsCoverageTest extends TestCase
         $this->assertNull($result);
     }
 
+    public function test_product_upload_fillable_contains_build_files(): void
+    {
+        $this->assertContains('build_files', (new ProductUpload())->getFillable());
+    }
+
+    public function test_product_upload_build_files_is_cast_to_array(): void
+    {
+        $upload = new ProductUpload();
+        $upload->setRawAttributes(['build_files' => json_encode(['obfuscated' => 'a.zip', 'source' => 'b.zip'])]);
+
+        $this->assertSame(['obfuscated' => 'a.zip', 'source' => 'b.zip'], $upload->build_files);
+    }
+
+    public function test_resolved_file_falls_back_to_file_when_product_has_no_build_type(): void
+    {
+        $product = new Product();
+        $product->setRawAttributes(['build_type' => null]);
+
+        $upload = new ProductUpload();
+        $upload->setRawAttributes(['file' => 'fallback.zip', 'build_files' => json_encode(['obfuscated' => 'special.zip'])]);
+        $upload->setRelation('product', $product);
+
+        $this->assertSame('fallback.zip', $upload->resolvedFile());
+    }
+
+    public function test_resolved_file_falls_back_to_file_when_no_matching_build_files_entry(): void
+    {
+        $product = new Product();
+        $product->setRawAttributes(['build_type' => 'source']);
+
+        $upload = new ProductUpload();
+        $upload->setRawAttributes(['file' => 'fallback.zip', 'build_files' => json_encode(['obfuscated' => 'special.zip'])]);
+        $upload->setRelation('product', $product);
+
+        $this->assertSame('fallback.zip', $upload->resolvedFile());
+    }
+
+    public function test_resolved_file_uses_the_build_type_specific_entry_when_present(): void
+    {
+        $product = new Product();
+        $product->setRawAttributes(['build_type' => 'obfuscated']);
+
+        $upload = new ProductUpload();
+        $upload->setRawAttributes(['file' => 'fallback.zip', 'build_files' => json_encode(['obfuscated' => 'special.zip'])]);
+        $upload->setRelation('product', $product);
+
+        $this->assertSame('special.zip', $upload->resolvedFile());
+    }
+
+    public function test_resolved_file_falls_back_to_file_when_product_relation_is_null(): void
+    {
+        $upload = new ProductUpload();
+        $upload->setRawAttributes(['file' => 'fallback.zip', 'build_files' => null]);
+        // Loaded-but-null, so accessing it doesn't trigger a lazy DB query.
+        $upload->setRelation('product', null);
+
+        $this->assertSame('fallback.zip', $upload->resolvedFile());
+    }
+
     // =========================================================================
     // Type
     // =========================================================================
@@ -271,6 +330,20 @@ class ProductModelsCoverageTest extends TestCase
         $this->assertContains('type', $fillable);
         $this->assertContains('group', $fillable);
         $this->assertContains('status', $fillable);
+    }
+
+    public function test_product_fillable_contains_license_signing_fields(): void
+    {
+        $fillable = (new Product())->getFillable();
+        $this->assertContains('apl_salt', $fillable);
+        $this->assertContains('product_type', $fillable);
+        $this->assertContains('slug', $fillable);
+        $this->assertContains('build_type', $fillable);
+    }
+
+    public function test_product_plugin_groups_as_product_is_has_many(): void
+    {
+        $this->assertInstanceOf(HasMany::class, (new Product())->productPluginGroupsAsProduct());
     }
 
     public function test_product_order_is_has_many(): void

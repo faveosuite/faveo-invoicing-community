@@ -27,7 +27,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
         {
             use SystemActivityLogsTrait;
 
-            public static string $logName = 'user';
+            public string $logName = 'user';
 
             public string $logNameColumn = 'first_name';
 
@@ -53,6 +53,15 @@ class SystemActivityLogsTraitTest extends DBTestCase
         $options = $this->subject->getActivitylogOptions();
 
         $this->assertInstanceOf(\Spatie\Activitylog\Support\LogOptions::class, $options);
+    }
+
+    public function test_get_activitylog_options_resolves_the_instance_log_name(): void
+    {
+        // Regression: getLogName() reads $this->logName as an instance property —
+        // declaring it `static` (as production code once did) silently resolves to ''.
+        $options = $this->subject->getActivitylogOptions();
+
+        $this->assertSame('User', $options->logName);
     }
 
     public function test_tap_activity_logs_maps_attributes(): void
@@ -161,7 +170,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
         {
             use SystemActivityLogsTrait;
 
-            public static string $logName = 'user';
+            public string $logName = 'user';
 
             public string $logNameColumn = 'first_name';
 
@@ -191,7 +200,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
         $activity->subject = (object) ['first_name' => 'Alice', 'causerID' => null];
         $activity->subject_id = null;
 
-        $this->subject->tapActivity($activity, 'created');
+        $this->subject->beforeActivityLogged($activity, 'created');
 
         $this->assertNotNull($activity->description);
     }
@@ -239,7 +248,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
         {
             use SystemActivityLogsTrait;
 
-            public static string $logName = 'user';
+            public string $logName = 'user';
 
             public string $logNameColumn = 'first_name';
 
@@ -268,7 +277,7 @@ class SystemActivityLogsTraitTest extends DBTestCase
         {
             use SystemActivityLogsTrait;
 
-            public static string $logName = 'user';
+            public string $logName = 'user';
 
             public string $logNameColumn = 'first_name';
 

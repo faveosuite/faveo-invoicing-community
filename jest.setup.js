@@ -11,6 +11,16 @@ globalThis.flushPromises = flushPromises
 globalThis.IntersectionObserver = class IntersectionObserver {
     constructor() { this.observe = jest.fn(); this.disconnect = jest.fn(); this.unobserve = jest.fn() }
 }
+
+// Polyfill crypto.randomUUID (used by useChunkedFileUpload.js, not available on
+// jsdom's crypto object under this Node/jest version)
+if (!globalThis.crypto) globalThis.crypto = {}
+if (typeof globalThis.crypto.randomUUID !== 'function') {
+    globalThis.crypto.randomUUID = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = Math.random() * 16 | 0
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
+    })
+}
 // Make __() available at module load time (some components call it eagerly in
 // script setup outside any function, e.g. to build static option arrays).
 globalThis.__ = (key) => key

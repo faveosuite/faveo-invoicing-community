@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Http\Controllers;
 
+use App\License\Models\License;
+use App\License\Models\LicensePlugin;
+use App\Model\Configure\PluginCompatibleWithProducts;
+use App\Model\Order\Order;
 use App\Model\Product\Product;
+use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -78,6 +83,45 @@ class HomeControllerTest extends DBTestCase
     {
         $response = $this->get('/api/pluginInfo?client=none&license=none&product_id=1');
         $this->assertTrue($response->status() >= 200);
+    }
+
+    public function test_get_details_for_client_only_considers_addon_type_products(): void
+    {
+        $coreProduct = Product::factory()->create();
+        $addonProduct = Product::factory()->create(['product_type' => 'addon']);
+        $independentProduct = Product::factory()->create(['product_type' => 'independent']);
+
+        PluginCompatibleWithProducts::create(['product_id' => $coreProduct->id, 'plugin_id' => $addonProduct->id]);
+        PluginCompatibleWithProducts::create(['product_id' => $coreProduct->id, 'plugin_id' => $independentProduct->id]);
+
+        $user = User::factory()->create(['email' => 'plugin-client@test.invalid']);
+
+        $addonOrder = Order::factory()->create(['client' => $user->id, 'product' => $addonProduct->id, 'serial_key' => 'ADDONSERIAL'.uniqid()]);
+        $independentOrder = Order::factory()->create(['client' => $user->id, 'product' => $independentProduct->id, 'serial_key' => 'INDEPSERIAL'.uniqid()]);
+
+        $addonLicense = License::create([
+            'product_id' => $addonProduct->id,
+            'user_id' => $user->id,
+            'license_code' => $addonOrder->serial_key,
+            'license_status' => 1,
+        ]);
+        LicensePlugin::create(['license_id' => $addonLicense->id, 'product_id' => $addonProduct->id]);
+
+        $independentLicense = License::create([
+            'product_id' => $independentProduct->id,
+            'user_id' => $user->id,
+            'license_code' => $independentOrder->serial_key,
+            'license_status' => 1,
+        ]);
+        LicensePlugin::create(['license_id' => $independentLicense->id, 'product_id' => $independentProduct->id]);
+
+        $response = $this->get('/api/pluginInfo?client=plugin-client@test.invalid&license=none&product_id='.$coreProduct->id);
+
+        $products = json_decode((string) $response->getContent(), true);
+        $productIds = array_column($products, 'product_id');
+
+        $this->assertContains($addonProduct->id, $productIds);
+        $this->assertNotContains($independentProduct->id, $productIds);
     }
 
     // =========================================================================

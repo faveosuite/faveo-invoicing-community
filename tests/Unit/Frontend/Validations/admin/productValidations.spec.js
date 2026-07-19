@@ -4,6 +4,7 @@ describe('productSchema', () => {
     const valid = {
         name:                'My Product',
         type:                { id: 1, name: 'Software' },
+        product_type:        'independent',
         group:               { id: 2, name: 'Cloud' },
         description:         'A full description',
         short_description:   'Short desc',
