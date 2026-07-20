@@ -69,5 +69,8 @@ export default defineConfig({
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             allowedHeaders: ['Content-Type'],
         },
+        watch: {
+            ignored: ['**/vendor/**', '**/node_modules/**', '**/storage/**'],
+        },
     },
 });

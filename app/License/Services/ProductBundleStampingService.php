@@ -7,6 +7,7 @@ use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
+use Illuminate\Support\Str;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -79,7 +80,11 @@ class ProductBundleStampingService
     {
         $localStampedPath = $this->stampToLocalFile($storagePath, $product, $version->version, $order);
 
-        return response()->download($localStampedPath, basename($storagePath))->deleteFileAfterSend();
+        $extension = pathinfo($storagePath, PATHINFO_EXTENSION);
+        $safeVersion = preg_replace('/[^A-Za-z0-9.]+/', '-', $version->version);
+        $downloadName = Str::slug($product->name).'-'.$safeVersion.'.'.$extension;
+
+        return response()->download($localStampedPath, $downloadName)->deleteFileAfterSend();
     }
 
     /**

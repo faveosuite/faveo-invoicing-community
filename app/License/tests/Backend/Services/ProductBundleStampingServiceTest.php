@@ -413,8 +413,8 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
     #[Group('product-bundle-stamping')]
     public function download_response_for_returns_a_downloadable_response(): void
     {
-        $product = $this->createProduct(['product_key' => 'DLKEY']);
-        $version = $this->createVersion($product, ['file' => 'release-1.0.0.zip']);
+        $product = $this->createProduct(['product_key' => 'DLKEY', 'name' => 'My Product']);
+        $version = $this->createVersion($product, ['file' => 'release-1.0.0.zip', 'version' => '1.0.0']);
 
         $sourceZip = $this->makeZip(['storage/faveoconfig.ini' => '']);
         $this->stubAttachToServe($sourceZip);
@@ -422,7 +422,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $response = $this->service->downloadResponseFor($version, $product, 'products/release-1.0.0.zip');
 
         $this->assertInstanceOf(BinaryFileResponse::class, $response);
-        $this->assertStringContainsString('release-1.0.0.zip', (string) $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString('my-product-1.0.0.zip', (string) $response->headers->get('Content-Disposition'));
 
         // deleteFileAfterSend() only fires on a real HTTP send, which never
         // happens here — clean up the stamped output file ourselves.

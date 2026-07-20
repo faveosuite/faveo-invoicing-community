@@ -24,7 +24,8 @@ export function useDownload(componentName) {
 
             const blob        = await response.blob()
             const disposition = response.headers.get('content-disposition') ?? ''
-            const filename    = disposition.match(/filename="([^"]+)"/)?.[1] ?? 'download.zip'
+            const match       = disposition.match(/filename="([^"]+)"|filename=([^;]+)/i)
+            const filename    = (match?.[1] ?? match?.[2])?.trim() ?? 'download.zip'
 
             const a    = document.createElement('a')
             a.href     = URL.createObjectURL(blob)
