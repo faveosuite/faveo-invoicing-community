@@ -83,7 +83,7 @@ class GithubApiController
      * concurrent batches (not all at once) to stay clear of GitHub's secondary
      * rate limit on large commit ranges.
      *
-     * @param array<int, string> $shas
+     * @param  array<int, string>  $shas
      * @return array<string, array<mixed>>
      */
     public function commitFiles(string $owner, string $repo, array $shas): array

@@ -244,7 +244,7 @@ class SentryRelease extends Command
      * Sentry only supports A(dded)/M(odified)/D(eleted) — unlike git's own
      * --name-status, which also has R(enamed)/C(opied) — so renames/copies fold into M.
      *
-     * @param array<int, array<string, mixed>> $files
+     * @param  array<int, array<string, mixed>>  $files
      * @return array<int, array<string, string>>
      */
     private function mapPatchSet(array $files): array
