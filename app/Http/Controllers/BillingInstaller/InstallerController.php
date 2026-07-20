@@ -208,17 +208,17 @@ class InstallerController extends Controller
     /**
      * @param  array<mixed>  $redisConfig
      */
-    public function updateInstallEnv(string $environment, ?string $driver = null, array $redisConfig = []): ?JsonResponse
+    public function updateInstallEnv(string $environment, ?string $driver = null, array $redisConfig = [], ?string $envPath = null): ?JsonResponse
     {
-        $env = base_path().DIRECTORY_SEPARATOR.'.env';
+        $env = $envPath ?? base_path().DIRECTORY_SEPARATOR.'.env';
         if (! is_file($env)) {
             return errorResponse('.env not found', 400);
         }
 
-        $txt1 = '
-APP_ENV='.$environment;
-        file_put_contents($env, str_replace('DB_INSTALL='. 0, 'DB_INSTALL='. 1, (string) file_get_contents($env)));
-        file_put_contents($env, $txt1.PHP_EOL, FILE_APPEND | LOCK_EX);
+        $envContent = str_replace('DB_INSTALL='. 0, 'DB_INSTALL='. 1, (string) file_get_contents($env));
+        $envContent = preg_replace('/^APP_ENV=.*\r?\n?/m', '', (string) $envContent);
+        $envContent = rtrim((string) $envContent, PHP_EOL).PHP_EOL.'APP_ENV='.$environment.PHP_EOL;
+        file_put_contents($env, $envContent, LOCK_EX);
 
         foreach ($redisConfig as $key => $value) {
             $line = strtoupper((string) $key).'='.$value.PHP_EOL;

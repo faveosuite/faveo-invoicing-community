@@ -5,26 +5,38 @@ namespace App\Http\Controllers\Github;
 use App\Model\Github\Github;
 use Exception;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Pool;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 class GithubApiController
 {
     private const API_BASE = 'https://api.github.com';
 
+    private Github $github;
+
     private PendingRequest $http;
 
     public function __construct()
     {
-        $github = Github::firstOrFail();
+        $this->github = Github::firstOrFail();
 
         $this->http = Http::baseUrl(self::API_BASE)
-            ->withBasicAuth((string) $github->username, (string) $github->password)
-            ->withHeaders([
-                'Accept' => 'application/vnd.github+json',
-                'User-Agent' => $github->username ?: 'FaveoBilling',
-                'X-GitHub-Api-Version' => '2022-11-28',
-            ])
+            ->withBasicAuth((string) $this->github->username, (string) $this->github->password)
+            ->withHeaders(self::headers((string) $this->github->username))
             ->timeout(90);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function headers(string $username): array
+    {
+        return [
+            'Accept' => 'application/vnd.github+json',
+            'User-Agent' => $username ?: 'FaveoBilling',
+            'X-GitHub-Api-Version' => '2022-11-28',
+        ];
     }
 
     /**
@@ -53,6 +65,48 @@ class GithubApiController
     public function latestTag(string $owner, string $repo): ?string
     {
         return $this->latestRelease($owner, $repo)['tag_name'] ?? null;
+    }
+
+    /**
+     * Compare two refs (branch names, tags, or SHAs) and return the commits between them.
+     *
+     * @return array<mixed>
+     */
+    public function compareCommits(string $owner, string $repo, string $base, string $head): array
+    {
+        return $this->http->get(sprintf('/repos/%s/%s/compare/%s...%s', $owner, $repo, $base, $head))->json() ?? [];
+    }
+
+    /**
+     * Each commit's changed-files list, keyed by SHA — used to build Sentry's
+     * per-commit patch_set (powers suspect-commit/blame). Fetched in small
+     * concurrent batches (not all at once) to stay clear of GitHub's secondary
+     * rate limit on large commit ranges.
+     *
+     * @param array<int, string> $shas
+     * @return array<string, array<mixed>>
+     */
+    public function commitFiles(string $owner, string $repo, array $shas): array
+    {
+        $files = [];
+
+        foreach (array_chunk($shas, 15) as $chunk) {
+            $responses = Http::pool(fn (Pool $pool) => collect($chunk)->map(
+                fn (string $sha) => $pool->as($sha)
+                    ->baseUrl(self::API_BASE)
+                    ->withBasicAuth((string) $this->github->username, (string) $this->github->password)
+                    ->withHeaders(self::headers((string) $this->github->username))
+                    ->timeout(90)
+                    ->get(sprintf('/repos/%s/%s/commits/%s', $owner, $repo, $sha))
+            )->all());
+
+            foreach ($chunk as $sha) {
+                $response = $responses[$sha];
+                $files[$sha] = $response instanceof Response ? ($response->json('files') ?? []) : [];
+            }
+        }
+
+        return $files;
     }
 
     /**
@@ -100,11 +154,7 @@ class GithubApiController
     public static function validateCredentials(string $username, string $token): bool
     {
         $response = Http::withBasicAuth($username, $token)
-            ->withHeaders([
-                'Accept' => 'application/vnd.github+json',
-                'User-Agent' => $username ?: 'FaveoBilling',
-                'X-GitHub-Api-Version' => '2022-11-28',
-            ])
+            ->withHeaders(self::headers($username))
             ->timeout(30)
             ->get(self::API_BASE.'/user');
 

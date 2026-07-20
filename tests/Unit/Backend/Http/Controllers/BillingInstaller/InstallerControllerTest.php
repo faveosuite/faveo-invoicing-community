@@ -353,17 +353,29 @@ class InstallerControllerTest extends DBTestCase
 
     public function test_update_install_env_with_file_driver_returns_null(): void
     {
+        $envPath = tempnam(sys_get_temp_dir(), 'installer_env_test_');
+        file_put_contents($envPath, "APP_ENV=development\nDB_INSTALL=0\nCACHE_DRIVER=file\n");
+
         $controller = new InstallerController;
-        $result = $controller->updateInstallEnv('production', 'file', []);
+        $result = $controller->updateInstallEnv('production', 'file', [], $envPath);
         // Null = success (env file updated), or JsonResponse on error
         $this->assertTrue($result === null || $result instanceof \Illuminate\Http\JsonResponse);
+        $this->assertStringContainsString('APP_ENV=production', (string) file_get_contents($envPath));
+
+        unlink($envPath);
     }
 
     public function test_update_install_env_with_env_as_testing(): void
     {
+        $envPath = tempnam(sys_get_temp_dir(), 'installer_env_test_');
+        file_put_contents($envPath, "APP_ENV=development\nDB_INSTALL=0\nCACHE_DRIVER=file\n");
+
         $controller = new InstallerController;
-        $result = $controller->updateInstallEnv('testing', null, []);
+        $result = $controller->updateInstallEnv('testing', null, [], $envPath);
         $this->assertTrue($result === null || $result instanceof \Illuminate\Http\JsonResponse);
+        $this->assertStringContainsString('APP_ENV=testing', (string) file_get_contents($envPath));
+
+        unlink($envPath);
     }
 
     // =========================================================================
