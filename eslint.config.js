@@ -62,6 +62,20 @@ export default defineConfig([
     },
   },
 
+  // ── Node-context config files ────────────────────────────────────────────
+  {
+    files: [
+      "*.config.js",
+      "*.config.cjs",
+      "*.config.mjs",
+    ],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+
   // ── Test / spec files ────────────────────────────────────────────────────
   {
     files: [
