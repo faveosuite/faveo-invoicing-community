@@ -166,7 +166,9 @@ Route::middleware('installAgora')->group(function (): void {
 
     // 2FA — login-time validation
     Route::middleware(['blockFailedVerifications:2fa', 'session.timeout:10,2fa'])->group(function (): void {
-        Route::get('verify-2fa', [Google2FAController::class, 'verify2fa']);
+        // 'verify-2fa' is intentionally NOT a route here — it's the SPA page path
+        // (Verify2FA.vue), which calls this same controller method via auth/2fa-check.
+        // A GET route at verify-2fa would shadow that page on refresh/direct link.
         Route::get('auth/2fa-check', [Google2FAController::class, 'verify2fa']);
         Route::post('2fa/loginValidate', [Google2FAController::class, 'postLoginValidateToken'])->name('2fa/loginValidate');
         Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
@@ -295,7 +297,11 @@ Route::middleware('installAgora')->group(function (): void {
     });
 
     // DB-backed shopping cart (Vue SPA)
-    Route::prefix('cart')->name('cart.')->group(function (): void {
+    // Uses 'my-cart' (not 'cart') so this JSON API doesn't collide with the
+    // SPA page route at /cart — a bare GET /cart route would shadow the
+    // Vue page on refresh/direct link, since Route::fallback() only serves
+    // the SPA shell for URLs not already matched here.
+    Route::prefix('my-cart')->name('cart.')->group(function (): void {
         Route::get('/', [CartApiController::class, 'show'])->name('show');
         Route::post('items', [CartApiController::class, 'addItem'])->name('items.add');
         Route::put('items/{item}', [CartApiController::class, 'updateItem'])->name('items.update');

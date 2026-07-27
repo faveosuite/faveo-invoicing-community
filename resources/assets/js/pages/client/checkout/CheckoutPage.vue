@@ -409,7 +409,7 @@ async function proceed() {
       router.push({ path: '/place-order', query: { invoice: invoiceId.value, gateway: selectedGateway.value, use_credit: credit } })
       return
     }
-    const { data } = await http.post(`/cart/place-order`, { gateway: selectedGateway.value })
+    const { data } = await http.post(`/my-cart/place-order`, { gateway: selectedGateway.value })
     router.push({ path: '/place-order', query: { invoice: data.data.invoice_id, gateway: selectedGateway.value, use_credit: credit } })
   } catch (e) {
     alertStore.setAlert({ message: parseErrorMessage(e), type: 'danger', component_name: 'client-page' })

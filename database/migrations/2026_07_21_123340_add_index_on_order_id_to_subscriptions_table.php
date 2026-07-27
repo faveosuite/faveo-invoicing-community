@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (! Schema::hasColumn('is_subscribed', 'subscribe_id')) {
-            Schema::table('subscriptions', function (Blueprint $table): void {
-                $table->boolean('is_subscribed')->nullable();
-                $table->string('subscribe_id')->nullable()->index();
-            });
-        }
+        Schema::table('subscriptions', function (Blueprint $table): void {
+            $table->index('order_id');
+        });
     }
 
     /**
@@ -25,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('subscriptions', function (Blueprint $table): void {
-            $table->dropColumn(['is_subscribed', 'subscribe_id']);
+            $table->dropIndex(['order_id']);
         });
     }
 };

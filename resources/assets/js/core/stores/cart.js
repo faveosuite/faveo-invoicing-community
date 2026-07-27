@@ -30,7 +30,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.get(`/cart`)
+                const { data } = await http.get(`/my-cart`)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -44,7 +44,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.get(`/cart/checkout`)
+                const { data } = await http.get(`/my-cart/checkout`)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -57,7 +57,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.post(`/cart/items`, payload)
+                const { data } = await http.post(`/my-cart/items`, payload)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -71,7 +71,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.put(`/cart/items/${itemId}`, payload)
+                const { data } = await http.put(`/my-cart/items/${itemId}`, payload)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -84,7 +84,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.delete(`/cart/items/${itemId}`)
+                const { data } = await http.delete(`/my-cart/items/${itemId}`)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -97,7 +97,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.delete(`/cart`)
+                const { data } = await http.delete(`/my-cart`)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -110,7 +110,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.post(`/cart/coupon`, { code })
+                const { data } = await http.post(`/my-cart/coupon`, { code })
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
@@ -124,7 +124,7 @@ export const useCartStore = defineStore('cart', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await http.delete(`/cart/coupon`)
+                const { data } = await http.delete(`/my-cart/coupon`)
                 this.cart = data.data
             } catch (e) {
                 this.error = parseErrorMessage(e)
