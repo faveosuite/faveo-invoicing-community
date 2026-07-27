@@ -3,7 +3,6 @@
 namespace App\License\Services;
 
 use App\Facades\Attach;
-use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
@@ -15,10 +14,12 @@ use ZipArchive;
 
 /**
  * Turns one uploaded canonical build into a specific product's own
- * downloadable file, by stamping that product's identity into it:
- * storage/faveoconfig.ini for a core product, or config.php for a
- * standalone plugin. Runs on every download of every product — there is
- * no "already correct, serve as-is" shortcut.
+ * downloadable file, by writing that product's identity/license content at
+ * whatever destination path *that product itself* declares
+ * (Product::config_file_path / license_file_path) — never guessed from the
+ * zip's shape, since this also distributes third-party products whose
+ * internal layout billing doesn't control. Runs on every download of every
+ * product — there is no "already correct, serve as-is" shortcut.
  */
 class ProductBundleStampingService
 {
@@ -88,54 +89,6 @@ class ProductBundleStampingService
     }
 
     /**
-     * Validates a just-uploaded build's layout before it's accepted:
-     * storage/ (core product) or config.php (standalone plugin) must sit
-     * at the zip's true root, not nested inside an extra wrapper folder
-     * (e.g. GitHub's "Download ZIP" wraps everything in "repo-branch/").
-     * A wrapped zip would silently break every path this service
-     * reads/writes.
-     *
-     * @return string|null null when the structure is fine; otherwise an
-     *                     admin-facing message describing what's wrong.
-     */
-    public function validateBuildStructure(string $localZipPath): ?string
-    {
-        $zip = new ZipArchive;
-
-        if ($zip->open($localZipPath) !== true) {
-            return __('message.zip_unreadable');
-        }
-
-        try {
-            $topLevelNames = [];
-
-            for ($i = 0; $i < $zip->numFiles; $i++) {
-                $entryName = $zip->getNameIndex($i);
-
-                if ($entryName === false) {
-                    continue;
-                }
-
-                if (str_starts_with($entryName, 'storage/') || $entryName === 'config.php') {
-                    return null;
-                }
-
-                if (preg_match('#^([^/]+)/#', $entryName, $matches)) {
-                    $topLevelNames[$matches[1]] = true;
-                }
-            }
-
-            if (count($topLevelNames) === 1) {
-                return __('message.zip_wrapper_folder_detected', ['folder' => (string) array_key_first($topLevelNames)]);
-            }
-
-            return __('message.zip_missing_build_root');
-        } finally {
-            $zip->close();
-        }
-    }
-
-    /**
      * Copies an Attach-stored file (local disk or remote/S3) to a local
      * temp path so ZipArchive has a real filesystem path to work with.
      *
@@ -171,19 +124,13 @@ class ProductBundleStampingService
     }
 
     /**
-     * Does the actual in-place stamping of the local zip copy. Branches
-     * on the zip's shape:
-     * - Root-level config.php present → this is a standalone plugin zip
-     *   (mirrors core/plugins.py's output). Only config.php is patched
-     *   plus, for a File-mode order, the signed license file — the zip's
-     *   own root is where this ends up once extracted into an existing
-     *   core install's app/Plugins/<name>/, matching where favMer looks
-     *   for that plugin's license.json. storage/faveoconfig.ini and
-     *   plugin-folder filtering are core-product-only concepts and don't
-     *   apply here.
-     * - Otherwise → this is a core product zip. Rewrites the app config
-     *   file, filters app/Plugins/* down to what's actually bundled, and
-     *   (for a File-mode order) embeds the signed license file.
+     * Does the actual in-place stamping of the local zip copy: writes
+     * $targetProduct's own identity/config content and signed license file
+     * at whatever paths *it* declares (config_file_path / license_file_path
+     * — either can be blank, meaning "don't write one"), then strips any
+     * bundled app/Plugins/* folder not actually bundled to this product,
+     * writing each kept folder the same way using *that plugin's own*
+     * declared paths.
      */
     private function stampZip(string $localZipPath, Product $targetProduct, string $version, ?Order $order = null): void
     {
@@ -194,63 +141,79 @@ class ProductBundleStampingService
         }
 
         try {
-            $rootConfig = $this->readEntry($zip, 'config.php');
-
-            if ($rootConfig !== null) {
-                $zip->addFromString('config.php', $this->patchPluginConfig($rootConfig, $targetProduct, $version));
-            } else {
-                $configEntryName = $this->findFaveoConfigEntryName($zip) ?? 'storage/faveoconfig.ini';
-                $zip->addFromString($configEntryName, $this->buildFaveoConfig($targetProduct, $version, $order));
-
-                $this->filterBundledPluginFolders($zip, $targetProduct, $version, $order);
-            }
-
-            // Same call regardless of zip shape: addLicenseFileEntry writes to
-            // the zip's own root either way, which is exactly right for both
-            // — the true root of a core product zip, or (once extracted into
-            // an existing install's app/Plugins/<name>/) the plugin's own root.
-            if ($this->isFileMode($order)) {
-                $this->addLicenseFileEntry($zip, $targetProduct, $order);
-            }
+            $this->writeProductFiles($zip, $targetProduct, $version, $order);
+            $this->filterBundledPluginFolders($zip, $targetProduct, $version, $order);
         } finally {
             $zip->close();
         }
     }
 
     /**
+     * Writes $product's own config/license content into $zip at whatever
+     * path *that product* declares, prefixed with $pathPrefix (empty for
+     * the top-level target product, "app/Plugins/<folder>/" for a bundled
+     * plugin). Either path being blank on $product just skips that write —
+     * there's no fallback location to guess.
+     */
+    private function writeProductFiles(ZipArchive $zip, Product $product, string $version, ?Order $order, string $pathPrefix = ''): void
+    {
+        if (! empty($product->config_file_path)) {
+            $this->assertSafeZipEntryPath($product->config_file_path);
+            $zip->addFromString($pathPrefix.$product->config_file_path, $this->buildFaveoConfig($product, $version, $order));
+        }
+
+        if ($this->isFileMode($order) && ! empty($product->license_file_path)) {
+            $this->assertSafeZipEntryPath($product->license_file_path);
+            $licenseFile = $this->licenseFileService->buildForOrder($order, $product);
+
+            if ($licenseFile !== null) {
+                $zip->addFromString($pathPrefix.$product->license_file_path, $licenseFile);
+            }
+        }
+    }
+
+    /**
+     * Refuses an absolute path or a `..` traversal segment in a product's
+     * declared config_file_path/license_file_path — form validation
+     * (ProductController) already rejects both, but this is the one place
+     * every write actually happens, and it's the only guard that covers the
+     * 179 rows backfilled directly against the DB plus any future
+     * tinker/direct-DB write that bypasses the controller entirely.
+     */
+    private function assertSafeZipEntryPath(string $path): void
+    {
+        if (str_starts_with($path, '/') || str_contains($path, '..')) {
+            throw new RuntimeException("Refusing to stamp an unsafe zip-internal path: {$path}");
+        }
+    }
+
+    /**
      * Keeps only the app/Plugins/<folder>/ entries for plugins actually
      * configured as bundled for this product (product_plugin_group),
-     * stamping each kept folder's config.php with that plugin's own
-     * identity. Every unmatched folder is stripped. A product with no
-     * bundled plugins ends up with app/Plugins/ empty.
+     * writing each kept folder's own config/license content per that
+     * plugin's own declared paths. Every unmatched folder is stripped. A
+     * product with no bundled plugins ends up with app/Plugins/ empty.
      *
      * Folders are matched to a plugin by their own folder name (e.g.
-     * 'AdHocApproval'), compared against that plugin's own `slug` column
-     * — the folder name already *is* the plugin's path, since that's
-     * exactly what it was written as (app/Plugins/<path>/), so there's no
-     * need to open config.php just to confirm it. Not matched by
-     * product_id: real plugin config.php files write product_id as a
-     * bare, unquoted integer rather than a quoted string, which makes it
-     * unreliable to pull back out of PHP source text. Not matched by
-     * display name either, since a folder name and a product's display
-     * name aren't guaranteed to match — name is only used as a fallback,
-     * for a plugin that has no slug set yet.
+     * 'AdHocApproval'), normalized and compared against that plugin's own
+     * name — the folder name already *is* the plugin's path, since that's
+     * exactly what it was written as (app/Plugins/<path>/).
      *
-     * When $order is set and in File mode, also writes each kept plugin's
-     * own signed license.json into its folder — favMer verifies a bundled
-     * plugin's license against app/Plugins/<folder>/public/script/signature/
-     * license.json, a separate file from the core product's own.
+     * Always runs now, including for a standalone-plugin-shaped zip with no
+     * app/Plugins/* entries at all — the loop below simply finds nothing to
+     * do in that case. That's a deliberate no-op, not a leftover assumption
+     * that every zip is core-product-shaped.
      */
     private function filterBundledPluginFolders(ZipArchive $zip, Product $targetProduct, string $version, ?Order $order = null): void
     {
-        $bundledPlugins = $targetProduct->productPluginGroupsAsProduct()
-            ->with('plugin:id,name,slug,product_key')
-            ->get()
-            ->map(fn (ProductPluginGroup $row): Product => $row->plugin)
-            ->filter();
+        // Loaded via a full SELECT * (not a narrow column list) because
+        // writeProductFiles() below may call getAplSalt(), which persists a
+        // freshly generated salt via update() — Product's activitylog
+        // change-detector diffs against every loggable attribute, including
+        // one (`subscription`) that collides with a same-named relation and
+        // crashes if it wasn't actually selected.
+        $bundledPlugins = $targetProduct->bundledPlugins()->get();
 
-        $bundledBySlug = $bundledPlugins->filter(fn (Product $plugin): bool => ! empty($plugin->slug))
-            ->keyBy(fn (Product $plugin): string => (string) $plugin->slug);
         $bundledByNormalizedName = $bundledPlugins->keyBy(fn (Product $plugin): string => $this->normalizeForMatch($plugin->name));
 
         $entriesByFolder = [];
@@ -263,17 +226,10 @@ class ProductBundleStampingService
         }
 
         $entriesToDelete = [];
-        $foldersToStamp = [];
+        $foldersToWrite = [];
 
         foreach ($entriesByFolder as $folderName => $entries) {
-            // The folder name already is the plugin's path/slug — that's
-            // exactly what it was written as (app/Plugins/<path>/) — so no
-            // file needs to be opened just to confirm that. config.php is
-            // still read here, but only so it's ready to patch below.
-            $configContent = $this->readEntry($zip, "app/Plugins/{$folderName}/config.php");
-
-            $matchedPlugin = $bundledBySlug->get($folderName)
-                ?? $bundledByNormalizedName->get($this->normalizeForMatch($folderName));
+            $matchedPlugin = $bundledByNormalizedName->get($this->normalizeForMatch($folderName));
 
             if (! $matchedPlugin) {
                 array_push($entriesToDelete, ...$entries);
@@ -281,40 +237,16 @@ class ProductBundleStampingService
                 continue;
             }
 
-            if ($configContent !== null) {
-                $foldersToStamp[] = [$folderName, $matchedPlugin, $configContent];
-            }
+            $foldersToWrite[] = [$folderName, $matchedPlugin];
         }
 
         foreach ($entriesToDelete as $entryName) {
             $zip->deleteName($entryName);
         }
 
-        foreach ($foldersToStamp as [$folderName, $plugin, $configContent]) {
-            $zip->addFromString("app/Plugins/{$folderName}/config.php", $this->patchPluginConfig($configContent, $plugin, $version));
-
-            if ($this->isFileMode($order)) {
-                $this->addLicenseFileEntry($zip, $plugin, $order, "app/Plugins/{$folderName}/");
-            }
+        foreach ($foldersToWrite as [$folderName, $plugin]) {
+            $this->writeProductFiles($zip, $plugin, $version, $order, "app/Plugins/{$folderName}/");
         }
-    }
-
-    /**
-     * Reads one entry's contents out of an open zip.
-     *
-     * @return string|null null if the entry doesn't exist or can't be read.
-     */
-    private function readEntry(ZipArchive $zip, string $path): ?string
-    {
-        $index = $zip->locateName($path);
-
-        if ($index === false) {
-            return null;
-        }
-
-        $content = $zip->getFromIndex($index);
-
-        return $content === false ? null : $content;
     }
 
     /**
@@ -327,47 +259,15 @@ class ProductBundleStampingService
     }
 
     /**
-     * Patches product_id/product_key/version in place inside a plugin's
-     * config.php source (a plain PHP array return statement). Every
-     * other field (name, path, description, author, website, settings,
-     * product_display_name) is left untouched — billing has no source
-     * of truth for those.
-     */
-    private function patchPluginConfig(string $existingContent, Product $targetProduct, string $version): string
-    {
-        $content = $existingContent;
-
-        // product_id ships as a bare, unquoted integer in real plugin
-        // config.php files — match either that or a quoted-string form on
-        // the way in (so older/differently-generated files still patch),
-        // but always write the bare-integer form back out, matching the
-        // convention the shipped product actually uses.
-        $content = preg_replace(
-            "/'product_id'\s*=>\s*(?:'[^']*'|\d+)/",
-            "'product_id' => ".(int) $targetProduct->id,
-            $content
-        ) ?? $content;
-
-        foreach (['product_key' => $targetProduct->product_key, 'version' => $version] as $key => $value) {
-            $content = preg_replace_callback(
-                "/'{$key}'\s*=>\s*'[^']*'/",
-                fn () => "'{$key}' => '".addslashes((string) $value)."'",
-                $content
-            ) ?? $content;
-        }
-
-        return $content;
-    }
-
-    /**
-     * Builds the full contents of a core product's app config file
-     * (APL_SALT, PRODUCT_KEY, APP_NAME, APP_VERSION, PRODUCT_ID,
-     * PRODUCT_NAME_FOR_AUTO_UPDATE, LICENSE_MODE).
+     * Builds the full contents of a product's config file (APL_SALT,
+     * PRODUCT_KEY, APP_NAME, APP_VERSION, PRODUCT_ID,
+     * PRODUCT_NAME_FOR_AUTO_UPDATE, LICENSE_MODE) — written wherever that
+     * product's own config_file_path points.
      *
      * When $order is set and in File mode, also switches LICENSE_MODE to
      * FILE and adds the signing public key, so the installed product can
-     * verify the license file (see addLicenseFileEntry) offline.
-     * Otherwise LICENSE_MODE is DATABASE and no key is added.
+     * verify the license file (see writeProductFiles) offline. Otherwise
+     * LICENSE_MODE is DATABASE and no key is added.
      */
     private function buildFaveoConfig(Product $targetProduct, string $version, ?Order $order = null): string
     {
@@ -390,27 +290,6 @@ class ProductBundleStampingService
         $lines[] = '';
 
         return implode("\n", $lines);
-    }
-
-    /**
-     * Adds $product's signed license file into the zip at the path the
-     * installed product reads it from (<$pathPrefix>public/script/signature/
-     * license.json), so it can verify itself offline against the public key
-     * already written into the core product's app config. Does nothing if
-     * there's no license record to build one from — e.g. a bundled plugin
-     * that isn't actually attached to this order's license.
-     *
-     * $pathPrefix is empty for the core product (public/script/signature/...
-     * at the zip root) and "app/Plugins/<folder>/" for a bundled plugin,
-     * matching where favMer looks up each one's own license.json.
-     */
-    private function addLicenseFileEntry(ZipArchive $zip, Product $product, Order $order, string $pathPrefix = ''): void
-    {
-        $licenseFile = $this->licenseFileService->buildForOrder($order, $product);
-
-        if ($licenseFile !== null) {
-            $zip->addFromString($pathPrefix.'public/script/signature/license.json', $licenseFile);
-        }
     }
 
     /**
@@ -448,26 +327,5 @@ class ProductBundleStampingService
     private function isFileMode(?Order $order): bool
     {
         return $order !== null && $order->license_mode === 'File';
-    }
-
-    /**
-     * Finds the core product's app config file by extension rather than
-     * assuming it's always named "faveoconfig.ini" — any single .ini
-     * file directly under storage/ is treated as the one to overwrite.
-     *
-     * @return string|null null if no .ini file exists there yet (a
-     *                     brand new build).
-     */
-    private function findFaveoConfigEntryName(ZipArchive $zip): ?string
-    {
-        for ($i = 0; $i < $zip->numFiles; $i++) {
-            $entryName = $zip->getNameIndex($i);
-
-            if ($entryName !== false && preg_match('#^storage/[^/]+\.ini$#', $entryName)) {
-                return $entryName;
-            }
-        }
-
-        return null;
     }
 }

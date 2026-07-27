@@ -140,42 +140,4 @@ class DownloadFileControllerTest extends LicenseTestCase
 
         $this->assertSame('notification_install_archive_not_found', $response->headers->get('notification_case'));
     }
-
-    #[Test]
-    #[Group('license-callbacks')]
-    public function download_file_resolves_the_build_type_specific_file_when_set(): void
-    {
-        $product = $this->createProduct(['product_key' => 'AFUKEY7', 'build_type' => 'obfuscated']);
-        $version = $this->createVersion($product, [
-            'version' => '1.0.0',
-            'file' => 'fallback.zip',
-            'build_files' => ['obfuscated' => 'special-build.zip'],
-            'status' => 1,
-        ]);
-
-        $validator = Mockery::mock(LicenseValidator::class);
-        $validator->shouldReceive('resolveIp')->once()->andReturn('127.0.0.1');
-        $validator->shouldReceive('isValidAfuRequest')->once()->andReturn(true);
-        $validator->shouldReceive('isBanned')->once()->andReturn(false);
-        $validator->shouldReceive('verifyAfuScriptSignature')->once()->andReturn(true);
-        $validator->shouldReceive('verifyDateTime')->once()->andReturn(false);
-
-        Attach::shouldReceive('exists')->once()->with('products/special-build.zip')->andReturn(true);
-
-        $stampingService = Mockery::mock(ProductBundleStampingService::class);
-        $stampingService->shouldReceive('downloadResponseFor')
-            ->once()
-            ->withArgs(fn ($v, $p, $path) => $path === 'products/special-build.zip')
-            ->andReturn(new Response('stamped-zip-bytes'));
-
-        $response = new DownloadFileController($validator, $stampingService)->downloadFile($this->moduleRequest([
-            'product_id' => $product->id,
-            'product_key' => 'AFUKEY7',
-            'version_number' => '1.0.0',
-            'user_local_path' => '/var/www/html',
-            'script_signature' => 'signature',
-        ], 'POST'));
-
-        $this->assertSame('notification_operation_ok', $response->headers->get('notification_case'));
-    }
 }

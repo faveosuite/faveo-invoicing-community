@@ -24,7 +24,6 @@ use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class ProductController extends BaseProductController
 {
@@ -264,39 +263,22 @@ class ProductController extends BaseProductController
         $validated = $request->validate([
             'producttitle' => ['required', 'string', 'max:255'],
             'version' => ['required', 'string', 'max:50'],
-            'filename' => ['nullable', 'string', 'max:255'],
-            'filename_source' => ['nullable', 'string', 'max:255'],
+            'filename' => ['required', 'string', 'max:255'],
             'dependencies' => ['required', 'array'],
             'description' => ['required'],
             'release_type' => ['required'],
         ], [
             'producttitle.required' => __('validation.product_validate.producttitle_required'),
             'version.required' => __('validation.product_validate.version_required'),
+            'filename.required' => __('validation.product_validate.filename_required'),
             'dependencies.required' => __('validation.product_validate.dependencies_required'),
             'description' => __('validation.product_vaidation.discription_required'),
             'release_type' => __('validation.product_validate.release_type_required'),
         ]);
 
-        // Which file is required depends on this product's own build_type: a
-        // plain product needs the main `filename`; a build_type-tagged
-        // product needs whichever slot matches its own type. The other slot
-        // is optional — it only pre-loads a fallback for if this product's
-        // type is ever changed later (see ProductUpload::resolvedFile).
-        $requiredField = $product->build_type === 'source' ? 'filename_source' : 'filename';
-
-        if (empty($validated[$requiredField])) {
-            return errorResponse(__('validation.product_validate.filename_required'));
-        }
-
         try {
             DB::transaction(function () use ($validated, $request, $product): void {
-                $buildFiles = $product->build_type
-                    ? array_filter(['obfuscated' => $validated['filename'] ?? null, 'source' => $validated['filename_source'] ?? null])
-                    : [];
-
-                $file = $validated['filename'] ?? $validated['filename_source'] ?? '';
-
-                $this->createProductUpload($product, $validated['producttitle'], $file, $buildFiles, $validated['version'], $validated, $request->boolean('is_private'), $request->boolean('is_restricted'));
+                $this->createProductUpload($product, $validated['producttitle'], $validated['filename'], $validated['version'], $validated, $request->boolean('is_private'), $request->boolean('is_restricted'));
             });
 
             return successResponse(__('message.product_uploaded_successfully'));
@@ -324,8 +306,7 @@ class ProductController extends BaseProductController
     public function applyBuildToProducts(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'filename' => ['nullable', 'string', 'max:255'],
-            'filename_source' => ['nullable', 'string', 'max:255'],
+            'filename' => ['required', 'string', 'max:255'],
             'dependencies' => ['required', 'array'],
             'description' => ['required'],
             'release_type' => ['required'],
@@ -333,6 +314,7 @@ class ProductController extends BaseProductController
             'products.*.id' => ['integer', 'exists:products,id'],
             'products.*.version' => ['required', 'string', 'max:50'],
         ], [
+            'filename.required' => __('validation.product_validate.filename_required'),
             'dependencies.required' => __('validation.product_validate.dependencies_required'),
             'description' => __('validation.product_vaidation.discription_required'),
             'release_type' => __('validation.product_validate.release_type_required'),
@@ -347,40 +329,12 @@ class ProductController extends BaseProductController
 
         $products = Product::whereIn('id', array_keys($versionsById))->get();
 
-        // Source is the default file — it's what a product needs unless it's
-        // explicitly opted into obfuscation via build_type=obfuscated. So the
-        // Source box is required the moment anything selected isn't
-        // obfuscated-tagged (source-tagged, or no build_type at all); the
-        // Obfuscated box is required only when something obfuscated-tagged
-        // was actually selected.
-        $obfuscatedProducts = $products->filter(fn (Product $p): bool => $p->build_type === 'obfuscated');
-        $nonObfuscatedProducts = $products->reject(fn (Product $p): bool => $p->build_type === 'obfuscated');
-
-        if ($obfuscatedProducts->isNotEmpty() && empty($validated['filename'])) {
-            return errorResponse(__('validation.product_validate.obfuscated_build_required_for', ['products' => $obfuscatedProducts->pluck('name')->implode(', ')]));
-        }
-        if ($nonObfuscatedProducts->isNotEmpty() && empty($validated['filename_source'])) {
-            return errorResponse(__('validation.product_validate.source_build_required', ['products' => $nonObfuscatedProducts->pluck('name')->implode(', ')]));
-        }
-
         try {
             DB::transaction(function () use ($validated, $request, $products, $versionsById): void {
                 foreach ($products as $product) {
                     $version = $versionsById[$product->id];
 
-                    // Saved as-is on every created row (see createProductUpload),
-                    // so a product's build_type can be changed later and the
-                    // next download still has the right file to switch to —
-                    // never re-resolved to a single fixed file at upload time.
-                    $buildFiles = $product->build_type
-                        ? array_filter(['obfuscated' => $validated['filename'] ?? null, 'source' => $validated['filename_source'] ?? null])
-                        : [];
-
-                    $file = $product->build_type === 'obfuscated'
-                        ? ($validated['filename'] ?? $validated['filename_source'] ?? '')
-                        : ($validated['filename_source'] ?? $validated['filename'] ?? '');
-
-                    $this->createProductUpload($product, $product->name, $file, $buildFiles, $version, $validated, $request->boolean('is_private'), $request->boolean('is_restricted'));
+                    $this->createProductUpload($product, $product->name, $validated['filename'], $version, $validated, $request->boolean('is_private'), $request->boolean('is_restricted'));
                 }
             });
 
@@ -396,13 +350,8 @@ class ProductController extends BaseProductController
      * name) — creates the ProductUpload row and bumps the product's version.
      *
      * @param  array<mixed>  $validated
-     * @param  array<string, string>  $buildFiles  build_type => filename, saved
-     *                                             as-is so a later build_type
-     *                                             change on $product still has
-     *                                             a matching file to resolve to
-     *                                             (see ProductUpload::resolvedFile)
      */
-    private function createProductUpload(Product $product, string $title, string $file, array $buildFiles, string $version, array $validated, bool $isPrivate, bool $isRestricted): void
+    private function createProductUpload(Product $product, string $title, string $file, string $version, array $validated, bool $isPrivate, bool $isRestricted): void
     {
         ProductUpload::create([
             'product_id' => $product->id,
@@ -410,7 +359,6 @@ class ProductController extends BaseProductController
             'description' => $validated['description'],
             'version' => $version,
             'file' => $file,
-            'build_files' => $buildFiles,
             'is_private' => $isPrivate,
             'is_restricted' => $isRestricted,
             'release_type' => $validated['release_type'],
@@ -481,8 +429,6 @@ class ProductController extends BaseProductController
                 'description' => $u->description,
                 'version' => $u->version,
                 'file' => $u->file,
-                'build_type' => $u->product?->build_type,
-                'build_files' => $u->build_files ?? [],
                 'release_type' => $u->release_type,
                 'is_private' => (bool) $u->is_private,
                 'is_restricted' => (bool) $u->is_restricted,
@@ -523,36 +469,7 @@ class ProductController extends BaseProductController
                 'release_type' => $validated['release_type'],
             ];
 
-            // Only replace a file when a new one was actually uploaded for
-            // that slot — each of the two slots is independent, replacing
-            // one never touches the other. If this product has a
-            // build_type, replacements go into the matching build_files
-            // entries — resolvedFile() prefers that map over the plain
-            // `file` column, so writing only to `file` would get silently
-            // ignored for any product with a matching build_files entry
-            // already saved (e.g. from a prior apply-build submission).
-            $buildType = $upload->product?->build_type;
-
-            if ($buildType) {
-                $buildFiles = $upload->build_files ?? [];
-
-                if ($request->filled('filename')) {
-                    $buildFiles['obfuscated'] = $request->input('filename');
-                }
-                if ($request->filled('filename_source')) {
-                    $buildFiles['source'] = $request->input('filename_source');
-                }
-
-                if ($request->filled('filename') || $request->filled('filename_source')) {
-                    $payload['build_files'] = $buildFiles;
-                }
-
-                // Keep the plain `file` column pointing at this product's own
-                // active slot too, for anything that still reads it directly.
-                if (! empty($buildFiles[$buildType])) {
-                    $payload['file'] = $buildFiles[$buildType];
-                }
-            } elseif ($request->filled('filename')) {
+            if ($request->filled('filename')) {
                 $payload['file'] = $request->input('filename');
             }
 
@@ -601,13 +518,8 @@ class ProductController extends BaseProductController
             'name' => ['required', 'unique:products,name'],
             'type' => ['required'],
             'product_type' => ['required', 'in:independent,addon'],
-            'build_type' => ['nullable', 'in:obfuscated,source'],
-            'slug' => [
-                'nullable', 'string', 'max:255',
-                Rule::unique('products', 'slug')->where(fn ($query) => empty($request->input('build_type'))
-                    ? $query->whereNull('build_type')
-                    : $query->where('build_type', $request->input('build_type'))),
-            ],
+            'config_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
+            'license_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
             'description' => ['required'],
             'product_description' => ['required'],
             'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
@@ -616,19 +528,17 @@ class ProductController extends BaseProductController
             'show_agent' => ['required'],
         ], [
             'product_sku.unique' => __('validation.product_sku_unique'),
-            'slug.unique' => __('validation.product_slug_unique'),
             'name.unique' => __('validation.product_name_unique'),
             'show_agent.required' => __('validation.product_show_agent_required'),
+            'config_file_path.regex' => __('validation.config_file_path_regex'),
+            'license_file_path.regex' => __('validation.license_file_path_regex'),
         ]);
 
-        // This app doesn't auto-convert empty strings to null (see Kernel.php),
-        // so "Not Set" arrives as '' rather than the actual NULL that
-        // whereNotNull('build_type') checks elsewhere rely on. Same issue for
-        // slug — an empty slug must be NULL, not '', or the unique(slug,
-        // build_type) index would treat every blank-slug row as a duplicate
-        // of every other blank-slug row sharing the same build_type.
-        $validated['build_type'] = empty($validated['build_type']) ? null : $validated['build_type'];
-        $validated['slug'] = empty($validated['slug']) ? null : $validated['slug'];
+        // This app doesn't auto-convert empty strings to null (see Kernel.php)
+        // — keep both paths as actual NULL rather than '' when left blank, so
+        // "don't write one" (see ProductBundleStampingService) behaves correctly.
+        $validated['config_file_path'] = empty($validated['config_file_path']) ? null : $validated['config_file_path'];
+        $validated['license_file_path'] = empty($validated['license_file_path']) ? null : $validated['license_file_path'];
 
         try {
             DB::transaction(function () use ($request, $validated): void {
@@ -673,13 +583,8 @@ class ProductController extends BaseProductController
             'name' => ['required'],
             'type' => ['required'],
             'product_type' => ['required', 'in:independent,addon'],
-            'build_type' => ['nullable', 'in:obfuscated,source'],
-            'slug' => [
-                'nullable', 'string', 'max:255',
-                Rule::unique('products', 'slug')->ignore($productId)->where(fn ($query) => empty($request->input('build_type'))
-                    ? $query->whereNull('build_type')
-                    : $query->where('build_type', $request->input('build_type'))),
-            ],
+            'config_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
+            'license_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
             'description' => ['required'],
             'product_description' => ['required'],
             'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
@@ -689,7 +594,6 @@ class ProductController extends BaseProductController
             'show_agent' => ['required'],
         ], [
             'name.required' => __('validation.product_controller.name_required'),
-            'slug.unique' => __('validation.product_slug_unique'),
             'type.required' => __('validation.product_controller.type_required'),
             'description.required' => __('validation.product_controller.description_required'),
             'product_description.required' => __('validation.product_controller.product_description_required'),
@@ -698,14 +602,14 @@ class ProductController extends BaseProductController
             'product_sku.required' => __('validation.product_controller.product_sku_required'),
             'group.required' => __('validation.product_controller.group_required'),
             'show_agent.required' => __('validation.product_controller.show_agent_required'),
+            'config_file_path.regex' => __('validation.config_file_path_regex'),
+            'license_file_path.regex' => __('validation.license_file_path_regex'),
         ]);
 
-        // See productCreate — this app doesn't auto-convert empty strings to
-        // null, so "Not Set" arrives as '' rather than actual NULL. Same for
-        // slug, which must be NULL rather than '' for the unique(slug,
-        // build_type) index to behave correctly across blank-slug rows.
-        $validated['build_type'] = empty($validated['build_type']) ? null : $validated['build_type'];
-        $validated['slug'] = empty($validated['slug']) ? null : $validated['slug'];
+        // See productCreate — keep both paths as actual NULL rather than ''
+        // when left blank.
+        $validated['config_file_path'] = empty($validated['config_file_path']) ? null : $validated['config_file_path'];
+        $validated['license_file_path'] = empty($validated['license_file_path']) ? null : $validated['license_file_path'];
 
         try {
             DB::transaction(function () use ($validated, $request, $productId): void {

@@ -72,8 +72,8 @@ use Spatie\Activitylog\Models\Activity;
  * @property string $status
  * @property string $add_to_contact
  * @property string|null $product_type
- * @property string|null $slug
- * @property string|null $build_type
+ * @property string|null $config_file_path
+ * @property string|null $license_file_path
  * @property string $product_description
  * @property string|null $product_url_homepage
  * @property string|null $product_url_download
@@ -211,7 +211,7 @@ class Product extends BaseModel
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
         'deny_after_subscription', 'version', 'parent', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
-        'status', 'whatsapp_integration', 'apl_salt', 'product_type', 'slug', 'build_type',
+        'status', 'whatsapp_integration', 'apl_salt', 'product_type', 'config_file_path', 'license_file_path',
     ];
 
     protected string $logName = 'product';
@@ -227,7 +227,7 @@ class Product extends BaseModel
         'setup_order_placed', 'setup_first_payment', 'setup_accept_manually',
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
-        'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'invoice_hidden', 'product_type', 'slug', 'build_type',
+        'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'invoice_hidden', 'product_type', 'config_file_path', 'license_file_path',
     ];
 
     /**
@@ -271,6 +271,8 @@ class Product extends BaseModel
             'perpetual_license' => ['Perpetual License', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'invoice_hidden' => ['Hide on Invoice', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'product_type' => ['Product Category', fn ($value) => $value === 'addon' ? 'Addon' : 'Independent'],
+            'config_file_path' => ['Config File Path', fn ($value) => $value],
+            'license_file_path' => ['License File Path', fn ($value) => $value],
         ];
     }
 

@@ -25,7 +25,6 @@ use Spatie\Activitylog\Models\Activity;
  * @property string $description
  * @property string $version
  * @property string $file
- * @property array<string, string>|null $build_files
  * @property string|null $version_expire_date
  * @property int $version_install_count
  * @property int $status
@@ -80,12 +79,7 @@ class ProductUpload extends Model
 
     protected $table = 'product_uploads';
 
-    protected $fillable = ['product_id', 'title', 'description', 'version', 'file', 'build_files', 'is_private', 'is_restricted', 'release_type', 'dependencies', 'version_expire_date', 'version_install_count', 'status'];
-
-    /**
-     * @var array<string, string>
-     */
-    protected $casts = ['build_files' => 'array'];
+    protected $fillable = ['product_id', 'title', 'description', 'version', 'file', 'is_private', 'is_restricted', 'release_type', 'dependencies', 'version_expire_date', 'version_install_count', 'status'];
 
     protected string $logName = 'product';
 
@@ -95,7 +89,7 @@ class ProductUpload extends Model
      * @var array<mixed>
      */
     protected array $logAttributes = [
-        'product_id', 'title', 'version', 'file', 'build_files', 'is_private', 'is_restricted', 'release_type',
+        'product_id', 'title', 'version', 'file', 'is_private', 'is_restricted', 'release_type',
     ];
 
     /**
@@ -115,7 +109,6 @@ class ProductUpload extends Model
             'title' => ['Title', fn ($value) => $value],
             'version' => ['Version', fn ($value) => $value],
             'file' => ['File', fn ($value) => $value],
-            'build_files' => ['Build Files', fn ($value): string => is_array($value) ? (json_encode($value) ?: '') : (string) $value],
             'is_private' => ['Is Private', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'is_restricted' => ['Is Restricted', fn ($value): array|string => $value === 1 ? __('message.yes') : __('message.no')],
             'release_type' => ['Release Type', ucfirst(...)],
@@ -130,28 +123,12 @@ class ProductUpload extends Model
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
-    /**
-     * Which of this upload's files actually goes out for a download, decided
-     * fresh every call from the product's *current* build_type — never fixed
-     * at the moment this upload was created. So if a product's build_type is
-     * changed after this upload already exists, the very next download picks
-     * up the matching file automatically, with no re-upload needed — as long
-     * as that build_type's file was saved on this row to begin with.
-     *
-     * `build_files` is a plain build_type => filename map (e.g.
-     * {"obfuscated": "...", "source": "..."}), not hard-coded to exactly two
-     * variants — a future third build_type just needs its own key here, no
-     * schema change. `file` is the fallback for a product with no build_type
-     * set, or no matching entry in the map.
-     */
+    // Thin wrapper kept for its call sites (ExtendedBaseProductController,
+    // DeployController, DownloadFileController) — every version upload is a
+    // single file now, but they resolve through this method rather than
+    // reading ->file directly.
     public function resolvedFile(): ?string
     {
-        $buildType = $this->product?->build_type;
-
-        if ($buildType !== null && ! empty($this->build_files[$buildType])) {
-            return $this->build_files[$buildType];
-        }
-
         return $this->file;
     }
 

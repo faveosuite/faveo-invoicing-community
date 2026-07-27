@@ -68,25 +68,6 @@
                                             />
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <SelectField
-                                                name="build_type"
-                                                :label="__('message.build_type') || 'Build Type'"
-                                                :tooltip="__('message.build_type_hint') || 'Only set this if this product ships as two variants (encoded and source) that need to be told apart automatically.'"
-                                                :elements="buildTypes"
-                                                :value="selectedBuildType"
-                                                :onChange="onChange"
-                                                :clearable="false"
-                                                :searchable="false"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <TextField name="slug" :label="__('message.slug') || 'Slug'"
-                                                :hint="__('message.slug_hint') || 'Only needed for a plugin whose folder needs to be matched inside a shared build — must match that folder\'s name exactly.'"
-                                                :value="form.slug" :onChange="onChange" :error="errors.slug" />
-                                        </div>
-                                        <div class="col-md-6 mb-3">
                                             <RadioButton
                                                 name="product_type"
                                                 :label="__('message.product_category') || 'Product Category'"
@@ -95,6 +76,18 @@
                                                 :onChange="onChange"
                                                 classname="mb-0"
                                             />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <TextField name="config_file_path" :label="__('message.config_file_path') || 'Config File Path'"
+                                                :hint="__('message.config_file_path_hint') || 'Where inside a shared build to write this product\'s identity. Leave blank to not write one.'"
+                                                :value="form.config_file_path" :onChange="onChange" :error="errors.config_file_path" />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <TextField name="license_file_path" :label="__('message.license_file_path') || 'License File Path'"
+                                                :hint="__('message.license_file_path_hint') || 'Where inside a shared build to attach this product\'s signed license file. Leave blank to not attach one.'"
+                                                :value="form.license_file_path" :onChange="onChange" :error="errors.license_file_path" />
                                         </div>
                                     </div>
                                     <div class="mb-3">
@@ -251,7 +244,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
@@ -280,8 +273,8 @@ const form = reactive({
     type: null,
     typeObj: null,
     product_type: 'independent',
-    build_type: '',
-    slug: '',
+    config_file_path: '',
+    license_file_path: '',
     group: null,
     groupObj: null,
     parent: null,
@@ -308,20 +301,11 @@ const taxStatusOptions = [
     { id: 0, name: __('message.none') },
 ]
 
-const buildTypes = [
-    { name: __('message.none') || 'None', value: '' },
-    { name: __('message.obfuscated') || 'Obfuscated / Encoded', value: 'obfuscated' },
-    { name: __('message.source') || 'Source', value: 'source' },
-]
-const selectedBuildType = computed(() => buildTypes.find(b => b.value === form.build_type) ?? buildTypes[0])
-
 function onChange(val, name) {
     setFieldError(name, undefined)
     if (name === 'type') {
         form.typeObj = val
         form.type = val?.id ?? null
-    } else if (name === 'build_type') {
-        form.build_type = val?.value ?? ''
     } else if (name === 'group') {
         form.groupObj = val
         form.group = val?.id ?? null
@@ -359,8 +343,8 @@ async function submit() {
         fd.append('name', form.name)
         fd.append('type', form.type ?? '')
         fd.append('product_type', form.product_type)
-        fd.append('build_type', form.build_type ?? '')
-        fd.append('slug', form.slug ?? '')
+        fd.append('config_file_path', form.config_file_path ?? '')
+        fd.append('license_file_path', form.license_file_path ?? '')
         fd.append('group', form.group ?? '')
         fd.append('parent', form.parent ?? '')
         fd.append('description', form.description)

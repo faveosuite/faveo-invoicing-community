@@ -359,8 +359,7 @@ class ProductControllerTest extends DBTestCase
             'release_type' => 'official',
         ]);
 
-        $response->assertStatus(400);
-        $response->assertJson(['success' => false]);
+        $response->assertStatus(422)->assertJsonValidationErrors('filename');
     }
 
     public function test_product_upload_create_with_valid_data_returns_200(): void
@@ -623,8 +622,7 @@ class ProductControllerTest extends DBTestCase
         $productB = Product::factory()->create();
 
         $response = $this->putJson('/product/upload-build/apply', [
-            'filename' => 'core-obfuscated.zip',
-            'filename_source' => 'core-source.zip',
+            'filename' => 'core-build.zip',
             'dependencies' => ['core'],
             'description' => 'Bulk apply',
             'release_type' => 'official',
@@ -636,43 +634,25 @@ class ProductControllerTest extends DBTestCase
 
         $response->assertStatus(200)->assertJson(['success' => true]);
 
-        $this->assertDatabaseHas('product_uploads', ['product_id' => $productA->id, 'version' => '1.0.0']);
-        $this->assertDatabaseHas('product_uploads', ['product_id' => $productB->id, 'version' => '2.0.0']);
+        $this->assertDatabaseHas('product_uploads', ['product_id' => $productA->id, 'version' => '1.0.0', 'file' => 'core-build.zip']);
+        $this->assertDatabaseHas('product_uploads', ['product_id' => $productB->id, 'version' => '2.0.0', 'file' => 'core-build.zip']);
         $this->assertSame('1.0.0', $productA->fresh()->version);
         $this->assertSame('2.0.0', $productB->fresh()->version);
     }
 
-    public function test_apply_build_to_products_requires_the_obfuscated_file_for_an_obfuscated_product(): void
+    public function test_apply_build_to_products_requires_a_filename(): void
     {
         $this->getLoggedInUser('admin');
-        $product = Product::factory()->create(['build_type' => 'obfuscated']);
+        $product = Product::factory()->create();
 
         $response = $this->putJson('/product/upload-build/apply', [
-            'filename_source' => 'core-source.zip',
             'dependencies' => ['core'],
             'description' => 'Bulk apply',
             'release_type' => 'official',
             'products' => [['id' => $product->id, 'version' => '1.0.0']],
         ]);
 
-        $response->assertStatus(400)->assertJson(['success' => false]);
-        $this->assertDatabaseMissing('product_uploads', ['product_id' => $product->id]);
-    }
-
-    public function test_apply_build_to_products_requires_the_source_file_for_a_non_obfuscated_product(): void
-    {
-        $this->getLoggedInUser('admin');
-        $product = Product::factory()->create(['build_type' => null]);
-
-        $response = $this->putJson('/product/upload-build/apply', [
-            'filename' => 'core-obfuscated.zip',
-            'dependencies' => ['core'],
-            'description' => 'Bulk apply',
-            'release_type' => 'official',
-            'products' => [['id' => $product->id, 'version' => '1.0.0']],
-        ]);
-
-        $response->assertStatus(400)->assertJson(['success' => false]);
+        $response->assertStatus(422)->assertJsonValidationErrors('filename');
         $this->assertDatabaseMissing('product_uploads', ['product_id' => $product->id]);
     }
 
@@ -702,7 +682,7 @@ class ProductControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // productCreate — slug uniqueness scoped by build_type
+    // productCreate — config/license file paths
     // =========================================================================
 
     private function productCreatePayload(array $overrides = []): array
@@ -722,40 +702,30 @@ class ProductControllerTest extends DBTestCase
         ], $overrides);
     }
 
-    public function test_product_create_rejects_a_duplicate_slug_with_the_same_build_type(): void
+    public function test_product_create_stores_config_and_license_file_paths(): void
     {
         $this->getLoggedInUser('admin');
-        Product::factory()->create(['slug' => 'shared-slug', 'build_type' => 'obfuscated']);
 
         $response = $this->putJson('/product', $this->productCreatePayload([
-            'slug' => 'shared-slug',
-            'build_type' => 'obfuscated',
-        ]));
-
-        $response->assertStatus(422);
-        $this->assertArrayHasKey('slug', $response->json('errors'));
-    }
-
-    public function test_product_create_allows_the_same_slug_with_a_different_build_type(): void
-    {
-        $this->getLoggedInUser('admin');
-        Product::factory()->create(['slug' => 'shared-slug-2', 'build_type' => 'obfuscated']);
-
-        $response = $this->putJson('/product', $this->productCreatePayload([
-            'slug' => 'shared-slug-2',
-            'build_type' => 'source',
+            'config_file_path' => 'storage/faveoconfig.ini',
+            'license_file_path' => 'public/script/signature/license.json',
         ]));
 
         $response->assertStatus(200)->assertJson(['success' => true]);
-        $this->assertDatabaseHas('products', ['slug' => 'shared-slug-2', 'build_type' => 'source']);
+        $this->assertDatabaseHas('products', [
+            'config_file_path' => 'storage/faveoconfig.ini',
+            'license_file_path' => 'public/script/signature/license.json',
+        ]);
     }
 
-    public function test_product_create_allows_the_same_blank_slug_across_multiple_products(): void
+    public function test_product_create_allows_blank_config_and_license_file_paths(): void
     {
         $this->getLoggedInUser('admin');
-        Product::factory()->create(['slug' => null, 'build_type' => null]);
 
-        $response = $this->putJson('/product', $this->productCreatePayload(['slug' => null, 'build_type' => null]));
+        $response = $this->putJson('/product', $this->productCreatePayload([
+            'config_file_path' => null,
+            'license_file_path' => null,
+        ]));
 
         $response->assertStatus(200)->assertJson(['success' => true]);
     }

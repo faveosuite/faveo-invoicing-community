@@ -3,7 +3,6 @@
 namespace App\Traits\Upload;
 
 use App\Facades\Attach;
-use App\License\Services\ProductBundleStampingService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -47,15 +46,6 @@ trait ChunkUpload
                 }
 
                 $zip->close();
-
-                $structureError = app(ProductBundleStampingService::class)->validateBuildStructure($filePath);
-
-                if ($structureError !== null) {
-                    unlink($filePath);
-
-                    // nosemgrep: php.lang.security.unlink-use.unlink-use
-                    return errorResponse($structureError, 500);
-                }
 
                 return $this->saveFile($save->getFile());
 

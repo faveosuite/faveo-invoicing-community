@@ -20,14 +20,14 @@ const PRODUCTS_RESPONSE = {
             {
                 name: 'Group A',
                 children: [
-                    { id: 1, name: 'Product A (plain)', build_type: '' },
-                    { id: 2, name: 'Product B (obfuscated)', build_type: 'obfuscated' },
+                    { id: 1, name: 'Product A (plain)' },
+                    { id: 2, name: 'Product B (obfuscated)' },
                 ],
             },
             {
                 name: 'Group B',
                 children: [
-                    { id: 3, name: 'Product C (source)', build_type: 'source' },
+                    { id: 3, name: 'Product C (source)' },
                 ],
             },
         ],
@@ -36,7 +36,7 @@ const PRODUCTS_RESPONSE = {
 
 const STUBS = [
     'AppAlert', 'action-button', 'AppButton', 'SelectField', 'Switch',
-    'TinyMCE', 'TextArea', 'ToolTip', 'loader', 'inline-loader',
+    'TinyMCE', 'TextArea', 'loader', 'inline-loader',
 ]
 
 describe('ProductBuildApply.vue', () => {
@@ -165,31 +165,6 @@ describe('ProductBuildApply.vue', () => {
         expect(wrapper.vm.productVersions[3]).toBe('3.0.0')
     })
 
-    // ── needsSource / needsObfuscated ──────────────────────────────────────
-    it('needsSource/needsObfuscated are both false with nothing selected', () => {
-        expect(wrapper.vm.needsSource).toBe(false)
-        expect(wrapper.vm.needsObfuscated).toBe(false)
-    })
-
-    it('selecting a plain (non-obfuscated) product requires source only', () => {
-        wrapper.vm.toggleProduct(1)
-        expect(wrapper.vm.needsSource).toBe(true)
-        expect(wrapper.vm.needsObfuscated).toBe(false)
-    })
-
-    it('selecting an obfuscated product requires obfuscated only', () => {
-        wrapper.vm.toggleProduct(2)
-        expect(wrapper.vm.needsObfuscated).toBe(true)
-        expect(wrapper.vm.needsSource).toBe(false)
-    })
-
-    it('selecting both requires source and obfuscated', () => {
-        wrapper.vm.toggleProduct(1)
-        wrapper.vm.toggleProduct(2)
-        expect(wrapper.vm.needsSource).toBe(true)
-        expect(wrapper.vm.needsObfuscated).toBe(true)
-    })
-
     // ── submit() validation ────────────────────────────────────────────────
     it('submit sets a products error and skips the API call when nothing is selected', async () => {
         await wrapper.vm.submit()
@@ -222,18 +197,9 @@ describe('ProductBuildApply.vue', () => {
         expect(wrapper.vm.errors.dependencies).toBeTruthy()
     })
 
-    it('submit sets sourceFileError when the required source file is missing', async () => {
-        wrapper.vm.toggleProduct(1) // plain product — needs source
+    it('submit sets fileError when no file has been uploaded for a selected product', async () => {
+        wrapper.vm.toggleProduct(1)
         wrapper.vm.productVersions[1] = '1.0.0'
-        wrapper.vm.form.description = 'A description'
-        await wrapper.vm.submit()
-        expect(wrapper.vm.sourceFileError).toBeTruthy()
-        expect(globalThis.mockHttp.history.put.length).toBe(0)
-    })
-
-    it('submit sets fileError when the required obfuscated file is missing', async () => {
-        wrapper.vm.toggleProduct(2) // obfuscated product — needs the obfuscated slot
-        wrapper.vm.productVersions[2] = '1.0.0'
         wrapper.vm.form.description = 'A description'
         await wrapper.vm.submit()
         expect(wrapper.vm.fileError).toBeTruthy()
@@ -242,10 +208,10 @@ describe('ProductBuildApply.vue', () => {
 
     // ── submit() success ─────────────────────────────────────────────────
     it('submits and navigates to /products on success', async () => {
-        wrapper.vm.toggleProduct(1) // plain product — only needs source
+        wrapper.vm.toggleProduct(1)
         wrapper.vm.productVersions[1] = '1.0.0'
         wrapper.vm.form.description = 'A description'
-        wrapper.vm.onSourceFile({ target: { files: [new File(['content'], 'source.zip', { type: 'application/zip' })] } })
+        wrapper.vm.onFile({ target: { files: [new File(['content'], 'source.zip', { type: 'application/zip' })] } })
         await flushPromises()
 
         await wrapper.vm.submit()
@@ -253,7 +219,7 @@ describe('ProductBuildApply.vue', () => {
 
         expect(globalThis.mockHttp.history.put.length).toBe(1)
         const body = JSON.parse(globalThis.mockHttp.history.put[0].data)
-        expect(body.filename_source).toBe('uploaded-file.zip')
+        expect(body.filename).toBe('uploaded-file.zip')
         expect(body.products).toEqual([{ id: 1, version: '1.0.0' }])
         expect(successHandler).toHaveBeenCalled()
         expect(mockPush).toHaveBeenCalledWith('/products')
@@ -266,7 +232,7 @@ describe('ProductBuildApply.vue', () => {
         wrapper.vm.toggleProduct(1)
         wrapper.vm.productVersions[1] = '1.0.0'
         wrapper.vm.form.description = 'A description'
-        wrapper.vm.onSourceFile({ target: { files: [new File(['content'], 'source.zip', { type: 'application/zip' })] } })
+        wrapper.vm.onFile({ target: { files: [new File(['content'], 'source.zip', { type: 'application/zip' })] } })
         await flushPromises()
 
         await wrapper.vm.submit()

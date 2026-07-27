@@ -73,6 +73,25 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('product-bundle-stamping')]
+    public function throws_when_config_file_path_contains_a_traversal_segment(): void
+    {
+        $product = $this->createProduct(['product_key' => 'TRAVERSALKEY', 'config_file_path' => '../evil.ini']);
+
+        $sourceZip = $this->makeZip(['storage/faveoconfig.ini' => '']);
+        $this->stubAttachToServe($sourceZip);
+
+        try {
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('unsafe zip-internal path');
+
+            $this->service->stampToLocalFile('canonical/path.zip', $product, '1.0.0');
+        } finally {
+            @unlink($sourceZip);
+        }
+    }
+
+    #[Test]
+    #[Group('product-bundle-stamping')]
     public function stamping_failure_cleans_up_the_local_temp_copy(): void
     {
         $product = $this->createProduct();
@@ -99,7 +118,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
     #[Group('product-bundle-stamping')]
     public function stamps_core_product_faveoconfig_in_database_mode_and_strips_unmatched_plugins(): void
     {
-        $product = $this->createProduct(['product_key' => 'COREKEY123']);
+        $product = $this->createProduct(['product_key' => 'COREKEY123', 'config_file_path' => 'storage/faveoconfig.ini']);
 
         $sourceZip = $this->makeZip([
             'storage/faveoconfig.ini' => "APL_SALT=old\nPRODUCT_KEY=old\n",
@@ -130,7 +149,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
     #[Group('product-bundle-stamping')]
     public function apl_salt_is_generated_once_and_reused_on_subsequent_stamps(): void
     {
-        $product = $this->createProduct(['product_key' => 'COREKEY456']);
+        $product = $this->createProduct(['product_key' => 'COREKEY456', 'config_file_path' => 'storage/faveoconfig.ini']);
         $sourceZip = $this->makeZip(['storage/faveoconfig.ini' => '']);
         $this->stubAttachToServe($sourceZip);
 
@@ -154,8 +173,8 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
     #[Group('product-bundle-stamping')]
     public function bundled_plugin_folder_is_kept_and_stamped_with_its_own_identity(): void
     {
-        $product = $this->createProduct(['product_key' => 'COREKEY789']);
-        $plugin = $this->createProduct(['product_key' => 'PLUGKEY1', 'slug' => 'adhoc-approval']);
+        $product = $this->createProduct(['product_key' => 'COREKEY789', 'config_file_path' => 'storage/faveoconfig.ini']);
+        $plugin = $this->createProduct(['product_key' => 'PLUGKEY1', 'name' => 'Adhoc Approval', 'config_file_path' => 'config.php']);
         ProductPluginGroup::create(['product_id' => $product->id, 'plugin_id' => $plugin->id]);
 
         $sourceZip = $this->makeZip([
@@ -168,9 +187,9 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
         $this->assertTrue($this->zipHasEntry($resultPath, 'app/Plugins/adhoc-approval/config.php'));
         $pluginConfig = $this->readZipEntry($resultPath, 'app/Plugins/adhoc-approval/config.php');
-        $this->assertStringContainsString("'product_id' => {$plugin->id}", $pluginConfig);
-        $this->assertStringContainsString("'product_key' => 'PLUGKEY1'", $pluginConfig);
-        $this->assertStringContainsString("'version' => '2.0.0'", $pluginConfig);
+        $this->assertStringContainsString('PRODUCT_KEY=PLUGKEY1', $pluginConfig);
+        $this->assertStringContainsString('PRODUCT_ID='.$plugin->id, $pluginConfig);
+        $this->assertStringContainsString('APP_VERSION=2.0.0', $pluginConfig);
 
         @unlink($resultPath);
         @unlink($sourceZip);
@@ -178,10 +197,10 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('product-bundle-stamping')]
-    public function bundled_plugin_folder_matches_by_normalized_name_when_slug_is_empty(): void
+    public function bundled_plugin_folder_matches_by_normalized_name(): void
     {
         $product = $this->createProduct(['product_key' => 'COREKEYA']);
-        $plugin = $this->createProduct(['product_key' => 'PLUGKEYA', 'slug' => null, 'name' => 'AdHoc Approval']);
+        $plugin = $this->createProduct(['product_key' => 'PLUGKEYA', 'name' => 'AdHoc Approval']);
         ProductPluginGroup::create(['product_id' => $product->id, 'plugin_id' => $plugin->id]);
 
         $sourceZip = $this->makeZip([
@@ -203,7 +222,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
     public function only_unmatched_plugin_folders_are_stripped_when_others_are_bundled(): void
     {
         $product = $this->createProduct(['product_key' => 'COREKEYB']);
-        $plugin = $this->createProduct(['product_key' => 'PLUGKEYB', 'slug' => 'bundled-one']);
+        $plugin = $this->createProduct(['product_key' => 'PLUGKEYB', 'name' => 'Bundled One']);
         ProductPluginGroup::create(['product_id' => $product->id, 'plugin_id' => $plugin->id]);
 
         $sourceZip = $this->makeZip([
@@ -226,7 +245,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('product-bundle-stamping')]
-    public function standalone_plugin_zip_only_patches_root_config_php(): void
+    public function a_plugin_with_no_config_file_path_ships_its_config_php_untouched(): void
     {
         $plugin = $this->createProduct(['product_key' => 'STANDALONEKEY']);
 
@@ -239,11 +258,8 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $resultPath = $this->service->stampToLocalFile('canonical/path.zip', $plugin, '3.0.0');
 
         $config = $this->readZipEntry($resultPath, 'config.php');
-        $this->assertStringContainsString("'product_id' => {$plugin->id}", $config);
-        $this->assertStringContainsString("'product_key' => 'STANDALONEKEY'", $config);
-        $this->assertStringContainsString("'version' => '3.0.0'", $config);
-
-        $this->assertFalse($this->zipHasEntry($resultPath, 'storage/faveoconfig.ini'));
+        $this->assertStringContainsString("'product_id' => 5", $config);
+        $this->assertStringContainsString("'product_key' => 'OLD'", $config);
         $this->assertTrue($this->zipHasEntry($resultPath, 'public/index.php'));
 
         @unlink($resultPath);
@@ -252,68 +268,38 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('product-bundle-stamping')]
-    public function validate_build_structure_accepts_zip_with_storage_at_root(): void
+    public function a_product_with_a_custom_config_file_path_gets_its_identity_written_there(): void
     {
-        $zip = $this->makeZip(['storage/faveoconfig.ini' => '']);
+        $product = $this->createProduct(['product_key' => 'THIRDPARTYKEY', 'config_file_path' => 'settings/identity.ini']);
 
-        $this->assertNull($this->service->validateBuildStructure($zip));
-
-        @unlink($zip);
-    }
-
-    #[Test]
-    #[Group('product-bundle-stamping')]
-    public function validate_build_structure_accepts_zip_with_config_php_at_root(): void
-    {
-        $zip = $this->makeZip(['config.php' => '<?php']);
-
-        $this->assertNull($this->service->validateBuildStructure($zip));
-
-        @unlink($zip);
-    }
-
-    #[Test]
-    #[Group('product-bundle-stamping')]
-    public function validate_build_structure_detects_a_single_wrapper_folder(): void
-    {
-        $zip = $this->makeZip([
-            'my-repo-main/storage/faveoconfig.ini' => '',
-            'my-repo-main/app/index.php' => '',
+        $sourceZip = $this->makeZip([
+            'config.php' => "<?php\nreturn ['product_id' => 5, 'product_key' => 'OLD', 'version' => '0.0.1'];\n",
         ]);
+        $this->stubAttachToServe($sourceZip);
 
-        $this->assertNotNull($this->service->validateBuildStructure($zip));
+        $resultPath = $this->service->stampToLocalFile('canonical/path.zip', $product, '3.0.0');
 
-        @unlink($zip);
-    }
+        $identity = $this->readZipEntry($resultPath, 'settings/identity.ini');
+        $this->assertStringContainsString('PRODUCT_KEY=THIRDPARTYKEY', $identity);
+        $this->assertStringContainsString('APP_VERSION=3.0.0', $identity);
 
-    #[Test]
-    #[Group('product-bundle-stamping')]
-    public function validate_build_structure_rejects_an_unreadable_zip(): void
-    {
-        $path = tempnam(sys_get_temp_dir(), 'not_a_zip_');
-        file_put_contents($path, 'garbage');
+        // config.php isn't this product's declared path, so it's left alone.
+        $config = $this->readZipEntry($resultPath, 'config.php');
+        $this->assertStringContainsString("'product_key' => 'OLD'", $config);
 
-        $this->assertNotNull($this->service->validateBuildStructure($path));
-
-        @unlink($path);
-    }
-
-    #[Test]
-    #[Group('product-bundle-stamping')]
-    public function validate_build_structure_rejects_a_zip_with_no_recognizable_build_root(): void
-    {
-        $zip = $this->makeZip(['folderA/file.txt' => 'x', 'folderB/file.txt' => 'y']);
-
-        $this->assertNotNull($this->service->validateBuildStructure($zip));
-
-        @unlink($zip);
+        @unlink($resultPath);
+        @unlink($sourceZip);
     }
 
     #[Test]
     #[Group('product-bundle-stamping')]
     public function file_mode_order_embeds_signed_license_and_public_key(): void
     {
-        $product = $this->createProduct(['product_key' => 'FILEMODEKEY']);
+        $product = $this->createProduct([
+            'product_key' => 'FILEMODEKEY',
+            'config_file_path' => 'storage/faveoconfig.ini',
+            'license_file_path' => 'public/script/signature/license.json',
+        ]);
         $this->seedLicenseSchemes();
 
         $orderNumber = random_int(10000000, 99999999);
@@ -351,8 +337,16 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
     #[Group('product-bundle-stamping')]
     public function file_mode_order_embeds_license_into_each_bundled_plugin_folder_too(): void
     {
-        $product = $this->createProduct(['product_key' => 'FILEMODECORE']);
-        $plugin = $this->createProduct(['product_key' => 'FILEMODEPLUGIN', 'slug' => 'my-plugin']);
+        $product = $this->createProduct([
+            'product_key' => 'FILEMODECORE',
+            'config_file_path' => 'storage/faveoconfig.ini',
+            'license_file_path' => 'public/script/signature/license.json',
+        ]);
+        $plugin = $this->createProduct([
+            'product_key' => 'FILEMODEPLUGIN',
+            'name' => 'My Plugin',
+            'license_file_path' => 'public/script/signature/license.json',
+        ]);
         ProductPluginGroup::create(['product_id' => $product->id, 'plugin_id' => $plugin->id]);
         $this->seedLicenseSchemes();
 
@@ -380,8 +374,16 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
     #[Group('product-bundle-stamping')]
     public function file_mode_order_skips_license_file_for_bundled_plugin_not_attached_to_license(): void
     {
-        $product = $this->createProduct(['product_key' => 'FILEMODECORE2']);
-        $plugin = $this->createProduct(['product_key' => 'FILEMODEPLUGIN2', 'slug' => 'unattached-plugin']);
+        $product = $this->createProduct([
+            'product_key' => 'FILEMODECORE2',
+            'config_file_path' => 'storage/faveoconfig.ini',
+            'license_file_path' => 'public/script/signature/license.json',
+        ]);
+        $plugin = $this->createProduct([
+            'product_key' => 'FILEMODEPLUGIN2',
+            'name' => 'Unattached Plugin',
+            'license_file_path' => 'public/script/signature/license.json',
+        ]);
         ProductPluginGroup::create(['product_id' => $product->id, 'plugin_id' => $plugin->id]);
         $this->seedLicenseSchemes();
 

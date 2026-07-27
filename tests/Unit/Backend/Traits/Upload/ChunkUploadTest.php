@@ -54,20 +54,6 @@ class ChunkUploadTest extends DBTestCase
         @unlink($sourcePath);
     }
 
-    public function test_upload_file_rejects_a_zip_wrapped_in_a_single_folder(): void
-    {
-        $file = $this->makeZipUpload([
-            'my-repo-main/storage/faveoconfig.ini' => 'APL_SALT=x',
-            'my-repo-main/app/index.php' => '<?php',
-        ]);
-
-        $response = $this->post('/chunkupload', ['file' => $file]);
-
-        $response->assertStatus(500);
-        $data = json_decode((string) $response->getContent(), true);
-        $this->assertFalse($data['success']);
-    }
-
     public function test_upload_file_rejects_a_file_that_is_not_a_zip_at_all(): void
     {
         $path = tempnam(sys_get_temp_dir(), 'not_a_zip_');

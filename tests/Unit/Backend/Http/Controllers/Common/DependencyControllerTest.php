@@ -78,18 +78,6 @@ class DependencyControllerTest extends DBTestCase
             ->all();
     }
 
-    public function test_products_dependency_includes_build_type_in_each_child(): void
-    {
-        Product::factory()->create(['invoice_hidden' => 0, 'build_type' => 'obfuscated']);
-
-        $response = $this->getJson('/dependency/products');
-
-        $response->assertStatus(200);
-        $children = $this->productChildren($response);
-        $this->assertNotEmpty($children);
-        $this->assertArrayHasKey('build_type', $children[0]);
-    }
-
     public function test_products_dependency_filters_by_permission(): void
     {
         $permission = LicensePermission::create(['permissions' => 'Can be Downloaded']);

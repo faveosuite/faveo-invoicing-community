@@ -72,18 +72,13 @@ return [
     'edit_version' => 'Edit Version',
     'apply_build_to_products' => 'Shared Build Release',
     'apply_build_hint' => 'Upload one build and apply it to every selected product. Each product keeps its own identity, plugin bundling, and version.',
-    'build_file_hint' => 'Only needed if one of the selected products uses an encoded build.',
-    'source_build_file_hint' => 'Use this for a regular release. It covers every selected product, except any that specifically use an encoded build.',
-    'build_type' => 'Build Type',
-    'build_type_hint' => 'Only set this if this product ships as two variants (encoded and source) that need to be told apart automatically.',
-    'slug_hint' => 'Only needed for a plugin whose folder needs to be matched inside a shared build — must match that folder\'s name exactly.',
-    'obfuscated' => 'Obfuscated / Encoded',
+    'config_file_path' => 'Config File Path',
+    'config_file_path_hint' => 'Where inside a shared build to write this product\'s identity (product key, version, etc). Leave blank to not write one — e.g. for a plugin that doesn\'t need it.',
+    'license_file_path' => 'License File Path',
+    'license_file_path_hint' => 'Where inside a shared build to attach this product\'s signed license file, for File-mode licensing. Leave blank to not attach one.',
     'main_version' => 'Main Version',
     'main_version_hint' => 'Applied to every product below. A group\'s own version overrides this for that group; editing a product directly overrides both.',
     'version_required_per_product' => 'Every selected product needs a version.',
-    'zip_unreadable' => 'Unable to open the uploaded file as a zip archive.',
-    'zip_wrapper_folder_detected' => 'This zip has everything nested inside a ":folder" folder. Re-zip just its contents (storage/, app/, etc. — or config.php for a plugin) directly at the top level, not the folder itself.',
-    'zip_missing_build_root' => 'This doesn\'t look like a Faveo build — no storage/ folder or config.php found at the root of the zip.',
     /*
      * Common for all
      */
