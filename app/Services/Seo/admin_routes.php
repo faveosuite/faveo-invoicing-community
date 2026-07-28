@@ -27,8 +27,8 @@ return [
     'users/create' => ['title' => 'message.create_new_user', 'description' => 'Create a new user account.'],
     'users/*' => ['title' => 'message.user_details', 'description' => "View a user's account details."],
     'users/*/edit' => ['title' => 'message.edit_user', 'description' => "Edit a user's account details."],
-    'users/*/payments/create' => ['title' => 'message.create-payment', 'description' => "Record a new payment for this user."],
-    'users/*/payments/*/edit' => ['title' => 'message.edit-payment', 'description' => "Edit a recorded payment for this user."],
+    'users/*/payments/create' => ['title' => 'message.create-payment', 'description' => 'Record a new payment for this user.'],
+    'users/*/payments/*/edit' => ['title' => 'message.edit-payment', 'description' => 'Edit a recorded payment for this user.'],
     'users/suspended' => ['title' => 'message.suspended_users', 'description' => 'View suspended user accounts.'],
 
     'orders' => ['title' => 'message.orders', 'description' => 'View and manage customer orders.'],
