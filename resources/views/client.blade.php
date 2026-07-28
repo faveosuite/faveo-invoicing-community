@@ -36,34 +36,13 @@ $productGroups = \App\Model\Product\ProductGroup::select('id', 'name')
         'name' => $g->name,
     ]]);
 
-$seo = app(\App\Services\Seo\SeoMetaService::class)->resolve(request()->path());
-$seoFormatter = app(\App\Services\Seo\SeoTemplateFormatter::class);
+$seoService = app(\App\Services\Seo\SeoMetaService::class);
+$seo = $seoService->resolve(request()->path());
 
-// Guest auth pages (login/forgot/reset) render via the client-side router,
-// not their own Blade view — ship all 3 rows so the SPA can keep its title
-// in sync with the admin-configured SEO text when navigating between them
-// without a full page reload, instead of using a stale hardcoded title.
-// {name}/{company} shortcodes are resolved here too, same as the hard-load
-// path (SeoMetaService::fromDefaultPage), so SPA nav doesn't leak raw
-// placeholder text.
-$defaultPagesSeo = \App\Model\Common\SeoDefaultPage::whereIn('page_key', ['login', 'forgot_password', 'reset_password'])
-    ->get(['page_key', 'meta_title', 'meta_description'])
-    ->keyBy('page_key')
-    ->map(function ($row) use ($seoFormatter): array {
-        $name = ucwords(str_replace('_', ' ', $row->page_key));
-
-        return [
-            'meta_title' => $seoFormatter->resolveShortcodes($row->meta_title, $name),
-            'meta_description' => $seoFormatter->resolveShortcodes($row->meta_description, $name),
-        ];
-    });
-
-// Same General Description used by SeoMetaService's fallback() for
-// authenticated/unknown routes — shipped down so clientRouter.js's
-// afterEach can keep the client-rendered <meta name="description"> in
-// sync with it on SPA navigation, instead of a stale per-route string.
-$generalDescription = $seoFormatter->generalDescription()
-    ?: 'Manage your billing, invoices, and subscriptions online.';
+// Every other client-SPA route's title/description, pre-resolved through the
+// exact same cascade as $seo above — clientRouter.js just looks up its
+// current route here on SPA navigation instead of recomputing anything.
+$routeSeo = $seoService->resolveClientRoutes();
 ?>
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" dir="{{ $rtl ? 'rtl' : 'ltr' }}">
@@ -79,8 +58,17 @@ $generalDescription = $seoFormatter->generalDescription()
     <meta property="og:description" content="{{ $seo['og_description'] }}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ $seo['canonical'] }}">
+    <meta property="og:site_name" content="{{ $set->company }}">
+    <meta property="og:locale" content="{{ str_replace('-', '_', app()->getLocale()) }}">
     @if(!empty($seo['image']))
     <meta property="og:image" content="{{ $seo['image'] }}">
+    @endif
+
+    <meta name="twitter:card" content="{{ !empty($seo['image']) ? 'summary_large_image' : 'summary' }}">
+    <meta name="twitter:title" content="{{ $seo['og_title'] }}">
+    <meta name="twitter:description" content="{{ $seo['og_description'] }}">
+    @if(!empty($seo['image']))
+    <meta name="twitter:image" content="{{ $seo['image'] }}">
     @endif
 
     @if($set->fav_icon)
@@ -128,7 +116,6 @@ $generalDescription = $seoFormatter->generalDescription()
      data-app-version="{{ config('app.version', '') }}"
      data-sentry-dsn="{{ config('sentry.dsn') }}"
      data-sentry-enabled="{{ config('app.sentry_reporting') ? 'true' : 'false' }}"
-     data-page-title="{{ $set->favicon_title_client }}"
      data-app-logo="{{ $set->logo }}"
      data-company="{{ $set->company }}"
      data-website="{{ $set->website }}"
@@ -153,8 +140,7 @@ $generalDescription = $seoFormatter->generalDescription()
      data-languages="{{ $languages->toJson() }}"
      data-published-pages="{{ $publishedPages->toJson() }}"
      data-product-groups="{{ $productGroups->toJson() }}"
-     data-default-pages-seo="{{ $defaultPagesSeo->toJson() }}"
-     data-general-description="{{ $generalDescription }}">
+     data-route-seo="{{ json_encode($routeSeo) }}">
 </div>
 
 {{-- Bootstrap 5 bundle JS (includes Popper) — used for dropdowns, collapse, tooltips. --}}

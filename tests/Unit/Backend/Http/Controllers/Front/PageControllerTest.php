@@ -158,6 +158,35 @@ class PageControllerTest extends DBTestCase
         $this->assertSame('Test Page', $data['name']);
     }
 
+    public function test_page_by_slug_applies_the_pages_title_format_when_page_has_no_own_meta(): void
+    {
+        \App\Model\Common\Setting::find(1)->update(['company' => 'Acme Inc', 'favicon_title_client' => '']);
+        \App\Model\Common\CommonSettings::where('option_name', 'seo')->where('optional_field', 'pages_title_format')->delete();
+        \App\Model\Common\CommonSettings::where('option_name', 'seo')->where('optional_field', 'pages_description_format')->delete();
+        \App\Model\Common\CommonSettings::where('option_name', 'seo')->where('optional_field', 'general_description')->delete();
+        // SeoTemplateFormatter is bound as a singleton (AppServiceProvider)
+        // and caches Setting/CommonSettings at construction — forget it so
+        // the values just set above are actually picked up when the
+        // controller resolves it fresh for this request.
+        $this->app->forgetInstance(\App\Services\Seo\SeoTemplateFormatter::class);
+
+        $page = \App\Model\Front\FrontendPage::create([
+            'name' => 'Refund Policy',
+            'slug' => 'refund-policy-'.uniqid(),
+            'content' => '<p>...</p>',
+            'publish' => 1,
+            'type' => 'custom',
+            'meta_title' => null,
+            'meta_description' => null,
+        ]);
+
+        $response = $this->getJson('/page-content/'.$page->slug);
+
+        $response->assertStatus(200);
+        $this->assertSame('Refund Policy | Acme Inc', $response->json('data.meta_title'));
+        $this->assertSame('Learn more about Refund Policy at Acme Inc.', $response->json('data.meta_description'));
+    }
+
     // =========================================================================
     // getDemoStatus — GET /demo
     // =========================================================================

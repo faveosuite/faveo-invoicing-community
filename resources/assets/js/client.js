@@ -54,13 +54,6 @@ app.use(pinia)
 app.use(DateTimePlugin)
 app.use(ServerTable, {}, 'bootstrap4', {})
 
-// Hydrate auth BEFORE installing the router. app.use(router) immediately
-// triggers Vue Router's initial navigation, which fires beforeEach. If auth
-// is not yet hydrated at that point, isAuthenticated is false and guestOnly
-// routes (like /login) are not redirected even for logged-in users.
-const auth = useAuthStore()
-await auth.hydrate()
-
 app.use(clientRouter)
 globalThis.__router = clientRouter
 app.use(i18n)
@@ -74,3 +67,12 @@ setupLoaderInterceptors(app.config.globalProperties.$Progress)
 
 await clientRouter.isReady()
 app.mount('#app-client')
+
+// Hydrate auth state in the background — replaces the data-authenticated DOM
+// flag with fresh profile data once it resolves. Not blocking mount on this
+// lets the router resolve its initial route (and update document.title)
+// immediately instead of waiting on a network round-trip. Safe to defer:
+// useAuthStore()'s state already seeds isAuthenticated/user synchronously
+// from data-* attributes (auth.js), which is all router.beforeEach's
+// guestOnly/requiresAuth guard needs — hydrate() only refreshes that data.
+useAuthStore().hydrate()

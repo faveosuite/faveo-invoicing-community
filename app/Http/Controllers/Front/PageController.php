@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\ApiKey;
 use App\DefaultPage;
 use App\Demo_page;
 use App\Facades\Attach;
@@ -9,7 +10,10 @@ use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Front\ContactRequest;
 use App\Http\Requests\Front\PageRequest;
+use App\Model\Common\Country;
 use App\Model\Common\Setting;
+use App\Model\Common\State;
+use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\Front\FrontendPage;
 use App\Model\Payment\Plan;
@@ -55,13 +59,43 @@ class PageController extends Controller
                 ->first();
 
             if ($page) {
-                $page->meta_title = $formatter->resolveShortcodes($page->meta_title, $page->name);
-                $page->meta_description = $formatter->resolveShortcodes($page->meta_description, $page->name);
-                $page->og_title = $formatter->resolveShortcodes($page->og_title, $page->name);
-                $page->og_description = $formatter->resolveShortcodes($page->og_description, $page->name);
+                $page->meta_title = $formatter->resolveShortcodes($page->meta_title, $page->name) ?: $formatter->title('pages', $page->name);
+                $page->meta_description = $formatter->resolveShortcodes($page->meta_description, $page->name) ?: $formatter->description('pages', $page->name);
+                $page->og_title = $formatter->resolveShortcodes($page->og_title, $page->name) ?: $formatter->ogTitle('pages', $page->name);
+                $page->og_description = $formatter->resolveShortcodes($page->og_description, $page->name) ?: $formatter->ogDescription('pages', $page->name);
             }
 
             return successResponse('', $page);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /**
+     * Public: company address/contact details for the Contact Us page.
+     */
+    public function contactUsInfo(): JsonResponse
+    {
+        try {
+            $set = Setting::findOrFail(1);
+            $address = preg_replace("/^\R+|\R+\z/", '', (string) $set->address);
+            $state = State::where('country_code', $set->country)->where('iso2', $set->state)->value('state_subdivision_name');
+            $country = Country::where('country_code_char2', $set->country)->value('country_name');
+            $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck')->first();
+            $status = StatusSetting::select('msg91_status')->first();
+
+            return successResponse('', [
+                'address' => $address,
+                'city' => $set->city,
+                'state' => $state,
+                'country' => $country,
+                'zip' => $set->zip,
+                'phone_code' => $set->phone_code,
+                'phone' => $set->phone,
+                'company_email' => $set->company_email,
+                'recaptcha_key' => $apiKeys->nocaptcha_sitekey ?? null,
+                'msg91_status' => (bool) ($status->msg91_status ?? false),
+            ]);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }

@@ -14,6 +14,7 @@ import apiRoutes from './settings/api.js'
 import commonRoutes from './settings/common.js'
 import widgetRoutes from './settings/widgets.js'
 import licenseRoutes from './license.js'
+import { normalizeRoutePattern } from '@/core/utils/routePattern.js'
 
 const routes = [
     { path: '/', redirect: '/dashboard' },
@@ -65,18 +66,14 @@ router.beforeEach((to, from, next) => {
     }
 })
 
-// Update browser tab title on every navigation. Meta Title (Admin Panel) is
-// admin-editable and may itself be a {name}/{company} template (matching the
-// SEO shortcodes on Settings > SEO) — e.g. "{name} | {company}". A plain
-// string with no placeholder (the common case) is shown exactly as typed on
-// every page; the current page name is only included if the admin opts in
-// by adding {name} to the template themselves.
-const titleTemplate = el?.dataset?.pageTitle || 'Admin Panel'
-const company = el?.dataset?.company || 'Admin Panel'
-
-function resolveTitle(name) {
-    return titleTemplate.replace('{name}', name || '').replace('{company}', company)
-}
+// Pre-resolved title/description for every admin route (already ran through
+// AdminMetaService's General SEO -> per-route default -> hardcoded literal
+// cascade server-side) — looked up by the route's own path pattern
+// (normalizeRoutePattern), never re-implemented here.
+let adminRoutes = {}
+try {
+    adminRoutes = JSON.parse(el?.dataset?.adminRoutes || '{}')
+} catch { /* ignore malformed/missing data */ }
 
 // beforeEach (not afterEach): to.meta is available as soon as the route is
 // matched, before Vue Router fetches the target route's async component
@@ -84,14 +81,10 @@ function resolveTitle(name) {
 // of seconds on a cold load. Using afterEach here would tie the title update
 // to that fetch instead of the navigation itself.
 router.beforeEach((to) => {
-    if (to.meta?.title) {
-        const titleKey  = to.meta.titleKey
-        const translated = titleKey ? __(titleKey) : null
-        const label = (translated && translated !== titleKey) ? translated : to.meta.title
-        document.title = resolveTitle(label)
-    } else {
-        document.title = resolveTitle('')
-    }
+    const matched = to.matched[to.matched.length - 1]
+    const pattern = matched ? normalizeRoutePattern(matched.path) : ''
+    const title   = adminRoutes[pattern]?.title
+    if (title) document.title = title
 })
 
 export default router

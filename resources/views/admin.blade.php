@@ -1,11 +1,17 @@
 <?php
 $set = \App\Model\Common\Setting::findOrFail(1);
 $rtl = isRtlForLang();
-// Meta Title (Admin Panel) may itself contain {name}/{company} shortcodes
-// (Settings > SEO); {name} has no server-side value here (resolved
-// per-route client-side instead, see adminRouter.js), so it resolves empty.
-// No-op for the common case of a plain literal favicon_title.
-$favTitle = app(\App\Services\Seo\SeoTemplateFormatter::class)->resolveShortcodes($set->favicon_title, '');
+$seoMeta = app(\App\Services\Seo\SeoMetaService::class);
+
+// This request's own path — same cascade admin.blade.php always used
+// (General SEO -> per-route default -> hardcoded literal).
+$adminPath = (string) collect(explode('/', trim(request()->path(), '/')))->skip(1)->implode('/');
+$seo = $seoMeta->resolveAdminMeta($adminPath);
+
+// Every other admin route, pre-resolved through the exact same cascade —
+// shipped down so adminRouter.js/useBreadcrumb.js never re-implement it,
+// and never need a hand-typed title/titleKey per route.
+$adminRoutesSeo = $seoMeta->resolveAdminRoutes();
 ?>
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" dir="{{ $rtl ? 'rtl' : 'ltr' }}">
@@ -14,7 +20,25 @@ $favTitle = app(\App\Services\Seo\SeoTemplateFormatter::class)->resolveShortcode
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow">
-    <title>{{ $favTitle }}</title>
+    <title>{{ $seo['title'] }}</title>
+    <meta name="description" content="{{ $seo['description'] }}">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:title" content="{{ $seo['og_title'] }}">
+    <meta property="og:description" content="{{ $seo['og_description'] }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="{{ $set->company }}">
+    <meta property="og:locale" content="{{ str_replace('-', '_', app()->getLocale()) }}">
+    @if(!empty($seo['image']))
+    <meta property="og:image" content="{{ $seo['image'] }}">
+    @endif
+
+    <meta name="twitter:card" content="{{ !empty($seo['image']) ? 'summary_large_image' : 'summary' }}">
+    <meta name="twitter:title" content="{{ $seo['og_title'] }}">
+    <meta name="twitter:description" content="{{ $seo['og_description'] }}">
+    @if(!empty($seo['image']))
+    <meta name="twitter:image" content="{{ $seo['image'] }}">
+    @endif
 
     @if($set->fav_icon)
         <link rel="shortcut icon" href="{{ $set->fav_icon }}" type="image/x-icon">
@@ -58,11 +82,11 @@ $favTitle = app(\App\Services\Seo\SeoTemplateFormatter::class)->resolveShortcode
          data-app-version="{{ config('app.version', '') }}"
          data-sentry-dsn="{{ config('sentry.dsn') }}"
          data-sentry-enabled="{{ config('app.sentry_reporting') ? 'true' : 'false' }}"
-         data-page-title="{{ $set->favicon_title }}"
          data-app-title="{{ $set->title }}"
          data-app-logo="{{ $set->admin_logo }}"
          data-website="{{ $set->website }}"
-         data-company="{{ $set->company }}">
+         data-company="{{ $set->company }}"
+         data-admin-routes="{{ json_encode($adminRoutesSeo) }}">
 
     </div>
 

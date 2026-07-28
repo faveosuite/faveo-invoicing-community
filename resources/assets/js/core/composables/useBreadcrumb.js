@@ -16,8 +16,7 @@ export function setPageTitle(title) {
 
 function translateTitle(meta) {
     if (!meta?.title) {
-        const el = document.getElementById('app-client') || document.getElementById('app-root')
-        return el?.dataset?.pageTitle || 'Billing'
+        return ''
     }
     if (meta.titleKey) {
         const translated = __(meta.titleKey)

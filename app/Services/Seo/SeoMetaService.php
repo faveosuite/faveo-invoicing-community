@@ -11,17 +11,40 @@ use App\Model\Front\FrontendPage;
 use App\Model\Product\ProductGroup;
 
 /**
- * Resolves server-rendered SEO meta (title/description/robots/canonical)
- * for the single `Route::fallback()` shell that serves every client-panel URL,
- * based on the requested path. Non-authenticated pages (default pages, Pages
- * module, Product Groups) get admin-editable meta; everything else falls back
- * to a hardcoded, noindex entry.
+ * Resolves server-rendered SEO meta for both SSR shells:
+ * - Client: title/description/robots/canonical/OG for the `Route::fallback()`
+ *   shell that serves every client-panel URL. Non-authenticated pages
+ *   (default pages, Pages module, Product Groups) get admin-editable meta;
+ *   everything else falls back to a hardcoded, noindex entry.
+ * - Admin: title/description only, via resolveAdmin()/resolveAdminRoutes() —
+ *   General SEO -> per-route default (admin_routes.php) -> hardcoded literal.
+ *   Same "route map -> general setting -> hardcoded" algorithm as the
+ *   client's own fallback(), just against a different route map and Setting
+ *   column (favicon_title vs favicon_title_client).
  */
 class SeoMetaService
 {
     private const INDEX = 'index, follow';
 
     private const NOINDEX = 'noindex, nofollow';
+
+    private const DEFAULT_PAGE_KEYS = ['login', 'forgot_password', 'reset_password'];
+
+    private ?Setting $set = null;
+
+    private bool $setLoaded = false;
+
+    /** @var array<string, SeoDefaultPage>|null */
+    private ?array $defaultPages = null;
+
+    /** @var array<string, array{title: string, description: string}>|null */
+    private ?array $clientRoutesCache = null;
+
+    /** @var array<string, array{title: string, description: string}>|null */
+    private ?array $adminRoutesCache = null;
+
+    /** @var array<string, array{title:string,description:string,robots:string,canonical:string,image:?string,og_title:string,og_description:string}> */
+    private array $resolved = [];
 
     public function __construct(private readonly SeoTemplateFormatter $formatter)
     {
@@ -34,12 +57,18 @@ class SeoMetaService
     {
         $path = trim($path, '/');
 
+        // Memoized per path: resolveClientRoutes() resolves ~18 paths per
+        // request, and the current page's own path gets resolved again there.
+        return $this->resolved[$path] ??= $this->resolveUncached($path);
+    }
+
+    /**
+     * @return array{title:string,description:string,robots:string,canonical:string,image:?string,og_title:string,og_description:string}
+     */
+    private function resolveUncached(string $path): array
+    {
         $defaultKey = match (true) {
-            // "/" always redirects to the dashboard, which bounces an
-            // unauthenticated visitor (i.e. any crawler) straight to
-            // /login — so it's treated as the same page, not a distinct
-            // "home" page with its own content.
-            $path === '', $path === 'login' => 'login',
+            $path === '', $path === 'login' => 'login', // "/" redirects to the dashboard, which bounces guests to /login
             $path === 'password/reset' => 'forgot_password',
             (bool) preg_match('#^password/reset/.+$#', $path) => 'reset_password',
             default => null,
@@ -69,27 +98,22 @@ class SeoMetaService
      */
     private function fromDefaultPage(string $key, string $path): array
     {
-        $row = SeoDefaultPage::where('page_key', $key)->first();
+        $row = $this->defaultPageRow($key);
         $name = ucwords(str_replace('_', ' ', $key));
 
         $title = $this->formatter->resolveShortcodes($row?->meta_title, $name) ?: $name;
-
         $description = $this->formatter->resolveShortcodes($row?->meta_description, $name)
             ?: ($this->formatter->generalDescription() ?: 'Manage your billing, invoices, and subscriptions online.');
 
-        return [
-            'title' => $title,
-            'description' => $description,
-            // reset_password carries a live, single-use token in its own URL
-            // segment (/password/reset/{token}) — never index/canonicalize a
-            // page whose URL is itself a secret. login/forgot_password have
-            // no such secret and stay indexable.
-            'robots' => $key === 'reset_password' ? self::NOINDEX : self::INDEX,
-            'canonical' => $this->canonicalUrl($path),
-            'image' => $this->resolveImage($row?->og_image, 'general'),
-            'og_title' => $this->formatter->resolveShortcodes($row?->og_title, $name) ?: ($this->formatter->generalOgTitle() ?: $title),
-            'og_description' => $this->formatter->resolveShortcodes($row?->og_description, $name) ?: ($this->formatter->generalOgDescription() ?: $description),
-        ];
+        return $this->assemble(
+            $title,
+            $description,
+            $key === 'reset_password' ? self::NOINDEX : self::INDEX, // its URL carries a live, single-use token — never index a secret URL
+            $path,
+            $this->resolveImage($row?->og_image, 'general'),
+            $this->formatter->resolveShortcodes($row?->og_title, $name) ?: ($this->formatter->generalOgTitle() ?: $title),
+            $this->formatter->resolveShortcodes($row?->og_description, $name) ?: ($this->formatter->generalOgDescription() ?: $description),
+        );
     }
 
     /**
@@ -103,18 +127,18 @@ class SeoMetaService
             return $this->fallback($path);
         }
 
-        $title = $this->formatter->resolveShortcodes($page->meta_title, $page->name) ?: $this->formatter->pagesTitle($page->name);
-        $description = $this->formatter->resolveShortcodes($page->meta_description, $page->name) ?: $this->formatter->pagesDescription($page->name);
+        $title = $this->formatter->resolveShortcodes($page->meta_title, $page->name) ?: $this->formatter->title('pages', $page->name);
+        $description = $this->formatter->resolveShortcodes($page->meta_description, $page->name) ?: $this->formatter->description('pages', $page->name);
 
-        return [
-            'title' => $title,
-            'description' => $description,
-            'robots' => self::INDEX,
-            'canonical' => $this->canonicalUrl($path),
-            'image' => $this->resolveImage($page->og_image),
-            'og_title' => $this->formatter->resolveShortcodes($page->og_title, $page->name) ?: $this->formatter->pagesOgTitle($page->name),
-            'og_description' => $this->formatter->resolveShortcodes($page->og_description, $page->name) ?: $this->formatter->pagesOgDescription($page->name),
-        ];
+        return $this->assemble(
+            $title,
+            $description,
+            self::INDEX,
+            $path,
+            $this->resolveImage($page->og_image),
+            $this->formatter->resolveShortcodes($page->og_title, $page->name) ?: $this->formatter->ogTitle('pages', $page->name),
+            $this->formatter->resolveShortcodes($page->og_description, $page->name) ?: $this->formatter->ogDescription('pages', $page->name),
+        );
     }
 
     /**
@@ -122,26 +146,22 @@ class SeoMetaService
      */
     private function fromContactUsPage(string $path): array
     {
-        // /contact-us is always a real, public page (route: clientRouter.js
-        // requiresAuth:false) even before an admin creates a "contactus"-type
-        // Pages-module entry for it, so it must stay indexable either way —
-        // unlike the shared fallback() below, which is for auth-only/unknown
-        // routes and defaults to noindex.
+        // Always a real, public page — unlike fallback() below, stays indexable even with no contactus-type page created yet.
         $page = FrontendPage::where('type', 'contactus')->where('publish', 1)->first();
 
         $name = $page?->name ?: 'Contact Us';
-        $title = $this->formatter->resolveShortcodes($page?->meta_title, $name) ?: $this->formatter->pagesTitle($name);
-        $description = $this->formatter->resolveShortcodes($page?->meta_description, $name) ?: $this->formatter->pagesDescription($name);
+        $title = $this->formatter->resolveShortcodes($page?->meta_title, $name) ?: $this->formatter->title('pages', $name);
+        $description = $this->formatter->resolveShortcodes($page?->meta_description, $name) ?: $this->formatter->description('pages', $name);
 
-        return [
-            'title' => $title,
-            'description' => $description,
-            'robots' => self::INDEX,
-            'canonical' => $this->canonicalUrl($path),
-            'image' => $this->resolveImage($page?->og_image),
-            'og_title' => $this->formatter->resolveShortcodes($page?->og_title, $name) ?: $this->formatter->pagesOgTitle($name),
-            'og_description' => $this->formatter->resolveShortcodes($page?->og_description, $name) ?: $this->formatter->pagesOgDescription($name),
-        ];
+        return $this->assemble(
+            $title,
+            $description,
+            self::INDEX,
+            $path,
+            $this->resolveImage($page?->og_image),
+            $this->formatter->resolveShortcodes($page?->og_title, $name) ?: $this->formatter->ogTitle('pages', $name),
+            $this->formatter->resolveShortcodes($page?->og_description, $name) ?: $this->formatter->ogDescription('pages', $name),
+        );
     }
 
     /**
@@ -158,72 +178,225 @@ class SeoMetaService
         }
 
         $name = $group?->name ?: 'Store';
-        $title = $this->formatter->resolveShortcodes($group?->meta_title, $name) ?: $this->formatter->groupsTitle($name);
+        $title = $this->formatter->resolveShortcodes($group?->meta_title, $name) ?: $this->formatter->title('groups', $name);
         $description = $this->formatter->resolveShortcodes($group?->meta_description, $name)
-            ?: ($group?->tagline ?: ($group?->headline ?: $this->formatter->groupsDescription($name)));
+            ?: ($group?->tagline ?: ($group?->headline ?: $this->formatter->description('groups', $name)));
 
-        return [
-            'title' => $title,
-            'description' => $description,
-            'robots' => self::INDEX,
-            'canonical' => $this->canonicalUrl($path),
-            'image' => $this->resolveImage($group?->og_image, 'groups'),
-            'og_title' => $this->formatter->resolveShortcodes($group?->og_title, $name) ?: $this->formatter->groupsOgTitle($name),
-            'og_description' => $this->formatter->resolveShortcodes($group?->og_description, $name) ?: $this->formatter->groupsOgDescription($name),
-        ];
+        return $this->assemble(
+            $title,
+            $description,
+            self::INDEX,
+            $path,
+            $this->resolveImage($group?->og_image, 'groups'),
+            $this->formatter->resolveShortcodes($group?->og_title, $name) ?: $this->formatter->ogTitle('groups', $name),
+            $this->formatter->resolveShortcodes($group?->og_description, $name) ?: $this->formatter->ogDescription('groups', $name),
+        );
     }
 
     /**
-     * Hardcoded, non-editable copy for authenticated/transactional routes and
-     * anything unrecognized. These are excluded from the sitemap and
-     * disallowed in robots.txt, so `noindex` here is defense-in-depth.
+     * Pre-resolved title/description for every static client-SPA route,
+     * shipped to client.blade.php so clientRouter.js only ever looks up an
+     * already-resolved value (keyed the same way as normalizeRoutePattern()
+     * derives from Vue Router's own matched path — see routePattern.js) on
+     * SPA navigation, never re-implements this cascade. Dynamic per-instance
+     * routes (Pages/:slug, Store/:id) fetch their own data and resolve their
+     * own title via PageController/StoreController.
      *
+     * @return array<string, array{title: string, description: string}>
+     */
+    public function resolveClientRoutes(): array
+    {
+        $paths = [
+            'login' => 'login',
+            'password/reset' => 'password/reset',
+            'password/reset/*' => 'password/reset/x',
+            'contact-us' => 'contact-us',
+        ];
+        foreach (array_keys($this->clientRoutes()) as $key) {
+            // Purely-numeric keys ('404') come back from array_keys() as int,
+            // not string — PHP's own array-key coercion, unrelated to the data.
+            $key = (string) $key;
+            // Keys can be wildcard patterns (e.g. 'my-order/*') — substitute a
+            // placeholder so resolve() has a real path to match against.
+            $paths[$key] = str_replace('*', 'x', $key);
+        }
+
+        return array_map(function (string $path): array {
+            $resolved = $this->resolve($path);
+
+            return ['title' => $resolved['title'], 'description' => $resolved['description']];
+        }, $paths);
+    }
+
+    /**
      * @return array{title:string,description:string,robots:string,canonical:string,image:?string,og_title:string,og_description:string}
      */
     private function fallback(string $path): array
     {
-        $map = [
-            'client-dashboard' => ['Dashboard', 'Your account dashboard — track orders, invoices, and subscriptions.'],
-            'my-orders' => ['My Orders', 'View and manage your order history.'],
-            'my-order' => ['Order Details', 'Order details and status.'],
-            'my-invoices' => ['My Invoices', 'View, download, and pay your invoices.'],
-            'my-invoice' => ['Invoice Details', 'Invoice details and payment options.'],
-            'my-profile' => ['My Profile', 'Manage your account profile and settings.'],
-            'cart' => ['Shopping Cart', 'Review items in your shopping cart.'],
-            'checkout' => ['Checkout', 'Complete your purchase securely.'],
-            'place-order' => ['Place Order', 'Confirm and place your order.'],
-            'payment-success' => ['Payment Successful', 'Your payment was successful.'],
-            'pricing' => ['Pricing', 'Review pricing and plans.'],
-            'verify' => ['Verify Email', 'Verify your email address.'],
-            'verify-2fa' => ['Two-Factor Authentication', 'Verify your identity with two-factor authentication.'],
-            'pay' => ['Secure Payment', 'Secure payment page.'],
-            'admin' => ['Admin', 'Administration panel.'],
+        // Noindex routes still get a real title: General (favicon_title_client, admin can add a {name} shortcode) → per-route name → company → app name.
+        $cascade = $this->resolveRouteCascade($this->clientRoutes(), $path, $this->setting()?->favicon_title_client);
+        $ogTitle = $this->formatter->generalOgTitle() ?: ($cascade['routeTitle'] ?: $cascade['title']);
+        $ogDescription = $this->formatter->generalOgDescription() ?: ($cascade['routeDescription'] ?: $cascade['description']);
+
+        return $this->assemble($cascade['title'], $cascade['description'], self::NOINDEX, $path, $this->formatter->generalOgImageUrl(), $ogTitle, $ogDescription);
+    }
+
+    /**
+     * Admin panel's title/description cascade for a single path — General SEO
+     * (Settings > SEO > General) -> per-route default (admin_routes.php) ->
+     * hardcoded literal.
+     *
+     * @return array{title:string,description:string}
+     */
+    public function resolveAdmin(string $path): array
+    {
+        $cascade = $this->resolveRouteCascade($this->adminRoutes(), $path, $this->setting()?->favicon_title);
+
+        return ['title' => $cascade['title'], 'description' => $cascade['description']];
+    }
+
+    /**
+     * Full admin SSR shell meta for the current request's own path —
+     * resolveAdmin()'s title/description cascade plus the OG fields. OG
+     * fields skip the per-route cascade (General SEO -> hardcoded literal
+     * only): the admin panel is always noindex/auth-gated and never
+     * crawled, so they only matter for link-preview cards (Slack/Teams/
+     * email) when someone shares an admin URL — no need to vary per route.
+     *
+     * @return array{title:string,description:string,og_title:string,og_description:string,image:?string}
+     */
+    public function resolveAdminMeta(string $path): array
+    {
+        $cascade = $this->resolveAdmin($path);
+
+        return [
+            'title' => $cascade['title'],
+            'description' => $cascade['description'],
+            'og_title' => $this->formatter->generalOgTitle() ?: $cascade['title'],
+            'og_description' => $this->formatter->generalOgDescription() ?: $cascade['description'],
+            'image' => $this->formatter->generalOgImageUrl(),
         ];
+    }
 
-        $prefix = explode('/', $path)[0];
-        [$mapTitle, $mapDescription] = $map[$prefix] ?? [null, null];
+    /**
+     * Every admin route's title/description, pre-resolved through
+     * resolveAdmin() — shipped to admin.blade.php so adminRouter.js/
+     * useBreadcrumb.js never re-implement this cascade.
+     *
+     * @return array<string, array{title: string, description: string}>
+     */
+    public function resolveAdminRoutes(): array
+    {
+        $result = [];
+        foreach (array_keys($this->adminRoutes()) as $key) {
+            // Purely-numeric keys ('404') come back from array_keys() as int,
+            // not string — PHP's own array-key coercion, unrelated to the data.
+            $key = (string) $key;
+            // Keys can be wildcard patterns (e.g. 'orders/*/renew') —
+            // substitute a placeholder so resolveAdmin() has a real path to match.
+            $result[$key] = $this->resolveAdmin(str_replace('*', 'x', $key));
+        }
 
-        // These routes have no real per-page admin setting and no module —
-        // only General (admin-configurable) and this hardcoded map (a
-        // last-resort default baked into the code). So the cascade here is
-        // General → hardcoded map → ultimate literal default. These pages
-        // are noindex anyway, so a uniform site title (not a per-route name)
-        // is the intended default — but an admin can opt into a per-route
-        // title by putting a {name} shortcode in favicon_title_client
-        // (e.g. "{name} | Faveo Billing"), which resolves to $mapTitle here.
-        $set = Setting::find(1);
-        $clientTitle = $this->formatter->resolveShortcodes($set?->favicon_title_client, $mapTitle ?? '');
-        $title = $clientTitle ?: ($mapTitle ?: ($set?->company ?: 'Faveo Billing'));
-        $description = $this->formatter->generalDescription() ?: ($mapDescription ?: 'Manage your billing, invoices, and subscriptions online.');
-        $ogTitle = $this->formatter->generalOgTitle() ?: ($mapTitle ?: $title);
-        $ogDescription = $this->formatter->generalOgDescription() ?: ($mapDescription ?: $description);
+        return $result;
+    }
 
+    /**
+     * Shared by fallback() (client) and resolveAdmin() — same "route map ->
+     * General SEO -> hardcoded literal" algorithm, just against a different
+     * route map and General-title Setting column.
+     *
+     * @param  array<string, array{title:string,description:string}>  $routes
+     * @return array{title:string,description:string,routeTitle:?string,routeDescription:?string}
+     */
+    private function resolveRouteCascade(array $routes, string $path, ?string $generalTitleFormat): array
+    {
+        $entry = $this->matchRoute($routes, $path) ?? ($routes[explode('/', $path)[0]] ?? null);
+        $routeTitle = $entry ? $this->resolveText($entry['title']) : null;
+        $routeDescription = $entry ? $this->resolveText($entry['description']) : null;
+
+        $generalTitle = $this->formatter->resolveShortcodes($generalTitleFormat, $routeTitle ?? '');
+        $title = $generalTitle ?: ($routeTitle ?: ($this->setting()?->company ?: 'Faveo Invoicing'));
+        $description = $this->formatter->generalDescription() ?: ($routeDescription ?: 'Manage your billing, invoices, and subscriptions online.');
+
+        return ['title' => $title, 'description' => $description, 'routeTitle' => $routeTitle, 'routeDescription' => $routeDescription];
+    }
+
+    /**
+     * Matches $path against the route patterns in $routes (keys with dynamic
+     * segments normalized to '*', e.g. 'users/*\/edit'), returning the entry
+     * for the most specific match (fewest wildcards) — an exact literal
+     * match always wins over a wildcard one. Returns null if nothing matches.
+     *
+     * @param  array<string, array{title: string, description: string}>  $routes
+     * @return array{title: string, description: string}|null
+     */
+    private function matchRoute(array $routes, string $path): ?array
+    {
+        $segments = explode('/', trim($path, '/'));
+        $best = null;
+        $bestSpecificity = -1;
+
+        foreach ($routes as $pattern => $entry) {
+            // Purely-numeric keys ('404') come back as int, not string — PHP's
+            // own array-key coercion, unrelated to the data.
+            $patternSegments = explode('/', (string) $pattern);
+            if (count($patternSegments) !== count($segments)) {
+                continue;
+            }
+
+            $wildcards = 0;
+            $matches = true;
+            foreach ($patternSegments as $i => $patternSegment) {
+                if ($patternSegment === '*') {
+                    $wildcards++;
+
+                    continue;
+                }
+                if ($patternSegment !== $segments[$i]) {
+                    $matches = false;
+
+                    break;
+                }
+            }
+
+            if ($matches) {
+                $specificity = count($patternSegments) - $wildcards;
+                if ($specificity > $bestSpecificity) {
+                    $bestSpecificity = $specificity;
+                    $best = $entry;
+                }
+            }
+        }
+
+        return $best;
+    }
+
+    /**
+     * $textOrKey is either a lang key (translated via trans() if it exists)
+     * or literal text (returned exactly as written if it doesn't).
+     */
+    private function resolveText(string $textOrKey): string
+    {
+        if (! trans()->has($textOrKey)) {
+            return $textOrKey;
+        }
+
+        $translated = __($textOrKey);
+
+        return is_string($translated) ? $translated : $textOrKey;
+    }
+
+    /**
+     * @return array{title:string,description:string,robots:string,canonical:string,image:?string,og_title:string,og_description:string}
+     */
+    private function assemble(string $title, string $description, string $robots, string $path, ?string $image, string $ogTitle, string $ogDescription): array
+    {
         return [
             'title' => $title,
             'description' => $description,
-            'robots' => self::NOINDEX,
+            'robots' => $robots,
             'canonical' => $this->canonicalUrl($path),
-            'image' => $this->formatter->generalOgImageUrl(),
+            'image' => $image,
             'og_title' => $ogTitle,
             'og_description' => $ogDescription,
         ];
@@ -240,15 +413,48 @@ class SeoMetaService
             return Attach::getUrlPath('images/'.$filename);
         }
 
-        return match ($type) {
-            'groups' => $this->formatter->groupsOgImageUrl(),
-            'general' => $this->formatter->generalOgImageUrl(),
-            default => $this->formatter->pagesOgImageUrl(),
-        };
+        return $type === 'general' ? $this->formatter->generalOgImageUrl() : $this->formatter->ogImageUrl($type);
     }
 
     private function canonicalUrl(string $path): string
     {
         return $path === '' ? url('/') : url('/'.$path);
+    }
+
+    private function setting(): ?Setting
+    {
+        if (! $this->setLoaded) {
+            $this->set = Setting::find(1);
+            $this->setLoaded = true;
+        }
+
+        return $this->set;
+    }
+
+    /**
+     * Batches all 3 default-page rows in one query instead of one per key —
+     * resolveClientRoutes() resolves all 3 every request.
+     */
+    private function defaultPageRow(string $key): ?SeoDefaultPage
+    {
+        $this->defaultPages ??= SeoDefaultPage::whereIn('page_key', self::DEFAULT_PAGE_KEYS)->get()->keyBy('page_key')->all();
+
+        return $this->defaultPages[$key] ?? null;
+    }
+
+    /**
+     * @return array<string, array{title: string, description: string}>
+     */
+    private function clientRoutes(): array
+    {
+        return $this->clientRoutesCache ??= require __DIR__.'/client_routes.php';
+    }
+
+    /**
+     * @return array<string, array{title: string, description: string}>
+     */
+    private function adminRoutes(): array
+    {
+        return $this->adminRoutesCache ??= require __DIR__.'/admin_routes.php';
     }
 }

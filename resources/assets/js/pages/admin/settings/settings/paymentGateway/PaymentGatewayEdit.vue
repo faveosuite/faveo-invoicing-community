@@ -165,7 +165,8 @@ async function save() {
     if (!await validateForm(buildGatewaySchema(gatewayConfig.value.fields), form, setErrors)) return
     saving.value = true
     try {
-        const res = await http.get(gatewayConfig.value.saveUrl, { params: form })
+        const params = { ...form, auto_renewal: form.auto_renewal ? 1 : 0 }
+        const res = await http.get(gatewayConfig.value.saveUrl, { params })
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)

@@ -69,8 +69,8 @@ class StoreController extends Controller
                 $group->only(['id', 'name', 'headline', 'tagline']),
                 [
                     'status' => (bool) $group->status,
-                    'meta_title' => $formatter->resolveShortcodes($group->meta_title, $group->name),
-                    'meta_description' => $formatter->resolveShortcodes($group->meta_description, $group->name),
+                    'meta_title' => $formatter->resolveShortcodes($group->meta_title, $group->name) ?: $formatter->title('groups', $group->name),
+                    'meta_description' => $formatter->resolveShortcodes($group->meta_description, $group->name) ?: $formatter->description('groups', $group->name),
                 ]
             ),
             'currency' => $currency,

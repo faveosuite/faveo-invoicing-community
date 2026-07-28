@@ -81,7 +81,7 @@ class SeoFileGenerator
     public function generateLlms(): void
     {
         $set = Setting::find(1);
-        $company = $set?->company ?: ($set?->favicon_title_client ?: 'Faveo Billing');
+        $company = $set?->company ?: ($set?->favicon_title_client ?: 'Faveo Invoicing');
         $formatter = app(SeoTemplateFormatter::class);
 
         $defaultPages = SeoDefaultPage::whereIn('page_key', ['login', 'forgot_password'])->get()->keyBy('page_key');
@@ -104,8 +104,8 @@ class SeoFileGenerator
         foreach (FrontendPage::where('publish', 1)->get(['name', 'slug', 'type', 'meta_title', 'meta_description']) as $page) {
             $loc = $page->type === 'contactus' ? url('/contact-us') : url('/pages/'.$page->slug);
             $hasContactUsPage = $hasContactUsPage || $page->type === 'contactus';
-            $title = $formatter->resolveShortcodes($page->meta_title, $page->name) ?: $formatter->pagesTitle($page->name);
-            $description = $formatter->resolveShortcodes($page->meta_description, $page->name) ?: $formatter->pagesDescription($page->name);
+            $title = $formatter->resolveShortcodes($page->meta_title, $page->name) ?: $formatter->title('pages', $page->name);
+            $description = $formatter->resolveShortcodes($page->meta_description, $page->name) ?: $formatter->description('pages', $page->name);
             $lines[] = '- ['.$title.']('.$loc.'): '.$description;
         }
 
@@ -120,12 +120,12 @@ class SeoFileGenerator
         $lines[] = '## Products';
         $lines[] = '';
 
-        $lines[] = '- ['.$formatter->groupsTitle('Store').']('.url('/store').'): '.$formatter->groupsDescription('Store');
+        $lines[] = '- ['.$formatter->title('groups', 'Store').']('.url('/store').'): '.$formatter->description('groups', 'Store');
 
         foreach ($this->visibleGroups(['id', 'name', 'headline', 'tagline', 'meta_title', 'meta_description']) as $group) {
-            $title = $formatter->resolveShortcodes($group->meta_title, $group->name) ?: $formatter->groupsTitle($group->name);
+            $title = $formatter->resolveShortcodes($group->meta_title, $group->name) ?: $formatter->title('groups', $group->name);
             $description = $formatter->resolveShortcodes($group->meta_description, $group->name)
-                ?: ($group->tagline ?: ($group->headline ?: $formatter->groupsDescription($group->name)));
+                ?: ($group->tagline ?: ($group->headline ?: $formatter->description('groups', $group->name)));
             $lines[] = '- ['.$title.']('.url('/store/'.$group->id).'): '.$description;
         }
 

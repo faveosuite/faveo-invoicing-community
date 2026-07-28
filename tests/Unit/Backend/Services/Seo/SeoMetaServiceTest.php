@@ -241,11 +241,11 @@ class SeoMetaServiceTest extends DBTestCase
 
     public function test_resolve_client_dashboard_lets_an_admin_opt_into_a_per_route_title_via_shortcode(): void
     {
-        Setting::find(1)->update(['favicon_title_client' => '{name} | Faveo Billing']);
+        Setting::find(1)->update(['favicon_title_client' => '{name} | Faveo Invoicing']);
 
         $result = $this->service->resolve('client-dashboard');
 
-        $this->assertSame('Dashboard | Faveo Billing', $result['title']);
+        $this->assertSame('Dashboard | Faveo Invoicing', $result['title']);
     }
 
     public function test_resolve_admin_path_is_noindex_defense_in_depth(): void
@@ -281,5 +281,17 @@ class SeoMetaServiceTest extends DBTestCase
             ['title', 'description', 'robots', 'canonical', 'image', 'og_title', 'og_description'],
             $result
         );
+    }
+
+    public function test_resolve_client_routes_matches_resolve_for_every_key(): void
+    {
+        $routes = $this->service->resolveClientRoutes();
+
+        $this->assertSame($this->service->resolve('login')['title'], $routes['login']['title']);
+        $this->assertSame($this->service->resolve('contact-us')['title'], $routes['contact-us']['title']);
+        $this->assertSame($this->service->resolve('client-dashboard')['title'], $routes['client-dashboard']['title']);
+        $this->assertSame($this->service->resolve('checkout')['description'], $routes['checkout']['description']);
+        $this->assertArrayHasKey('pay', $routes);
+        $this->assertArrayNotHasKey('store', $routes);
     }
 }
