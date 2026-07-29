@@ -20,6 +20,11 @@ use ZipArchive;
  * zip's shape, since this also distributes third-party products whose
  * internal layout billing doesn't control. Runs on every download of every
  * product — there is no "already correct, serve as-is" shortcut.
+ *
+ * Nothing is ever removed from the zip: every bundled plugin ships to every
+ * download regardless of what that customer bought, same as any open-source
+ * distribution. Licensing is enforced by the product/license check on
+ * download, not by withholding code.
  */
 class ProductBundleStampingService
 {
@@ -127,10 +132,8 @@ class ProductBundleStampingService
      * Does the actual in-place stamping of the local zip copy: writes
      * $targetProduct's own identity/config content and signed license file
      * at whatever paths *it* declares (config_file_path / license_file_path
-     * — either can be blank, meaning "don't write one"), then strips any
-     * bundled app/Plugins/* folder not actually bundled to this product,
-     * writing each kept folder the same way using *that plugin's own*
-     * declared paths.
+     * — either can be blank, meaning "don't write one"). Everything else in
+     * the zip, including every bundled plugin folder, is left untouched.
      */
     private function stampZip(string $localZipPath, Product $targetProduct, string $version, ?Order $order = null): void
     {
@@ -142,7 +145,6 @@ class ProductBundleStampingService
 
         try {
             $this->writeProductFiles($zip, $targetProduct, $version, $order);
-            $this->filterBundledPluginFolders($zip, $targetProduct, $version, $order);
         } finally {
             $zip->close();
         }
@@ -150,16 +152,14 @@ class ProductBundleStampingService
 
     /**
      * Writes $product's own config/license content into $zip at whatever
-     * path *that product* declares, prefixed with $pathPrefix (empty for
-     * the top-level target product, "app/Plugins/<folder>/" for a bundled
-     * plugin). Either path being blank on $product just skips that write —
-     * there's no fallback location to guess.
+     * path *that product* declares. Either path being blank just skips that
+     * write — there's no fallback location to guess.
      */
-    private function writeProductFiles(ZipArchive $zip, Product $product, string $version, ?Order $order, string $pathPrefix = ''): void
+    private function writeProductFiles(ZipArchive $zip, Product $product, string $version, ?Order $order): void
     {
         if (! empty($product->config_file_path)) {
             $this->assertSafeZipEntryPath($product->config_file_path);
-            $zip->addFromString($pathPrefix.$product->config_file_path, $this->buildFaveoConfig($product, $version, $order));
+            $zip->addFromString($product->config_file_path, $this->buildFaveoConfig($product, $version, $order));
         }
 
         if ($this->isFileMode($order) && ! empty($product->license_file_path)) {
@@ -167,7 +167,7 @@ class ProductBundleStampingService
             $licenseFile = $this->licenseFileService->buildForOrder($order, $product);
 
             if ($licenseFile !== null) {
-                $zip->addFromString($pathPrefix.$product->license_file_path, $licenseFile);
+                $zip->addFromString($product->license_file_path, $licenseFile);
             }
         }
     }
@@ -185,77 +185,6 @@ class ProductBundleStampingService
         if (str_starts_with($path, '/') || str_contains($path, '..')) {
             throw new RuntimeException("Refusing to stamp an unsafe zip-internal path: {$path}");
         }
-    }
-
-    /**
-     * Keeps only the app/Plugins/<folder>/ entries for plugins actually
-     * configured as bundled for this product (product_plugin_group),
-     * writing each kept folder's own config/license content per that
-     * plugin's own declared paths. Every unmatched folder is stripped. A
-     * product with no bundled plugins ends up with app/Plugins/ empty.
-     *
-     * Folders are matched to a plugin by their own folder name (e.g.
-     * 'AdHocApproval'), normalized and compared against that plugin's own
-     * name — the folder name already *is* the plugin's path, since that's
-     * exactly what it was written as (app/Plugins/<path>/).
-     *
-     * Always runs now, including for a standalone-plugin-shaped zip with no
-     * app/Plugins/* entries at all — the loop below simply finds nothing to
-     * do in that case. That's a deliberate no-op, not a leftover assumption
-     * that every zip is core-product-shaped.
-     */
-    private function filterBundledPluginFolders(ZipArchive $zip, Product $targetProduct, string $version, ?Order $order = null): void
-    {
-        // Loaded via a full SELECT * (not a narrow column list) because
-        // writeProductFiles() below may call getAplSalt(), which persists a
-        // freshly generated salt via update() — Product's activitylog
-        // change-detector diffs against every loggable attribute, including
-        // one (`subscription`) that collides with a same-named relation and
-        // crashes if it wasn't actually selected.
-        $bundledPlugins = $targetProduct->bundledPlugins()->get();
-
-        $bundledByNormalizedName = $bundledPlugins->keyBy(fn (Product $plugin): string => $this->normalizeForMatch($plugin->name));
-
-        $entriesByFolder = [];
-        for ($i = 0; $i < $zip->numFiles; $i++) {
-            $entryName = $zip->getNameIndex($i);
-
-            if ($entryName !== false && preg_match('#^app/Plugins/([^/]+)/#', $entryName, $matches)) {
-                $entriesByFolder[$matches[1]][] = $entryName;
-            }
-        }
-
-        $entriesToDelete = [];
-        $foldersToWrite = [];
-
-        foreach ($entriesByFolder as $folderName => $entries) {
-            $matchedPlugin = $bundledByNormalizedName->get($this->normalizeForMatch($folderName));
-
-            if (! $matchedPlugin) {
-                array_push($entriesToDelete, ...$entries);
-
-                continue;
-            }
-
-            $foldersToWrite[] = [$folderName, $matchedPlugin];
-        }
-
-        foreach ($entriesToDelete as $entryName) {
-            $zip->deleteName($entryName);
-        }
-
-        foreach ($foldersToWrite as [$folderName, $plugin]) {
-            $this->writeProductFiles($zip, $plugin, $version, $order, "app/Plugins/{$folderName}/");
-        }
-    }
-
-    /**
-     * Lowercases and strips non-alphanumeric characters, for comparing a
-     * plugin's display name against a zip folder name.
-     */
-    private function normalizeForMatch(string $value): string
-    {
-        return strtolower(preg_replace('/[^a-z0-9]/i', '', $value) ?? $value);
     }
 
     /**

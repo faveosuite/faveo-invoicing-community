@@ -34,6 +34,14 @@ const orderFixture = {
             support_end:      { date: '2027-06-01', status: null },
         },
     },
+    permissions: {
+        generateUpdatesxpiryDate: 1,
+        generateLicenseExpiryDate: 1,
+        generateSupportExpiryDate: 1,
+        downloadPermission: 1,
+        allowDownloadTillExpiry: 0,
+        noPermissions: 0,
+    },
     autorenewal: 0,
     is_subscribed: 0,
     payment_log: null,
@@ -157,5 +165,71 @@ describe('OrderShow.vue', () => {
 
     it('tab starts as installations', () => {
         expect(wrapper.vm.tab).toBe('installations')
+    })
+
+    it('canEditExpiry reflects the permissions the order response sent', async () => {
+        await flushPromises()
+        expect(wrapper.vm.canEditExpiry).toEqual({
+            update_end: true,
+            subscription_end: true,
+            support_end: true,
+        })
+        expect(wrapper.vm.someExpiryFieldsHidden).toBe(false)
+    })
+
+    it('saveLicenseEdit sends every date field when all three are permitted', async () => {
+        await flushPromises()
+        await wrapper.vm.saveLicenseEdit()
+        await flushPromises()
+        const call = globalThis.mockHttp.history.post.find(r => /\/update-license-details/.test(r.url))
+        const body = JSON.parse(call.data)
+        expect(body).toHaveProperty('update_end')
+        expect(body).toHaveProperty('subscription_end')
+        expect(body).toHaveProperty('support_end')
+    })
+
+    describe('when the license type disallows some expiry fields', () => {
+        beforeEach(async () => {
+            globalThis.mockHttp.reset()
+            const restricted = {
+                ...orderFixture,
+                permissions: { ...orderFixture.permissions, generateLicenseExpiryDate: 0 },
+            }
+            globalThis.mockHttp.onGet(/\/order\/0/).reply(200, { data: restricted })
+            globalThis.mockHttp.onGet(/\/get-installation-details\/0/).reply(200, { data: [] })
+            globalThis.mockHttp.onGet(/\/getOrderInvoices\/0/).reply(200, { data: [] })
+            globalThis.mockHttp.onGet(/\/getOrderPayments\/0/).reply(200, { data: [] })
+            globalThis.mockHttp.onPost(/\/update-license-details/).reply(200, { data: { message: 'Updated' } })
+            wrapper = mount(OrderShow, {
+                global: {
+                    plugins: [createTestingPinia()],
+                    stubs: [
+                        'AppAlert', 'AppModal', 'DataTable', 'DeleteModal', 'action-button',
+                        'inline-loader', 'loader', 'Switch', 'Tooltip', 'DatePicker',
+                        'RouterLink',
+                    ],
+                },
+            })
+            await flushPromises()
+        })
+
+        it('canEditExpiry marks the disallowed field false and flags someExpiryFieldsHidden', () => {
+            expect(wrapper.vm.canEditExpiry).toEqual({
+                update_end: true,
+                subscription_end: false,
+                support_end: true,
+            })
+            expect(wrapper.vm.someExpiryFieldsHidden).toBe(true)
+        })
+
+        it('saveLicenseEdit omits the disallowed field from the request body', async () => {
+            await wrapper.vm.saveLicenseEdit()
+            await flushPromises()
+            const call = globalThis.mockHttp.history.post.find(r => /\/update-license-details/.test(r.url))
+            const body = JSON.parse(call.data)
+            expect(body).toHaveProperty('update_end')
+            expect(body).toHaveProperty('support_end')
+            expect(body).not.toHaveProperty('subscription_end')
+        })
     })
 })

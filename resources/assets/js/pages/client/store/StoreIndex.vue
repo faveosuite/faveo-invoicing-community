@@ -3,7 +3,7 @@
         <div v-if="loadingGroups" class="row justify-content-center py-3"><loader /></div>
 
         <template v-else>
-            <!-- Tagline only — group name is shown in the page header -->
+            <!-- Tagline only — group name shown in the page header via setPageTitle() -->
             <div v-if="currentGroup?.tagline" class="text-center mb-5">
                 <p class="text-muted">{{ currentGroup.tagline }}</p>
             </div>
@@ -89,8 +89,9 @@ async function selectGroup(groupId) {
         cloudSubdomain.value  = data.cloud_subdomain ?? ''
         dataCenters.value     = data.data_centers ?? []
 
+        setPageTitle(data.group?.name)
+
         const groupTitle = data.group?.meta_title || data.group?.name
-        setPageTitle(groupTitle)
         // No " | Company" suffix — this group has its own real SEO title
         // (admin-editable, same one server-rendered in <title> before Vue
         // mounted). Appending a suffix client-side would make the

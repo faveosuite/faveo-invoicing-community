@@ -36,7 +36,7 @@ const PRODUCTS_RESPONSE = {
 
 const STUBS = [
     'AppAlert', 'action-button', 'AppButton', 'SelectField', 'Switch',
-    'TinyMCE', 'TextArea', 'loader', 'inline-loader',
+    'TinyMCE', 'TextArea', 'loader', 'inline-loader', 'spinner-loader',
 ]
 
 describe('ProductBuildApply.vue', () => {
@@ -61,43 +61,71 @@ describe('ProductBuildApply.vue', () => {
         jest.clearAllMocks()
     })
 
+    // A selected product with a version + a real uploaded file — the exact
+    // minimum submit() will accept, used by every "reaches the API" test below.
+    async function makeSubmitValid() {
+        wrapper.vm.toggleProduct(1)
+        wrapper.vm.productVersions[1] = '1.0.0'
+        wrapper.vm.form.description = 'A description'
+        wrapper.vm.onFile({ target: { files: [new File(['content'], 'source.zip', { type: 'application/zip' })] } })
+        await flushPromises()
+    }
+
     it('is a vue instance', () => {
         expect(wrapper.exists()).toBeTruthy()
     })
 
-    it('fetches grouped products on mount and clears loadingProducts', () => {
+    it('fetches grouped products on mount, clears loadingProducts, and defaults to the first group', () => {
         expect(wrapper.vm.loadingProducts).toBe(false)
-        expect(wrapper.vm.groupedProducts.map(g => g.groupName)).toEqual(['Group A', 'Group B'])
+        expect(wrapper.vm.rawGroups.map(g => g.groupName)).toEqual(['Group A', 'Group B'])
+        expect(wrapper.vm.activeGroup).toBe('Group A')
     })
 
     it('selectedProductIds starts empty', () => {
         expect(wrapper.vm.selectedProductIds).toEqual([])
     })
 
-    // ── Search filtering ────────────────────────────────────────────────
-    it('groupedProducts returns everything when search is empty', () => {
-        expect(wrapper.vm.groupedProducts).toHaveLength(2)
+    // ── Browsing: one group / selected-only / search ──────────────────────
+    it('visibleProducts defaults to only the active group', () => {
+        expect(wrapper.vm.viewMode).toBe('group')
+        expect(wrapper.vm.visibleProducts.map(p => p.id)).toEqual([1, 2])
     })
 
-    it('groupedProducts filters products by name within a group', () => {
+    it('selectGroup switches the active group and clears search/selected-only', () => {
+        wrapper.vm.productSearch = 'x'
+        wrapper.vm.onlySelected = true
+        wrapper.vm.selectGroup('Group B')
+        expect(wrapper.vm.activeGroup).toBe('Group B')
+        expect(wrapper.vm.productSearch).toBe('')
+        expect(wrapper.vm.onlySelected).toBe(false)
+        expect(wrapper.vm.visibleProducts.map(p => p.id)).toEqual([3])
+    })
+
+    it('search matches by product name across every group, not just the active one', () => {
+        wrapper.vm.productSearch = 'product'
+        expect(wrapper.vm.viewMode).toBe('search')
+        expect(wrapper.vm.visibleProducts.map(p => p.id).sort()).toEqual([1, 2, 3])
+    })
+
+    it('search narrows to a single match', () => {
         wrapper.vm.productSearch = 'plain'
-        expect(wrapper.vm.groupedProducts).toHaveLength(1)
-        expect(wrapper.vm.groupedProducts[0].groupName).toBe('Group A')
-        expect(wrapper.vm.groupedProducts[0].products).toHaveLength(1)
-        expect(wrapper.vm.groupedProducts[0].products[0].id).toBe(1)
+        expect(wrapper.vm.visibleProducts).toHaveLength(1)
+        expect(wrapper.vm.visibleProducts[0].id).toBe(1)
     })
 
-    it('groupedProducts keeps every product in a group when the group name matches', () => {
-        wrapper.vm.productSearch = 'group a'
-        expect(wrapper.vm.groupedProducts[0].products).toHaveLength(2)
-    })
-
-    it('groupedProducts drops groups with no matches', () => {
+    it('search with no matches returns an empty list', () => {
         wrapper.vm.productSearch = 'nonexistent'
-        expect(wrapper.vm.groupedProducts).toHaveLength(0)
+        expect(wrapper.vm.visibleProducts).toHaveLength(0)
     })
 
-    // ── Selection ────────────────────────────────────────────────────────
+    it('toggleOnlySelected switches to the selected-only tray', () => {
+        wrapper.vm.toggleProduct(3)
+        wrapper.vm.toggleOnlySelected()
+        expect(wrapper.vm.viewMode).toBe('selected')
+        expect(wrapper.vm.visibleProducts.map(p => p.id)).toEqual([3])
+    })
+
+    // ── Selection ──────────────────────────────────────────────────────────
     it('toggleProduct adds an id when not already selected', () => {
         wrapper.vm.toggleProduct(1)
         expect(wrapper.vm.selectedProductIds).toContain(1)
@@ -115,34 +143,31 @@ describe('ProductBuildApply.vue', () => {
         expect(wrapper.vm.errors.products).toBeUndefined()
     })
 
-    it('isGroupFullySelected is false until every product in the group is selected', () => {
-        const group = wrapper.vm.groupedProducts[0]
+    it('allVisibleSelected is false until every product in the active group is selected', () => {
         wrapper.vm.toggleProduct(1)
-        expect(wrapper.vm.isGroupFullySelected(group)).toBe(false)
+        expect(wrapper.vm.allVisibleSelected).toBe(false)
         wrapper.vm.toggleProduct(2)
-        expect(wrapper.vm.isGroupFullySelected(group)).toBe(true)
+        expect(wrapper.vm.allVisibleSelected).toBe(true)
     })
 
-    it('toggleGroup selects every product in the group when not fully selected', () => {
-        const group = wrapper.vm.groupedProducts[0]
-        wrapper.vm.toggleGroup(group)
+    it('toggleAllVisible selects every product in the active group when not fully selected', () => {
+        wrapper.vm.toggleAllVisible()
         expect(wrapper.vm.selectedProductIds).toEqual(expect.arrayContaining([1, 2]))
     })
 
-    it('toggleGroup deselects every product in the group when fully selected', () => {
-        const group = wrapper.vm.groupedProducts[0]
-        wrapper.vm.toggleGroup(group)
-        wrapper.vm.toggleGroup(group)
+    it('toggleAllVisible deselects every product in the active group when fully selected', () => {
+        wrapper.vm.toggleAllVisible()
+        wrapper.vm.toggleAllVisible()
         expect(wrapper.vm.selectedProductIds).not.toEqual(expect.arrayContaining([1, 2]))
     })
 
-    it('toggleGroup does not disturb selections from other groups', () => {
+    it('toggleAllVisible does not disturb selections from a different group', () => {
         wrapper.vm.toggleProduct(3)
-        wrapper.vm.toggleGroup(wrapper.vm.groupedProducts[0])
+        wrapper.vm.toggleAllVisible()
         expect(wrapper.vm.selectedProductIds).toContain(3)
     })
 
-    // ── Version cascading ─────────────────────────────────────────────────
+    // ── Version cascading ───────────────────────────────────────────────────
     it('onMainVersionChange stamps every product across every group', () => {
         wrapper.vm.onMainVersionChange('9.9.9')
         expect(wrapper.vm.productVersions[1]).toBe('9.9.9')
@@ -150,17 +175,17 @@ describe('ProductBuildApply.vue', () => {
         expect(wrapper.vm.productVersions[3]).toBe('9.9.9')
     })
 
-    it('onGroupVersionChange stamps only that group\'s products', () => {
-        const groupA = wrapper.vm.groupedProducts[0]
-        wrapper.vm.onGroupVersionChange(groupA, '2.0.0')
+    it('onBulkVersionInput stamps only the products currently visible', () => {
+        wrapper.vm.onBulkVersionInput('2.0.0')
         expect(wrapper.vm.productVersions[1]).toBe('2.0.0')
         expect(wrapper.vm.productVersions[2]).toBe('2.0.0')
         expect(wrapper.vm.productVersions[3]).toBeUndefined()
     })
 
-    it('a later group version change does not override an unrelated group', () => {
+    it('a bulk version set for one group does not leak into another group', () => {
         wrapper.vm.onMainVersionChange('1.0.0')
-        wrapper.vm.onGroupVersionChange(wrapper.vm.groupedProducts[1], '3.0.0')
+        wrapper.vm.selectGroup('Group B')
+        wrapper.vm.onBulkVersionInput('3.0.0')
         expect(wrapper.vm.productVersions[1]).toBe('1.0.0')
         expect(wrapper.vm.productVersions[3]).toBe('3.0.0')
     })
@@ -208,11 +233,7 @@ describe('ProductBuildApply.vue', () => {
 
     // ── submit() success ─────────────────────────────────────────────────
     it('submits and navigates to /products on success', async () => {
-        wrapper.vm.toggleProduct(1)
-        wrapper.vm.productVersions[1] = '1.0.0'
-        wrapper.vm.form.description = 'A description'
-        wrapper.vm.onFile({ target: { files: [new File(['content'], 'source.zip', { type: 'application/zip' })] } })
-        await flushPromises()
+        await makeSubmitValid()
 
         await wrapper.vm.submit()
         await flushPromises()
@@ -229,11 +250,7 @@ describe('ProductBuildApply.vue', () => {
         globalThis.mockHttp.onPut(/\/product\/upload-build\/apply/).reply(422, {
             errors: { description: ['Description is required.'] },
         })
-        wrapper.vm.toggleProduct(1)
-        wrapper.vm.productVersions[1] = '1.0.0'
-        wrapper.vm.form.description = 'A description'
-        wrapper.vm.onFile({ target: { files: [new File(['content'], 'source.zip', { type: 'application/zip' })] } })
-        await flushPromises()
+        await makeSubmitValid()
 
         await wrapper.vm.submit()
         await flushPromises()

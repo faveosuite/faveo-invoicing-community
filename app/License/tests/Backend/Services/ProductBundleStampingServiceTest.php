@@ -116,7 +116,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('product-bundle-stamping')]
-    public function stamps_core_product_faveoconfig_in_database_mode_and_strips_unmatched_plugins(): void
+    public function stamps_core_product_faveoconfig_in_database_mode_and_leaves_other_entries_untouched(): void
     {
         $product = $this->createProduct(['product_key' => 'COREKEY123', 'config_file_path' => 'storage/faveoconfig.ini']);
 
@@ -136,7 +136,10 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $this->assertStringNotContainsString('ED25519_PUBLIC_KEY', $config);
         $this->assertMatchesRegularExpression('/^APL_SALT=[0-9a-f]{16}$/m', $config);
 
-        $this->assertFalse($this->zipHasEntry($resultPath, 'app/Plugins/UnrelatedPlugin/config.php'));
+        // Nothing is ever removed from the zip — every plugin folder ships
+        // regardless of what this product bundles, same as open source.
+        $unrelatedPlugin = $this->readZipEntry($resultPath, 'app/Plugins/UnrelatedPlugin/config.php');
+        $this->assertStringContainsString("'product_key' => 'OLD'", $unrelatedPlugin);
 
         $product->refresh();
         $this->assertNotEmpty($product->apl_salt);
@@ -171,7 +174,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('product-bundle-stamping')]
-    public function bundled_plugin_folder_is_kept_and_stamped_with_its_own_identity(): void
+    public function bundling_a_plugin_via_product_plugin_group_has_no_effect_on_the_zip(): void
     {
         $product = $this->createProduct(['product_key' => 'COREKEY789', 'config_file_path' => 'storage/faveoconfig.ini']);
         $plugin = $this->createProduct(['product_key' => 'PLUGKEY1', 'name' => 'Adhoc Approval', 'config_file_path' => 'config.php']);
@@ -185,11 +188,12 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
         $resultPath = $this->service->stampToLocalFile('canonical/path.zip', $product, '2.0.0');
 
-        $this->assertTrue($this->zipHasEntry($resultPath, 'app/Plugins/adhoc-approval/config.php'));
+        // product_plugin_group is used elsewhere (storefront bundling), but
+        // the stamping service no longer reads it at all — the plugin's own
+        // file ships exactly as it was in the canonical zip.
         $pluginConfig = $this->readZipEntry($resultPath, 'app/Plugins/adhoc-approval/config.php');
-        $this->assertStringContainsString('PRODUCT_KEY=PLUGKEY1', $pluginConfig);
-        $this->assertStringContainsString('PRODUCT_ID='.$plugin->id, $pluginConfig);
-        $this->assertStringContainsString('APP_VERSION=2.0.0', $pluginConfig);
+        $this->assertStringContainsString("'product_key' => 'OLDKEY'", $pluginConfig);
+        $this->assertStringContainsString("'product_id' => 999", $pluginConfig);
 
         @unlink($resultPath);
         @unlink($sourceZip);
@@ -197,29 +201,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('product-bundle-stamping')]
-    public function bundled_plugin_folder_matches_by_normalized_name(): void
-    {
-        $product = $this->createProduct(['product_key' => 'COREKEYA']);
-        $plugin = $this->createProduct(['product_key' => 'PLUGKEYA', 'name' => 'AdHoc Approval']);
-        ProductPluginGroup::create(['product_id' => $product->id, 'plugin_id' => $plugin->id]);
-
-        $sourceZip = $this->makeZip([
-            'storage/faveoconfig.ini' => '',
-            'app/Plugins/AdHocApproval/config.php' => "<?php\nreturn ['product_id' => 1, 'product_key' => 'X', 'version' => '0.0.1'];\n",
-        ]);
-        $this->stubAttachToServe($sourceZip);
-
-        $resultPath = $this->service->stampToLocalFile('canonical/path.zip', $product, '1.0.0');
-
-        $this->assertTrue($this->zipHasEntry($resultPath, 'app/Plugins/AdHocApproval/config.php'));
-
-        @unlink($resultPath);
-        @unlink($sourceZip);
-    }
-
-    #[Test]
-    #[Group('product-bundle-stamping')]
-    public function only_unmatched_plugin_folders_are_stripped_when_others_are_bundled(): void
+    public function no_plugin_folder_is_ever_stripped_regardless_of_bundling(): void
     {
         $product = $this->createProduct(['product_key' => 'COREKEYB']);
         $plugin = $this->createProduct(['product_key' => 'PLUGKEYB', 'name' => 'Bundled One']);
@@ -236,8 +218,8 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
         $resultPath = $this->service->stampToLocalFile('canonical/path.zip', $product, '1.0.0');
 
         $this->assertTrue($this->zipHasEntry($resultPath, 'app/Plugins/bundled-one/config.php'));
-        $this->assertFalse($this->zipHasEntry($resultPath, 'app/Plugins/not-bundled/config.php'));
-        $this->assertFalse($this->zipHasEntry($resultPath, 'app/Plugins/not-bundled/public/index.php'));
+        $this->assertTrue($this->zipHasEntry($resultPath, 'app/Plugins/not-bundled/config.php'));
+        $this->assertTrue($this->zipHasEntry($resultPath, 'app/Plugins/not-bundled/public/index.php'));
 
         @unlink($resultPath);
         @unlink($sourceZip);
@@ -335,7 +317,7 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('product-bundle-stamping')]
-    public function file_mode_order_embeds_license_into_each_bundled_plugin_folder_too(): void
+    public function file_mode_order_does_not_embed_a_license_into_any_plugin_folder(): void
     {
         $product = $this->createProduct([
             'product_key' => 'FILEMODECORE',
@@ -363,49 +345,10 @@ class ProductBundleStampingServiceTest extends LicenseTestCase
 
         $resultPath = $this->service->stampToLocalFile('canonical/path.zip', $product, '1.0.0', $order);
 
+        // Only the target product's own declared path gets the license —
+        // plugin folders are never touched, licensed or not.
         $this->assertTrue($this->zipHasEntry($resultPath, 'public/script/signature/license.json'));
-        $this->assertTrue($this->zipHasEntry($resultPath, 'app/Plugins/my-plugin/public/script/signature/license.json'));
-
-        @unlink($resultPath);
-        @unlink($sourceZip);
-    }
-
-    #[Test]
-    #[Group('product-bundle-stamping')]
-    public function file_mode_order_skips_license_file_for_bundled_plugin_not_attached_to_license(): void
-    {
-        $product = $this->createProduct([
-            'product_key' => 'FILEMODECORE2',
-            'config_file_path' => 'storage/faveoconfig.ini',
-            'license_file_path' => 'public/script/signature/license.json',
-        ]);
-        $plugin = $this->createProduct([
-            'product_key' => 'FILEMODEPLUGIN2',
-            'name' => 'Unattached Plugin',
-            'license_file_path' => 'public/script/signature/license.json',
-        ]);
-        ProductPluginGroup::create(['product_id' => $product->id, 'plugin_id' => $plugin->id]);
-        $this->seedLicenseSchemes();
-
-        $orderNumber = random_int(10000000, 99999999);
-        $order = Order::factory()->create(['product' => $product->id, 'number' => $orderNumber, 'license_mode' => 'File']);
-        $this->createLicense(['product_id' => $product->id, 'license_order_number' => $orderNumber]);
-        // Note: plugin intentionally NOT attached via addonProducts().
-
-        $sourceZip = $this->makeZip([
-            'storage/faveoconfig.ini' => '',
-            'app/Plugins/unattached-plugin/config.php' => "<?php\nreturn ['product_id' => 1, 'product_key' => 'X', 'version' => '0.0.1'];\n",
-        ]);
-        $this->stubAttachToServe($sourceZip);
-
-        $resultPath = $this->service->stampToLocalFile('canonical/path.zip', $product, '1.0.0', $order);
-
-        // Still bundled per product_plugin_group, so the folder is kept & stamped...
-        $this->assertTrue($this->zipHasEntry($resultPath, 'app/Plugins/unattached-plugin/config.php'));
-        // ...but gets no license file, since it isn't attached to this order's license.
-        $this->assertFalse($this->zipHasEntry($resultPath, 'app/Plugins/unattached-plugin/public/script/signature/license.json'));
-        // The core product's own license file is still embedded.
-        $this->assertTrue($this->zipHasEntry($resultPath, 'public/script/signature/license.json'));
+        $this->assertFalse($this->zipHasEntry($resultPath, 'app/Plugins/my-plugin/public/script/signature/license.json'));
 
         @unlink($resultPath);
         @unlink($sourceZip);

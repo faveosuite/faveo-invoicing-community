@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Github\GithubApiController;
+use App\Http\Controllers\License\LicensePermissionsController;
 use App\License\Services\LicenseService;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
@@ -127,13 +128,24 @@ class BaseProductController extends ExtendedBaseProductController
                 throw new Exception(__('message.no_permission_for_action'));
             }
 
+            $permissions = LicensePermissionsController::getPermissionsForProduct((int) $order->product);
+            if (($permissions['downloadPermission'] ?? 0) != 1) {
+                throw new Exception(__('message.no_permission_for_action'));
+            }
+
             $subscription = $order->subscription;
 
             if (! $subscription) {
                 throw new Exception(__('message.no_order_exists_invoice'));
             }
 
-            if ($subscription->update_ends_at && now()->gt($subscription->update_ends_at)) {
+            // A product with allowDownloadTillExpiry keeps serving whatever was
+            // released before the update window closed — the per-version query
+            // below already enforces that date — so only the plain block-everything
+            // behavior needs to skip itself here once that permission is on.
+            if (! ($permissions['allowDownloadTillExpiry'] ?? false)
+                && $subscription->update_ends_at
+                && now()->gt($subscription->update_ends_at)) {
                 throw new Exception(__('message.renew_subscription_download'));
             }
 

@@ -104,10 +104,10 @@ class NonPublicDependencies extends BaseDependencyController
                     $q->where('permissions', $label);
                 });
             })
-            ->with('groupRelation:id,name')
+            ->with(['groupRelation:id,name', 'licenseType:id,name'])
             ->orderBy('group')
             ->orderBy('name')
-            ->get(['id', 'name', 'group']);
+            ->get(['id', 'name', 'group', 'type']);
 
         $grouped = $products->groupBy(fn ($p) => $p->groupRelation?->id ?? 0); // @phpstan-ignore nullsafe.neverNull
 
@@ -118,7 +118,7 @@ class NonPublicDependencies extends BaseDependencyController
             return [
                 'id' => 'group_'.$groupId,
                 'name' => $group?->name ?? 'Uncategorised', // @phpstan-ignore nullsafe.neverNull
-                'children' => $items->map(fn ($p): array => ['id' => $p->id, 'name' => $p->name])->values()->all(),
+                'children' => $items->map(fn ($p): array => ['id' => $p->id, 'name' => $p->name, 'license_type' => $p->licenseType?->name])->values()->all(),
             ];
         })->values()->all();
 

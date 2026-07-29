@@ -121,7 +121,7 @@ class BaseOrderController extends ExtendedOrderController
             $supportExpiry = $sub?->ends_at;
         } else {
             $isOneTime = $plan->periods()->where('name', 'One Time')->exists();
-            $licenseExpiry = $isOneTime ? '' : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $plan->days); // @phpstan-ignore argument.type
+            $licenseExpiry = $isOneTime ? null : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $plan->days); // @phpstan-ignore argument.type
             $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $plan->days); // @phpstan-ignore argument.type
             $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $plan->days); // @phpstan-ignore argument.type
         }
@@ -160,11 +160,11 @@ class BaseOrderController extends ExtendedOrderController
      *
      * @param  bool  $permissions  [Whether Permissons for generating License Expiry Date are there or not]
      * @param  int  $days  [No of days that would get addeed to the current date ]
-     * @return string [The final License Expiry date that is generated]
+     * @return Carbon|null [The final License Expiry date that is generated, null means no expiry]
      */
-    protected function getLicenseExpiryDate(bool $permissions, int $days): Carbon|string
+    protected function getLicenseExpiryDate(bool $permissions, int $days): ?Carbon
     {
-        $ends_at = '';
+        $ends_at = null;
         if ($days > 0 && $permissions == 1) {
             $dt = Date::now();
             $ends_at = $dt->addDays($days);
@@ -178,11 +178,11 @@ class BaseOrderController extends ExtendedOrderController
      *
      * @param  bool  $permissions  [Whether Permissons for generating Updates Expiry Date are there or not]
      * @param  int  $days  [No of days that would get added to the current date ]
-     * @return string [The final Updates Expiry date that is generated]
+     * @return Carbon|null [The final Updates Expiry date that is generated, null means no expiry]
      */
-    protected function getUpdatesExpiryDate(bool $permissions, int $days): Carbon|string
+    protected function getUpdatesExpiryDate(bool $permissions, int $days): ?Carbon
     {
-        $update_ends_at = '';
+        $update_ends_at = null;
         if ($days > 0 && $permissions == 1) {
             $dt = Date::now();
             $update_ends_at = $dt->addDays($days);
@@ -196,11 +196,11 @@ class BaseOrderController extends ExtendedOrderController
      *
      * @param  bool  $permissions  [Whether Permissons for generating Updates Expiry Date are there or not]
      * @param  int  $days  [No of days that would get added to the current date ]
-     * @return string [The final Suport Expiry date that is generated]
+     * @return Carbon|null [The final Suport Expiry date that is generated, null means no expiry]
      */
-    protected function getSupportExpiryDate(bool $permissions, int $days): Carbon|string
+    protected function getSupportExpiryDate(bool $permissions, int $days): ?Carbon
     {
-        $support_ends_at = '';
+        $support_ends_at = null;
         if ($days > 0 && $permissions == 1) {
             $dt = Date::now();
             $support_ends_at = $dt->addDays($days);

@@ -96,6 +96,20 @@ class DependencyControllerTest extends DBTestCase
         $this->assertNotContains($withoutPermission->id, $childIds);
     }
 
+    public function test_products_dependency_includes_each_products_license_type_name(): void
+    {
+        $type = LicenseType::factory()->create(['name' => 'Perpetual license']);
+        $product = Product::factory()->create(['invoice_hidden' => 0, 'type' => $type->id, 'name' => 'Typed Product '.uniqid()]);
+
+        $response = $this->getJson('/dependency/products');
+
+        $response->assertStatus(200);
+        $child = collect($this->productChildren($response))->firstWhere('id', $product->id);
+
+        $this->assertNotNull($child);
+        $this->assertSame('Perpetual license', $child['license_type']);
+    }
+
     public function test_periods_dependency_returns_200(): void
     {
         $response = $this->getJson('/dependency/periods');

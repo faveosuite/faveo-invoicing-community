@@ -30,7 +30,7 @@
               <span><strong class="text-color-dark">{{ __('message.status') }}</strong><br>{{ __('message.success') }}</span>
             </div>
             <div class="text-center mt-4 mt-md-0">
-              <span><strong class="text-color-dark">{{ __('message.date') }}</strong><br>{{ invoice.date }}</span>
+              <span><strong class="text-color-dark">{{ __('message.date') }}</strong><br>{{ formatDate(invoice.date) }}</span>
             </div>
             <div v-if="paymentMethod" class="text-center mt-4 mt-md-0">
               <span><strong class="text-color-dark">{{ __('message.payment-method') }}</strong><br>{{ paymentMethod }}</span>
@@ -108,6 +108,9 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import http, { parseErrorMessage } from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate } = useDateTime()
 
 const route = useRoute()
 const invoiceId = route.query.invoice

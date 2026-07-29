@@ -307,6 +307,7 @@
                     <div v-if="errors.limit" class="invalid-feedback">{{ errors.limit }}</div>
                 </div>
                 <DatePicker
+                    v-if="canEditExpiry.update_end"
                     name="update_end"
                     :label="__('message.updates_expiry')"
                     :value="licenseEditModal.update_end"
@@ -314,6 +315,7 @@
                     :onChange="(val) => licenseEditModal.update_end = val"
                 />
                 <DatePicker
+                    v-if="canEditExpiry.subscription_end"
                     name="subscription_end"
                     :label="__('message.license_expiry')"
                     :value="licenseEditModal.subscription_end"
@@ -321,12 +323,16 @@
                     :onChange="(val) => licenseEditModal.subscription_end = val"
                 />
                 <DatePicker
+                    v-if="canEditExpiry.support_end"
                     name="support_end"
                     :label="__('message.support_expiry')"
                     :value="licenseEditModal.support_end"
                     format="MM/DD/YYYY"
                     :onChange="(val) => licenseEditModal.support_end = val"
                 />
+                <p v-if="someExpiryFieldsHidden" class="text-muted small mb-0">
+                    {{ __('message.some_dates_not_editable') || 'Some dates aren\'t editable for this license type.' }}
+                </p>
             </template>
             <template #controls>
                 <action-button action="save" :loading="saving.licenseEdit" @click="saveLicenseEdit" />
@@ -427,6 +433,7 @@ const loading        = ref(true)
 const copied         = ref(false)
 const order          = ref(null)
 const licenseDetails = ref(null)
+const permissions    = ref({})
 const autorenewal    = ref(0)
 const isSubscribed   = ref(0)
 const paymentLog     = ref(null)
@@ -464,6 +471,17 @@ const statusBadgeClass = computed(() => {
     if (s === 'failed')   return 'bg-danger'
     return 'bg-secondary'
 })
+
+// Which expiry-date fields this order's product license type actually lets
+// an admin change — mirrors SubscriptionRenewalService::PERMISSION_MAP (the
+// write side of this same check).
+const canEditExpiry = computed(() => ({
+    update_end:       !!permissions.value.generateUpdatesxpiryDate,
+    subscription_end: !!permissions.value.generateLicenseExpiryDate,
+    support_end:      !!permissions.value.generateSupportExpiryDate,
+}))
+
+const someExpiryFieldsHidden = computed(() => Object.values(canEditExpiry.value).some(v => !v))
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function capitalize(str) {
@@ -634,12 +652,15 @@ async function saveLicenseEdit() {
     if (!await validateForm(licenseDetailsSchema, licenseEditModal, setErrors)) return
     saving.licenseEdit = true
     try {
+        // Only send the date fields actually shown/editable — sending a
+        // hidden field's unchanged value would still count as "attempting"
+        // it server-side, and trigger a bogus not-permitted warning.
         const res = await http.post(`/update-license-details`, {
             orderid:          orderId,
             limit:            licenseEditModal.limit,
-            update_end:       licenseEditModal.update_end,
-            subscription_end: licenseEditModal.subscription_end,
-            support_end:      licenseEditModal.support_end,
+            ...(canEditExpiry.value.update_end       ? { update_end: licenseEditModal.update_end } : {}),
+            ...(canEditExpiry.value.subscription_end ? { subscription_end: licenseEditModal.subscription_end } : {}),
+            ...(canEditExpiry.value.support_end      ? { support_end: licenseEditModal.support_end } : {}),
         })
         licenseEditModal.show = false
         successHandler(res, COMPONENT)
@@ -657,6 +678,7 @@ async function reload() {
     const d   = res.data?.data ?? res.data
     order.value          = d.order
     licenseDetails.value = d.license_details
+    permissions.value    = d.permissions ?? {}
     autorenewal.value    = d.autorenewal
     isSubscribed.value   = d.is_subscribed
     paymentLog.value     = d.payment_log

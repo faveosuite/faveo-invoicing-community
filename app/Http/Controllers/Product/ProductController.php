@@ -294,10 +294,8 @@ class ProductController extends BaseProductController
      * same canonical file — replacing what would otherwise be one manual
      * productUploadCreate submission per product. No per-product file is
      * created here: the build is stamped with each product's own identity
-     * (and filtered to that product's bundled plugins, via the existing
-     * product_plugin_group mapping) fresh, on demand, the moment it's
-     * actually downloaded — see ProductBundleStampingService and
-     * DownloadFileController::downloadFile.
+     * fresh, on demand, the moment it's actually downloaded — see
+     * ProductBundleStampingService and DownloadFileController::downloadFile.
      *
      * Each product carries its own `version` (not one shared value) — tier
      * variants of the same core build typically share a version, but a

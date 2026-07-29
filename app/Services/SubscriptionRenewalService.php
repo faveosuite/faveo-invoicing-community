@@ -58,19 +58,24 @@ class SubscriptionRenewalService
     /**
      * Set a specific date field manually (admin panel).
      * Checks permission, saves, and syncs license server.
+     *
+     * @return bool Whether the field was actually permitted and written —
+     *              callers must surface this, not assume success.
      */
-    public function setDate(Subscription $sub, string $field, string $date): void
+    public function setDate(Subscription $sub, string $field, string $date): bool
     {
         $permissions = LicensePermissionsController::getPermissionsForProduct($sub->product_id);
 
         if (! ($permissions[self::PERMISSION_MAP[$field]] ?? false)) {
-            return;
+            return false;
         }
 
         $sub->$field = $date;
         $sub->save();
 
         $this->syncLicense($sub);
+
+        return true;
     }
 
     public function updateInstallationLimit(Subscription $sub, int $limit): void

@@ -19,20 +19,42 @@ trait UpdateDates
             $service = resolve(SubscriptionRenewalService::class);
             $sub = Subscription::where('order_id', $request->input('orderid'))->firstOrFail();
 
+            $requested = 0;
+            $skipped = [];
+
             if ($request->filled('update_end')) {
-                $service->setDate($sub, 'update_ends_at', $this->parseDate($request->input('update_end')));
+                $requested++;
+                if (! $service->setDate($sub, 'update_ends_at', $this->parseDate($request->input('update_end')))) {
+                    $skipped[] = __('message.updates_expiry');
+                }
             }
 
             if ($request->filled('subscription_end')) {
-                $service->setDate($sub, 'ends_at', $this->parseDate($request->input('subscription_end')));
+                $requested++;
+                if (! $service->setDate($sub, 'ends_at', $this->parseDate($request->input('subscription_end')))) {
+                    $skipped[] = __('message.license_expiry');
+                }
             }
 
             if ($request->filled('support_end')) {
-                $service->setDate($sub, 'support_ends_at', $this->parseDate($request->input('support_end')));
+                $requested++;
+                if (! $service->setDate($sub, 'support_ends_at', $this->parseDate($request->input('support_end')))) {
+                    $skipped[] = __('message.support_expiry');
+                }
             }
 
             if ($request->filled('limit')) {
                 $service->updateInstallationLimit($sub, (int) $request->input('limit'));
+            }
+
+            // Every requested date field was blocked by this product's license
+            // type — nothing actually changed, so this must not read as success.
+            if ($skipped && count($skipped) === $requested) {
+                return errorResponse(__('message.fields_not_permitted', ['fields' => implode(', ', $skipped)]));
+            }
+
+            if ($skipped) {
+                return successResponse(__('message.some_fields_not_permitted', ['fields' => implode(', ', $skipped)]));
             }
 
             return successResponse(__('message.updated-successfully'));

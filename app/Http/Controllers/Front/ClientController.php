@@ -413,7 +413,7 @@ class ClientController extends BaseClientController
             $invoiceIds = $order->invoices()->pluck('invoices.id');
 
             $paginated = Invoice::whereIn('id', $invoiceIds)
-                ->select('id', 'number', 'date', 'grand_total', 'currency', 'status')
+                ->select('id', 'number', 'date', 'grand_total', 'currency', 'status', 'is_renewed')
                 ->orderBy('date', 'desc')
                 ->paginate(10);
 
@@ -423,6 +423,7 @@ class ClientController extends BaseClientController
                 'date' => $model->date,
                 'grand_total' => currencyFormat($model->grand_total, $model->currency),
                 'status' => $model->status,
+                'is_renewed' => (bool) $model->is_renewed,
             ]);
 
             return successResponse('', $paginated);
@@ -502,8 +503,9 @@ class ClientController extends BaseClientController
 
         if ($subscription instanceof Subscription) {
             foreach ($allReleases as $release) {
-                if (strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at)
-                    || $subscription->update_ends_at == '0000-00-00 00:00:00') {
+                if (! $subscription->update_ends_at
+                    || $subscription->update_ends_at == '0000-00-00 00:00:00'
+                    || strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at)) {
                     $countExpiry++;
                 }
             }
@@ -523,8 +525,9 @@ class ClientController extends BaseClientController
             if (! $subscription instanceof Subscription) {
                 $canDownload = true;
             } elseif ($allowTillExpiry) {
-                $canDownload = strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at)
-                    || $subscription->update_ends_at == '0000-00-00 00:00:00';
+                $canDownload = ! $subscription->update_ends_at
+                    || $subscription->update_ends_at == '0000-00-00 00:00:00'
+                    || strtotime((string) $release['created_at']) < strtotime((string) $subscription->update_ends_at);
             } else {
                 $canDownload = $countExpiry === $countVersions;
             }
@@ -589,7 +592,7 @@ class ClientController extends BaseClientController
         $countExpiry = 0;
 
         if ($subscription && ! $allowTillExpiry) {
-            $countExpiry = $subscription->update_ends_at == '0000-00-00 00:00:00'
+            $countExpiry = ! $subscription->update_ends_at || $subscription->update_ends_at == '0000-00-00 00:00:00'
                 ? $countVersions
                 : (clone $base)->where('created_at', '<', $subscription->update_ends_at)->count();
         }
@@ -603,9 +606,8 @@ class ClientController extends BaseClientController
                 $canDownload = true;
             } elseif ($allowTillExpiry) {
                 $createdAt = $version->created_at;
-                $canDownload = $createdAt
-                    ? ($createdAt->toDateTimeString() < $subscription->update_ends_at || $subscription->update_ends_at == '0000-00-00 00:00:00')
-                    : ($subscription->update_ends_at == '0000-00-00 00:00:00');
+                $noExpiry = ! $subscription->update_ends_at || $subscription->update_ends_at == '0000-00-00 00:00:00';
+                $canDownload = $noExpiry || ($createdAt && $createdAt->toDateTimeString() < $subscription->update_ends_at);
             } else {
                 $canDownload = $countExpiry == $countVersions;
             }

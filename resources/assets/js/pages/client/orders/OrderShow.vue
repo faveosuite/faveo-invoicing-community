@@ -133,7 +133,7 @@
                             </div>
                             <div class="col-sm-7 d-flex align-items-center gap-2">
                                 <span>{{ formatDate(order.license_ends_at) }}</span>
-                                <button v-if="order.status !== 'Terminated'"
+                                <button v-if="order.status !== 'Terminated' && order.license_ends_at"
                                         class="btn btn-light btn-sm ms-2 table_btn"
                                         v-tooltip="__('message.renew')"
                                         @click="showRenewModal = true">
@@ -150,7 +150,19 @@
                                     <span class="fw-bold">{{ __('message.update_expiry_date') }}</span>
                                 </div>
                             </div>
-                            <div class="col-sm-7">{{ formatDate(order.update_ends_at) }}</div>
+                            <div class="col-sm-7 d-flex align-items-center gap-2">
+                                <span>{{ formatDate(order.update_ends_at) }}</span>
+                                <!-- One-time (lifetime license) products have no license expiry to renew,
+                                     so the renew action lives here instead, since updates/support are what run out.
+                                     But if updates never expire either (product has no expiring permissions at all),
+                                     there's nothing to renew. -->
+                                <button v-if="order.status !== 'Terminated' && !order.license_ends_at && order.update_ends_at"
+                                        class="btn btn-light btn-sm ms-2 table_btn"
+                                        v-tooltip="__('message.renew')"
+                                        @click="showRenewModal = true">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <template v-if="order.license_mode === 'File'">
@@ -227,7 +239,12 @@
                     <div v-if="activeTab === 'invoice'">
                         <DataTable :url="invoicesUrl" :dataColumns="invoiceColumns" :option="invoiceOptions">
                             <template #number="{ row }">
-                                <RouterLink :to="'/my-invoice/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
+                                <div class="d-flex flex-column">
+                                    <RouterLink :to="'/my-invoice/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
+                                    <span v-if="row.is_renewed" class="badge bg-primary mt-1 w-auto">
+                                        {{ __('message.renewed') }}
+                                    </span>
+                                </div>
                             </template>
                             <template #date="{ row }">{{ formatDate(row.date) }}</template>
                             <template #status="{ row }">
