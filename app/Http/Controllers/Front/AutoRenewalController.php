@@ -224,7 +224,7 @@ class AutoRenewalController extends Controller
                 $service->cancelSubscription($gateway, $subscription->subscribe_id);
             } catch (Exception $e) {
                 // Already cancelled at gateway — continue to reset local state
-                Logger::warning(sprintf('Subscription cancel skipped [%s]: ', $gateway).$e->getMessage()); // @phpstan-ignore staticMethod.notFound
+                Logger::exception(new Exception(sprintf('Subscription cancel skipped [%s]: ', $gateway).$e->getMessage(), previous: $e));
             }
         }
 

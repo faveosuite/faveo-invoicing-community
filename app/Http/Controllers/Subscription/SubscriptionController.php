@@ -333,7 +333,7 @@ class SubscriptionController extends Controller
                 };
             }
         } catch (Exception $exception) {
-            Logger::error($exception->getMessage()); // @phpstan-ignore staticMethod.notFound
+            Logger::exception($exception);
         }
     }
 

@@ -3603,6 +3603,7 @@ return [
     'select_data_center_required' => 'Please select a data center.',
     'select_product_required' => 'Please select a product.',
     'webhook_url_hint' => 'The URL where webhook events will be delivered.',
+    'stripe_webhook_url_hint' => 'Use this URL to create a "snapshot" event destination (the default type) in the Stripe Dashboard — "thin events" are not supported.',
 
     // Backend (PHP)
     'check-expiry' => 'Coupon has expired.',

@@ -27,12 +27,16 @@
                                     :value="form[field.name]"
                                     :onChange="(val, name) => { setFieldError(name, undefined); form[name] = val }"
                                     :error="errors[field.name]"
+                                    :hint="field.hint ?? ''"
                                 />
                             </div>
 
                             <!-- Webhook URL — read-only, at the end -->
                             <div v-if="form.webhook_url" class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('message.webhook_url') }}</label>
+                                <label class="form-label">
+                                    {{ __('message.webhook_url') }}
+                                    <Tooltip v-if="gatewayConfig.webhookUrlHint" :message="gatewayConfig.webhookUrlHint" size="small" />
+                                </label>
                                 <div class="input-group">
                                     <input class="form-control" readonly :value="form.webhook_url" />
                                     <button class="btn btn-outline-secondary" type="button" @click="copyWebhookUrl">
@@ -90,6 +94,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { __ } from '@/plugins/i18n'
 import { buildGatewaySchema } from '@/validations/admin/gatewayValidations'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
+import Tooltip from '@/components/Reusable/Tooltip.vue'
 
 const COMPONENT = 'payment-gateway-edit'
 const baseUrl = useBaseUrl()
@@ -126,6 +131,7 @@ const GATEWAY_CONFIGS = {
         ],
         fetchUrl: `${baseUrl}/get-stripe-settings`,
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/stripe`,
+        webhookUrlHint: __('message.stripe_webhook_url_hint'),
     },
 }
 
@@ -165,8 +171,8 @@ async function save() {
     if (!await validateForm(buildGatewaySchema(gatewayConfig.value.fields), form, setErrors)) return
     saving.value = true
     try {
-        const params = { ...form, auto_renewal: form.auto_renewal ? 1 : 0 }
-        const res = await http.get(gatewayConfig.value.saveUrl, { params })
+        const payload = { ...form, auto_renewal: form.auto_renewal ? 1 : 0 }
+        const res = await http.post(gatewayConfig.value.saveUrl, payload)
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)

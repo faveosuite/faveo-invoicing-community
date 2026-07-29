@@ -11,6 +11,7 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
 use DB;
+use Exception;
 use Logger;
 
 /**
@@ -174,7 +175,7 @@ class SubscriptionWebhookService
     {
         $subscription = Subscription::where('subscribe_id', $gatewaySubscriptionId)->first();
         if (! $subscription) {
-            Logger::warning(sprintf('SubscriptionWebhook: no subscription found for %s ID %s', $gateway, $gatewaySubscriptionId)); // @phpstan-ignore staticMethod.notFound
+            Logger::exception(new Exception(sprintf('SubscriptionWebhook: no subscription found for %s ID %s', $gateway, $gatewaySubscriptionId)));
 
             return;
         }

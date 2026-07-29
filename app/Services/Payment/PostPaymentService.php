@@ -23,7 +23,6 @@ use App\Plugins\Payment\Dto\SubscriptionRequest;
 use App\Traits\Payment\PostPaymentHandle;
 use App\Traits\TaxCalculation;
 use App\User;
-use Auth;
 use Crypt;
 use DB;
 use GuzzleHttp\Client;
@@ -233,23 +232,22 @@ class PostPaymentService
 
     private function doTheDeed(Invoice $invoice): void
     {
-        /** @var User $authUser */
-        $authUser = Auth::user();
-        $amt_to_credit = Payment::where('user_id', $authUser->id)
+        $userId = $invoice->user_id;
+        $amt_to_credit = Payment::where('user_id', $userId)
             ->where('payment_status', 'success')
             ->where('payment_method', 'Credit Balance')
             ->value('amt_to_credit');
 
         if ($amt_to_credit) {
             $amt_to_credit = (int) $amt_to_credit - (int) $invoice->billing_pay;
-            Payment::where('user_id', $authUser->id)
+            Payment::where('user_id', $userId)
                 ->where('payment_method', 'Credit Balance')
                 ->where('payment_status', 'success')
                 ->update(['amt_to_credit' => $amt_to_credit]);
-            User::where('id', $authUser->id)->update(['billing_pay_balance' => 0]);
+            User::where('id', $userId)->update(['billing_pay_balance' => 0]);
 
             $payment_id = DB::table('payments')
-                ->where('user_id', $authUser->id)
+                ->where('user_id', $userId)
                 ->where('payment_status', 'success')
                 ->where('payment_method', 'Credit Balance')
                 ->value('id');
@@ -307,16 +305,16 @@ class PostPaymentService
 
         /** @var Plan $plan */
         $plan = Plan::find($subscription->plan_id);
-        /** @var User $authUser2 */
-        $authUser2 = Auth::user();
+        /** @var User $invoiceUser */
+        $invoiceUser = User::find($invoice->user_id);
         /** @var Country $countryids */
-        $countryids = Country::where('country_code_char2', $authUser2->country)->first();
+        $countryids = Country::where('country_code_char2', $invoiceUser->country)->first();
         $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $invoice->currency)->where('country_id', $countryids->country_id)->value('renew_price');
         if (empty($price)) {
             $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $invoice->currency)->where('country_id', 0)->value('renew_price');
         }
 
-        $amount = $this->getPriceForCloud($order, $price, $subscription->product_id);
+        $amount = $this->getPriceForCloud($order, $price, $subscription->product_id, $invoiceUser);
         $renewPrice = intval(calculateUnitCost($invoice->currency, (float) $amount));
 
         if (! $subscription->subscribe_id) {
@@ -348,14 +346,12 @@ class PostPaymentService
         }
     }
 
-    private function getPriceForCloud(mixed $order, mixed $price, int $product): float
+    private function getPriceForCloud(mixed $order, mixed $price, int $product, User $invoiceUser): float
     {
         $numberofAgents = (int) ltrim(substr((string) $order->serial_key, -4), '0');
         $finalPrice = $numberofAgents * $price;
         $controller = new InvoiceController;
-        /** @var User $authUser3 */
-        $authUser3 = Auth::user();
-        $tax = $this->calculateTax($product, (string) $authUser3->state, (string) $authUser3->country);
+        $tax = $this->calculateTax($product, (string) $invoiceUser->state, (string) $invoiceUser->country);
         $tax_rate = $tax['value'];
 
         return rounding($controller->calculateTotal($tax_rate, $finalPrice));
