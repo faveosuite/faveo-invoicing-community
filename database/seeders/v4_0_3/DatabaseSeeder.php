@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
         $this->seedLicensesReportColumns();
         $this->seedSeoDefaultPages();
         $this->seedSeoSettings();
+        $this->razorpayAutoRenewSetupEmailTemplate();
     }
 
     /**
@@ -287,6 +288,95 @@ Dear {{name}},<br/><br/>
 </td><td style="width:30px;">&nbsp;</td></tr>
 <tr><td style="width:30px;padding:10px;">&nbsp;</td><td style="padding:20px 0 10px 0;width:640px;" align="left">{{contact}}</td><td style="width:30px;padding:10px;">&nbsp;</td></tr>
 </tbody></table>');
+    }
+
+    /**
+     * A distinct email template for "just opted in to auto-renewal at
+     * checkout, please authorize the recurring mandate" — separate from the
+     * existing 'stripe_subscription_authentication' template (despite its
+     * name, used for Razorpay), which is worded for renewal:cron sending it
+     * near an order's actual renewal date ("your subscription is about to
+     * expire, complete your payment now", with a "Make Payment" button).
+     * Sending that wording immediately after a fresh purchase reads as a
+     * second payment demand, when nothing is actually due yet.
+     */
+    public function razorpayAutoRenewSetupEmailTemplate(): void
+    {
+        if (! DB::table('template_types')->where('name', 'razorpay_autorenew_setup')->exists()) {
+            DB::table('template_types')->insert(['name' => 'razorpay_autorenew_setup', 'selected_template_id' => null, 'created_at' => now(), 'updated_at' => now()]);
+        }
+
+        $typeId = DB::table('template_types')->where('name', 'razorpay_autorenew_setup')->value('id');
+
+        $this->seedTemplate('Set up automatic renewal for your order', $typeId, '
+<table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
+   <tbody>
+   <tr>
+   <td style="width: 30px;">&nbsp;</td>
+   <td style="width: 640px; padding-top: 30px;">
+   <h2 style="color: #333; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; padding: 0; margin: 0;">{{logo}}</h2>
+   </td>
+   <td style="width: 30px;">&nbsp;</td>
+   </tr>
+   <tr>
+   <td style="width: 30px;">&nbsp;</td>
+   <td style="width: 640px; padding-top: 30px;">
+   <table style="width: 640px; border-bottom: 1px solid #ccc;" border="0" cellspacing="0" cellpadding="0">
+   <tbody>
+   <tr>
+   <td style="background: #fff; border-left: 1px solid #ccc; border-top: 1px solid #ccc; width: 40px; padding-top: 10px; padding-bottom: 10px;">&nbsp;</td>
+   <td style="background: #fff; border-top: 1px solid #ccc; padding: 40px 0 10px 0; width: 560px;" align="left">Dear {{name}},<br /><br />
+   <h1 style="color: #0088cc; font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; padding: 0; margin: 0;">Set up automatic renewal for your order</h1>
+   </td>
+   <td style="background: #fff; border-right: 1px solid #ccc; border-top: 1px solid #ccc; width: 40px; padding-top: 10px; padding-bottom: 10px;">&nbsp;</td>
+   </tr>
+   <tr>
+   <td style="background: #fff; border-left: 1px solid #ccc; width: 40px; padding-top: 10px; padding-bottom: 10px;">&nbsp;</td>
+   <td style="background: #fff; padding: 0; width: 560px;" align="left">
+   <p style="color: #333; font-family: Arial, sans-serif; font-size: 14px; line-height: 20px; text-align: left;">Thanks for your order with {{company_title}} — you chose to enable auto-renewal, so it stays active without any extra effort on your part.</p>
+   <p style="color: #333; font-family: Arial, sans-serif; font-size: 14px; line-height: 20px; text-align: left;"><strong>No payment is due right now.</strong> To finish setting this up, please authorize automatic renewal below. You\'ll only be charged {{total}} when it\'s actually time to renew, on {{date}}.</p>
+   <table style="margin: 25px 0 30px 0; width: 560px; border: 1px solid #ccc;" border="0" cellspacing="0" cellpadding="0">
+      <thead>
+      <tr style="background-color: #f8f8f8;">
+      <th style="color: #333; font-family: Arial,sans-serif; font-size: 14px; font-weight: bold; line-height: 20px; padding: 15px 8px;" align="left" valign="top">Product</th>
+      <th style="color: #333; font-family: Arial,sans-serif; font-size: 14px; font-weight: bold; line-height: 20px; padding: 15px 8px;" align="left" valign="top">Order No</th>
+      <th style="color: #333; font-family: Arial,sans-serif; font-size: 14px; font-weight: bold; line-height: 20px; padding: 15px 8px;" align="left" valign="top">Renews at</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+      <td style="border-bottom: 1px solid#ccc; color: #333; font-family: Arial,sans-serif; font-size: 14px; line-height: 20px; padding: 15px 8px;" valign="top">{{product}}</td>
+      <td style="border-bottom: 1px solid#ccc; color: #333; font-family: Arial,sans-serif; font-size: 14px; line-height: 20px; padding: 15px 8px;" valign="top">{{number}}</td>
+      <td style="border-bottom: 1px solid#ccc; color: #333; font-family: Arial,sans-serif; font-size: 14px; line-height: 20px; padding: 15px 8px;" valign="top">{{total}}</td>
+      </tr>
+      </tbody>
+      </table>
+   <p style="color: #333; font-family: Arial, sans-serif; font-size: 14px; line-height: 20px; text-align: left;">Click the button below to authorize automatic renewal.</p>
+   </td>
+   <td style="background: #fff; border-right: 1px solid #ccc; width: 40px; padding-top: 10px; padding-bottom: 10px;">&nbsp;</td>
+   </tr>
+   <tr>
+   <td style="background: #fff; border-left: 1px solid #ccc; width: 40px; padding-top: 10px; padding-bottom: 10px;">&nbsp;</td>
+   <td style="background: #fff; padding: 20px 0 50px 0; width: 560px;" align="left"><a style="background: #00aeef; border: 1px solid #0088CC; padding: 10px 20px; border-radius: 5px; font-size: 14px; font-weight: bold; color: #fff; outline: none; text-shadow: none; text-decoration: none; font-family: Arial,sans-serif;" href="{{url}}" target="_blank" rel="noopener"> Authorize Auto-Renewal </a><br><br>
+      <p style="font-family:sans-serif;font-weight:normal;padding:0;margin:0;font-size:14px;line-height:19px;margin-bottom:10px;color: grey">
+         This link will expire on {{expiry_date}}. You can also set this up anytime from your order page.
+     </p>
+   </td>
+   <td style="background: #fff; border-right: 1px solid #ccc; width: 40px; padding-top: 10px; padding-bottom: 10px;">&nbsp;</td>
+   </tr>
+   </tbody>
+   </table>
+   </td>
+   <td style="width: 30px;">&nbsp;</td>
+   </tr>
+   <tr>
+   <td style="width: 30px; padding-top: 10px; padding-bottom: 10px;">&nbsp;</td>
+   <td style="padding: 20px 0 10px 0; width: 640px;" align="left">{{contact}}</td>
+   <td style="width: 30px; padding-top: 10px; padding-bottom: 10px;">&nbsp;</td>
+   </tr>
+   </tbody>
+   </table>
+   <p>&nbsp;</p>');
     }
 
     private function seedTemplate(string $name, int $typeId, string $html): void

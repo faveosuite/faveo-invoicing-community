@@ -37,7 +37,11 @@ class CancelGatewaySubscriptionsJob implements ShouldQueue
                         Logger::exception(new Exception(sprintf('Failed to cancel %s subscription %s: ', $this->gateway, $subscription->subscribe_id).$e->getMessage(), previous: $e));
                     }
 
-                    $subscription->update([
+                    // Query-builder update, not $subscription->update() —
+                    // subscribe_id and rzp_subscription aren't in
+                    // Subscription::$fillable, so a model-instance update()
+                    // silently drops them and this reset would never actually happen.
+                    Subscription::where('id', $subscription->id)->update([
                         'is_subscribed' => 0,
                         $statusField => 0,
                         'subscribe_id' => '',

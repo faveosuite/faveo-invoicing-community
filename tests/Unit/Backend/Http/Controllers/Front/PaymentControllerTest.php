@@ -174,4 +174,50 @@ class PaymentControllerTest extends DBTestCase
 
         $this->assertContains($response->status(), [200, 400, 404, 405]);
     }
+
+    // =========================================================================
+    // razorpayConfirm — forbidden for unowned invoice, fulfils an owned one
+    // =========================================================================
+
+    public function test_razorpay_confirm_returns_403_for_unowned_invoice(): void
+    {
+        $this->app->instance(InvoicePaymentService::class, Mockery::mock(InvoicePaymentService::class));
+        $this->app->instance(OpenPaymentService::class, Mockery::mock(OpenPaymentService::class));
+
+        $otherUser = \App\User::factory()->create(['email' => 'razorpay-pay-'.uniqid().'@test.local']);
+        $invoice = \App\Model\Order\Invoice::factory()->create([
+            'user_id' => $otherUser->id,
+            'currency' => 'USD',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->postJson('/invoice/'.$invoice->id.'/razorpay/confirm');
+
+        $response->assertStatus(403);
+    }
+
+    public function test_razorpay_confirm_fulfils_owned_invoice(): void
+    {
+        $invoiceMock = Mockery::mock(InvoicePaymentService::class);
+        $invoiceMock->shouldReceive('confirm')
+            ->withArgs(fn ($model, $gateway, $payload) => $gateway === 'Razorpay'
+                && $payload['razorpay_payment_id'] === 'pay_test123')
+            ->andReturn(true);
+        $this->app->instance(InvoicePaymentService::class, $invoiceMock);
+        $this->app->instance(OpenPaymentService::class, Mockery::mock(OpenPaymentService::class));
+
+        $invoice = \App\Model\Order\Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'currency' => 'USD',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->postJson('/invoice/'.$invoice->id.'/razorpay/confirm', [
+            'razorpay_order_id' => 'order_test123',
+            'razorpay_payment_id' => 'pay_test123',
+            'razorpay_signature' => 'sig_test123',
+        ]);
+
+        $response->assertStatus(200)->assertJson(['success' => true]);
+    }
 }

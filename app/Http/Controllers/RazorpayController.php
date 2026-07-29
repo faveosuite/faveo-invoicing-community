@@ -57,15 +57,29 @@ class RazorpayController extends Controller
      * ->id and ->raw['short_url']. $cost is already in minor units; start_at /
      * expire_by are derived here from the subscription's current period.
      */
-    public function handleRzpAutoPay(mixed $cost, mixed $days, mixed $product_name, mixed $invoice, mixed $currency, mixed $subscription, mixed $user, mixed $order, mixed $endDate, mixed $productDetails): SubscriptionResult
+    /**
+     * @param  bool  $immediate  True when authorizing right after a fresh purchase, where
+     *                           the current period was already paid for moments ago — no
+     *                           upfront addon charge, and the recurring schedule starts at
+     *                           the current period's own expiry (not one cycle beyond it).
+     *                           False (default) is the renewal:cron case: the current
+     *                           period's payment is actually due now, collected as the
+     *                           upfront addon, with the recurring schedule starting the
+     *                           cycle after that.
+     */
+    public function handleRzpAutoPay(mixed $cost, mixed $days, mixed $product_name, mixed $invoice, mixed $currency, mixed $subscription, mixed $user, mixed $order, mixed $endDate, mixed $productDetails, bool $immediate = false): SubscriptionResult
     {
+        $periodEnd = Date::parse($subscription->update_ends_at);
+        $startAt = $immediate ? $periodEnd->copy() : $periodEnd->copy()->addDays(round((int) $days));
+
         return resolve(SubscriptionService::class)->createSubscription('Razorpay', new SubscriptionRequest(
             amountMinor: (int) $cost,
             currency: $currency,
             intervalDays: (int) $days,
             planName: $product_name,
-            startAt: (int) Date::parse($subscription->update_ends_at)->addDays(round((int) $days))->timestamp,
-            expireBy: (int) Date::parse($subscription->update_ends_at)->addDays(1)->timestamp,
+            startAt: (int) $startAt->timestamp,
+            expireBy: (int) $periodEnd->copy()->addDays(1)->timestamp,
+            includeUpfrontCharge: ! $immediate,
         ));
     }
 }

@@ -218,6 +218,7 @@ class ClientController extends BaseClientController
                 'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
                 'autorenew_status' => (bool) $order->subscription?->autoRenew_status,
                 'is_subscribed' => (bool) $order->subscription?->is_subscribed,
+                'auto_renew_state' => $order->subscription?->autoRenewState() ?? 'inactive',
                 'autorenew_log' => Payment_log::where('order', $order->number)
                     ->where('payment_type', 'Payment method updated')
                     ->orderByDesc('id')
@@ -469,7 +470,6 @@ class ClientController extends BaseClientController
      */
     private function autoRenewalGateways(string $country): array
     {
-        $status = StatusSetting::first(['stripe_auto_renewal', 'razorpay_auto_renewal']);
         $currency = getCurrencyForClient($country);
         $active = SettingsController::checkPaymentGateway($currency);
         if (! is_array($active)) {
@@ -478,11 +478,11 @@ class ClientController extends BaseClientController
         $active = array_map(strtolower(...), $active);
 
         $enabled = [];
-        if ($status?->stripe_auto_renewal && in_array('stripe', $active)) {
+        if (StatusSetting::autoRenewalEnabledFor('stripe') && in_array('stripe', $active)) {
             $enabled[] = 'Stripe';
         }
 
-        if ($status?->razorpay_auto_renewal && in_array('razorpay', $active)) {
+        if (StatusSetting::autoRenewalEnabledFor('razorpay') && in_array('razorpay', $active)) {
             $enabled[] = 'Razorpay';
         }
 
@@ -637,7 +637,7 @@ class ClientController extends BaseClientController
     {
         return Order::with([
             'productRelation:id,name,github_owner,github_repository,type,whatsapp_integration',
-            'subscription:id,order_id,plan_id,version,update_ends_at,ends_at',
+            'subscription:id,order_id,plan_id,version,update_ends_at,ends_at,is_subscribed,autoRenew_status,rzp_subscription',
             'subscription.plan:id,name',
             'invoiceItem:id,agents',
             'invoices' => fn ($q) => $q->select('invoices.id', 'invoices.number')->latest('invoices.id'),

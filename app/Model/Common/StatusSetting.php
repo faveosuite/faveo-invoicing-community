@@ -174,6 +174,32 @@ class StatusSetting extends Model
         ];
     }
 
+    /**
+     * Whether auto-renewal can actually run for a given gateway right now —
+     * the single authoritative check, used both to decide whether to offer
+     * it (checkout modal, the order page's "Enable auto-renewal" tab) and to
+     * gate actually activating it (never trust a flag captured earlier, at
+     * checkout time, against settings that could change before payment
+     * actually completes). Two independent toggles, both required:
+     * Setting.autorenewal_status (a global kill switch, Company Settings)
+     * AND this gateway's own {stripe,razorpay}_auto_renewal flag (Payment
+     * Gateway settings).
+     */
+    public static function autoRenewalEnabledFor(string $gateway): bool
+    {
+        if (! (bool) Setting::find(1)?->autorenewal_status) {
+            return false;
+        }
+
+        $status = static::first(['stripe_auto_renewal', 'razorpay_auto_renewal']);
+
+        return match (strtolower($gateway)) {
+            'stripe' => (bool) $status?->stripe_auto_renewal,
+            'razorpay' => (bool) $status?->razorpay_auto_renewal,
+            default => false,
+        };
+    }
+
     public function getLogUrl(mixed $id = null): ?string
     {
         $fields = ['emailverification_status', 'msg91_status'];

@@ -68,6 +68,8 @@ class CspPolicy implements Preset
             ->add(Directive::BASE, [Keyword::SELF])
             ->add(Directive::CONNECT, [
                 Keyword::SELF,
+                'api.razorpay.com',
+                'checkout.razorpay.com',
                 'embed.tawk.to',
                 'google.com',
                 'ipapi.co',

@@ -8,6 +8,7 @@ use App\Model\Cart\Cart;
 use App\Model\Cart\CartItem;
 use App\Model\Order\Invoice;
 use App\Model\Order\Payment;
+use App\Services\Payment\AutoRenewalActivationService;
 use App\Services\Payment\PostPaymentService;
 use App\User;
 use Mockery;
@@ -20,7 +21,7 @@ class PostPaymentServiceTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new PostPaymentService();
+        $this->service = new PostPaymentService(Mockery::mock(AutoRenewalActivationService::class));
     }
 
     protected function tearDown(): void

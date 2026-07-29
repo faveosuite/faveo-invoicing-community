@@ -348,7 +348,9 @@
                                     <div>
                                         <span class="text-2">
                                             {{ __('message.auto_renewal') }}
-                                            <span v-if="order.is_subscribed" class="badge bg-success ms-1">{{ __('message.active') }}</span>
+                                            <span v-if="order.auto_renew_state === 'active'" class="badge bg-success ms-1">{{ __('message.active') }}</span>
+                                            <span v-else-if="order.auto_renew_state === 'pending'" class="badge bg-warning text-dark ms-1">{{ __('message.pending_authorization') }}</span>
+                                            <span v-else-if="order.auto_renew_state === 'enabled'" class="badge bg-info text-dark ms-1">{{ __('message.enabled') }}</span>
                                             <span v-else class="badge bg-secondary ms-1">{{ __('message.inactive') }}</span>
                                         </span>
                                         <template v-if="order.is_subscribed && order.autorenew_log">
@@ -836,6 +838,7 @@ async function confirmDisableRenewal() {
         const res = await http.post(`/auto-renewal/${orderId}/disable`)
         order.value.is_subscribed    = false
         order.value.autorenew_status = false
+        order.value.auto_renew_state = 'inactive'
         successHandler(res, 'client-page')
     } catch (e) {
         errorHandler(e, 'client-page')
@@ -870,17 +873,22 @@ async function enableAutoRenewal() {
 
 async function openRenewalRazorpayPopup(config) {
     await loadScript('https://checkout.razorpay.com/v1/checkout.js')
+    // Opens directly against the already-created subscription (config.subscription_id)
+    // instead of a one-time order — the customer authorizes the recurring mandate
+    // right here, in one payment, instead of a separate verification charge now
+    // plus a second authorization step later via an emailed link.
     const options = { ...config }
     options.handler = async (response) => {
         try {
             renewalBusy.value = true
             const res = await http.post(`/auto-renewal/${orderId}/razorpay/confirm`, {
-                razorpay_order_id:   response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature:  response.razorpay_signature,
+                razorpay_subscription_id: response.razorpay_subscription_id,
+                razorpay_payment_id:      response.razorpay_payment_id,
+                razorpay_signature:       response.razorpay_signature,
             })
             order.value.is_subscribed    = true
-            order.value.autorenew_status = true
+            // This popup *is* the authorization — no further step needed.
+            order.value.auto_renew_state = 'active'
             successHandler(res, 'client-page')
         } catch (e) {
             errorHandler(e, 'client-page')
@@ -994,7 +1002,9 @@ async function finalizeRenewalStripe() {
             payment_intent: renewalPaymentIntentId,
         })
         order.value.is_subscribed    = true
-        order.value.autorenew_status = true
+        // The real Stripe subscription isn't created until renewal:cron runs
+        // near the actual expiry date — not truly active yet.
+        order.value.auto_renew_state = 'pending'
         closeStripeRenewalModal()
         successHandler(res, 'client-page')
     } catch (e) {

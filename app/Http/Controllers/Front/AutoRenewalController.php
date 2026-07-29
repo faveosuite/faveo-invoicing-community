@@ -10,6 +10,7 @@ use App\Model\Payment\Currency;
 use App\Model\Product\Subscription;
 use App\Plugins\Payment\Dto\Customer as PaymentCustomer;
 use App\Plugins\Payment\Dto\PaymentRequest as GatewayPaymentRequest;
+use App\Services\Payment\AutoRenewalActivationService;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\SubscriptionService;
 use App\User;
@@ -21,8 +22,10 @@ use Logger;
 
 class AutoRenewalController extends Controller
 {
-    public function __construct(private readonly PaymentService $payments)
-    {
+    public function __construct(
+        private readonly PaymentService $payments,
+        private readonly AutoRenewalActivationService $activation,
+    ) {
     }
 
     /**
@@ -92,41 +95,57 @@ class AutoRenewalController extends Controller
     }
 
     /**
-     * Create a Razorpay Order and return the Checkout config for the browser.
+     * Create the real Razorpay Subscription up front and return the Checkout
+     * config for the browser to authorize it directly — one payment, not a
+     * throwaway verification charge followed by a second emailed step.
      * POST auto-renewal/{order}/razorpay/order.
      */
     public function razorpayOrder(Request $request, int $order): JsonResponse
     {
         $order = $this->authorizedOrder($order);
         try {
-            $session = $this->payments->start('Razorpay', $this->buildRequest($order, 'razorpay'));
+            /** @var User $user */
+            $user = Auth::user();
+            $config = $this->activation->prepareRazorpaySubscriptionForAuthorization($order, $user);
 
-            return successResponse('', $session->clientConfig);
+            return successResponse('', $config);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
 
     /**
-     * Verify the Razorpay signature, refund the verification charge,
-     * and save the payment method for future auto-renewal.
+     * Verify the Razorpay subscription-authorization signature and activate
+     * auto-renewal immediately — no separate refund step, since this payment
+     * *is* the mandate authorization, not a throwaway verification charge.
      * POST auto-renewal/{order}/razorpay/confirm.
      */
     public function razorpayConfirm(Request $request, int $order): JsonResponse
     {
         $order = $this->authorizedOrder($order);
         try {
+            // The signature only proves this (payment_id, subscription_id)
+            // pair is a real, Razorpay-issued authorization — not that it's
+            // for *this* order's subscription. Without this check, a valid
+            // authorization from any order the user owns could be replayed
+            // here to mark a different order "active" while its real
+            // subscription (the correct plan/price, created by razorpayOrder())
+            // sits forever un-authorized.
+            $subscriptionId = $request->input('razorpay_subscription_id');
+            $expectedSubscriptionId = Subscription::where('order_id', $order->id)->value('subscribe_id');
+            if (! $subscriptionId || $subscriptionId !== $expectedSubscriptionId) {
+                return errorResponse(__('message.something_went_wrong'));
+            }
+
             $this->payments->capture('Razorpay', $request->only([
-                'razorpay_order_id',
+                'razorpay_subscription_id',
                 'razorpay_payment_id',
                 'razorpay_signature',
             ]));
 
-            $this->payments->manager()->gateway('Razorpay')->refundPayment(
-                $request->input('razorpay_payment_id')
-            );
-
-            $this->saveRenewal($order, 'razorpay', $request->input('razorpay_payment_id'));
+            /** @var User $user */
+            $user = Auth::user();
+            $this->activation->activateConfirmedRazorpaySubscription($order, $user, $request->input('razorpay_payment_id'));
 
             return successResponse(__('message.card_details_updated_successfully'));
         } catch (Exception $exception) {
@@ -190,6 +209,7 @@ class AutoRenewalController extends Controller
             ),
             description: 'Card verification for auto-renewal — Order '.$order->number,
             metadata: ['order_id' => (int) $order->id, 'user_id' => (int) $user->id],
+            saveForFutureUse: true,
         );
     }
 
@@ -197,21 +217,7 @@ class AutoRenewalController extends Controller
     {
         /** @var User $authUser2 */
         $authUser2 = Auth::user();
-        Auto_renewal::create([
-            'user_id' => $authUser2->id,
-            'customer_id' => $paymentRef,
-            'payment_method' => $gateway,
-            'order_id' => $order->id,
-            'payment_intent_id' => $paymentRef,
-        ]);
-
-        $gatewayColumn = $gateway === 'razorpay' ? 'rzp_subscription' : 'autoRenew_status';
-        Subscription::where('order_id', $order->id)->update([
-            'is_subscribed' => '1',
-            $gatewayColumn => '1',
-        ]);
-
-        $this->logPayment($order, $gateway, 'success');
+        $this->activation->activate($order, $authUser2, $gateway, $paymentRef);
     }
 
     private function cancelSubscription(Subscription $subscription): void
@@ -228,7 +234,17 @@ class AutoRenewalController extends Controller
             }
         }
 
-        $subscription->update([
+        // Without this, AutoRenewalActivationService::activate()'s idempotency
+        // check (keyed on an Auto_renewal row existing for this order+gateway)
+        // would silently no-op forever on any future re-enable — no flags
+        // flipped, no mail sent — since it can't distinguish "already active"
+        // from "was active once, since disabled".
+        Auto_renewal::where('order_id', $subscription->order_id)->delete();
+
+        // Query-builder update, not $subscription->update() — subscribe_id and
+        // rzp_subscription aren't in Subscription::$fillable, so a model-instance
+        // update() silently drops them and this reset would never actually happen.
+        Subscription::where('id', $subscription->id)->update([
             'is_subscribed' => 0,
             'autoRenew_status' => 0,
             'rzp_subscription' => 0,

@@ -19,6 +19,8 @@ final readonly class PaymentRequest
      * @param  string  $currency  ISO-4217 code, e.g. "USD".
      * @param  string  $reference  Merchant reference shown on the gateway, e.g. an invoice number.
      * @param  array<string, scalar>  $metadata  Opaque key/values echoed back on confirmation (e.g. invoice id).
+     * @param  bool  $saveForFutureUse  Save the payment method for a later off-session
+     *                                  charge (e.g. auto-renewal), as part of this same payment.
      */
     public function __construct(
         public float $amount,
@@ -28,6 +30,7 @@ final readonly class PaymentRequest
         public ?string $description = null,
         public ?string $returnUrl = null,
         public array $metadata = [],
+        public bool $saveForFutureUse = false,
     ) {
     }
 }

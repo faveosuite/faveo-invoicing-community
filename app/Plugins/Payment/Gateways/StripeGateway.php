@@ -92,12 +92,18 @@ final readonly class StripeGateway implements CardPaymentGateway, PaymentGateway
                 ]],
                 'payment_intent_data' => array_filter([
                     'description' => $request->description,
+                    'setup_future_usage' => $request->saveForFutureUse ? 'off_session' : null,
                 ]),
+                'customer_creation' => $request->saveForFutureUse ? 'always' : null,
                 'metadata' => $this->stringMetadata($request->metadata),
             ], [
                 // Stable across retries for the same reference + amount, so a
                 // double submit reuses one session instead of creating duplicates.
-                'idempotency_key' => 'pay_'.$request->reference.'_'.md5($request->currency.'|'.$request->amount),
+                // saveForFutureUse is part of the key too — it changes the actual
+                // params sent (customer + setup_future_usage), and Stripe rejects
+                // reusing a key with different params (e.g. re-checking out the
+                // same invoice with the auto-renew checkbox toggled differently).
+                'idempotency_key' => 'pay_'.$request->reference.'_'.md5($request->currency.'|'.$request->amount.'|'.($request->saveForFutureUse ? 1 : 0)),
             ]);
 
             return new PaymentSession(
@@ -133,6 +139,17 @@ final readonly class StripeGateway implements CardPaymentGateway, PaymentGateway
                 'metadata' => $this->stringMetadata($request->metadata),
             ];
 
+            // Saving the card for a later off-session charge (e.g. auto-renewal)
+            // requires a Customer object to attach the payment method to —
+            // setup_future_usage alone is not reusable without one.
+            if ($request->saveForFutureUse) {
+                $params['customer'] = $this->client()->customers->create(array_filter([
+                    'name' => $request->customer?->name,
+                    'email' => $request->customer?->email,
+                ]))->id;
+                $params['setup_future_usage'] = 'off_session';
+            }
+
             // India export regulations require the customer's name + address on
             // export transactions; supply it as shipping (the description above
             // covers the required goods/services description). Stripe declines an
@@ -143,8 +160,9 @@ final readonly class StripeGateway implements CardPaymentGateway, PaymentGateway
 
             $intent = $this->client()->paymentIntents->create($params, [ // @phpstan-ignore argument.type
                 // Stable across retries for the same reference + amount, so a double
-                // submit reuses one intent instead of creating duplicates.
-                'idempotency_key' => 'pi_'.$request->reference.'_'.md5($request->currency.'|'.$request->amount),
+                // submit reuses one intent instead of creating duplicates. saveForFutureUse
+                // is part of the key too — see createPayment()'s idempotency_key comment.
+                'idempotency_key' => 'pi_'.$request->reference.'_'.md5($request->currency.'|'.$request->amount.'|'.($request->saveForFutureUse ? 1 : 0)),
             ]);
 
             return new PaymentSession(
@@ -264,9 +282,11 @@ final readonly class StripeGateway implements CardPaymentGateway, PaymentGateway
         try {
             $client = $this->client();
 
-            // The saved payment method carries the customer it is attached to and
-            // becomes the subscription's default method (off-session renewals).
-            $paymentMethod = $client->paymentMethods->retrieve((string) $request->paymentMethodReference);
+            // paymentMethodReference is the id of the PaymentIntent that saved the
+            // card (verification charge or an opted-in purchase, both created with
+            // setup_future_usage=off_session) — retrieve it for the customer +
+            // payment method it attached, which become the subscription's default.
+            $intent = $client->paymentIntents->retrieve((string) $request->paymentMethodReference);
 
             $product = $client->products->create(['name' => $request->planName]);
 
@@ -278,9 +298,9 @@ final readonly class StripeGateway implements CardPaymentGateway, PaymentGateway
             ]);
 
             $subscription = $client->subscriptions->create([ // @phpstan-ignore argument.type
-                'customer' => $paymentMethod->customer,
+                'customer' => $intent->customer,
                 'items' => [['price' => $price->id]],
-                'default_payment_method' => $paymentMethod->id,
+                'default_payment_method' => $intent->payment_method,
                 'metadata' => $this->stringMetadata($request->metadata),
             ]);
 

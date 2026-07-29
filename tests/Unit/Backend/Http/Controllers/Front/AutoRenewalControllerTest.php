@@ -164,6 +164,44 @@ class AutoRenewalControllerTest extends DBTestCase
     }
 
     // =========================================================================
+    // disable — must clear the Auto_renewal row, or AutoRenewalActivationService
+    // ::activate()'s idempotency check silently blocks any future re-enable
+    // =========================================================================
+
+    public function test_disable_deletes_auto_renewal_row_so_reactivation_is_not_blocked(): void
+    {
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'AutoR '.uniqid()]);
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+
+        $order = Order::create([
+            'client' => $this->user->id,
+            'product' => $product->id,
+            'order_status' => 'executed',
+            'number' => mt_rand(100000, 999999),
+        ]);
+        Subscription::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'is_subscribed' => 1,
+            'rzp_subscription' => 1,
+            'subscribe_id' => '',
+        ]);
+        \App\Auto_renewal::create([
+            'user_id' => $this->user->id,
+            'customer_id' => 'pay_old_123',
+            'payment_method' => 'razorpay',
+            'order_id' => $order->id,
+            'payment_intent_id' => 'pay_old_123',
+        ]);
+
+        $response = $this->postJson("/auto-renewal/{$order->id}/disable");
+        $response->assertStatus(200);
+
+        $this->assertDatabaseMissing('auto_renewals', ['order_id' => $order->id]);
+    }
+
+    // =========================================================================
     // stripeSession — user owns order → proceeds (may fail at gateway)
     // =========================================================================
 
@@ -187,10 +225,11 @@ class AutoRenewalControllerTest extends DBTestCase
     }
 
     // =========================================================================
-    // razorpayOrder — user owns order → gateway mock throws → 400
+    // razorpayOrder — user owns order but has no subscription/plan/invoice yet
+    // → prepareRazorpaySubscriptionForAuthorization() can't proceed → 400
     // =========================================================================
 
-    public function test_razorpay_order_for_owned_order_returns_400_on_gateway_error(): void
+    public function test_razorpay_order_for_owned_order_returns_400_when_no_subscription(): void
     {
         $order = Order::create([
             'client' => $this->user->id,
@@ -198,14 +237,37 @@ class AutoRenewalControllerTest extends DBTestCase
             'number' => mt_rand(100000, 999999),
         ]);
 
-        $paymentServiceMock = Mockery::mock(PaymentService::class);
-        $paymentServiceMock->shouldReceive('start')
-            ->andThrow(new \Exception('Razorpay not configured'));
-        $this->app->instance(PaymentService::class, $paymentServiceMock);
-
         $response = $this->postJson("/auto-renewal/{$order->id}/razorpay/order");
         $response->assertStatus(400);
         $response->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // razorpayOrder — full context present → creates/reuses a Razorpay
+    // Subscription and returns its id + widget key (mocking the gateway call
+    // itself so this doesn't hit the real Razorpay API)
+    // =========================================================================
+
+    public function test_razorpay_order_with_full_context_returns_subscription_id(): void
+    {
+        /** @var Order $order */
+        $order = Order::factory()->withRelations()->create(['client' => $this->user->id]);
+
+        $mockController = Mockery::mock(\App\Http\Controllers\RazorpayController::class);
+        $mockController->shouldReceive('handleRzpAutoPay')
+            ->once()
+            ->andReturn(new \App\Plugins\Payment\Dto\SubscriptionResult('Razorpay', 'sub_test_123', 'created'));
+        $this->app->instance(\App\Http\Controllers\RazorpayController::class, $mockController);
+
+        $response = $this->postJson("/auto-renewal/{$order->id}/razorpay/order");
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.subscription_id', 'sub_test_123');
+
+        $this->assertDatabaseHas('subscriptions', [
+            'order_id' => $order->id,
+            'subscribe_id' => 'sub_test_123',
+            'rzp_subscription' => '2',
+        ]);
     }
 
     // =========================================================================
@@ -244,12 +306,112 @@ class AutoRenewalControllerTest extends DBTestCase
         $this->app->instance(PaymentService::class, $paymentServiceMock);
 
         $response = $this->postJson("/auto-renewal/{$order->id}/razorpay/confirm", [
-            'razorpay_order_id' => 'order_test',
+            'razorpay_subscription_id' => 'sub_test',
             'razorpay_payment_id' => 'pay_test',
             'razorpay_signature' => 'sig_test',
         ]);
 
         $response->assertStatus(400);
         $response->assertJson(['success' => false]);
+    }
+
+    // =========================================================================
+    // razorpayConfirm — capture succeeds → activates straight to fully active
+    // (status '3'), no "pending" intermediate step, since the popup itself
+    // was the authorization
+    // =========================================================================
+
+    public function test_razorpay_confirm_activates_subscription_fully_on_success(): void
+    {
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'AutoR '.uniqid()]);
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+
+        $order = Order::create([
+            'client' => $this->user->id,
+            'product' => $product->id,
+            'order_status' => 'executed',
+            'number' => mt_rand(100000, 999999),
+        ]);
+        $subscription = Subscription::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'is_subscribed' => 0,
+        ]);
+        // subscribe_id/rzp_subscription aren't in Subscription::$fillable, so
+        // Subscription::create() silently drops them — set via a query-builder
+        // update (bypasses mass-assignment protection), same as production code does.
+        Subscription::where('id', $subscription->id)->update(['rzp_subscription' => 2, 'subscribe_id' => 'sub_test_123']);
+
+        $paymentServiceMock = Mockery::mock(PaymentService::class);
+        $paymentServiceMock->shouldReceive('capture')->once()->andReturn(
+            new \App\Plugins\Payment\Dto\PaymentResult(true, 'Razorpay', 'pay_test', 'captured')
+        );
+        $this->app->instance(PaymentService::class, $paymentServiceMock);
+
+        $response = $this->postJson("/auto-renewal/{$order->id}/razorpay/confirm", [
+            'razorpay_subscription_id' => 'sub_test_123',
+            'razorpay_payment_id' => 'pay_test',
+            'razorpay_signature' => 'sig_test',
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('subscriptions', [
+            'order_id' => $order->id,
+            'is_subscribed' => 1,
+            'rzp_subscription' => '3',
+        ]);
+        $this->assertDatabaseHas('auto_renewals', [
+            'order_id' => $order->id,
+            'payment_method' => 'razorpay',
+            'payment_intent_id' => 'pay_test',
+        ]);
+    }
+
+    // =========================================================================
+    // razorpayConfirm — subscription_id doesn't match this order's own
+    // subscribe_id → rejected before capture/activation even run. Otherwise a
+    // valid authorization from a *different* order the user owns could be
+    // replayed here to mark this order "active" without ever authorizing its
+    // own (correctly priced) subscription.
+    // =========================================================================
+
+    public function test_razorpay_confirm_rejects_mismatched_subscription_id(): void
+    {
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'AutoR '.uniqid()]);
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'ARPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+
+        $order = Order::create([
+            'client' => $this->user->id,
+            'product' => $product->id,
+            'order_status' => 'executed',
+            'number' => mt_rand(100000, 999999),
+        ]);
+        $subscription = Subscription::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'is_subscribed' => 0,
+        ]);
+        // subscribe_id/rzp_subscription aren't in Subscription::$fillable, so
+        // Subscription::create() silently drops them — set via a query-builder
+        // update (bypasses mass-assignment protection), same as production code does.
+        Subscription::where('id', $subscription->id)->update(['rzp_subscription' => 2, 'subscribe_id' => 'sub_this_orders_own_123']);
+
+        $paymentServiceMock = Mockery::mock(PaymentService::class);
+        $paymentServiceMock->shouldNotReceive('capture');
+        $this->app->instance(PaymentService::class, $paymentServiceMock);
+
+        $response = $this->postJson("/auto-renewal/{$order->id}/razorpay/confirm", [
+            'razorpay_subscription_id' => 'sub_from_a_different_order_456',
+            'razorpay_payment_id' => 'pay_test',
+            'razorpay_signature' => 'sig_test',
+        ]);
+
+        $response->assertStatus(400);
+        $this->assertDatabaseMissing('subscriptions', [
+            'order_id' => $order->id,
+            'rzp_subscription' => '3',
+        ]);
     }
 }

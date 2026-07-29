@@ -101,6 +101,26 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
         $this->assertEqualsWithDelta(1000.0, $result, 0.001); // 1000 JPY unchanged
     }
 
+    /**
+     * Regression test: a prior implementation cast to (int) before
+     * multiplying, truncating the fractional part — $19.99 became 1900
+     * (i.e. $19.00), silently dropping $0.99 off every cron-driven renewal
+     * charge. Must multiply first, then round.
+     */
+    public function test_calculate_unit_cost_does_not_truncate_fractional_cents(): void
+    {
+        $result = $this->controller->calculateUnitCost('USD', 19.99);
+
+        $this->assertEqualsWithDelta(1999.0, $result, 0.001);
+    }
+
+    public function test_calculate_unit_cost_does_not_truncate_fractional_three_decimal_currency(): void
+    {
+        $result = $this->controller->calculateUnitCost('BHD', 1.5);
+
+        $this->assertEqualsWithDelta(1500.0, $result, 0.001);
+    }
+
     // -------------------------------------------------------------------------
     // disableAutorenewalStatusByOrderId — no-op for non-existent order
     // -------------------------------------------------------------------------
@@ -128,6 +148,7 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
             'plan_id' => $plan->id,
             'autoRenew_status' => 1,
             'rzp_subscription' => '1',
+            'subscribe_id' => 'sub_stale_leftover_123',
         ]);
 
         $this->controller->disableAutorenewalStatusByOrderId($order->id);
@@ -136,6 +157,87 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
             'order_id' => $order->id,
             'autoRenew_status' => 0,
         ]);
+    }
+
+    /**
+     * Regression test: subscribe_id was left populated after disabling, so a
+     * later feature that reuses an existing subscribe_id (rather than always
+     * creating a new gateway subscription) would hand out an already
+     * cancelled subscription id.
+     */
+    public function test_disable_autorenewal_clears_subscribe_id(): void
+    {
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'CPSHT Test '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'CPSHT Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+
+        $order = Order::create([
+            'client' => $this->user->id,
+            'product' => $product->id,
+            'order_status' => 'executed',
+            'number' => mt_rand(10000000, 99999999),
+        ]);
+        $subscription = Subscription::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'is_subscribed' => 0,
+        ]);
+        // subscribe_id/rzp_subscription aren't in Subscription::$fillable, so
+        // Subscription::create() silently drops them — set via a query-builder
+        // update (bypasses mass-assignment protection), same as production code does.
+        Subscription::where('id', $subscription->id)->update(['rzp_subscription' => '2', 'subscribe_id' => 'sub_stale_leftover_456']);
+
+        $this->controller->disableAutorenewalStatusByOrderId($order->id);
+
+        $this->assertSame('', Subscription::where('order_id', $order->id)->value('subscribe_id'));
+        $this->assertSame('0', (string) Subscription::where('order_id', $order->id)->value('rzp_subscription'));
+    }
+
+    /**
+     * Regression test: this webhook-driven disable path (fired on a Stripe
+     * renewal failure or a Razorpay halt) must delete the Auto_renewal row,
+     * same as the manual disable path already does — otherwise
+     * AutoRenewalActivationService::activate()'s idempotency check finds the
+     * stale row on a later re-enable and silently no-ops forever: no flag
+     * flip, no new gateway subscription, no error surfaced anywhere.
+     */
+    public function test_disable_autorenewal_deletes_auto_renewal_row_so_reactivation_is_not_blocked(): void
+    {
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'CPSHT Test '.uniqid()]);
+        $plan = Plan::where('product', $product->id)->first() ?? Plan::create(['name' => 'CPSHT Plan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+
+        $order = Order::create([
+            'client' => $this->user->id,
+            'product' => $product->id,
+            'order_status' => 'executed',
+            'number' => mt_rand(10000000, 99999999),
+        ]);
+        Subscription::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'is_subscribed' => 1,
+            'autoRenew_status' => 1,
+        ]);
+        \App\Auto_renewal::create([
+            'user_id' => $this->user->id,
+            'customer_id' => 'pi_old_123',
+            'payment_method' => 'stripe',
+            'order_id' => $order->id,
+            'payment_intent_id' => 'pi_old_123',
+        ]);
+
+        $this->controller->disableAutorenewalStatusByOrderId($order->id);
+
+        $this->assertDatabaseMissing('auto_renewals', ['order_id' => $order->id]);
+
+        // The real regression: a subsequent activate() call must actually
+        // re-enable, not silently no-op because a stale row is still there.
+        $activation = new \App\Services\Payment\AutoRenewalActivationService();
+        $activation->activate($order, $this->user, 'stripe', 'pi_new_456');
+
+        $this->assertSame('1', (string) Subscription::where('order_id', $order->id)->value('autoRenew_status'));
+        $this->assertDatabaseHas('auto_renewals', ['order_id' => $order->id, 'payment_intent_id' => 'pi_new_456']);
     }
 
     // -------------------------------------------------------------------------

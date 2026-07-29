@@ -24,6 +24,7 @@ export const useCartStore = defineStore('cart', {
         gateways: (state) => state.cart?.gateways ?? [],
         grandTotal: (state) => state.cart?.grand_total ?? 0,
         availableCredit: (state) => state.cart?.available_credit ?? 0,
+        autoRenewGateways: (state) => state.cart?.auto_renew_gateways ?? [],
     },
     actions: {
         async fetchCart() {

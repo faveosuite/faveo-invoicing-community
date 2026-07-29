@@ -41,12 +41,47 @@ describe('PaymentGatewayEdit.vue', () => {
     })
 
     it('calls save endpoint on form submit', async () => {
-        globalThis.mockHttp.onGet(/\/update-api-key\/payment-gateway\/stripe/).reply(200, { data: {} })
+        // save() posts the form — this was previously mocked/asserted as a GET,
+        // which never actually matched the real POST call.
+        globalThis.mockHttp.onPost(/\/update-api-key\/payment-gateway\/stripe/).reply(200, { data: {} })
         await flushPromises()
         const { validateForm } = require('@/helpers/formUtils.js')
         validateForm.mockResolvedValueOnce(true)
         wrapper.vm.save()
         await flushPromises()
-        expect(globalThis.mockHttp.history.get.some(r => r.url.includes('update-api-key/payment-gateway/stripe'))).toBeTruthy()
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('update-api-key/payment-gateway/stripe'))).toBeTruthy()
+    })
+
+    it('warns before a save that would disable auto-renewal, and does not save until confirmed', async () => {
+        // Loaded settings have auto_renewal: true this time, so toggling it
+        // off and saving is an on-to-off transition.
+        globalThis.mockHttp.onGet(/\/get-stripe-settings/).reply(200, {
+            data: { stripe_key: 'pk_test', stripe_secret: 'sk_test', webhook_secret: '', processing_fee: '', webhook_url: '', auto_renewal: true },
+        })
+        wrapper = mount(PaymentGatewayEdit, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: ['AppAlert', 'loader', 'TextField', 'action-button'],
+            },
+        })
+        await flushPromises()
+
+        globalThis.mockHttp.onPost(/\/update-api-key\/payment-gateway\/stripe/).reply(200, { data: {} })
+        const { validateForm } = require('@/helpers/formUtils.js')
+        validateForm.mockResolvedValueOnce(true)
+
+        wrapper.vm.form.auto_renewal = false
+        wrapper.vm.save()
+        await flushPromises()
+
+        expect(wrapper.vm.showDisableWarningModal).toBe(true)
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('update-api-key/payment-gateway/stripe'))).toBeFalsy()
+
+        validateForm.mockResolvedValueOnce(true)
+        wrapper.vm.confirmDisableAndSave()
+        await flushPromises()
+
+        expect(wrapper.vm.showDisableWarningModal).toBe(false)
+        expect(globalThis.mockHttp.history.post.some(r => r.url.includes('update-api-key/payment-gateway/stripe'))).toBeTruthy()
     })
 })

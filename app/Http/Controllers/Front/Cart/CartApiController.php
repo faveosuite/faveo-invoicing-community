@@ -98,7 +98,7 @@ class CartApiController extends Controller
         // entirely by this invoice id from here on (pay page → charge endpoint),
         // so no payment state is stashed in the session. The cart is left intact
         // and is only emptied once payment succeeds.
-        $invoice = $this->cartService->placeOrder($cart, $user); // @phpstan-ignore argument.type
+        $invoice = $this->cartService->placeOrder($cart, $user, $request->boolean('auto_renew_opt_in'), $request->input('gateway')); // @phpstan-ignore argument.type
         $currency = $cart->currency ?? 'USD';
 
         return successResponse('', [

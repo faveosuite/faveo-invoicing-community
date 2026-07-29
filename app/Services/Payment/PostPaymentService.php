@@ -11,6 +11,7 @@ use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Cart\Cart;
 use App\Model\Common\Country;
 use App\Model\Common\FaveoCloud;
+use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
@@ -28,12 +29,19 @@ use DB;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
+use Logger;
 use RuntimeException;
+use Throwable;
 
 class PostPaymentService
 {
     use PostPaymentHandle;
     use TaxCalculation;
+
+    public function __construct(
+        private readonly AutoRenewalActivationService $autoRenewal,
+    ) {
+    }
 
     /**
      * @return array<mixed>
@@ -51,7 +59,7 @@ class PostPaymentService
             'upgrade_downgrade' => $this->handleUpgradeDowngrade($invoice, $metadata),
             default => $invoice->is_renewed == 1
                                        ? $this->handleRenewal($invoice)
-                                       : $this->handlePurchase($invoice),
+                                       : $this->handlePurchase($invoice, $gateway),
         };
 
         if ($invoice->grand_total && emailSendingStatus()) {
@@ -76,7 +84,7 @@ class PostPaymentService
     /**
      * @return array<mixed>
      */
-    private function handlePurchase(Invoice $invoice): array
+    private function handlePurchase(Invoice $invoice, string $gateway): array
     {
         $this->executeOrders($invoice);
         $this->doTheDeed($invoice);
@@ -94,7 +102,43 @@ class PostPaymentService
             );
         }
 
+        $this->activateRazorpayAutoRenewalOptIn($invoice, $gateway);
+
         return ['status' => 'success'];
+    }
+
+    /**
+     * Activation (including immediately creating the real Razorpay
+     * subscription and sending the authorization email) is handled by
+     * {@see AutoRenewalActivationService::activate()} — shared with the
+     * order-page "Enable Auto Renewal" flow so both behave identically.
+     *
+     * Never lets a failure here fail the purchase itself — auto-renewal is a
+     * bonus, not a requirement of a successful purchase.
+     */
+    private function activateRazorpayAutoRenewalOptIn(Invoice $invoice, string $gateway): void
+    {
+        // Re-checked here, not just trusted from the flag captured at checkout
+        // time — an admin could disable auto-renewal (globally or for this
+        // gateway) in the time between checkout and the payment completing.
+        if (strtolower($gateway) !== 'razorpay'
+            || ! ($invoice->metadata['auto_renew_opt_in'] ?? false)
+            || ! StatusSetting::autoRenewalEnabledFor('razorpay')) {
+            return;
+        }
+
+        try {
+            $order = $invoice->orders()->whereHas('subscription')->first();
+            $user = $order ? User::find($invoice->user_id) : null;
+
+            if (! $order || ! $user) {
+                return;
+            }
+
+            $this->autoRenewal->activate($order, $user, 'razorpay', 'invoice_'.$invoice->id);
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
+        }
     }
 
     /**

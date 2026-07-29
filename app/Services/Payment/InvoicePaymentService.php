@@ -5,13 +5,17 @@ namespace App\Services\Payment;
 use App\Http\Controllers\Common\SettingsController;
 use App\Http\Controllers\Order\InvoiceController;
 use App\Http\Controllers\User\AdvanceSearchController;
+use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Plugins\Payment\Dto\Customer;
 use App\Plugins\Payment\Dto\PaymentRequest;
+use App\Plugins\Payment\Dto\PaymentResult;
 use App\Plugins\Payment\Dto\PaymentSession;
 use App\Plugins\Payment\Exceptions\PaymentException;
+use App\User;
 use Exception;
 use Illuminate\Support\Facades\Date;
+use Logger;
 use Throwable;
 
 /**
@@ -37,6 +41,7 @@ class InvoicePaymentService
     public function __construct(
         private readonly PaymentService $payments,
         private readonly PostPaymentService $postPayment,
+        private readonly AutoRenewalActivationService $autoRenewal,
     ) {
     }
 
@@ -177,6 +182,22 @@ class InvoicePaymentService
             return false;
         }
 
+        // A verified/captured payment only proves the reference is real — not
+        // that it was ever meant for THIS invoice. Without this, a completed
+        // payment for a cheap invoice could be replayed against a different,
+        // more expensive invoice the same user owns (same gateway signature
+        // check passes either way, since it's a genuine payment, just for
+        // something else). invoiceRequest() always stamps invoice_id into the
+        // gateway metadata/notes at creation time, so it must match here.
+        if (! $this->referenceBelongsToInvoice($result, $invoice)) {
+            Logger::exception(new Exception(sprintf(
+                'Payment reference %s (%s) does not carry invoice_id=%d in its metadata — refusing to fulfil.',
+                $result->reference, $gateway, $invoice->id
+            )));
+
+            return false;
+        }
+
         $creditApplied = (float) ($payload['credit_applied'] ?? $result->raw['metadata']['credit_applied'] ?? 0);
         $creditApplied = min($creditApplied, $this->availableCredit((int) $invoice->user_id));
 
@@ -198,7 +219,61 @@ class InvoicePaymentService
 
         $this->postPayment->handle($invoice, $gateway);
 
+        if ($invoice->metadata['auto_renew_opt_in'] ?? false) {
+            $this->activateAutoRenewalOptIn($invoice, $gateway, $result);
+        }
+
         return true;
+    }
+
+    /**
+     * Turn a checkout-time auto-renewal opt-in into an active one, using the
+     * card just saved on this purchase's PaymentIntent (setup_future_usage was
+     * requested in {@see invoiceRequest} when the invoice carries the flag).
+     * Razorpay can't save a card from a one-time payment the way Stripe can —
+     * its side of this is handled separately, right after order fulfilment
+     * (see {@see PostPaymentService::handlePurchase}).
+     *
+     * Never lets a failure here fail the purchase itself — auto-renewal is a
+     * bonus, not a requirement of a successful purchase.
+     */
+    private function activateAutoRenewalOptIn(Invoice $invoice, string $gateway, PaymentResult $result): void
+    {
+        // Re-checked here, not just trusted from the flag captured at checkout
+        // time — an admin could disable auto-renewal (globally or for this
+        // gateway) in the time between checkout and the payment completing.
+        if (strtolower($gateway) !== 'stripe' || ! StatusSetting::autoRenewalEnabledFor('stripe')) {
+            return;
+        }
+
+        try {
+            $user = User::find($invoice->user_id);
+            $order = $invoice->orders()->whereHas('subscription')->first();
+
+            if (! $user || ! $order || ! $result->reference) {
+                return;
+            }
+
+            $this->autoRenewal->activate($order, $user, 'stripe', $result->reference);
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
+        }
+    }
+
+    /**
+     * Stripe carries it under `metadata`, Razorpay under `notes` — both were
+     * stamped with `invoice_id` at creation time by {@see invoiceRequest}.
+     * Fails closed (false) if it's missing entirely, not just on a mismatch —
+     * an unverifiable reference is not a safe one to fulfil an invoice from.
+     */
+    private function referenceBelongsToInvoice(PaymentResult $result, Invoice $invoice): bool
+    {
+        $metadata = $result->raw['metadata'] ?? $result->raw['notes'] ?? null;
+        if (! is_array($metadata) || ! isset($metadata['invoice_id'])) {
+            return false;
+        }
+
+        return (int) $metadata['invoice_id'] === (int) $invoice->id;
     }
 
     /** Build the package payment request for an invoice on a given gateway. */
@@ -215,6 +290,7 @@ class InvoicePaymentService
                 'user_id' => (int) $invoice->user_id,
                 'credit_applied' => $creditApplied,
             ],
+            saveForFutureUse: (bool) ($invoice->metadata['auto_renew_opt_in'] ?? false),
         );
     }
 

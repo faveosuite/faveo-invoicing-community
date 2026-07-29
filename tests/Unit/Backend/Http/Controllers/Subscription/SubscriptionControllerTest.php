@@ -681,6 +681,47 @@ class SubscriptionControllerTest extends DBTestCase
     }
 
     // =========================================================================
+    // getOnDayExpiryInfoSubs — global autorenewal_status toggle overrides a
+    // gateway-enabled subscription that would otherwise match
+    // =========================================================================
+
+    public function test_get_on_day_expiry_info_subs_excludes_match_when_global_toggle_off(): void
+    {
+        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 0]);
+        StatusSetting::updateOrCreate([], ['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 0]);
+        \App\Model\Mailjob\ExpiryMailDay::updateOrCreate([], ['autorenewal_days' => '[7]']);
+
+        Subscription::factory()->create([
+            'is_subscribed' => 1,
+            'autoRenew_status' => 1,
+            'update_ends_at' => \Illuminate\Support\Facades\Date::now()->addDays(7),
+        ]);
+
+        $controller = $this->instantiateDependencies();
+        $subController = new SubscriptionController($controller);
+
+        $this->assertSame([], $subController->getOnDayExpiryInfoSubs());
+    }
+
+    public function test_get_on_day_expiry_info_subs_includes_match_when_global_toggle_on(): void
+    {
+        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        StatusSetting::updateOrCreate([], ['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 0]);
+        \App\Model\Mailjob\ExpiryMailDay::updateOrCreate([], ['autorenewal_days' => '[7]']);
+
+        Subscription::factory()->create([
+            'is_subscribed' => 1,
+            'autoRenew_status' => 1,
+            'update_ends_at' => \Illuminate\Support\Facades\Date::now()->addDays(7),
+        ]);
+
+        $controller = $this->instantiateDependencies();
+        $subController = new SubscriptionController($controller);
+
+        $this->assertNotEmpty($subController->getOnDayExpiryInfoSubs());
+    }
+
+    // =========================================================================
     // calculateReverseUnitCost — edge-case default (2 decimal) via INR
     // =========================================================================
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front\Cart;
 use App\Http\Controllers\Common\SettingsController;
 use App\Model\Cart\Cart;
 use App\Model\Cart\CartItem;
+use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\InvoiceTaxLine;
@@ -171,10 +172,33 @@ class CartService
             'subtotal_ex_tax' => $subtotalExTax,
             'prices_include_tax' => $pricesIncludeTax,
             'tax_label' => collect($summary['taxes'])->pluck('label')->unique()->implode(' + '),
-            'gateways' => $this->activeGateways($currency),
+            'gateways' => $gateways = $this->activeGateways($currency),
             'grand_total' => currencyFormat($summary['grand_total'], $currency, includeSymbol: false),
             'available_credit' => currencyFormat($this->invoices->availableCredit((int) $user->getAuthIdentifier()), $currency, includeSymbol: false),
+            'auto_renew_gateways' => $this->autoRenewalGateways($gateways),
         ];
+    }
+
+    /**
+     * Which of the active gateways can actually run auto-renewal right now —
+     * mirrors {@see \App\Http\Controllers\Front\ClientController::autoRenewalGateways()},
+     * the same check the existing post-purchase "Enable auto-renewal" tab
+     * uses. A list, not a single yes/no: the checkout modal must only offer
+     * auto-renew when it matches the gateway the customer actually selected,
+     * not merely "some gateway supports it." Not product-specific — every
+     * order gets a Subscription row regardless of product.
+     *
+     * @param  array<int, array{name: string, processing_fee: float|null}>  $gateways
+     * @return array<int, string>
+     */
+    private function autoRenewalGateways(array $gateways): array
+    {
+        $active = array_map(fn (array $g): string => strtolower($g['name']), $gateways);
+
+        return array_values(array_filter(
+            ['Stripe', 'Razorpay'],
+            fn (string $gateway): bool => StatusSetting::autoRenewalEnabledFor($gateway) && in_array(strtolower($gateway), $active, true)
+        ));
     }
 
     // --- Place order (invoice creation / reuse) ---
@@ -189,13 +213,13 @@ class CartService
      * the cart emptied and the link cleared. Payment always charges the invoice,
      * never the cart.
      */
-    public function placeOrder(Cart $cart, Authenticatable $user): Invoice
+    public function placeOrder(Cart $cart, Authenticatable $user, bool $autoRenewOptIn = false, ?string $gateway = null): Invoice
     {
         $cart->loadMissing('items.plan.planPrice', 'items.product');
         $this->recalculateCoupon($cart);   // drop a coupon that expired since it was applied
         $cart->refresh()->loadMissing('items.plan.planPrice', 'items.product');
 
-        return DB::transaction(function () use ($cart, $user) {
+        return DB::transaction(function () use ($cart, $user, $autoRenewOptIn, $gateway) {
             $summary = $this->summary($cart, $user);
             $invoice = $this->reusablePendingInvoice($cart);
 
@@ -214,6 +238,14 @@ class CartService
                 'discount_mode' => 'coupon',
                 'is_renewed' => 0,
                 'cloud_domain' => $cloudItem?->domain ?: null,
+                // Last write wins: re-checkout after changing the modal choice
+                // overwrites this on the same reused pending invoice. Checked
+                // against the specific selected gateway, not "any gateway" —
+                // auto-renew must only apply if it's actually available for
+                // however this invoice ends up getting paid.
+                'metadata' => $autoRenewOptIn && $gateway && in_array($gateway, $this->autoRenewalGateways($this->activeGateways($cart->currency ?? 'USD')), true)
+                    ? ['auto_renew_opt_in' => true]
+                    : null,
             ];
 
             if ($invoice instanceof Invoice) {

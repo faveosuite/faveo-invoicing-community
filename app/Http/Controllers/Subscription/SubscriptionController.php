@@ -57,8 +57,8 @@ class SubscriptionController extends Controller
      */
     public function getOnDayExpiryInfoSubs(): array
     {
-        $stripeEnabled = (bool) StatusSetting::value('stripe_auto_renewal');
-        $razorpayEnabled = (bool) StatusSetting::value('razorpay_auto_renewal');
+        $stripeEnabled = StatusSetting::autoRenewalEnabledFor('stripe');
+        $razorpayEnabled = StatusSetting::autoRenewalEnabledFor('razorpay');
 
         if (! $stripeEnabled && ! $razorpayEnabled) {
             return [];
@@ -105,8 +105,8 @@ class SubscriptionController extends Controller
      */
     public function getCreatedSubscription(): array
     {
-        $stripeEnabled = (bool) StatusSetting::value('stripe_auto_renewal');
-        $razorpayEnabled = (bool) StatusSetting::value('razorpay_auto_renewal');
+        $stripeEnabled = StatusSetting::autoRenewalEnabledFor('stripe');
+        $razorpayEnabled = StatusSetting::autoRenewalEnabledFor('razorpay');
 
         if (! $stripeEnabled && ! $razorpayEnabled) {
             return [];
@@ -235,7 +235,7 @@ class SubscriptionController extends Controller
     /**
      * @param  array<mixed>  $planDetails
      */
-    private function calculateRenewalCost(Subscription $subscription, array $planDetails, Order $order): float
+    public function calculateRenewalCost(Subscription $subscription, array $planDetails, Order $order): float
     {
         $price = (float) ($planDetails['plan']->renew_price ?? 0);
 
@@ -391,14 +391,20 @@ class SubscriptionController extends Controller
         }
     }
 
-    private function handleRazorpaySubscription(float|int $unitCost, Plan $plan, Product $product, Invoice $invoice, string $currency, Subscription $subscription, User $user, Order $order, mixed $end): void
+    /**
+     * @param  bool  $immediate  True when this fires right after a fresh purchase
+     *                           (checkout opt-in) — sends a "no payment due, please
+     *                           authorize" email instead of the wording meant for
+     *                           renewal:cron sending this near an actual expiry date.
+     */
+    public function handleRazorpaySubscription(float|int $unitCost, Plan $plan, Product $product, Invoice $invoice, string $currency, Subscription $subscription, User $user, Order $order, mixed $end, bool $immediate = false): void
     {
-        $response = new RazorpayController()->handleRzpAutoPay($unitCost, $plan->days, $product->name, $invoice, $currency, $subscription, $user, $order, $end, $product);
+        $response = new RazorpayController()->handleRzpAutoPay($unitCost, $plan->days, $product->name, $invoice, $currency, $subscription, $user, $order, $end, $product, $immediate);
 
         if ($response->status === 'created') {
             $cost = $this->calculateReverseUnitCost($currency, $unitCost);
             $url = $response->raw['short_url'] ?? null;
-            $this->sendPendingAuthMail($subscription, $product, $cost, $currency, $url, $user);
+            $this->sendPendingAuthMail($subscription, $product, $cost, $currency, $url, $user, $immediate);
             Subscription::where('id', $subscription->id)->update(['subscribe_id' => $response->id, 'rzp_subscription' => '2']);
         }
     }
@@ -427,14 +433,15 @@ class SubscriptionController extends Controller
         };
     }
 
-    private function sendPendingAuthMail(Subscription $subscription, Product $product, float|int $cost, string $currency, ?string $url, User $user): void
+    private function sendPendingAuthMail(Subscription $subscription, Product $product, float|int $cost, string $currency, ?string $url, User $user, bool $immediate = false): void
     {
         $setting = Setting::find(1);
         if (! $setting instanceof Setting) {
             return;
         }
         $contact = getContactData();
-        $template = TemplateType::where('name', 'stripe_subscription_authentication')
+        $templateName = $immediate ? 'razorpay_autorenew_setup' : 'stripe_subscription_authentication';
+        $template = TemplateType::where('name', $templateName)
             ->with('templates')
             ->first()
             ?->templates
@@ -452,7 +459,14 @@ class SubscriptionController extends Controller
             'total' => currencyFormat($cost, $currency),
             'contact' => $contact['contact'],
             'logo' => $contact['logo'],
-            'expiry_date' => Date::tomorrow()->format('d M Y'),
+            // Must match the real expire_by RazorpayController::handleRzpAutoPay()
+            // sets on the subscription (update_ends_at + 1 day) — "tomorrow" is
+            // only accurate for the near-expiry cron case; for an immediate
+            // checkout/enable opt-in, update_ends_at can be months away, and
+            // the email would otherwise promise a deadline far sooner than real.
+            'expiry_date' => $immediate
+                ? Date::parse($subscription->update_ends_at)->addDay()->format('d M Y')
+                : Date::tomorrow()->format('d M Y'),
             'reply_email' => $setting->company_email,
             'application_title' => $setting->title,
             'company_title' => $setting->company,

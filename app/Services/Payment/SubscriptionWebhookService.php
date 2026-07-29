@@ -106,7 +106,10 @@ class SubscriptionWebhookService
     {
         $subscription = Subscription::where('subscribe_id', $stripeSubscription['id'] ?? '')->first();
         if ($subscription) {
-            $subscription->update(['is_subscribed' => 0, 'autoRenew_status' => 0, 'subscribe_id' => '']);
+            // Query-builder update, not $subscription->update() — subscribe_id
+            // isn't in Subscription::$fillable, so a model-instance update()
+            // silently drops it and this reset would never actually happen.
+            Subscription::where('id', $subscription->id)->update(['is_subscribed' => 0, 'autoRenew_status' => 0, 'subscribe_id' => '']);
         }
     }
 

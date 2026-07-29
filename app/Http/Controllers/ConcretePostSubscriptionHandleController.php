@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Auto_renewal;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
@@ -231,15 +232,12 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
 
         $decimalPlacesForCurrency = $decimalPlaces[$currency] ?? 2;
 
-        if ($decimalPlacesForCurrency === 0) {
-            $unit_cost = round((int) $cost);
-        } elseif ($decimalPlacesForCurrency === 3) {
-            $unit_cost = round((int) $cost) * 1000;
-        } else {
-            $unit_cost = round((int) $cost) * 100;
-        }
-
-        return $unit_cost;
+        // Multiply first, then round — casting to (int) before multiplying
+        // (the previous implementation) truncates the fractional part, e.g.
+        // $19.99 became 1900 (i.e. $19.00), silently dropping $0.99 off every
+        // cron-driven renewal charge. Matches the global calculateUnitCost()
+        // helper's math (app/Http/helpers.php).
+        return round($cost * (10 ** $decimalPlacesForCurrency));
     }
 
     public function disableAutorenewalStatusByOrderId(int $orderId): void
@@ -265,10 +263,21 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
                 }
             }
 
-            $subscription->update([
+            // Without this, AutoRenewalActivationService::activate()'s idempotency
+            // check (keyed on an Auto_renewal row existing for this order+gateway)
+            // would silently no-op forever on any future re-enable — same gap
+            // fixed for the manual disable path in AutoRenewalController::cancelSubscription().
+            Auto_renewal::where('order_id', $orderId)->delete();
+
+            // Query-builder update, not $subscription->update() — subscribe_id
+            // and rzp_subscription aren't in Subscription::$fillable, so a
+            // model-instance update() silently drops them and this reset
+            // would never actually happen.
+            Subscription::where('id', $subscription->id)->update([
                 'is_subscribed' => 0,
                 'autoRenew_status' => 0,
                 'rzp_subscription' => 0,
+                'subscribe_id' => '',
             ]);
         } catch (Exception $exception) {
             Log::error('Subscription cancellation failed: '.$exception->getMessage());

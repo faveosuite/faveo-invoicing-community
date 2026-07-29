@@ -345,6 +345,7 @@ Route::middleware('installAgora')->group(function (): void {
         Route::post('invoice/{invoice}/stripe/session', [PaymentController::class, 'stripeSession'])->name('invoice.pay.stripe.session');
         Route::post('invoice/{invoice}/stripe/confirm', [PaymentController::class, 'stripeConfirm'])->name('invoice.pay.stripe.confirm');
         Route::post('invoice/{invoice}/razorpay/order', [PaymentController::class, 'razorpayOrder'])->name('invoice.pay.razorpay.order');
+        Route::post('invoice/{invoice}/razorpay/confirm', [PaymentController::class, 'razorpayConfirm'])->name('invoice.pay.razorpay.confirm');
         Route::post('invoice/{invoice}/apply-credit', [PaymentController::class, 'applyCredit'])->name('invoice.pay.apply-credit');
     });
 

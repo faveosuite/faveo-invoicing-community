@@ -90,6 +90,7 @@
               {{ __('message.use_credit_balance', { amount: symbol + availableCredit }) }}
             </label>
           </div>
+
         </div>
 
         <!-- Order summary -->
@@ -208,6 +209,26 @@
 
       </div>
     </div>
+
+    <!-- Only for a new cart purchase where auto-renew can be offered — the
+         existing "Enable auto-renewal" flow on the order page covers this
+         for orders placed without opting in here. -->
+    <Modal :showModal="showAutoRenewModal" :onClose="closeAutoRenewModal" :showCloseBtn="false">
+      <template #title>
+        <h5 class="modal-title">{{ __('message.auto_renew_modal_title') }}</h5>
+      </template>
+      <template #fields>
+        <p class="mb-0">{{ __('message.auto_renew_modal_body') }}</p>
+      </template>
+      <template #controls>
+        <button type="button" class="btn btn-light me-2" @click="submitOrder(false)">
+          {{ __('message.decline_and_proceed') }}
+        </button>
+        <button type="button" class="btn btn-primary" @click="submitOrder(true)">
+          {{ __('message.enable_and_proceed') }}
+        </button>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -216,6 +237,7 @@ import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '@/core/stores/cart'
 import { useAlertStore } from '@/core/stores/alert'
+import Modal from '@/themes/porto/components/common/Modal.vue'
 import http, { parseErrorMessage } from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { useBaseUrl } from '@/core/composables/useBaseUrl'
@@ -244,6 +266,8 @@ const placing = ref(false)
 // Credit is a single yes/no choice — when on, the full available balance
 // applies (no partial amount to pick). One toggle shared by both modes.
 const useCredit = ref(false)
+// Cart mode (new purchase) only — asked via a modal right before submitting.
+const showAutoRenewModal = ref(false)
 
 // Invoice-mode state (populated from pay-init).
 const invoiceLoading = ref(false)
@@ -324,6 +348,7 @@ const isEmpty = computed(() =>
 watch(invoiceId, (id) => {
   selectedGateway.value = null
   useCredit.value = false
+  showAutoRenewModal.value = false
   if (id) {
     loadInvoice()
     return
@@ -395,13 +420,29 @@ function onLogoError(event, name) {
   event.target.replaceWith(span)
 }
 
+function closeAutoRenewModal() {
+  showAutoRenewModal.value = false
+  placing.value = false
+}
+
 // Hand off to the pay page (/place-order) with the chosen gateway. The pay page
 // then shows full details and a single "Pay Now" that triggers that gateway.
 //  - invoice mode: the invoice already exists, just carry its id forward.
-//  - cart mode   : create (or reuse) the invoice from the cart first.
-async function proceed() {
+//  - cart mode   : create (or reuse) the invoice from the cart first — if the
+//                  plan can auto-renew, ask via a modal before submitting.
+function proceed() {
   if ((requiresGateway.value && !selectedGateway.value) || placing.value) return
   placing.value = true
+
+  if (mode.value === 'cart' && cartStore.autoRenewGateways.includes(selectedGateway.value)) {
+    showAutoRenewModal.value = true
+    return
+  }
+  submitOrder(false)
+}
+
+async function submitOrder(autoRenewOptIn) {
+  showAutoRenewModal.value = false
   alertStore.unsetAlert()
   try {
     const credit = useCredit.value ? '1' : '0'
@@ -409,7 +450,10 @@ async function proceed() {
       router.push({ path: '/place-order', query: { invoice: invoiceId.value, gateway: selectedGateway.value, use_credit: credit } })
       return
     }
-    const { data } = await http.post(`/my-cart/place-order`, { gateway: selectedGateway.value })
+    const { data } = await http.post(`/my-cart/place-order`, {
+      gateway: selectedGateway.value,
+      auto_renew_opt_in: autoRenewOptIn,
+    })
     router.push({ path: '/place-order', query: { invoice: data.data.invoice_id, gateway: selectedGateway.value, use_credit: credit } })
   } catch (e) {
     alertStore.setAlert({ message: parseErrorMessage(e), type: 'danger', component_name: 'client-page' })

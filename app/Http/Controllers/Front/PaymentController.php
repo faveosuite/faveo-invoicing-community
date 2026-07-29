@@ -30,11 +30,9 @@ use Throwable;
  *  - stripeSession   : create an embedded Stripe Checkout Session for the invoice.
  *  - stripeConfirm   : authoritatively confirm a completed Stripe session + fulfil.
  *  - razorpayOrder   : create a Razorpay Order for the invoice (Checkout config).
+ *  - razorpayConfirm : authoritatively verify a completed Razorpay payment + fulfil.
  *  - stripeWebhook   : gateway webhook — handles all Stripe payment types.
  *  - razorpayWebhook : gateway webhook — handles all Razorpay payment types.
- *
- * Razorpay verification + fulfilment is handled by RazorpayController::payment,
- * which delegates to the same InvoicePaymentService.
  */
 class PaymentController extends Controller
 {
@@ -253,6 +251,30 @@ class PaymentController extends Controller
 
         try {
             return successResponse('', ['razorpay' => $this->invoices->start($model, 'Razorpay', $request->boolean('use_credit'))->clientConfig]);
+        } catch (Throwable $throwable) {
+            return errorResponse($throwable->getMessage());
+        }
+    }
+
+    /**
+     * Verify a completed Razorpay Checkout payment and fulfil the invoice.
+     * The signature is re-verified server-side; the client-supplied fields
+     * are only pointers, never the source of truth.
+     */
+    public function razorpayConfirm(Request $request, int $invoice): JsonResponse
+    {
+        $model = $this->authorizedInvoice($request, $invoice);
+
+        try {
+            $paid = $this->invoices->confirm($model, 'Razorpay', $request->only([
+                'razorpay_order_id',
+                'razorpay_payment_id',
+                'razorpay_signature',
+            ]));
+
+            return $paid
+                ? successResponse('success', [])
+                : errorResponse(__('message.payment_declined_try_other_gateway'));
         } catch (Throwable $throwable) {
             return errorResponse($throwable->getMessage());
         }

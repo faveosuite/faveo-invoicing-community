@@ -229,6 +229,7 @@ class OrderController extends BaseOrderController
             'permissions' => LicensePermissionsController::getPermissionsForProduct((int) $order->product),
             'autorenewal' => $order->subscription?->autoRenew_status,
             'is_subscribed' => $order->subscription?->is_subscribed,
+            'auto_renew_state' => $order->subscription?->autoRenewState() ?? 'inactive',
             'payment_log' => $paymentLog,
         ]);
     }

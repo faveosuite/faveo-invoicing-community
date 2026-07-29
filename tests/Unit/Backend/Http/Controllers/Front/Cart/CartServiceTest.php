@@ -6,6 +6,8 @@ use App\Http\Controllers\Front\Cart\CartService;
 use App\Http\Controllers\Front\Cart\GuestCart;
 use App\Model\Cart\Cart;
 use App\Model\Cart\CartItem;
+use App\Model\Common\Setting;
+use App\Model\Common\StatusSetting;
 use App\Services\Payment\InvoicePaymentService;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -194,5 +196,61 @@ class CartServiceTest extends DBTestCase
         }
 
         $this->assertTrue(true);
+    }
+
+    // -------------------------------------------------------------------------
+    // autoRenewalGateways (private) — which active gateways can offer the
+    // checkout auto-renew opt-in. Mirrors
+    // ClientController::autoRenewalGateways(): global toggle AND per-gateway
+    // admin toggle AND active-for-currency, not product-specific.
+    // -------------------------------------------------------------------------
+
+    public function test_auto_renewal_gateways_includes_stripe_when_enabled_and_active(): void
+    {
+        Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        StatusSetting::where('id', 1)->update(['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 0]);
+
+        $result = $this->getPrivateMethod($this->service, 'autoRenewalGateways', [[
+            ['name' => 'Stripe', 'processing_fee' => null],
+        ]]);
+
+        $this->assertSame(['Stripe'], $result);
+    }
+
+    public function test_auto_renewal_gateways_empty_when_disabled_per_gateway(): void
+    {
+        Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        StatusSetting::where('id', 1)->update(['stripe_auto_renewal' => 0, 'razorpay_auto_renewal' => 0]);
+
+        $result = $this->getPrivateMethod($this->service, 'autoRenewalGateways', [[
+            ['name' => 'Stripe', 'processing_fee' => null],
+            ['name' => 'Razorpay', 'processing_fee' => null],
+        ]]);
+
+        $this->assertSame([], $result);
+    }
+
+    public function test_auto_renewal_gateways_empty_when_disabled_globally_even_if_gateway_enabled(): void
+    {
+        Setting::where('id', 1)->update(['autorenewal_status' => 0]);
+        StatusSetting::where('id', 1)->update(['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 1]);
+
+        $result = $this->getPrivateMethod($this->service, 'autoRenewalGateways', [[
+            ['name' => 'Stripe', 'processing_fee' => null],
+            ['name' => 'Razorpay', 'processing_fee' => null],
+        ]]);
+
+        $this->assertSame([], $result);
+    }
+
+    public function test_auto_renewal_gateways_empty_when_enabled_but_gateway_not_active(): void
+    {
+        Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        StatusSetting::where('id', 1)->update(['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 1]);
+
+        // Neither Stripe nor Razorpay is in the active-gateways list for this currency
+        $result = $this->getPrivateMethod($this->service, 'autoRenewalGateways', [[]]);
+
+        $this->assertSame([], $result);
     }
 }

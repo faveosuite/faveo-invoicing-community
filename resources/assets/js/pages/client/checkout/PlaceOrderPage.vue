@@ -427,12 +427,16 @@ async function payRazorpay(config) {
   const options = { ...config }
   options.handler = async (response) => {
     try {
-      await http.post(`/payment/${invoiceId.value}`, {
+      const { data } = await http.post(`/invoice/${invoiceId.value}/razorpay/confirm`, {
         razorpay_payment_id: response.razorpay_payment_id,
         razorpay_order_id: response.razorpay_order_id,
         razorpay_signature: response.razorpay_signature,
       })
-      onPaid()
+      if (data?.success) {
+        onPaid()
+      } else {
+        alertStore.setAlert({ message: data?.message ?? __('message.err_msg'), type: 'danger', component_name: 'client-page' })
+      }
     } catch (e) {
       alertStore.setAlert({ message: parseErrorMessage(e), type: 'danger', component_name: 'client-page' })
     }

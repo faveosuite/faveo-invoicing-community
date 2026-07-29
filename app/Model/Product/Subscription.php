@@ -155,6 +155,32 @@ class Subscription extends Model
         return url('orders/'.$this->order_id);
     }
 
+    /**
+     * Opting in (is_subscribed, status '1') only records that the customer
+     * asked for auto-renewal — no gateway subscription exists yet. Status
+     * '2' means one was created (Stripe near expiry via renewal:cron, or
+     * Razorpay immediately) but still needs the customer to authorize it on
+     * the gateway's own page. Only status '3' is a live, charging
+     * subscription. Three distinct states so the UI never calls a
+     * not-yet-working one "Active", and doesn't tell the customer they need
+     * to act ("Pending Authorization") when nothing has been asked of them
+     * yet ("Enabled").
+     */
+    public function autoRenewState(): string
+    {
+        if (! $this->is_subscribed) {
+            return 'inactive';
+        }
+
+        $status = max((int) ($this->autoRenew_status ?? 0), (int) ($this->rzp_subscription ?? 0));
+
+        return match ($status) {
+            3 => 'active',
+            2 => 'pending',
+            default => 'enabled',
+        };
+    }
+
     // public function getEndsAtAttribute($value)
     // {
     //      $date1 = new DateTime($value);

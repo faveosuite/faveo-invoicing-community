@@ -264,7 +264,9 @@
                                         </div>
                                         <div class="d-flex align-items-center justify-content-between">
                                             <span class="small text-muted">{{ __('message.status') }}</span>
-                                            <span v-if="isSubscribed" class="badge bg-success">{{ __('message.active') }}</span>
+                                            <span v-if="autoRenewState === 'active'" class="badge bg-success">{{ __('message.active') }}</span>
+                                            <span v-else-if="autoRenewState === 'pending'" class="badge bg-warning text-dark">{{ __('message.pending_authorization') }}</span>
+                                            <span v-else-if="autoRenewState === 'enabled'" class="badge bg-info text-dark">{{ __('message.enabled') }}</span>
                                             <span v-else class="badge bg-secondary">{{ __('message.inactive') }}</span>
                                         </div>
                                         <template v-if="isSubscribed && paymentLog">
@@ -436,6 +438,7 @@ const licenseDetails = ref(null)
 const permissions    = ref({})
 const autorenewal    = ref(0)
 const isSubscribed   = ref(0)
+const autoRenewState = ref('inactive')
 const paymentLog     = ref(null)
 const tab            = ref('installations')
 const pluginLicenses = ref([])
@@ -681,6 +684,7 @@ async function reload() {
     permissions.value    = d.permissions ?? {}
     autorenewal.value    = d.autorenewal
     isSubscribed.value   = d.is_subscribed
+    autoRenewState.value = d.auto_renew_state
     paymentLog.value     = d.payment_log
     await loadPluginLicenses()
 }

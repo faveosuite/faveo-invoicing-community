@@ -7,6 +7,7 @@ namespace Tests\Unit\Backend\Services\Payment;
 use App\Model\Order\Invoice;
 use App\Plugins\Payment\Dto\PaymentResult;
 use App\Plugins\Payment\Dto\PaymentSession;
+use App\Services\Payment\AutoRenewalActivationService;
 use App\Services\Payment\InvoicePaymentService;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\PostPaymentService;
@@ -33,7 +34,11 @@ class InvoicePaymentServiceTest extends DBTestCase
 
         $this->payments = Mockery::mock(PaymentService::class);
         $this->postPayment = Mockery::mock(PostPaymentService::class);
-        $this->service = new InvoicePaymentService($this->payments, $this->postPayment);
+        $this->service = new InvoicePaymentService(
+            $this->payments,
+            $this->postPayment,
+            Mockery::mock(AutoRenewalActivationService::class),
+        );
     }
 
     protected function tearDown(): void
@@ -123,7 +128,54 @@ class InvoicePaymentServiceTest extends DBTestCase
         $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null]);
 
         // 'NoFeeGateway' has no DB table → ProcessingFee::percent returns 0 → covers line 155
-        $result = new PaymentResult(paid: true, gateway: 'NoFeeGateway');
+        $result = new PaymentResult(paid: true, gateway: 'NoFeeGateway', raw: ['metadata' => ['invoice_id' => (string) $invoice->id]]);
+        $this->payments->shouldReceive('capture')->once()->andReturn($result);
+        $this->postPayment->shouldReceive('handle')->once();
+
+        $outcome = $this->service->confirm($invoice, 'NoFeeGateway', []);
+
+        $this->assertTrue($outcome);
+    }
+
+    /**
+     * Regression test: a captured payment only proves the reference is real —
+     * not that it was ever meant for THIS invoice. Without checking the
+     * invoice_id stamped into the gateway metadata at creation time, a
+     * completed payment for a cheap invoice could be replayed to fulfil a
+     * different, more expensive invoice the same user owns.
+     */
+    public function test_confirm_rejects_payment_for_a_different_invoice(): void
+    {
+        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null]);
+        $otherInvoiceId = $invoice->id + 1;
+
+        $result = new PaymentResult(paid: true, gateway: 'NoFeeGateway', raw: ['metadata' => ['invoice_id' => (string) $otherInvoiceId]]);
+        $this->payments->shouldReceive('capture')->once()->andReturn($result);
+        $this->postPayment->shouldNotReceive('handle');
+
+        $outcome = $this->service->confirm($invoice, 'NoFeeGateway', []);
+
+        $this->assertFalse($outcome);
+    }
+
+    public function test_confirm_rejects_payment_with_no_invoice_metadata_at_all(): void
+    {
+        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null]);
+
+        $result = new PaymentResult(paid: true, gateway: 'NoFeeGateway', raw: []);
+        $this->payments->shouldReceive('capture')->once()->andReturn($result);
+        $this->postPayment->shouldNotReceive('handle');
+
+        $outcome = $this->service->confirm($invoice, 'NoFeeGateway', []);
+
+        $this->assertFalse($outcome);
+    }
+
+    public function test_confirm_accepts_razorpay_notes_style_metadata(): void
+    {
+        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null]);
+
+        $result = new PaymentResult(paid: true, gateway: 'NoFeeGateway', raw: ['notes' => ['invoice_id' => (string) $invoice->id]]);
         $this->payments->shouldReceive('capture')->once()->andReturn($result);
         $this->postPayment->shouldReceive('handle')->once();
 
@@ -149,7 +201,7 @@ class InvoicePaymentServiceTest extends DBTestCase
         // Stripe has processing_fee = 2.5 in DB → covers lines 158-160
         $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null]);
 
-        $result = new PaymentResult(paid: true, gateway: 'Stripe');
+        $result = new PaymentResult(paid: true, gateway: 'Stripe', raw: ['metadata' => ['invoice_id' => (string) $invoice->id]]);
         $this->payments->shouldReceive('capture')->once()->andReturn($result);
         $this->postPayment->shouldReceive('handle')->once();
 
@@ -165,7 +217,7 @@ class InvoicePaymentServiceTest extends DBTestCase
         // invoice has processing_fee already set → applyProcessingFee returns early (line 150)
         $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => '2%']);
 
-        $result = new PaymentResult(paid: true, gateway: 'Stripe');
+        $result = new PaymentResult(paid: true, gateway: 'Stripe', raw: ['metadata' => ['invoice_id' => (string) $invoice->id]]);
         $this->payments->shouldReceive('capture')->once()->andReturn($result);
         $this->postPayment->shouldReceive('handle')->once();
 

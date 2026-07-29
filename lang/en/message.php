@@ -648,6 +648,11 @@ return [
     'credit_applied' => 'Credit Applied',
     'credit_to_apply' => 'Credit to Apply',
     'use_credit_balance' => 'Use my credit balance (:amount available)',
+    'auto_renew_modal_title' => 'Auto-renew this order?',
+    'auto_renew_modal_body' => "Enable auto-renew to keep your order active without interruption. We'll securely charge your payment method when it's time to renew, and you can cancel anytime from your order page.",
+    'pending_authorization' => 'Pending Authorization',
+    'decline_and_proceed' => 'Decline & proceed',
+    'enable_and_proceed' => 'Enable & proceed',
 
     /*
      * Category
@@ -1577,6 +1582,8 @@ return [
     'auto_renewal' => 'Auto Renewal',
     'disable_auto_renewal' => 'Disable Auto-Renewal',
     'disable_auto_renewal_confirm' => 'Are you sure you want to disable auto-renewal? Your subscription will not be renewed automatically.',
+    'disable_gateway_auto_renewal_title' => 'Disable auto-renewal for this gateway?',
+    'disable_gateway_auto_renewal_warning' => 'This will immediately cancel auto-renewal for every customer currently using it with this gateway — not just new orders going forward. Each affected subscription will be cancelled with the gateway right away, and customers will need to manually re-enable auto-renewal afterward; this cannot be undone by turning the setting back on.',
     'has_been_generated' => 'has been generated because order:',
     'was_terminated' => 'was terminated.',
     'license_code' => 'License Code:',
@@ -3603,7 +3610,10 @@ return [
     'select_data_center_required' => 'Please select a data center.',
     'select_product_required' => 'Please select a product.',
     'webhook_url_hint' => 'The URL where webhook events will be delivered.',
-    'stripe_webhook_url_hint' => 'Use this URL to create a "snapshot" event destination (the default type) in the Stripe Dashboard — "thin events" are not supported.',
+    'stripe_webhook_url_hint' => 'Copy this URL and paste it when adding a new webhook endpoint in your Stripe Dashboard (Developers → Webhooks). When asked to pick an event format, choose the default option, "Snapshot".',
+    'view_required_webhook_events' => 'View required webhook events',
+    'required_webhook_events' => 'Required Webhook Events',
+    'required_webhook_events_hint' => 'When setting up the webhook endpoint in the gateway\'s dashboard, select these events — everything else is ignored.',
 
     // Backend (PHP)
     'check-expiry' => 'Coupon has expired.',

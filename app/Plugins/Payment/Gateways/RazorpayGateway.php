@@ -103,26 +103,50 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
     }
 
     /**
-     * @param  array{razorpay_order_id?: string, razorpay_payment_id?: string, razorpay_signature?: string}  $payload
+     * Verifies either a one-time Order payment (razorpay_order_id) or a
+     * Subscription authorization (razorpay_subscription_id) — the Razorpay
+     * SDK's verifyPaymentSignature() already branches on which one is present
+     * and hashes the correct payload for each, so one method covers both.
+     *
+     * @param  array{razorpay_order_id?: string, razorpay_subscription_id?: string, razorpay_payment_id?: string, razorpay_signature?: string}  $payload
      */
     public function capturePayment(array $payload): PaymentResult
     {
-        foreach (['razorpay_order_id', 'razorpay_payment_id', 'razorpay_signature'] as $key) {
-            if (empty($payload[$key])) {
-                throw new PaymentException(sprintf('Missing Razorpay field: %s.', $key));
-            }
+        if (empty($payload['razorpay_payment_id']) || empty($payload['razorpay_signature'])) {
+            throw new PaymentException('Missing Razorpay field: razorpay_payment_id or razorpay_signature.');
+        }
+
+        if (empty($payload['razorpay_order_id']) && empty($payload['razorpay_subscription_id'])) {
+            throw new PaymentException('Missing Razorpay field: razorpay_order_id or razorpay_subscription_id.');
         }
 
         try {
-            $this->api()->utility->verifyPaymentSignature([
-                'razorpay_order_id' => $payload['razorpay_order_id'],
+            $this->api()->utility->verifyPaymentSignature(array_filter([
+                'razorpay_order_id' => $payload['razorpay_order_id'] ?? null,
+                'razorpay_subscription_id' => $payload['razorpay_subscription_id'] ?? null,
                 'razorpay_payment_id' => $payload['razorpay_payment_id'],
                 'razorpay_signature' => $payload['razorpay_signature'],
-            ]);
+            ]));
         } catch (SignatureVerificationError $e) {
             throw new SignatureVerificationException($e->getMessage(), (int) $e->getCode(), $e);
         } catch (Error $e) {
             throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        }
+
+        // A verified signature only proves this (payment_id, order_id) pair is
+        // a real, completed Razorpay payment — not what it was *for*. Fetch the
+        // order itself (not just echo back the client-supplied payload) so the
+        // caller can check the notes/amount it was actually created with —
+        // e.g. InvoicePaymentService::confirm() cross-checks notes.invoice_id
+        // before fulfilling, so a real payment for a cheap invoice can't be
+        // replayed here to fulfil a different, more expensive one.
+        $orderData = [];
+        if (! empty($payload['razorpay_order_id'])) {
+            try {
+                $orderData = $this->api()->order->fetch($payload['razorpay_order_id'])->toArray();
+            } catch (Error $error) {
+                throw new PaymentException($error->getMessage(), (int) $error->getCode(), $error);
+            }
         }
 
         return new PaymentResult(
@@ -130,7 +154,7 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
             gateway: $this->name(),
             reference: $payload['razorpay_payment_id'],
             status: 'captured',
-            raw: $payload,
+            raw: $orderData ?: $payload,
         );
     }
 
@@ -202,11 +226,13 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
                 'expire_by' => $request->expireBy,
                 'start_at' => $request->startAt,
                 'customer_notify' => 1,
-                'addons' => [['item' => [
+                // A one-time addon charged immediately on authorization — only
+                // correct when the current cycle's payment is actually due now.
+                'addons' => $request->includeUpfrontCharge ? [['item' => [
                     'name' => $request->planName,
                     'amount' => $request->amountMinor,
                     'currency' => $request->currency,
-                ]]],
+                ]]] : null,
             ], static fn ($v): bool => $v !== null));
 
             return new SubscriptionResult(
