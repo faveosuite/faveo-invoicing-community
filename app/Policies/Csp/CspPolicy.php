@@ -34,7 +34,7 @@ class CspPolicy extends Policy
                 'www.googletagmanager.com',
                 'www.gstatic.com',
                 'unpkg.com',
-                'lumberjack.razorpay.com'
+                'lumberjack.razorpay.com',
             ])
             ->addDirective(Directive::STYLE, [
                 Keyword::REPORT_SAMPLE,

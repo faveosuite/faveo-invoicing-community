@@ -245,44 +245,44 @@ class SettingsController extends Controller
 //            ]
 //        );
 //
-////if($confirm->status == 'succeeded') {
-////    $invoice = \Session::get('invoice');
-////    $invoiceItem = InvoiceItem::where('invoice_id', $invoice->id)->first();
-////    $product_name = $invoiceItem->product_name;
-////    $cost = $invoice->grand_total;
-////    $currency = $invoice->currency;
-////    $plan = Plan::where('id', $invoiceItem->plan_id)->first();
-////    $unit_cost = $this->calculateUnitCost($currency, $cost);
-////
-////    $customer_id = $customer['id'];
-////    //create product
-////    $product = $stripe->products->create([
-////        'name' => $product_name,
-////    ]);
-////    $product_id = $product['id'];
-////    $days = Carbon::now()->addDays($plan->days);
-////    //define product price and recurring interval
-////
-////    $price = $stripe->prices->create([
-////        'unit_amount' => $unit_cost,
-////        'currency' => $currency,
-////        'recurring' => ['interval' => 'day', 'interval_count' => $plan->days],
-////        'product' => $product_id,
-////    ]);
-////
-////    $subscription = \Stripe\Subscription::create([
-////        'customer' => $customer_id,
-////        'items' => [['price' => $price['id']],],
-////        'billing_cycle_anchor' => strtotime($days),
-////        'proration_behavior' => 'none',
-////    ]);
-////
-////    return ['confirm' => $confirm, 'subscription' => $subscription, 'customer_id' => $customer_id];
-////}
-//return['confirm' => $confirm];
+    ////if($confirm->status == 'succeeded') {
+    ////    $invoice = \Session::get('invoice');
+    ////    $invoiceItem = InvoiceItem::where('invoice_id', $invoice->id)->first();
+    ////    $product_name = $invoiceItem->product_name;
+    ////    $cost = $invoice->grand_total;
+    ////    $currency = $invoice->currency;
+    ////    $plan = Plan::where('id', $invoiceItem->plan_id)->first();
+    ////    $unit_cost = $this->calculateUnitCost($currency, $cost);
+    ////
+    ////    $customer_id = $customer['id'];
+    ////    //create product
+    ////    $product = $stripe->products->create([
+    ////        'name' => $product_name,
+    ////    ]);
+    ////    $product_id = $product['id'];
+    ////    $days = Carbon::now()->addDays($plan->days);
+    ////    //define product price and recurring interval
+    ////
+    ////    $price = $stripe->prices->create([
+    ////        'unit_amount' => $unit_cost,
+    ////        'currency' => $currency,
+    ////        'recurring' => ['interval' => 'day', 'interval_count' => $plan->days],
+    ////        'product' => $product_id,
+    ////    ]);
+    ////
+    ////    $subscription = \Stripe\Subscription::create([
+    ////        'customer' => $customer_id,
+    ////        'items' => [['price' => $price['id']],],
+    ////        'billing_cycle_anchor' => strtotime($days),
+    ////        'proration_behavior' => 'none',
+    ////    ]);
+    ////
+    ////    return ['confirm' => $confirm, 'subscription' => $subscription, 'customer_id' => $customer_id];
+    ////}
+    //return['confirm' => $confirm];
 //    }
 
-    public function handleStripeAutoPay($stripe_payment_details, $product_details, $unit_cost, $currency, $plan,$order)
+    public function handleStripeAutoPay($stripe_payment_details, $product_details, $unit_cost, $currency, $plan, $order)
     {
         try {
             $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();

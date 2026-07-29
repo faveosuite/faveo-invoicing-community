@@ -20,32 +20,33 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Stripe\Checkout\Session as StripeSession;
-use Stripe\Stripe;
-use Stripe\Webhook;
 use Stripe\Event as StripeEvent;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\Stripe;
+use Stripe\Webhook;
 
-
-class RecurringController extends Controller {
+class RecurringController extends Controller
+{
     use PostPaymentHandle;
-    protected int $i=0;
+    protected int $i = 0;
 
-    public function subscriptionData($invoice){
-        $invoiceItem=InvoiceItem::where('invoice_id',$invoice->id)->first();
-        $product_name=$invoiceItem->product_name;
+    public function subscriptionData($invoice)
+    {
+        $invoiceItem = InvoiceItem::where('invoice_id', $invoice->id)->first();
+        $product_name = $invoiceItem->product_name;
         $cost = $invoice->grand_total;
         $currency = $invoice->currency;
-        $plan=Plan::where('id',$invoiceItem->plan_id)->first();
+        $plan = Plan::where('id', $invoiceItem->plan_id)->first();
         $planDetails = userCurrencyAndPrice(\Auth::user()->id, $plan);
         $renew_cost = $planDetails['plan']->renew_price;
-        $renew_unit_cost=$this->calculateUnitCost($currency,$renew_cost);
+        $renew_unit_cost = $this->calculateUnitCost($currency, $renew_cost);
         $unit_cost = $this->calculateUnitCost($currency, $cost);
         $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
 
         $stripe = new \Stripe\StripeClient($stripeSecretKey);
         \Stripe\Stripe::setApiKey($stripeSecretKey);
 
-        $user=\Auth::user();
+        $user = \Auth::user();
         $customer = $this->customerCreation($user);
         $customer_id = $customer['id'];
         //create product
@@ -54,12 +55,13 @@ class RecurringController extends Controller {
         ]);
         $product_id = $product['id'];
 
-        $price=$this->stripePriceCreation($renew_unit_cost,$currency,$product_id,$stripe,$plan->days,'recurring');
-        $first_price=$this->stripePriceCreation($unit_cost,$currency,$product_id,$stripe,null,null);
+        $price = $this->stripePriceCreation($renew_unit_cost, $currency, $product_id, $stripe, $plan->days, 'recurring');
+        $first_price = $this->stripePriceCreation($unit_cost, $currency, $product_id, $stripe, null, null);
         $price_id = $price['id'];
         $url = url('confirm/auto-renewal');
         $trialEnd = strtotime(Carbon::now()->addDays($plan->days));
-        $session=$this->stripeSessionCreation($customer_id,$price_id,$first_price['id'],$trialEnd,$url);
+        $session = $this->stripeSessionCreation($customer_id, $price_id, $first_price['id'], $trialEnd, $url);
+
         return $session->url;
     }
 
@@ -78,30 +80,29 @@ class RecurringController extends Controller {
         ]);
     }
 
-    public function stripePriceCreation($cost,$currency,$product_id,$stripe,$days=null,$type=null){
-
-        if($type=='recurring'){
-           $price= $stripe->prices->create([
+    public function stripePriceCreation($cost, $currency, $product_id, $stripe, $days = null, $type = null)
+    {
+        if ($type == 'recurring') {
+            $price = $stripe->prices->create([
                 'unit_amount' => $cost,
                 'currency' => $currency,
                 'recurring' => ['interval' => 'day', 'interval_count' => $days],
                 'product' => $product_id,
             ]);
-        }elseif($type=='metered'){
+        } elseif ($type == 'metered') {
             $price = $stripe->prices->create([
                 'unit_amount' => $cost,  //keep it 100 not to change it
                 'currency' => $currency,
                 'recurring' => ['interval' => 'day',
                     'usage_type' => 'metered',
                     'interval_count' => $days,
-                    'meter' => 'mtr_test_61TEmuH4eqA9iUXzn41SGb8vHOmu29XU'  //make it dynamic
+                    'meter' => 'mtr_test_61TEmuH4eqA9iUXzn41SGb8vHOmu29XU',  //make it dynamic
                 ],
                 'product' => $product_id,
-                'billing_scheme'=>'per_unit',
+                'billing_scheme' => 'per_unit',
             ]);
-        }
-        else{
-           $price= $stripe->prices->create([
+        } else {
+            $price = $stripe->prices->create([
                 'unit_amount' => $cost,
                 'currency' => $currency,
                 'product' => $product_id,
@@ -111,56 +112,56 @@ class RecurringController extends Controller {
         return $price;
     }
 
-    public function stripeSessionCreation($customer_id,$price_id1,$price_id2,$trialEnd,$url){
+    public function stripeSessionCreation($customer_id, $price_id1, $price_id2, $trialEnd, $url)
+    {
         $session = \Stripe\Checkout\Session::create([
-            'mode'       => 'subscription',
-            'customer'   => $customer_id,
+            'mode' => 'subscription',
+            'customer' => $customer_id,
             'line_items' => [
                 [
-                    'price'    => $price_id1,
+                    'price' => $price_id1,
                     'quantity' => 1,
                 ],
                 [
-                    'price'    => $price_id2,
+                    'price' => $price_id2,
                     'quantity' => 1,
                 ],
             ],
             'subscription_data' => [
-                'trial_end'          => $trialEnd,
+                'trial_end' => $trialEnd,
             ],
-            'success_url' => $url. '?session_id={CHECKOUT_SESSION_ID}',
+            'success_url' => $url.'?session_id={CHECKOUT_SESSION_ID}',
         ]);
 
         return $session;
     }
 
-
-    public function usageBasedSubscriptionData($invoice){
-
-        $invoiceItem=InvoiceItem::where('invoice_id',$invoice->id)->first();
-        $product_name=$invoiceItem->product_name;
+    public function usageBasedSubscriptionData($invoice)
+    {
+        $invoiceItem = InvoiceItem::where('invoice_id', $invoice->id)->first();
+        $product_name = $invoiceItem->product_name;
         $cost = $invoice->grand_total;
         $currency = $invoice->currency;
-        $plan=Plan::where('id',$invoiceItem->plan_id)->first();
+        $plan = Plan::where('id', $invoiceItem->plan_id)->first();
         $planDetails = userCurrencyAndPrice(\Auth::user()->id, $plan);
         $renew_cost = $planDetails['plan']->renew_price;
-        $renew_unit_cost=$this->calculateUnitCost($currency,$renew_cost);
+        $renew_unit_cost = $this->calculateUnitCost($currency, $renew_cost);
         $unit_cost = $this->calculateUnitCost($currency, $cost);
         $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
 
         $stripe = new \Stripe\StripeClient($stripeSecretKey);
         \Stripe\Stripe::setApiKey($stripeSecretKey);
 
-        $user=\Auth::user();
+        $user = \Auth::user();
         $product = $stripe->products->create([
             'name' => $product_name,
         ]);
         $product_id = $product['id'];
 
-        $first_price=$this->stripePriceCreation($unit_cost,$currency,$product_id,$stripe,null,null);
+        $first_price = $this->stripePriceCreation($unit_cost, $currency, $product_id, $stripe, null, null);
 
-        $metered_cost=100;
-        $price=$this->stripePriceCreation($metered_cost,$currency,$product_id,$stripe,$plan->days,'metered');
+        $metered_cost = 100;
+        $price = $this->stripePriceCreation($metered_cost, $currency, $product_id, $stripe, $plan->days, 'metered');
 
         $customer = $this->customerCreation($user);
 
@@ -171,8 +172,8 @@ class RecurringController extends Controller {
         $trialEnd = strtotime(Carbon::now()->addDays($plan->days));
 
         $session = \Stripe\Checkout\Session::create([
-            'mode'       => 'subscription',
-            'customer'   => $customer_id,
+            'mode' => 'subscription',
+            'customer' => $customer_id,
             'line_items' => [
                 [
                     'price' => $first_price['id'],
@@ -186,17 +187,16 @@ class RecurringController extends Controller {
                 'metadata' => ['module' => 'api_usage'],
 
             ],
-            'success_url' => $url. '?session_id={CHECKOUT_SESSION_ID}',
+            'success_url' => $url.'?session_id={CHECKOUT_SESSION_ID}',
         ]);
 
         return $session->url;
-
     }
 
-
-    public function confirmAutoRenewal(Request $request){
+    public function confirmAutoRenewal(Request $request)
+    {
         $sessionId = $request->query('session_id');
-        if (!$sessionId) {
+        if (! $sessionId) {
             return redirect('/')->withErrors('No session ID provided.');
         }
 
@@ -215,13 +215,13 @@ class RecurringController extends Controller {
         $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
         $stripe = new \Stripe\StripeClient($stripeSecretKey);
         $invoice = \Session::get('invoice');
-        $order=\Session::get('order');
+        $order = \Session::get('order');
 
-        try{
-            if($invoice){
+        try {
+            if ($invoice) {
                 $currency = $invoice->currency;
-                 $order = \Session::get('upgradeNewActiveOrder');
-                 $result = $this->processPaymentSuccess($invoice, $currency);
+                $order = \Session::get('upgradeNewActiveOrder');
+                $result = $this->processPaymentSuccess($invoice, $currency);
             }
 
             $customer_details = [
@@ -232,19 +232,20 @@ class RecurringController extends Controller {
                 'payment_intent_id' => $subscription->default_payment_method,
             ];
             Auto_renewal::create($customer_details);
-            Subscription::where('order_id',$order)->update(['is_subscribed' => '1', 'autoRenew_status' => '3','subscribe_id'=>$subscription->id,'credit_refund'=>1]);
+            Subscription::where('order_id', $order)->update(['is_subscribed' => '1', 'autoRenew_status' => '3', 'subscribe_id' => $subscription->id, 'credit_refund' => 1]);
             $mail = new \App\Http\Controllers\Common\PhpMailController();
 
             $mail->payment_log(\Auth::user()->email, 'stripe', 'success', Order::where('id', $order)->value('number'), null, $amount, 'Payment method updated');
 
-            if($invoice){
-             \Session::forget('upgradeNewActiveOrder');
+            if ($invoice) {
+                \Session::forget('upgradeNewActiveOrder');
                 \Session::forget('i');
                 \Session::forget('invoice');
                 \Session::forget('auto-renewal');
-                return redirect('checkout')->with($result['status'], $result['message']);
 
+                return redirect('checkout')->with($result['status'], $result['message']);
             }
+
             return redirect('my-order/'.$order.'#auto-renew')->with('success', __('message.card_details_updated_successfully'));
         } catch (\Exception $e) {
             return redirect('my-order/'.$order.'#auto-renew')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
@@ -260,16 +261,15 @@ class RecurringController extends Controller {
     public function enableAutorenewalStatus(Request $request)
     {
         try {
-
             $orderid = $request->get('order_id');
-            \Session::put('order',$orderid);
-            $order=Order::where('id',$orderid)->first();
-            $product_details=Product::where('id',$order->product)->first();
-            $invoice=Invoice::where('id',$order->invoice_id)->first();
+            \Session::put('order', $orderid);
+            $order = Order::where('id', $orderid)->first();
+            $product_details = Product::where('id', $order->product)->first();
+            $invoice = Invoice::where('id', $order->invoice_id)->first();
             $cost = $invoice->grand_total;
             $currency = $invoice->currency;
-            $subscription=Subscription::where('order_id',$order->id)->first();
-            $plan=Plan::where('id',$subscription->plan_id)->first();
+            $subscription = Subscription::where('order_id', $order->id)->first();
+            $plan = Plan::where('id', $subscription->plan_id)->first();
             $unit_cost = $this->calculateUnitCost($currency, $cost);
             $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
 
@@ -280,7 +280,7 @@ class RecurringController extends Controller {
             ]);
             \Stripe\Stripe::setApiKey($stripeSecretKey);
 
-            $user=\Auth::user();
+            $user = \Auth::user();
             $customer = $this->customerCreation($user);
 
             $customer_id = $customer['id'];
@@ -289,26 +289,26 @@ class RecurringController extends Controller {
                 'name' => $product_details->name,
             ]);
             $product_id = $product['id'];
-            $metered_cost=100;
-            $price=$this->stripePriceCreation($metered_cost,$currency,$product_id,$stripe,$plan->days,'metered');
+            $metered_cost = 100;
+            $price = $this->stripePriceCreation($metered_cost, $currency, $product_id, $stripe, $plan->days, 'metered');
 
             $price_id = $price['id'];
             $url = url('confirm/auto-renewal');
-            
+
             $trialEnd = strtotime($subscription->ends_at);
 
 //            $session = \Stripe\Checkout\Session::create([
 //                'mode' => 'setup',
 //                'customer' => $customer_id,
 //                'payment_method_types' => ['card'],
-////                'setup_intent_data' => [
-////                    'usage' => 'off_session', // allows Stripe to use this method for future auto-renewals
-////                ],
+            ////                'setup_intent_data' => [
+            ////                    'usage' => 'off_session', // allows Stripe to use this method for future auto-renewals
+            ////                ],
 //                'success_url' => $url . '?session_id={CHECKOUT_SESSION_ID}',
 //            ]);
             $session = \Stripe\Checkout\Session::create([
-                'mode'       => 'subscription',
-                'customer'   => $customer_id,
+                'mode' => 'subscription',
+                'customer' => $customer_id,
                 'line_items' => [
                     [
                         'price' => $price_id,
@@ -318,11 +318,10 @@ class RecurringController extends Controller {
                     'metadata' => ['module' => 'api_usage'],
                     'billing_cycle_anchor' => $trialEnd,
                 ],
-                'success_url' => $url. '?session_id={CHECKOUT_SESSION_ID}',
+                'success_url' => $url.'?session_id={CHECKOUT_SESSION_ID}',
             ]);
 
             return response()->json(['url' => $session->url]);
-
         } catch(\Exception $ex) {
             $result = $ex->getMessage();
             $mail = new \App\Http\Controllers\Common\PhpMailController();
@@ -333,8 +332,8 @@ class RecurringController extends Controller {
         }
     }
 
-
-    public function stripe_webhook(Request $request){
+    public function stripe_webhook(Request $request)
+    {
         $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
         Stripe::setApiKey($stripeSecretKey);
 
@@ -360,24 +359,26 @@ class RecurringController extends Controller {
             }
         } catch (SignatureVerificationException $e) {
             \Log::error('Stripe Webhook signature verification failed', ['error' => $e->getMessage()]);
+
             return response('Webhook signature verification failed', 400);
         } catch (\UnexpectedValueException $e) {
             \Log::error('Stripe Webhook error while parsing request', ['error' => $e->getMessage()]);
+
             return response('Webhook parsing failed', 400);
         }
         // Handle the event
         switch ($event->type) {
             case 'invoice.payment_succeeded':
                 $invoice = $event->data->object;
-                if($invoice->subscription->id) {
+                if ($invoice->subscription->id) {
                     $subscription = Subscription::where('subscribe_id', $invoice->subscription->id)->first();
-                    $this->invoice_success($subscription,$invoice);
+                    $this->invoice_success($subscription, $invoice);
                 }
                 break;
 
             case 'invoice.payment_failed':
                 $invoice = $event->data->object;
-                $subscription= $invoice->subscription;
+                $subscription = $invoice->subscription;
                 \Log::debug('Full Invoice subscription', ['subscription' => $subscription]);
                 break;
 
@@ -388,8 +389,8 @@ class RecurringController extends Controller {
         return response('Webhook handled', 200);
     }
 
-
-    public function invoice_success($subscription){
+    public function invoice_success($subscription)
+    {
         $cronController = new CronController();
         $concreteController = app()->make(ConcretePostSubscriptionHandleController::class);
 
@@ -426,8 +427,8 @@ class RecurringController extends Controller {
 
         // add processing fee for stripe payment
         if ($payment_method == 'stripe') {
-            $processingFee=ApiKey::where('id',1)->value('stripe_processing_fee');
-            $processingFee = (float)$processingFee / 100;
+            $processingFee = ApiKey::where('id', 1)->value('stripe_processing_fee');
+            $processingFee = (float) $processingFee / 100;
             $price = $cost + ($cost * $processingFee);
         }
         $renewController = new BaseRenewController();
@@ -435,7 +436,5 @@ class RecurringController extends Controller {
         $invoice = $renewController->generateInvoice($product_details, $user, $order->id, $subscription->plan_id, $cost, $code = '', $item->agents, $oldcurrency);
         $cost = Invoice::where('id', $invoice->invoice_id)->value('grand_total');
         $controller->processStripeSubscription($subscription, $currency, $cost, $user, $order, $product_details,$invoice);
-
     }
-
 }

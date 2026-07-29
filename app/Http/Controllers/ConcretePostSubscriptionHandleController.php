@@ -81,7 +81,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             $sub->ends_at = $licenseExpiry;
             $sub->update_ends_at = $updatesExpiry;
             $sub->support_ends_at = $supportExpiry;
-            $sub->credit_refund=0;
+            $sub->credit_refund = 0;
             $sub->save();
             if (Order::where('id', $sub->order_id)->value('license_mode') == 'File') {
                 Order::where('id', $sub->order_id)->update(['is_downloadable' => 0]);

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Plugins\Payment_module\Razorpay\Controllers;
-
 
 use App\ApiKey;
 use App\Auto_renewal;
@@ -23,9 +21,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 
-Class RecurringController extends Controller{
-use postPaymentHandle;
-    public function processRazorpayOrder($invoice, $regularPayment,$auto_renewal)
+class RecurringController extends Controller
+{
+    use postPaymentHandle;
+
+    public function processRazorpayOrder($invoice, $regularPayment, $auto_renewal)
     {
         try {
             $apiKey = ApiKey::first();
@@ -58,45 +58,44 @@ use postPaymentHandle;
 
             $api = new Api($rzp_key, $rzp_secret);
 
+            $orderData = [
+                'receipt' => '3456',
+                'amount' => round($cartTotal * 100),
+                'currency' => $invoice->currency,
+                'method' => 'emandate',
+                'payment_capture' => 0,
+            ];
 
+            $razorpayOrder = $api->order->create($orderData);
+            $razorpayOrderId = $razorpayOrder['id'];
 
-                $orderData = [
-                    'receipt' => '3456',
-                    'amount' => round($cartTotal * 100),
-                    'currency' => $invoice->currency,
-                    'method'=> 'emandate',
-                    'payment_capture' => 0,
-                ];
+            $data = [
+                'key' => $rzp_key,
+                'name' => 'Faveo Helpdesk',
+                'order_id' => $razorpayOrderId,
+                'description' => 'Order for Invoice No - '.$invoice->number,
+                'prefill' => [
+                    'contact' => $user->mobile_code.$user->mobile,
+                    'email' => $user->email,
+                ],
+                'notes' => [
+                    'First Name' => $user->first_name,
+                    'Last Name' => $user->last_name,
+                    'Company Name' => $user->company,
+                    'Address' => $user->address,
+                    'Email' => $user->email,
+                    'Country' => $user->country,
+                    'State' => $user->state,
+                    'City' => $user->town,
+                    'Zip' => $user->zip,
+                    'Amount Paid' => $cartTotal * 100,
+                    'merchant_order_id' => $merchant_orderid,
+                ],
+                'theme' => [
+                    'color' => '#F37254',
+                ],
+            ];
 
-                $razorpayOrder = $api->order->create($orderData);
-                $razorpayOrderId = $razorpayOrder['id'];
-
-                $data = [
-                    'key' => $rzp_key,
-                    'name' => 'Faveo Helpdesk',
-                    'order_id' => $razorpayOrderId,
-                    'description' => 'Order for Invoice No - '.$invoice->number,
-                    'prefill' => [
-                        'contact' => $user->mobile_code.$user->mobile,
-                        'email' => $user->email,
-                    ],
-                    'notes' => [
-                        'First Name' => $user->first_name,
-                        'Last Name' => $user->last_name,
-                        'Company Name' => $user->company,
-                        'Address' => $user->address,
-                        'Email' => $user->email,
-                        'Country' => $user->country,
-                        'State' => $user->state,
-                        'City' => $user->town,
-                        'Zip' => $user->zip,
-                        'Amount Paid' => $cartTotal * 100,
-                        'merchant_order_id' => $merchant_orderid,
-                    ],
-                    'theme' => [
-                        'color' => '#F37254',
-                    ],
-                ];
             return json_encode($data);
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage(), $ex->getCode(), $ex->getPrevious());
@@ -114,7 +113,6 @@ use postPaymentHandle;
 
         return $randomString;
     }
-
 
     /**
      *  Setup razorpay , create auto renewal and update auto renewal status.
@@ -151,14 +149,13 @@ use postPaymentHandle;
             ];
             Auto_renewal::create($customer_details);
 
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'rzp_subscription' => '3', 'subscribe_id'=>$input['razorpay_subscription_id']]);
+            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'rzp_subscription' => '3', 'subscribe_id' => $input['razorpay_subscription_id']]);
             \Session::forget('order-id-renewal');
             $mail = new \App\Http\Controllers\Common\PhpMailController();
             $mail->payment_log(\Auth::user()->email, 'Razorpay', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
 
 //            return redirect()->back()->with('success', __('message.card_updated_successfully'));
             return redirect('my-order/'.$orderid.'#auto-renew')->with('success', __('message.card_details_updated_successfully'));
-
         } catch(\Exception $ex) {
             $result = $ex->getMessage();
             $mail = new \App\Http\Controllers\Common\PhpMailController();
@@ -166,26 +163,26 @@ use postPaymentHandle;
 
 //            return redirect()->back()->with('fails', __('message.payment_declined', ['msg' => $ex->getMessage()]));
             return redirect('my-order/'.$orderid.'#auto-renew')->with('fails', __('message.payment_declined', ['msg' => $ex->getMessage()]));
-
         }
     }
 
-    public function enableRzpAutorenewalStatus(Request $request){
+    public function enableRzpAutorenewalStatus(Request $request)
+    {
         $orderid = $request->get('order_id');
-        \Session::put('order',$orderid);
-        $order=Order::where('id',$orderid)->first();
-        $product_details=Product::where('id',$order->product)->first();
-        $invoice=Invoice::where('id',$order->invoice_id)->first();
+        \Session::put('order', $orderid);
+        $order = Order::where('id', $orderid)->first();
+        $product_details = Product::where('id', $order->product)->first();
+        $invoice = Invoice::where('id', $order->invoice_id)->first();
         $cost = $invoice->grand_total;
         $currency = $invoice->currency;
-        $subscription=Subscription::where('order_id',$order->id)->first();
-        $plan=Plan::where('id',$subscription->plan_id)->first();
+        $subscription = Subscription::where('order_id', $order->id)->first();
+        $plan = Plan::where('id', $subscription->plan_id)->first();
         $unit_cost = $this->calculateUnitCost($currency, $cost);
 
         $key_id = ApiKey::pluck('rzp_key')->first();
         $secret = ApiKey::pluck('rzp_secret')->first();
         $api = new Api($key_id, $secret);
-        $user=\Auth::user();
+        $user = \Auth::user();
         $customer = $api->customer->create([
             'name' => $user->first_name.' '.$user->last_name,
             'email' => $user->email,
@@ -196,18 +193,18 @@ use postPaymentHandle;
         $this->customer_id = $customer['id'];
 
         $rzp_plan = $api->plan->create(['period' => 'yearly',
-                'interval' => 2,
-                'item' => [
-                    'name' => $product_details->name,
-                    'amount' => $unit_cost,
-                    'currency' => $currency, ],
+            'interval' => 2,
+            'item' => [
+                'name' => $product_details->name,
+                'amount' => $unit_cost,
+                'currency' => $currency, ],
 
-            ]
+        ]
         );
 
         $rzp_subscriptionLink = $api->subscription->create([
             'plan_id' => $rzp_plan['id'],
-            'customer_id'=>$customer['id'],
+            'customer_id' => $customer['id'],
             'quantity' => 1,
             'end_at' => Carbon::parse($subscription->update_ends_at)->addDays(round((int) $plan->days))->timestamp,
             'start_at' => Carbon::parse($subscription->update_ends_at)->timestamp,
@@ -224,16 +221,16 @@ use postPaymentHandle;
             ],
             'description' => 'Order for Invoice No'.-$invoice->number,
 
-            'subscription_id'=> $rzp_subscriptionLink['id'],
-//            'method'=>'card',
-            'recurring'=> true,
+            'subscription_id' => $rzp_subscriptionLink['id'],
+            //            'method'=>'card',
+            'recurring' => true,
             'theme' => [
                 'color' => '#F37254',
             ],
-            'callback_url'=>url('rzpRenewal-disable'),
+            'callback_url' => url('rzpRenewal-disable'),
         ];
-        return response()->json(['data' => $data]);
 
+        return response()->json(['data' => $data]);
     }
 
     public function razorpay_webhook(Request $request)
@@ -244,14 +241,14 @@ use postPaymentHandle;
 
         $payload = $request->getContent();
         $signature = $request->header('X-Razorpay-Signature');
-        $razorpay_secret='Santhanu@12';
+        $razorpay_secret = 'Santhanu@12';
         try {
             $webCheck = $api->utility->verifyWebhookSignature($payload, $signature, $razorpay_secret);
             $data = json_decode($payload, true);
 
             switch ($data['event']) {
                 case 'subscription.charged':
-                    $subscription= $data['payload']['subscription']['entity']['id'];
+                    $subscription = $data['payload']['subscription']['entity']['id'];
                     $this->razorpay_success($subscription);
                     break;
                 case 'subscription.completed':
@@ -262,7 +259,7 @@ use postPaymentHandle;
                     break;
                 case 'subscription.authenticated':
                     \Log::debug('subscription.authenticated', $data['payload']['subscription']['entity']['id']);
-                     break;
+                    break;
                 case 'subscription.activated':
                     \Log::debug('subscription.activated', [$data]);
                     break;
@@ -270,17 +267,16 @@ use postPaymentHandle;
 //                    \Log::debug('invoice.paid', $data);
 //                    break;
                 default:
-                    \Log::info("Unhandled Razorpay event: " . $data['event']);
+                    \Log::info('Unhandled Razorpay event: '.$data['event']);
                     break;
             }
-
-
         } catch (\Exception $ex) {
             \Log::error('razorpay_webhook_error', [$ex->getMessage()]);
         }
     }
 
-    public function razorpay_success($subscription){
+    public function razorpay_success($subscription)
+    {
         $cronController = new CronController();
         $concreteController = app()->make(ConcretePostSubscriptionHandleController::class);
 
@@ -317,8 +313,8 @@ use postPaymentHandle;
 
         // add processing fee for stripe payment
         if ($payment_method == 'stripe') {
-            $processingFee=ApiKey::where('id',1)->value('stripe_processing_fee');
-            $processingFee = (float)$processingFee / 100;
+            $processingFee = ApiKey::where('id', 1)->value('stripe_processing_fee');
+            $processingFee = (float) $processingFee / 100;
             $price = $cost + ($cost * $processingFee);
         }
         $renewController = new BaseRenewController();
@@ -327,8 +323,5 @@ use postPaymentHandle;
         $cost = Invoice::where('id', $invoice->invoice_id)->value('grand_total');
         $plan = Plan::where('id', $subscription->plan_id)->first('days');
         $controller->processRazorpaySubscription($subscription, $currency, $cost, $user, $order, $product_details, $invoice, $plan);
-
     }
-
-
 }

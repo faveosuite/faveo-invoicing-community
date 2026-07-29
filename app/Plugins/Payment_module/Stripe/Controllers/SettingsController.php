@@ -10,7 +10,8 @@ use App\Traits\Payment\PostPaymentHandle;
 use Cartalyst\Stripe\Laravel\Facades\Stripe;
 use Illuminate\Http\Request;
 
-class SettingsController extends Controller{
+class SettingsController extends Controller
+{
     use PostPaymentHandle;
 
     public function __construct()
@@ -36,7 +37,7 @@ class SettingsController extends Controller{
             ApiKey::find(1)->update([
                 'stripe_secret' => $request->input('stripe_secret'),
                 'stripe_key' => $request->input('stripe_key'),
-                'stripe_processing_fee'=>$request->input('processing_fee'),
+                'stripe_processing_fee' => $request->input('processing_fee'),
             ]);
 
             return successResponse(['success' => 'true', 'message' => __('message.stripe_settings_updated_successfully')]);
@@ -59,7 +60,7 @@ class SettingsController extends Controller{
             }
             $allCurrencies = StripePayment::pluck('currencies', 'id')->toArray();
             $apikey = new ApiKey();
-            $stripeKeys = $apikey->select('stripe_key', 'stripe_secret','stripe_processing_fee')->first();
+            $stripeKeys = $apikey->select('stripe_key', 'stripe_secret', 'stripe_processing_fee')->first();
             $baseCurrency = StripePayment::pluck('base_currency')->toArray();
             $path = app_path().'/Plugins/Payment_module/Stripe/views';
             \View::addNamespace('Plugins', $path);
@@ -101,5 +102,4 @@ class SettingsController extends Controller{
 //            return redirect()->back()->with('fails', $ex->getMessage());
 //        }
 //    }
-
 }

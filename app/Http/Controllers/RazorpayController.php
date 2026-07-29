@@ -58,8 +58,8 @@ class RazorpayController extends Controller
 //            try {
 //                $api = new Api($rzp_key, $rzp_secret);
 //                $payment = $api->payment->fetch($input['razorpay_payment_id']);
-////                $response = $api->payment->fetch($input['razorpay_payment_id']);
-////                $capture = $api->payment->fetch($response->id)->capture(['amount' => $response->amount]);
+    ////                $response = $api->payment->fetch($input['razorpay_payment_id']);
+    ////                $capture = $api->payment->fetch($response->id)->capture(['amount' => $response->amount]);
 //
 //                $stateCode = \Auth::user()->state;
 //                $state = $this->getState($stateCode);

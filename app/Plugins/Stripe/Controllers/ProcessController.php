@@ -11,13 +11,15 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Razorpay\Model\RazorpayPayment;
 use App\Plugins\Stripe\Model\StripePayment;
+use App\Traits\Payment\PostPaymentHandle;
 use Carbon\Carbon;
 use Darryldecode\Cart\CartCondition;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
-use App\Traits\Payment\PostPaymentHandle;
+
 class ProcessController extends Controller
-{    use PostPaymentHandle;
+{
+    use PostPaymentHandle;
 
     protected $stripe;
 
@@ -143,7 +145,7 @@ class ProcessController extends Controller
 //                    'quantity' => 1,
 //                ]],
 //            'success_url' => $url. '?session_id={CHECKOUT_SESSION_ID}',
-////                'cancel_url' => route('checkout.cancel'),
+    ////                'cancel_url' => route('checkout.cancel'),
 //        ]);
 //        return $session->url;
 //    }
@@ -243,7 +245,7 @@ class ProcessController extends Controller
     {
         try {
             if ($paymentMethod) {
-                return $paymentMethod == 'razorpay' ? ApiKey::find(1)->value('razorpay_processing_fee'):ApiKey::find(1)->value('stripe_processing_fee');
+                return $paymentMethod == 'razorpay' ? ApiKey::find(1)->value('razorpay_processing_fee') : ApiKey::find(1)->value('stripe_processing_fee');
             }
         } catch (\Exception $e) {
             throw new \Exception(__('message.invalid_modification'));
@@ -377,7 +379,7 @@ class ProcessController extends Controller
 //                 'customer_id' => $customer['id'],
 //                 'total_count'=>5,
 //                 'quantity' => 1,
-////                 'end_at' => Carbon::parse($end_date)->timestamp,
+    ////                 'end_at' => Carbon::parse($end_date)->timestamp,
 //                 'start_at' => Carbon::parse($start_date)->timestamp,
 //                 'customer_notify' => 1,
 //                 'addons' => [['item' => [

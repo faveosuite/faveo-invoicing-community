@@ -161,10 +161,9 @@ class CheckoutController extends InfoController
                     \Session::put('discountPrice', $discountPrice);
                 }
                 \Session::put('cloud_domain', $domain);
-                $product=$item->associatedModel->id;
+                $product = $item->associatedModel->id;
                 $permissions = LicensePermissionsController::getPermissionsForProduct($product);
-                $autoRenewal=$permissions['allowAutoRenewal'];
-
+                $autoRenewal = $permissions['allowAutoRenewal'];
             }
             if (\Session::has('priceRemaining')) {
                 $total = \Session::get('priceRemaining') > \Cart::getTotal() ? \Session::get('priceRemaining') - \Cart::getTotal() : \Session::get('discount');
@@ -189,7 +188,7 @@ class CheckoutController extends InfoController
 
             User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
 
-            return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr','autoRenewal'));
+            return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr', 'autoRenewal'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
