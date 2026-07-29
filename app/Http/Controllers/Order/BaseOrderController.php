@@ -76,11 +76,11 @@ class BaseOrderController extends ExtendedOrderController
             $invoice_items = $this->invoice_items->where('invoice_id', $invoiceid)->get();
 
             $user_id = $this->invoice->find($invoiceid)->user_id;
-            $i=0;
+            $i = 0;
             if (count($invoice_items) > 0) {
                 foreach ($invoice_items as $item) {
                     if ($item) {
-                        $items = $this->getIfItemPresent($item, $invoiceid, $user_id, $order_status,$admin);
+                        $items = $this->getIfItemPresent($item, $invoiceid, $user_id, $order_status, $admin);
                     }
                 }
             }
@@ -93,7 +93,7 @@ class BaseOrderController extends ExtendedOrderController
         }
     }
 
-    public function getIfItemPresent($item, $invoiceid, $user_id, $order_status,$admin = false)
+    public function getIfItemPresent($item, $invoiceid, $user_id, $order_status, $admin = false)
     {
         try {
             $product = $this->product->where('name', $item->product_name)->first()->id;

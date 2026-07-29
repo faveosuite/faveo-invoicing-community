@@ -89,7 +89,6 @@ trait PostPaymentHandle
                 }
 
                 $view = $cont->getViewMessageAfterPayment($invoice, $state, $currency);
-
             } elseif ($cloud->checkAgentAlteration()) {
                 if (\Session::has('agentIncreaseDate')) {
                     $control->successRenew($invoice);

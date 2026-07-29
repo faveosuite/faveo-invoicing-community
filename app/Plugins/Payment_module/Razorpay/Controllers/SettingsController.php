@@ -10,14 +10,13 @@ use App\Plugins\Razorpay\Model\RazorpayPayment;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 
-class SettingsController extends Controller{
-
+class SettingsController extends Controller
+{
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('admin', ['except' => ['postPaymentWithRazorpay']]);
     }
-
 
     public function Settings()
     {
@@ -31,7 +30,7 @@ class SettingsController extends Controller{
             }
             $allCurrencies = RazorpayPayment::pluck('currencies', 'id')->toArray();
             $rzpkey = new ApiKey();
-            $rzpKeys = $rzpkey->select('rzp_key', 'rzp_secret', 'apilayer_key','razorpay_processing_fee')->first();
+            $rzpKeys = $rzpkey->select('rzp_key', 'rzp_secret', 'apilayer_key', 'razorpay_processing_fee')->first();
             $baseCurrency = RazorpayPayment::pluck('base_currency')->toArray();
             $path = app_path().'/Plugins/Payment_module/Razorpay/views';
             \View::addNamespace('plugins', $path);
@@ -41,7 +40,6 @@ class SettingsController extends Controller{
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
-
 
     public function updateApiKey(Request $request)
     {
@@ -60,7 +58,7 @@ class SettingsController extends Controller{
             $status = $request->input('status');
             $apilayer_key = $request->input('apilayer_key');
             StatusSetting::find(1)->update(['rzp_status' => $status]);
-            ApiKey::find(1)->update(['rzp_key' => $rzp_key, 'rzp_secret' => $rzp_secret, 'apilayer_key' => $apilayer_key,'razorpay_processing_fee'=>$request->input('processing_fee')]);
+            ApiKey::find(1)->update(['rzp_key' => $rzp_key, 'rzp_secret' => $rzp_secret, 'apilayer_key' => $apilayer_key, 'razorpay_processing_fee' => $request->input('processing_fee')]);
 
             return successResponse(['success' => 'true', 'message' => __('message.razorpay_settings_updated_successfully')]);
         } catch (\Razorpay\Api\Errors\BadRequestError $e) {

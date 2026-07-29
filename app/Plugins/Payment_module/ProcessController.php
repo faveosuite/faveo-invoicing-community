@@ -23,7 +23,8 @@ use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 
 class ProcessController extends Controller
-{    use PostPaymentHandle;
+{
+    use PostPaymentHandle;
 
     protected $stripe;
 
@@ -47,7 +48,7 @@ class ProcessController extends Controller
         try {
             $request = $requests['request'];
             $invoice = $requests['invoice'];
-            $auto_renewal=$request['auto-renewal'] !=null?$request['auto-renewal']:0;
+            $auto_renewal = $request['auto-renewal'] != null ? $request['auto-renewal'] : 0;
             $cart = \Cart::getContent();
             if (! $cart->count()) {
                 \Cart::clear();
@@ -57,16 +58,17 @@ class ProcessController extends Controller
                 $invoice->grand_total = \Cart::getTotal();
             }
             if ($request->input('payment_gateway') == 'Stripe') {
-                $this->redirectToStripe($invoice,$auto_renewal,$request->input('payment_gateway'));
+                $this->redirectToStripe($invoice, $auto_renewal, $request->input('payment_gateway'));
             } elseif ($request->input('payment_gateway') == 'Razorpay') {
-                $this->redirectToRazorpay($invoice,$auto_renewal,$request->input('payment_gateway'));
+                $this->redirectToRazorpay($invoice, $auto_renewal, $request->input('payment_gateway'));
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage(), $ex->getCode(), $ex->getPrevious());
         }
     }
 
-    public function redirectToStripe($invoice,$auto_renewal,$payment_gateway){
+    public function redirectToStripe($invoice, $auto_renewal, $payment_gateway)
+    {
         if (! \Schema::hasTable('stripe')) {
             throw new \Exception(__('message.stripe_not_configured'));
         }
@@ -76,18 +78,19 @@ class ProcessController extends Controller
         }
         \Session::put('invoice', $invoice);
         \Session::save();
-        $url='';
+        $url = '';
 
-        if($auto_renewal) {
+        if ($auto_renewal) {
             \Session::put('auto-renewal', true);
-            $stripeController=  new Stripe\Controllers\RecurringController();
+            $stripeController = new Stripe\Controllers\RecurringController();
 //                    $url=$stripeController->usageBasedSubscriptionData($invoice);
             $url = $stripeController->subscriptionData($invoice);
         }
-        $this->middlePage($payment_gateway,['auto_renewal'=>$auto_renewal,'url'=>$url]);
+        $this->middlePage($payment_gateway, ['auto_renewal' => $auto_renewal, 'url' => $url]);
     }
 
-    public function redirectToRazorpay($invoice,$auto_renewal,$payment_gateway){
+    public function redirectToRazorpay($invoice, $auto_renewal, $payment_gateway)
+    {
         if (! \Schema::hasTable('razorpay')) {
             throw new \Exception(__('message.razorpay_not_configured'));
         }
@@ -99,16 +102,16 @@ class ProcessController extends Controller
 
         \Session::put('invoice', $invoice);
 
-        if($auto_renewal) {
+        if ($auto_renewal) {
             \Session::put('auto-renewal', true);
-            $razorpayController= new Razorpay\Controllers\OnetimeController();
+            $razorpayController = new Razorpay\Controllers\OnetimeController();
             $json = $razorpayController->processRazorpayOrder($invoice);
-        }else{
-            $razorpayController= new Razorpay\Controllers\RecurringController();
-            $json = $razorpayController->processRazorpayOrder($invoice, $regularPayment,$auto_renewal);
+        } else {
+            $razorpayController = new Razorpay\Controllers\RecurringController();
+            $json = $razorpayController->processRazorpayOrder($invoice, $regularPayment, $auto_renewal);
         }
         \Session::save();
-        $this->middlePage($payment_gateway, ['json' => $json,'auto_renewal'=>0,'url'=>'']);
+        $this->middlePage($payment_gateway, ['json' => $json, 'auto_renewal' => 0, 'url' => '']);
     }
 
     public function middlePage($gateway, $data = [])
@@ -144,7 +147,7 @@ class ProcessController extends Controller
                 \Session::put('totalToBePaid', $amount);
                 $path = app_path().'/Plugins/Payment_module';
                 \View::addNamespace('Plugins', $path);
-                echo view('plugins::middle-page', compact('total', 'invoice', 'regularPayment', 'items', 'product', 'amount', 'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data','processingFee'));
+                echo view('plugins::middle-page', compact('total', 'invoice', 'regularPayment', 'items', 'product', 'amount', 'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'processingFee'));
             } else {
                 $pay = $this->payment($payment_method, $status = 'pending');
                 $payment_method = $pay['payment'];
@@ -155,7 +158,7 @@ class ProcessController extends Controller
                 $amount = rounding(\Cart::getTotal());
                 $path = app_path().'/Plugins/Payment_module';
                 \View::addNamespace('plugins', $path);
-                echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice', 'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data','processingFee'))->render();
+                echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice', 'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'processingFee'))->render();
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
@@ -207,7 +210,7 @@ class ProcessController extends Controller
     {
         try {
             if ($paymentMethod) {
-                return $paymentMethod == 'razorpay' ? ApiKey::find(1)->value('razorpay_processing_fee'):ApiKey::find(1)->value('stripe_processing_fee');
+                return $paymentMethod == 'razorpay' ? ApiKey::find(1)->value('razorpay_processing_fee') : ApiKey::find(1)->value('stripe_processing_fee');
             }
         } catch (\Exception $e) {
             throw new \Exception(__('message.invalid_modification'));
@@ -297,19 +300,19 @@ class ProcessController extends Controller
 
     private function autoRenewalSubOps($subscription, $orderid)
     {
-        $days=Plan::where('id',$subscription->plan_id)->value('days');
-        $RemainingDays=Carbon::now()->diffInDays($subscription->update_ends_at, false);
-        $order=Order::where('id',$orderid)->first();
-        $invoice=$order->invoice()->first();
-        $perDay=$invoice->grand_total/$days;
-        $creditBalance=$perDay*$RemainingDays;
+        $days = Plan::where('id', $subscription->plan_id)->value('days');
+        $RemainingDays = Carbon::now()->diffInDays($subscription->update_ends_at, false);
+        $order = Order::where('id', $orderid)->first();
+        $invoice = $order->invoice()->first();
+        $perDay = $invoice->grand_total / $days;
+        $creditBalance = $perDay * $RemainingDays;
         if ($subscription->rzp_subscription && $subscription->is_subscribed && $subscription->subscribe_id) {
             $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
             $rzp_secret = ApiKey::where('id', 1)->value('rzp_secret');
-            $days=Plan::where('id',$subscription->plan_id)->value('days');
+            $days = Plan::where('id', $subscription->plan_id)->value('days');
             $api = new Api($rzp_key, $rzp_secret);
             $pause = $api->subscription->fetch($subscription->subscribe_id)->cancel();
-            if($RemainingDays>0 && $subscription->credit_refund ==0) {
+            if ($RemainingDays > 0 && $subscription->credit_refund == 0) {
                 $this->updateCredit($creditBalance);
             }
             Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'rzp_subscription' => '0']);
@@ -318,12 +321,12 @@ class ProcessController extends Controller
             $stripe = new \Stripe\StripeClient($stripeSecretKey);
             \Stripe\Stripe::setApiKey($stripeSecretKey);
             $pause = $stripe->subscriptions->cancel($subscription->subscribe_id, []);
-            if($RemainingDays>0 && $subscription->credit_refund ==0) {
+            if ($RemainingDays > 0 && $subscription->credit_refund == 0) {
                 $this->updateCredit($creditBalance);
             }
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0','credit_refund' => '0']);
+            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0', 'credit_refund' => '0']);
         } else {
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0', 'rzp_subscription' => '0','credit_refund' => '0'
+            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0', 'rzp_subscription' => '0', 'credit_refund' => '0',
             ]);
         }
     }

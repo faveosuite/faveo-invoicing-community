@@ -1257,34 +1257,34 @@ class SettingsController extends BaseSettingsController
         }
     }
 
+    public function pluginsGrouping(Request $request)
+    {
+        $product = Product::select('id', 'name')->orderBy('name', 'DESC')->get();
 
-    public function pluginsGrouping(Request $request){
-        $product=Product::select('id','name')->orderBy('name','DESC')->get();
-        return view('themes.default1.common.setting.plugins-grouping',compact('product'));
+        return view('themes.default1.common.setting.plugins-grouping', compact('product'));
     }
 
-    public function savePluginOptions(Request $request){
-
-        $product=$request->input('product_id');
-        $type=$request->input('option_type');
-        $option=$request->input('display_option');
-        $description=$request->input('option_description');
+    public function savePluginOptions(Request $request)
+    {
+        $product = $request->input('product_id');
+        $type = $request->input('option_type');
+        $option = $request->input('display_option');
+        $description = $request->input('option_description');
         try {
             OptionsToDisplay::create(
                 ['product_id' => $product, 'option_type' => $type, 'display_option' => $option, 'option_description' => $description]
             );
+
             return successResponse('successfully saved');
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return errorResponse(\Lang::get('message.error'));
         }
-
     }
 
-
-    public function getOptionInfo(Request $request){
-
-        $product_id=$request->input('product_id');
-        $allProd=OptionsToDisplay::where('product_id',$product_id)->get();
+    public function getOptionInfo(Request $request)
+    {
+        $product_id = $request->input('product_id');
+        $allProd = OptionsToDisplay::where('product_id', $product_id)->get();
         try {
             return DataTables::of($allProd)
                 ->addColumn('display_option', function ($allProd) {
@@ -1304,18 +1304,19 @@ class SettingsController extends BaseSettingsController
                 })
                 ->rawColumns(['action', 'option_type', 'option_description', 'display_option'])
                 ->make(true);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             dd($e->getMessage());
         }
     }
 
-
-    public function optionDelete(Request $request){
-        $id=$request->input('id');
+    public function optionDelete(Request $request)
+    {
+        $id = $request->input('id');
         try {
             OptionsToDisplay::destroy($id);
+
             return successResponse('successfully deleted');
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return errorResponse('Something went wrong');
         }
     }

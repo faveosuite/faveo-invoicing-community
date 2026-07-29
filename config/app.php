@@ -162,9 +162,9 @@ return [
 
         //
 
-//        App\Plugins\Stripe\ServiceProvider::class,
-//        App\Plugins\Razorpay\ServiceProvider::class,
-          App\Plugins\Payment_module\ServiceProvider::class,
+        //        App\Plugins\Stripe\ServiceProvider::class,
+        //        App\Plugins\Razorpay\ServiceProvider::class,
+        App\Plugins\Payment_module\ServiceProvider::class,
         /*
          * Laravel Framework Service Providers...
          */

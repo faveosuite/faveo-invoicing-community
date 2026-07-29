@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Plugins\Payment_module;
 
 use App\ApiKey;
@@ -25,15 +24,14 @@ use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Stripe\Controllers\SettingsController;
+use App\Traits\Payment\PostPaymentHandle;
+use App\Traits\TaxCalculation;
 use App\User;
 use Carbon\Carbon;
 use DateTime;
 use GuzzleHttp\Client;
-use Razorpay\Api\Api;
 use Illuminate\Http\Request;
-use App\Traits\Payment\PostPaymentHandle;
-use App\Traits\TaxCalculation;
-
+use Razorpay\Api\Api;
 
 class SubscriptionController extends Controller
 {
@@ -100,7 +98,7 @@ class SubscriptionController extends Controller
             }
             $subscriptions = [];
             foreach ($decodedData as $day) {
-                $day = (int)$day;
+                $day = (int) $day;
                 $endDate = Carbon::now()->addDays($day)->toDateString();
                 $subscriptionsForDay = Subscription::query()
                     ->select([
@@ -111,9 +109,9 @@ class SubscriptionController extends Controller
                     ])
                     ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
                     ->where(function ($query) use ($endDate) {
-                        $query->where('subscriptions.update_ends_at', 'LIKE', $endDate . '%')
-                            ->orWhere('subscriptions.support_ends_at', 'LIKE', $endDate . '%')
-                            ->orWhere('subscriptions.ends_at', 'LIKE', $endDate . '%');
+                        $query->where('subscriptions.update_ends_at', 'LIKE', $endDate.'%')
+                            ->orWhere('subscriptions.support_ends_at', 'LIKE', $endDate.'%')
+                            ->orWhere('subscriptions.ends_at', 'LIKE', $endDate.'%');
                     })
                     ->where(function ($query) {
                         $query->where(function ($q) {
@@ -154,7 +152,7 @@ class SubscriptionController extends Controller
             }
             $subscriptions = [];
             foreach ($decodedData as $day) {
-                $day = (int)$day;
+                $day = (int) $day;
                 $endDate = Carbon::now()->addDays($day)->toDateString();
                 $subscriptionsForDay = Subscription::query()
                     ->select([
@@ -165,9 +163,9 @@ class SubscriptionController extends Controller
                     ])
                     ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
                     ->where(function ($query) use ($endDate) {
-                        $query->where('subscriptions.update_ends_at', 'LIKE', $endDate . '%')
-                            ->orWhere('subscriptions.support_ends_at', 'LIKE', $endDate . '%')
-                            ->orWhere('subscriptions.ends_at', 'LIKE', $endDate . '%');
+                        $query->where('subscriptions.update_ends_at', 'LIKE', $endDate.'%')
+                            ->orWhere('subscriptions.support_ends_at', 'LIKE', $endDate.'%')
+                            ->orWhere('subscriptions.ends_at', 'LIKE', $endDate.'%');
                     })
                     ->where(function ($query) {
                         $query->where(function ($q) {
@@ -191,7 +189,6 @@ class SubscriptionController extends Controller
         return [];
     }
 
-
     public function getCreatedSubscription()
     {
         $daysArray = ExpiryMailDay::pluck('autorenewal_days')->toArray();
@@ -208,14 +205,14 @@ class SubscriptionController extends Controller
 
         $subscriptions = [];
         foreach ($decodedData as $day) {
-            $day = (int)$day;
+            $day = (int) $day;
             $startDate = Carbon::now()->toDateString();
             $endDate = Carbon::now()->addDays($day)->toDateString();
 
             $subscriptionsForDay = Subscription::where(function ($query) use ($endDate) {
-                $query->where('update_ends_at', 'LIKE', $endDate . '%')
-                    ->orWhere('support_ends_at', 'LIKE', $endDate . '%')
-                    ->orWhere('ends_at', 'LIKE', $endDate . '%');
+                $query->where('update_ends_at', 'LIKE', $endDate.'%')
+                    ->orWhere('support_ends_at', 'LIKE', $endDate.'%')
+                    ->orWhere('ends_at', 'LIKE', $endDate.'%');
             })
                 ->where(function ($query) {
                     $query->where('is_subscribed', 2)
@@ -240,17 +237,17 @@ class SubscriptionController extends Controller
         try {
             $createdSubscription = $this->getCreatedSubscription();
             foreach ($createdSubscription as $sub) {
-                $sub = (object)$sub;
+                $sub = (object) $sub;
                 $this->checkSubscriptionStatus($sub);
             }
             //Retrieve expired subscription details
             $subscriptions_detail = $this->getOnDayExpiryInfoSubs();
-            $subscription_all=$this->getAddOnSubscriptions();
+            $subscription_all = $this->getAddOnSubscriptions();
 
             $this->addTheaddOns($subscription_all);
             $this->reportUsage($subscription_all);
             foreach ($subscriptions_detail as $subscription) {
-                $subscription = (object)$subscription;
+                $subscription = (object) $subscription;
                 $userid = $subscription->user_id;
                 $end = $subscription->update_ends_at;
                 $cronController = new CronController();
@@ -296,9 +293,9 @@ class SubscriptionController extends Controller
 
                 // add processing fee for stripe payment
                 if ($payment_method == 'stripe') {
-                    $processingFee=ApiKey::where('id',1)->value('stripe_processing_fee');
+                    $processingFee = ApiKey::where('id', 1)->value('stripe_processing_fee');
 //                    $processingFee = \DB::table(strtolower('stripe'))->where('currencies', $currency)->value('processing_fee');
-                    $processingFee = (float)$processingFee / 100;
+                    $processingFee = (float) $processingFee / 100;
                     $price = $cost + ($cost * $processingFee);
                 }
 
@@ -327,7 +324,7 @@ class SubscriptionController extends Controller
                         $isUnpaid = null;
                     }
 
-                    if (!$isUnpaid) {
+                    if (! $isUnpaid) {
                         $renewController = new BaseRenewController();
                         $invoice = $renewController->generateInvoice($product_details, $user, $order->id, $plan->id, $cost, $code = '', $item->agents, $oldcurrency);
                     } else {
@@ -347,7 +344,6 @@ class SubscriptionController extends Controller
 
                     //Create subscription status enabled users
                     $this->createSubscriptionsForEnabledUsers($stripe_payment_details, $product_details, $unit_cost, $currency, $plan, $subscription, $invoice, $order, $user, $cost, $end);
-
                 }
             }
         } catch (\Exception $ex) {
@@ -355,25 +351,26 @@ class SubscriptionController extends Controller
         }
     }
 
-    private function addTheAddOns($subscription_all){
+    private function addTheAddOns($subscription_all)
+    {
         try {
             $key_id = ApiKey::pluck('rzp_key')->first();
             $secret = ApiKey::pluck('rzp_secret')->first();
             $client = new Client();
             foreach ($subscription_all as $sub) {
-                $sub=(object) $sub;
-                $user=User::where('id',$sub->user_id)->first();
+                $sub = (object) $sub;
+                $user = User::where('id', $sub->user_id)->first();
 
                 $subId = $sub->subscribe_id;
                 $order = Order::with('invoice')->find($sub->order_id);
                 $invoice = $order->invoice;
-                $planPrice = PlanPrice::where('plan_id', $sub->plan_id)->where('currency',$invoice->currency)->first();
+                $planPrice = PlanPrice::where('plan_id', $sub->plan_id)->where('currency', $invoice->currency)->first();
 //                $invoicecontroller = new InvoiceController();
 //                $tax = $this->calculateTax($sub->subscribe_id, $user->state, $user->country);
 //                $tax_rate = $tax->getValue();
 //                $cost = rounding($invoicecontroller->calculateTotal($tax_rate, $planPrice->renew_price));
 //                $renew_cost = $this->calculateUnitCost($invoice->currency,$cost);
-                $renew_cost=$this->getCost($sub,$user,$planPrice,$invoice);
+                $renew_cost = $this->getCost($sub, $user, $planPrice, $invoice);
                 $response = $client->post("https://api.razorpay.com/v1/subscriptions/$subId/addons", [
                     'auth' => [$key_id, $secret],
                     'json' => [
@@ -381,23 +378,25 @@ class SubscriptionController extends Controller
                             'name' => 'Usage Charges',
                             'amount' => $renew_cost,
                             'currency' => $invoice->currency,
-                            'description' => 'Variable usage for this cycle'
-                        ]
-                    ]
+                            'description' => 'Variable usage for this cycle',
+                        ],
+                    ],
                 ]);
-            $addon = json_decode($response->getBody(), true);
+                $addon = json_decode($response->getBody(), true);
             }
-        }catch (\Exception $ex){
-            \Log::error('Razorpay_subscription_error',[$ex->getMessage()]);
+        } catch (\Exception $ex) {
+            \Log::error('Razorpay_subscription_error', [$ex->getMessage()]);
         }
     }
 
-    public function getCost($sub,$user,$planPrice,$invoice){
+    public function getCost($sub, $user, $planPrice, $invoice)
+    {
         $invoicecontroller = new InvoiceController();
         $tax = $this->calculateTax($sub->subscribe_id, $user->state, $user->country);
         $tax_rate = $tax->getValue();
         $cost = rounding($invoicecontroller->calculateTotal($tax_rate, $planPrice->renew_price));
-        return $this->calculateUnitCost($invoice->currency,$cost);
+
+        return $this->calculateUnitCost($invoice->currency, $cost);
     }
 
     public function reportUsage($subscription_all)
@@ -410,29 +409,28 @@ class SubscriptionController extends Controller
             $client = new Client();
             foreach ($subscription_all as $sub) {
                 $sub = (object) $sub;
-                $user=User::where('id',$sub->user_id)->first();
+                $user = User::where('id', $sub->user_id)->first();
 
                 $subId = $sub->subscribe_id;
                 $order = Order::with('invoice')->find($sub->order_id);
                 $invoice = $order->invoice;
-                $planPrice = PlanPrice::where('plan_id', $sub->plan_id)->where('currency',$invoice->currency)->first();
+                $planPrice = PlanPrice::where('plan_id', $sub->plan_id)->where('currency', $invoice->currency)->first();
                 $sub_item_id = Auto_renewal::where('order_id', $sub->order_id)->first();
-                $renew_cost=$this->getCost($sub,$user,$planPrice,$invoice);
+                $renew_cost = $this->getCost($sub, $user, $planPrice, $invoice);
 
-            $response = $client->post('https://api.stripe.com/v1/billing/meter_events', [
-                'auth' => [$stripeSecretKey, ''],
-                'form_params' => [
-                    'event_name' => 'billing_meter', // must match your meter in Stripe Dashboard
-                    'payload[stripe_customer_id]' => $sub_item_id->customer_id,
-                    'payload[value]' => $renew_cost,
-                ],
-            ]);
+                $response = $client->post('https://api.stripe.com/v1/billing/meter_events', [
+                    'auth' => [$stripeSecretKey, ''],
+                    'form_params' => [
+                        'event_name' => 'billing_meter', // must match your meter in Stripe Dashboard
+                        'payload[stripe_customer_id]' => $sub_item_id->customer_id,
+                        'payload[value]' => $renew_cost,
+                    ],
+                ]);
 
-            $body = json_decode($response->getBody(), true);
-
+                $body = json_decode($response->getBody(), true);
             }
-        }catch (\Exception $ex){
-            \Log::error('stripe_subscription_error',[$ex->getMessage()]);
+        } catch (\Exception $ex) {
+            \Log::error('stripe_subscription_error', [$ex->getMessage()]);
         }
     }
 
@@ -462,7 +460,7 @@ class SubscriptionController extends Controller
         $order = Order::where('id', $subscription->order_id)->first();
 
         $replace = [
-            'name' => ucfirst($user->first_name) . ' ' . ucfirst($user->last_name),
+            'name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
             'product' => $product_details->name,
             'total' => currencyFormat($unit_cost, $code = $currency),
             'contact' => $contact['contact'],
@@ -568,12 +566,13 @@ class SubscriptionController extends Controller
 
     public function getPriceforCloud($order, $price)
     {
-        $numberofAgents = (int)ltrim(substr($order->serial_key, -4), '0');
+        $numberofAgents = (int) ltrim(substr($order->serial_key, -4), '0');
         if ($numberofAgents) {
             $finalPrice = $numberofAgents * $price;
         } else {
             $finalPrice = $price;
         }
+
         return $finalPrice;
     }
 
@@ -590,7 +589,7 @@ class SubscriptionController extends Controller
         }
     }
 
-    private function processStripeSubscription($subscription, $currency, $cost, $user, $order, $product_details,$latestInvoice=null)
+    private function processStripeSubscription($subscription, $currency, $cost, $user, $order, $product_details, $latestInvoice = null)
     {
         $product_name = Product::where('id', $subscription->product_id)->value('name');
         $invoiceid = \DB::table('order_invoice_relations')->where('order_id', $subscription->order_id)->latest()->value('invoice_id');
@@ -601,7 +600,7 @@ class SubscriptionController extends Controller
         \Stripe\Stripe::setApiKey($stripeSecretKey);
 
         $subscriptionStatus = \Stripe\Subscription::retrieve($subscription->subscribe_id);
-        if($latestInvoice != null) {
+        if ($latestInvoice != null) {
             $latestInvoiceId = $subscriptionStatus->latest_invoice;
             $latestInvoice = \Stripe\Invoice::retrieve($latestInvoiceId);
         }
@@ -648,7 +647,7 @@ class SubscriptionController extends Controller
         $today = Carbon::today();
         $yesterday = Carbon::yesterday();
 
-        if (!$createdDate->eq($today)) {
+        if (! $createdDate->eq($today)) {
             return;
         }
         $invoiceCost = $this->calculateReverseUnitCost($currency, $latestInvoice->amount);
@@ -721,7 +720,7 @@ class SubscriptionController extends Controller
     public function whensubscriptionpending($api, $subscriptionStatus, $subscription, $currency, $cost, $user, $order, $product_details)
     {
         //Based on count we have to send this mail.
-        $url = url('rzp-authentication/' . $order->id);
+        $url = url('rzp-authentication/'.$order->id);
         $key_id = ApiKey::pluck('rzp_key')->first();
         $secret = ApiKey::pluck('rzp_secret')->first();
         $api = new Api($key_id, $secret);
@@ -731,7 +730,6 @@ class SubscriptionController extends Controller
 
     public function whenSubscriptionActive($api, $subscriptionStatus, $subscription, $currency, $cost, $user, $order, $product_details)
     {
-
         $invoices = $api->invoice->all(['subscription_id' => $subscriptionStatus['id']]);
 
         $recentInvoice = null;
@@ -764,7 +762,6 @@ class SubscriptionController extends Controller
             $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product_name, null, $order, 'razorpay');
         }
     }
-
 
     public function createSubscriptionsForEnabledUsers($stripe_payment_details, $product_details, $unit_cost, $currency, $plan, $subscription, $invoice, $order, $user, $cost, $end)
     {
@@ -838,17 +835,17 @@ class SubscriptionController extends Controller
         $decimalPlacesForCurrency = $decimalPlaces[$currency] ?? 2;
 
         if ($decimalPlacesForCurrency === 0) {
-            $unit_cost = round((int)$cost);
+            $unit_cost = round((int) $cost);
         } elseif ($decimalPlacesForCurrency === 3) {
-            $unit_cost = round((int)$cost) / 1000;
+            $unit_cost = round((int) $cost) / 1000;
         } else {
-            $unit_cost = round((int)$cost) / 100;
+            $unit_cost = round((int) $cost) / 100;
         }
 
         return $unit_cost;
     }
 
-    public function razorpayWebhook(Request $request){
-
+    public function razorpayWebhook(Request $request)
+    {
     }
 }
