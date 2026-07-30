@@ -174,7 +174,6 @@ class ApiKeyTableSeeder extends Seeder
             'id' => 1,
             'rzp_key' => '',
             'rzp_secret' => '',
-            'apilayer_key' => '',
             'bugsnag_api_key' => '',
             'zoho_api_key' => '',
             'msg91_auth_key' => '',

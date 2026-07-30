@@ -269,4 +269,22 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
         }
         $this->assertTrue(true);
     }
+
+    // -------------------------------------------------------------------------
+    // PaymentSuccessMailtoAdmin — regression: every real caller passed
+    // template: null against a signature that unconditionally threw
+    // "Template not found" for anything but a real Template instance, so this
+    // always threw. It now resolves its own template internally and must
+    // never throw, even when no 'payment_successfull' template is configured.
+    // -------------------------------------------------------------------------
+
+    public function test_payment_success_mail_to_admin_does_not_throw_without_template(): void
+    {
+        $invoice = Invoice::factory()->create(['user_id' => $this->user->id]);
+        $order = Order::factory()->create(['client' => $this->user->id]);
+
+        $this->controller->PaymentSuccessMailtoAdmin($invoice, 100.0, $this->user, 'Test Product', $order, 'stripe');
+
+        $this->assertTrue(true);
+    }
 }

@@ -53,7 +53,7 @@ class SettingsController extends Controller
                 'webhook_secret' => $keys->stripe_webhook_secret ?? '',
                 'processing_fee' => (string) ProcessingFee::percent('stripe'),
                 'auto_renewal' => (bool) ($status->stripe_auto_renewal ?? false),
-                'webhook_url' => url('webhook/stripe'),
+                'webhook_url' => url('pay/webhook/stripe'),
             ]);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
@@ -195,8 +195,13 @@ class SettingsController extends Controller
      * (which drives the payment package's StripeGateway). Returns a
      * {@see SubscriptionResult} — callers read ->status,
      * ->id and ->raw['latest_invoice']. $unit_cost is already in minor units.
+     *
+     * On failure, logs the exception for diagnostics then rethrows — the
+     * caller's own failure handling (which emails the customer/admin the
+     * reason and disables auto-renewal) needs the REAL exception message,
+     * not a generic null standing in for "something went wrong".
      */
-    public function handleStripeAutoPay(mixed $stripe_payment_details, mixed $product_details, mixed $unit_cost, mixed $currency, mixed $plan): mixed
+    public function handleStripeAutoPay(mixed $stripe_payment_details, mixed $product_details, mixed $unit_cost, mixed $currency, mixed $plan): SubscriptionResult
     {
         try {
             return resolve(SubscriptionService::class)->createSubscription('Stripe', new SubscriptionRequest(
@@ -209,7 +214,7 @@ class SettingsController extends Controller
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return null;
+            throw $exception;
         }
     }
 }

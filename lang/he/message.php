@@ -197,7 +197,6 @@ return [
     'token_secret' => 'סוד אסימון גישה של טוויטר',
     'rzp_key' => 'מפתח Razorpay',
     'rzp_secret' => 'סוד Razorpay',
-    'apilayer_key' => 'מפתח ApiLayer (להמרת שערי חליפין)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'מפתח API של Mailchimp',
     'terms_url' => 'קישור לתנאים',
@@ -467,7 +466,6 @@ return [
      */
     'rzp_key' => 'מפתח Razorpay',
     'rzp_secret' => 'סוד Razorpay',
-    'apilayer' => 'מפתח גישה ל-ApiLayer',
     'zoho_key' => 'מפתח Zoho',
     'key' => 'מפתחות API',
     'msg91key' => 'מפתח אימות Msg91',
@@ -1017,7 +1015,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'אנא הזן מפתח Razorpay תקני.',
         'rzp_secret' => 'אנא הזן סיסמת סוד Razorpay תקנית.',
-        'apilayer_key' => 'אנא הזן מפתח גישה תקני.',
     ],
 
     'sys_manager' => [
@@ -2527,7 +2524,6 @@ return [
     'zoom_out' => 'התרחק',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'הנפקת&nbsp;רישיון מחדש',
-    'api_layer_access_key' => 'מפתח גישה ל-ApiLayer (להמרת שערי חליפין)',
     'download_logs' => 'הורד לוגים',
     'delete_logs' => 'מחק לוגים',
     'type_here_search' => 'הקלד כאן כדי לחפש',

@@ -169,7 +169,6 @@ return [
     'token_secret' => 'Twitter 액세스 토큰 비밀키',
     'rzp_key' => 'Razorpay 키',
     'rzp_secret' => 'Razorpay 비밀키',
-    'apilayer_key' => 'ApiLayer 액세스 키(환율 변환용)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp API 키',
     'terms_url' => '약관 URL',
@@ -432,7 +431,6 @@ return [
          */
     'rzp_key' => 'Razorpay 키',
     'rzp_secret' => 'Razorpay 비밀키',
-    'apilayer' => 'ApiLayer 접근 키',
     'zoho_key' => 'Zoho 키',
     'key' => 'API 키',
     'msg91key' => 'Msg91 인증 키',
@@ -1870,7 +1868,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => '유효한 Razorpay 키를 입력해주세요.',
         'rzp_secret' => '유효한 Razorpay 비밀 키를 입력해주세요.',
-        'apilayer_key' => '유효한 액세스 키를 입력해주세요.',
     ],
 
     'sys_manager' => [
@@ -2544,7 +2541,6 @@ return [
     'zoom_out' => '축소',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => '라이선스&nbsp;재발급',
-    'api_layer_access_key' => 'ApiLayer 액세스 키 (환율 변환용)',
     'download_logs' => '로그 다운로드',
     'delete_logs' => '로그 삭제',
     'type_here_search' => '여기에 입력하여 검색',

@@ -48,10 +48,18 @@ class AutoRenewalActivationService
             return;
         }
 
+        // A subscription belongs to exactly one gateway at a time — force the
+        // OTHER gateway's column back to '0' here. Otherwise a customer who
+        // starts (or abandons mid-authorization) one gateway and later
+        // activates the other is left with both columns non-zero, and
+        // Subscription::autoRenewState() (which takes the max of the two)
+        // reports the stale, abandoned gateway's status instead of this one.
         $gatewayColumn = $gateway === 'razorpay' ? 'rzp_subscription' : 'autoRenew_status';
+        $otherGatewayColumn = $gateway === 'razorpay' ? 'autoRenew_status' : 'rzp_subscription';
         Subscription::where('order_id', $order->id)->update([
             'is_subscribed' => '1',
             $gatewayColumn => '1',
+            $otherGatewayColumn => '0',
         ]);
 
         new PhpMailController()->payment_log(

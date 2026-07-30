@@ -205,7 +205,6 @@ return [
     'token_secret' => 'Twitter Tilgangstoken Hemmelighet',
     'rzp_key' => 'Razorpay nøkkel',
     'rzp_secret' => 'Razorpay hemmelighet',
-    'apilayer_key' => 'ApiLayer Tilgangsnøkkel (For valutakonvertering)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp API-nøkkel',
     'terms_url' => 'Vilkar URL',
@@ -475,7 +474,6 @@ return [
          */
     'rzp_key' => 'Razorpay-nøkkel',
     'rzp_secret' => 'Razorpay-hemmelighet',
-    'apilayer' => 'ApiLayer tilgangsnøkkel',
     'zoho_key' => 'Zoho-nøkkel',
     'key' => 'API-nøkler',
     'msg91key' => 'Msg91 autentiseringsnøkkel',
@@ -1853,7 +1851,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'Vennligst skriv inn en gyldig Razorpay-nøkkel.',
         'rzp_secret' => 'Vennligst skriv inn et gyldig Razorpay-hemmelighetsnøkkel.',
-        'apilayer_key' => 'Vennligst skriv inn en gyldig tilgangsnøkkel.',
     ],
 
     'sys_manager' => [
@@ -2527,7 +2524,6 @@ return [
     'zoom_out' => 'Zoom ut',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'Utsted lisens&nbsp;på nytt',
-    'api_layer_access_key' => 'ApiLayer-tilgangsnøkkel (for valutakonvertering)',
     'download_logs' => 'Last ned logger',
     'delete_logs' => 'Slett logger',
     'type_here_search' => 'Skriv her for å søke',

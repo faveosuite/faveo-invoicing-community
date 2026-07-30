@@ -192,7 +192,6 @@ return [
     'token_secret' => 'Secreto del Token de Acceso de Twitter',
     'rzp_key' => 'Clave de Razorpay',
     'rzp_secret' => 'Secreto de Razorpay',
-    'apilayer_key' => 'Clave de acceso de ApiLayer (Para conversión de tasas de cambio)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Clave de API de Mailchimp',
     'terms_url' => 'URL de los Términos',
@@ -461,7 +460,6 @@ return [
      */
     'rzp_key' => 'Clave de Razorpay',
     'rzp_secret' => 'Secreto de Razorpay',
-    'apilayer' => 'Clave de Acceso de ApiLayer',
     'zoho_key' => 'Clave de Zoho',
     'key' => 'Claves de API',
     'msg91key' => 'Clave de Autenticación de Msg91',
@@ -1844,7 +1842,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'Por favor, ingrese una clave válida de Razorpay.',
         'rzp_secret' => 'Por favor, ingrese una contraseña secreta válida de Razorpay.',
-        'apilayer_key' => 'Por favor, ingrese una clave de acceso válida.',
     ],
 
     'sys_manager' => [
@@ -2519,7 +2516,6 @@ return [
     'zoom_out' => 'Alejar',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'Reemitir&nbsp;Licencia',
-    'api_layer_access_key' => 'Clave de acceso ApiLayer (Para conversión de tasa de cambio)',
     'download_logs' => 'Descargar registros',
     'delete_logs' => 'Eliminar registros',
     'type_here_search' => 'Escriba aquí para buscar',

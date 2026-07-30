@@ -178,10 +178,9 @@ const savedAutoRenewal = ref(false)
 const GATEWAY_CONFIGS = {
     razorpay: {
         fields: [
-            { name: 'rzp_key',        label: 'Razorpay Key',                                      type: 'text'     },
-            { name: 'rzp_secret',     label: 'Razorpay Secret',                                   type: 'password' },
-            { name: 'apilayer_key',   label: 'ApiLayer Access Key (For Exchange Rate Conversion)', type: 'text',     required: false },
-            { name: 'processing_fee', label: 'Processing Fee (%)',                                type: 'number',   required: false },
+            { name: 'rzp_key',        label: 'Razorpay Key',        type: 'text'     },
+            { name: 'rzp_secret',     label: 'Razorpay Secret',     type: 'password' },
+            { name: 'processing_fee', label: 'Processing Fee (%)', type: 'number',   required: false },
         ],
         fetchUrl: `${baseUrl}/get-razorpay-settings`,
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/razorpay`,

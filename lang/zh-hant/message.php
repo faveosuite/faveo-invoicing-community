@@ -191,7 +191,6 @@ return [
     'consumer_secret' => 'Twitter 消費者密鑰秘密',
     'access_token' => 'Twitter 訪問令牌',
     'token_secret' => 'Twitter 訪問令牌秘密',
-    'apilayer_key' => 'ApiLayer 訪問密鑰（用於匯率轉換）',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp API 密鑰',
     'terms_url' => '條款網址',
@@ -450,7 +449,6 @@ return [
      */
     'rzp_key' => 'Razorpay 金鑰',
     'rzp_secret' => 'Razorpay 密鑰',
-    'apilayer' => 'ApiLayer 存取金鑰',
     'zoho_key' => 'Zoho 金鑰',
     'key' => 'API 金鑰',
     'msg91key' => 'Msg91 授權金鑰',
@@ -1825,7 +1823,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => '請輸入有效的Razorpay金鑰。',
         'rzp_secret' => '請輸入有效的Razorpay密碼。',
-        'apilayer_key' => '請輸入有效的訪問金鑰。',
     ],
 
     'sys_manager' => [
@@ -2484,7 +2481,6 @@ return [
     'zoom_out' => '縮小',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => '重新發行&nbsp;授權',
-    'api_layer_access_key' => 'ApiLayer 存取金鑰（用於匯率轉換）',
     'download_logs' => '下載紀錄',
     'delete_logs' => '刪除紀錄',
     'type_here_search' => '在此輸入搜尋',

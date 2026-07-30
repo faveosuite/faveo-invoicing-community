@@ -52,6 +52,29 @@ class AutoRenewalActivationServiceTest extends DBTestCase
         $this->assertSame('1', (string) $subscription->autoRenew_status);
     }
 
+    /**
+     * Regression test: a customer who starts (or abandons mid-authorization)
+     * Razorpay auto-renewal and later activates Stripe instead used to keep
+     * the stale rzp_subscription value forever — Subscription::autoRenewState()
+     * takes the max of both gateway columns, so the abandoned Razorpay
+     * "pending" status (2) would outrank the real Stripe "enabled" status (1)
+     * and the order page would wrongly show "Pending Authorization".
+     */
+    public function test_activate_clears_stale_other_gateway_column(): void
+    {
+        /** @var Order $order */
+        $order = Order::factory()->withRelations()->create();
+        $user = User::factory()->create();
+
+        Subscription::where('order_id', $order->id)->update(['rzp_subscription' => '2', 'subscribe_id' => 'sub_abandoned']);
+
+        $this->service->activate($order, $user, 'stripe', 'pi_test_123');
+
+        $subscription = Subscription::where('order_id', $order->id)->first();
+        $this->assertSame('1', (string) $subscription->autoRenew_status);
+        $this->assertSame('0', (string) $subscription->rzp_subscription);
+    }
+
     public function test_activate_flips_razorpay_flag_not_stripe_flag(): void
     {
         /** @var Order $order */

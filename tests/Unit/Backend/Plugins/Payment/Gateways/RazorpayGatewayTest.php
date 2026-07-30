@@ -18,6 +18,72 @@ class RazorpayGatewayTest extends TestCase
         return new RazorpayGateway('rzp_test_key', self::KEY_SECRET);
     }
 
+    /**
+     * @return array{period: string, interval: int, totalCount: int}
+     */
+    private function planPeriodAndCount(int $intervalDays, int $requestedTotalCount = 100): array
+    {
+        $method = new \ReflectionMethod(RazorpayGateway::class, 'planPeriodAndCount');
+
+        return $method->invoke($this->gateway(), $intervalDays, $requestedTotalCount);
+    }
+
+    // -------------------------------------------------------------------------
+    // planPeriodAndCount — period/interval selection + 20-year mandate cap
+    //
+    // Regression coverage for a real production bug: createSubscription()
+    // used to always request period=monthly with $requestedTotalCount (100)
+    // cycles untouched. For a long-interval plan (e.g. an annual plan,
+    // interval=12 months) that asks Razorpay to register a card mandate
+    // valid for 100 years — real banks reject that, which is exactly what
+    // caused a live "card_mandate_process" SERVER_ERROR failure.
+    // -------------------------------------------------------------------------
+
+    public function test_short_plan_keeps_monthly_period_and_original_total_count(): void
+    {
+        $result = $this->planPeriodAndCount(30); // 1 Month
+
+        $this->assertSame('monthly', $result['period']);
+        $this->assertSame(1, $result['interval']);
+        $this->assertSame(100, $result['totalCount']); // unchanged — already well under 20 years
+    }
+
+    public function test_quarterly_plan_stays_monthly_but_total_count_is_capped_at_20_years(): void
+    {
+        $result = $this->planPeriodAndCount(90); // 3 Months — raw default would span 25 years
+
+        $this->assertSame('monthly', $result['period']);
+        $this->assertSame(3, $result['interval']);
+        $this->assertSame(80, $result['totalCount']); // 80 * 3 months = exactly 20 years
+    }
+
+    public function test_annual_plan_switches_to_yearly_period_with_small_interval(): void
+    {
+        $result = $this->planPeriodAndCount(366); // 1 Year
+
+        $this->assertSame('yearly', $result['period']);
+        $this->assertSame(1, $result['interval']);
+        $this->assertSame(20, $result['totalCount']); // 20 * 1 year = exactly 20 years
+    }
+
+    public function test_multi_year_plan_never_exceeds_the_20_year_mandate_cap(): void
+    {
+        $result = $this->planPeriodAndCount(2920); // 8 Years
+
+        $this->assertSame('yearly', $result['period']);
+        $this->assertSame(8, $result['interval']);
+        $this->assertLessThanOrEqual(20, $result['totalCount'] * $result['interval']);
+    }
+
+    public function test_total_count_never_drops_below_one(): void
+    {
+        // An extreme interval (e.g. a 50-year plan) must still request at
+        // least one billing cycle, never zero.
+        $result = $this->planPeriodAndCount(18250);
+
+        $this->assertGreaterThanOrEqual(1, $result['totalCount']);
+    }
+
     public function test_capture_payment_verifies_subscription_signature(): void
     {
         $paymentId = 'pay_test_123';

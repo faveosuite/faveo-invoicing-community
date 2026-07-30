@@ -6,12 +6,14 @@ use App\Http\Controllers\ConcretePostSubscriptionHandleController;
 use App\Http\Controllers\Order\BaseRenewController;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
+use App\Model\Payment\GatewayEvent;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
 use DB;
 use Exception;
+use Illuminate\Database\QueryException;
 use Logger;
 
 /**
@@ -38,6 +40,15 @@ class SubscriptionWebhookService
      */
     public function handleStripeEvent(array $event): void
     {
+        // Stripe guarantees only at-least-once delivery — every event carries
+        // a stable id, so claim it once here (covers every Stripe event type
+        // below, not just renewals) rather than redoing the same work on a
+        // redelivery.
+        $eventId = (string) ($event['id'] ?? '');
+        if ($eventId !== '' && ! $this->claimEvent('stripe', $eventId)) {
+            return;
+        }
+
         $type = $event['type'] ?? null;
         $object = $event['data']['object'] ?? [];
 
@@ -136,8 +147,17 @@ class SubscriptionWebhookService
     {
         $gatewaySubscriptionId = $payload['subscription']['entity']['id'] ?? null;
         $amountPaid = $payload['payment']['entity']['amount'] ?? 0;
+        $paymentId = (string) ($payload['payment']['entity']['id'] ?? '');
 
         if (! $gatewaySubscriptionId) {
+            return;
+        }
+
+        // Razorpay's payload (unlike Stripe's) carries no top-level event id,
+        // but a fresh payment id is generated for every real charge — a
+        // redelivery of the same charge event carries the same one, so it's
+        // a reliable claim key here even without one.
+        if ($paymentId !== '' && ! $this->claimEvent('razorpay', $paymentId)) {
             return;
         }
 
@@ -201,7 +221,7 @@ class SubscriptionWebhookService
 
         if (emailSendingStatus()) {
             $this->handler->sendPaymentSuccessMail($sub, $currency, $cost, $user, $product->name, $order->number); // @phpstan-ignore argument.type
-            $this->handler->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product->name, template: null, order: $order, payment: $gateway);
+            $this->handler->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product->name, order: $order, payment: $gateway);
         }
     }
 
@@ -258,5 +278,21 @@ class SubscriptionWebhookService
         }
 
         return round($amount / 100, 2);
+    }
+
+    /**
+     * Atomically claims a gateway event id — true the first time it's seen,
+     * false on a repeat (a losing/duplicate insert throws on the unique
+     * constraint, caught here rather than a check-then-act race).
+     */
+    private function claimEvent(string $gateway, string $eventId): bool
+    {
+        try {
+            GatewayEvent::create(['gateway' => $gateway, 'event_id' => $eventId]);
+
+            return true;
+        } catch (QueryException) {
+            return false;
+        }
     }
 }

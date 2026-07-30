@@ -209,9 +209,12 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
         try {
             $api = $this->api();
 
+            ['period' => $period, 'interval' => $interval, 'totalCount' => $totalCount] =
+                $this->planPeriodAndCount($request->intervalDays, $request->totalCount);
+
             $plan = $api->plan->create([
-                'period' => 'monthly',
-                'interval' => (int) round($request->intervalDays / 30),
+                'period' => $period,
+                'interval' => $interval,
                 'item' => [
                     'name' => $request->planName,
                     'amount' => $request->amountMinor,
@@ -221,7 +224,7 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
 
             $subscription = $api->subscription->create(array_filter([
                 'plan_id' => $plan['id'],
-                'total_count' => $request->totalCount,
+                'total_count' => $totalCount,
                 'quantity' => 1,
                 'expire_by' => $request->expireBy,
                 'start_at' => $request->startAt,
@@ -244,6 +247,40 @@ final readonly class RazorpayGateway implements PaymentGateway, SubscriptionGate
         } catch (Error $error) {
             throw new PaymentException($error->getMessage(), (int) $error->getCode(), $error);
         }
+    }
+
+    /**
+     * Picks the Plan's period/interval and caps the mandate's total span at
+     * 20 years, regardless of how long the underlying billing period is.
+     *
+     * Plans a year or longer map onto Razorpay's own "yearly" period instead
+     * of "monthly" with an inflated interval (e.g. 96 for an 8-year plan) —
+     * more natural, and keeps interval values small regardless of plan length.
+     *
+     * The cap itself exists because $requestedTotalCount's raw default (100
+     * cycles) combined with a long interval (e.g. an annual plan, 12 months)
+     * asks the card network to register a mandate valid for 100 years, which
+     * real banks reject. Confirmed in production: a real card mandate
+     * registration failed with a generic SERVER_ERROR at Razorpay's
+     * card_mandate_process step for exactly this reason.
+     *
+     * @return array{period: string, interval: int, totalCount: int}
+     */
+    private function planPeriodAndCount(int $intervalDays, int $requestedTotalCount): array
+    {
+        if ($intervalDays >= 300) {
+            $period = 'yearly';
+            $interval = max(1, (int) round($intervalDays / 365));
+            $maxSpanUnits = 20; // years
+        } else {
+            $period = 'monthly';
+            $interval = max(1, (int) round($intervalDays / 30));
+            $maxSpanUnits = 20 * 12; // months
+        }
+
+        $totalCount = max(1, (int) min($requestedTotalCount, intdiv($maxSpanUnits, $interval)));
+
+        return ['period' => $period, 'interval' => $interval, 'totalCount' => $totalCount];
     }
 
     public function getSubscriptionStatus(string $subscriptionId): string

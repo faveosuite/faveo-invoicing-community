@@ -113,13 +113,26 @@ class SubscriptionRenewalServiceTest extends DBTestCase
     {
         $sub = $this->makeSubscription();
 
-        try {
-            $this->service->syncLicense($sub);
-        } catch (\Throwable) {
-            // syncLicenseServer may fail without a real license server — that's OK
-        }
+        $this->service->syncLicense($sub);
 
         $this->assertTrue(true);
+    }
+
+    /**
+     * Regression test: syncLicenseServer() used to let ANY failure (e.g. a
+     * null serial_key on the order, a missing order) propagate straight out
+     * of extendDates() — which meant a renewal invoice never got marked paid
+     * even after the gateway had already charged the customer. It must now
+     * swallow failures instead of throwing.
+     */
+    public function test_extend_dates_does_not_throw_when_order_has_no_serial_key(): void
+    {
+        $order = Order::factory()->create(['serial_key' => null]);
+        $sub = $this->makeSubscription(['order_id' => $order->id]);
+
+        $this->service->extendDates($sub, 30);
+
+        $this->assertTrue(true); // reaching here proves extendDates() didn't throw
     }
 
     // --- updateInstallationLimit ---

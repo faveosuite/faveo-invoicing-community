@@ -169,7 +169,6 @@ return [
     'token_secret' => 'Twitter Access Token Secret',
     'rzp_key' => 'Razorpay Key',
     'rzp_secret' => 'Razorpay Secret',
-    'apilayer_key' => 'ApiLayer Access Key (Għall-Konverżjoni tar-Rata tal-Exchange)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp API Key',
     'terms_url' => 'URL tal-Kundizzjonijiet',
@@ -420,7 +419,6 @@ return [
         */
     'rzp_key' => 'Razorpay Key',
     'rzp_secret' => 'Razorpay Secret',
-    'apilayer' => 'ApiLayer Access Key',
     'zoho_key' => 'Zoho Key',
     'key' => 'API Keys',
     'msg91key' => 'Msg91 Auth Key',
@@ -1777,7 +1775,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'Jekk jogħbok daħħal key validu Razorpay.',
         'rzp_secret' => 'Jekk jogħbok daħħal password segreta validu Razorpay.',
-        'apilayer_key' => 'Jekk jogħbok daħħal access key validu.',
     ],
 
     'sys_manager' => [
@@ -2447,7 +2444,6 @@ return [
     'zoom_out' => 'Naqqas',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'Erġa&rsquo; toħroġ il-Liċenzja',
-    'api_layer_access_key' => 'ApiLayer Access Key (għall-Konverżjoni tar-Rati tal-Kambju)',
     'download_logs' => 'Niżżel il-Logs',
     'delete_logs' => 'Ħassar il-Logs',
     'type_here_search' => 'Ittajpja hawn biex tfittex',

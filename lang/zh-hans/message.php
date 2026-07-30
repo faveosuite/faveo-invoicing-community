@@ -181,7 +181,6 @@ return [
     'token_secret' => 'Twitter 访问令牌密文',
     'rzp_key' => 'Razorpay 密钥',
     'rzp_secret' => 'Razorpay 密钥',
-    'apilayer_key' => 'ApiLayer 访问密钥（用于汇率转换）',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp API 密钥',
     'terms_url' => '条款链接',
@@ -447,7 +446,6 @@ return [
          */
     'rzp_key' => 'Razorpay 密钥',
     'rzp_secret' => 'Razorpay 秘钥',
-    'apilayer' => 'ApiLayer 访问密钥',
     'zoho_key' => 'Zoho 密钥',
     'key' => 'API 密钥',
     'msg91key' => 'Msg91 认证密钥',
@@ -1830,7 +1828,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => '请输入有效的Razorpay密钥。',
         'rzp_secret' => '请输入有效的Razorpay密钥密码。',
-        'apilayer_key' => '请输入有效的访问密钥。',
     ],
 
     'sys_manager' => [
@@ -2518,7 +2515,6 @@ return [
     'zoom_out' => '缩小',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => '重新&nbsp;发放许可证',
-    'api_layer_access_key' => 'ApiLayer访问密钥（用于汇率转换）',
     'download_logs' => '下载日志',
     'delete_logs' => '删除日志',
     'type_here_search' => '在此输入以搜索',

@@ -198,7 +198,6 @@ return [
     'token_secret' => 'Секрет токена доступа Twitter',
     'rzp_key' => 'Ключ Razorpay',
     'rzp_secret' => 'Секрет Razorpay',
-    'apilayer_key' => 'Ключ доступа ApiLayer (Для конвертации обменных курсов)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'API Ключ Mailchimp',
     'terms_url' => 'URL условий',
@@ -466,7 +465,6 @@ return [
          */
     'rzp_key' => 'Razorpay ключ',
     'rzp_secret' => 'Razorpay секрет',
-    'apilayer' => 'ApiLayer ключ доступа',
     'zoho_key' => 'Zoho ключ',
     'key' => 'API ключи',
     'msg91key' => 'Msg91 ключ авторизации',
@@ -1849,7 +1847,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'Пожалуйста, введите действительный ключ Razorpay.',
         'rzp_secret' => 'Пожалуйста, введите действительный секретный ключ Razorpay.',
-        'apilayer_key' => 'Пожалуйста, введите действительный ключ доступа.',
     ],
 
     'sys_manager' => [
@@ -2523,7 +2520,6 @@ return [
     'zoom_out' => 'Уменьшить',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'Переиздать&nbsp;лицензию',
-    'api_layer_access_key' => 'Ключ доступа ApiLayer (для конвертации курса валют)',
     'download_logs' => 'Скачать логи',
     'delete_logs' => 'Удалить логи',
     'type_here_search' => 'Введите здесь для поиска',

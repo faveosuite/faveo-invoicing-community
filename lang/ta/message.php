@@ -200,7 +200,6 @@ return [
     'token_secret' => 'Twitter அணுகல் ரகசியம்',
     'rzp_key' => 'Razorpay விசை',
     'rzp_secret' => 'Razorpay ரகசியம்',
-    'apilayer_key' => 'ApiLayer அணுகல் விசை (மாற்று நாணய மாற்றத்திற்கு)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp API விசை',
     'terms_url' => 'விதிமுறைகள் URL',
@@ -469,7 +468,6 @@ return [
      */
     'rzp_key' => 'Razorpay விசை',
     'rzp_secret' => 'Razorpay ரகசியம்',
-    'apilayer' => 'ApiLayer அணுகல் விசை',
     'zoho_key' => 'Zoho விசை',
     'key' => 'API விசைகள்',
     'msg91key' => 'Msg91 அங்கீகார விசை',
@@ -1019,7 +1017,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'ஒரு செல்லுபடியான Razorpay விசையை உள்ளிடவும்.',
         'rzp_secret' => 'ஒரு செல்லுபடியான Razorpay ரகசிய கடவுச்சொல்லை உள்ளிடவும்.',
-        'apilayer_key' => 'ஒரு செல்லுபடியான அணுகல் விசையை உள்ளிடவும்.',
     ],
 
     'sys_manager' => [
@@ -2515,7 +2512,6 @@ return [
     'zoom_out' => 'தொலைவில் காண்க',
     'user_ip' => 'ஐபி',
     'tooltip_reissue_license' => 'உரிமத்தை மீண்டும் வழங்குக',
-    'api_layer_access_key' => 'ApiLayer அணுகல் விசை (நிலவுக் கட்டுப்பாட்டு மாற்றத்திற்காக)',
     'download_logs' => 'பதிவுகளை பதிவிறக்குக',
     'delete_logs' => 'பதிவுகளை அழிக்கவும்',
     'type_here_search' => 'தேட இங்கு தட்டவும்',

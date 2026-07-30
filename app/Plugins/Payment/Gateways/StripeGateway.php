@@ -139,14 +139,27 @@ final readonly class StripeGateway implements CardPaymentGateway, PaymentGateway
                 'metadata' => $this->stringMetadata($request->metadata),
             ];
 
+            $shipping = $this->shippingFrom($request->customer);
+
             // Saving the card for a later off-session charge (e.g. auto-renewal)
             // requires a Customer object to attach the payment method to —
             // setup_future_usage alone is not reusable without one.
             if ($request->saveForFutureUse) {
-                $params['customer'] = $this->client()->customers->create(array_filter([
+                $customerParams = array_filter([
                     'name' => $request->customer?->name,
                     'email' => $request->customer?->email,
-                ]))->id;
+                ]);
+
+                // Same address as the shipping field below — a Customer reused
+                // later for a Stripe Subscription (auto-renewal) needs it on the
+                // Customer record itself, not just this one-off PaymentIntent,
+                // or subscription creation fails with "export transactions
+                // require a customer name and address" months down the line.
+                if ($shipping) {
+                    $customerParams['address'] = $shipping['address'];
+                }
+
+                $params['customer'] = $this->client()->customers->create($customerParams)->id;
                 $params['setup_future_usage'] = 'off_session';
             }
 
@@ -154,7 +167,7 @@ final readonly class StripeGateway implements CardPaymentGateway, PaymentGateway
             // export transactions; supply it as shipping (the description above
             // covers the required goods/services description). Stripe declines an
             // export charge without it.
-            if ($shipping = $this->shippingFrom($request->customer)) {
+            if ($shipping) {
                 $params['shipping'] = $shipping;
             }
 

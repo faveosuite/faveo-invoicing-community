@@ -647,6 +647,55 @@ class SubscriptionControllerTest extends DBTestCase
     }
 
     // =========================================================================
+    // autoRenewal — an already-active (status=3) subscription is fulfilled
+    // entirely by the gateway's webhook, not by cron pre-creating an invoice.
+    // =========================================================================
+
+    public function test_auto_renewal_does_not_create_invoice_for_already_active_subscription(): void
+    {
+        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        \App\Model\Common\StatusSetting::updateOrCreate([], [
+            'stripe_auto_renewal' => 1,
+            'razorpay_auto_renewal' => 0,
+        ]);
+        \App\Model\Mailjob\ExpiryMailDay::updateOrCreate([], ['autorenewal_days' => '[0]']);
+
+        // Country left unmatched so getCurrencyForClient() falls back to
+        // Setting::default_currency deterministically — read it rather than
+        // hardcoding, since it differs between the dev DB and the DB phpunit
+        // actually runs against (.env.testing points at a separate database).
+        $currency = \App\Model\Common\Setting::value('default_currency') ?: 'USD';
+
+        $product = Product::create(['name' => 'RenewalSkip '.uniqid()]);
+        $plan = Plan::create(['name' => 'RenewalSkipPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+        \App\Model\Payment\PlanPrice::create(['plan_id' => $plan->id, 'currency' => $currency, 'renew_price' => 999, 'no_of_agents' => 1]);
+        $user = User::factory()->create(['role' => 'user', 'country' => 'ZZ']);
+        $order = Order::create([
+            'client' => $user->id, 'order_status' => 'executed',
+            'product' => $product->id, 'number' => mt_rand(100000, 999999),
+        ]);
+
+        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+
+        Subscription::create([
+            'order_id' => $order->id, 'product_id' => $product->id, 'plan_id' => $plan->id,
+            'user_id' => $user->id, 'is_subscribed' => '1', 'autoRenew_status' => '3',
+            'update_ends_at' => now(),
+        ]);
+
+        $countBefore = \Illuminate\Support\Facades\DB::table('order_invoice_relations')->where('order_id', $order->id)->count();
+
+        $controller = $this->instantiateDependencies();
+        $subController = new SubscriptionController($controller);
+        $subController->autoRenewal();
+
+        $countAfter = \Illuminate\Support\Facades\DB::table('order_invoice_relations')->where('order_id', $order->id)->count();
+
+        $this->assertSame($countBefore, $countAfter);
+    }
+
+    // =========================================================================
     // getOnDayExpiryInfoSubs — stripe enabled, valid days, no matching subs
     // =========================================================================
 

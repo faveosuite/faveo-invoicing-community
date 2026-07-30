@@ -195,6 +195,22 @@ class SubscriptionController extends Controller
                 return;
             }
 
+            // Active subscriptions (status=3) are fulfilled entirely by the
+            // gateway's own billing schedule and webhook — Stripe/Razorpay charge
+            // whenever THEIR cycle actually falls due (not necessarily the exact
+            // day this cron guesses) and SubscriptionWebhookService creates the
+            // renewal invoice itself once that webhook confirms the charge.
+            // createSubscriptionsForEnabledUsers() below only acts on
+            // autoRenew_status/rzp_subscription == '1' (first-time subscription
+            // creation) anyway, so pre-creating an invoice here for status=3 is
+            // pure dead weight — worse, a later cron run matching the same
+            // subscription again (e.g. multiple renewal-reminder day offsets)
+            // could find the webhook already marked it 'success' and create a
+            // second, spurious invoice for the same cycle.
+            if ($subscription->autoRenew_status != '1' && $subscription->rzp_subscription != '1') {
+                return;
+            }
+
             $invoice = $this->findOrCreateRenewalInvoice($subscription, $order, $product, $user, $plan, $cost, $currency);
             $cost = (float) $invoice->grand_total;
             $currency = (string) $invoice->currency;
@@ -206,9 +222,6 @@ class SubscriptionController extends Controller
                 ->latest()
                 ->first(['customer_id', 'payment_intent_id']);
 
-            // Active subscriptions (status=3) are fulfilled via webhook — gateway fires
-            // invoice.payment_succeeded (Stripe) or subscription.charged (Razorpay)
-            // and SubscriptionWebhookController handles fulfillment. No polling needed.
             $this->createSubscriptionsForEnabledUsers($stripeDetails, $product, $unitCost, $currency, $plan, $subscription, $invoice, $order, $user, $cost, $subscription->update_ends_at);
         } catch (Exception $exception) {
             $this->PostSubscriptionHandle->sendFailedPayment(
@@ -345,7 +358,7 @@ class SubscriptionController extends Controller
         $sub = $this->PostSubscriptionHandle->successRenew($invoice, $subscription, $gateway, $invoice->currency);
         $this->PostSubscriptionHandle->recordPayment($invoice, $gateway);
         $this->PostSubscriptionHandle->sendPaymentSuccessMail($sub, $invoice->currency, $cost, $user, $productName, $order->number); // @phpstan-ignore argument.type
-        $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $productName, template: null, order: $order, payment: $gateway);
+        $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $productName, order: $order, payment: $gateway);
     }
 
     // ── New subscription creation (status=1) ──────────────────────────────
@@ -367,8 +380,19 @@ class SubscriptionController extends Controller
     {
         $response = new SettingsController()->handleStripeAutoPay($stripeDetails, $product, $unitCost, $currency, $plan);
 
+        // The subscribe_id/autoRenew_status write is guarded on autoRenew_status
+        // still being '1' (the state that triggered this call) — handleStripeAutoPay()
+        // is a real network round-trip, so a disable() can land while it's in
+        // flight. Without this guard, this stale response would resurrect a
+        // subscription the user just disabled (or overwrite one that's since
+        // switched to Razorpay instead). The charge already happened on Stripe's
+        // side either way, though, so the invoice/payment below is still
+        // recorded unconditionally — the customer's money must never go
+        // unaccounted for just because auto-renewal itself got disabled mid-flight.
         if ($response->status === 'active') {
-            Subscription::where('id', $subscription->id)->update(['subscribe_id' => $response->id, 'autoRenew_status' => '3']);
+            Subscription::where('id', $subscription->id)
+                ->where('autoRenew_status', '1')
+                ->update(['subscribe_id' => $response->id, 'autoRenew_status' => '3']);
 
             // Fulfill the first charge here — Stripe fires invoice.payment_succeeded
             // with billing_reason=subscription_create which the webhook ignores.
@@ -378,7 +402,7 @@ class SubscriptionController extends Controller
 
             if ($cost && emailSendingStatus()) {
                 $this->PostSubscriptionHandle->sendPaymentSuccessMail($sub, $currency, $cost, $user, $product->name, $order->number); // @phpstan-ignore argument.type
-                $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product->name, template: null, order: $order, payment: 'stripe');
+                $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product->name, order: $order, payment: 'stripe');
             }
         } elseif ($response->status === 'incomplete') {
             $stripeInvoice = \Stripe\Invoice::retrieve($response->raw['latest_invoice'] ?? null);
@@ -386,7 +410,9 @@ class SubscriptionController extends Controller
 
             if ($url && emailSendingStatus()) {
                 $this->sendPendingAuthMail($subscription, $product, $cost, $currency, $url, $user);
-                Subscription::where('id', $subscription->id)->update(['subscribe_id' => $response->id, 'autoRenew_status' => '2']);
+                Subscription::where('id', $subscription->id)
+                    ->where('autoRenew_status', '1')
+                    ->update(['subscribe_id' => $response->id, 'autoRenew_status' => '2']);
             }
         }
     }
@@ -405,7 +431,16 @@ class SubscriptionController extends Controller
             $cost = $this->calculateReverseUnitCost($currency, $unitCost);
             $url = $response->raw['short_url'] ?? null;
             $this->sendPendingAuthMail($subscription, $product, $cost, $currency, $url, $user, $immediate);
-            Subscription::where('id', $subscription->id)->update(['subscribe_id' => $response->id, 'rzp_subscription' => '2']);
+
+            // Guarded on rzp_subscription still being '1' (the state that
+            // triggered this call) — handleRzpAutoPay() is a real network
+            // round-trip, so a disable() (or a switch to Stripe instead) can
+            // land while it's in flight. No charge has happened yet at this
+            // step (that only occurs once the customer completes
+            // authorization), so it's safe to just drop this stale response.
+            Subscription::where('id', $subscription->id)
+                ->where('rzp_subscription', '1')
+                ->update(['subscribe_id' => $response->id, 'rzp_subscription' => '2']);
         }
     }
 

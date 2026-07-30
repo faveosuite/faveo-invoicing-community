@@ -22,7 +22,6 @@ class ApiKeyFactory extends Factory
         return [
             'rzp_key' => fake()->sha1,
             'rzp_secret' => fake()->sha1,
-            'apilayer_key' => fake()->sha1,
             'bugsnag_api_key' => fake()->sha1,
             'zoho_api_key' => fake()->sha1,
             'msg91_auth_key' => fake()->sha1,

@@ -170,7 +170,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
 
     public function test_handle_stripe_invoice_paid_cycle_with_no_subscription_id(): void
     {
-        \Logger::shouldReceive('warning')->andReturn(null);
+        \Logger::shouldReceive('exception')->andReturn(null);
 
         $service = $this->makeWebhookService();
         $service->handleStripeEvent([
@@ -182,7 +182,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
 
     public function test_handle_stripe_invoice_paid_cycle_with_nonexistent_subscription(): void
     {
-        \Logger::shouldReceive('warning')->andReturn(null);
+        \Logger::shouldReceive('exception')->andReturn(null);
 
         $service = $this->makeWebhookService();
         $service->handleStripeEvent([
@@ -224,7 +224,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
 
     public function test_handle_razorpay_subscription_charged_with_no_match(): void
     {
-        \Logger::shouldReceive('warning')->andReturn(null);
+        \Logger::shouldReceive('exception')->andReturn(null);
 
         $service = $this->makeWebhookService();
         $service->handleRazorpayEvent([
@@ -236,7 +236,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
 
     public function test_handle_razorpay_subscription_halted_with_no_match(): void
     {
-        \Logger::shouldReceive('warning')->andReturn(null);
+        \Logger::shouldReceive('exception')->andReturn(null);
 
         $service = $this->makeWebhookService();
         $service->handleRazorpayEvent([
@@ -445,7 +445,7 @@ class SubscriptionWebhookServiceTest extends DBTestCase
 
     public function test_handle_stripe_invoice_paid_cycle_with_jpy_currency(): void
     {
-        \Logger::shouldReceive('warning')->andReturn(null);
+        \Logger::shouldReceive('exception')->andReturn(null);
 
         // JPY is zero-decimal: 1000 → 1000.0 (no divide by 100)
         $service = $this->makeWebhookService();
@@ -459,6 +459,115 @@ class SubscriptionWebhookServiceTest extends DBTestCase
             ]],
         ]);
         // No DB subscription → logs warning, returns early
+        $this->assertTrue(true);
+    }
+
+    // =========================================================================
+    // Duplicate webhook delivery — regression tests
+    //
+    // Stripe/Razorpay both explicitly guarantee only at-least-once webhook
+    // delivery, so the exact same renewal event can be redelivered later.
+    // Before claimEvent() existed, a redelivery re-ran fulfillRenewal() in
+    // full: a second invoice, a second payment, and the subscription's dates
+    // extended a second time for a single real charge.
+    // =========================================================================
+
+    public function test_duplicate_stripe_event_id_only_fulfils_renewal_once(): void
+    {
+        $this->getLoggedInUser('user');
+
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+
+        $order = \App\Model\Order\Order::create([
+            'client' => $this->user->id,
+            'product' => $product->id,
+            'order_status' => 'executed',
+            'number' => mt_rand(100000, 999999),
+        ]);
+
+        $subId = 'sub_dup_'.uniqid();
+        $sub = \App\Model\Product\Subscription::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'user_id' => $this->user->id,
+            'is_subscribed' => 1,
+            'autoRenew_status' => 3,
+        ]);
+        \Illuminate\Support\Facades\DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => $subId]);
+
+        $handler = Mockery::mock(ConcretePostSubscriptionHandleController::class);
+        $handler->shouldReceive('successRenew')->once()->andReturn(1);
+        $handler->shouldReceive('recordPayment')->once();
+        $handler->shouldReceive('sendPaymentSuccessMail')->zeroOrMoreTimes();
+        $handler->shouldReceive('PaymentSuccessMailtoAdmin')->zeroOrMoreTimes();
+
+        $service = new SubscriptionWebhookService($handler);
+
+        $event = [
+            'id' => 'evt_dup_'.uniqid(),
+            'type' => 'invoice.payment_succeeded',
+            'data' => ['object' => [
+                'billing_reason' => 'subscription_cycle',
+                'subscription' => $subId,
+                'amount_paid' => 1999,
+                'currency' => 'usd',
+            ]],
+        ];
+
+        $service->handleStripeEvent($event);
+        $service->handleStripeEvent($event); // same event id — must be a no-op
+
+        // The ->once() expectations above (verified by Mockery::close() in
+        // tearDown) are the real assertion here.
+        $this->assertTrue(true);
+    }
+
+    public function test_duplicate_razorpay_payment_id_only_fulfils_renewal_once(): void
+    {
+        $this->getLoggedInUser('user');
+
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+
+        $order = \App\Model\Order\Order::create([
+            'client' => $this->user->id,
+            'product' => $product->id,
+            'order_status' => 'executed',
+            'number' => mt_rand(100000, 999999),
+        ]);
+
+        $subId = 'sub_rzp_dup_'.uniqid();
+        $sub = \App\Model\Product\Subscription::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'user_id' => $this->user->id,
+            'is_subscribed' => 1,
+            'rzp_subscription' => 3,
+        ]);
+        \Illuminate\Support\Facades\DB::table('subscriptions')->where('id', $sub->id)->update(['subscribe_id' => $subId]);
+
+        $handler = Mockery::mock(ConcretePostSubscriptionHandleController::class);
+        $handler->shouldReceive('successRenew')->once()->andReturn(1);
+        $handler->shouldReceive('recordPayment')->once();
+        $handler->shouldReceive('sendPaymentSuccessMail')->zeroOrMoreTimes();
+        $handler->shouldReceive('PaymentSuccessMailtoAdmin')->zeroOrMoreTimes();
+
+        $service = new SubscriptionWebhookService($handler);
+
+        $event = [
+            'event' => 'subscription.charged',
+            'payload' => [
+                'subscription' => ['entity' => ['id' => $subId]],
+                'payment' => ['entity' => ['id' => 'pay_dup_'.uniqid(), 'amount' => 1999]],
+            ],
+        ];
+
+        $service->handleRazorpayEvent($event);
+        $service->handleRazorpayEvent($event); // same payment id — must be a no-op
+
         $this->assertTrue(true);
     }
 }

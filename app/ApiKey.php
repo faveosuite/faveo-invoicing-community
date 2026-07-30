@@ -15,7 +15,6 @@ use Spatie\Activitylog\Models\Activity;
  * @property string|null $rzp_key
  * @property string|null $rzp_secret
  * @property string|null $razorpay_webhook_secret
- * @property string|null $apilayer_key
  * @property string|null $bugsnag_api_key
  * @property string|null $zoho_api_key
  * @property Carbon|null $created_at
@@ -47,7 +46,6 @@ use Spatie\Activitylog\Models\Activity;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApiKey newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApiKey query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApiKey whereAccessTookenSecret($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ApiKey whereApilayerKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApiKey whereBugsnagApiKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApiKey whereCaptchaSecretCheck($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApiKey whereCreatedAt($value)
@@ -88,7 +86,7 @@ class ApiKey extends Model
 
     protected $table = 'api_keys';
 
-    protected $fillable = ['rzp_key', 'rzp_secret', 'apilayer_key', 'bugsnag_api_key',
+    protected $fillable = ['rzp_key', 'rzp_secret', 'bugsnag_api_key',
         'zoho_api_key', 'msg91_auth_key', 'msg91_sender', 'msg91_template_id', 'twitter_consumer_key',
         'twitter_consumer_secret', 'twitter_access_token', 'access_tooken_secret', 'nocaptcha_sitekey', 'captcha_secretCheck', 'update_api_url', 'update_api_secret', 'terms_url', 'pipedrive_api_key', 'stripe_key', 'stripe_secret', 'msg91_third_party_id', 'require_pipedrive_user_verification', 'verification_preference'];
 
@@ -100,7 +98,7 @@ class ApiKey extends Model
      * @var array<mixed>
      */
     protected array $logAttributes = [
-        'rzp_key', 'rzp_secret', 'apilayer_key', 'bugsnag_api_key',
+        'rzp_key', 'rzp_secret', 'bugsnag_api_key',
         'zoho_api_key', 'msg91_auth_key', 'msg91_sender', 'msg91_template_id',
         'twitter_consumer_key', 'twitter_consumer_secret', 'twitter_access_token',
         'access_tooken_secret',
@@ -125,7 +123,6 @@ class ApiKey extends Model
         return [
             'rzp_key' => ['Rzp Key', fn ($value) => $value],
             'rzp_secret' => ['Rzp Secret', fn ($value) => $value],
-            'apilayer_key' => ['Apilayer Key', fn ($value) => $value],
             'bugsnag_api_key' => ['Bugsnag Api Key', fn ($value) => $value],
             'zoho_api_key' => ['Zoho Api Key', fn ($value) => $value],
             'msg91_auth_key' => ['Msg91 Auth Key', fn ($value) => $value],

@@ -192,7 +192,6 @@ return [
     'token_secret' => 'Twitter Toegangstoken Geheime Sleutel',
     'rzp_key' => 'Razorpay Sleutel',
     'rzp_secret' => 'Razorpay Geheime Sleutel',
-    'apilayer_key' => 'ApiLayer Toegangssleutel (Voor Wisselkoersconversie)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp API Sleutel',
     'terms_url' => 'Voorwaarden URL',
@@ -449,7 +448,6 @@ return [
          */
     'rzp_key' => 'Razorpay Sleutel',
     'rzp_secret' => 'Razorpay Geheime Sleutel',
-    'apilayer' => 'ApiLayer Toegangssleutel',
     'zoho_key' => 'Zoho Sleutel',
     'key' => 'API Sleutels',
     'msg91key' => 'Msg91 Auth Sleutel',
@@ -1827,7 +1825,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'Voer een geldige Razorpay-sleutel in.',
         'rzp_secret' => 'Voer een geldig Razorpay-geheim in.',
-        'apilayer_key' => 'Voer een geldige toegangssleutel in.',
     ],
 
     'sys_manager' => [
@@ -2493,7 +2490,6 @@ return [
     'zoom_out' => 'Uitzoomen',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'Licentie&nbsp;opnieuw uitgeven',
-    'api_layer_access_key' => 'ApiLayer-toegangssleutel (voor valutaconversie)',
     'download_logs' => 'Logboeken downloaden',
     'delete_logs' => 'Logboeken verwijderen',
     'type_here_search' => 'Typ hier om te zoeken',

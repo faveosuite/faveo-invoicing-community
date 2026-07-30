@@ -173,7 +173,6 @@ return [
     'token_secret' => 'سر رمز الوصول تويتر',
     'rzp_key' => 'مفتاح Razorpay',
     'rzp_secret' => 'سر Razorpay',
-    'apilayer_key' => 'مفتاح ApiLayer (لتحويل أسعار الصرف)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'مفتاح Mailchimp API',
     'terms_url' => 'رابط الشروط',
@@ -386,7 +385,6 @@ return [
      */
     'rzp_key' => 'مفتاح Razorpay',
     'rzp_secret' => 'سر Razorpay',
-    'apilayer' => 'مفتاح الوصول ApiLayer',
     'zoho_key' => 'مفتاح Zoho',
     'key' => 'مفاتيح API',
     'msg91key' => 'مفتاح مصدق Msg91',
@@ -2160,7 +2158,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'يرجى إدخال مفتاح Razorpay صالح.',
         'rzp_secret' => 'يرجى إدخال كلمة مرور Razorpay صالحة.',
-        'apilayer_key' => 'يرجى إدخال مفتاح وصول صالح.',
     ],
 
     'sys_manager' => [
@@ -2359,7 +2356,6 @@ return [
     'zoom_out' => 'تصغير',
     'user_ip' => 'عنوان IP',
     'tooltip_reissue_license' => 'إعادة إصدار&nbsp;الرخصة',
-    'api_layer_access_key' => 'مفتاح ApiLayer (لتحويل سعر الصرف)',
     'download_logs' => 'تنزيل السجلات',
     'delete_logs' => 'حذف السجلات',
     'type_here_search' => 'اكتب هنا للبحث',

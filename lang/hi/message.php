@@ -202,7 +202,6 @@ return [
     'token_secret' => 'ट्विटर एक्सेस टोकन सीक्रेट',
     'rzp_key' => 'रज़ोरपे कुंजी',
     'rzp_secret' => 'रज़ोरपे सीक्रेट',
-    'apilayer_key' => 'ApiLayer एक्सेस कुंजी (विनिमय दर रूपांतरण के लिए)',
     'zoho_crm' => 'ज़ोहो सीआरएम',
     'mailchimp_key' => 'मेलचिंप API कुंजी',
     'terms_url' => 'नियमों का यूआरएल',
@@ -471,7 +470,6 @@ return [
      */
     'rzp_key' => 'रेज़रपे कुंजी',
     'rzp_secret' => 'रेज़रपे सीक्रेट',
-    'apilayer' => 'ApiLayer एक्सेस कुंजी',
     'zoho_key' => 'Zoho कुंजी',
     'key' => 'एपीआई कुंजी',
     'msg91key' => 'Msg91 प्रमाणीकरण कुंजी',
@@ -1021,7 +1019,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'कृपया एक वैध Razorpay कुंजी दर्ज करें।',
         'rzp_secret' => 'कृपया एक वैध Razorpay गुप्त कुंजी दर्ज करें।',
-        'apilayer_key' => 'कृपया एक वैध एक्सेस कुंजी दर्ज करें।',
     ],
 
     'sys_manager' => [
@@ -2532,7 +2529,6 @@ return [
     'zoom_out' => 'ज़ूम आउट करें',
     'user_ip' => 'आईपी',
     'tooltip_reissue_license' => 'लाइसेंस&nbsp;फिर से जारी करें',
-    'api_layer_access_key' => 'ApiLayer एक्सेस कुंजी (विनिमय दर रूपांतरण के लिए)',
     'download_logs' => 'लॉग डाउनलोड करें',
     'delete_logs' => 'लॉग हटाएं',
     'type_here_search' => 'यहाँ टाइप करें खोजने के लिए',

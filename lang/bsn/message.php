@@ -169,7 +169,6 @@ return [
     'token_secret' => 'Twitter Access Token Secret',
     'rzp_key' => 'Razorpay Key',
     'rzp_secret' => 'Razorpay Secret',
-    'apilayer_key' => 'ApiLayer pristupni ključ (za konverziju kurseva)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp API ključ',
     'terms_url' => 'URL Uslova',
@@ -419,7 +418,6 @@ return [
          */
     'rzp_key' => 'Razorpay ključ',
     'rzp_secret' => 'Razorpay tajna',
-    'apilayer' => 'ApiLayer pristupni ključ',
     'zoho_key' => 'Zoho ključ',
     'key' => 'API ključevi',
     'msg91key' => 'Msg91 autentifikacioni ključ',
@@ -1772,7 +1770,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'Molimo unesite važeći Razorpay ključ.',
         'rzp_secret' => 'Molimo unesite važeću tajnu lozinku Razorpay-a.',
-        'apilayer_key' => 'Molimo unesite važeći pristupni ključ.',
     ],
 
     'sys_manager' => [
@@ -2450,7 +2447,6 @@ return [
     'none' => 'Nijedan',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'Ponovno izdavanje licence',
-    'api_layer_access_key' => 'ApiLayer pristupni ključ (za konverziju kursa)',
     'download_logs' => 'Preuzmi zapisnike',
     'delete_logs' => 'Obriši zapisnike',
     'type_here_search' => 'Upišite ovdje za pretragu',

@@ -24,17 +24,16 @@ class SettingsController extends Controller
     public function getSettings(): JsonResponse
     {
         try {
-            $keys = ApiKey::select('rzp_key', 'rzp_secret', 'apilayer_key', 'razorpay_webhook_secret')->first();
+            $keys = ApiKey::select('rzp_key', 'rzp_secret', 'razorpay_webhook_secret')->first();
             $status = StatusSetting::select('razorpay_auto_renewal')->first();
 
             return successResponse('', [
                 'rzp_key' => $keys->rzp_key ?? '',
                 'rzp_secret' => $keys->rzp_secret ?? '',
-                'apilayer_key' => $keys->apilayer_key ?? '',
                 'webhook_secret' => $keys->razorpay_webhook_secret ?? '',
                 'processing_fee' => (string) ProcessingFee::percent('razorpay'),
                 'auto_renewal' => (bool) ($status->razorpay_auto_renewal ?? false),
-                'webhook_url' => url('webhook/razorpay'),
+                'webhook_url' => url('pay/webhook/razorpay'),
             ]);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
@@ -61,7 +60,6 @@ class SettingsController extends Controller
             ApiKey::where('id', 1)->update([
                 'rzp_key' => $request->input('rzp_key'),
                 'rzp_secret' => $request->input('rzp_secret'),
-                'apilayer_key' => $request->input('apilayer_key'),
                 'razorpay_webhook_secret' => $request->input('webhook_secret'),
             ]);
 

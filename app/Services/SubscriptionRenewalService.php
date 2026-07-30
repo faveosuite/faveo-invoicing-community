@@ -8,6 +8,8 @@ use App\License\Services\LicenseService;
 use App\Model\Order\Order;
 use App\Model\Product\Subscription;
 use Illuminate\Support\Facades\Date;
+use Logger;
+use Throwable;
 
 class SubscriptionRenewalService
 {
@@ -112,32 +114,41 @@ class SubscriptionRenewalService
         );
     }
 
+    /**
+     * Never lets a failure here propagate — by the time this runs, the caller
+     * may have already recorded a real gateway charge (e.g. a renewal invoice
+     * marked paid), and a license-server hiccup must not undo that.
+     */
     private function syncLicenseServer(Subscription $sub, mixed $licenseExpiry, mixed $updatesExpiry, mixed $supportExpiry): void
     {
-        $installService = resolve(InstallationService::class);
-        $licenseService = resolve(LicenseService::class);
+        try {
+            $installService = resolve(InstallationService::class);
+            $licenseService = resolve(LicenseService::class);
 
-        /** @var Order $subOrder */
-        $subOrder = $sub->order;
-        $licenseCode = $subOrder->serial_key;
-        $domain = $subOrder->domain;
-        $orderNo = $subOrder->number;
-        $ipAndDomain = LicenseService::parseIpAndDomain($domain);
-        $existingLicense = $licenseService->findByCode($licenseCode);
+            /** @var Order $subOrder */
+            $subOrder = $sub->order;
+            $licenseCode = $subOrder->serial_key;
+            $domain = $subOrder->domain;
+            $orderNo = $subOrder->number;
+            $ipAndDomain = LicenseService::parseIpAndDomain($domain);
+            $existingLicense = $licenseService->findByCode($licenseCode);
 
-        if (! $existingLicense) {
-            return;
+            if (! $existingLicense) {
+                return;
+            }
+
+            $licenseService->update($existingLicense->id, [
+                'license_order_number' => $orderNo,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
+                'license_require_domain' => $ipAndDomain['requireDomain'],
+                'license_expire_date' => $licenseExpiry ? Date::parse($licenseExpiry)->format('Y-m-d') : '',
+                'license_updates_date' => $updatesExpiry ? Date::parse($updatesExpiry)->format('Y-m-d') : '',
+                'license_support_date' => $supportExpiry ? Date::parse($supportExpiry)->format('Y-m-d') : '',
+                'license_limit' => $installService->countActiveInstallations($licenseCode) ?: 2,
+            ]);
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
         }
-
-        $licenseService->update($existingLicense->id, [
-            'license_order_number' => $orderNo,
-            'license_domain' => $ipAndDomain['domain'],
-            'license_ip' => $ipAndDomain['ip'],
-            'license_require_domain' => $ipAndDomain['requireDomain'],
-            'license_expire_date' => $licenseExpiry ? Date::parse($licenseExpiry)->format('Y-m-d') : '',
-            'license_updates_date' => $updatesExpiry ? Date::parse($updatesExpiry)->format('Y-m-d') : '',
-            'license_support_date' => $supportExpiry ? Date::parse($supportExpiry)->format('Y-m-d') : '',
-            'license_limit' => $installService->countActiveInstallations($licenseCode) ?: 2,
-        ]);
     }
 }

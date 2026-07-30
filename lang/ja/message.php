@@ -200,7 +200,6 @@ return [
     'token_secret' => 'Twitterアクセストークンシークレット',
     'rzp_key' => 'Razorpayキー',
     'rzp_secret' => 'Razorpayシークレット',
-    'apilayer_key' => 'ApiLayerアクセスキー（為替レート変換用）',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp APIキー',
     'terms_url' => '利用規約URL',
@@ -469,7 +468,6 @@ return [
      */
     'rzp_key' => 'Razorpayキー',
     'rzp_secret' => 'Razorpayシークレット',
-    'apilayer' => 'ApiLayerアクセスキー',
     'zoho_key' => 'Zohoキー',
     'key' => 'APIキー',
     'msg91key' => 'Msg91認証キー',
@@ -1016,7 +1014,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => '有効なRazorpayキーを入力してください。',
         'rzp_secret' => '有効なRazorpayシークレットパスワードを入力してください。',
-        'apilayer_key' => '有効なアクセスキーを入力してください。',
     ],
 
     'sys_manager' => [
@@ -2526,7 +2523,6 @@ return [
     'zoom_out' => '縮小',
     'user_ip' => 'IPアドレス',
     'tooltip_reissue_license' => 'ライセンスを再発行',
-    'api_layer_access_key' => 'ApiLayerアクセスキー（為替レート変換用）',
     'download_logs' => 'ログをダウンロード',
     'delete_logs' => 'ログを削除',
     'type_here_search' => 'ここに入力して検索',

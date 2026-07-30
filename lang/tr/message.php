@@ -203,7 +203,6 @@ return [
     'token_secret' => 'Twitter Erişim Belirteci Gizli',
     'rzp_key' => 'Razorpay Anahtarı',
     'rzp_secret' => 'Razorpay Gizli Anahtarı',
-    'apilayer_key' => 'ApiLayer Erişim Anahtarı (Döviz Dönüşümü İçin)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp API Anahtarı',
     'terms_url' => 'Şartlar URL’si',
@@ -472,7 +471,6 @@ return [
      */
     'rzp_key' => 'Razorpay Anahtarı',
     'rzp_secret' => 'Razorpay Gizli Anahtarı',
-    'apilayer' => 'ApiLayer Erişim Anahtarı',
     'zoho_key' => 'Zoho Anahtarı',
     'key' => 'API Anahtarları',
     'msg91key' => 'Msg91 Doğrulama Anahtarı',
@@ -1026,7 +1024,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'Lütfen geçerli bir Razorpay anahtarı girin.',
         'rzp_secret' => 'Lütfen geçerli bir Razorpay gizli şifresi girin.',
-        'apilayer_key' => 'Lütfen geçerli bir erişim anahtarı girin.',
     ],
 
     'sys_manager' => [
@@ -2534,7 +2531,6 @@ return [
     'zoom_out' => 'Uzaklaştır',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'Lisansı&nbsp;Yeniden Ver',
-    'api_layer_access_key' => 'ApiLayer Erişim Anahtarı (Döviz Kuru Dönüşümü için)',
     'download_logs' => 'Kayıtları İndir',
     'delete_logs' => 'Kayıtları Sil',
     'type_here_search' => 'Aramak için buraya yazın',

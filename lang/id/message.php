@@ -193,7 +193,6 @@ return [
     'token_secret' => 'Rahasia Token Akses Twitter',
     'rzp_key' => 'Kunci Razorpay',
     'rzp_secret' => 'Rahasia Razorpay',
-    'apilayer_key' => 'Kunci Akses ApiLayer (Untuk Konversi Nilai Tukar)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Kunci API Mailchimp',
     'terms_url' => 'URL Syarat',
@@ -462,7 +461,6 @@ return [
          */
     'rzp_key' => 'Kunci Razorpay',
     'rzp_secret' => 'Razorpay Secret',
-    'apilayer' => 'Kunci Akses ApiLayer',
     'zoho_key' => 'Kunci Zoho',
     'key' => 'Kunci API',
     'msg91key' => 'Kunci Otorisasi Msg91',
@@ -1843,7 +1841,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'Silakan masukkan kunci Razorpay yang valid.',
         'rzp_secret' => 'Silakan masukkan rahasia Razorpay yang valid.',
-        'apilayer_key' => 'Silakan masukkan kunci akses yang valid.',
     ],
 
     'sys_manager' => [
@@ -2516,7 +2513,6 @@ return [
     'zoom_out' => 'Perkecil',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'Terbitkan&nbsp;ulang Lisensi',
-    'api_layer_access_key' => 'Kunci Akses ApiLayer (Untuk Konversi Nilai Tukar)',
     'download_logs' => 'Unduh Log',
     'delete_logs' => 'Hapus Log',
     'type_here_search' => 'Ketik di sini untuk mencari',

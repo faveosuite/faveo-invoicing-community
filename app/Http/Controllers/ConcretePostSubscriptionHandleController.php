@@ -21,6 +21,8 @@ use App\User;
 use Exception;
 use Illuminate\Support\Facades\Date;
 use Log;
+use Logger;
+use Throwable;
 
 abstract class PostSubscriptionHandleController
 {
@@ -52,7 +54,7 @@ abstract class PostSubscriptionHandleController
 
     abstract public function getProcessingFee(string $paymentMethod, string $currency): ?string;
 
-    abstract public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, ?Template $template, Order $order, Payment|string $payment): void;
+    abstract public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, Order $order, Payment|string $payment): void;
 
     abstract public function FailedPaymenttoAdmin(Invoice $invoice, float|int $total, string $productName, string $exceptionMessage, User $user, string $template, Order $order, Payment $payment): void;
 
@@ -105,22 +107,35 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         return $percent > 0 ? ProcessingFee::label($percent) : null;
     }
 
-    public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, ?Template $template, Order $order, Payment|string $payment): void
+    /**
+     * Notifies the admin of a successful renewal payment. Never lets a
+     * failure here propagate — by the time this runs, the payment has
+     * already been recorded, and a notification-email hiccup must not
+     * affect that.
+     */
+    public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, Order $order, Payment|string $payment): void
     {
-        $amount = currencyFormat($total, getCurrencyForClient($user->country));
-        $setting = Setting::find(1);
-        if (! $setting instanceof Setting) {
-            throw new Exception('Settings not found');
-        }
-        if (! $template instanceof Template) {
-            throw new Exception('Template not found');
-        }
-        $currency = getCurrencyForClient($user->country);
-        $paymentSuccessdata = 'Payment for '.$productName.' of '.$currency.' '.$total.' successful by '.$user->first_name.' '.$user->last_name.' Email: '.$user->email;
+        try {
+            $setting = Setting::find(1);
+            if (! $setting instanceof Setting) {
+                return;
+            }
 
-        $mail = new PhpMailController;
-        $mail->SendEmail((string) $setting->email, (string) $setting->company_email, $paymentSuccessdata, 'payment-success', $template->type()->value('name'));
-        $mail->payment_log($user->email, $payment, 'success', $order->number, amount: $amount, payment_type: 'Product renew');
+            $template = TemplateType::getSelectedTemplate('payment_successfull');
+            if (! $template instanceof Template) {
+                return;
+            }
+
+            $amount = currencyFormat($total, getCurrencyForClient($user->country));
+            $currency = getCurrencyForClient($user->country);
+            $paymentSuccessdata = 'Payment for '.$productName.' of '.$currency.' '.$total.' successful by '.$user->first_name.' '.$user->last_name.' Email: '.$user->email;
+
+            $mail = new PhpMailController;
+            $mail->SendEmail((string) $setting->email, (string) $setting->company_email, $paymentSuccessdata, 'payment-success', $template->type()->value('name'));
+            $mail->payment_log($user->email, $payment, 'success', $order->number, amount: $amount, payment_type: 'Product renew');
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
+        }
     }
 
     public function FailedPaymenttoAdmin(Invoice $invoice, float|int $total, string $productName, string $exceptionMessage, User $user, string $template, Order $order, Payment $payment): void

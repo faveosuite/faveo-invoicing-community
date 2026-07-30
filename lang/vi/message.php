@@ -195,7 +195,6 @@ return [
     'token_secret' => 'Twitter Access Token Secret',
     'rzp_key' => 'Razorpay Key',
     'rzp_secret' => 'Razorpay Secret',
-    'apilayer_key' => 'ApiLayer Access Key (Cho Chuyển Đổi Tỷ Giá)',
     'zoho_crm' => 'Zoho CRM',
     'mailchimp_key' => 'Mailchimp Api Key',
     'terms_url' => 'Terms Url',
@@ -463,7 +462,6 @@ return [
          */
     'rzp_key' => 'Khóa Razorpay',
     'rzp_secret' => 'Mật khẩu Razorpay',
-    'apilayer' => 'Khóa truy cập ApiLayer',
     'zoho_key' => 'Khóa Zoho',
     'key' => 'Khóa API',
     'msg91key' => 'Khóa xác thực Msg91',
@@ -1847,7 +1845,6 @@ return [
     'razorpay_details' => [
         'rzp_key' => 'Vui lòng nhập khóa Razorpay hợp lệ.',
         'rzp_secret' => 'Vui lòng nhập mật khẩu bí mật Razorpay hợp lệ.',
-        'apilayer_key' => 'Vui lòng nhập khóa truy cập hợp lệ.',
     ],
 
     'sys_manager' => [
@@ -2522,7 +2519,6 @@ return [
     'zoom_out' => 'Thu nhỏ',
     'user_ip' => 'IP',
     'tooltip_reissue_license' => 'Cấp lại&nbsp;Giấy phép',
-    'api_layer_access_key' => 'Khóa truy cập ApiLayer (Dùng để chuyển đổi tỷ giá)',
     'download_logs' => 'Tải nhật ký',
     'delete_logs' => 'Xóa nhật ký',
     'type_here_search' => 'Gõ ở đây để tìm kiếm',
