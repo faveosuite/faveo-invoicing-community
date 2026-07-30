@@ -158,11 +158,9 @@ class PageControllerTest extends DBTestCase
         $this->assertSame('Test Page', $data['name']);
     }
 
-    public function test_page_by_slug_applies_the_pages_title_format_when_page_has_no_own_meta(): void
+    public function test_page_by_slug_falls_back_to_the_bare_name_when_page_has_no_own_meta(): void
     {
         \App\Model\Common\Setting::find(1)->update(['company' => 'Acme Inc', 'favicon_title_client' => '']);
-        \App\Model\Common\CommonSettings::where('option_name', 'seo')->where('optional_field', 'pages_title_format')->delete();
-        \App\Model\Common\CommonSettings::where('option_name', 'seo')->where('optional_field', 'pages_description_format')->delete();
         \App\Model\Common\CommonSettings::where('option_name', 'seo')->where('optional_field', 'general_description')->delete();
         // SeoTemplateFormatter is bound as a singleton (AppServiceProvider)
         // and caches Setting/CommonSettings at construction — forget it so
@@ -183,7 +181,7 @@ class PageControllerTest extends DBTestCase
         $response = $this->getJson('/page-content/'.$page->slug);
 
         $response->assertStatus(200);
-        $this->assertSame('Refund Policy | Acme Inc', $response->json('data.meta_title'));
+        $this->assertSame('Refund Policy', $response->json('data.meta_title'));
         $this->assertSame('Learn more about Refund Policy at Acme Inc.', $response->json('data.meta_description'));
     }
 

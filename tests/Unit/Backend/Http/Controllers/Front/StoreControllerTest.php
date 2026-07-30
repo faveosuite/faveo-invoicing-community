@@ -49,11 +49,9 @@ class StoreControllerTest extends DBTestCase
         $this->assertContains($response->getStatusCode(), [200, 400]);
     }
 
-    public function test_get_products_applies_the_groups_title_format_when_group_has_no_own_meta(): void
+    public function test_get_products_falls_back_to_the_bare_name_when_group_has_no_own_meta(): void
     {
         \App\Model\Common\Setting::find(1)->update(['company' => 'Acme Inc', 'favicon_title_client' => '']);
-        \App\Model\Common\CommonSettings::where('option_name', 'seo')->where('optional_field', 'groups_title_format')->delete();
-        \App\Model\Common\CommonSettings::where('option_name', 'seo')->where('optional_field', 'groups_description_format')->delete();
         \App\Model\Common\CommonSettings::where('option_name', 'seo')->where('optional_field', 'general_description')->delete();
         // SeoTemplateFormatter is bound as a singleton (AppServiceProvider)
         // and caches Setting/CommonSettings at construction — forget it so
@@ -79,6 +77,6 @@ class StoreControllerTest extends DBTestCase
         $response = $this->getJson("/store/{$group->id}/products");
 
         $response->assertStatus(200);
-        $this->assertSame($group->name.' | Acme Inc', $response->json('data.group.meta_title'));
+        $this->assertSame($group->name, $response->json('data.group.meta_title'));
     }
 }

@@ -35,6 +35,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $billing_pay
  * @property-read Invoice|null $invoice
  * @property-read Order|null $order
+ * @property-read string $order_link
  * @property-read Product|null $product
  * @property-read Collection<int, InvoiceTaxLine> $taxLines
  * @property-read int|null $tax_lines_count
@@ -118,6 +119,14 @@ class InvoiceItem extends BaseModel
     public function order(): HasOne
     {
         return $this->hasOne(Order::class, 'invoice_item_id');
+    }
+
+    /**
+     * @return Attribute<string, never>
+     */
+    protected function orderLink(): Attribute
+    {
+        return Attribute::make(get: fn (): string => Order::getOrderLink($this->order?->id, 'my-order'));
     }
 
     /**

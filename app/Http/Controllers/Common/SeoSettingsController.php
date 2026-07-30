@@ -15,9 +15,10 @@ use Illuminate\Http\Request;
 use Throwable;
 
 /**
- * Site-wide SEO settings (option_name='seo' rows in common_settings):
- * default title/description templates for Pages-module pages and Product
- * Groups, plus their fallback Open Graph images. See SeoTemplateFormatter.
+ * Site-wide General SEO settings (option_name='seo' rows in
+ * common_settings): fallback title/description/OG fields used when a
+ * Pages-module page or Product Group has none of its own. See
+ * SeoTemplateFormatter.
  */
 class SeoSettingsController extends Controller
 {
@@ -28,25 +29,17 @@ class SeoSettingsController extends Controller
         'general_description',
         'general_og_title',
         'general_og_description',
-        'pages_title_format',
-        'groups_title_format',
-        'pages_description_format',
-        'groups_description_format',
-        'pages_og_title_format',
-        'groups_og_title_format',
-        'pages_og_description_format',
-        'groups_og_description_format',
     ];
 
     /**
      * @var list<string>
      */
-    private const IMAGE_FIELDS = ['general_og_image', 'pages_og_image', 'groups_og_image'];
+    private const IMAGE_FIELDS = ['general_og_image'];
 
     /**
      * @var list<string>
      */
-    private const BOOLEAN_FIELDS = ['general_og_same_as_meta', 'pages_og_same_as_meta', 'groups_og_same_as_meta'];
+    private const BOOLEAN_FIELDS = ['general_og_same_as_meta'];
 
     public function __construct()
     {
@@ -90,18 +83,6 @@ class SeoSettingsController extends Controller
             'general_og_description' => ['nullable', 'string', 'max:255'],
             'general_og_image' => ['sometimes', 'file', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'general_og_same_as_meta' => ['nullable', 'boolean'],
-            'pages_title_format' => ['nullable', 'string', 'max:255'],
-            'groups_title_format' => ['nullable', 'string', 'max:255'],
-            'pages_description_format' => ['nullable', 'string', 'max:255'],
-            'groups_description_format' => ['nullable', 'string', 'max:255'],
-            'pages_og_title_format' => ['nullable', 'string', 'max:255'],
-            'groups_og_title_format' => ['nullable', 'string', 'max:255'],
-            'pages_og_description_format' => ['nullable', 'string', 'max:255'],
-            'groups_og_description_format' => ['nullable', 'string', 'max:255'],
-            'pages_og_image' => ['sometimes', 'file', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
-            'groups_og_image' => ['sometimes', 'file', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
-            'pages_og_same_as_meta' => ['nullable', 'boolean'],
-            'groups_og_same_as_meta' => ['nullable', 'boolean'],
         ]);
 
         try {

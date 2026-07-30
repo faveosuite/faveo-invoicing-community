@@ -40,6 +40,9 @@ class StoreController extends Controller
         $currency = $this->resolveCurrency();
         $symbol = $this->getCurrencySymbol($currency);
 
+        $groupMetaTitle = $formatter->resolveShortcodes($group->meta_title, $group->name) ?: $formatter->title($group->name);
+        $groupMetaDescription = $formatter->resolveShortcodes($group->meta_description, $group->name) ?: $formatter->description($group->name);
+
         $products = Product::with([
             'planRelation' => fn ($q) => $q
                 ->where('status', 1)
@@ -69,8 +72,8 @@ class StoreController extends Controller
                 $group->only(['id', 'name', 'headline', 'tagline']),
                 [
                     'status' => (bool) $group->status,
-                    'meta_title' => $formatter->resolveShortcodes($group->meta_title, $group->name) ?: $formatter->title('groups', $group->name),
-                    'meta_description' => $formatter->resolveShortcodes($group->meta_description, $group->name) ?: $formatter->description('groups', $group->name),
+                    'meta_title' => $groupMetaTitle,
+                    'meta_description' => $groupMetaDescription,
                 ]
             ),
             'currency' => $currency,

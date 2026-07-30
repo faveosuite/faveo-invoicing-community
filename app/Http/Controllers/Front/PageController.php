@@ -59,10 +59,10 @@ class PageController extends Controller
                 ->first();
 
             if ($page) {
-                $page->meta_title = $formatter->resolveShortcodes($page->meta_title, $page->name) ?: $formatter->title('pages', $page->name);
-                $page->meta_description = $formatter->resolveShortcodes($page->meta_description, $page->name) ?: $formatter->description('pages', $page->name);
-                $page->og_title = $formatter->resolveShortcodes($page->og_title, $page->name) ?: $formatter->ogTitle('pages', $page->name);
-                $page->og_description = $formatter->resolveShortcodes($page->og_description, $page->name) ?: $formatter->ogDescription('pages', $page->name);
+                $page->meta_title = $formatter->resolveShortcodes($page->meta_title, $page->name) ?: $formatter->title($page->name);
+                $page->meta_description = $formatter->resolveShortcodes($page->meta_description, $page->name) ?: $formatter->description($page->name);
+                $page->og_title = $formatter->resolveShortcodes($page->og_title, $page->name) ?: ($formatter->generalOgTitle() ?: $page->meta_title);
+                $page->og_description = $formatter->resolveShortcodes($page->og_description, $page->name) ?: ($formatter->generalOgDescription() ?: $page->meta_description);
             }
 
             return successResponse('', $page);

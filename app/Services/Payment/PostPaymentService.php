@@ -127,17 +127,19 @@ class PostPaymentService
             return;
         }
 
-        try {
-            $order = $invoice->orders()->whereHas('subscription')->first();
-            $user = $order ? User::find($invoice->user_id) : null;
+        $orders = $invoice->orders()->whereHas('subscription')->get();
+        $user = $orders->isNotEmpty() ? User::find($invoice->user_id) : null;
 
-            if (! $order || ! $user) {
-                return;
+        if (! $user) {
+            return;
+        }
+
+        foreach ($orders as $order) {
+            try {
+                $this->autoRenewal->activate($order, $user, 'razorpay', 'invoice_'.$invoice->id);
+            } catch (Throwable $throwable) {
+                Logger::exception($throwable);
             }
-
-            $this->autoRenewal->activate($order, $user, 'razorpay', 'invoice_'.$invoice->id);
-        } catch (Throwable $throwable) {
-            Logger::exception($throwable);
         }
     }
 

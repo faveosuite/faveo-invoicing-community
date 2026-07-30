@@ -22,7 +22,7 @@ class SeoTemplateFormatterTest extends DBTestCase
         // Deterministic base state — rolled back by DatabaseTransactions.
         Setting::updateOrCreate(['id' => 1], [
             'company' => 'Acme Inc',
-            'favicon_title_client' => 'Acme Client Title',
+            'favicon_title_client' => '',
             'logo' => null,
         ]);
         CommonSettings::where('option_name', 'seo')->delete();
@@ -67,6 +67,26 @@ class SeoTemplateFormatterTest extends DBTestCase
         $this->assertSame('', $formatter->resolveShortcodes('', 'My Page'));
     }
 
+    // --- {title} shortcode: Setting::title ---
+
+    public function test_resolve_shortcodes_substitutes_title(): void
+    {
+        Setting::find(1)->update(['title' => 'Acme App']);
+
+        $formatter = new SeoTemplateFormatter();
+
+        $this->assertSame('X | Acme App', $formatter->resolveShortcodes('X | {title}', ''));
+    }
+
+    public function test_resolve_shortcodes_substitutes_title_as_empty_when_unset(): void
+    {
+        Setting::find(1)->update(['title' => '']);
+
+        $formatter = new SeoTemplateFormatter();
+
+        $this->assertSame('X | ', $formatter->resolveShortcodes('X | {title}', ''));
+    }
+
     // --- {company} resolution fallback chain: company -> favicon_title_client -> "Faveo Invoicing" ---
 
     public function test_company_uses_the_company_field_when_set(): void
@@ -94,136 +114,56 @@ class SeoTemplateFormatterTest extends DBTestCase
         $this->assertSame('X | Faveo Invoicing', $formatter->resolveShortcodes('X | {company}', ''));
     }
 
-    // --- title('pages', ...) / title('groups', ...) ---
+    // --- title(): General SEO title (favicon_title_client) -> bare name ---
 
-    public function test_pages_title_uses_the_configured_format(): void
-    {
-        $this->setSeoSetting('pages_title_format', '{name} - {company} Pages');
-
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('About - Acme Inc Pages', $formatter->title('pages', 'About'));
-    }
-
-    public function test_pages_title_falls_back_to_the_hardcoded_default_format_when_unset(): void
+    public function test_title_falls_back_to_the_bare_name_when_favicon_title_client_is_unset(): void
     {
         $formatter = new SeoTemplateFormatter();
 
-        $this->assertSame('About | Acme Inc', $formatter->title('pages', 'About'));
+        $this->assertSame('About', $formatter->title('About'));
     }
 
-    public function test_groups_title_uses_the_configured_format(): void
+    public function test_title_uses_favicon_title_client_when_set(): void
     {
-        $this->setSeoSetting('groups_title_format', '{name} Store');
+        Setting::find(1)->update(['favicon_title_client' => '{name} - {company} Pages']);
 
         $formatter = new SeoTemplateFormatter();
 
-        $this->assertSame('Widgets Store', $formatter->title('groups', 'Widgets'));
+        $this->assertSame('About - Acme Inc Pages', $formatter->title('About'));
     }
 
-    public function test_groups_title_falls_back_to_the_hardcoded_default_format_when_unset(): void
+    public function test_title_resolves_shortcodes_in_favicon_title_client(): void
     {
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('Widgets | Acme Inc', $formatter->title('groups', 'Widgets'));
-    }
-
-    // --- description('pages'|'groups', ...): module -> General -> hardcoded cascade ---
-
-    public function test_pages_description_uses_its_own_format_first(): void
-    {
-        $this->setSeoSetting('pages_description_format', 'Page: {name}');
-        $this->setSeoSetting('general_description', 'General desc');
+        Setting::find(1)->update(['favicon_title_client' => '{name} Store']);
 
         $formatter = new SeoTemplateFormatter();
 
-        $this->assertSame('Page: About', $formatter->description('pages', 'About'));
+        $this->assertSame('Widgets Store', $formatter->title('Widgets'));
     }
 
-    public function test_pages_description_falls_back_to_general_description(): void
+    // --- description(): General SEO description -> hardcoded default ---
+
+    public function test_description_falls_back_to_general_description(): void
     {
         $this->setSeoSetting('general_description', 'General: {name}');
 
         $formatter = new SeoTemplateFormatter();
 
-        $this->assertSame('General: About', $formatter->description('pages', 'About'));
+        $this->assertSame('General: About', $formatter->description('About'));
     }
 
-    public function test_pages_description_falls_back_to_the_hardcoded_default(): void
+    public function test_description_falls_back_to_the_hardcoded_default_when_unset(): void
     {
         $formatter = new SeoTemplateFormatter();
 
-        $this->assertSame('Learn more about About at Acme Inc.', $formatter->description('pages', 'About'));
+        $this->assertSame('Learn more about About at Acme Inc.', $formatter->description('About'));
     }
 
-    public function test_groups_description_falls_back_to_general_description(): void
-    {
-        $this->setSeoSetting('general_description', 'General: {name}');
-
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('General: Widgets', $formatter->description('groups', 'Widgets'));
-    }
-
-    public function test_groups_description_falls_back_to_the_hardcoded_default(): void
+    public function test_description_falls_back_to_the_hardcoded_default_for_a_different_name(): void
     {
         $formatter = new SeoTemplateFormatter();
 
-        $this->assertSame('Learn more about Widgets at Acme Inc.', $formatter->description('groups', 'Widgets'));
-    }
-
-    // --- ogTitle()/ogDescription() cascades ---
-
-    public function test_pages_og_title_falls_back_to_the_hardcoded_default_when_nothing_configured(): void
-    {
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('About | Acme Inc', $formatter->ogTitle('pages', 'About'));
-    }
-
-    public function test_pages_og_title_falls_back_to_general_og_title_when_set(): void
-    {
-        $this->setSeoSetting('general_og_title', 'General OG: {name}');
-
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('General OG: About', $formatter->ogTitle('pages', 'About'));
-    }
-
-    public function test_pages_og_title_prefers_its_own_format_over_general(): void
-    {
-        $this->setSeoSetting('general_og_title', 'General OG: {name}');
-        $this->setSeoSetting('pages_og_title_format', 'Pages OG: {name}');
-
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('Pages OG: About', $formatter->ogTitle('pages', 'About'));
-    }
-
-    public function test_groups_og_description_falls_back_to_the_hardcoded_default_when_nothing_configured(): void
-    {
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('Learn more about Widgets at Acme Inc.', $formatter->ogDescription('groups', 'Widgets'));
-    }
-
-    public function test_groups_og_description_falls_back_to_general_og_description_when_set(): void
-    {
-        $this->setSeoSetting('general_og_description', 'General OG Desc: {name}');
-
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('General OG Desc: Widgets', $formatter->ogDescription('groups', 'Widgets'));
-    }
-
-    public function test_groups_og_title_prefers_its_own_format_over_general(): void
-    {
-        $this->setSeoSetting('general_og_title', 'General OG: {name}');
-        $this->setSeoSetting('groups_og_title_format', 'Groups OG: {name}');
-
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('Groups OG: Widgets', $formatter->ogTitle('groups', 'Widgets'));
+        $this->assertSame('Learn more about Widgets at Acme Inc.', $formatter->description('Widgets'));
     }
 
     // --- general*() — always resolved against an empty name ---
@@ -258,7 +198,7 @@ class SeoTemplateFormatterTest extends DBTestCase
         $this->assertSame('', $formatter->generalOgDescription());
     }
 
-    // --- image URL cascades ---
+    // --- image URL cascade ---
 
     public function test_general_og_image_url_falls_back_to_the_stock_logo_asset_when_nothing_configured(): void
     {
@@ -287,45 +227,5 @@ class SeoTemplateFormatterTest extends DBTestCase
         $formatter = new SeoTemplateFormatter();
 
         $this->assertSame('https://cdn.test/general.png', $formatter->generalOgImageUrl());
-    }
-
-    public function test_pages_og_image_url_falls_back_to_general_og_image_url(): void
-    {
-        Attach::shouldReceive('getUrlPath')->with('images/logo.png')->andReturn('https://cdn.test/logo.png');
-        Setting::find(1)->update(['logo' => 'logo.png']);
-
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('https://cdn.test/logo.png', $formatter->ogImageUrl('pages'));
-    }
-
-    public function test_pages_og_image_url_uses_its_own_image_when_set(): void
-    {
-        Attach::shouldReceive('getUrlPath')->with('images/pages.png')->andReturn('https://cdn.test/pages.png');
-        $this->setSeoSetting('pages_og_image', 'pages.png');
-
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('https://cdn.test/pages.png', $formatter->ogImageUrl('pages'));
-    }
-
-    public function test_groups_og_image_url_falls_back_to_general_og_image_url(): void
-    {
-        Attach::shouldReceive('getUrlPath')->with('images/logo.png')->andReturn('https://cdn.test/logo.png');
-        Setting::find(1)->update(['logo' => 'logo.png']);
-
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('https://cdn.test/logo.png', $formatter->ogImageUrl('groups'));
-    }
-
-    public function test_groups_og_image_url_uses_its_own_image_when_set(): void
-    {
-        Attach::shouldReceive('getUrlPath')->with('images/groups.png')->andReturn('https://cdn.test/groups.png');
-        $this->setSeoSetting('groups_og_image', 'groups.png');
-
-        $formatter = new SeoTemplateFormatter();
-
-        $this->assertSame('https://cdn.test/groups.png', $formatter->ogImageUrl('groups'));
     }
 }

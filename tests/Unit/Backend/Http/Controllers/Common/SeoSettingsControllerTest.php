@@ -42,7 +42,7 @@ class SeoSettingsControllerTest extends DBTestCase
         Setting::find(1)->update(['favicon_title' => 'Admin Title', 'favicon_title_client' => 'Client Title']);
         CommonSettings::upsert([
             ['option_name' => 'seo', 'optional_field' => 'general_description', 'option_value' => 'A description', 'status' => ''],
-            ['option_name' => 'seo', 'optional_field' => 'pages_og_same_as_meta', 'option_value' => '1', 'status' => ''],
+            ['option_name' => 'seo', 'optional_field' => 'general_og_same_as_meta', 'option_value' => '1', 'status' => ''],
         ], ['option_name', 'optional_field'], ['option_value']);
 
         $response = $this->getJson('/seo/settings');
@@ -51,7 +51,7 @@ class SeoSettingsControllerTest extends DBTestCase
         $response->assertJsonPath('data.favicon_title', 'Admin Title');
         $response->assertJsonPath('data.favicon_title_client', 'Client Title');
         $response->assertJsonPath('data.general_description', 'A description');
-        $response->assertJsonPath('data.pages_og_same_as_meta', true);
+        $response->assertJsonPath('data.general_og_same_as_meta', true);
     }
 
     public function test_show_resolves_the_configured_image_to_a_url(): void
@@ -94,7 +94,6 @@ class SeoSettingsControllerTest extends DBTestCase
 
         $response = $this->postJson('/seo/settings', [
             'general_description' => 'Updated description',
-            'pages_title_format' => '{name} | {company}',
         ]);
 
         $response->assertStatus(200);
@@ -102,11 +101,6 @@ class SeoSettingsControllerTest extends DBTestCase
             'option_name' => 'seo',
             'optional_field' => 'general_description',
             'option_value' => 'Updated description',
-        ]);
-        $this->assertDatabaseHas('common_settings', [
-            'option_name' => 'seo',
-            'optional_field' => 'pages_title_format',
-            'option_value' => '{name} | {company}',
         ]);
     }
 
@@ -116,7 +110,6 @@ class SeoSettingsControllerTest extends DBTestCase
 
         $response = $this->postJson('/seo/settings', [
             'general_og_same_as_meta' => true,
-            'pages_og_same_as_meta' => false,
         ]);
 
         $response->assertStatus(200);
@@ -124,11 +117,6 @@ class SeoSettingsControllerTest extends DBTestCase
             'option_name' => 'seo',
             'optional_field' => 'general_og_same_as_meta',
             'option_value' => '1',
-        ]);
-        $this->assertDatabaseHas('common_settings', [
-            'option_name' => 'seo',
-            'optional_field' => 'pages_og_same_as_meta',
-            'option_value' => '0',
         ]);
     }
 

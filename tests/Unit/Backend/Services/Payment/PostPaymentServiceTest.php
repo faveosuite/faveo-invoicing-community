@@ -495,6 +495,64 @@ class PostPaymentServiceTest extends DBTestCase
     }
 
     // =========================================================================
+    // activateRazorpayAutoRenewalOptIn — must activate EVERY order on the
+    // invoice, not just the first (multi-product cart regression)
+    // =========================================================================
+
+    public function test_activate_razorpay_auto_renewal_opt_in_activates_every_order_on_invoice(): void
+    {
+        $this->getLoggedInUser('user');
+
+        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        \App\Model\Common\StatusSetting::where('id', 1)->update(['razorpay_auto_renewal' => 1]);
+
+        /** @var Invoice $invoice */
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'grand_total' => 100.0,
+            'metadata' => ['auto_renew_opt_in' => true],
+        ]);
+
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'PPSvc '.uniqid()]);
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'PPPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+
+        $orders = [];
+        foreach (range(1, 2) as $i) {
+            $order = \App\Model\Order\Order::create([
+                'client' => $this->user->id,
+                'product' => $product->id,
+                'order_status' => 'executed',
+                'number' => mt_rand(100000, 999999),
+            ]);
+            \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+            \App\Model\Product\Subscription::create([
+                'order_id' => $order->id,
+                'product_id' => $product->id,
+                'plan_id' => $plan->id,
+                'is_subscribed' => 0,
+            ]);
+            $orders[] = $order->id;
+        }
+
+        $mockAutoRenewal = Mockery::mock(AutoRenewalActivationService::class);
+        $activatedOrderIds = [];
+        $mockAutoRenewal->shouldReceive('activate')
+            ->times(2)
+            ->withArgs(function ($order, $user, $gateway, $reference) use (&$activatedOrderIds, $invoice) {
+                $activatedOrderIds[] = $order->id;
+
+                return $gateway === 'razorpay' && $reference === 'invoice_'.$invoice->id;
+            });
+
+        $service = new PostPaymentService($mockAutoRenewal);
+        $this->getPrivateMethod($service, 'activateRazorpayAutoRenewalOptIn', [$invoice, 'razorpay']);
+
+        sort($orders);
+        sort($activatedOrderIds);
+        $this->assertSame($orders, $activatedOrderIds);
+    }
+
+    // =========================================================================
     // recordPayment — zero grand_total → no payment created, invoice updated
     // =========================================================================
 

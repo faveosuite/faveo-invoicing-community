@@ -110,7 +110,7 @@ class SeoMetaService
             $description,
             $key === 'reset_password' ? self::NOINDEX : self::INDEX, // its URL carries a live, single-use token — never index a secret URL
             $path,
-            $this->resolveImage($row?->og_image, 'general'),
+            $this->resolveImage($row?->og_image),
             $this->formatter->resolveShortcodes($row?->og_title, $name) ?: ($this->formatter->generalOgTitle() ?: $title),
             $this->formatter->resolveShortcodes($row?->og_description, $name) ?: ($this->formatter->generalOgDescription() ?: $description),
         );
@@ -127,8 +127,8 @@ class SeoMetaService
             return $this->fallback($path);
         }
 
-        $title = $this->formatter->resolveShortcodes($page->meta_title, $page->name) ?: $this->formatter->title('pages', $page->name);
-        $description = $this->formatter->resolveShortcodes($page->meta_description, $page->name) ?: $this->formatter->description('pages', $page->name);
+        $title = $this->formatter->resolveShortcodes($page->meta_title, $page->name) ?: $this->formatter->title($page->name);
+        $description = $this->formatter->resolveShortcodes($page->meta_description, $page->name) ?: $this->formatter->description($page->name);
 
         return $this->assemble(
             $title,
@@ -136,8 +136,8 @@ class SeoMetaService
             self::INDEX,
             $path,
             $this->resolveImage($page->og_image),
-            $this->formatter->resolveShortcodes($page->og_title, $page->name) ?: $this->formatter->ogTitle('pages', $page->name),
-            $this->formatter->resolveShortcodes($page->og_description, $page->name) ?: $this->formatter->ogDescription('pages', $page->name),
+            $this->formatter->resolveShortcodes($page->og_title, $page->name) ?: ($this->formatter->generalOgTitle() ?: $title),
+            $this->formatter->resolveShortcodes($page->og_description, $page->name) ?: ($this->formatter->generalOgDescription() ?: $description),
         );
     }
 
@@ -150,8 +150,8 @@ class SeoMetaService
         $page = FrontendPage::where('type', 'contactus')->where('publish', 1)->first();
 
         $name = $page?->name ?: 'Contact Us';
-        $title = $this->formatter->resolveShortcodes($page?->meta_title, $name) ?: $this->formatter->title('pages', $name);
-        $description = $this->formatter->resolveShortcodes($page?->meta_description, $name) ?: $this->formatter->description('pages', $name);
+        $title = $this->formatter->resolveShortcodes($page?->meta_title, $name) ?: $this->formatter->title($name);
+        $description = $this->formatter->resolveShortcodes($page?->meta_description, $name) ?: $this->formatter->description($name);
 
         return $this->assemble(
             $title,
@@ -159,8 +159,8 @@ class SeoMetaService
             self::INDEX,
             $path,
             $this->resolveImage($page?->og_image),
-            $this->formatter->resolveShortcodes($page?->og_title, $name) ?: $this->formatter->ogTitle('pages', $name),
-            $this->formatter->resolveShortcodes($page?->og_description, $name) ?: $this->formatter->ogDescription('pages', $name),
+            $this->formatter->resolveShortcodes($page?->og_title, $name) ?: ($this->formatter->generalOgTitle() ?: $title),
+            $this->formatter->resolveShortcodes($page?->og_description, $name) ?: ($this->formatter->generalOgDescription() ?: $description),
         );
     }
 
@@ -178,18 +178,18 @@ class SeoMetaService
         }
 
         $name = $group?->name ?: 'Store';
-        $title = $this->formatter->resolveShortcodes($group?->meta_title, $name) ?: $this->formatter->title('groups', $name);
+        $title = $this->formatter->resolveShortcodes($group?->meta_title, $name) ?: $this->formatter->title($name);
         $description = $this->formatter->resolveShortcodes($group?->meta_description, $name)
-            ?: ($group?->tagline ?: ($group?->headline ?: $this->formatter->description('groups', $name)));
+            ?: ($group?->tagline ?: ($group?->headline ?: $this->formatter->description($name)));
 
         return $this->assemble(
             $title,
             $description,
             self::INDEX,
             $path,
-            $this->resolveImage($group?->og_image, 'groups'),
-            $this->formatter->resolveShortcodes($group?->og_title, $name) ?: $this->formatter->ogTitle('groups', $name),
-            $this->formatter->resolveShortcodes($group?->og_description, $name) ?: $this->formatter->ogDescription('groups', $name),
+            $this->resolveImage($group?->og_image),
+            $this->formatter->resolveShortcodes($group?->og_title, $name) ?: ($this->formatter->generalOgTitle() ?: $title),
+            $this->formatter->resolveShortcodes($group?->og_description, $name) ?: ($this->formatter->generalOgDescription() ?: $description),
         );
     }
 
@@ -404,16 +404,15 @@ class SeoMetaService
 
     /**
      * Resolves a page/group's own Open Graph image, falling back to the
-     * site-wide Pages/Groups/General default (Settings → SEO) when it has
-     * none of its own.
+     * General default (Settings → SEO) when it has none of its own.
      */
-    private function resolveImage(?string $filename, string $type = 'pages'): ?string
+    private function resolveImage(?string $filename): ?string
     {
         if ($filename) {
             return Attach::getUrlPath('images/'.$filename);
         }
 
-        return $type === 'general' ? $this->formatter->generalOgImageUrl() : $this->formatter->ogImageUrl($type);
+        return $this->formatter->generalOgImageUrl();
     }
 
     private function canonicalUrl(string $path): string

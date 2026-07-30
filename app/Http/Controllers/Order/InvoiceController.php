@@ -446,12 +446,13 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                     : $invoiceUser->state;
             }
 
+            $invoiceItems = $invoice->invoiceItem()->with('order:id,invoice_item_id')->get();
+
             return Pdf::view('themes.default1.invoice.newpdf', [
                 'invoice' => $invoice,
-                'invoiceItems' => $invoice->invoiceItem()->get(),
+                'invoiceItems' => $invoiceItems,
                 'user' => $invoiceUser,
                 'set' => $set,
-                'order' => Order::getOrderLink(OrderInvoiceRelation::where('invoice_id', $id)->value('order_id'), 'my-order'),
                 'date' => getDateHtml($invoice->date),
                 'symbol' => $invoice->currency,
                 'totals' => $totals,

@@ -97,7 +97,7 @@ class SeoMetaServiceTest extends DBTestCase
         $this->assertSame('index, follow', $result['robots']);
     }
 
-    public function test_resolve_pages_slug_falls_back_to_pages_title_format_when_no_own_meta(): void
+    public function test_resolve_pages_slug_falls_back_to_the_general_seo_title_when_no_own_meta(): void
     {
         FrontendPage::factory()->create([
             'slug' => 'faq',
@@ -109,7 +109,28 @@ class SeoMetaServiceTest extends DBTestCase
 
         $result = $this->service->resolve('pages/faq');
 
-        $this->assertSame('FAQ | Acme Inc', $result['title']);
+        $this->assertSame('Acme Client Title', $result['title']);
+    }
+
+    public function test_resolve_pages_slug_falls_back_to_the_bare_name_when_no_own_meta_and_no_general_title(): void
+    {
+        Setting::find(1)->update(['favicon_title_client' => '']);
+        // SeoTemplateFormatter is bound as a singleton (AppServiceProvider) and
+        // caches Setting at construction — forget it so the update above is
+        // actually picked up on re-resolve.
+        $this->app->forgetInstance(SeoTemplateFormatter::class);
+        $this->service = app(SeoMetaService::class);
+        FrontendPage::factory()->create([
+            'slug' => 'faq',
+            'name' => 'FAQ',
+            'publish' => 1,
+            'meta_title' => null,
+            'meta_description' => null,
+        ]);
+
+        $result = $this->service->resolve('pages/faq');
+
+        $this->assertSame('FAQ', $result['title']);
     }
 
     public function test_resolve_pages_slug_falls_back_to_the_generic_fallback_when_page_not_found(): void
@@ -155,19 +176,27 @@ class SeoMetaServiceTest extends DBTestCase
 
     public function test_resolve_contact_us_stays_indexable_even_without_a_contactus_page(): void
     {
+        Setting::find(1)->update(['favicon_title_client' => '']);
+        $this->app->forgetInstance(SeoTemplateFormatter::class);
+        $this->service = app(SeoMetaService::class);
+
         $result = $this->service->resolve('contact-us');
 
-        $this->assertSame('Contact Us | Acme Inc', $result['title']);
+        $this->assertSame('Contact Us', $result['title']);
         $this->assertSame('index, follow', $result['robots']);
     }
 
     // --- /store and /store/{id} ---
 
-    public function test_resolve_store_index_uses_the_groups_title_format(): void
+    public function test_resolve_store_index_falls_back_to_the_bare_name_when_no_general_title(): void
     {
+        Setting::find(1)->update(['favicon_title_client' => '']);
+        $this->app->forgetInstance(SeoTemplateFormatter::class);
+        $this->service = app(SeoMetaService::class);
+
         $result = $this->service->resolve('store');
 
-        $this->assertSame('Store | Acme Inc', $result['title']);
+        $this->assertSame('Store', $result['title']);
         $this->assertSame('index, follow', $result['robots']);
     }
 

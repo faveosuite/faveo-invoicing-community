@@ -9,22 +9,24 @@ use App\Model\Common\CommonSettings;
 use App\Model\Common\Setting;
 
 /**
- * Admin-configured default title/description templates (CommonSettings,
- * option_name='seo') for Pages-module pages and Product Groups that don't
- * have their own meta_title/meta_description — e.g. "{name} | {company}"
- * instead of just the bare page/group name. $type is always 'pages' or
- * 'groups', matching the *_title_format/*_og_image etc setting key prefixes.
+ * Fallback resolver for a Pages-module page's or Product Group's own
+ * title/description/OG fields when it has none of its own: General SEO
+ * (Settings > SEO) setting, then a hardcoded literal built from the
+ * instance's own name (e.g. bare "About Us", or "Learn more about About Us
+ * at Acme Inc." for the description).
  */
 class SeoTemplateFormatter
 {
-    private const DEFAULT_TITLE_FORMAT = '{name} | {company}';
-
     private const DEFAULT_DESCRIPTION_FORMAT = 'Learn more about {name} at {company}.';
 
     /** @var array<string, string> */
     private array $settings;
 
     private string $company;
+
+    private string $appTitle;
+
+    private ?string $generalTitleFormat;
 
     private ?string $fallbackLogoUrl;
 
@@ -36,6 +38,8 @@ class SeoTemplateFormatter
 
         $set = Setting::find(1);
         $this->company = $set?->company ?: ($set?->favicon_title_client ?: 'Faveo Invoicing');
+        $this->appTitle = $set?->title ?: '';
+        $this->generalTitleFormat = $set?->favicon_title_client;
         $this->fallbackLogoUrl = $set?->logo;
     }
 
@@ -65,32 +69,16 @@ class SeoTemplateFormatter
         return $this->imageUrl('general_og_image') ?? $this->fallbackLogoUrl;
     }
 
-    /** Own {$type}_og_image, else General, else the site logo. */
-    public function ogImageUrl(string $type): ?string
+    /** General SEO title (favicon_title_client), else the bare name. */
+    public function title(string $name): string
     {
-        return $this->imageUrl($type.'_og_image') ?? $this->generalOgImageUrl();
+        return $this->resolveShortcodes($this->generalTitleFormat, $name) ?: $name;
     }
 
-    public function title(string $type, string $name): string
+    /** General SEO description, else a hardcoded sentence built from the name. */
+    public function description(string $name): string
     {
-        return $this->apply($this->cascadeFormat($type.'_title_format', '', self::DEFAULT_TITLE_FORMAT), $name);
-    }
-
-    /** Module format setting -> General SEO description -> hardcoded default. */
-    public function description(string $type, string $name): string
-    {
-        return $this->apply($this->cascadeFormat($type.'_description_format', $this->settings['general_description'] ?? '', self::DEFAULT_DESCRIPTION_FORMAT), $name);
-    }
-
-    /** Separate from title() so social-share copy can differ from the SERP title. */
-    public function ogTitle(string $type, string $name): string
-    {
-        return $this->apply($this->cascadeFormat($type.'_og_title_format', $this->settings['general_og_title'] ?? '', self::DEFAULT_TITLE_FORMAT), $name);
-    }
-
-    public function ogDescription(string $type, string $name): string
-    {
-        return $this->apply($this->cascadeFormat($type.'_og_description_format', $this->settings['general_og_description'] ?? '', self::DEFAULT_DESCRIPTION_FORMAT), $name);
+        return $this->resolveShortcodes($this->settings['general_description'] ?? null, $name) ?: $this->apply(self::DEFAULT_DESCRIPTION_FORMAT, $name);
     }
 
     /**
@@ -103,12 +91,6 @@ class SeoTemplateFormatter
         return $text === null ? null : $this->apply($text, $name);
     }
 
-    /** Module format setting → general format (if given) → hardcoded fallback. */
-    private function cascadeFormat(string $moduleSettingKey, string $generalFormat, string $fallbackFormat): string
-    {
-        return ($this->settings[$moduleSettingKey] ?? '') ?: ($generalFormat ?: $fallbackFormat);
-    }
-
     private function imageUrl(string $settingKey): ?string
     {
         $filename = $this->settings[$settingKey] ?? null;
@@ -118,6 +100,6 @@ class SeoTemplateFormatter
 
     private function apply(string $format, string $name): string
     {
-        return str_replace(['{name}', '{company}'], [$name, $this->company], $format);
+        return str_replace(['{name}', '{company}', '{title}'], [$name, $this->company, $this->appTitle], $format);
     }
 }

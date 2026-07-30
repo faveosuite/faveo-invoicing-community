@@ -177,7 +177,7 @@
         <tbody>
             @foreach($invoiceItems as $item)
                 <tr>
-                    <td class="text-center">{!! $order ?? '—' !!}</td>
+                    <td class="text-center">{!! $item->order_link ?? '—' !!}</td>
                     <td class="text-center">{{ $item->product_name }}</td>
                     <td class="text-center">{{ currencyFormat($item->regular_price, $symbol) }}</td>
                     <td class="text-center">{{ $item->agents ?: __('message.unlimited') }}</td>

@@ -84,17 +84,17 @@
                                         <div v-for="cat in categories" :key="cat.id" class="col-md-4 col-sm-8 mb-3">
                                             <div :class="['info-box bg-gradient-light h-100 category-box', selectedCategoryKey === cat.id && 'selected']">
                                                 <div class="info-box-content">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <span class="info-box-text" :title="cat.name">{{ cat.name }}</span>
-                                                        <span class="text-blue info-box-number log-status-btn" @click="selectCategory(cat, 'queued')">
+                                                    <div class="mail-category-row">
+                                                        <span class="info-box-text mail-category-subject" v-tooltip="cat.name">{{ truncate(cat.name, 30) }}</span>
+                                                        <span class="text-blue info-box-number log-status-btn mail-category-count" @click="selectCategory(cat, 'queued')">
                                                             {{ cat.queued || 0 }} {{ __('log.queued') }}
                                                         </span>
                                                     </div>
-                                                    <div class="info-box-number d-flex justify-content-between mt-1">
-                                                        <span class="text-blue log-status-btn" @click="selectCategory(cat, 'sent')">
+                                                    <div class="info-box-number mail-category-row mt-1">
+                                                        <span class="text-blue log-status-btn mail-category-count" @click="selectCategory(cat, 'sent')">
                                                             {{ cat.sent || 0 }} {{ __('log.sent') }}
                                                         </span>
-                                                        <span class="text-red log-status-btn" @click="selectCategory(cat, 'failed')">
+                                                        <span class="text-red log-status-btn mail-category-count" @click="selectCategory(cat, 'failed')">
                                                             {{ cat.failed || 0 }} {{ __('log.failed') }}
                                                         </span>
                                                     </div>
@@ -584,6 +584,26 @@ onMounted(() => loadCategories())
 .inline-calendar :deep(.mx-table td.active .cell) { color: #fff !important; }
 .inline-calendar :deep(.mx-table td.disabled .cell) { color: #ccc !important; }
 .inline-calendar :deep(.mx-calendar-header-label) { color: #333 !important; }
+
+/* ── Mail category box — same row layout as before, made overlap-proof ── */
+.mail-category-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+/* The count never wraps or shrinks — it always keeps its natural width... */
+.mail-category-count { flex-shrink: 0; white-space: nowrap; }
+/* ...so the subject is the only one that gives way: it shrinks to whatever
+   space is left and truncates with an ellipsis (full text still on hover
+   via the existing :title attribute) instead of overlapping the count. */
+.mail-category-subject {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 /* ── Category boxes ── */
 .category-box { transition: all 0.3s ease; }

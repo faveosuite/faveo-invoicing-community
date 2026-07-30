@@ -380,6 +380,46 @@ class InvoiceControllerTest extends DBTestCase
         $this->assertContains($response->status(), [200, 400, 500]);
     }
 
+    /**
+     * Regression test: the PDF used to compute ONE order link for the whole
+     * invoice (OrderInvoiceRelation::where(...)->value('order_id')) and repeat
+     * it on every line item row — so a 2-product invoice showed the same
+     * "Order No." on both rows. InvoiceItem::order_link (an accessor keyed off
+     * its own `order` relation, matched via invoice_item_id) now resolves each
+     * item to its own order instead of a shared one.
+     */
+    public function test_invoice_item_order_link_resolves_to_its_own_order(): void
+    {
+        $user = \App\User::factory()->create(['email' => 'pdf-multi-'.uniqid().'@test.local']);
+        $invoice = \App\Model\Order\Invoice::factory()->create(['user_id' => $user->id]);
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'PPSvc '.uniqid()]);
+
+        $links = [];
+        foreach (range(1, 2) as $i) {
+            $item = \App\Model\Order\InvoiceItem::create([
+                'invoice_id' => $invoice->id,
+                'product_id' => $product->id,
+                'product_name' => 'Product '.$i,
+                'regular_price' => 50,
+                'quantity' => 1,
+                'subtotal' => 50,
+            ]);
+            $order = \App\Model\Order\Order::create([
+                'client' => $user->id,
+                'product' => $product->id,
+                'order_status' => 'executed',
+                'number' => mt_rand(100000, 999999),
+                'invoice_item_id' => $item->id,
+            ]);
+
+            $links[] = $item->fresh('order')->order_link;
+            $this->assertStringContainsString('my-order/'.$order->id, (string) end($links));
+        }
+
+        // The two items must not resolve to the same order link.
+        $this->assertNotSame($links[0], $links[1]);
+    }
+
     // =========================================================================
     // exportInvoices — returns error when queue driver not configured
     // =========================================================================

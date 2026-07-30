@@ -159,9 +159,14 @@ class InvoicePaymentService
     /**
      * Verify a gateway callback for an invoice and, when paid, fulfil the order.
      *
-     * Idempotent: a fully-paid invoice short-circuits to true so a repeated
-     * callback / refresh cannot double-fulfil. Package exceptions
-     * (PaymentException / SignatureVerificationException) propagate to the caller.
+     * Idempotent two ways: a fully-paid invoice short-circuits to true so a
+     * repeated callback / refresh cannot double-fulfil, and — for the case
+     * where two DIFFERENT triggers (the client-side confirm call and the
+     * gateway's own webhook) race each other for the same still-unpaid
+     * invoice — an atomic claim on the invoice's status ensures only one of
+     * them actually runs fulfilment; the other returns true without repeating
+     * it. Package exceptions (PaymentException / SignatureVerificationException)
+     * propagate to the caller.
      *
      * If the session was opened with a credit preview (see {@see start}), that
      * amount is spent for real now — atomically with the gateway payment being
@@ -197,6 +202,28 @@ class InvoicePaymentService
 
             return false;
         }
+
+        // Atomically claim this invoice for fulfilment. The client-side confirm
+        // call and the gateway's server-to-server webhook both call confirm()
+        // independently for the very same payment, and can arrive close enough
+        // together that both would otherwise pass every check above before
+        // either one had actually fulfilled anything — recordPayment()'s own
+        // outstanding check and executeOrders()'s "already executed" check are
+        // the same read-then-write shape, so a close-enough race slips past
+        // those too, resulting in duplicate Payment rows and (worse) duplicate
+        // Orders provisioned for one purchase. This UPDATE...WHERE is the only
+        // guard that can't race: only one caller's update can affect a row, so
+        // the loser (affected count 0) safely reports success without
+        // repeating any of the work below.
+        $claimed = $invoice->newQuery()
+            ->whereKey($invoice->id)
+            ->where('status', '!=', 'success')
+            ->update(['status' => 'success']);
+
+        if (! $claimed) {
+            return true;
+        }
+        $invoice->refresh();
 
         $creditApplied = (float) ($payload['credit_applied'] ?? $result->raw['metadata']['credit_applied'] ?? 0);
         $creditApplied = min($creditApplied, $this->availableCredit((int) $invoice->user_id));
@@ -246,17 +273,19 @@ class InvoicePaymentService
             return;
         }
 
-        try {
-            $user = User::find($invoice->user_id);
-            $order = $invoice->orders()->whereHas('subscription')->first();
+        $user = User::find($invoice->user_id);
+        $orders = $invoice->orders()->whereHas('subscription')->get();
 
-            if (! $user || ! $order || ! $result->reference) {
-                return;
+        if (! $user || $orders->isEmpty() || ! $result->reference) {
+            return;
+        }
+
+        foreach ($orders as $order) {
+            try {
+                $this->autoRenewal->activate($order, $user, 'stripe', $result->reference);
+            } catch (Throwable $throwable) {
+                Logger::exception($throwable);
             }
-
-            $this->autoRenewal->activate($order, $user, 'stripe', $result->reference);
-        } catch (Throwable $throwable) {
-            Logger::exception($throwable);
         }
     }
 

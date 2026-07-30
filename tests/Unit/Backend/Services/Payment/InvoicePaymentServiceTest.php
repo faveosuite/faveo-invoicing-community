@@ -11,6 +11,7 @@ use App\Services\Payment\AutoRenewalActivationService;
 use App\Services\Payment\InvoicePaymentService;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\PostPaymentService;
+use DB;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
 use Mockery\MockInterface;
@@ -125,12 +126,43 @@ class InvoicePaymentServiceTest extends DBTestCase
 
     public function test_confirm_fulfils_order_when_capture_succeeds(): void
     {
-        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null]);
+        // status explicit — the factory's default is a random pick including
+        // 'success', which would make confirm()'s atomic claim (status !=
+        // 'success') skip fulfilment even though no payment was ever recorded;
+        // a real freshly-created invoice always starts 'pending' (CartService).
+        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null, 'status' => 'pending']);
 
         // 'NoFeeGateway' has no DB table → ProcessingFee::percent returns 0 → covers line 155
         $result = new PaymentResult(paid: true, gateway: 'NoFeeGateway', raw: ['metadata' => ['invoice_id' => (string) $invoice->id]]);
         $this->payments->shouldReceive('capture')->once()->andReturn($result);
         $this->postPayment->shouldReceive('handle')->once();
+
+        $outcome = $this->service->confirm($invoice, 'NoFeeGateway', []);
+
+        $this->assertTrue($outcome);
+    }
+
+    /**
+     * Regression test for the redirect-vs-webhook race: both call confirm()
+     * independently for the same payment and can arrive close enough together
+     * that both would pass every check (outstanding(), capture(),
+     * referenceBelongsToInvoice()) before either had actually fulfilled
+     * anything. Simulates the second (losing) caller by marking the invoice
+     * 'success' directly — exactly what the first caller's atomic claim would
+     * have already done by the time this one reaches it — and asserts
+     * fulfilment does not run a second time.
+     */
+    public function test_confirm_does_not_refulfil_when_another_caller_already_claimed_it(): void
+    {
+        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null, 'status' => 'pending']);
+
+        $result = new PaymentResult(paid: true, gateway: 'NoFeeGateway', raw: ['metadata' => ['invoice_id' => (string) $invoice->id]]);
+        $this->payments->shouldReceive('capture')->once()->andReturn($result);
+        $this->postPayment->shouldNotReceive('handle');
+
+        // The "other caller" (redirect or webhook, whichever wins the real
+        // race) claims the invoice first.
+        DB::table('invoices')->where('id', $invoice->id)->update(['status' => 'success']);
 
         $outcome = $this->service->confirm($invoice, 'NoFeeGateway', []);
 
@@ -146,7 +178,11 @@ class InvoicePaymentServiceTest extends DBTestCase
      */
     public function test_confirm_rejects_payment_for_a_different_invoice(): void
     {
-        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null]);
+        // status explicit — the factory's default is a random pick including
+        // 'success', which would make confirm()'s atomic claim (status !=
+        // 'success') skip fulfilment even though no payment was ever recorded;
+        // a real freshly-created invoice always starts 'pending' (CartService).
+        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null, 'status' => 'pending']);
         $otherInvoiceId = $invoice->id + 1;
 
         $result = new PaymentResult(paid: true, gateway: 'NoFeeGateway', raw: ['metadata' => ['invoice_id' => (string) $otherInvoiceId]]);
@@ -160,7 +196,11 @@ class InvoicePaymentServiceTest extends DBTestCase
 
     public function test_confirm_rejects_payment_with_no_invoice_metadata_at_all(): void
     {
-        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null]);
+        // status explicit — the factory's default is a random pick including
+        // 'success', which would make confirm()'s atomic claim (status !=
+        // 'success') skip fulfilment even though no payment was ever recorded;
+        // a real freshly-created invoice always starts 'pending' (CartService).
+        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null, 'status' => 'pending']);
 
         $result = new PaymentResult(paid: true, gateway: 'NoFeeGateway', raw: []);
         $this->payments->shouldReceive('capture')->once()->andReturn($result);
@@ -173,7 +213,11 @@ class InvoicePaymentServiceTest extends DBTestCase
 
     public function test_confirm_accepts_razorpay_notes_style_metadata(): void
     {
-        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null]);
+        // status explicit — the factory's default is a random pick including
+        // 'success', which would make confirm()'s atomic claim (status !=
+        // 'success') skip fulfilment even though no payment was ever recorded;
+        // a real freshly-created invoice always starts 'pending' (CartService).
+        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null, 'status' => 'pending']);
 
         $result = new PaymentResult(paid: true, gateway: 'NoFeeGateway', raw: ['notes' => ['invoice_id' => (string) $invoice->id]]);
         $this->payments->shouldReceive('capture')->once()->andReturn($result);
@@ -199,7 +243,11 @@ class InvoicePaymentServiceTest extends DBTestCase
     public function test_confirm_applies_processing_fee_when_stripe_has_fee(): void
     {
         // Stripe has processing_fee = 2.5 in DB → covers lines 158-160
-        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null]);
+        // status explicit — the factory's default is a random pick including
+        // 'success', which would make confirm()'s atomic claim (status !=
+        // 'success') skip fulfilment even though no payment was ever recorded;
+        // a real freshly-created invoice always starts 'pending' (CartService).
+        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => null, 'status' => 'pending']);
 
         $result = new PaymentResult(paid: true, gateway: 'Stripe', raw: ['metadata' => ['invoice_id' => (string) $invoice->id]]);
         $this->payments->shouldReceive('capture')->once()->andReturn($result);
@@ -215,7 +263,7 @@ class InvoicePaymentServiceTest extends DBTestCase
     public function test_confirm_skips_processing_fee_when_already_applied(): void
     {
         // invoice has processing_fee already set → applyProcessingFee returns early (line 150)
-        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => '2%']);
+        $invoice = Invoice::factory()->create(['grand_total' => 100.0, 'processing_fee' => '2%', 'status' => 'pending']);
 
         $result = new PaymentResult(paid: true, gateway: 'Stripe', raw: ['metadata' => ['invoice_id' => (string) $invoice->id]]);
         $this->payments->shouldReceive('capture')->once()->andReturn($result);
@@ -224,6 +272,60 @@ class InvoicePaymentServiceTest extends DBTestCase
         $outcome = $this->service->confirm($invoice, 'Stripe', []);
 
         $this->assertTrue($outcome);
+    }
+
+    /**
+     * Regression test: activateAutoRenewalOptIn() used to pick only the
+     * invoice's FIRST order-with-a-subscription (whereHas(...)->first()),
+     * so a multi-product cart purchase only ever got auto-renewal activated
+     * (and its email sent) for one product.
+     */
+    public function test_activate_auto_renewal_opt_in_activates_every_order_on_invoice(): void
+    {
+        \App\Model\Common\Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        \App\Model\Common\StatusSetting::where('id', 1)->update(['stripe_auto_renewal' => 1]);
+
+        $invoice = Invoice::factory()->create(['grand_total' => 100.0]);
+
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'PPSvc '.uniqid()]);
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'PPPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+
+        $orderIds = [];
+        foreach (range(1, 2) as $i) {
+            $order = \App\Model\Order\Order::create([
+                'client' => $invoice->user_id,
+                'product' => $product->id,
+                'order_status' => 'executed',
+                'number' => mt_rand(100000, 999999),
+            ]);
+            \App\Model\Order\OrderInvoiceRelation::create(['order_id' => $order->id, 'invoice_id' => $invoice->id]);
+            \App\Model\Product\Subscription::create([
+                'order_id' => $order->id,
+                'product_id' => $product->id,
+                'plan_id' => $plan->id,
+                'is_subscribed' => 0,
+            ]);
+            $orderIds[] = $order->id;
+        }
+
+        $mockAutoRenewal = Mockery::mock(AutoRenewalActivationService::class);
+        $activatedOrderIds = [];
+        $mockAutoRenewal->shouldReceive('activate')
+            ->times(2)
+            ->withArgs(function ($order, $user, $gateway, $reference) use (&$activatedOrderIds) {
+                $activatedOrderIds[] = $order->id;
+
+                return $gateway === 'stripe' && $reference === 'pi_test_123';
+            });
+
+        $service = new InvoicePaymentService($this->payments, $this->postPayment, $mockAutoRenewal);
+
+        $result = new PaymentResult(paid: true, gateway: 'Stripe', reference: 'pi_test_123');
+        $this->getPrivateMethod($service, 'activateAutoRenewalOptIn', [$invoice, 'Stripe', $result]);
+
+        sort($orderIds);
+        sort($activatedOrderIds);
+        $this->assertSame($orderIds, $activatedOrderIds);
     }
 
     public function test_start_delegates_to_start_for_non_stripe(): void

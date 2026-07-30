@@ -17,19 +17,6 @@ const settingsFixture = {
     general_og_title: '',
     general_og_description: '',
     general_og_image: '',
-    general_og_same_at_meta: 0,
-    pages_title_format: '{name} | {company}',
-    groups_title_format: '{name} | {company}',
-    pages_description_format: '',
-    groups_description_format: '',
-    pages_og_title_format: '',
-    groups_og_title_format: '',
-    pages_og_description_format: '',
-    groups_og_description_format: '',
-    pages_og_image: '',
-    groups_og_image: '',
-    pages_og_same_as_meta: 0,
-    groups_og_same_as_meta: 0,
     general_og_same_as_meta: 0,
 }
 
@@ -63,7 +50,6 @@ describe('SeoSettingsIndex.vue', () => {
         await flushPromises()
         expect(wrapper.vm.settingsForm.favicon_title).toBe('Faveo Billing')
         expect(wrapper.vm.settingsForm.general_description).toBe('General description')
-        expect(wrapper.vm.settingsForm.pages_title_format).toBe('{name} | {company}')
     })
 
     it('sets loadingSettings to false after fetch', async () => {
@@ -77,35 +63,6 @@ describe('SeoSettingsIndex.vue', () => {
         wrapper = mountPage()
         await flushPromises()
         expect(errorHandler).toHaveBeenCalled()
-    })
-
-    describe('tabs', () => {
-        it('defaults to the general tab', () => {
-            expect(wrapper.vm.tab).toBe('general')
-        })
-
-        it('shows the General tab link as active by default', () => {
-            const links = wrapper.findAll('.nav-link')
-            expect(links[0].classes()).toContain('active')
-        })
-
-        it('switches to the pages tab on click', async () => {
-            const links = wrapper.findAll('.nav-link')
-            await links[1].trigger('click')
-            expect(wrapper.vm.tab).toBe('pages')
-        })
-
-        it('switches to the groups tab on click', async () => {
-            const links = wrapper.findAll('.nav-link')
-            await links[2].trigger('click')
-            expect(wrapper.vm.tab).toBe('groups')
-        })
-
-        it('only shows the active tab’s save button section', async () => {
-            await flushPromises()
-            // three inner cards exist (one per tab), each with its own footer/button
-            expect(wrapper.findAll('.card-footer').length).toBe(3)
-        })
     })
 
     describe('same-as-meta mirroring — general', () => {
@@ -132,54 +89,10 @@ describe('SeoSettingsIndex.vue', () => {
         })
     })
 
-    describe('same-as-meta mirroring — pages', () => {
-        it('mirrors pages_title_format/description into pages_og_* when turned on', () => {
-            wrapper.vm.settingsForm.pages_title_format = 'Pages Title'
-            wrapper.vm.settingsForm.pages_description_format = 'Pages Desc'
-            wrapper.vm.onPagesOgSameAsMetaChange(true)
-            expect(wrapper.vm.settingsForm.pages_og_title_format).toBe('Pages Title')
-            expect(wrapper.vm.settingsForm.pages_og_description_format).toBe('Pages Desc')
-        })
-
-        it('keeps pages_og_title_format in sync while same-as-meta is on', async () => {
-            wrapper.vm.onPagesOgSameAsMetaChange(true)
-            wrapper.vm.settingsForm.pages_title_format = 'Updated Pages Title'
-            await wrapper.vm.$nextTick()
-            expect(wrapper.vm.settingsForm.pages_og_title_format).toBe('Updated Pages Title')
-        })
-    })
-
-    describe('same-as-meta mirroring — groups', () => {
-        it('mirrors groups_title_format/description into groups_og_* when turned on', () => {
-            wrapper.vm.settingsForm.groups_title_format = 'Groups Title'
-            wrapper.vm.settingsForm.groups_description_format = 'Groups Desc'
-            wrapper.vm.onGroupsOgSameAsMetaChange(true)
-            expect(wrapper.vm.settingsForm.groups_og_title_format).toBe('Groups Title')
-            expect(wrapper.vm.settingsForm.groups_og_description_format).toBe('Groups Desc')
-        })
-
-        it('keeps groups_og_title_format in sync while same-as-meta is on', async () => {
-            wrapper.vm.onGroupsOgSameAsMetaChange(true)
-            wrapper.vm.settingsForm.groups_title_format = 'Updated Groups Title'
-            await wrapper.vm.$nextTick()
-            expect(wrapper.vm.settingsForm.groups_og_title_format).toBe('Updated Groups Title')
-        })
-    })
-
     describe('image change handlers', () => {
         it('onGeneralImageChange updates the general OG image preview', () => {
             wrapper.vm.onGeneralImageChange({ image: 'blob:general', file: new File([], 'g.png'), name: 'g.png' })
             expect(wrapper.vm.generalOgImagePreview).toBe('blob:general')
-        })
-
-        it('onPagesImageChange updates the pages OG image preview', () => {
-            wrapper.vm.onPagesImageChange({ image: 'blob:pages', file: new File([], 'p.png'), name: 'p.png' })
-            expect(wrapper.vm.pagesOgImagePreview).toBe('blob:pages')
-        })
-
-        it('onGroupsImageChange updates the groups OG image preview', () => {
-            wrapper.vm.onGroupsImageChange({ image: 'blob:groups', file: new File([], 'gr.png'), name: 'gr.png' })
-            expect(wrapper.vm.groupsOgImagePreview).toBe('blob:groups')
         })
     })
 

@@ -104,8 +104,8 @@ class SeoFileGenerator
         foreach (FrontendPage::where('publish', 1)->get(['name', 'slug', 'type', 'meta_title', 'meta_description']) as $page) {
             $loc = $page->type === 'contactus' ? url('/contact-us') : url('/pages/'.$page->slug);
             $hasContactUsPage = $hasContactUsPage || $page->type === 'contactus';
-            $title = $formatter->resolveShortcodes($page->meta_title, $page->name) ?: $formatter->title('pages', $page->name);
-            $description = $formatter->resolveShortcodes($page->meta_description, $page->name) ?: $formatter->description('pages', $page->name);
+            $title = $formatter->resolveShortcodes($page->meta_title, $page->name) ?: $formatter->title($page->name);
+            $description = $formatter->resolveShortcodes($page->meta_description, $page->name) ?: $formatter->description($page->name);
             $lines[] = '- ['.$title.']('.$loc.'): '.$description;
         }
 
@@ -120,12 +120,12 @@ class SeoFileGenerator
         $lines[] = '## Products';
         $lines[] = '';
 
-        $lines[] = '- ['.$formatter->title('groups', 'Store').']('.url('/store').'): '.$formatter->description('groups', 'Store');
+        $lines[] = '- ['.$formatter->title('Store').']('.url('/store').'): '.$formatter->description('Store');
 
         foreach ($this->visibleGroups(['id', 'name', 'headline', 'tagline', 'meta_title', 'meta_description']) as $group) {
-            $title = $formatter->resolveShortcodes($group->meta_title, $group->name) ?: $formatter->title('groups', $group->name);
+            $title = $formatter->resolveShortcodes($group->meta_title, $group->name) ?: $formatter->title($group->name);
             $description = $formatter->resolveShortcodes($group->meta_description, $group->name)
-                ?: ($group->tagline ?: ($group->headline ?: $formatter->description('groups', $group->name)));
+                ?: ($group->tagline ?: ($group->headline ?: $formatter->description($group->name)));
             $lines[] = '- ['.$title.']('.url('/store/'.$group->id).'): '.$description;
         }
 
