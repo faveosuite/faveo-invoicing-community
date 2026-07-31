@@ -87,20 +87,25 @@ class InvoicePaymentService
     {
         $toApply = $this->creditApplied($invoice);
 
-        if ($toApply <= 0) {
+        // Nothing owed at all (e.g. a free product) needs no credit — only a
+        // genuine shortfall (something owed, credit not enough) is an error.
+        if ($toApply <= 0 && $this->outstanding($invoice) > 0) {
             throw new Exception(__('message.insufficient_credit_balance'));
         }
 
-        app(InvoiceController::class)->updatePaymentByInvoice(
-            (int) $invoice->user_id,
-            [$invoice->id],
-            'Credit Balance',
-            Date::now(),
-            [$toApply],
-            'success'
-        );
+        if ($toApply > 0) {
+            app(InvoiceController::class)->updatePaymentByInvoice(
+                (int) $invoice->user_id,
+                [$invoice->id],
+                'Credit Balance',
+                Date::now(),
+                [$toApply],
+                'success'
+            );
 
-        $invoice->refresh();
+            $invoice->refresh();
+        }
+
         $paidInFull = $this->outstanding($invoice) <= 0;
 
         if ($paidInFull) {

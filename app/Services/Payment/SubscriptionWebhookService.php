@@ -81,6 +81,14 @@ class SubscriptionWebhookService
     }
 
     /**
+     * Stripe fires this on EVERY failed charge attempt, including the very
+     * first one — its own Smart Retries schedule may still recover this over
+     * the next several days. Only `customer.subscription.deleted` (Stripe's
+     * own dunning settings finally giving up) is the terminal signal;
+     * deactivating here would pre-empt Stripe's automatic recovery, the same
+     * mistake Razorpay's `subscription.halted` handler used to make. So this
+     * only logs, for visibility — no state change.
+     *
      * @param  array<mixed>  $invoice
      */
     private function onStripeInvoiceFailed(array $invoice): void
@@ -90,38 +98,26 @@ class SubscriptionWebhookService
             return;
         }
 
-        $subscription = Subscription::where('subscribe_id', $gatewaySubscriptionId)->first();
-        if (! $subscription) {
-            return;
-        }
-
-        $this->handler->disableAutorenewalStatusByOrderId($subscription->order_id);
-
-        /** @var Order|null $order */
-        $order = Order::find($subscription->order_id);
-        /** @var User|null $user */
-        $user = User::find($subscription->user_id);
-        $product = Product::find($subscription->product_id);
-
-        $this->handler->sendFailedPayment(
-            total: null, exceptionMessage: 'Stripe subscription payment failed', user: $user,
-            number: (string) $order?->number, end: (string) $subscription->update_ends_at,
-            currency: $invoice['currency'] ?? '', order: $order, product_details: $product, invoice: null, payment: 'stripe'
-        );
+        Logger::exception(new Exception(sprintf(
+            'Stripe subscription %s payment attempt failed — gateway may still retry automatically', $gatewaySubscriptionId
+        )));
     }
 
     /**
+     * Stripe has already cancelled the subscription itself by the time this
+     * fires — nothing left to cancel on our end, just mirror it locally.
+     *
      * @param  array<mixed>  $stripeSubscription
      */
     private function onStripeSubscriptionDeleted(array $stripeSubscription): void
     {
-        $subscription = Subscription::where('subscribe_id', $stripeSubscription['id'] ?? '')->first();
-        if ($subscription) {
-            // Query-builder update, not $subscription->update() — subscribe_id
-            // isn't in Subscription::$fillable, so a model-instance update()
-            // silently drops it and this reset would never actually happen.
-            Subscription::where('id', $subscription->id)->update(['is_subscribed' => 0, 'autoRenew_status' => 0, 'subscribe_id' => '']);
+        $gatewaySubscriptionId = $stripeSubscription['id'] ?? null;
+        if (! $gatewaySubscriptionId) {
+            return;
         }
+
+        // Stripe's subscription id is dead for good once this fires — safe to clear.
+        $this->deactivateAfterTerminalFailure($gatewaySubscriptionId, 'stripe', 'Stripe subscription cancelled after repeated payment failures', clearSubscribeId: true);
     }
 
     // ── Razorpay ──────────────────────────────────────────────────────────
@@ -135,6 +131,7 @@ class SubscriptionWebhookService
 
         match ($type) {
             'subscription.charged' => $this->onRazorpayCharged($event['payload'] ?? []),
+            'subscription.pending' => $this->onRazorpayPending($event['payload'] ?? []),
             'subscription.halted' => $this->onRazorpayHalted($event['payload'] ?? []),
             default => null,
         };
@@ -165,6 +162,32 @@ class SubscriptionWebhookService
     }
 
     /**
+     * The first failed auto-charge — Razorpay auto-retries on T+1/T+2/T+3
+     * before giving up and firing `subscription.halted`. Too early to act on;
+     * just logged so a payment-health check has something to find instead of
+     * this being invisible until it's already halted.
+     *
+     * @param  array<mixed>  $payload
+     */
+    private function onRazorpayPending(array $payload): void
+    {
+        $gatewaySubscriptionId = $payload['subscription']['entity']['id'] ?? null;
+        if (! $gatewaySubscriptionId) {
+            return;
+        }
+
+        Logger::exception(new Exception(sprintf(
+            'Razorpay subscription %s payment attempt failed — gateway will retry automatically', $gatewaySubscriptionId
+        )));
+    }
+
+    /**
+     * All of Razorpay's own retries (T+1/T+2/T+3) have failed. Deliberately
+     * does NOT cancel the subscription at Razorpay — `halted` can still
+     * recover to `active` on its own if the customer updates their card via
+     * the link Razorpay emails them, and cancelling here would throw that
+     * recovery away permanently.
+     *
      * @param  array<mixed>  $payload
      */
     private function onRazorpayHalted(array $payload): void
@@ -174,21 +197,44 @@ class SubscriptionWebhookService
             return;
         }
 
+        // Razorpay redelivers on a non-2xx response; unlike `charged`, a
+        // halt carries no payment id to key off, so the subscription id
+        // itself (namespaced by event type) is the claim key here.
+        if (! $this->claimEvent('razorpay', 'halted:'.$gatewaySubscriptionId)) {
+            return;
+        }
+
+        // Razorpay can still bring this subscription id back to `active` on
+        // its own — the subscribe_id must survive so a later
+        // `subscription.charged` for it still matches and gets fulfilled.
+        $this->deactivateAfterTerminalFailure($gatewaySubscriptionId, 'razorpay', 'Razorpay subscription payment halted', clearSubscribeId: false);
+    }
+
+    /**
+     * Terminal payment-failure handling shared by both gateways: Razorpay's
+     * `subscription.halted` (its own retries exhausted) and Stripe's
+     * `customer.subscription.deleted` (Stripe's own dunning settings gave
+     * up). Neither needs — or should get — a cancel call: Razorpay still
+     * owns halted's recovery path, and Stripe has already cancelled the
+     * subscription itself by the time its event fires.
+     */
+    private function deactivateAfterTerminalFailure(string $gatewaySubscriptionId, string $gateway, string $exceptionMessage, bool $clearSubscribeId): void
+    {
         $subscription = Subscription::where('subscribe_id', $gatewaySubscriptionId)->first();
         if (! $subscription) {
             return;
         }
-
-        $this->handler->disableAutorenewalStatusByOrderId($subscription->order_id);
 
         $order = Order::find($subscription->order_id);
         $user = User::find($subscription->user_id);
         $product = Product::find($subscription->product_id);
 
         $this->handler->sendFailedPayment(
-            total: null, exceptionMessage: 'Razorpay subscription payment halted', user: $user,
+            total: null, exceptionMessage: $exceptionMessage, user: $user,
             number: (string) $order?->number, end: (string) $subscription->update_ends_at,
-            currency: '', order: $order, product_details: $product, invoice: null, payment: 'razorpay'
+            currency: '', order: $order, product_details: $product, invoice: null, payment: $gateway,
+            cancelAtGateway: false,
+            clearSubscribeId: $clearSubscribeId,
         );
     }
 

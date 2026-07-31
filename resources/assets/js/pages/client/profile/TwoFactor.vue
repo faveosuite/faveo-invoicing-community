@@ -3,32 +3,27 @@
         <AppCard :title="__('message.two_factor_authentication')">
             <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
-            <div v-else>
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fas fa-shield-alt icon-lg"></i>
-                        <span class="text-2">
-                            {{
-                                is2faEnabled
-                                    ? __('message.2_step_verification') + (dateSinceEnabled ? ' ' + dateSinceEnabled : '')
-                                    : __('message.authenticator_app')
-                            }}
-                        </span>
-                    </div>
+            <div v-else class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="two-factor-icon"><i class="fas fa-shield-alt"></i></div>
                     <div>
-                        <button v-if="!is2faEnabled"
-                                type="button"
-                                class="btn btn-primary btn-sm btn-modern"
-                                @click="openEnableModal">
-                            <i class="fas fa-toggle-on me-1"></i>{{ __('message.enable') }}
-                        </button>
-                        <button v-else
-                                type="button"
-                                class="btn btn-outline-secondary btn-sm btn-modern"
-                                @click="openDisableModal">
-                            <i class="fas fa-toggle-off me-1"></i>{{ __('message.disable') }}
-                        </button>
+                        <span class="fw-bold">
+                            {{ __('message.two_factor_authentication') }}
+                            <span class="badge rounded-pill badge-soft-success ms-1">
+                                {{ is2faEnabled ? __('message.active') : __('message.inactive') }}
+                            </span>
+                        </span>
+                        <p class="text-muted text-2 mb-0">{{ __('message.two_factor_authentication_description') }}</p>
+                        <small v-if="is2faEnabled && dateSinceEnabled" class="text-muted">
+                            {{ __('message.2_step_verification') }} {{ dateSinceEnabled }}
+                        </small>
                     </div>
+                </div>
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" role="switch"
+                           :checked="is2faEnabled"
+                           @click.prevent="onTwoFactorToggleClick"
+                           v-tooltip="is2faEnabled ? __('message.disable') : __('message.enable')">
                 </div>
             </div>
         </AppCard>
@@ -238,6 +233,14 @@ const verifying2fa      = ref(false)
 const showDisableModal = ref(false)
 const disabling2fa     = ref(false)
 
+// The click is prevented so the native checkbox never flips on its own —
+// enabling needs the setup wizard, disabling needs confirmation, so the
+// switch only visually moves once is2faEnabled itself changes (on modal
+// success), not just because it was clicked.
+function onTwoFactorToggleClick() {
+    is2faEnabled.value ? openDisableModal() : openEnableModal()
+}
+
 onMounted(async () => {
     try {
         const res  = await http.get(`/get-my-profile`)
@@ -375,7 +378,24 @@ async function disable2fa() {
 </script>
 
 <style scoped>
-.icon-lg { font-size: 20px; }
 .bg-light-grey { background-color: #f8f9fa; }
 .icon-3rem { font-size: 3rem; }
+.two-factor-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #e7f4fb;
+    color: #17a2e0;
+    font-size: 16px;
+}
+.form-switch .form-check-input {
+    width: 2.5em;
+    height: 1.4em;
+    cursor: pointer;
+}
+.badge-soft-success { background-color: #e6f9ef; color: #1a9d5c; }
 </style>

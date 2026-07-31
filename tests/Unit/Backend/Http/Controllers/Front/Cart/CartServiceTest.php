@@ -212,9 +212,22 @@ class CartServiceTest extends DBTestCase
 
         $result = $this->getPrivateMethod($this->service, 'autoRenewalGateways', [[
             ['name' => 'Stripe', 'processing_fee' => null],
-        ]]);
+        ], 100.0]);
 
         $this->assertSame(['Stripe'], $result);
+    }
+
+    public function test_auto_renewal_gateways_empty_when_cart_is_free(): void
+    {
+        Setting::where('id', 1)->update(['autorenewal_status' => 1]);
+        StatusSetting::where('id', 1)->update(['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 1]);
+
+        $result = $this->getPrivateMethod($this->service, 'autoRenewalGateways', [[
+            ['name' => 'Stripe', 'processing_fee' => null],
+            ['name' => 'Razorpay', 'processing_fee' => null],
+        ], 0.0]);
+
+        $this->assertSame([], $result);
     }
 
     public function test_auto_renewal_gateways_empty_when_disabled_per_gateway(): void
@@ -225,7 +238,7 @@ class CartServiceTest extends DBTestCase
         $result = $this->getPrivateMethod($this->service, 'autoRenewalGateways', [[
             ['name' => 'Stripe', 'processing_fee' => null],
             ['name' => 'Razorpay', 'processing_fee' => null],
-        ]]);
+        ], 100.0]);
 
         $this->assertSame([], $result);
     }
@@ -238,7 +251,7 @@ class CartServiceTest extends DBTestCase
         $result = $this->getPrivateMethod($this->service, 'autoRenewalGateways', [[
             ['name' => 'Stripe', 'processing_fee' => null],
             ['name' => 'Razorpay', 'processing_fee' => null],
-        ]]);
+        ], 100.0]);
 
         $this->assertSame([], $result);
     }
@@ -249,7 +262,7 @@ class CartServiceTest extends DBTestCase
         StatusSetting::where('id', 1)->update(['stripe_auto_renewal' => 1, 'razorpay_auto_renewal' => 1]);
 
         // Neither Stripe nor Razorpay is in the active-gateways list for this currency
-        $result = $this->getPrivateMethod($this->service, 'autoRenewalGateways', [[]]);
+        $result = $this->getPrivateMethod($this->service, 'autoRenewalGateways', [[], 100.0]);
 
         $this->assertSame([], $result);
     }

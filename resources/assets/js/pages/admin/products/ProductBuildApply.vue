@@ -365,10 +365,8 @@ async function submit() {
             products: selectedProductIds.value.map(id => ({ id, version: productVersions.value[id] })),
         })
 
-        // Alert is tagged for the destination page (products-index), not this one,
-        // since we navigate away immediately on success — mirrors ProductVersionCreate.vue.
-        successHandler(res, 'products-index')
-        router.push('/products')
+        successHandler(res, 'product-build-apply')
+        setTimeout(() => router.push('/products'), 2000)
     } catch (err) {
         applyServerValidation(err, {
             setErrors,

@@ -18,6 +18,8 @@ describe('ProductVersionCreate.vue', () => {
     let wrapper
 
     beforeEach(() => {
+        jest.useFakeTimers()
+
         globalThis.mockHttp.onPost(/\/chunkupload/).reply(200, { name: 'uploaded-file.zip' })
         globalThis.mockHttp.onPut(/\/product\/upload\/42/).reply(200, { data: { message: 'Created' } })
 
@@ -32,6 +34,7 @@ describe('ProductVersionCreate.vue', () => {
     afterEach(() => {
         globalThis.mockHttp.reset()
         jest.clearAllMocks()
+        jest.useRealTimers()
     })
 
     it('is a vue instance', () => {
@@ -85,6 +88,9 @@ describe('ProductVersionCreate.vue', () => {
         await flushPromises()
         await wrapper.vm.submit()
         await flushPromises()
+        // router.push is called inside a setTimeout, after the alert has had
+        // a chance to show on this page — advance timers to reach it.
+        jest.runAllTimers()
         expect(mockPush).toHaveBeenCalledWith('/products/42/edit?tab=versions')
     })
 })

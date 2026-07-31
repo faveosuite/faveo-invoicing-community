@@ -72,6 +72,55 @@ class AutoRenewalActivationService
     }
 
     /**
+     * The counterpart to {@see activate()} — turns auto-renewal off locally,
+     * and only cancels the live gateway subscription when the caller
+     * confirms that's actually warranted.
+     *
+     * $cancelAtGateway must be false when called from a gateway-webhook
+     * failure handler for a state the gateway itself still considers
+     * recoverable (Razorpay's `halted` can return to `active` if the
+     * customer updates their card — Razorpay owns that recovery, and
+     * cancelling here would throw it away permanently). It should stay true
+     * for an explicit user/admin "disable auto-renewal" action, and for a
+     * gateway event that's already terminal on the gateway's own side
+     * (Stripe's `customer.subscription.deleted` has nothing left to cancel,
+     * so the call below is a safe no-op for it either way).
+     *
+     * $clearSubscribeId must be false for that same recoverable-halt case —
+     * SubscriptionWebhookService::fulfillRenewal() matches an incoming
+     * `subscription.charged` webhook by looking up this exact subscribe_id;
+     * wiping it here would make a real, later gateway-side recovery
+     * invisible to us (the charge would happen, but we'd never see it).
+     */
+    public function deactivate(Subscription $subscription, bool $cancelAtGateway, bool $clearSubscribeId = true): void
+    {
+        if ($cancelAtGateway && $subscription->is_subscribed && $subscription->subscribe_id) {
+            $gateway = $subscription->rzp_subscription ? 'Razorpay' : 'Stripe';
+            try {
+                resolve(SubscriptionService::class)->cancelSubscription($gateway, (string) $subscription->subscribe_id);
+            } catch (Throwable $throwable) {
+                // Already cancelled/expired at the gateway — fine, still reset local state below.
+                Logger::exception($throwable);
+            }
+        }
+
+        // Without this, activate()'s own claimActivation() (keyed on an
+        // Auto_renewal row existing for this order+gateway) would silently
+        // no-op forever on any future re-enable attempt.
+        Auto_renewal::where('order_id', $subscription->order_id)->delete();
+
+        // Query-builder update, not $subscription->update() — subscribe_id and
+        // rzp_subscription aren't in Subscription::$fillable, so a model-instance
+        // update() would silently drop them and this reset would never happen.
+        Subscription::where('id', $subscription->id)->update([
+            'is_subscribed' => 0,
+            'autoRenew_status' => 0,
+            'rzp_subscription' => 0,
+            ...($clearSubscribeId ? ['subscribe_id' => ''] : []),
+        ]);
+    }
+
+    /**
      * Never lets a failure here fail the caller — auto-renewal is a bonus,
      * not a requirement of a successful purchase or card verification.
      */

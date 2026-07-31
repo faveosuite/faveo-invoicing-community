@@ -269,13 +269,23 @@ class SubscriptionWebhookServiceTest extends DBTestCase
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
+            'user_id' => $this->user->id,
             'is_subscribed' => 1,
             'autoRenew_status' => 1,
         ]);
         // subscribe_id not in fillable — set directly
         \Illuminate\Support\Facades\DB::table('subscriptions')->where('id', $sub1->id)->update(['subscribe_id' => $subId]);
 
-        $service = $this->makeWebhookService();
+        // Real handler — customer.subscription.deleted now also notifies (via
+        // sendFailedPayment), so a bare Mockery mock with no expectations
+        // can no longer stand in for it.
+        $handler = new \App\Http\Controllers\ConcretePostSubscriptionHandleController(
+            new \App\Model\Order\Invoice, new \App\Model\Order\Order,
+            new \App\Model\Common\StatusSetting, new \App\Model\Payment\Plan,
+            new \App\Model\Product\Subscription, new \App\Model\Order\Payment
+        );
+        $service = new \App\Services\Payment\SubscriptionWebhookService($handler);
+
         $service->handleStripeEvent([
             'type' => 'customer.subscription.deleted',
             'data' => ['object' => ['id' => $subId]],
@@ -286,13 +296,14 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         $this->assertNotNull($updated, 'Subscription should exist');
         $this->assertEquals(0, (int) $updated->is_subscribed, 'is_subscribed should be 0 after deletion');
         $this->assertEquals(0, (int) $updated->autoRenew_status, 'autoRenew_status should be 0 after deletion');
+        $this->assertSame('', (string) $updated->subscribe_id, 'subscribe_id should be cleared after deletion');
     }
 
     // =========================================================================
-    // onStripeInvoiceFailed — with matching subscription record
+    // onStripeInvoiceFailed — a single failed attempt must NOT deactivate
     // =========================================================================
 
-    public function test_handle_stripe_invoice_failed_with_matching_subscription(): void
+    public function test_handle_stripe_invoice_failed_leaves_subscription_untouched(): void
     {
         $this->getLoggedInUser('user');
 
@@ -307,36 +318,34 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         ]);
 
         $subId = 'sub_fail_'.uniqid();
-        // is_subscribed=0 so gateway cancellation is skipped but DB update still runs
         $sub = \App\Model\Product\Subscription::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
             'plan_id' => $plan->id,
             'user_id' => $this->user->id,
-            'is_subscribed' => 0,
-            'autoRenew_status' => 1, // will be reset to 0
+            'is_subscribed' => 1,
+            'autoRenew_status' => 1,
         ]);
         \Illuminate\Support\Facades\DB::table('subscriptions')
             ->where('id', $sub->id)
             ->update(['subscribe_id' => $subId]);
 
-        // Real handler so disableAutorenewalStatusByOrderId runs actual DB update
-        $handler = new \App\Http\Controllers\ConcretePostSubscriptionHandleController(
-            new \App\Model\Order\Invoice, new \App\Model\Order\Order,
-            new \App\Model\Common\StatusSetting, new \App\Model\Payment\Plan,
-            new \App\Model\Product\Subscription, new \App\Model\Order\Payment
-        );
-        $service = new \App\Services\Payment\SubscriptionWebhookService($handler);
-
+        // A single failed attempt isn't terminal — Stripe's own Smart Retries
+        // may still recover it over the next few days, so this event must
+        // leave subscription state alone (only customer.subscription.deleted
+        // should deactivate). Bare mock is enough: no handler method should
+        // be called at all.
+        $service = $this->makeWebhookService();
         $service->handleStripeEvent([
             'type' => 'invoice.payment_failed',
             'data' => ['object' => ['subscription' => $subId, 'currency' => 'usd']],
         ]);
 
-        // After disableAutorenewalStatusByOrderId: autoRenew_status reset to 0
         $updated = \App\Model\Product\Subscription::find($sub->id);
-        $this->assertEquals(0, (int) $updated->autoRenew_status,
-            'autoRenew_status should be 0 after invoice payment failure');
+        $this->assertEquals(1, (int) $updated->autoRenew_status,
+            'autoRenew_status should be untouched after a single failed attempt — Stripe may still retry');
+        $this->assertEquals(1, (int) $updated->is_subscribed,
+            'is_subscribed should be untouched after a single failed attempt');
     }
 
     // =========================================================================
@@ -389,6 +398,197 @@ class SubscriptionWebhookServiceTest extends DBTestCase
         $updated = \App\Model\Product\Subscription::find($sub->id);
         $this->assertEquals(0, (int) $updated->autoRenew_status,
             'autoRenew_status should be 0 after Razorpay subscription halt');
+    }
+
+    // =========================================================================
+    // onRazorpayHalted — must NOT cancel at the gateway (halted is recoverable
+    // if the customer updates their card — Razorpay owns that recovery)
+    // =========================================================================
+
+    public function test_handle_razorpay_halted_does_not_cancel_at_gateway(): void
+    {
+        $this->getLoggedInUser('user');
+
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+
+        $order = \App\Model\Order\Order::create([
+            'client' => $this->user->id,
+            'product' => $product->id,
+            'order_status' => 'executed',
+            'number' => mt_rand(100000, 999999),
+        ]);
+
+        $subId = 'sub_halt_live_'.uniqid();
+        $sub = \App\Model\Product\Subscription::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'user_id' => $this->user->id,
+            'is_subscribed' => 1,
+            'autoRenew_status' => 0,
+        ]);
+        \Illuminate\Support\Facades\DB::table('subscriptions')
+            ->where('id', $sub->id)
+            ->update(['subscribe_id' => $subId, 'rzp_subscription' => '1']);
+
+        $this->mock(\App\Services\Payment\SubscriptionService::class, function ($mock): void {
+            $mock->shouldNotReceive('cancelSubscription');
+        });
+
+        $handler = new \App\Http\Controllers\ConcretePostSubscriptionHandleController(
+            new \App\Model\Order\Invoice, new \App\Model\Order\Order,
+            new \App\Model\Common\StatusSetting, new \App\Model\Payment\Plan,
+            new \App\Model\Product\Subscription, new \App\Model\Order\Payment
+        );
+        $service = new \App\Services\Payment\SubscriptionWebhookService($handler);
+
+        $service->handleRazorpayEvent([
+            'event' => 'subscription.halted',
+            'payload' => ['subscription' => ['entity' => ['id' => $subId]]],
+        ]);
+
+        $updated = \App\Model\Product\Subscription::find($sub->id);
+        $this->assertEquals(0, (int) $updated->is_subscribed, 'is_subscribed should still be reset locally');
+        $this->assertSame($subId, (string) $updated->subscribe_id,
+            'subscribe_id must survive a halt — Razorpay can still recover it, and a later subscription.charged for this id is matched by subscribe_id');
+    }
+
+    // =========================================================================
+    // onRazorpayHalted — a later recovery charge must still be fulfilled
+    // =========================================================================
+
+    public function test_razorpay_subscription_recovers_after_halt_and_still_gets_fulfilled(): void
+    {
+        $this->getLoggedInUser('user');
+
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+
+        $order = \App\Model\Order\Order::create([
+            'client' => $this->user->id,
+            'product' => $product->id,
+            'order_status' => 'executed',
+            'number' => mt_rand(100000, 999999),
+        ]);
+
+        // A pending, is_renewed=1 invoice already linked to this order is
+        // findOrCreateRenewalInvoice()'s shortcut — reused as-is instead of
+        // going through full invoice generation, which needs unrelated setup
+        // (tax config, numbering) this test isn't about.
+        $pendingRenewalInvoice = \App\Model\Order\Invoice::create([
+            'user_id' => $this->user->id,
+            'status' => 'pending',
+            'is_renewed' => 1,
+            'grand_total' => 100,
+            'currency' => 'USD',
+        ]);
+        \Illuminate\Support\Facades\DB::table('order_invoice_relations')->insert([
+            'order_id' => $order->id, 'invoice_id' => $pendingRenewalInvoice->id,
+        ]);
+        \Illuminate\Support\Facades\DB::table('invoice_items')->insert([
+            'invoice_id' => $pendingRenewalInvoice->id, 'product_id' => $product->id, 'agents' => 1,
+        ]);
+
+        $subId = 'sub_recover_'.uniqid();
+        $sub = \App\Model\Product\Subscription::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'user_id' => $this->user->id,
+            'is_subscribed' => 1,
+            'autoRenew_status' => 0,
+        ]);
+        \Illuminate\Support\Facades\DB::table('subscriptions')
+            ->where('id', $sub->id)
+            ->update(['subscribe_id' => $subId, 'rzp_subscription' => '1']);
+
+        $this->mock(\App\Services\Payment\SubscriptionService::class, function ($mock): void {
+            $mock->shouldNotReceive('cancelSubscription');
+        });
+
+        $handler = new \App\Http\Controllers\ConcretePostSubscriptionHandleController(
+            new \App\Model\Order\Invoice, new \App\Model\Order\Order,
+            new \App\Model\Common\StatusSetting, new \App\Model\Payment\Plan,
+            new \App\Model\Product\Subscription, new \App\Model\Order\Payment
+        );
+        $service = new \App\Services\Payment\SubscriptionWebhookService($handler);
+
+        // First, the halt.
+        $service->handleRazorpayEvent([
+            'event' => 'subscription.halted',
+            'payload' => ['subscription' => ['entity' => ['id' => $subId]]],
+        ]);
+
+        // Then, Razorpay's own recovery: the customer updated their card and
+        // the subscription successfully charged again.
+        $service->handleRazorpayEvent([
+            'event' => 'subscription.charged',
+            'payload' => [
+                'subscription' => ['entity' => ['id' => $subId]],
+                'payment' => ['entity' => ['id' => 'pay_recover_'.uniqid(), 'amount' => 10000]],
+            ],
+        ]);
+
+        // Proves the bug is actually fixed: the halt didn't erase subscribe_id,
+        // so this later charged event still matched the subscription and got
+        // fulfilled — the pending renewal invoice is now paid.
+        $this->assertEqualsIgnoringCase('success', $pendingRenewalInvoice->refresh()->status,
+            'the recovered charge must still be found and fulfilled after a halt');
+    }
+
+    // =========================================================================
+    // handleRazorpayEvent — subscription.pending → logged only, no state change
+    // =========================================================================
+
+    public function test_handle_razorpay_pending_leaves_subscription_untouched(): void
+    {
+        $this->getLoggedInUser('user');
+
+        $product = \App\Model\Product\Product::first() ?? \App\Model\Product\Product::create(['name' => 'WebhookTest '.uniqid()]);
+        $plan = \App\Model\Payment\Plan::where('product', $product->id)->first() ?? \App\Model\Payment\Plan::create(['name' => 'WebhookPlan '.uniqid(), 'product' => $product->id, 'days' => 30]);
+
+        $order = \App\Model\Order\Order::create([
+            'client' => $this->user->id,
+            'product' => $product->id,
+            'order_status' => 'executed',
+            'number' => mt_rand(100000, 999999),
+        ]);
+
+        $subId = 'sub_pending_'.uniqid();
+        $sub = \App\Model\Product\Subscription::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'plan_id' => $plan->id,
+            'user_id' => $this->user->id,
+            'is_subscribed' => 1,
+            'autoRenew_status' => 0,
+        ]);
+        \Illuminate\Support\Facades\DB::table('subscriptions')
+            ->where('id', $sub->id)
+            ->update(['subscribe_id' => $subId, 'rzp_subscription' => '1']);
+
+        // Bare mock is enough — pending is too early to act on, only logged;
+        // no handler method should be called at all.
+        $service = $this->makeWebhookService();
+        $service->handleRazorpayEvent([
+            'event' => 'subscription.pending',
+            'payload' => ['subscription' => ['entity' => ['id' => $subId]]],
+        ]);
+
+        $updated = \App\Model\Product\Subscription::find($sub->id);
+        $this->assertEquals(1, (int) $updated->is_subscribed, 'is_subscribed should be untouched while Razorpay is still retrying');
+        $this->assertSame($subId, (string) $updated->subscribe_id, 'subscribe_id should be untouched while Razorpay is still retrying');
+    }
+
+    public function test_handle_razorpay_pending_without_subscription_id_does_not_throw(): void
+    {
+        $service = $this->makeWebhookService();
+        $service->handleRazorpayEvent([
+            'event' => 'subscription.pending',
+            'payload' => ['subscription' => ['entity' => []]],
+        ]);
+        $this->assertTrue(true);
     }
 
     // =========================================================================

@@ -30,14 +30,16 @@ class DatabaseSeeder extends Seeder
     }
 
     /**
-     * Fixed 3-row SEO editor for non-authenticated default pages
-     * (login/forgot-password/reset-password). No separate "home" or
+     * Fixed 4-row SEO editor for non-authenticated default pages
+     * (login/forgot-password/reset-password/cart). No separate "home" or
      * "register" rows: "/" always redirects through to /login for any
      * unauthenticated visitor (i.e. every crawler), so it's the same page,
      * not distinct content — and `/login` (clientRouter.js) renders
      * LoginRegister.vue, which shows the login and register forms side by
      * side on one page (verified in the component template, not assumed).
-     * There is no distinct /register URL, so "login" covers both.
+     * There is no distinct /register URL, so "login" covers both. "cart" is
+     * here too — it's reachable by guests just like login, so it gets the
+     * same admin-editable meta instead of the generic client_routes.php text.
      */
     public function seedSeoDefaultPages(): void
     {
@@ -45,6 +47,7 @@ class DatabaseSeeder extends Seeder
             ['page_key' => 'login', 'meta_title' => 'Login & Register', 'meta_description' => 'Sign in or create a new account to access your dashboard, invoices, and orders.'],
             ['page_key' => 'forgot_password', 'meta_title' => 'Forgot Password', 'meta_description' => 'Reset your account password securely.'],
             ['page_key' => 'reset_password', 'meta_title' => 'Reset Password', 'meta_description' => 'Choose a new password for your account.'],
+            ['page_key' => 'cart', 'meta_title' => 'Shopping Cart', 'meta_description' => 'Review items in your shopping cart.'],
         ];
 
         // Insertion order (above) determines display order via `id` — this

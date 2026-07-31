@@ -55,7 +55,7 @@ class WebhookDispatcher
     {
         return (new self)
             ->on(
-                ['subscription.charged', 'subscription.halted'],
+                ['subscription.charged', 'subscription.pending', 'subscription.halted'],
                 fn (array $e) => resolve(SubscriptionWebhookService::class)->handleRazorpayEvent($e)
             )
             ->on(

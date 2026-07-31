@@ -28,7 +28,7 @@ class SeoMetaService
 
     private const NOINDEX = 'noindex, nofollow';
 
-    private const DEFAULT_PAGE_KEYS = ['login', 'forgot_password', 'reset_password'];
+    private const DEFAULT_PAGE_KEYS = ['login', 'forgot_password', 'reset_password', 'cart'];
 
     private ?Setting $set = null;
 
@@ -71,6 +71,7 @@ class SeoMetaService
             $path === '', $path === 'login' => 'login', // "/" redirects to the dashboard, which bounces guests to /login
             $path === 'password/reset' => 'forgot_password',
             (bool) preg_match('#^password/reset/.+$#', $path) => 'reset_password',
+            $path === 'cart' => 'cart', // guest-accessible like login, not auth-gated
             default => null,
         };
 
@@ -108,7 +109,11 @@ class SeoMetaService
         return $this->assemble(
             $title,
             $description,
-            $key === 'reset_password' ? self::NOINDEX : self::INDEX, // its URL carries a live, single-use token — never index a secret URL
+            match ($key) {
+                'reset_password' => self::NOINDEX, // its URL carries a live, single-use token — never index a secret URL
+                'cart' => self::NOINDEX, // per-user, constantly-changing contents — already disallowed in robots.txt
+                default => self::INDEX,
+            },
             $path,
             $this->resolveImage($row?->og_image),
             $this->formatter->resolveShortcodes($row?->og_title, $name) ?: ($this->formatter->generalOgTitle() ?: $title),
@@ -211,6 +216,7 @@ class SeoMetaService
             'password/reset' => 'password/reset',
             'password/reset/*' => 'password/reset/x',
             'contact-us' => 'contact-us',
+            'cart' => 'cart',
         ];
         foreach (array_keys($this->clientRoutes()) as $key) {
             // Purely-numeric keys ('404') come back from array_keys() as int,
@@ -431,8 +437,8 @@ class SeoMetaService
     }
 
     /**
-     * Batches all 3 default-page rows in one query instead of one per key —
-     * resolveClientRoutes() resolves all 3 every request.
+     * Batches all 4 default-page rows in one query instead of one per key —
+     * resolveClientRoutes() resolves all 4 every request.
      */
     private function defaultPageRow(string $key): ?SeoDefaultPage
     {

@@ -341,20 +341,22 @@
 
                     <!-- ── Auto Renewal ─────────────────────────────────── -->
                     <div v-if="showAutoRenewTab && activeTab === 'auto-renew'">
-                        <AppCard :title="__('message.auto_renewal')">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center gap-2">
-                                    <i class="fas fa-sync-alt icon-lg"></i>
+                        <AppCard>
+                            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="auto-renewal-icon"><i class="fas fa-sync-alt"></i></div>
                                     <div>
-                                        <span class="text-2">
+                                        <span class="fw-bold">
                                             {{ __('message.auto_renewal') }}
-                                            <span v-if="order.auto_renew_state === 'active'" class="badge bg-success ms-1">{{ __('message.active') }}</span>
-                                            <span v-else-if="order.auto_renew_state === 'pending'" class="badge bg-warning text-dark ms-1">{{ __('message.pending_authorization') }}</span>
-                                            <span v-else-if="order.auto_renew_state === 'enabled'" class="badge bg-info text-dark ms-1">{{ __('message.enabled') }}</span>
-                                            <span v-else class="badge bg-secondary ms-1">{{ __('message.inactive') }}</span>
+                                            <span class="badge rounded-pill badge-soft-success ms-1">
+                                                <template v-if="order.auto_renew_state === 'active'">{{ __('message.active') }}</template>
+                                                <template v-else-if="order.auto_renew_state === 'pending'">{{ __('message.pending_authorization') }}</template>
+                                                <template v-else-if="order.auto_renew_state === 'enabled'">{{ __('message.enabled') }}</template>
+                                                <template v-else>{{ __('message.inactive') }}</template>
+                                            </span>
                                         </span>
+                                        <p class="text-muted text-2 mb-0">{{ __('message.auto_renewal_description') }}</p>
                                         <template v-if="order.is_subscribed && order.autorenew_log">
-                                            <br>
                                             <small class="text-muted text-capitalize">
                                                 {{ __('message.payment_gateway') }}: {{ order.autorenew_log.payment_method }}
                                                 &nbsp;&middot;&nbsp;
@@ -363,22 +365,11 @@
                                         </template>
                                     </div>
                                 </div>
-                                <div>
-                                    <button v-if="!order.is_subscribed"
-                                            type="button"
-                                            class="btn btn-primary btn-sm btn-modern"
-                                            @click="showRenewalModal = true">
-                                        <i class="fas fa-toggle-on me-1"></i>{{ __('message.enable') }}
-                                    </button>
-                                    <button v-else
-                                            type="button"
-                                            class="btn btn-outline-secondary btn-sm btn-modern"
-                                            :disabled="renewalBusy"
-                                            @click="showDisableRenewalModal = true">
-                                        <i v-if="renewalBusy" class="fas fa-circle-notch fa-spin me-1"></i>
-                                        <i v-else class="fas fa-toggle-off me-1"></i>
-                                        {{ __('message.disable') }}
-                                    </button>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                           :checked="order.is_subscribed" :disabled="renewalBusy"
+                                           @click.prevent="onAutoRenewToggleClick"
+                                           v-tooltip="order.is_subscribed ? __('message.disable') : __('message.enable')">
                                 </div>
                             </div>
                         </AppCard>
@@ -784,6 +775,18 @@ const showAutoRenewTab  = computed(() => !!order.value?.autorenewal_enabled)
 const showRenewalModal = ref(false)
 const renewalBusy      = ref(false)
 const selectedGateway  = ref('')
+
+// The click is prevented so the native checkbox never flips on its own —
+// enabling needs a gateway pick + card verification, disabling needs
+// confirmation, so the switch only visually moves once order.is_subscribed
+// itself changes (on modal success), not just because it was clicked.
+function onAutoRenewToggleClick() {
+    if (order.value?.is_subscribed) {
+        showDisableRenewalModal.value = true
+    } else {
+        showRenewalModal.value = true
+    }
+}
 
 const gatewayOptions = computed(() => {
     const active = (order.value?.available_gateways ?? []).map(g => g.toLowerCase())
@@ -1308,7 +1311,24 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.icon-lg { font-size: 20px; }
+.auto-renewal-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #e7f4fb;
+    color: #17a2e0;
+    font-size: 16px;
+}
+.form-switch .form-check-input {
+    width: 2.5em;
+    height: 1.4em;
+    cursor: pointer;
+}
+.badge-soft-success { background-color: #e6f9ef; color: #1a9d5c; }
 .download-section-label {
     font-weight: 600;
     font-size: 0.75rem;

@@ -132,4 +132,30 @@ describe('Alert.vue', () => {
         })
         expect(w.exists()).toBeTruthy()
     })
+
+    it('clears its own alert on unmount', async () => {
+        const store = useAlertStore()
+        store.type = 'danger'
+        store.message = 'Oops'
+        store.component_name = 'test'
+        await wrapper.vm.$nextTick()
+
+        wrapper.unmount()
+
+        expect(store.unsetAlert).toHaveBeenCalled()
+    })
+
+    it('leaves a handed-off alert alone on unmount', async () => {
+        const store = useAlertStore()
+        store.type = 'success'
+        store.message = 'Saved!'
+        // Reassigned to the destination page before navigating away, as
+        // successHandler(res, 'next-page') + router.push() does.
+        store.component_name = 'next-page'
+        await wrapper.vm.$nextTick()
+
+        wrapper.unmount()
+
+        expect(store.unsetAlert).not.toHaveBeenCalled()
+    })
 })

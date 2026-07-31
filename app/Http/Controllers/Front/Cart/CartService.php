@@ -175,7 +175,7 @@ class CartService
             'gateways' => $gateways = $this->activeGateways($currency),
             'grand_total' => currencyFormat($summary['grand_total'], $currency, includeSymbol: false),
             'available_credit' => currencyFormat($this->invoices->availableCredit((int) $user->getAuthIdentifier()), $currency, includeSymbol: false),
-            'auto_renew_gateways' => $this->autoRenewalGateways($gateways),
+            'auto_renew_gateways' => $this->autoRenewalGateways($gateways, (float) $summary['grand_total']),
         ];
     }
 
@@ -188,11 +188,18 @@ class CartService
      * not merely "some gateway supports it." Not product-specific — every
      * order gets a Subscription row regardless of product.
      *
+     * A free order (nothing to charge) never collects a card, so there's
+     * nothing to auto-renew — empty regardless of gateway support.
+     *
      * @param  array<int, array{name: string, processing_fee: float|null}>  $gateways
      * @return array<int, string>
      */
-    private function autoRenewalGateways(array $gateways): array
+    private function autoRenewalGateways(array $gateways, float $grandTotal): array
     {
+        if ($grandTotal <= 0) {
+            return [];
+        }
+
         $active = array_map(fn (array $g): string => strtolower($g['name']), $gateways);
 
         return array_values(array_filter(
@@ -243,7 +250,7 @@ class CartService
                 // against the specific selected gateway, not "any gateway" —
                 // auto-renew must only apply if it's actually available for
                 // however this invoice ends up getting paid.
-                'metadata' => $autoRenewOptIn && $gateway && in_array($gateway, $this->autoRenewalGateways($this->activeGateways($cart->currency ?? 'USD')), true)
+                'metadata' => $autoRenewOptIn && $gateway && in_array($gateway, $this->autoRenewalGateways($this->activeGateways($cart->currency ?? 'USD'), (float) $summary['grand_total']), true)
                     ? ['auto_renew_opt_in' => true]
                     : null,
             ];

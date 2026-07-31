@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Auto_renewal;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
@@ -14,13 +13,12 @@ use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\Payment\AutoRenewalActivationService;
 use App\Services\Payment\ProcessingFee;
-use App\Services\Payment\SubscriptionService;
 use App\Services\SubscriptionRenewalService;
 use App\User;
 use Exception;
 use Illuminate\Support\Facades\Date;
-use Log;
 use Logger;
 use Throwable;
 
@@ -56,13 +54,13 @@ abstract class PostSubscriptionHandleController
 
     abstract public function PaymentSuccessMailtoAdmin(Invoice $invoice, float|int $total, User $user, string $productName, Order $order, Payment|string $payment): void;
 
-    abstract public function FailedPaymenttoAdmin(Invoice $invoice, float|int $total, string $productName, string $exceptionMessage, User $user, string $template, Order $order, Payment $payment): void;
+    abstract public function FailedPaymenttoAdmin(?Invoice $invoice, float|int $total, string $productName, string $exceptionMessage, User $user, string $template, Order $order, Payment $payment): void;
 
     abstract public function calculateUnitCost(string $currency, float|int $cost): float;
 
     abstract public function sendPaymentSuccessMail(int $sub, string $currency, float|int $total, User $user, string $product, string $number): void;
 
-    abstract public function sendFailedPayment(float|int|null $total, string $exceptionMessage, ?User $user, ?string $number, string $end, ?string $currency, ?Order $order, ?Product $product_details, ?Invoice $invoice, Payment|string|null $payment): void;
+    abstract public function sendFailedPayment(float|int|null $total, string $exceptionMessage, ?User $user, ?string $number, string $end, ?string $currency, ?Order $order, ?Product $product_details, ?Invoice $invoice, Payment|string|null $payment, bool $cancelAtGateway = true, bool $clearSubscribeId = true): void;
 }
 
 class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleController
@@ -138,22 +136,36 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         }
     }
 
-    public function FailedPaymenttoAdmin(Invoice $invoice, float|int $total, string $productName, string $exceptionMessage, User $user, string $template, Order $order, Payment $payment): void
+    /**
+     * Notifies the admin of a failed renewal payment. Never lets a failure
+     * here propagate — by the time this runs, the subscription has already
+     * been deactivated and the customer already notified; a missing
+     * Settings/Template row must not turn into an uncaught exception that
+     * takes the whole webhook request down (Razorpay/Stripe would retry the
+     * webhook, but the retry finds nothing left to act on since the
+     * subscription's already been reset — so the failure would otherwise go
+     * completely unrecorded).
+     */
+    public function FailedPaymenttoAdmin(?Invoice $invoice, float|int $total, string $productName, string $exceptionMessage, User $user, string $template, Order $order, Payment $payment): void
     {
-        $amount = currencyFormat($total, getCurrencyForClient($user->country));
-        $setting = Setting::find(1);
-        if (! $setting instanceof Setting) {
-            throw new Exception('Settings not found');
+        try {
+            $amount = currencyFormat($total, getCurrencyForClient($user->country));
+            $setting = Setting::find(1);
+            if (! $setting instanceof Setting) {
+                return;
+            }
+            $currency = getCurrencyForClient($user->country);
+            $paymentFailData = 'Payment for of '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
+            $mail = new PhpMailController;
+            $dbTemplate = Template::where('name', $template)->first();
+            if (! $dbTemplate instanceof Template) {
+                return;
+            }
+            $mail->SendEmail((string) $setting->email, (string) $setting->company_email, $paymentFailData, 'payment-failed', $dbTemplate->type()->value('name'));
+            $mail->payment_log($user->email, $payment, 'failed', $order->number, $exceptionMessage, $amount, 'Product renew');
+        } catch (Throwable $throwable) {
+            Logger::exception($throwable);
         }
-        $currency = getCurrencyForClient($user->country);
-        $paymentFailData = 'Payment for of '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
-        $mail = new PhpMailController;
-        $dbTemplate = Template::where('name', $template)->first();
-        if (! $dbTemplate instanceof Template) {
-            throw new Exception('Template not found');
-        }
-        $mail->SendEmail((string) $setting->email, (string) $setting->company_email, $paymentFailData, 'payment-failed', $dbTemplate->type()->value('name'));
-        $mail->payment_log($user->email, $payment, 'failed', $order->number, $exceptionMessage, $amount, 'Product renew');
     }
 
     public function sendPaymentSuccessMail(int $sub, string $currency, float|int $total, User $user, string $product, string $number): void
@@ -196,9 +208,9 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    public function sendFailedPayment(float|int|null $total, string $exceptionMessage, ?User $user, ?string $number, string $end, ?string $currency, ?Order $order, ?Product $product_details, ?Invoice $invoice, Payment|string|null $payment): void
+    public function sendFailedPayment(float|int|null $total, string $exceptionMessage, ?User $user, ?string $number, string $end, ?string $currency, ?Order $order, ?Product $product_details, ?Invoice $invoice, Payment|string|null $payment, bool $cancelAtGateway = true, bool $clearSubscribeId = true): void
     {
-        if (! $order instanceof Order || ! $product_details instanceof Product || ! $invoice instanceof Invoice || ! $user instanceof User) {
+        if (! $order instanceof Order || ! $product_details instanceof Product || ! $user instanceof User) {
             return;
         }
         $contact = getContactData();
@@ -208,7 +220,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             return;
         }
 
-        $this->disableAutorenewalStatusByOrderId($order->id);
+        $this->disableAutorenewalStatusByOrderId($order->id, $cancelAtGateway, $clearSubscribeId);
 
         $mail = new PhpMailController;
         $mail->setMailConfig($setting);
@@ -255,49 +267,18 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         return round($cost * (10 ** $decimalPlacesForCurrency));
     }
 
-    public function disableAutorenewalStatusByOrderId(int $orderId): void
+    /**
+     * $cancelAtGateway must be false when the caller is reacting to a
+     * gateway-reported failure the gateway itself still considers
+     * recoverable — see {@see AutoRenewalActivationService::deactivate()}.
+     */
+    public function disableAutorenewalStatusByOrderId(int $orderId, bool $cancelAtGateway = true, bool $clearSubscribeId = true): void
     {
-        try {
-            $subscription = Subscription::where('order_id', $orderId)->first();
-            if (! $subscription instanceof Subscription) {
-                return;
-            }
-
-            $cancellationHandlers = collect([
-                'rzp_subscription' => fn (string $subscribeId) => resolve(SubscriptionService::class)->cancelSubscription('Razorpay', $subscribeId),
-                'autoRenew_status' => fn (string $subscribeId) => resolve(SubscriptionService::class)->cancelSubscription('Stripe', $subscribeId),
-            ]);
-
-            if ($subscription->is_subscribed && $subscription->subscribe_id) {
-                $subscribeId = (string) $subscription->subscribe_id;
-                $handler = $cancellationHandlers
-                    ->filter(fn ($handler, $field) => $subscription->$field)
-                    ->first();
-                if (is_callable($handler)) {
-                    $handler($subscribeId);
-                }
-            }
-
-            // Without this, AutoRenewalActivationService::activate()'s idempotency
-            // check (keyed on an Auto_renewal row existing for this order+gateway)
-            // would silently no-op forever on any future re-enable — same gap
-            // fixed for the manual disable path in AutoRenewalController::cancelSubscription().
-            Auto_renewal::where('order_id', $orderId)->delete();
-
-            // Query-builder update, not $subscription->update() — subscribe_id
-            // and rzp_subscription aren't in Subscription::$fillable, so a
-            // model-instance update() silently drops them and this reset
-            // would never actually happen.
-            Subscription::where('id', $subscription->id)->update([
-                'is_subscribed' => 0,
-                'autoRenew_status' => 0,
-                'rzp_subscription' => 0,
-                'subscribe_id' => '',
-            ]);
-        } catch (Exception $exception) {
-            Log::error('Subscription cancellation failed: '.$exception->getMessage());
-
+        $subscription = Subscription::where('order_id', $orderId)->first();
+        if (! $subscription instanceof Subscription) {
             return;
         }
+
+        resolve(AutoRenewalActivationService::class)->deactivate($subscription, $cancelAtGateway, $clearSubscribeId);
     }
 }

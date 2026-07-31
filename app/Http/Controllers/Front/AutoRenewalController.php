@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Front;
 
-use App\Auto_renewal;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Controller;
 use App\Model\Order\Order;
@@ -12,13 +11,11 @@ use App\Plugins\Payment\Dto\Customer as PaymentCustomer;
 use App\Plugins\Payment\Dto\PaymentRequest as GatewayPaymentRequest;
 use App\Services\Payment\AutoRenewalActivationService;
 use App\Services\Payment\PaymentService;
-use App\Services\Payment\SubscriptionService;
 use App\User;
 use Auth;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Logger;
 
 class AutoRenewalController extends Controller
 {
@@ -165,7 +162,7 @@ class AutoRenewalController extends Controller
         $order = $this->authorizedOrder($order, allowAdmin: true);
         try {
             $subscription = Subscription::where('order_id', $order->id)->firstOrFail();
-            $this->cancelSubscription($subscription);
+            $this->activation->deactivate($subscription, cancelAtGateway: true);
 
             return successResponse(__('message.auto_subscription_disabled'));
         } catch (Exception $exception) {
@@ -218,38 +215,6 @@ class AutoRenewalController extends Controller
         /** @var User $authUser2 */
         $authUser2 = Auth::user();
         $this->activation->activate($order, $authUser2, $gateway, $paymentRef);
-    }
-
-    private function cancelSubscription(Subscription $subscription): void
-    {
-        $service = resolve(SubscriptionService::class);
-
-        if ($subscription->subscribe_id) {
-            $gateway = $subscription->rzp_subscription ? 'Razorpay' : 'Stripe';
-            try {
-                $service->cancelSubscription($gateway, $subscription->subscribe_id);
-            } catch (Exception $e) {
-                // Already cancelled at gateway — continue to reset local state
-                Logger::exception(new Exception(sprintf('Subscription cancel skipped [%s]: ', $gateway).$e->getMessage(), previous: $e));
-            }
-        }
-
-        // Without this, AutoRenewalActivationService::activate()'s idempotency
-        // check (keyed on an Auto_renewal row existing for this order+gateway)
-        // would silently no-op forever on any future re-enable — no flags
-        // flipped, no mail sent — since it can't distinguish "already active"
-        // from "was active once, since disabled".
-        Auto_renewal::where('order_id', $subscription->order_id)->delete();
-
-        // Query-builder update, not $subscription->update() — subscribe_id and
-        // rzp_subscription aren't in Subscription::$fillable, so a model-instance
-        // update() silently drops them and this reset would never actually happen.
-        Subscription::where('id', $subscription->id)->update([
-            'is_subscribed' => 0,
-            'autoRenew_status' => 0,
-            'rzp_subscription' => 0,
-            'subscribe_id' => '',
-        ]);
     }
 
     private function logPayment(Order $order, string $gateway, string $status, string $note = ''): void

@@ -37,7 +37,14 @@ watch(visible, (val) => {
     }
 }, { immediate: true })
 
-onUnmounted(() => clearTimeout(timer))
+// Clear the alert when its own page goes away — but only if it still owns
+// it. A page that sets an alert then navigates elsewhere (e.g. "saved" on
+// the index after a create/edit redirect) reassigns component_name to the
+// destination first, so this guard leaves that handoff alone.
+onUnmounted(() => {
+    clearTimeout(timer)
+    if (store.component_name === props.componentName) store.unsetAlert()
+})
 </script>
 
 <style scoped>

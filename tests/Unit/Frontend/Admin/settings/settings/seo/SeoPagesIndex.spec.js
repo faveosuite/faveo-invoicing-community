@@ -53,6 +53,10 @@ describe('SeoPagesIndex.vue', () => {
             expect(page({ page_key: 'reset_password' })).toBe('message.reset_password')
         })
 
+        it('maps cart to the shopping_cart label', () => {
+            expect(page({ page_key: 'cart' })).toBe('message.shopping_cart')
+        })
+
         it('falls back to the raw page_key for unknown keys', () => {
             expect(page({ page_key: 'some_unknown_page' })).toBe('some_unknown_page')
         })

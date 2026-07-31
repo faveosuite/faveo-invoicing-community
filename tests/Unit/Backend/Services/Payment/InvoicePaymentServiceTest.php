@@ -81,6 +81,29 @@ class InvoicePaymentServiceTest extends DBTestCase
         $this->assertEqualsWithDelta(0.0, $outstanding, 0.01);
     }
 
+    public function test_apply_credit_fulfils_free_invoice_with_no_credit_needed(): void
+    {
+        $invoice = Invoice::factory()->create(['grand_total' => 0.0]);
+
+        $this->postPayment->shouldReceive('handle')->once()->with(Mockery::on(
+            fn ($arg) => $arg->id === $invoice->id
+        ), 'Credit Balance')->andReturn([]);
+
+        $result = $this->service->applyCredit($invoice);
+
+        $this->assertTrue($result['paid_in_full']);
+    }
+
+    public function test_apply_credit_throws_when_outstanding_and_no_credit(): void
+    {
+        $invoice = Invoice::factory()->create(['grand_total' => 100.0]);
+
+        $this->postPayment->shouldNotReceive('handle');
+        $this->expectException(\Exception::class);
+
+        $this->service->applyCredit($invoice);
+    }
+
     public function test_gateways_for_returns_array(): void
     {
         $result = $this->service->gatewaysFor('USD');

@@ -78,6 +78,28 @@ class SeoMetaServiceTest extends DBTestCase
         $this->assertSame(url('/password/reset/some-secret-token'), $result['canonical']);
     }
 
+    public function test_resolve_cart_uses_its_own_seeded_meta_when_present(): void
+    {
+        SeoDefaultPage::factory()->create([
+            'page_key' => 'cart',
+            'meta_title' => 'Your Cart - {company}',
+            'meta_description' => 'Review your items',
+        ]);
+
+        $result = $this->service->resolve('cart');
+
+        $this->assertSame('Your Cart - Acme Inc', $result['title']);
+        $this->assertSame('Review your items', $result['description']);
+    }
+
+    public function test_resolve_cart_is_noindex_since_contents_are_per_user(): void
+    {
+        $result = $this->service->resolve('cart');
+
+        $this->assertSame('Cart', $result['title']);
+        $this->assertSame('noindex, nofollow', $result['robots']);
+    }
+
     // --- Pages module ---
 
     public function test_resolve_pages_slug_for_a_published_page_uses_its_own_meta(): void
@@ -320,6 +342,7 @@ class SeoMetaServiceTest extends DBTestCase
         $this->assertSame($this->service->resolve('contact-us')['title'], $routes['contact-us']['title']);
         $this->assertSame($this->service->resolve('client-dashboard')['title'], $routes['client-dashboard']['title']);
         $this->assertSame($this->service->resolve('checkout')['description'], $routes['checkout']['description']);
+        $this->assertSame($this->service->resolve('cart')['title'], $routes['cart']['title']);
         $this->assertArrayHasKey('pay', $routes);
         $this->assertArrayNotHasKey('store', $routes);
     }

@@ -43,6 +43,8 @@ describe('ProductBuildApply.vue', () => {
     let wrapper
 
     beforeEach(async () => {
+        jest.useFakeTimers()
+
         globalThis.mockHttp.onGet(/\/dependency\/products/).reply(200, PRODUCTS_RESPONSE)
         globalThis.mockHttp.onPost(/\/chunkupload/).reply(200, { name: 'uploaded-file.zip' })
         globalThis.mockHttp.onPut(/\/product\/upload-build\/apply/).reply(200, { data: { message: 'Applied' } })
@@ -59,6 +61,7 @@ describe('ProductBuildApply.vue', () => {
     afterEach(() => {
         globalThis.mockHttp.reset()
         jest.clearAllMocks()
+        jest.useRealTimers()
     })
 
     // A selected product with a version + a real uploaded file — the exact
@@ -243,6 +246,9 @@ describe('ProductBuildApply.vue', () => {
         expect(body.filename).toBe('uploaded-file.zip')
         expect(body.products).toEqual([{ id: 1, version: '1.0.0' }])
         expect(successHandler).toHaveBeenCalled()
+        // router.push is called inside a setTimeout, after the alert has had
+        // a chance to show on this page — advance timers to reach it.
+        jest.runAllTimers()
         expect(mockPush).toHaveBeenCalledWith('/products')
     })
 

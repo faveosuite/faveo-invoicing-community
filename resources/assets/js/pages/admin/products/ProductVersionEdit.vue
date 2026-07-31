@@ -138,8 +138,8 @@ async function submit() {
             dependencies: deps.data,
             ...(file.value ? { filename: uploadedName.value } : {}),
         })
-        alertStore.setAlert({ message: __('message.product_updated_successfully'), type: 'success', component_name: 'products-edit' })
-        router.push(`/products/${productId}/edit?tab=versions`)
+        alertStore.setAlert({ message: __('message.product_updated_successfully'), type: 'success', component_name: 'product-version-edit' })
+        setTimeout(() => router.push(`/products/${productId}/edit?tab=versions`), 2000)
     } catch (err) {
         const res = err.response?.data
         if (res?.errors) setErrors(Object.fromEntries(Object.entries(res.errors).map(([k, v]) => [k, v[0]])))

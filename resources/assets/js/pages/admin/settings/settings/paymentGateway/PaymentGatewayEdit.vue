@@ -186,6 +186,7 @@ const GATEWAY_CONFIGS = {
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/razorpay`,
         webhookEvents: [
             { name: 'subscription.charged', purpose: 'Required for auto-renewal to actually work — without it, renewed subscriptions won\'t be extended even after Razorpay charges the customer.' },
+            { name: 'subscription.pending', purpose: 'Required to record a renewal charge failing its first attempt — without it, a struggling auto-renewal is invisible until Razorpay exhausts all its retries.' },
             { name: 'subscription.halted', purpose: 'Required to detect failed renewals — without it, the app won\'t know a recurring charge stopped working, and auto-renewal stays silently broken.' },
             { name: 'payment.captured', purpose: 'Required to confirm invoice/order payments — without it, a customer can pay successfully and the invoice still won\'t be marked as paid.' },
             { name: 'payment.failed', purpose: 'Required to detect failed payments — without it, a failed payment attempt goes unnoticed and the customer is never told to retry.' },

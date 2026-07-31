@@ -8,7 +8,7 @@ declare(strict_types=1);
  * SeoMetaService::fallback(), also shipped to the client SPA via
  * resolveClientRoutes() so clientRouter.js looks up an already-resolved
  * value instead of duplicating this list. login/forgot_password/reset_password/
- * contact_us aren't here — those resolve via SeoMetaService::fromDefaultPage()/
+ * contact_us/cart aren't here — those resolve via SeoMetaService::fromDefaultPage()/
  * fromContactUsPage() (SeoDefaultPage/FrontendPage tables), not this file.
  *
  * Keyed by the route path with dynamic segments (:id) normalized to '*' —
@@ -30,7 +30,6 @@ return [
     'my-profile' => ['title' => 'message.my_profile', 'description' => 'Manage your account profile and settings.'],
     'my-profile/change-password' => ['title' => 'message.change_password', 'description' => 'Change your account password.'],
     'my-profile/2fa' => ['title' => 'message.two_factor_auth', 'description' => 'Manage two-factor authentication for your account.'],
-    'cart' => ['title' => 'message.shopping_cart', 'description' => 'Review items in your shopping cart.'],
     'checkout' => ['title' => 'message.checkout', 'description' => 'Complete your purchase securely.'],
     'place-order' => ['title' => 'message.place_order', 'description' => 'Confirm and place your order.'],
     'payment-success' => ['title' => 'Payment Successful', 'description' => 'Your payment was successful.'],

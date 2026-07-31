@@ -33,6 +33,7 @@ const labels = {
     login: __('message.seo_login_and_register'),
     forgot_password: __('message.forgot-password'),
     reset_password: __('message.reset_password'),
+    cart: __('message.shopping_cart'),
 }
 
 function pageLabel(pageKey) {

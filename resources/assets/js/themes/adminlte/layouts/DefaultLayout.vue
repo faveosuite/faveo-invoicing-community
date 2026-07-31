@@ -76,16 +76,17 @@ import { useRoute }           from 'vue-router'
 import { useSidebar }         from '@/core/composables/useSidebar.js'
 import { useBreadcrumb }      from '@/core/composables/useBreadcrumb.js'
 import { useNotification }    from '@/core/composables/useNotification.js'
-import { useAlertStore }      from '@/core/stores/alert.js'
 
 const { isOpen, close }          = useSidebar()
 const { pageTitle, breadcrumbs } = useBreadcrumb()
 const { message, type, visible, dismiss } = useNotification()
 const route                      = useRoute()
-const alertStore                 = useAlertStore()
 
+// Each page's own AppAlert clears itself on unmount (see Alert.vue) — a
+// blanket unsetAlert() here used to wipe out a success alert set just before
+// navigating to the next page (e.g. save → redirect to the index with a
+// "saved" message).
 watch(() => route.path, () => {
-    alertStore.unsetAlert()
     if (window.innerWidth < 992) {
         close()
     }
