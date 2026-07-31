@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Symfony\CodeQuality\Rector\Class_;
 
-use RectorPrefix202606\Nette\Utils\Strings;
+use RectorPrefix202607\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name\FullyQualified;
@@ -66,8 +66,9 @@ final class EventListenerToEventSubscriberRector extends AbstractRector
     ];
     /**
      * @var EventNameToClassAndConstant[]
+     * @readonly
      */
-    private array $eventNamesToClassConstants = [];
+    private array $eventNamesToClassConstants;
     public function __construct(ListenerServiceDefinitionProvider $listenerServiceDefinitionProvider, GetSubscribedEventsClassMethodFactory $getSubscribedEventsClassMethodFactory, ClassAnalyzer $classAnalyzer, PhpAttributeAnalyzer $phpAttributeAnalyzer, ClassNaming $classNaming)
     {
         $this->listenerServiceDefinitionProvider = $listenerServiceDefinitionProvider;

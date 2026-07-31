@@ -6,8 +6,8 @@ namespace Rector\Configuration;
 use Rector\ChangesReporting\Output\ConsoleOutputFormatter;
 use Rector\Configuration\Parameter\SimpleParameterProvider;
 use Rector\ValueObject\Configuration;
-use RectorPrefix202606\Symfony\Component\Console\Input\InputInterface;
-use RectorPrefix202606\Symfony\Component\Console\Style\SymfonyStyle;
+use RectorPrefix202607\Symfony\Component\Console\Input\InputInterface;
+use RectorPrefix202607\Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @see \Rector\Tests\Configuration\ConfigurationFactoryTest
  */
@@ -53,6 +53,11 @@ final class ConfigurationFactory
             $onlyRule = $this->onlyRuleResolver->resolve($onlyRule);
         }
         $onlySuffix = $input->getOption(\Rector\Configuration\Option::ONLY_SUFFIX);
+        // "--only"/"--only-suffix" narrow the run, so skips outside the scope look falsely unused;
+        // mark the run as narrowed to disable unused skip reporting and avoid false positives
+        if ($onlyRule !== null || $onlySuffix !== null) {
+            SimpleParameterProvider::setParameter(\Rector\Configuration\Option::IS_RUN_NARROWED, \true);
+        }
         $isParallel = SimpleParameterProvider::provideBoolParameter(\Rector\Configuration\Option::PARALLEL);
         $parallelPort = (string) $input->getOption(\Rector\Configuration\Option::PARALLEL_PORT);
         $parallelIdentifier = (string) $input->getOption(\Rector\Configuration\Option::PARALLEL_IDENTIFIER);
@@ -95,6 +100,8 @@ final class ConfigurationFactory
         $commandLinePaths = (array) $input->getArgument(\Rector\Configuration\Option::SOURCE);
         // give priority to command line
         if ($commandLinePaths !== []) {
+            // mark the run as narrowed, so unused skip reporting can be disabled to avoid false positives
+            SimpleParameterProvider::setParameter(\Rector\Configuration\Option::IS_RUN_NARROWED, \true);
             $this->setFilesWithoutExtensionParameter($commandLinePaths);
             return $commandLinePaths;
         }

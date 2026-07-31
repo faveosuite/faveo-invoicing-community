@@ -5,9 +5,9 @@ declare (strict_types=1);
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-namespace RectorPrefix202606\Nette\Utils;
+namespace RectorPrefix202607\Nette\Utils;
 
-use RectorPrefix202606\Nette;
+use RectorPrefix202607\Nette;
 use function is_array, is_int, is_string;
 use const IMG_BMP, IMG_FLIP_BOTH, IMG_FLIP_HORIZONTAL, IMG_FLIP_VERTICAL, IMG_GIF, IMG_JPG, IMG_PNG, IMG_WEBP, PATHINFO_EXTENSION;
 /**
@@ -277,7 +277,7 @@ class Image
             case ImageType::WEBP:
                 return IMG_WEBP;
             case ImageType::AVIF:
-                return 256;
+                return \IMG_AVIF;
             case ImageType::BMP:
                 return IMG_BMP;
             default:
@@ -292,15 +292,7 @@ class Image
     {
         self::ensureExtension();
         $flag = imagetypes();
-        return array_filter([
-            $flag & IMG_GIF ? ImageType::GIF : null,
-            $flag & IMG_JPG ? ImageType::JPEG : null,
-            $flag & IMG_PNG ? ImageType::PNG : null,
-            $flag & IMG_WEBP ? ImageType::WEBP : null,
-            $flag & 256 ? ImageType::AVIF : null,
-            // IMG_AVIF
-            $flag & IMG_BMP ? ImageType::BMP : null,
-        ]);
+        return array_filter([$flag & IMG_GIF ? ImageType::GIF : null, $flag & IMG_JPG ? ImageType::JPEG : null, $flag & IMG_PNG ? ImageType::PNG : null, $flag & IMG_WEBP ? ImageType::WEBP : null, $flag & \IMG_AVIF ? ImageType::AVIF : null, $flag & IMG_BMP ? ImageType::BMP : null]);
     }
     /**
      * Wraps GD image.

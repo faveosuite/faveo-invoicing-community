@@ -2,6 +2,17 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [14.2.4] - 2026-07-30
+
+* Source files were parsed repeatedly instead of read from the static analysis result cache, which made runs with path coverage enabled appear to hang
+
+## [14.2.3] - 2026-07-06
+
+### Fixed
+
+* [#1240](https://github.com/sebastianbergmann/php-code-coverage/issues/1240): Dark-mode HTML report: Warning and Danger backgrounds are indistinguishable for colorblind users
+* [#1244](https://github.com/sebastianbergmann/php-code-coverage/pull/1244): Do not build code unit map when test has no coverage targets
+
 ## [14.2.2] - 2026-06-08
 
 ### Fixed
@@ -43,6 +54,8 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * [#1159](https://github.com/sebastianbergmann/php-code-coverage/issues/1159): Statements inside a closure passed as a call argument are incorrectly reported as not covered
 
+[14.2.4]: https://github.com/sebastianbergmann/php-code-coverage/compare/14.2.3...14.2.4
+[14.2.3]: https://github.com/sebastianbergmann/php-code-coverage/compare/14.2.2...14.2.3
 [14.2.2]: https://github.com/sebastianbergmann/php-code-coverage/compare/14.2.1...14.2.2
 [14.2.1]: https://github.com/sebastianbergmann/php-code-coverage/compare/14.2.0...14.2.1
 [14.2.0]: https://github.com/sebastianbergmann/php-code-coverage/compare/14.1.10...14.2.0

@@ -6,7 +6,9 @@ namespace Rector\DowngradePhp82\Rector\Class_;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Closure;
+use PhpParser\Node\Identifier;
 use PhpParser\Node\IntersectionType;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Function_;
@@ -16,7 +18,7 @@ use Rector\PhpDocDecorator\PhpDocFromTypeDeclarationDecorator;
 use Rector\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 /**
  * @changelog https://php.watch/versions/8.2/dnf-types
  *
@@ -117,11 +119,13 @@ CODE_SAMPLE
         if (!$node instanceof UnionType) {
             return \false;
         }
+        $found = \false;
         foreach ($node->types as $type) {
             if ($type instanceof IntersectionType) {
-                return \true;
+                $found = \true;
+                break;
             }
         }
-        return \false;
+        return $found;
     }
 }

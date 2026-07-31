@@ -3,9 +3,9 @@
 declare (strict_types=1);
 namespace Rector\DependencyInjection;
 
-use RectorPrefix202606\Doctrine\Inflector\Inflector;
-use RectorPrefix202606\Doctrine\Inflector\Rules\English\InflectorFactory;
-use RectorPrefix202606\Illuminate\Container\Container;
+use RectorPrefix202607\Doctrine\Inflector\Inflector;
+use RectorPrefix202607\Doctrine\Inflector\Rules\English\InflectorFactory;
+use RectorPrefix202607\Illuminate\Container\Container;
 use PhpParser\Lexer;
 use PHPStan\Analyser\NodeScopeResolver;
 use PHPStan\Analyser\ScopeFactory;
@@ -134,10 +134,8 @@ use Rector\PhpParser\NodeVisitor\StaticVariableNodeVisitor;
 use Rector\PhpParser\NodeVisitor\SymfonyClosureNodeVisitor;
 use Rector\PHPStanStaticTypeMapper\Contract\TypeMapperInterface;
 use Rector\PHPStanStaticTypeMapper\PHPStanStaticTypeMapper;
-use Rector\PHPStanStaticTypeMapper\TypeMapper\AccessoryLiteralStringTypeMapper;
-use Rector\PHPStanStaticTypeMapper\TypeMapper\AccessoryNonEmptyStringTypeMapper;
-use Rector\PHPStanStaticTypeMapper\TypeMapper\AccessoryNonFalsyStringTypeMapper;
-use Rector\PHPStanStaticTypeMapper\TypeMapper\AccessoryNumericStringTypeMapper;
+use Rector\PHPStanStaticTypeMapper\TypeMapper\AccessoryArrayTypeMapper;
+use Rector\PHPStanStaticTypeMapper\TypeMapper\AccessoryStringTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\ArrayTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\BooleanTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\CallableTypeMapper;
@@ -147,28 +145,21 @@ use Rector\PHPStanStaticTypeMapper\TypeMapper\ConditionalTypeForParameterMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\ConditionalTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\ConstantArrayTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\FloatTypeMapper;
-use Rector\PHPStanStaticTypeMapper\TypeMapper\GenericClassStringTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\HasMethodTypeMapper;
-use Rector\PHPStanStaticTypeMapper\TypeMapper\HasOffsetTypeMapper;
-use Rector\PHPStanStaticTypeMapper\TypeMapper\HasOffsetValueTypeTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\HasPropertyTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\IntegerTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\IntersectionTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\IterableTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\MixedTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\NeverTypeMapper;
-use Rector\PHPStanStaticTypeMapper\TypeMapper\NonEmptyArrayTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\NullTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\ObjectTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\ObjectWithoutClassTypeMapper;
-use Rector\PHPStanStaticTypeMapper\TypeMapper\OversizedArrayTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\ParentStaticTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\ResourceTypeMapper;
-use Rector\PHPStanStaticTypeMapper\TypeMapper\SelfObjectTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\StaticTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\StrictMixedTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\StringTypeMapper;
-use Rector\PHPStanStaticTypeMapper\TypeMapper\ThisTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\TypeWithClassNameTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\UnionTypeMapper;
 use Rector\PHPStanStaticTypeMapper\TypeMapper\VoidTypeMapper;
@@ -176,6 +167,7 @@ use Rector\PostRector\Application\PostFileProcessor;
 use Rector\Rector\AbstractRector;
 use Rector\Reporting\DeprecatedRulesReporter;
 use Rector\Skipper\Skipper\Skipper;
+use Rector\Skipper\Skipper\UsedSkipCollector;
 use Rector\StaticTypeMapper\Contract\PhpDocParser\PhpDocTypeMapperInterface;
 use Rector\StaticTypeMapper\Contract\PhpParser\PhpParserNodeMapperInterface;
 use Rector\StaticTypeMapper\Mapper\PhpParserNodeMapper;
@@ -192,10 +184,10 @@ use Rector\StaticTypeMapper\PhpParser\NameNodeMapper;
 use Rector\StaticTypeMapper\PhpParser\NullableTypeNodeMapper;
 use Rector\StaticTypeMapper\PhpParser\StringNodeMapper;
 use Rector\StaticTypeMapper\PhpParser\UnionTypeNodeMapper;
-use RectorPrefix202606\Symfony\Component\Console\Application;
-use RectorPrefix202606\Symfony\Component\Console\Command\Command;
-use RectorPrefix202606\Symfony\Component\Console\Style\SymfonyStyle;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Symfony\Component\Console\Application;
+use RectorPrefix202607\Symfony\Component\Console\Command\Command;
+use RectorPrefix202607\Symfony\Component\Console\Style\SymfonyStyle;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 final class LazyContainerFactory
 {
     /**
@@ -225,7 +217,7 @@ final class LazyContainerFactory
     /**
      * @var array<class-string<TypeMapperInterface>>
      */
-    private const TYPE_MAPPER_CLASSES = [AccessoryLiteralStringTypeMapper::class, AccessoryNonEmptyStringTypeMapper::class, AccessoryNonFalsyStringTypeMapper::class, AccessoryNumericStringTypeMapper::class, ConstantArrayTypeMapper::class, ArrayTypeMapper::class, BooleanTypeMapper::class, CallableTypeMapper::class, ClassStringTypeMapper::class, ClosureTypeMapper::class, ConditionalTypeForParameterMapper::class, ConditionalTypeMapper::class, FloatTypeMapper::class, GenericClassStringTypeMapper::class, HasMethodTypeMapper::class, HasOffsetTypeMapper::class, HasOffsetValueTypeTypeMapper::class, HasPropertyTypeMapper::class, IntegerTypeMapper::class, IntersectionTypeMapper::class, IterableTypeMapper::class, MixedTypeMapper::class, NeverTypeMapper::class, NonEmptyArrayTypeMapper::class, NullTypeMapper::class, ObjectTypeMapper::class, ObjectWithoutClassTypeMapper::class, OversizedArrayTypeMapper::class, ParentStaticTypeMapper::class, ResourceTypeMapper::class, SelfObjectTypeMapper::class, StaticTypeMapper::class, StrictMixedTypeMapper::class, StringTypeMapper::class, ThisTypeMapper::class, TypeWithClassNameTypeMapper::class, UnionTypeMapper::class, VoidTypeMapper::class];
+    private const TYPE_MAPPER_CLASSES = [AccessoryArrayTypeMapper::class, AccessoryStringTypeMapper::class, ConstantArrayTypeMapper::class, ArrayTypeMapper::class, BooleanTypeMapper::class, CallableTypeMapper::class, ClassStringTypeMapper::class, ClosureTypeMapper::class, ConditionalTypeForParameterMapper::class, ConditionalTypeMapper::class, FloatTypeMapper::class, HasMethodTypeMapper::class, HasPropertyTypeMapper::class, IntegerTypeMapper::class, IntersectionTypeMapper::class, IterableTypeMapper::class, MixedTypeMapper::class, NeverTypeMapper::class, NullTypeMapper::class, ObjectTypeMapper::class, ObjectWithoutClassTypeMapper::class, ParentStaticTypeMapper::class, ResourceTypeMapper::class, StaticTypeMapper::class, StrictMixedTypeMapper::class, StringTypeMapper::class, TypeWithClassNameTypeMapper::class, UnionTypeMapper::class, VoidTypeMapper::class];
     /**
      * @var array<class-string<PhpDocNodeDecoratorInterface>>
      */
@@ -257,6 +249,19 @@ final class LazyContainerFactory
     {
         $rectorConfig = new RectorConfig();
         $rectorConfig->import(__DIR__ . '/../../config/config.php');
+        $this->registerConsole($rectorConfig);
+        $this->registerFileProcessing($rectorConfig);
+        $this->registerCachingAndResettables($rectorConfig);
+        $this->registerTypeMappers($rectorConfig);
+        $this->registerNodeNameResolvers($rectorConfig);
+        $this->registerRectorAutowiring($rectorConfig);
+        $this->registerTaggedServices($rectorConfig);
+        $this->registerAnnotationToAttributeSetters($rectorConfig);
+        $this->registerNodeVisitorsAndPhpDoc($rectorConfig);
+        return $rectorConfig;
+    }
+    private function registerConsole(RectorConfig $rectorConfig): void
+    {
         $rectorConfig->singleton(Application::class, static function (Container $container): Application {
             $consoleApplication = $container->make(ConsoleApplication::class);
             $commandNamesToHide = ['list', 'completion', 'help', 'worker'];
@@ -280,8 +285,13 @@ final class LazyContainerFactory
         $rectorConfig->when(ListRulesCommand::class)->needs('$rectors')->giveTagged(RectorInterface::class);
         $rectorConfig->when(OnlyRuleResolver::class)->needs('$rectors')->giveTagged(RectorInterface::class);
         $rectorConfig->when(DeprecatedRulesReporter::class)->needs('$rectors')->giveTagged(RectorInterface::class);
+    }
+    private function registerFileProcessing(RectorConfig $rectorConfig): void
+    {
         $rectorConfig->singleton(FileProcessor::class);
         $rectorConfig->singleton(PostFileProcessor::class);
+        // shared state: collects used skips across the skipper, the path skipper and the file processor
+        $rectorConfig->singleton(UsedSkipCollector::class);
         $rectorConfig->when(RectorNodeTraverser::class)->needs('$rectors')->giveTagged(RectorInterface::class);
         $rectorConfig->when(ConfigInitializer::class)->needs('$rectors')->giveTagged(RectorInterface::class);
         $rectorConfig->when(ClassNameImportSkipper::class)->needs('$classNameImportSkipVoters')->giveTagged(ClassNameImportSkipVoterInterface::class);
@@ -289,8 +299,12 @@ final class LazyContainerFactory
             $phpStanServicesFactory = $container->make(PHPStanServicesFactory::class);
             return $phpStanServicesFactory->createDynamicSourceLocatorProvider();
         });
+    }
+    private function registerCachingAndResettables(RectorConfig $rectorConfig): void
+    {
         // resettable
-        $rectorConfig->tag(DynamicSourceLocatorProvider::class, ResettableInterface::class);
+        // DynamicSourceLocatorProvider is autotagged on its singleton() call above,
+        // as RectorConfig autotags ResettableInterface
         $rectorConfig->tag(RenamedClassesDataCollector::class, ResettableInterface::class);
         // caching
         $rectorConfig->singleton(Cache::class, static function (Container $container): Cache {
@@ -299,6 +313,9 @@ final class LazyContainerFactory
             return $cacheFactory->create();
         });
         $rectorConfig->when(FileHashComputer::class)->needs('$cacheMetaExtensions')->giveTagged(CacheMetaExtensionInterface::class);
+    }
+    private function registerTypeMappers(RectorConfig $rectorConfig): void
+    {
         // tagged services
         $rectorConfig->when(BetterPhpDocParser::class)->needs('$phpDocNodeDecorators')->giveTagged(PhpDocNodeDecoratorInterface::class);
         $rectorConfig->afterResolving(ArrayTypeMapper::class, static function (ArrayTypeMapper $arrayTypeMapper, Container $container): void {
@@ -320,16 +337,25 @@ final class LazyContainerFactory
         $rectorConfig->when(PhpDocTypeMapper::class)->needs('$phpDocTypeMappers')->giveTagged(PhpDocTypeMapperInterface::class);
         $rectorConfig->when(PhpParserNodeMapper::class)->needs('$phpParserNodeMappers')->giveTagged(PhpParserNodeMapperInterface::class);
         $rectorConfig->when(NodeTypeResolver::class)->needs('$nodeTypeResolvers')->giveTagged(NodeTypeResolverInterface::class);
+    }
+    private function registerNodeNameResolvers(RectorConfig $rectorConfig): void
+    {
         // node name resolvers
         $rectorConfig->when(NodeNameResolver::class)->needs('$nodeNameResolvers')->giveTagged(NodeNameResolverInterface::class);
         $rectorConfig->when(AttributeGroupNamedArgumentManipulator::class)->needs('$converterAttributeDecorators')->giveTagged(ConverterAttributeDecoratorInterface::class);
         $this->registerTagged($rectorConfig, self::CONVERTER_ATTRIBUTE_DECORATOR_CLASSES, ConverterAttributeDecoratorInterface::class);
+    }
+    private function registerRectorAutowiring(RectorConfig $rectorConfig): void
+    {
         $rectorConfig->afterResolving(AbstractRector::class, static function (AbstractRector $rector, Container $container): void {
             $rector->autowire($container->get(NodeNameResolver::class), $container->get(NodeTypeResolver::class), $container->get(SimpleCallableNodeTraverser::class), $container->get(NodeFactory::class), $container->get(Skipper::class), $container->get(NodeComparator::class), $container->get(CurrentFileProvider::class), $container->get(CreatedByRuleDecorator::class), $container->get(ChangedNodeScopeRefresher::class), $container->get(CommentsMerger::class));
         });
         $this->registerTagged($rectorConfig, self::PHP_PARSER_NODE_MAPPER_CLASSES, PhpParserNodeMapperInterface::class);
         $this->registerTagged($rectorConfig, self::PHP_DOC_NODE_DECORATOR_CLASSES, PhpDocNodeDecoratorInterface::class);
         $this->registerTagged($rectorConfig, self::BASE_PHP_DOC_NODE_VISITORS, BasePhpDocNodeVisitorInterface::class);
+    }
+    private function registerTaggedServices(RectorConfig $rectorConfig): void
+    {
         // PHP 8.0 attributes
         $this->registerTagged($rectorConfig, self::ANNOTATION_TO_ATTRIBUTE_MAPPER_CLASSES, AnnotationToAttributeMapperInterface::class);
         $this->registerTagged($rectorConfig, self::TYPE_MAPPER_CLASSES, TypeMapperInterface::class);
@@ -337,7 +363,6 @@ final class LazyContainerFactory
         $this->registerTagged($rectorConfig, self::NODE_NAME_RESOLVER_CLASSES, NodeNameResolverInterface::class);
         $this->registerTagged($rectorConfig, self::NODE_TYPE_RESOLVER_CLASSES, NodeTypeResolverInterface::class);
         $this->registerTagged($rectorConfig, self::OUTPUT_FORMATTER_CLASSES, OutputFormatterInterface::class);
-        $this->registerTagged($rectorConfig, self::BASE_PHP_DOC_NODE_VISITORS, BasePhpDocNodeVisitorInterface::class);
         $this->registerTagged($rectorConfig, self::CLASS_NAME_IMPORT_SKIPPER_CLASSES, ClassNameImportSkipVoterInterface::class);
         $rectorConfig->alias(SymfonyStyle::class, RectorStyle::class);
         $rectorConfig->singleton(SymfonyStyle::class, static function (Container $container): SymfonyStyle {
@@ -346,6 +371,9 @@ final class LazyContainerFactory
         });
         $rectorConfig->when(AnnotationToAttributeMapper::class)->needs('$annotationToAttributeMappers')->giveTagged(AnnotationToAttributeMapperInterface::class);
         $rectorConfig->when(OutputFormatterCollector::class)->needs('$outputFormatters')->giveTagged(OutputFormatterInterface::class);
+    }
+    private function registerAnnotationToAttributeSetters(RectorConfig $rectorConfig): void
+    {
         // required-like setter
         $rectorConfig->afterResolving(ArrayAnnotationToAttributeMapper::class, static function (ArrayAnnotationToAttributeMapper $arrayAnnotationToAttributeMapper, Container $container): void {
             $annotationToAttributeMapper = $container->make(AnnotationToAttributeMapper::class);
@@ -366,13 +394,15 @@ final class LazyContainerFactory
             $annotationToAttributeMapper = $container->make(AnnotationToAttributeMapper::class);
             $doctrineAnnotationAnnotationToAttributeMapper->autowire($annotationToAttributeMapper);
         });
+    }
+    private function registerNodeVisitorsAndPhpDoc(RectorConfig $rectorConfig): void
+    {
         $rectorConfig->when(PHPStanNodeScopeResolver::class)->needs('$decoratingNodeVisitors')->giveTagged(DecoratingNodeVisitorInterface::class);
         $this->registerTagged($rectorConfig, self::DECORATING_NODE_VISITOR_CLASSES, DecoratingNodeVisitorInterface::class);
         $this->createPHPStanServices($rectorConfig);
         $rectorConfig->when(PhpDocNodeMapper::class)->needs('$phpDocNodeVisitors')->giveTagged(BasePhpDocNodeVisitorInterface::class);
         // phpdoc-parser
         $rectorConfig->singleton(ParserConfig::class, static fn(Container $container): ParserConfig => new ParserConfig(['lines' => \true, 'indexes' => \true, 'comments' => \true]));
-        return $rectorConfig;
     }
     /**
      * @param array<class-string> $classes

@@ -118,6 +118,30 @@ final class Option
      */
     public const SKIP = 'skip';
     /**
+     * @internal Use
+     * @var string @see \Rector\Config\RectorConfig::reportUnusedSkips() instead
+     * @var string
+     */
+    public const REPORT_UNUSED_SKIPS = 'report_unused_skips';
+    /**
+     * True when the run is narrowed on the command line - via paths argument, "--only" or
+     * "--only-suffix". Unused skip reporting is then disabled, as skips outside the narrowed scope
+     * look falsely unused and would produce many false positives.
+     *
+     * @internal
+     * @var string
+     */
+    public const IS_RUN_NARROWED = 'is_run_narrowed';
+    /**
+     * True when the unchanged-files cache dropped at least one file from the run, so rules only ran
+     * on the changed subset. Unused skip reporting is then disabled, as skips on cached files never
+     * get a chance to match and would all look falsely unused.
+     *
+     * @internal
+     * @var string
+     */
+    public const IS_CACHED_RUN = 'is_cached_run';
+    /**
      * @internal Use RectorConfig::fileExtensions() instead
      * @var string
      */
@@ -294,4 +318,10 @@ final class Option
      * @var string
      */
     public const FILES_WITHOUT_EXTENSION = 'files_without_extension';
+    /**
+     * @internal Use
+     * @var string @see \Rector\Config\RectorConfig::typeGuardedClasses() instead
+     * @var string
+     */
+    public const TYPE_GUARDED_CLASSES = 'type_guarded_classes';
 }

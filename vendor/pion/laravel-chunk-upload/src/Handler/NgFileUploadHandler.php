@@ -19,28 +19,28 @@ class NgFileUploadHandler extends ChunksInRequestUploadHandler
      *
      * @static string
      */
-    const KEY_CHUNK_NUMBER = '_chunkNumber';
+    public const KEY_CHUNK_NUMBER = '_chunkNumber';
 
     /**
      * Key for total size of all chunks.
      *
      * @static string
      */
-    const KEY_TOTAL_SIZE = '_totalSize';
+    public const KEY_TOTAL_SIZE = '_totalSize';
 
     /**
      * Key for every chunk size.
      *
      * @static string
      */
-    const KEY_CHUNK_SIZE = '_chunkSize';
+    public const KEY_CHUNK_SIZE = '_chunkSize';
 
     /**
      * Key for current chunk size.
      *
      * @static string
      */
-    const KEY_CHUNK_CURRENT_SIZE = '_currentChunkSize';
+    public const KEY_CHUNK_CURRENT_SIZE = '_currentChunkSize';
 
     /**
      * Checks if the current handler can be used via HandlerFactory.
@@ -88,15 +88,15 @@ class NgFileUploadHandler extends ChunksInRequestUploadHandler
                      && ctype_digit($request->input(static::KEY_CHUNK_SIZE))
                      && ctype_digit($request->input(static::KEY_CHUNK_CURRENT_SIZE));
 
-        if ($request->get(static::KEY_CHUNK_SIZE) < $request->get(static::KEY_CHUNK_CURRENT_SIZE)) {
+        if ($request->input(static::KEY_CHUNK_SIZE) < $request->input(static::KEY_CHUNK_CURRENT_SIZE)) {
             throw new ChunkInvalidValueException();
         }
 
-        if ($request->get(static::KEY_CHUNK_NUMBER) < 0) {
+        if ($request->input(static::KEY_CHUNK_NUMBER) < 0) {
             throw new ChunkInvalidValueException();
         }
 
-        if ($request->get(static::KEY_TOTAL_SIZE) < 0) {
+        if ($request->input(static::KEY_TOTAL_SIZE) < 0) {
             throw new ChunkInvalidValueException();
         }
 
@@ -112,12 +112,17 @@ class NgFileUploadHandler extends ChunksInRequestUploadHandler
      */
     protected function getTotalChunksFromRequest(Request $request)
     {
-        if (!$request->get(static::KEY_CHUNK_SIZE)) {
+        if (!$request->input(static::KEY_CHUNK_SIZE)) {
             return 0;
         }
 
         return intval(
-            ceil($request->get(static::KEY_TOTAL_SIZE) / $request->get(static::KEY_CHUNK_SIZE))
+            ceil($request->input(static::KEY_TOTAL_SIZE) / $request->input(static::KEY_CHUNK_SIZE))
         );
+    }
+
+    public function requiresFinalChunkOnLastChunk(): bool
+    {
+        return true;
     }
 }

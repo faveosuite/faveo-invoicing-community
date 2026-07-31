@@ -3,6 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Rector;
 
+use Deprecated;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Name;
@@ -12,7 +13,9 @@ use PhpParser\Node\Stmt\Const_;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\Trait_;
+use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
+use PhpParser\NodeVisitor\CloningVisitor;
 use PhpParser\NodeVisitorAbstract;
 use PHPStan\Analyser\MutatingScope;
 use PHPStan\Type\ObjectType;
@@ -31,7 +34,9 @@ use Rector\NodeTypeResolver\NodeTypeResolver;
 use Rector\PhpDocParser\NodeTraverser\SimpleCallableNodeTraverser;
 use Rector\PhpParser\Comparing\NodeComparator;
 use Rector\PhpParser\Node\NodeFactory;
+use Rector\PhpParser\NodeVisitor\PhpDocInfoRemovingNodeVisitor;
 use Rector\Skipper\Skipper\Skipper;
+use Rector\Skipper\ValueObject\SkipMatch;
 use Rector\ValueObject\Application\File;
 abstract class AbstractRector extends NodeVisitorAbstract implements RectorInterface
 {
@@ -54,7 +59,7 @@ CODE_SAMPLE;
     protected NodeFactory $nodeFactory;
     protected NodeComparator $nodeComparator;
     /**
-     * @deprecated Use getFile() instead.
+     * @internal Use getFile() instead.
      */
     protected File $file;
     protected Skipper $skipper;
@@ -105,7 +110,18 @@ CODE_SAMPLE;
             return null;
         }
         $filePath = $this->file->getFilePath();
-        if ($this->skipper->shouldSkipCurrentNode($this, $filePath, static::class, $node)) {
+        // node already changed by this rule in a previous pass → hard skip
+        if ($this->skipper->shouldSkipCurrentNode(static::class, $node)) {
+            return null;
+        }
+        // class/path skip is configured for this rule and file: run the rule on a deep clone to learn
+        // whether it would actually have changed anything. Only a skip that prevents a real change
+        // counts as used; the original node is left untouched, so the file stays skipped either way.
+        $skipMatch = $this->skipper->matchSkip($this, $filePath);
+        if ($skipMatch instanceof SkipMatch) {
+            if ($this->refactor($this->cloneNode($node)) !== null) {
+                $this->skipper->markSkipUsed($skipMatch);
+            }
             return null;
         }
         // ensure origNode pulled before refactor to avoid changed during refactor, ref https://3v4l.org/YMEGN
@@ -135,7 +151,6 @@ CODE_SAMPLE;
         return $this->postRefactorProcess($originalNode, $node, $refactoredNodeOrState, $filePath);
     }
     /**
-     * @deprecated no longer used
      * @return mixed[]|int|\PhpParser\Node|null
      */
     final public function leaveNode(Node $node)
@@ -209,6 +224,14 @@ CODE_SAMPLE;
     protected function mirrorComments(Node $newNode, Node $oldNode): void
     {
         $this->commentsMerger->mirrorComments($newNode, $oldNode);
+    }
+    /**
+     * Deep clone, so a skipped rule can be probed on the clone without mutating the real node.
+     */
+    private function cloneNode(Node $node): Node
+    {
+        $nodeTraverser = new NodeTraverser(new CloningVisitor(), new PhpDocInfoRemovingNodeVisitor());
+        return $nodeTraverser->traverse([$node])[0];
     }
     /**
      * @param Node|Node[] $refactoredNode

@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\BetterPhpDocParser\Printer;
 
-use RectorPrefix202606\Nette\Utils\Strings;
+use RectorPrefix202607\Nette\Utils\Strings;
 use PhpParser\Comment;
 use PhpParser\Node\Stmt\InlineHTML;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ParamTagValueNode;
@@ -169,12 +169,14 @@ final class PhpDocInfoPrinter
     }
     private function hasDocblockStart(string $output): bool
     {
+        $found = \false;
         foreach (self::DOCBLOCK_STARTS as $docblockStart) {
             if (strncmp($output, $docblockStart, strlen($docblockStart)) === 0) {
-                return \true;
+                $found = \true;
+                break;
             }
         }
-        return \false;
+        return $found;
     }
     private function printDocChildNode(PhpDocChildNode $phpDocChildNode, int $key = 0, int $nodeCount = 0): string
     {

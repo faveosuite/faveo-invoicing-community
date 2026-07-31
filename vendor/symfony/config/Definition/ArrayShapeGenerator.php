@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Config\Definition;
 
+use Symfony\Component\Config\Definition\Builder\ExprBuilder;
 use Symfony\Component\Config\Loader\ParamConfigurator;
 
 /**
@@ -20,7 +21,9 @@ final class ArrayShapeGenerator
 {
     public static function generate(NodeInterface $node): string
     {
-        return str_replace("\n", "\n * ", self::doGeneratePhpDoc($node));
+        // "*/" anywhere in the shape (a comment, an enum value, a node name) would prematurely
+        // close the surrounding doc block, so the slash is escaped to keep the value readable
+        return str_replace(['*/', "\n"], ['*\/', "\n * "], self::doGeneratePhpDoc($node));
     }
 
     private static function doGeneratePhpDoc(NodeInterface $node, int $nestingLevel = 1): string
@@ -48,7 +51,7 @@ final class ArrayShapeGenerator
 
         if ($node instanceof PrototypedArrayNode) {
             $isHashmap = (bool) $node->getKeyAttribute();
-            $arrayShape = ($isHashmap ? 'array<string, ' : 'list<').self::doGeneratePhpDoc($node->getPrototype(), 1 + $nestingLevel).'>';
+            $arrayShape = ($isHashmap ? 'array<string, ' : 'list<').self::doGeneratePhpDoc($node->getPrototype(), $nestingLevel).'>';
 
             return implode('|', [...self::getNormalizedTypes($node, ['array', 'any']), $arrayShape]);
         }
@@ -62,13 +65,7 @@ final class ArrayShapeGenerator
         foreach ($children as $child) {
             $arrayShape .= str_repeat('    ', $nestingLevel).self::dumpNodeKey($child, $node).': ';
 
-            if ($child instanceof PrototypedArrayNode) {
-                $isHashmap = (bool) $child->getKeyAttribute();
-                $childArrayType = ($isHashmap ? 'array<string, ' : 'list<').self::doGeneratePhpDoc($child->getPrototype(), 1 + $nestingLevel).'>';
-                $arrayShape .= $child->hasDefaultValue() && null === $child->getDefaultValue() ? $childArrayType.'|null' : $childArrayType;
-            } else {
-                $arrayShape .= self::doGeneratePhpDoc($child, 1 + $nestingLevel);
-            }
+            $arrayShape .= self::doGeneratePhpDoc($child, 1 + $nestingLevel);
 
             $arrayShape .= \sprintf(",%s\n", !$child instanceof ArrayNode ? self::generateInlinePhpDocForNode($child) : '');
         }
@@ -144,6 +141,13 @@ final class ArrayShapeGenerator
         }
 
         $types = array_unique($types);
+        if (false !== $backedEnumIndex = array_search(ExprBuilder::TYPE_BACKED_ENUM, $types, true)) {
+            $types[$backedEnumIndex] = '\BackedEnum';
+        }
+
+        if (array_intersect($types, [ExprBuilder::TYPE_STRING, '\BackedEnum'])) {
+            $types[] = '\\'.ParamConfigurator::class;
+        }
 
         sort($types);
 

@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\Symfony\Component\Finder;
+namespace RectorPrefix202607\Symfony\Component\Finder;
 
 /**
  * Extends \SplFileInfo to support relative paths.
@@ -17,7 +17,13 @@ namespace RectorPrefix202606\Symfony\Component\Finder;
  */
 class SplFileInfo extends \SplFileInfo
 {
+    /**
+     * @var string
+     */
     private string $relativePath;
+    /**
+     * @var string
+     */
     private string $relativePathname;
     /**
      * @param string $file             The file name
@@ -26,9 +32,9 @@ class SplFileInfo extends \SplFileInfo
      */
     public function __construct(string $file, string $relativePath, string $relativePathname)
     {
-        parent::__construct($file);
         $this->relativePath = $relativePath;
         $this->relativePathname = $relativePathname;
+        parent::__construct($file);
     }
     /**
      * Returns the relative path.
@@ -60,7 +66,7 @@ class SplFileInfo extends \SplFileInfo
      */
     public function getContents(): string
     {
-        set_error_handler(function ($type, $msg) use (&$error) {
+        set_error_handler(static function ($type, $msg) use (&$error) {
             $error = $msg;
         });
         try {

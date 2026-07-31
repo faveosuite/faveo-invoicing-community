@@ -87,6 +87,7 @@ require_once __DIR__ . '/vendor/nikic/php-parser/lib/PhpParser/Lexer/TokenEmulat
 require_once __DIR__ . '/vendor/nikic/php-parser/lib/PhpParser/Lexer/TokenEmulator/AttributeEmulator.php';
 require_once __DIR__ . '/vendor/nikic/php-parser/lib/PhpParser/Lexer/TokenEmulator/EnumTokenEmulator.php';
 require_once __DIR__ . '/vendor/nikic/php-parser/lib/PhpParser/Lexer/TokenEmulator/ExplicitOctalEmulator.php';
+require_once __DIR__ . '/vendor/nikic/php-parser/lib/PhpParser/Lexer/TokenEmulator/FnTokenEmulator.php';
 require_once __DIR__ . '/vendor/nikic/php-parser/lib/PhpParser/Lexer/TokenEmulator/MatchTokenEmulator.php';
 require_once __DIR__ . '/vendor/nikic/php-parser/lib/PhpParser/Lexer/TokenEmulator/NullsafeTokenEmulator.php';
 require_once __DIR__ . '/vendor/nikic/php-parser/lib/PhpParser/Lexer/TokenEmulator/PipeOperatorEmulator.php';
@@ -336,6 +337,7 @@ require_once __DIR__ . '/vendor/phpstan/phpdoc-parser/src/Ast/PhpDoc/PhpDocTagNo
 require_once __DIR__ . '/vendor/phpstan/phpdoc-parser/src/Ast/PhpDoc/PhpDocTextNode.php';
 require_once __DIR__ . '/vendor/phpstan/phpdoc-parser/src/Ast/PhpDoc/PropertyTagValueNode.php';
 require_once __DIR__ . '/vendor/phpstan/phpdoc-parser/src/Ast/PhpDoc/PureUnlessCallableIsImpureTagValueNode.php';
+require_once __DIR__ . '/vendor/phpstan/phpdoc-parser/src/Ast/PhpDoc/PureUnlessParameterIsPassedTagValueNode.php';
 require_once __DIR__ . '/vendor/phpstan/phpdoc-parser/src/Ast/PhpDoc/RequireExtendsTagValueNode.php';
 require_once __DIR__ . '/vendor/phpstan/phpdoc-parser/src/Ast/PhpDoc/RequireImplementsTagValueNode.php';
 require_once __DIR__ . '/vendor/phpstan/phpdoc-parser/src/Ast/PhpDoc/ReturnTagValueNode.php';

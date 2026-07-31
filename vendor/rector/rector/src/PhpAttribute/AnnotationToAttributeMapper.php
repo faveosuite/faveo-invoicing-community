@@ -12,7 +12,7 @@ use Rector\BetterPhpDocParser\PhpDoc\StringNode;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\PhpAttribute\Contract\AnnotationToAttributeMapperInterface;
 use Rector\PhpAttribute\Enum\DocTagNodeState;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\PhpAttribute\AnnotationToAttributeMapper\AnnotationToAttributeMapperTest
  */
@@ -32,8 +32,8 @@ final class AnnotationToAttributeMapper
         Assert::notEmpty($annotationToAttributeMappers);
     }
     /**
-     * @return mixed|DocTagNodeState::REMOVE_ARRAY
      * @param mixed $value
+     * @return mixed
      */
     public function map($value)
     {

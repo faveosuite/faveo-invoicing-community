@@ -5,9 +5,9 @@ declare (strict_types=1);
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-namespace RectorPrefix202606\Nette\Utils;
+namespace RectorPrefix202607\Nette\Utils;
 
-use RectorPrefix202606\Nette;
+use RectorPrefix202607\Nette;
 use function array_key_exists, class_exists, explode, gettype, interface_exists, is_callable, is_float, is_int, is_iterable, is_numeric, is_object, is_string, preg_match, str_ends_with, str_replace, str_starts_with, strlen, strtolower, substr, trait_exists, var_export;
 /**
  * Validation utilities.
@@ -279,14 +279,16 @@ XX
     public static function isUrl(string $value): bool
     {
         $alpha = "a-z\x80-\xff";
+        $octet = '(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])';
+        // 0..255
         return (bool) preg_match(<<<XX
 (^(?n)
 \thttps?://(
 \t\t(([-_0-9{$alpha}]+\\.)*                       # subdomain
 \t\t\t[0-9{$alpha}]([-0-9{$alpha}]{0,61}[0-9{$alpha}])?\\.)?  # domain
 \t\t\t[{$alpha}]([-0-9{$alpha}]{0,17}[{$alpha}])?   # top domain
-\t\t|\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}  # IPv4
-\t\t|\\[[0-9a-f:]{3,39}\\]                      # IPv6
+\t\t|{$octet}(\\.{$octet}){3}                       # IPv4
+\t\t|\\[[0-9a-f:]{3,39}]                        # IPv6
 \t)(:\\d{1,5})?                                   # port
 \t(/\\S*)?                                        # path
 \t(\\?\\S*)?                                      # query
@@ -300,7 +302,7 @@ XX
      */
     public static function isUri(string $value): bool
     {
-        return (bool) preg_match('#^[a-z\d+\.-]+:\S+$#Di', $value);
+        return (bool) preg_match('#^[a-z\d+.-]+:\S+$#Di', $value);
     }
     /**
      * Checks whether the input is a class, interface or trait.

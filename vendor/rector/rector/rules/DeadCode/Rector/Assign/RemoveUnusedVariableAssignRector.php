@@ -27,6 +27,7 @@ use Rector\NodeManipulator\StmtsManipulator;
 use Rector\Php\ReservedKeywordAnalyzer;
 use Rector\PhpParser\Enum\NodeGroup;
 use Rector\PhpParser\Node\BetterNodeFinder;
+use Rector\PhpParser\Node\Value\ValueResolver;
 use Rector\Rector\AbstractRector;
 use Rector\ValueObject\MethodName;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
@@ -60,7 +61,11 @@ final class RemoveUnusedVariableAssignRector extends AbstractRector
      * @readonly
      */
     private NoDiscardCallAnalyzer $noDiscardCallAnalyzer;
-    public function __construct(ReservedKeywordAnalyzer $reservedKeywordAnalyzer, SideEffectNodeDetector $sideEffectNodeDetector, VariableAnalyzer $variableAnalyzer, BetterNodeFinder $betterNodeFinder, StmtsManipulator $stmtsManipulator, NoDiscardCallAnalyzer $noDiscardCallAnalyzer)
+    /**
+     * @readonly
+     */
+    private ValueResolver $valueResolver;
+    public function __construct(ReservedKeywordAnalyzer $reservedKeywordAnalyzer, SideEffectNodeDetector $sideEffectNodeDetector, VariableAnalyzer $variableAnalyzer, BetterNodeFinder $betterNodeFinder, StmtsManipulator $stmtsManipulator, NoDiscardCallAnalyzer $noDiscardCallAnalyzer, ValueResolver $valueResolver)
     {
         $this->reservedKeywordAnalyzer = $reservedKeywordAnalyzer;
         $this->sideEffectNodeDetector = $sideEffectNodeDetector;
@@ -68,6 +73,7 @@ final class RemoveUnusedVariableAssignRector extends AbstractRector
         $this->betterNodeFinder = $betterNodeFinder;
         $this->stmtsManipulator = $stmtsManipulator;
         $this->noDiscardCallAnalyzer = $noDiscardCallAnalyzer;
+        $this->valueResolver = $valueResolver;
     }
     public function getRuleDefinition(): RuleDefinition
     {
@@ -124,6 +130,9 @@ CODE_SAMPLE
             if ($this->isObjectWithDestructMethod($assign->expr)) {
                 continue;
             }
+            if ($this->isNullResetOfInternalObject($assign)) {
+                continue;
+            }
             if ($this->hasCallLikeInAssignExpr($assign)) {
                 // clean safely
                 $cleanAssignedExpr = $this->cleanCastedExpr($assign->expr);
@@ -139,6 +148,23 @@ CODE_SAMPLE
             return $node;
         }
         return null;
+    }
+    private function isNullResetOfInternalObject(Assign $assign): bool
+    {
+        // resetting an internal PHP object to null releases the held resource/file handle,
+        // e.g. $file = null on a SplFileObject/RecursiveDirectoryIterator/finfo
+        if (!$this->valueResolver->isNull($assign->expr)) {
+            return \false;
+        }
+        $varType = $this->getType($assign->var);
+        if (!$varType instanceof ObjectType) {
+            return \false;
+        }
+        $classReflection = $varType->getClassReflection();
+        if (!$classReflection instanceof ClassReflection) {
+            return \false;
+        }
+        return $classReflection->isBuiltin();
     }
     private function isObjectWithDestructMethod(Expr $expr): bool
     {

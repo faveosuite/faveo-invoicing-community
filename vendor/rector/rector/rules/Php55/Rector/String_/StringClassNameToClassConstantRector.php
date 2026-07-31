@@ -3,6 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Php55\Rector\String_;
 
+use Deprecated;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Name\FullyQualified;
@@ -15,7 +16,7 @@ use Rector\ValueObject\PhpVersionFeature;
 use Rector\VersionBonding\Contract\MinPhpVersionInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Php55\Rector\String_\StringClassNameToClassConstantRector\StringClassNameToClassConstantRectorTest
  */
@@ -26,9 +27,9 @@ final class StringClassNameToClassConstantRector extends AbstractRector implemen
      */
     private ReflectionProvider $reflectionProvider;
     /**
-     * @deprecated since 2.2.12. Default behavior now.
      * @var string
      */
+    #[Deprecated(message: 'since 2.2.12. Default behavior now.')]
     public const SHOULD_KEEP_PRE_SLASH = 'should_keep_pre_slash';
     /**
      * @var string[]

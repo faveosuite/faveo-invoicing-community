@@ -8,8 +8,10 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Attribute;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
@@ -24,7 +26,7 @@ use Rector\ValueObject\PhpVersionFeature;
 use Rector\VersionBonding\Contract\MinPhpVersionInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 /**
  * @see https://symfony.com/doc/current/console.html#registering-the-command
  *
@@ -123,11 +125,6 @@ CODE_SAMPLE
                 break 2;
             }
         }
-        if (!$asCommandAttribute instanceof Attribute) {
-            $asCommandAttributeGroup = $this->phpAttributeGroupFactory->createFromClass(SymfonyAttribute::AS_COMMAND);
-            $asCommandAttribute = $asCommandAttributeGroup->attrs[0];
-            $node->attrGroups[] = $asCommandAttributeGroup;
-        }
         $existingAttributeNames = array_map(function (Arg $arg): string {
             Assert::isInstanceOf($arg->name, Identifier::class);
             return $arg->name->toString();
@@ -142,14 +139,59 @@ CODE_SAMPLE
             }
             $attributeArgs[] = $this->createNamedArg($attributeName, $resolvedExpr);
         }
-        $asCommandAttribute->args = $attributeArgs;
+        // only create/update the attribute when there is something to fill it with,
+        // to avoid adding an empty #[AsCommand] to an already empty configure()
+        if ($attributeArgs !== []) {
+            if (!$asCommandAttribute instanceof Attribute) {
+                $asCommandAttributeGroup = $this->phpAttributeGroupFactory->createFromClass(SymfonyAttribute::AS_COMMAND);
+                $asCommandAttribute = $asCommandAttributeGroup->attrs[0];
+                $node->attrGroups[] = $asCommandAttributeGroup;
+            }
+            $asCommandAttribute->args = $attributeArgs;
+        }
         // remove left overs
         foreach ((array) $configureClassMethod->stmts as $key => $stmt) {
             if ($this->isExpressionVariableThis($stmt)) {
                 unset($configureClassMethod->stmts[$key]);
             }
         }
+        // remove now empty configure() method, only a possible parent::configure() call left
+        if ($this->isEmptyConfigureClassMethod($configureClassMethod)) {
+            foreach ($node->stmts as $key => $classStmt) {
+                if ($classStmt === $configureClassMethod) {
+                    unset($node->stmts[$key]);
+                    break;
+                }
+            }
+        }
         return $node;
+    }
+    private function isEmptyConfigureClassMethod(ClassMethod $classMethod): bool
+    {
+        foreach ((array) $classMethod->stmts as $stmt) {
+            if ($this->isParentConfigureCall($stmt)) {
+                continue;
+            }
+            return \false;
+        }
+        return \true;
+    }
+    private function isParentConfigureCall(Stmt $stmt): bool
+    {
+        if (!$stmt instanceof Expression) {
+            return \false;
+        }
+        if (!$stmt->expr instanceof StaticCall) {
+            return \false;
+        }
+        $staticCall = $stmt->expr;
+        if (!$staticCall->class instanceof Name) {
+            return \false;
+        }
+        if (!$staticCall->class->isSpecialClassName() || $staticCall->class->toString() !== 'parent') {
+            return \false;
+        }
+        return $this->isName($staticCall->name, 'configure');
     }
     private function createNamedArg(string $name, Expr $expr): Arg
     {

@@ -18,7 +18,7 @@ final class NestedAnnotationToAttribute implements AnnotationToAttributeInterfac
     /**
      * @var AnnotationPropertyToAttributeClass[]
      */
-    private array $annotationPropertiesToAttributeClasses = [];
+    private array $annotationPropertiesToAttributeClasses;
     /**
      * @param array<string, string>|string[]|AnnotationPropertyToAttributeClass[] $annotationPropertiesToAttributeClasses
      */
@@ -57,11 +57,13 @@ final class NestedAnnotationToAttribute implements AnnotationToAttributeInterfac
     }
     public function hasExplicitParameters(): bool
     {
+        $found = \false;
         foreach ($this->annotationPropertiesToAttributeClasses as $annotationPropertyToAttributeClass) {
             if (is_string($annotationPropertyToAttributeClass->getAnnotationProperty())) {
-                return \true;
+                $found = \true;
+                break;
             }
         }
-        return \false;
+        return $found;
     }
 }

@@ -4,6 +4,7 @@ declare (strict_types=1);
 namespace Rector\TypeDeclaration\Rector\ClassMethod;
 
 use PhpParser\Node;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\Assign;
@@ -14,7 +15,10 @@ use PhpParser\Node\Expr\Cast\Array_;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\Empty_;
 use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Identifier;
@@ -93,6 +97,9 @@ CODE_SAMPLE
     {
         $hasChanged = \false;
         if ($node instanceof ClassMethod && $this->parentClassMethodTypeOverrideGuard->hasParentClassMethod($node)) {
+            return null;
+        }
+        if ($node instanceof ClassMethod && $this->parentClassMethodTypeOverrideGuard->isTypeGuardedClass($node)) {
             return null;
         }
         foreach ($node->getParams() as $param) {
@@ -178,12 +185,14 @@ CODE_SAMPLE
         if (!$node instanceof Echo_) {
             return \false;
         }
+        $found = \false;
         foreach ($node->exprs as $expr) {
             if ($expr instanceof Variable && $this->isName($expr, $paramName)) {
-                return \true;
+                $found = \true;
+                break;
             }
         }
-        return \false;
+        return $found;
     }
     private function shouldStop(Node $node, string $paramName): bool
     {
@@ -210,6 +219,12 @@ CODE_SAMPLE
         if ($this->isEmptyOrEchoedOrCasted($node, $paramName)) {
             return \true;
         }
+        if ($this->isPropertyFetchedOnArrayDimFetch($node, $paramName)) {
+            return \true;
+        }
+        if ($this->isInstanceofParam($node, $paramName)) {
+            return \true;
+        }
         return $this->isReassignAndUseAsArg($node, $paramName);
     }
     private function isReassignAndUseAsArg(Node $node, string $paramName): bool
@@ -229,12 +244,14 @@ CODE_SAMPLE
         if ($node->expr->isFirstClassCallable()) {
             return \false;
         }
+        $found = \false;
         foreach ($node->expr->getArgs() as $arg) {
             if ($arg->value instanceof Variable && $this->isName($arg->value, $paramName)) {
-                return \true;
+                $found = \true;
+                break;
             }
         }
-        return \false;
+        return $found;
     }
     private function isEmptyOrEchoedOrCasted(Node $node, string $paramName): bool
     {
@@ -245,6 +262,21 @@ CODE_SAMPLE
             return \true;
         }
         return $node instanceof Array_ && $node->expr instanceof Variable && $this->isName($node->expr, $paramName);
+    }
+    private function isPropertyFetchedOnArrayDimFetch(Node $node, string $paramName): bool
+    {
+        if (!$node instanceof PropertyFetch && !$node instanceof StaticPropertyFetch) {
+            return \false;
+        }
+        $fetchedOn = $node instanceof PropertyFetch ? $node->var : $node->class;
+        if (!$fetchedOn instanceof ArrayDimFetch) {
+            return \false;
+        }
+        return $fetchedOn->var instanceof Variable && $this->isName($fetchedOn->var, $paramName);
+    }
+    private function isInstanceofParam(Node $node, string $paramName): bool
+    {
+        return $node instanceof Instanceof_ && $node->expr instanceof Variable && $this->isName($node->expr, $paramName);
     }
     private function isMethodCall(string $paramName, ?Node $node): bool
     {

@@ -158,8 +158,7 @@ class Configuration
     private ?array $autoloadWarmers = null;
     private $implicitUse = false;
     private ?ShellLogger $logger = null;
-    /** @var callable|null */
-    private $exceptionDetails = null;
+    private ?\Closure $exceptionDetails = null;
     private int $errorLoggingLevel = \E_ALL;
     private bool $warnOnMultipleConfigs = false;
     private string $colorMode = self::COLOR_MODE_AUTO;
@@ -176,7 +175,6 @@ class Configuration
     private bool $yolo = false;
     private ?Theme $theme = null;
     private bool $localConfigLoaded = false;
-    private bool $forceWarmAutoload = false;
 
     // services
     private ?Readline\Readline $readline = null;
@@ -328,7 +326,6 @@ class Configuration
         // Handle --warm-autoload
         if (self::getOptionFromInput($input, ['warm-autoload'])) {
             $config->setWarmAutoload(true);
-            $config->setForceWarmAutoload(true);
         }
 
         // Handle --yolo
@@ -702,11 +699,10 @@ class Configuration
     }
 
     /**
-     * Force autoload warming for this run, regardless of project trust status.
+     * @deprecated explicit autoload warming always respects project trust restrictions
      */
     public function setForceWarmAutoload(bool $force = true): void
     {
-        $this->forceWarmAutoload = $force;
     }
 
     /**
@@ -856,10 +852,6 @@ class Configuration
 
     private function shouldReportAutoloadWarming(string $projectRoot): bool
     {
-        if ($this->forceWarmAutoload) {
-            return false;
-        }
-
         if (!$this->hasComposerAutoloadWarmerConfigured()) {
             return false;
         }
@@ -1846,11 +1838,18 @@ class Configuration
     public function getOutput(): ShellOutput
     {
         if (!isset($this->output)) {
+            // `true` means "use the built-in userland pager"; we can't
+            // construct it here because the interactive readline hasn't
+            // booted yet. Start with no pager and let Shell wire it up.
+            $pagerArg = $this->getPager();
+            if ($pagerArg === true) {
+                $pagerArg = null;
+            }
             $this->setOutput(new ShellOutput(
                 $this->getOutputVerbosity(),
                 null,
                 null,
-                $this->getPager() ?: null,
+                $pagerArg ?: null,
                 $this->theme()
             ));
 
@@ -1903,14 +1902,16 @@ class Configuration
     /**
      * Set the OutputPager service.
      *
-     * If a string is supplied, a ProcOutputPager will be used which shells out
-     * to the specified command.
+     * Accepted values:
+     *   - `false` (or `null`, or `'cat'`): never page.
+     *   - `true`: use the built-in userland pager when interactive readline
+     *     is active.
+     *   - a string command: shell out to that command via ProcOutputPager.
+     *   - an OutputPager instance: use it directly.
      *
-     * `cat` is special-cased to use the PassthruPager directly.
+     * @throws \InvalidArgumentException if $pager is not one of the above
      *
-     * @throws \InvalidArgumentException if $pager is not a string or OutputPager instance
-     *
-     * @param string|OutputPager|false $pager
+     * @param string|OutputPager|bool|null $pager
      */
     public function setPager($pager)
     {
@@ -1918,7 +1919,7 @@ class Configuration
             $pager = false;
         }
 
-        if ($pager !== false && !\is_string($pager) && !$pager instanceof OutputPager) {
+        if ($pager !== false && $pager !== true && !\is_string($pager) && !$pager instanceof OutputPager) {
             throw new \InvalidArgumentException('Unexpected pager instance');
         }
 
@@ -1939,10 +1940,20 @@ class Configuration
      * If no Pager has been explicitly provided, and Pcntl is available, this
      * will default to `cli.pager` ini value, falling back to `which less`.
      *
-     * @return string|OutputPager|false
+     * @return string|OutputPager|bool
      */
     public function getPager()
     {
+        // When the interactive readline is configured, prefer the built-in
+        // userland pager. Wired up by Shell after the readline boots.
+        if (!isset($this->pager)
+            && $this->useExperimentalReadline()
+            && $this->getInputInteractive()
+            && Readline\InteractiveReadline::isSupported()
+        ) {
+            return true;
+        }
+
         if (!isset($this->pager) && $this->usePcntl()) {
             if (\getenv('TERM') === 'dumb') {
                 return false;
@@ -2068,7 +2079,7 @@ class Configuration
             $this->autoloadWarmers = $this->parseWarmAutoloadConfig(false);
         }
 
-        if ($this->forceWarmAutoload || $this->projectTrust->getForceTrust() || $this->projectTrust->getMode() === self::PROJECT_TRUST_ALWAYS) {
+        if ($this->projectTrust->getForceTrust() || $this->projectTrust->getMode() === self::PROJECT_TRUST_ALWAYS) {
             return $this->autoloadWarmers;
         }
 
@@ -2263,24 +2274,16 @@ class Configuration
      *
      * The callback receives the thrown exception and may return any dumpable
      * value; returning null suppresses additional output.
-     *
-     * @param callable $exceptionDetails
      */
-    public function setExceptionDetails($exceptionDetails): void
+    public function setExceptionDetails(callable $exceptionDetails): void
     {
-        if (!\is_callable($exceptionDetails)) {
-            throw new \InvalidArgumentException('Exception details callback must be callable');
-        }
-
-        $this->exceptionDetails = $exceptionDetails;
+        $this->exceptionDetails = \Closure::fromCallable($exceptionDetails);
     }
 
     /**
      * Get the configured exception details callback, if any.
-     *
-     * @return callable|null
      */
-    public function getExceptionDetails()
+    public function getExceptionDetails(): ?\Closure
     {
         return $this->exceptionDetails;
     }

@@ -27,10 +27,43 @@ class ImplicitRouteBinding
 
     public function resolveAllParameters(Route $route, Component $component)
     {
+        // Resolve every bindable route parameter in URI order first (like Laravel's
+        // own implicit binding) so that scoped child bindings always see their
+        // parent as an already-resolved model, regardless of whether the parent
+        // is a public property or a mount() parameter...
+        $this->resolveRouteParametersInOrder($route, $component);
+
         $params = $this->resolveMountParameters($route, $component);
         $props = $this->resolveComponentProps($route, $component);
 
         return $params->merge($props)->all();
+    }
+
+    protected function resolveRouteParametersInOrder(Route $route, Component $component)
+    {
+        $types = $this->getPublicPropertyTypes($component)
+            ->merge($this->getMountParameterTypes($component)->filter())
+            ->filter(function ($className) {
+                return $className && (is_subclass_of($className, UrlRoutable::class) || is_subclass_of($className, BackedEnum::class));
+            });
+
+        foreach ($route->parametersWithoutNulls() as $name => $value) {
+            if (! $types->has($name)) continue;
+
+            $route->setParameter($name, $this->resolveParameter($route, $name, $types->get($name)));
+        }
+    }
+
+    protected function getMountParameterTypes(Component $component)
+    {
+        if (! method_exists($component, 'mount')) {
+            return new Collection();
+        }
+
+        return collect((new ReflectionMethod($component, 'mount'))->getParameters())
+            ->mapWithKeys(function ($parameter) {
+                return [$parameter->getName() => Reflector::getParameterClassName($parameter)];
+            });
     }
 
     public function resolveMountParameters(Route $route, Component $component)
@@ -51,7 +84,15 @@ class ImplicitRouteBinding
             // because that middleware has already ran, we need to run them again.
             $this->container['router']->substituteImplicitBindings($route);
 
-            $parameters = $route->resolveMethodDependencies($route->parameters(), new ReflectionMethod($component, 'mount'));
+            $mountMethod = new ReflectionMethod($component, 'mount');
+
+            // Only pass route parameters that match the mount method's signature.
+            // Without this, unmatched route parameters would be classified as
+            // HTML attributes and bleed into child Blade component constructors.
+            $mountParamNames = array_map(fn ($p) => $p->getName(), $mountMethod->getParameters());
+            $routeParams = array_intersect_key($route->parameters(), array_flip($mountParamNames));
+
+            $parameters = $route->resolveMethodDependencies($routeParams, $mountMethod);
 
             // Restore the original route action...
             $route->setAction($cache);

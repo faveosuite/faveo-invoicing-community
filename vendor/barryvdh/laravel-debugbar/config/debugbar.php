@@ -59,6 +59,7 @@ return [
         'inertia'         => env('DEBUGBAR_COLLECTORS_INERTIA', true),          // Display Inertia (when available)
         'jobs'            => env('DEBUGBAR_COLLECTORS_JOBS', true),             // Display dispatched jobs
         'pennant'         => env('DEBUGBAR_COLLECTORS_PENNANT', true),          // Display Pennant feature flags
+        'ai'              => env('DEBUGBAR_COLLECTORS_AI', true),               // Display laravel/ai agent runs
         'http_client'     => env('DEBUGBAR_COLLECTORS_HTTP_CLIENT', true),      // Display HTTP Client requests
     ],
 
@@ -156,6 +157,9 @@ return [
             'masked' => [],
             'timeline' => env('DEBUGBAR_OPTIONS_HTTP_CLIENT_TIMELINE', true),  // Add requests to the timeline
         ],
+        'ai' => [
+            'values' => env('DEBUGBAR_OPTIONS_AI_VALUES', true), // Collect prompt/response/tool bodies
+        ],
     ],
 
     /**
@@ -199,12 +203,20 @@ return [
     | Changing `ajax_handler_auto_show` to false will prevent the Debugbar from reloading.
     |
     | You can defer loading the dataset, so it will be loaded with ajax after the request is done. (Experimental)
+    |
+    | Streamed responses (SSE, StreamedResponse, Livewire streaming) lose the phpdebugbar-id response header.
+    | Enable `capture_streamed` to tag same-origin fetch/XHR requests with a phpdebugbar-request-id header and
+    | look the dataset up through the open handler afterwards (requires storage + the open handler enabled).
+    | `streamed_content_types` limits the fallback to these Content-Types; set it to an empty array or null to
+    | match any response missing the id header. Broaden it (e.g. text/html, application/json) for chunked responses.
     */
 
     'capture_ajax' => env('DEBUGBAR_CAPTURE_AJAX', true),
     'add_ajax_timing' => env('DEBUGBAR_ADD_AJAX_TIMING', false),
     'ajax_handler_auto_show' => env('DEBUGBAR_AJAX_HANDLER_AUTO_SHOW', true),
     'ajax_handler_enable_tab' => env('DEBUGBAR_AJAX_HANDLER_ENABLE_TAB', true),
+    'capture_streamed' => env('DEBUGBAR_CAPTURE_STREAMED', false),
+    'streamed_content_types' => ['text/event-stream'],
     'defer_datasets' => env('DEBUGBAR_DEFER_DATASETS', false),
 
     /*

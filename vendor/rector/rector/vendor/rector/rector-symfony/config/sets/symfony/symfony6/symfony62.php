@@ -1,7 +1,7 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix202606;
+namespace RectorPrefix202607;
 
 use Rector\Config\RectorConfig;
 use Rector\Php80\Rector\Class_\AnnotationToAttributeRector;
@@ -18,6 +18,7 @@ return static function (RectorConfig $rectorConfig): void {
         // @see https://github.com/symfony/symfony/pull/46906
         new AnnotationToAttribute('Sensio\Bundle\FrameworkExtraBundle\Configuration\Template'),
     ]);
+    $rectorConfig->import(__DIR__ . '/symfony62/symfony62-console.php');
     $rectorConfig->import(__DIR__ . '/symfony62/symfony62-security-bundle.php');
     $rectorConfig->import(__DIR__ . '/symfony62/symfony62-security-http.php');
     $rectorConfig->import(__DIR__ . '/symfony62/symfony62-mime.php');

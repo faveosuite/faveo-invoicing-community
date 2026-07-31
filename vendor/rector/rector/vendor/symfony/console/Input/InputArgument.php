@@ -8,14 +8,14 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\Symfony\Component\Console\Input;
+namespace RectorPrefix202607\Symfony\Component\Console\Input;
 
-use RectorPrefix202606\Symfony\Component\Console\Command\Command;
-use RectorPrefix202606\Symfony\Component\Console\Completion\CompletionInput;
-use RectorPrefix202606\Symfony\Component\Console\Completion\CompletionSuggestions;
-use RectorPrefix202606\Symfony\Component\Console\Completion\Suggestion;
-use RectorPrefix202606\Symfony\Component\Console\Exception\InvalidArgumentException;
-use RectorPrefix202606\Symfony\Component\Console\Exception\LogicException;
+use RectorPrefix202607\Symfony\Component\Console\Command\Command;
+use RectorPrefix202607\Symfony\Component\Console\Completion\CompletionInput;
+use RectorPrefix202607\Symfony\Component\Console\Completion\CompletionSuggestions;
+use RectorPrefix202607\Symfony\Component\Console\Completion\Suggestion;
+use RectorPrefix202607\Symfony\Component\Console\Exception\InvalidArgumentException;
+use RectorPrefix202607\Symfony\Component\Console\Exception\LogicException;
 /**
  * Represents a command line argument.
  *
@@ -29,7 +29,7 @@ class InputArgument
     private string $name;
     private int $mode;
     /**
-     * @var mixed[]|bool|float|int|string|null
+     * @var string|int|bool|mixed[]|float|null
      */
     private $default;
     /**
@@ -111,7 +111,7 @@ class InputArgument
     }
     /**
      * Returns the default value.
-     * @return mixed[]|bool|float|int|string|null
+     * @return string|bool|int|float|mixed[]|null
      */
     public function getDefault()
     {

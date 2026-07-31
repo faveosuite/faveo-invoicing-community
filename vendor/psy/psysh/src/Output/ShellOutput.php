@@ -26,8 +26,7 @@ class ShellOutput extends ConsoleOutput
     private int $paging = 0;
     private OutputPager $pager;
     private Theme $theme;
-    /** @var callable|null */
-    private $writeListener = null;
+    private bool $visibleOutputWritten = false;
 
     /**
      * Construct a ShellOutput instance.
@@ -85,10 +84,11 @@ class ShellOutput extends ConsoleOutput
 
     /**
      * Set a listener invoked whenever visible output is written.
+     *
+     * @deprecated No longer used. ShellOutput tracks visible writes internally.
      */
     public function setWriteListener(?callable $listener): void
     {
-        $this->writeListener = $listener;
     }
 
     /**
@@ -176,16 +176,29 @@ class ShellOutput extends ConsoleOutput
      */
     public function doWrite($message, $newline): void
     {
-        if ($this->writeListener) {
-            ($this->writeListener)();
-        }
+        $this->visibleOutputWritten = true;
 
-        // @todo Update OutputPager interface to require doWrite
-        if ($this->paging > 0 && ($this->pager instanceof ProcOutputPager || $this->pager instanceof PassthruPager)) {
-            $this->pager->doWrite($message, $newline);
+        if ($this->paging > 0) {
+            // @todo Update OutputPager interface to require doWrite
+            if ($this->pager instanceof ProcOutputPager || $this->pager instanceof PassthruPager || $this->pager instanceof BuiltinOutputPager) {
+                $this->pager->doWrite($message, $newline);
+            } else {
+                $this->pager->write($message, $newline, self::OUTPUT_RAW);
+            }
         } else {
             parent::doWrite($message, $newline);
         }
+    }
+
+    /**
+     * Reset visible output tracking and return whether output was written.
+     */
+    public function consumeVisibleOutputWritten(): bool
+    {
+        $written = $this->visibleOutputWritten;
+        $this->visibleOutputWritten = false;
+
+        return $written;
     }
 
     /**
@@ -244,25 +257,11 @@ class ShellOutput extends ConsoleOutput
      */
     private function initFormatters()
     {
-        $useGrayFallback = !$this->grayExists();
+        $useGrayFallback = !Theme::grayExists($this->getFormatter());
         $this->theme->applyStyles($this->getFormatter(), $useGrayFallback);
         $this->theme->applyErrorStyles($this->getErrorOutput()->getFormatter(), $useGrayFallback);
 
         // Set inline styles for hyperlinks
         LinkFormatter::setStyles($this->theme->getInlineStyles($useGrayFallback));
-    }
-
-    /**
-     * Checks if the "gray" color exists on the output.
-     */
-    private function grayExists(): bool
-    {
-        try {
-            $this->write('<fg=gray></>');
-        } catch (\InvalidArgumentException $e) {
-            return false;
-        }
-
-        return true;
     }
 }

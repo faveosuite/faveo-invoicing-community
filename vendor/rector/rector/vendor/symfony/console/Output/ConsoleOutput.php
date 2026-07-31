@@ -8,9 +8,9 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\Symfony\Component\Console\Output;
+namespace RectorPrefix202607\Symfony\Component\Console\Output;
 
-use RectorPrefix202606\Symfony\Component\Console\Formatter\OutputFormatterInterface;
+use RectorPrefix202607\Symfony\Component\Console\Formatter\OutputFormatterInterface;
 /**
  * ConsoleOutput is the default class for all CLI output. It uses STDOUT and STDERR.
  *
@@ -37,16 +37,9 @@ class ConsoleOutput extends StreamOutput implements ConsoleOutputInterface
     public function __construct(int $verbosity = self::VERBOSITY_NORMAL, ?bool $decorated = null, ?OutputFormatterInterface $formatter = null)
     {
         parent::__construct($this->openOutputStream(), $verbosity, $decorated, $formatter);
-        if (null === $formatter) {
-            // for BC reasons, stdErr has it own Formatter only when user don't inject a specific formatter.
-            $this->stderr = new StreamOutput($this->openErrorStream(), $verbosity, $decorated);
-            return;
-        }
-        $actualDecorated = $this->isDecorated();
-        $this->stderr = new StreamOutput($this->openErrorStream(), $verbosity, $decorated, $this->getFormatter());
-        if (null === $decorated) {
-            $this->setDecorated($actualDecorated && $this->stderr->isDecorated());
-        }
+        // stderr gets its own formatter: decoration is held by the formatter, so a shared one
+        // would force both streams to the same state instead of detecting each independently
+        $this->stderr = new StreamOutput($this->openErrorStream(), $verbosity, $decorated, $formatter ? clone $formatter : null);
     }
     /**
      * Creates a new output section.

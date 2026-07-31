@@ -9,7 +9,7 @@ declare (strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\SebastianBergmann\Diff\Output;
+namespace RectorPrefix202607\SebastianBergmann\Diff\Output;
 
 /**
  * Defines how an output builder should take a generated
@@ -17,5 +17,8 @@ namespace RectorPrefix202606\SebastianBergmann\Diff\Output;
  */
 interface DiffOutputBuilderInterface
 {
+    /**
+     * @param list<array{0: mixed, 1: int}> $diff
+     */
     public function getDiff(array $diff): string;
 }

@@ -3,8 +3,8 @@
 declare (strict_types=1);
 namespace Rector\PHPUnit\CodeQuality\Rector\Class_;
 
-use RectorPrefix202606\Nette\Utils\Json;
-use RectorPrefix202606\Nette\Utils\Strings;
+use RectorPrefix202607\Nette\Utils\Json;
+use RectorPrefix202607\Nette\Utils\Strings;
 use PhpParser\Modifiers;
 use PhpParser\Node;
 use PhpParser\Node\ArrayItem;
@@ -143,7 +143,7 @@ CODE_SAMPLE
             if (count($values) === 1) {
                 $arrayItemsSingleLine[] = new ArrayItem($this->createArrayItem($values[0]));
             }
-            //cleanup
+            // cleanup
             if ($this->phpDocTagRemover->removeTagValueFromNode($phpDocInfo, $testWithPhpDocTagNode)) {
                 $this->hasChanged = \true;
             }

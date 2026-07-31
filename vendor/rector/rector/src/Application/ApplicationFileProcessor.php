@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Application;
 
-use RectorPrefix202606\Nette\Utils\FileSystem as UtilsFileSystem;
+use RectorPrefix202607\Nette\Utils\FileSystem as UtilsFileSystem;
 use PHPStan\Parser\ParserErrorsException;
 use Rector\Application\Provider\CurrentFileProvider;
 use Rector\Caching\Detector\ChangedFilesDetector;
@@ -13,6 +13,7 @@ use Rector\FileSystem\FilesFinder;
 use Rector\Parallel\Application\ParallelFileProcessor;
 use Rector\PhpParser\Parser\ParserErrors;
 use Rector\Reporting\MissConfigurationReporter;
+use Rector\Skipper\Skipper\UsedSkipCollector;
 use Rector\Testing\PHPUnit\StaticPHPUnitEnvironment;
 use Rector\Util\ArrayParametersMerger;
 use Rector\ValueObject\Application\File;
@@ -21,11 +22,11 @@ use Rector\ValueObject\Error\SystemError;
 use Rector\ValueObject\FileProcessResult;
 use Rector\ValueObject\ProcessResult;
 use Rector\ValueObject\Reporting\FileDiff;
-use RectorPrefix202606\Symfony\Component\Console\Input\InputInterface;
-use RectorPrefix202606\Symfony\Component\Console\Style\SymfonyStyle;
-use RectorPrefix202606\Symplify\EasyParallel\CpuCoreCountProvider;
-use RectorPrefix202606\Symplify\EasyParallel\Exception\ParallelShouldNotHappenException;
-use RectorPrefix202606\Symplify\EasyParallel\ScheduleFactory;
+use RectorPrefix202607\Symfony\Component\Console\Input\InputInterface;
+use RectorPrefix202607\Symfony\Component\Console\Style\SymfonyStyle;
+use RectorPrefix202607\Symplify\EasyParallel\CpuCoreCountProvider;
+use RectorPrefix202607\Symplify\EasyParallel\Exception\ParallelShouldNotHappenException;
+use RectorPrefix202607\Symplify\EasyParallel\ScheduleFactory;
 use Throwable;
 final class ApplicationFileProcessor
 {
@@ -70,6 +71,10 @@ final class ApplicationFileProcessor
      */
     private MissConfigurationReporter $missConfigurationReporter;
     /**
+     * @readonly
+     */
+    private UsedSkipCollector $usedSkipCollector;
+    /**
      * @var string
      */
     private const ARGV = 'argv';
@@ -77,7 +82,7 @@ final class ApplicationFileProcessor
      * @var SystemError[]
      */
     private array $systemErrors = [];
-    public function __construct(SymfonyStyle $symfonyStyle, FilesFinder $filesFinder, ParallelFileProcessor $parallelFileProcessor, ScheduleFactory $scheduleFactory, CpuCoreCountProvider $cpuCoreCountProvider, ChangedFilesDetector $changedFilesDetector, CurrentFileProvider $currentFileProvider, \Rector\Application\FileProcessor $fileProcessor, ArrayParametersMerger $arrayParametersMerger, MissConfigurationReporter $missConfigurationReporter)
+    public function __construct(SymfonyStyle $symfonyStyle, FilesFinder $filesFinder, ParallelFileProcessor $parallelFileProcessor, ScheduleFactory $scheduleFactory, CpuCoreCountProvider $cpuCoreCountProvider, ChangedFilesDetector $changedFilesDetector, CurrentFileProvider $currentFileProvider, \Rector\Application\FileProcessor $fileProcessor, ArrayParametersMerger $arrayParametersMerger, MissConfigurationReporter $missConfigurationReporter, UsedSkipCollector $usedSkipCollector)
     {
         $this->symfonyStyle = $symfonyStyle;
         $this->filesFinder = $filesFinder;
@@ -89,9 +94,12 @@ final class ApplicationFileProcessor
         $this->fileProcessor = $fileProcessor;
         $this->arrayParametersMerger = $arrayParametersMerger;
         $this->missConfigurationReporter = $missConfigurationReporter;
+        $this->usedSkipCollector = $usedSkipCollector;
     }
     public function run(Configuration $configuration, InputInterface $input): ProcessResult
     {
+        // scope the cache to this run's --only / --only-suffix selection before any cache read/write
+        $this->changedFilesDetector->setActiveScope($configuration->getOnlyRule(), $configuration->getOnlySuffix());
         $filePaths = $this->filesFinder->findFilesInPaths($configuration->getPaths(), $configuration);
         // no files found
         if ($filePaths === []) {
@@ -128,6 +136,9 @@ final class ApplicationFileProcessor
             $processResult = $this->processFiles($filePaths, $configuration, $preFileCallback, $postFileCallback);
         }
         $processResult->addSystemErrors($this->systemErrors);
+        // path-only skips are matched in the main process while finding files; in parallel runs the
+        // result comes from workers only, so merge those marks back in to avoid false "unused skip"
+        $processResult->addUsedSkips($this->usedSkipCollector->provide());
         $this->restoreErrorHandler();
         return $processResult;
     }
@@ -138,6 +149,8 @@ final class ApplicationFileProcessor
      */
     public function processFiles(array $filePaths, Configuration $configuration, ?callable $preFileCallback = null, ?callable $postFileCallback = null): ProcessResult
     {
+        // also set here: parallel workers reach processFiles() via WorkerCommand, bypassing run()
+        $this->changedFilesDetector->setActiveScope($configuration->getOnlyRule(), $configuration->getOnlySuffix());
         /** @var SystemError[] $systemErrors */
         $systemErrors = [];
         /** @var FileDiff[] $fileDiffs */
@@ -170,7 +183,7 @@ final class ApplicationFileProcessor
                 $systemErrors[] = $this->resolveSystemError($throwable, $filePath);
             }
         }
-        return new ProcessResult($systemErrors, $fileDiffs, $totalChanged);
+        return new ProcessResult($systemErrors, $fileDiffs, $totalChanged, $this->usedSkipCollector->provide());
     }
     private function processFile(File $file, Configuration $configuration): FileProcessResult
     {
@@ -179,6 +192,7 @@ final class ApplicationFileProcessor
         if ($fileProcessResult->getSystemErrors() !== []) {
             $this->changedFilesDetector->invalidateFile($file->getFilePath());
         } elseif (!$configuration->isDryRun() || !$fileProcessResult->getFileDiff() instanceof FileDiff) {
+            // selective runs are safe to cache now — the key is scoped to the rule selection
             $this->changedFilesDetector->cacheFile($file->getFilePath());
         }
         return $fileProcessResult;

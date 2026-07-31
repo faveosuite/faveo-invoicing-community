@@ -1,7 +1,7 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix202606;
+namespace RectorPrefix202607;
 
 use Rector\CodingStyle\Rector\ArrowFunction\ArrowFunctionDelegatingCallToFirstClassCallableRector;
 use Rector\CodingStyle\Rector\Closure\ClosureDelegatingCallToFirstClassCallableRector;
@@ -12,7 +12,6 @@ use Rector\Php81\Rector\Array_\ArrayToFirstClassCallableRector;
 use Rector\Php81\Rector\Class_\MyCLabsClassToEnumRector;
 use Rector\Php81\Rector\Class_\SpatieEnumClassToEnumRector;
 use Rector\Php81\Rector\FuncCall\NullToStrictIntPregSlitFuncCallLimitArgRector;
-use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
 use Rector\Php81\Rector\MethodCall\MyCLabsMethodCallToEnumConstRector;
 use Rector\Php81\Rector\MethodCall\RemoveReflectionSetAccessibleCallsRector;
 use Rector\Php81\Rector\MethodCall\SpatieEnumMethodCallToEnumConstRector;
@@ -28,7 +27,6 @@ return static function (RectorConfig $rectorConfig): void {
         ReadOnlyPropertyRector::class,
         SpatieEnumClassToEnumRector::class,
         SpatieEnumMethodCallToEnumConstRector::class,
-        NullToStrictStringFuncCallArgRector::class,
         NullToStrictIntPregSlitFuncCallLimitArgRector::class,
         ArrayToFirstClassCallableRector::class,
         // closure/arrow function

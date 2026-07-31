@@ -72,12 +72,14 @@ class ServiceProvider extends BaseServiceProvider
         Features\QueueIntegration::class,
         Features\ConsoleIntegration::class,
         Features\Storage\Integration::class,
+        Features\Ai\HttpRequestIntegration::class,
         Features\HttpClientIntegration::class,
         Features\FolioPackageIntegration::class,
         Features\NotificationsIntegration::class,
         Features\PennantPackageIntegration::class,
         Features\LivewirePackageIntegration::class,
         Features\ConsoleSchedulingIntegration::class,
+        Features\AiIntegration::class,
     ];
 
     /**

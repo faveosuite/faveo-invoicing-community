@@ -23,11 +23,13 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tools\DsnParser;
 use Symfony\Component\Cache\Exception\InvalidArgumentException;
 use Symfony\Component\Cache\Marshaller\DefaultMarshaller;
@@ -72,6 +74,10 @@ class DoctrineDbalAdapter extends AbstractAdapter implements PruneableInterface
         array $options = [],
         ?MarshallerInterface $marshaller = null,
     ) {
+        if (!class_exists(PrimaryKeyConstraint::class)) {
+            throw new \LogicException(\sprintf('Using "%s" requires "doctrine/dbal" 4.3 or higher; try running "composer require doctrine/dbal:^4.3".', __CLASS__));
+        }
+
         if (isset($namespace[0]) && preg_match('#[^-+.A-Za-z0-9]#', $namespace, $match)) {
             throw new InvalidArgumentException(\sprintf('Namespace contains "%s" but only characters in [-+.A-Za-z0-9] are allowed.', $match[0]));
         }
@@ -121,25 +127,27 @@ class DoctrineDbalAdapter extends AbstractAdapter implements PruneableInterface
      */
     public function createTable(): void
     {
-        $schema = new Schema();
-        $this->addTableToSchema($schema);
+        $schema = $this->addTableToSchema(new Schema());
 
         foreach ($schema->toSql($this->conn->getDatabasePlatform()) as $sql) {
             $this->conn->executeStatement($sql);
         }
     }
 
-    public function configureSchema(Schema $schema, Connection $forConnection, \Closure $isSameDatabase): void
+    /**
+     * @param-immediately-invoked-callable $isSameDatabase
+     */
+    public function configureSchema(Schema $schema, Connection $forConnection, \Closure $isSameDatabase): Schema
     {
         if ($schema->hasTable($this->table)) {
-            return;
+            return $schema;
         }
 
         if ($forConnection !== $this->conn && !$isSameDatabase($this->conn->executeStatement(...))) {
-            return;
+            return $schema;
         }
 
-        $this->addTableToSchema($schema);
+        return $this->addTableToSchema($schema);
     }
 
     public function prune(): bool
@@ -215,7 +223,8 @@ class DoctrineDbalAdapter extends AbstractAdapter implements PruneableInterface
         if ('' === $namespace) {
             $sql = $this->conn->getDatabasePlatform()->getTruncateTableSQL($this->table);
         } else {
-            $sql = "DELETE FROM $this->table WHERE $this->idCol LIKE '$namespace%'";
+            $namespace = str_replace('_', '!_', $namespace);
+            $sql = "DELETE FROM $this->table WHERE $this->idCol LIKE '$namespace%' ESCAPE '!'";
         }
 
         try {
@@ -396,14 +405,44 @@ class DoctrineDbalAdapter extends AbstractAdapter implements PruneableInterface
         };
     }
 
-    private function addTableToSchema(Schema $schema): void
+    private function addTableToSchema(Schema $schema): Schema
+    {
+        if (method_exists($schema, 'edit')) {
+            return $schema->edit()->addTable($this->buildSchemaTable())->create();
+        }
+
+        $this->configureSchemaTable($schema->createTable($this->table));
+
+        return $schema;
+    }
+
+    private function buildSchemaTable(): Table
     {
         $types = [
             'mysql' => 'binary',
             'sqlite' => 'text',
         ];
 
-        $table = $schema->createTable($this->table);
+        return Table::editor()
+            ->setUnquotedName($this->table)
+            ->addColumn(Column::editor()->setUnquotedName($this->idCol)->setTypeName($types[$this->getPlatformName()] ?? 'string')->setLength(255)->create())
+            ->addColumn(Column::editor()->setUnquotedName($this->dataCol)->setTypeName('blob')->setLength(16777215)->create())
+            ->addColumn(Column::editor()->setUnquotedName($this->lifetimeCol)->setTypeName('integer')->setUnsigned(true)->setNotNull(false)->create())
+            ->addColumn(Column::editor()->setUnquotedName($this->timeCol)->setTypeName('integer')->setUnsigned(true)->create())
+            ->addPrimaryKeyConstraint(new PrimaryKeyConstraint(null, [new UnqualifiedName(Identifier::unquoted($this->idCol))], true))
+            ->create();
+    }
+
+    /**
+     * To be removed when doctrine/dbal minimum is bumped to ^4.5.
+     */
+    private function configureSchemaTable(Table $table): void
+    {
+        $types = [
+            'mysql' => 'binary',
+            'sqlite' => 'text',
+        ];
+
         $table->addColumn($this->idCol, $types[$this->getPlatformName()] ?? 'string', ['length' => 255]);
         $table->addColumn($this->dataCol, 'blob', ['length' => 16777215]);
         $table->addColumn($this->lifetimeCol, 'integer', ['unsigned' => true, 'notnull' => false]);

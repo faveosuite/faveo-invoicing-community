@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Php70;
 
-use RectorPrefix202606\Nette\Utils\Strings;
+use RectorPrefix202607\Nette\Utils\Strings;
 use Rector\Php70\Exception\InvalidEregException;
 /**
  * @changelog https://gist.github.com/lifthrasiir/704754/7e486f43e62fd1c9d3669330c251f8ca4a59a3f8
@@ -212,7 +212,7 @@ final class EregToPcreTransformer
             } else {
                 $a = $s[$i];
                 ++$i;
-                if ($a === '-' && !$start && !($i < $l && $s[$i] === ']')) {
+                if ($a === '-' && !$start && ($i >= $l || $s[$i] !== ']')) {
                     throw new InvalidEregException('"-" is invalid for the start character in the brackets');
                 }
                 if ($i < $l && $s[$i] === '-') {
@@ -220,7 +220,8 @@ final class EregToPcreTransformer
                     if ($b === ']') {
                         $cls .= $this->_ere2pcre_escape($a) . '\-';
                         break;
-                    } elseif (ord($a) > ord($b)) {
+                    }
+                    if (ord($a) > ord($b)) {
                         $errorMessage = sprintf('an invalid character range %d-%d"', (int) $a, (int) $b);
                         throw new InvalidEregException($errorMessage);
                     }

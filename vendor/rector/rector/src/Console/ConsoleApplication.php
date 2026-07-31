@@ -3,20 +3,20 @@
 declare (strict_types=1);
 namespace Rector\Console;
 
-use RectorPrefix202606\Composer\XdebugHandler\XdebugHandler;
+use RectorPrefix202607\Composer\XdebugHandler\XdebugHandler;
 use Override;
 use Rector\Application\VersionResolver;
 use Rector\ChangesReporting\Output\ConsoleOutputFormatter;
 use Rector\Configuration\Option;
 use Rector\Util\Reflection\PrivatesAccessor;
-use RectorPrefix202606\Symfony\Component\Console\Application;
-use RectorPrefix202606\Symfony\Component\Console\Command\Command;
-use RectorPrefix202606\Symfony\Component\Console\Input\InputDefinition;
-use RectorPrefix202606\Symfony\Component\Console\Input\InputInterface;
-use RectorPrefix202606\Symfony\Component\Console\Input\InputOption;
-use RectorPrefix202606\Symfony\Component\Console\Output\OutputInterface;
-use RectorPrefix202606\Symfony\Component\Console\Style\SymfonyStyle;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Symfony\Component\Console\Application;
+use RectorPrefix202607\Symfony\Component\Console\Command\Command;
+use RectorPrefix202607\Symfony\Component\Console\Input\InputDefinition;
+use RectorPrefix202607\Symfony\Component\Console\Input\InputInterface;
+use RectorPrefix202607\Symfony\Component\Console\Input\InputOption;
+use RectorPrefix202607\Symfony\Component\Console\Output\OutputInterface;
+use RectorPrefix202607\Symfony\Component\Console\Style\SymfonyStyle;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 final class ConsoleApplication extends Application
 {
     /**
@@ -43,6 +43,11 @@ final class ConsoleApplication extends Application
     #[Override]
     public function doRun(InputInterface $input, OutputInterface $output): int
     {
+        // support "-v" as an alias for "--version", as "verbose" option is removed
+        if ($input->hasParameterOption('-v', \true)) {
+            $output->writeln($this->getLongVersion());
+            return \Rector\Console\ExitCode::SUCCESS;
+        }
         $this->enableXdebug($input);
         $shouldFollowByNewline = \false;
         // skip in this case, since generate content must be clear from meta-info

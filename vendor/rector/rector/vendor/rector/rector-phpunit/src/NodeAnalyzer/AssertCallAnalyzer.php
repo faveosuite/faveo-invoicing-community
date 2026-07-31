@@ -68,24 +68,29 @@ final class AssertCallAnalyzer
     public function containsAssertCall(ClassMethod $classMethod): bool
     {
         ++$this->classMethodNestingLevel;
-        // probably no assert method in the end
-        if ($this->classMethodNestingLevel > self::MAX_NESTED_METHOD_CALL_LEVEL) {
-            return \false;
+        try {
+            // probably no assert method in the end
+            if ($this->classMethodNestingLevel > self::MAX_NESTED_METHOD_CALL_LEVEL) {
+                return \false;
+            }
+            $cacheHash = md5($this->betterStandardPrinter->prettyPrint([$classMethod]));
+            if (isset($this->containsAssertCallByClassMethod[$cacheHash])) {
+                return $this->containsAssertCallByClassMethod[$cacheHash];
+            }
+            // A. try "->assert" shallow search first for performance
+            $hasDirectAssertOrMockCall = $this->hasDirectAssertOrMockCall($classMethod);
+            if ($hasDirectAssertOrMockCall) {
+                $this->containsAssertCallByClassMethod[$cacheHash] = $hasDirectAssertOrMockCall;
+                return \true;
+            }
+            // B. look for nested calls
+            $hasNestedAssertOrMockCall = $this->hasNestedAssertCall($classMethod);
+            $this->containsAssertCallByClassMethod[$cacheHash] = $hasNestedAssertOrMockCall;
+            return $hasNestedAssertOrMockCall;
+        } finally {
+            // restore depth so sibling calls in the same DFS keep their full budget
+            --$this->classMethodNestingLevel;
         }
-        $cacheHash = md5($this->betterStandardPrinter->prettyPrint([$classMethod]));
-        if (isset($this->containsAssertCallByClassMethod[$cacheHash])) {
-            return $this->containsAssertCallByClassMethod[$cacheHash];
-        }
-        // A. try "->assert" shallow search first for performance
-        $hasDirectAssertOrMockCall = $this->hasDirectAssertOrMockCall($classMethod);
-        if ($hasDirectAssertOrMockCall) {
-            $this->containsAssertCallByClassMethod[$cacheHash] = $hasDirectAssertOrMockCall;
-            return \true;
-        }
-        // B. look for nested calls
-        $hasNestedAssertOrMockCall = $this->hasNestedAssertCall($classMethod);
-        $this->containsAssertCallByClassMethod[$cacheHash] = $hasNestedAssertOrMockCall;
-        return $hasNestedAssertOrMockCall;
     }
     /**
      * @param \PhpParser\Node\Expr\MethodCall|\PhpParser\Node\Expr\StaticCall $call
@@ -99,12 +104,14 @@ final class AssertCallAnalyzer
         if (!is_string($callName)) {
             return \false;
         }
+        $found = \false;
         foreach (self::ASSERT_METHOD_NAME_PREFIXES as $assertMethodNamePrefix) {
             if (strncmp($callName, $assertMethodNamePrefix, strlen($assertMethodNamePrefix)) === 0) {
-                return \true;
+                $found = \true;
+                break;
             }
         }
-        return \false;
+        return $found;
     }
     private function hasDirectAssertOrMockCall(ClassMethod $classMethod): bool
     {

@@ -41,6 +41,9 @@ return [
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#enable_logs
     'enable_logs' => env('SENTRY_ENABLE_LOGS', false),
 
+    // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#enable_metrics
+    'enable_metrics' => env('SENTRY_ENABLE_METRICS', true),
+
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#log_flush_threshold
     'log_flush_threshold' => env('SENTRY_LOG_FLUSH_THRESHOLD') === null ? null : (int) env('SENTRY_LOG_FLUSH_THRESHOLD'),
 
@@ -136,6 +139,21 @@ return [
         // Configures if the performance trace should continue after the response has been sent to the user until the application terminates
         // This is required to capture any spans that are created after the response has been sent like queue jobs dispatched using `dispatch(...)->afterResponse()` for example
         'continue_after_response' => env('SENTRY_TRACE_CONTINUE_AFTER_RESPONSE', true),
+
+        // Capture AI agent interactions as spans (requires laravel/ai)
+        'gen_ai' => env('SENTRY_TRACE_GEN_AI_ENABLED', true),
+
+        // Capture AI invoke_agent spans
+        'gen_ai_invoke_agent' => env('SENTRY_TRACE_GEN_AI_INVOKE_AGENT_ENABLED', true),
+
+        // Capture AI chat spans
+        'gen_ai_chat' => env('SENTRY_TRACE_GEN_AI_CHAT_ENABLED', true),
+
+        // Capture AI execute_tool spans
+        'gen_ai_execute_tool' => env('SENTRY_TRACE_GEN_AI_EXECUTE_TOOL_ENABLED', true),
+
+        // Capture AI embeddings spans
+        'gen_ai_embeddings' => env('SENTRY_TRACE_GEN_AI_EMBEDDINGS_ENABLED', true),
 
         // Enable the tracing integrations supplied by Sentry (recommended)
         'default_integrations' => env('SENTRY_TRACE_DEFAULT_INTEGRATIONS_ENABLED', true),

@@ -31,7 +31,7 @@ use Rector\Rector\AbstractRector;
 use Rector\StaticTypeMapper\StaticTypeMapper;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Arguments\Rector\ClassMethod\ArgumentAdderRector\ArgumentAdderRectorTest
  */
@@ -243,7 +243,7 @@ CODE_SAMPLE
             // Check if the parameter we're trying to add is before the first named argument
             if ($position < $firstNamedArgumentPosition) {
                 return \true;
-                //if that is the case, the parameter already exists, skip
+                // if that is the case, the parameter already exists, skip
             }
             // Check if the parameter we're trying to add is already present as a named argument
             if ($this->argsAnalyzer->resolveArgPosition($arguments, $argumentName, -1) !== -1) {

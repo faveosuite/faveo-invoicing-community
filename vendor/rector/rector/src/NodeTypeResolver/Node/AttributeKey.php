@@ -179,6 +179,10 @@ final class AttributeKey
     /**
      * @var string
      */
+    public const IS_UNPACKED_ARG_VALUE = 'is_unpacked_arg_value';
+    /**
+     * @var string
+     */
     public const IS_PARAM_VAR = 'is_param_var';
     /**
      * @var string
@@ -228,6 +232,12 @@ final class AttributeKey
      * @var string
      */
     public const IS_INSIDE_SYMFONY_PHP_CLOSURE = 'is_inside_symfony_php_closure';
+    /**
+     * Array callable kept as data, not converted to first class callable,
+     * e.g. 'callback'/'factory' keyed array item, or Definition::setFactory() argument
+     * @var string
+     */
+    public const IS_ARRAY_AS_STRING_CALLABLE = 'is_array_as_string_callable';
     /**
      * @var string
      */

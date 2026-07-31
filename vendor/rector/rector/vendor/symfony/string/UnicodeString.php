@@ -8,10 +8,10 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\Symfony\Component\String;
+namespace RectorPrefix202607\Symfony\Component\String;
 
-use RectorPrefix202606\Symfony\Component\String\Exception\ExceptionInterface;
-use RectorPrefix202606\Symfony\Component\String\Exception\InvalidArgumentException;
+use RectorPrefix202607\Symfony\Component\String\Exception\ExceptionInterface;
+use RectorPrefix202607\Symfony\Component\String\Exception\InvalidArgumentException;
 /**
  * Represents a string of Unicode grapheme clusters encoded as UTF-8.
  *
@@ -163,7 +163,11 @@ class UnicodeString extends AbstractUnicodeString
             }
             $offset = 0;
         }
-        $i = $this->ignoreCase ? grapheme_strripos($string, $needle, $offset) : grapheme_strrpos($string, $needle, $offset);
+        try {
+            $i = $this->ignoreCase ? grapheme_strripos($string, $needle, $offset) : grapheme_strrpos($string, $needle, $offset);
+        } catch (\ValueError $exception) {
+            return null;
+        }
         return \false === $i ? null : $i;
     }
     /**
@@ -264,7 +268,7 @@ class UnicodeString extends AbstractUnicodeString
     {
         $str = clone $this;
         $start = $start ? \strlen(grapheme_substr($this->string, 0, $start)) : 0;
-        $length = $length ? \strlen(grapheme_substr($this->string, $start, $length)) : $length;
+        $length = $length ? \strlen(grapheme_substr((string) substr($this->string, $start), 0, $length)) : $length;
         $str->string = substr_replace($this->string, $replacement, $start, $length ?? 2147483647);
         if (normalizer_is_normalized($str->string)) {
             return $str;

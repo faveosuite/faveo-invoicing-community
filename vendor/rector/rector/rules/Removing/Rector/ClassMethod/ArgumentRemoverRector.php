@@ -15,7 +15,7 @@ use Rector\Rector\AbstractRector;
 use Rector\Removing\ValueObject\ArgumentRemover;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Removing\Rector\ClassMethod\ArgumentRemoverRector\ArgumentRemoverRectorTest
  */
@@ -123,7 +123,7 @@ CODE_SAMPLE
             }
             return;
         }
-        if (!(isset($node->params[$position]) && $this->isName($node->params[$position], $name))) {
+        if (!isset($node->params[$position]) || !$this->isName($node->params[$position], $name)) {
             return;
         }
         unset($node->params[$position]);

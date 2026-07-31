@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\PHPStanStaticTypeMapper\TypeMapper;
 
-use RectorPrefix202606\Nette\Utils\Strings;
+use RectorPrefix202607\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
@@ -25,9 +25,12 @@ use Rector\StaticTypeMapper\ValueObject\Type\ShortenedObjectType;
  */
 final class ObjectTypeMapper implements TypeMapperInterface
 {
-    public function getNodeClass(): string
+    /**
+     * @return array<class-string<Type>>
+     */
+    public function getNodeClasses(): array
     {
-        return ObjectType::class;
+        return [ObjectType::class];
     }
     /**
      * @param ObjectType $type

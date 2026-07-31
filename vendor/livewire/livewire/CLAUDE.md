@@ -6,7 +6,7 @@ It is similar to projects like Phoenix Liveview however it isn't "live" in that 
 
 It renders on the server and uses morphing algorithm to path the DOM with updates from the server.
 
-It "dehdrates" the state of a component into a JS-consumable object that is passed back to the server to be "hydrated" during the next request.
+It "dehydrates" the state of a component into a JS-consumable object that is passed back to the server to be "hydrated" during the next request.
 
 # Tech Stack
 
@@ -55,3 +55,21 @@ composer test:browser -- --filter="SupportCSP"       # specific browser tests
 ```
 
 **IMPORTANT:** Never run the full Livewire browser test suite — it takes too long. Always use `--filter` to run only the specific tests relevant to your changes. The full suite runs in CI.
+
+# Releasing
+
+## Bumping Alpine (optional)
+
+If you need to update the Alpine.js dependency before a release:
+
+```bash
+npm run bump-alpine
+```
+
+Then commit the updated `package.json` and `package-lock.json`.
+
+## Creating a release
+
+1. Go to **Actions → "Release" → "Run workflow"**
+2. Enter the version number (e.g. `4.3.0` — the `v` prefix is added automatically)
+3. The workflow installs deps, builds assets, runs JS tests, creates a tag with the built `dist/` files, and creates a GitHub Release with auto-generated notes

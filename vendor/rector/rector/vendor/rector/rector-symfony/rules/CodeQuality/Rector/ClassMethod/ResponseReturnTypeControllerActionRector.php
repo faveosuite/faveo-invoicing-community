@@ -6,12 +6,12 @@ namespace Rector\Symfony\CodeQuality\Rector\ClassMethod;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Return_;
+use PhpParser\Node\UnionType as PhpParserUnionType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
 use PHPStan\Type\UnionType;
@@ -29,6 +29,7 @@ use Rector\Symfony\TypeAnalyzer\ControllerAnalyzer;
 use Rector\TypeDeclaration\NodeAnalyzer\ReturnAnalyzer;
 use Rector\TypeDeclaration\TypeInferer\ReturnTypeInferer;
 use Rector\ValueObject\PhpVersionFeature;
+use Rector\VendorLocker\ParentClassMethodTypeOverrideGuard;
 use Rector\VersionBonding\Contract\MinPhpVersionInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
@@ -61,7 +62,11 @@ final class ResponseReturnTypeControllerActionRector extends AbstractRector impl
      * @readonly
      */
     private ReturnTypeInferer $returnTypeInferer;
-    public function __construct(ControllerAnalyzer $controllerAnalyzer, AttrinationFinder $attrinationFinder, BetterNodeFinder $betterNodeFinder, ReturnAnalyzer $returnAnalyzer, StaticTypeMapper $staticTypeMapper, ReturnTypeInferer $returnTypeInferer)
+    /**
+     * @readonly
+     */
+    private ParentClassMethodTypeOverrideGuard $parentClassMethodTypeOverrideGuard;
+    public function __construct(ControllerAnalyzer $controllerAnalyzer, AttrinationFinder $attrinationFinder, BetterNodeFinder $betterNodeFinder, ReturnAnalyzer $returnAnalyzer, StaticTypeMapper $staticTypeMapper, ReturnTypeInferer $returnTypeInferer, ParentClassMethodTypeOverrideGuard $parentClassMethodTypeOverrideGuard)
     {
         $this->controllerAnalyzer = $controllerAnalyzer;
         $this->attrinationFinder = $attrinationFinder;
@@ -69,6 +74,7 @@ final class ResponseReturnTypeControllerActionRector extends AbstractRector impl
         $this->returnAnalyzer = $returnAnalyzer;
         $this->staticTypeMapper = $staticTypeMapper;
         $this->returnTypeInferer = $returnTypeInferer;
+        $this->parentClassMethodTypeOverrideGuard = $parentClassMethodTypeOverrideGuard;
     }
     public function getRuleDefinition(): RuleDefinition
     {
@@ -123,7 +129,11 @@ CODE_SAMPLE
         if (!$this->controllerAnalyzer->isInsideController($node)) {
             return null;
         }
-        if (!$this->attrinationFinder->hasByOne($node, SymfonyAnnotation::ROUTE)) {
+        // adding a return type would break child classes of user-guarded classes
+        if ($this->parentClassMethodTypeOverrideGuard->isTypeGuardedClass($node)) {
+            return null;
+        }
+        if (!$this->isActionClassMethod($node)) {
             return null;
         }
         if (!$this->hasReturn($node)) {
@@ -171,9 +181,16 @@ CODE_SAMPLE
         }
         return \true;
     }
+    private function isActionClassMethod(ClassMethod $classMethod): bool
+    {
+        if ($this->attrinationFinder->hasByOne($classMethod, SymfonyAnnotation::ROUTE)) {
+            return \true;
+        }
+        return substr_compare($this->getName($classMethod), 'Action', -strlen('Action')) === 0;
+    }
     private function hasReturn(ClassMethod $classMethod): bool
     {
-        return $this->betterNodeFinder->hasInstancesOf($classMethod, [Return_::class]);
+        return $this->betterNodeFinder->hasInstancesOfInFunctionLikeScoped($classMethod, Return_::class);
     }
     private function refactorResponse(ClassMethod $classMethod): ?ClassMethod
     {
@@ -197,14 +214,10 @@ CODE_SAMPLE
             $classMethod->returnType = new FullyQualified(ResponseClass::BASIC);
             return $classMethod;
         }
-        return $this->refatorWithNew($classMethod);
+        return $this->refactorReturnedType($classMethod);
     }
-    private function refatorWithNew(ClassMethod $classMethod): ?ClassMethod
+    private function refactorReturnedType(ClassMethod $classMethod): ?ClassMethod
     {
-        // early check
-        if (!$this->betterNodeFinder->hasInstancesOf($classMethod, [New_::class])) {
-            return null;
-        }
         $returns = $this->betterNodeFinder->findReturnsScoped($classMethod);
         if (!$this->returnAnalyzer->hasOnlyReturnWithExpr($classMethod, $returns)) {
             return null;
@@ -214,7 +227,7 @@ CODE_SAMPLE
             return null;
         }
         $returnType = $this->staticTypeMapper->mapPHPStanTypeToPhpParserNode($responseReturnType, TypeKind::RETURN);
-        if (!$returnType instanceof FullyQualified) {
+        if (!$returnType instanceof FullyQualified && !$returnType instanceof PhpParserUnionType) {
             return null;
         }
         $classMethod->returnType = $returnType;

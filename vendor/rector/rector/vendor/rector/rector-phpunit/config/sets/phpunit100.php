@@ -1,7 +1,7 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix202606;
+namespace RectorPrefix202607;
 
 use Rector\Config\RectorConfig;
 use Rector\PHPUnit\PHPUnit100\Rector\Class_\AddProphecyTraitRector;
@@ -42,7 +42,7 @@ return static function (RectorConfig $rectorConfig): void {
         new MethodCallRename('PHPUnit\Framework\Assert', 'assertNotIsReadable', 'assertIsNotReadable'),
         // https://github.com/sebastianbergmann/phpunit/pull/3687
         new MethodCallRename('PHPUnit\Framework\MockObject\MockBuilder', 'setMethods', 'onlyMethods'),
-        //https://github.com/sebastianbergmann/phpunit/issues/5062
+        // https://github.com/sebastianbergmann/phpunit/issues/5062
         new MethodCallRename('PHPUnit\Framework\TestCase', 'expectDeprecationMessage', 'expectExceptionMessage'),
         new MethodCallRename('PHPUnit\Framework\TestCase', 'expectDeprecationMessageMatches', 'expectExceptionMessageMatches'),
         new MethodCallRename('PHPUnit\Framework\TestCase', 'expectNoticeMessage', 'expectExceptionMessage'),

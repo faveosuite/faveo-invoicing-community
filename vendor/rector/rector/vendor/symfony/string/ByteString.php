@@ -8,12 +8,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\Symfony\Component\String;
+namespace RectorPrefix202607\Symfony\Component\String;
 
 use Random\Randomizer;
-use RectorPrefix202606\Symfony\Component\String\Exception\ExceptionInterface;
-use RectorPrefix202606\Symfony\Component\String\Exception\InvalidArgumentException;
-use RectorPrefix202606\Symfony\Component\String\Exception\RuntimeException;
+use RectorPrefix202607\Symfony\Component\String\Exception\ExceptionInterface;
+use RectorPrefix202607\Symfony\Component\String\Exception\InvalidArgumentException;
+use RectorPrefix202607\Symfony\Component\String\Exception\RuntimeException;
 /**
  * Represents a binary-safe string of bytes.
  *
@@ -169,7 +169,11 @@ class ByteString extends AbstractString
         if ('' === $needle) {
             return null;
         }
-        $i = $this->ignoreCase ? stripos($this->string, $needle, $offset) : strpos($this->string, $needle, $offset);
+        try {
+            $i = $this->ignoreCase ? stripos($this->string, $needle, $offset) : strpos($this->string, $needle, $offset);
+        } catch (\ValueError $exception) {
+            return null;
+        }
         return \false === $i ? null : $i;
     }
     /**
@@ -185,7 +189,11 @@ class ByteString extends AbstractString
         if ('' === $needle) {
             return null;
         }
-        $i = $this->ignoreCase ? strripos($this->string, $needle, $offset) : strrpos($this->string, $needle, $offset);
+        try {
+            $i = $this->ignoreCase ? strripos($this->string, $needle, $offset) : strrpos($this->string, $needle, $offset);
+        } catch (\ValueError $exception) {
+            return null;
+        }
         return \false === $i ? null : $i;
     }
     public function isUtf8(): bool
@@ -404,7 +412,7 @@ class ByteString extends AbstractString
             try {
                 $validEncoding = \false !== mb_detect_encoding($this->string, $fromEncoding ?? 'Windows-1252', \true);
             } catch (InvalidArgumentException $e) {
-                if (!\function_exists('iconv') && !\function_exists('RectorPrefix202606\iconv')) {
+                if (!\function_exists('iconv') && !\function_exists('RectorPrefix202607\iconv')) {
                     throw $e;
                 }
                 $u->string = iconv($fromEncoding ?? 'Windows-1252', 'UTF-8', $this->string);

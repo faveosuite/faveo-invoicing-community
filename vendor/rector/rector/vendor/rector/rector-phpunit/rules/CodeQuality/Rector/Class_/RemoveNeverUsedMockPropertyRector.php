@@ -7,10 +7,13 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Property;
+use PhpParser\Node\Stmt\Trait_;
+use Rector\PhpParser\AstResolver;
 use Rector\PhpParser\Node\BetterNodeFinder;
 use Rector\PhpParser\NodeFinder\PropertyFetchFinder;
 use Rector\PHPUnit\CodeQuality\NodeAnalyser\MockObjectPropertyDetector;
@@ -40,12 +43,17 @@ final class RemoveNeverUsedMockPropertyRector extends AbstractRector
      * @readonly
      */
     private BetterNodeFinder $betterNodeFinder;
-    public function __construct(TestsNodeAnalyzer $testsNodeAnalyzer, MockObjectPropertyDetector $mockObjectPropertyDetector, PropertyFetchFinder $propertyFetchFinder, BetterNodeFinder $betterNodeFinder)
+    /**
+     * @readonly
+     */
+    private AstResolver $astResolver;
+    public function __construct(TestsNodeAnalyzer $testsNodeAnalyzer, MockObjectPropertyDetector $mockObjectPropertyDetector, PropertyFetchFinder $propertyFetchFinder, BetterNodeFinder $betterNodeFinder, AstResolver $astResolver)
     {
         $this->testsNodeAnalyzer = $testsNodeAnalyzer;
         $this->mockObjectPropertyDetector = $mockObjectPropertyDetector;
         $this->propertyFetchFinder = $propertyFetchFinder;
         $this->betterNodeFinder = $betterNodeFinder;
+        $this->astResolver = $astResolver;
     }
     public function getRuleDefinition(): RuleDefinition
     {
@@ -91,6 +99,10 @@ CODE_SAMPLE
     public function refactor(Node $node): ?Node
     {
         if (!$this->testsNodeAnalyzer->isInTestClass($node)) {
+            return null;
+        }
+        // skip abstract test case classes, as most likely extended and mock used in child classes
+        if (substr_compare((string) $this->getName($node), 'TestCase', -strlen('TestCase')) === 0) {
             return null;
         }
         $setUpClassMethod = $node->getMethod(MethodName::SET_UP);
@@ -172,7 +184,7 @@ CODE_SAMPLE
         }
     }
     /**
-     * @param array<string, MethodCall> $propertyNamesToCreateMockMethodCalls
+     * @param array<string, MethodCall|StaticCall> $propertyNamesToCreateMockMethodCalls
      * @return string[]
      */
     private function resolvePropertyNamesToRemove(array $propertyNamesToCreateMockMethodCalls, Class_ $class): array
@@ -201,8 +213,30 @@ CODE_SAMPLE
             if (count($allPropertyFetches) - 1 !== count($propertyFetchesMethodCalls)) {
                 continue;
             }
+            // the property might be used in a used trait, skip removal to stay safe
+            if ($this->isPropertyUsedInTrait($class, $propertyName)) {
+                continue;
+            }
             $propertyNamesToRemove[] = $propertyName;
         }
         return $propertyNamesToRemove;
+    }
+    private function isPropertyUsedInTrait(Class_ $class, string $propertyName): bool
+    {
+        foreach ($class->getTraitUses() as $traitUse) {
+            foreach ($traitUse->traits as $traitName) {
+                $trait = $this->astResolver->resolveClassFromName($traitName->toString());
+                if (!$trait instanceof Trait_) {
+                    continue;
+                }
+                $propertyFetches = $this->betterNodeFinder->findInstancesOf($trait, [PropertyFetch::class]);
+                foreach ($propertyFetches as $propertyFetch) {
+                    if ($this->isName($propertyFetch->name, $propertyName)) {
+                        return \true;
+                    }
+                }
+            }
+        }
+        return \false;
     }
 }

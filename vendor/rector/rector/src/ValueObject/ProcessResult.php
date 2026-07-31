@@ -6,7 +6,7 @@ namespace Rector\ValueObject;
 use Rector\Contract\Rector\RectorInterface;
 use Rector\ValueObject\Error\SystemError;
 use Rector\ValueObject\Reporting\FileDiff;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 final class ProcessResult
 {
     /**
@@ -23,16 +23,26 @@ final class ProcessResult
      */
     private int $totalChanged;
     /**
+     * @var array<string, string[]>
+     */
+    private array $usedSkips = [];
+    /**
      * @param SystemError[] $systemErrors
      * @param FileDiff[] $fileDiffs
+     * @param array<string, string[]> $usedSkips
      */
-    public function __construct(array $systemErrors, array $fileDiffs, int $totalChanged)
+    public function __construct(array $systemErrors, array $fileDiffs, int $totalChanged, array $usedSkips = [])
     {
         $this->systemErrors = $systemErrors;
         $this->fileDiffs = $fileDiffs;
         $this->totalChanged = $totalChanged;
+        $this->usedSkips = $usedSkips;
         Assert::allIsInstanceOf($systemErrors, SystemError::class);
         Assert::allIsInstanceOf($fileDiffs, FileDiff::class);
+        Assert::allString(array_keys($usedSkips));
+        foreach ($usedSkips as $usedSkip) {
+            Assert::allString($usedSkip);
+        }
     }
     /**
      * @return SystemError[]
@@ -59,9 +69,31 @@ final class ProcessResult
         Assert::allIsInstanceOf($systemErrors, SystemError::class);
         $this->systemErrors = array_merge($this->systemErrors, $systemErrors);
     }
+    /**
+     * Path-only skips are matched while finding files in the main process, but parallel runs build
+     * their result from worker processes only. Merge those main-process marks back in, or they would
+     * be wrongly reported as unused.
+     *
+     * @param array<string, string[]> $usedSkips
+     */
+    public function addUsedSkips(array $usedSkips): void
+    {
+        foreach ($usedSkips as $skip => $paths) {
+            Assert::allString($paths);
+            $existingPaths = $this->usedSkips[$skip] ?? [];
+            $this->usedSkips[$skip] = array_values(array_unique(array_merge($existingPaths, $paths)));
+        }
+    }
     public function getTotalChanged(): int
     {
         return $this->totalChanged;
+    }
+    /**
+     * @return array<string, string[]>
+     */
+    public function getUsedSkips(): array
+    {
+        return $this->usedSkips;
     }
     /**
      * @return array<class-string<RectorInterface>, int>

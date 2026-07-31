@@ -24,8 +24,8 @@ use Rector\PHPStanStaticTypeMapper\Contract\TypeMapperInterface;
 use Rector\PHPStanStaticTypeMapper\Enum\TypeKind;
 use Rector\PHPStanStaticTypeMapper\PHPStanStaticTypeMapper;
 use Rector\ValueObject\PhpVersionFeature;
-use RectorPrefix202606\Webmozart\Assert\Assert;
-use RectorPrefix202606\Webmozart\Assert\InvalidArgumentException;
+use RectorPrefix202607\Webmozart\Assert\Assert;
+use RectorPrefix202607\Webmozart\Assert\InvalidArgumentException;
 /**
  * @implements TypeMapperInterface<UnionType>
  */
@@ -49,9 +49,12 @@ final class UnionTypeMapper implements TypeMapperInterface
     {
         $this->phpStanStaticTypeMapper = $phpStanStaticTypeMapper;
     }
-    public function getNodeClass(): string
+    /**
+     * @return array<class-string<Type>>
+     */
+    public function getNodeClasses(): array
     {
-        return UnionType::class;
+        return [UnionType::class];
     }
     /**
      * @param UnionType $type

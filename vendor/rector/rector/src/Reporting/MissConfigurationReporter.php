@@ -7,7 +7,11 @@ use Rector\Configuration\Option;
 use Rector\Configuration\Parameter\SimpleParameterProvider;
 use Rector\Configuration\VendorMissAnalyseGuard;
 use Rector\PostRector\Contract\Rector\PostRectorInterface;
-use RectorPrefix202606\Symfony\Component\Console\Style\SymfonyStyle;
+use Rector\ValueObject\ProcessResult;
+use RectorPrefix202607\Symfony\Component\Console\Style\SymfonyStyle;
+/**
+ * @see \Rector\Tests\Reporting\MissConfigurationReporterTest
+ */
 final class MissConfigurationReporter
 {
     /**
@@ -18,10 +22,30 @@ final class MissConfigurationReporter
      * @readonly
      */
     private VendorMissAnalyseGuard $vendorMissAnalyseGuard;
-    public function __construct(SymfonyStyle $symfonyStyle, VendorMissAnalyseGuard $vendorMissAnalyseGuard)
+    /**
+     * @readonly
+     */
+    private \Rector\Reporting\UnusedSkipResolver $unusedSkipResolver;
+    public function __construct(SymfonyStyle $symfonyStyle, VendorMissAnalyseGuard $vendorMissAnalyseGuard, \Rector\Reporting\UnusedSkipResolver $unusedSkipResolver)
     {
         $this->symfonyStyle = $symfonyStyle;
         $this->vendorMissAnalyseGuard = $vendorMissAnalyseGuard;
+        $this->unusedSkipResolver = $unusedSkipResolver;
+    }
+    /**
+     * Reports skips configured via "->withSkip()" that never matched any element during the run.
+     * Enabled with "->reportUnusedSkips()".
+     */
+    public function reportUnusedSkips(ProcessResult $processResult): void
+    {
+        $unusedSkips = $this->unusedSkipResolver->resolve($processResult);
+        if ($unusedSkips === []) {
+            return;
+        }
+        $this->symfonyStyle->warning(sprintf('%s never matched any element. You can remove %s from "->withSkip()"', count($unusedSkips) > 1 ? 'These skips are unused, they' : 'This skip is unused, it', count($unusedSkips) > 1 ? 'them' : 'it'));
+        // add a blank line between items, so grouped rule skips stay visually separated
+        $spacedUnusedSkips = array_map(static fn(string $unusedSkip): string => $unusedSkip . "\n", $unusedSkips);
+        $this->symfonyStyle->listing($spacedUnusedSkips);
     }
     public function reportSkippedNeverRegisteredRules(): void
     {

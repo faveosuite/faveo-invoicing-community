@@ -11,7 +11,6 @@
 
 namespace Symfony\Component\DependencyInjection\Loader;
 
-use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\DependencyInjection\Attribute\WhenNot;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -31,6 +30,8 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
  */
 class PhpFileLoader extends FileLoader
 {
+    use ContentLoaderTrait;
+
     protected bool $autoRegisterAliasesForSinglyImplementedInterfaces = false;
 
     public function load(mixed $resource, ?string $type = null): mixed
@@ -67,13 +68,9 @@ class PhpFileLoader extends FileLoader
             if (\is_object($result) && \is_callable($result)) {
                 $this->callConfigurator($result, new ContainerConfigurator($this->container, $this, $this->instanceof, $path, $resource, $this->env), $path);
             } elseif (\is_array($result)) {
-                $yamlLoader = new YamlFileLoader($this->container, $this->locator, $this->env, $this->prepend);
-                $yamlLoader->setResolver($this->resolver ?? new LoaderResolver([$this]));
-                $loadContent = new \ReflectionMethod(YamlFileLoader::class, 'loadContent');
-
                 ++$this->importing;
                 try {
-                    $loadContent->invoke($yamlLoader, [
+                    $this->loadContent([
                         'imports' => ContainerConfigurator::processValue($result['imports'] ?? []),
                         'parameters' => ContainerConfigurator::processValue($result['parameters'] ?? []),
                         'services' => ContainerConfigurator::processValue($result['services'] ?? [], true),
@@ -100,7 +97,7 @@ class PhpFileLoader extends FileLoader
                             throw new InvalidArgumentException(\sprintf('The "%s" key should contain an array in "%s".', $when, $path));
                         }
 
-                        $loadContent->invoke($yamlLoader, [
+                        $this->loadContent([
                             'imports' => ContainerConfigurator::processValue($result[$when]['imports'] ?? []),
                             'parameters' => ContainerConfigurator::processValue($result[$when]['parameters'] ?? []),
                             'services' => ContainerConfigurator::processValue($result[$when]['services'] ?? [], true),
@@ -144,6 +141,8 @@ class PhpFileLoader extends FileLoader
 
     /**
      * Resolve the parameters to the $callback and execute it.
+     *
+     * @param-immediately-invoked-callable $callback
      */
     private function callConfigurator(callable $callback, ContainerConfigurator $containerConfigurator, string $path): void
     {

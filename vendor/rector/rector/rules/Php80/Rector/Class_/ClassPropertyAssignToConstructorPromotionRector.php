@@ -5,10 +5,13 @@ namespace Rector\Php80\Rector\Class_;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\IntersectionType;
+use PhpParser\Node\Name;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Class_;
@@ -17,9 +20,12 @@ use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\UnionType;
 use PhpParser\NodeVisitor;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ParamTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\VarTagValueNode;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\TypeCombinator;
+use PHPStan\Type\TypeWithClassName;
+use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo;
 use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Naming\PropertyRenamer\PropertyPromotionRenamer;
@@ -29,6 +35,7 @@ use Rector\NodeTypeResolver\TypeComparator\TypeComparator;
 use Rector\Php80\DocBlock\PropertyPromotionDocBlockMerger;
 use Rector\Php80\Guard\MakePropertyPromotionGuard;
 use Rector\Php80\NodeAnalyzer\PromotedPropertyCandidateResolver;
+use Rector\PhpParser\Node\BetterNodeFinder;
 use Rector\PhpParser\Node\Value\ValueResolver;
 use Rector\PHPStanStaticTypeMapper\Enum\TypeKind;
 use Rector\Rector\AbstractRector;
@@ -89,6 +96,10 @@ final class ClassPropertyAssignToConstructorPromotionRector extends AbstractRect
      */
     private ValueResolver $valueResolver;
     /**
+     * @readonly
+     */
+    private BetterNodeFinder $betterNodeFinder;
+    /**
      * @api
      * @var string
      */
@@ -120,7 +131,7 @@ final class ClassPropertyAssignToConstructorPromotionRector extends AbstractRect
      * Set to false will skip property promotion on model based classes
      */
     private bool $allowModelBasedClasses = \true;
-    public function __construct(PromotedPropertyCandidateResolver $promotedPropertyCandidateResolver, VariableRenamer $variableRenamer, ParamAnalyzer $paramAnalyzer, PropertyPromotionDocBlockMerger $propertyPromotionDocBlockMerger, MakePropertyPromotionGuard $makePropertyPromotionGuard, TypeComparator $typeComparator, ReflectionResolver $reflectionResolver, PropertyPromotionRenamer $propertyPromotionRenamer, PhpDocInfoFactory $phpDocInfoFactory, StaticTypeMapper $staticTypeMapper, ValueResolver $valueResolver)
+    public function __construct(PromotedPropertyCandidateResolver $promotedPropertyCandidateResolver, VariableRenamer $variableRenamer, ParamAnalyzer $paramAnalyzer, PropertyPromotionDocBlockMerger $propertyPromotionDocBlockMerger, MakePropertyPromotionGuard $makePropertyPromotionGuard, TypeComparator $typeComparator, ReflectionResolver $reflectionResolver, PropertyPromotionRenamer $propertyPromotionRenamer, PhpDocInfoFactory $phpDocInfoFactory, StaticTypeMapper $staticTypeMapper, ValueResolver $valueResolver, BetterNodeFinder $betterNodeFinder)
     {
         $this->promotedPropertyCandidateResolver = $promotedPropertyCandidateResolver;
         $this->variableRenamer = $variableRenamer;
@@ -133,6 +144,7 @@ final class ClassPropertyAssignToConstructorPromotionRector extends AbstractRect
         $this->phpDocInfoFactory = $phpDocInfoFactory;
         $this->staticTypeMapper = $staticTypeMapper;
         $this->valueResolver = $valueResolver;
+        $this->betterNodeFinder = $betterNodeFinder;
     }
     public function getRuleDefinition(): RuleDefinition
     {
@@ -188,11 +200,11 @@ CODE_SAMPLE
         if ($promotionCandidates === []) {
             return null;
         }
-        $constructorPhpDocInfo = $this->phpDocInfoFactory->createFromNodeOrEmpty($constructClassMethod);
         $classReflection = $this->reflectionResolver->resolveClassReflection($node);
         if (!$classReflection instanceof ClassReflection) {
             return null;
         }
+        $constructorPhpDocInfo = $this->phpDocInfoFactory->createFromNodeOrEmpty($constructClassMethod);
         $hasChanged = \false;
         foreach ($promotionCandidates as $promotionCandidate) {
             $param = $promotionCandidate->getParam();
@@ -210,6 +222,15 @@ CODE_SAMPLE
                 continue;
             }
             if ($this->shouldSkipPropertyOrParam($property, $param)) {
+                continue;
+            }
+            if ($this->shouldSkipNarrowingVarDoc($property, $param, $constructorPhpDocInfo, $paramName)) {
+                continue;
+            }
+            if ($this->shouldSkipPropertyAssignedNull($node, $propertyName)) {
+                continue;
+            }
+            if ($this->shouldSkipUntypedParentProperty($classReflection, $propertyName)) {
                 continue;
             }
             $hasChanged = \true;
@@ -287,6 +308,21 @@ CODE_SAMPLE
         $paramType = TypeCombinator::union($paramType, $defaultType);
         $param->type = $this->staticTypeMapper->mapPHPStanTypeToPhpParserNode($paramType, TypeKind::PARAM);
     }
+    /**
+     * A parent property declared without a native type cannot be typed by a child. Promotion moves the param
+     * type onto the property, so promoting such a property makes the class fatal:
+     * "Type of Child::$property must not be defined (as in class Parent)".
+     */
+    private function shouldSkipUntypedParentProperty(ClassReflection $classReflection, string $propertyName): bool
+    {
+        foreach ($classReflection->getParents() as $parentClassReflection) {
+            if (!$parentClassReflection->hasNativeProperty($propertyName)) {
+                continue;
+            }
+            return !$parentClassReflection->getNativeProperty($propertyName)->hasNativeType();
+        }
+        return \false;
+    }
     private function shouldSkipParam(Param $param): bool
     {
         if ($param->variadic) {
@@ -305,16 +341,21 @@ CODE_SAMPLE
         if (!$type instanceof UnionType) {
             return \false;
         }
+        $found = \false;
         foreach ($type->types as $type) {
             if ($this->isCallableTypeIdentifier($type)) {
-                return \true;
+                $found = \true;
+                break;
             }
         }
-        return \false;
+        return $found;
     }
     private function isCallableTypeIdentifier(?Node $node): bool
     {
-        return $node instanceof Identifier && $this->isName($node, 'callable');
+        if (!$node instanceof Identifier) {
+            return \false;
+        }
+        return $this->isName($node, 'callable');
     }
     private function shouldSkipPropertyOrParam(Property $property, Param $param): bool
     {
@@ -327,6 +368,37 @@ CODE_SAMPLE
             }
         }
         return $property->type instanceof Node && $param->type instanceof Node && $property->hooks !== [] && !$this->nodeComparator->areNodesEqual($property->type, $param->type);
+    }
+    /**
+     * A class-typed property may carry a narrowing @var (e.g. native AdapterInterface, @var CacheProvider) used to
+     * type calls on the property. Promotion would drop that @var (it is not preserved as a @param here), $property so skip to
+     * avoid losing type information.
+     */
+    private function shouldSkipNarrowingVarDoc(Property $property, Param $param, PhpDocInfo $constructorPhpDocInfo, string $paramName): bool
+    {
+        if (!$property->type instanceof Node || !$param->type instanceof Node) {
+            return \false;
+        }
+        // an explicit @param already carries the type onto the promoted property
+        if ($constructorPhpDocInfo->getParamTagValueByName($paramName) instanceof ParamTagValueNode) {
+            return \false;
+        }
+        $propertyPhpDocInfo = $this->phpDocInfoFactory->createFromNodeOrEmpty($property);
+        $varTagValueNode = $propertyPhpDocInfo->getVarTagValueNode();
+        if (!$varTagValueNode instanceof VarTagValueNode) {
+            return \false;
+        }
+        // a description keeps the docblock around anyway
+        if ($varTagValueNode->description !== '') {
+            return \false;
+        }
+        $varType = $this->staticTypeMapper->mapPHPStanPhpDocTypeToPHPStanType($varTagValueNode, $property);
+        // only class-typed @var narrowing is lost; generics, arrays and int ranges are preserved on promotion
+        if (!$varType instanceof TypeWithClassName) {
+            return \false;
+        }
+        $paramType = $this->staticTypeMapper->mapPhpParserNodePHPStanType($param->type);
+        return !$this->typeComparator->areTypesEqual($varType, $paramType);
     }
     private function shouldRemoveNullFromForPromotedParamType(Property $property, Param $param): bool
     {
@@ -357,6 +429,33 @@ CODE_SAMPLE
         $type = TypeCombinator::removeNull($propertyType);
         $paramType = $this->staticTypeMapper->mapPhpParserNodePHPStanType($param->type);
         $paramTypeWithoutNull = TypeCombinator::removeNull($paramType);
-        return $this->typeComparator->areTypesEqual($type, $paramTypeWithoutNull);
+        if (!$this->typeComparator->areTypesEqual($type, $paramTypeWithoutNull)) {
+            return \false;
+        }
+        if ($param->default instanceof Expr) {
+            $paramType = TypeCombinator::union($paramType, $this->getType($param->default));
+        }
+        if (!$this->typeComparator->isSubtype($paramType, $propertyType)) {
+            return \true;
+        }
+        return $this->typeComparator->areTypesEqual($propertyType, $paramType);
+    }
+    private function shouldSkipPropertyAssignedNull(Class_ $class, string $propertyName): bool
+    {
+        return (bool) $this->betterNodeFinder->findFirst($class, function (Node $node) use ($propertyName): bool {
+            if (!$node instanceof Assign) {
+                return \false;
+            }
+            if (!$node->var instanceof PropertyFetch) {
+                return \false;
+            }
+            if (!$this->isName($node->var->var, 'this')) {
+                return \false;
+            }
+            if (!$this->isName($node->var->name, $propertyName)) {
+                return \false;
+            }
+            return $this->valueResolver->isNull($node->expr);
+        });
     }
 }

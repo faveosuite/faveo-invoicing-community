@@ -1,0 +1,27 @@
+<?php
+
+declare (strict_types=1);
+namespace RectorPrefix202607;
+
+use Rector\Config\RectorConfig;
+use Rector\PHPUnit\CodeQuality\Rector\Class_\AddIntersectionVarToMockObjectPropertyRector;
+use Rector\PHPUnit\CodeQuality\Rector\Class_\AddStubIntersectionVarToStubPropertyRector;
+use Rector\PHPUnit\CodeQuality\Rector\ClassMethod\BareCreateMockAssignToDirectUseRector;
+use Rector\PHPUnit\PHPUnit120\Rector\CallLike\CreateStubInCoalesceArgRector;
+use Rector\PHPUnit\PHPUnit120\Rector\CallLike\CreateStubOverCreateMockArgRector;
+use Rector\PHPUnit\PHPUnit120\Rector\Class_\PropertyCreateMockToCreateStubRector;
+use Rector\PHPUnit\PHPUnit120\Rector\ClassMethod\ExpressionCreateMockToCreateStubRector;
+use Rector\PHPUnit\PHPUnit120\Rector\Property\MockObjectVarToStubRector;
+return static function (RectorConfig $rectorConfig): void {
+    $rectorConfig->rules([
+        // stubs over mocks
+        CreateStubOverCreateMockArgRector::class,
+        CreateStubInCoalesceArgRector::class,
+        ExpressionCreateMockToCreateStubRector::class,
+        PropertyCreateMockToCreateStubRector::class,
+        MockObjectVarToStubRector::class,
+        AddIntersectionVarToMockObjectPropertyRector::class,
+        AddStubIntersectionVarToStubPropertyRector::class,
+        BareCreateMockAssignToDirectUseRector::class,
+    ]);
+};

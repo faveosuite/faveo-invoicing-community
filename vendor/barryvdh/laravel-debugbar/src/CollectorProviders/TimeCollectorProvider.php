@@ -29,10 +29,10 @@ class TimeCollectorProvider extends AbstractCollectorProvider
             $timeCollector->showMemoryUsage();
         }
 
-        $events->listen(Routing::class, fn() => $timeCollector->startMeasure('Routing'));
+        $events->listen(Routing::class, fn() => $timeCollector->startMeasure('Routing', null, 'time'));
         $events->listen(RouteMatched::class, fn() => $timeCollector->stopMeasure('Routing'));
 
-        $events->listen(PreparingResponse::class, fn() => $timeCollector->startMeasure('Preparing Response'));
+        $events->listen(PreparingResponse::class, fn() => $timeCollector->startMeasure('Preparing Response', null, 'time'));
         $events->listen(ResponsePrepared::class, fn() => $timeCollector->stopMeasure('Preparing Response'));
     }
 }

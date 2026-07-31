@@ -11,7 +11,7 @@ use Rector\Rector\AbstractRector;
 use Rector\Transform\ValueObject\ConstFetchToClassConstFetch;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 /**
  * @see Rector\Tests\Transform\Rector\ConstFetch\ConstFetchToClassConstFetchRector\ConstFetchToClassConstFetchTest
  */
@@ -29,6 +29,9 @@ final class ConstFetchToClassConstFetchRector extends AbstractRector implements 
     {
         return [ConstFetch::class];
     }
+    /**
+     * @param ConstFetch $node
+     */
     public function refactor(Node $node): ?ClassConstFetch
     {
         foreach ($this->constFetchToClassConsts as $constFetchToClassConst) {

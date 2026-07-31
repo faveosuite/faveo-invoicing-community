@@ -24,7 +24,7 @@ use Rector\ValueObject\PhpVersionFeature;
 use Rector\VendorLocker\ParentClassMethodTypeOverrideGuard;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\TypeDeclaration\Rector\ClassMethod\AddReturnTypeDeclarationRector\AddReturnTypeDeclarationRectorTest
  */
@@ -91,6 +91,10 @@ CODE_SAMPLE
     public function refactor(Node $node): ?Node
     {
         $this->hasChanged = \false;
+        // skip guarded classes, where adding a return type would break child classes
+        if ($this->parentClassMethodTypeOverrideGuard->isTypeGuardedClass($node)) {
+            return null;
+        }
         foreach ($this->methodReturnTypes as $methodReturnType) {
             $objectType = $methodReturnType->getObjectType();
             if (!$this->isObjectType($node, $objectType)) {

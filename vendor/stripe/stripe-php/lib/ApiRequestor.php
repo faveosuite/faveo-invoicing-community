@@ -435,12 +435,17 @@ class ApiRequestor
 
         // Fallback to global configuration to maintain backwards compatibility.
         $appInfo = $appInfo ?: Stripe::getAppInfo();
+
         $ua = [
             'bindings_version' => Stripe::VERSION,
             'lang' => 'php',
             'lang_version' => $langVersion,
         ];
         if (Stripe::getEnableTelemetry()) {
+            $telemetryId = TelemetryId::get();
+            if (null !== $telemetryId) {
+                $ua['telemetry_id'] = $telemetryId;
+            }
             $uname_disabled = self::_isDisabled(\ini_get('disable_functions'), 'php_uname');
             $ua['platform'] = $uname_disabled
                 ? '(disabled)'

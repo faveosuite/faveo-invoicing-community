@@ -4,8 +4,11 @@ declare (strict_types=1);
 namespace Rector\DeadCode\Rector\ClassMethod;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Reflection\ClassReflection;
@@ -88,12 +91,19 @@ CODE_SAMPLE
         if ($node->getMethods() === []) {
             return null;
         }
+        // unreliable to detect on anonymous class: doesn't make sense
+        if ($node->isAnonymous()) {
+            return null;
+        }
         $hasChanged = \false;
         $classReflection = $this->reflectionResolver->resolveClassReflection($node);
         if (!$classReflection instanceof ClassReflection) {
             return null;
         }
         $dataProviderMethodNames = $this->resolveDataProviderMethodNames($node);
+        // methods invoked via a class-string static call, e.g. self::class::sampleClass(),
+        // are not seen by the usage analyzer
+        $classStringCallMethodNames = $this->resolveClassStringStaticCallNames($node);
         foreach ($node->stmts as $classStmtKey => $classStmt) {
             if (!$classStmt instanceof ClassMethod) {
                 continue;
@@ -115,6 +125,9 @@ CODE_SAMPLE
             if ($this->isNames($classMethod, $dataProviderMethodNames)) {
                 continue;
             }
+            if ($this->isNames($classMethod, $classStringCallMethodNames)) {
+                continue;
+            }
             unset($node->stmts[$classStmtKey]);
             $hasChanged = \true;
         }
@@ -125,14 +138,11 @@ CODE_SAMPLE
     }
     private function shouldSkip(ClassMethod $classMethod, ClassReflection $classReflection): bool
     {
-        // unreliable to detect trait, interface, anonymous class: doesn't make sense
+        // unreliable to detect trait, interface: doesn't make sense
         if ($classReflection->isTrait()) {
             return \true;
         }
         if ($classReflection->isInterface()) {
-            return \true;
-        }
-        if ($classReflection->isAnonymous()) {
             return \true;
         }
         // skip magic methods - @see https://www.php.net/manual/en/language.oop5.magic.php
@@ -140,6 +150,32 @@ CODE_SAMPLE
             return \true;
         }
         return $classReflection->hasMethod(MethodName::CALL);
+    }
+    /**
+     * Mirrors PHPStan's UnusedPrivateMethodRule fix for class-string static calls
+     * @see https://github.com/phpstan/phpstan-src/pull/5953
+     *
+     * @return string[]
+     */
+    private function resolveClassStringStaticCallNames(Class_ $class): array
+    {
+        $methodNames = [];
+        /** @var StaticCall[] $staticCalls */
+        $staticCalls = $this->betterNodeFinder->findInstanceOf($class->stmts, StaticCall::class);
+        foreach ($staticCalls as $staticCall) {
+            // e.g. self::class::sampleClass() - the called class is a ::class expression
+            if (!$staticCall->class instanceof ClassConstFetch) {
+                continue;
+            }
+            if (!$this->isName($staticCall->class->name, 'class')) {
+                continue;
+            }
+            if (!$staticCall->name instanceof Identifier) {
+                continue;
+            }
+            $methodNames[] = $staticCall->name->toString();
+        }
+        return $methodNames;
     }
     private function hasDynamicMethodCallOnFetchThis(ClassMethod $classMethod): bool
     {

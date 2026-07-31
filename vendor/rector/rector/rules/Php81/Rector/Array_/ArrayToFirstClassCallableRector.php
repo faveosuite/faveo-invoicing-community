@@ -29,7 +29,7 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
  * @see RFC https://wiki.php.net/rfc/first_class_callable_syntax
  * @see \Rector\Tests\Php81\Rector\Array_\ArrayToFirstClassCallableRector\ArrayToFirstClassCallableRectorTest
  */
-class ArrayToFirstClassCallableRector extends AbstractRector implements MinPhpVersionInterface
+final class ArrayToFirstClassCallableRector extends AbstractRector implements MinPhpVersionInterface
 {
     /**
      * @readonly
@@ -95,6 +95,9 @@ CODE_SAMPLE
         if ($node->getAttribute(AttributeKey::IS_INSIDE_SYMFONY_PHP_CLOSURE)) {
             return null;
         }
+        if ($node->getAttribute(AttributeKey::IS_ARRAY_AS_STRING_CALLABLE)) {
+            return null;
+        }
         $scope = ScopeFetcher::fetch($node);
         $arrayCallable = $this->arrayCallableMethodMatcher->match($node, $scope);
         if (!$arrayCallable instanceof ArrayCallable) {
@@ -111,6 +114,9 @@ CODE_SAMPLE
             return null;
         }
         if ($node->getAttribute(AttributeKey::IS_PARAM_DEFAULT)) {
+            return null;
+        }
+        if ($node->getAttribute(AttributeKey::IS_UNPACKED_ARG_VALUE)) {
             return null;
         }
         $args = [new VariadicPlaceholder()];

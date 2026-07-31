@@ -9,7 +9,7 @@ declare (strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\SebastianBergmann\Diff\Output;
+namespace RectorPrefix202607\SebastianBergmann\Diff\Output;
 
 use function assert;
 use function fclose;
@@ -19,7 +19,7 @@ use function is_resource;
 use function str_ends_with;
 use function stream_get_contents;
 use function substr;
-use RectorPrefix202606\SebastianBergmann\Diff\Differ;
+use RectorPrefix202607\SebastianBergmann\Diff\Differ;
 /**
  * Builds a diff string representation in a loose unified diff format
  * listing only changes lines. Does not include line numbers.
@@ -31,6 +31,9 @@ final class DiffOnlyOutputBuilder implements DiffOutputBuilderInterface
     {
         $this->header = $header;
     }
+    /**
+     * @param list<array{0: mixed, 1: int}> $diff
+     */
     public function getDiff(array $diff): string
     {
         $buffer = fopen('php://memory', 'r+b');
@@ -43,10 +46,13 @@ final class DiffOnlyOutputBuilder implements DiffOutputBuilderInterface
         }
         foreach ($diff as $diffEntry) {
             if ($diffEntry[1] === Differ::ADDED) {
+                /** @phpstan-ignore binaryOp.invalid */
                 fwrite($buffer, '+' . $diffEntry[0]);
             } elseif ($diffEntry[1] === Differ::REMOVED) {
+                /** @phpstan-ignore binaryOp.invalid */
                 fwrite($buffer, '-' . $diffEntry[0]);
             } elseif ($diffEntry[1] === Differ::DIFF_LINE_END_WARNING) {
+                /** @phpstan-ignore binaryOp.invalid */
                 fwrite($buffer, ' ' . $diffEntry[0]);
                 continue;
                 // Warnings should not be tested for line break, it will always be there
@@ -55,6 +61,7 @@ final class DiffOnlyOutputBuilder implements DiffOutputBuilderInterface
                 continue;
                 // we didn't write the not-changed line, so do not add a line break either
             }
+            /** @phpstan-ignore argument.type */
             $lc = substr($diffEntry[0], -1);
             if ($lc !== "\n" && $lc !== "\r") {
                 fwrite($buffer, "\n");

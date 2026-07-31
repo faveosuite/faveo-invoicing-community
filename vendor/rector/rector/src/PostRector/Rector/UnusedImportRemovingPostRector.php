@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\PostRector\Rector;
 
-use RectorPrefix202606\Nette\Utils\Strings;
+use RectorPrefix202607\Nette\Utils\Strings;
 use PhpParser\Comment;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
@@ -139,6 +139,8 @@ final class UnusedImportRemovingPostRector extends \Rector\PostRector\Rector\Abs
                 $names = array_merge($names, $constFetchNodeNames);
                 $genericTagClassNames = $phpDocInfo->getGenericTagClassNames();
                 $names = array_merge($names, $genericTagClassNames);
+                $inlineGenericUsesTagClassNames = $phpDocInfo->getInlineGenericUsesTagClassNames();
+                $names = array_merge($names, $inlineGenericUsesTagClassNames);
                 $arrayItemTagClassNames = $phpDocInfo->getArrayItemNodeClassNames();
                 $names = array_merge($names, $arrayItemTagClassNames);
             }
@@ -198,7 +200,10 @@ final class UnusedImportRemovingPostRector extends \Rector\PostRector\Rector\Abs
     }
     private function isSubNamespace(string $name, string $comparedName, string $namespacedPrefix): bool
     {
-        if (substr_compare($comparedName, '\\' . $name, -strlen('\\' . $name)) === 0) {
+        // a partially qualified name like "Foo\Bar" resolves through the import of its first
+        // segment, never through an import whose tail it happens to match, so only a single
+        // segment name (the imported short name) may be matched against the import's tail here
+        if (strpos($name, '\\') === \false && substr_compare($comparedName, '\\' . $name, -strlen('\\' . $name)) === 0) {
             return \true;
         }
         if (strncmp($name, $namespacedPrefix, strlen($namespacedPrefix)) === 0) {

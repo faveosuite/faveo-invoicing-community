@@ -8,14 +8,14 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\Symfony\Component\Console\Helper;
+namespace RectorPrefix202607\Symfony\Component\Console\Helper;
 
-use RectorPrefix202606\Symfony\Component\Console\Cursor;
-use RectorPrefix202606\Symfony\Component\Console\Exception\LogicException;
-use RectorPrefix202606\Symfony\Component\Console\Output\ConsoleOutputInterface;
-use RectorPrefix202606\Symfony\Component\Console\Output\ConsoleSectionOutput;
-use RectorPrefix202606\Symfony\Component\Console\Output\OutputInterface;
-use RectorPrefix202606\Symfony\Component\Console\Terminal;
+use RectorPrefix202607\Symfony\Component\Console\Cursor;
+use RectorPrefix202607\Symfony\Component\Console\Exception\LogicException;
+use RectorPrefix202607\Symfony\Component\Console\Output\ConsoleOutputInterface;
+use RectorPrefix202607\Symfony\Component\Console\Output\ConsoleSectionOutput;
+use RectorPrefix202607\Symfony\Component\Console\Output\OutputInterface;
+use RectorPrefix202607\Symfony\Component\Console\Terminal;
 /**
  * The ProgressBar provides helpers to display progress output.
  *
@@ -462,7 +462,7 @@ final class ProgressBar
             $display = str_repeat($bar->getBarCharacter(), $completeBars);
             if ($completeBars < $bar->getBarWidth()) {
                 $emptyBars = $bar->getBarWidth() - $completeBars - Helper::length(Helper::removeDecoration($output->getFormatter(), $bar->getProgressCharacter()));
-                $display .= $bar->getProgressCharacter() . str_repeat($bar->getEmptyBarCharacter(), $emptyBars);
+                $display .= $bar->getProgressCharacter() . str_repeat($bar->getEmptyBarCharacter(), max(0, $emptyBars));
             }
             return $display;
         }, 'elapsed' => static fn(self $bar) => Helper::formatTime(time() - $bar->getStartTime(), 2), 'remaining' => static function (self $bar) {

@@ -8,20 +8,20 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\Symfony\Component\Finder;
+namespace RectorPrefix202607\Symfony\Component\Finder;
 
-use RectorPrefix202606\Symfony\Component\Finder\Comparator\DateComparator;
-use RectorPrefix202606\Symfony\Component\Finder\Comparator\NumberComparator;
-use RectorPrefix202606\Symfony\Component\Finder\Exception\DirectoryNotFoundException;
-use RectorPrefix202606\Symfony\Component\Finder\Iterator\CustomFilterIterator;
-use RectorPrefix202606\Symfony\Component\Finder\Iterator\DateRangeFilterIterator;
-use RectorPrefix202606\Symfony\Component\Finder\Iterator\DepthRangeFilterIterator;
-use RectorPrefix202606\Symfony\Component\Finder\Iterator\ExcludeDirectoryFilterIterator;
-use RectorPrefix202606\Symfony\Component\Finder\Iterator\FilecontentFilterIterator;
-use RectorPrefix202606\Symfony\Component\Finder\Iterator\FilenameFilterIterator;
-use RectorPrefix202606\Symfony\Component\Finder\Iterator\LazyIterator;
-use RectorPrefix202606\Symfony\Component\Finder\Iterator\SizeRangeFilterIterator;
-use RectorPrefix202606\Symfony\Component\Finder\Iterator\SortableIterator;
+use RectorPrefix202607\Symfony\Component\Finder\Comparator\DateComparator;
+use RectorPrefix202607\Symfony\Component\Finder\Comparator\NumberComparator;
+use RectorPrefix202607\Symfony\Component\Finder\Exception\DirectoryNotFoundException;
+use RectorPrefix202607\Symfony\Component\Finder\Iterator\CustomFilterIterator;
+use RectorPrefix202607\Symfony\Component\Finder\Iterator\DateRangeFilterIterator;
+use RectorPrefix202607\Symfony\Component\Finder\Iterator\DepthRangeFilterIterator;
+use RectorPrefix202607\Symfony\Component\Finder\Iterator\ExcludeDirectoryFilterIterator;
+use RectorPrefix202607\Symfony\Component\Finder\Iterator\FilecontentFilterIterator;
+use RectorPrefix202607\Symfony\Component\Finder\Iterator\FilenameFilterIterator;
+use RectorPrefix202607\Symfony\Component\Finder\Iterator\LazyIterator;
+use RectorPrefix202607\Symfony\Component\Finder\Iterator\SizeRangeFilterIterator;
+use RectorPrefix202607\Symfony\Component\Finder\Iterator\SortableIterator;
 /**
  * Finder allows to build rules to find files and directories.
  *
@@ -35,7 +35,7 @@ use RectorPrefix202606\Symfony\Component\Finder\Iterator\SortableIterator;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  *
- * @implements \IteratorAggregate<string, SplFileInfo>
+ * @implements \IteratorAggregate<non-empty-string, SplFileInfo>
  */
 class Finder implements \IteratorAggregate, \Countable
 {
@@ -51,6 +51,7 @@ class Finder implements \IteratorAggregate, \Countable
     private array $depths = [];
     private array $sizes = [];
     private bool $followLinks = \false;
+    private bool $unixPaths = \false;
     private bool $reverseSorting = \false;
     /**
      * @var \Closure|int|false
@@ -366,10 +367,8 @@ class Finder implements \IteratorAggregate, \Countable
      * @see ignoreVCS()
      *
      * @param string|string[] $pattern VCS patterns to ignore
-     *
-     * @return void
      */
-    public static function addVCSPattern($pattern)
+    public static function addVCSPattern($pattern): void
     {
         foreach ((array) $pattern as $p) {
             self::$vcsPatterns[] = $p;
@@ -535,9 +534,8 @@ class Finder implements \IteratorAggregate, \Countable
      *
      * @see CustomFilterIterator
      */
-    public function filter(\Closure $closure)
+    public function filter(\Closure $closure, bool $prune = \false)
     {
-        $prune = 1 < \func_num_args() ? func_get_arg(1) : \false;
         $this->filters[] = $closure;
         if ($prune) {
             $this->pruneFilters[] = $closure;
@@ -552,6 +550,18 @@ class Finder implements \IteratorAggregate, \Countable
     public function followLinks()
     {
         $this->followLinks = \true;
+        return $this;
+    }
+    /**
+     * Forces forward slashes as the directory separator in returned paths.
+     *
+     * This is intended for Windows, where the native separator is "\".
+     *
+     * @return $this
+     */
+    public function useUnixPaths()
+    {
+        $this->unixPaths = \true;
         return $this;
     }
     /**
@@ -596,7 +606,7 @@ class Finder implements \IteratorAggregate, \Countable
      *
      * This method implements the IteratorAggregate interface.
      *
-     * @return \Iterator<string, SplFileInfo>
+     * @return \Iterator<non-empty-string, SplFileInfo>
      *
      * @throws \LogicException if the in() method has not been called
      */
@@ -700,6 +710,9 @@ class Finder implements \IteratorAggregate, \Countable
         if ($this->followLinks) {
             $flags |= \RecursiveDirectoryIterator::FOLLOW_SYMLINKS;
         }
+        if ($this->unixPaths) {
+            $flags |= \RecursiveDirectoryIterator::UNIX_PATHS;
+        }
         $iterator = new Iterator\RecursiveDirectoryIterator($dir, $flags, $this->ignoreUnreadableDirs);
         if ($exclude) {
             $iterator = new ExcludeDirectoryFilterIterator($iterator, $exclude);
@@ -737,7 +750,7 @@ class Finder implements \IteratorAggregate, \Countable
     /**
      * Normalizes given directory names by removing trailing slashes.
      *
-     * Excluding: (s)ftp:// or ssh2.(s)ftp:// wrapper
+     * Excluding: stream wrapper schemes such as ftp:// or s3://
      */
     private function normalizeDir(string $dir): string
     {
@@ -745,7 +758,7 @@ class Finder implements \IteratorAggregate, \Countable
             return $dir;
         }
         $dir = rtrim($dir, '/' . \DIRECTORY_SEPARATOR);
-        if (preg_match('#^(ssh2\.)?s?ftp://#', $dir)) {
+        if (preg_match('#^[a-zA-Z][a-zA-Z0-9.+-]*://#', $dir)) {
             $dir .= '/';
         }
         return $dir;

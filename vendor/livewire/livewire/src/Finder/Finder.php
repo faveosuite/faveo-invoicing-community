@@ -105,6 +105,12 @@ class Finder
             return $result;
         }
 
+        // Rewrite slash-style nested paths to canonical dot-notation and
+        // strip ⚡ markers so the same component is referenced by a
+        // single canonical name regardless of how it was written.
+        $nameComponentOrClass = preg_replace('/' . self::ZAP . '[\x{FE0E}\x{FE0F}]?/u', '', $nameComponentOrClass);
+        $nameComponentOrClass = str_replace('/', '.', $nameComponentOrClass);
+
         return $nameComponentOrClass;
     }
 
@@ -387,9 +393,9 @@ class Finder
         }
 
         // Light touch check: Look for the pattern that indicates an SFC
-        // Pattern: <?php followed by 'new' and 'class' (with potential attributes/newlines between)
+        // Pattern: <?php followed by 'new class' (with potential attributes/newlines between)
         // This distinguishes SFCs from regular Blade views
-        return preg_match('/\<\?php.*new\s+.*class/s', $contents) === 1;
+        return preg_match('/\<\?php.*\bnew\s+(?:#\[[^\]]*\]\s*)*class\b/s', $contents) === 1;
     }
 
     protected function hasValidMultiFileComponentSource(string $dir, string $fileBaseName): bool

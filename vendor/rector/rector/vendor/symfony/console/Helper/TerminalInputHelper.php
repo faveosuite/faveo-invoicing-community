@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\Symfony\Component\Console\Helper;
+namespace RectorPrefix202607\Symfony\Component\Console\Helper;
 
 /**
  * TerminalInputHelper stops Ctrl-C and similar signals from leaving the terminal in
@@ -55,7 +55,7 @@ final class TerminalInputHelper
             if (!\is_string($state = shell_exec('stty -g'))) {
                 throw new \RuntimeException('Unable to read the terminal settings.');
             }
-            $this->initialState = $state;
+            $this->initialState = trim($state);
             $this->createSignalHandlers();
         }
     }
@@ -86,7 +86,12 @@ final class TerminalInputHelper
         }
         // Safeguard in case an unhandled kill signal exists
         $this->checkForKillSignal();
-        shell_exec('stty ' . $this->initialState);
+        // The captured "stty -g" state is not guaranteed to be accepted back by "stty" on every
+        // platform/terminal (e.g. some nested pty implementations reject it with "invalid argument"),
+        // and shell_exec() gives no way to detect that failure. Try the exact restore first so
+        // any custom terminal settings survive, but always fall back to "stty sane" so the
+        // terminal is left in a usable state even when the exact restore silently fails.
+        shell_exec('stty ' . $this->initialState . ' 2>/dev/null || stty sane');
         $this->signalToKill = 0;
         foreach ($this->signalHandlers as $signal => $originalHandler) {
             pcntl_signal($signal, $originalHandler);
@@ -96,7 +101,7 @@ final class TerminalInputHelper
     }
     private function createSignalHandlers(): void
     {
-        if (!\function_exists('pcntl_async_signals') || !\function_exists('pcntl_signal') && !\function_exists('RectorPrefix202606\pcntl_signal')) {
+        if (!\function_exists('pcntl_async_signals') || !\function_exists('pcntl_signal') && !\function_exists('RectorPrefix202607\pcntl_signal')) {
             return;
         }
         pcntl_async_signals(\true);
@@ -104,9 +109,12 @@ final class TerminalInputHelper
         foreach ($this->targetSignals as $signal) {
             $this->signalHandlers[$signal] = pcntl_signal_get_handler($signal);
             pcntl_signal($signal, function ($signal) {
-                // Save current state, then restore to initial state
+                // Save current state, then restore to initial state. The original signal
+                // handler is about to run, so fall back to "stty sane" if the exact restore
+                // is rejected by "stty" (see the same fallback in finish()), to make sure it
+                // runs with a usable terminal.
                 $currentState = shell_exec('stty -g');
-                shell_exec('stty ' . $this->initialState);
+                shell_exec('stty ' . $this->initialState . ' 2>/dev/null || stty sane');
                 $originalHandler = $this->signalHandlers[$signal];
                 if (\is_callable($originalHandler)) {
                     $originalHandler($signal);

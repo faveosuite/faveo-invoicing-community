@@ -9,19 +9,25 @@ declare (strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\SebastianBergmann\Diff;
+namespace RectorPrefix202607\SebastianBergmann\Diff;
 
 use function gettype;
 use function is_object;
 use function sprintf;
-use Exception;
-final class ConfigurationException extends InvalidArgumentException
+use InvalidArgumentException;
+final class ConfigurationException extends InvalidArgumentException implements Exception
 {
     /**
      * @param mixed $value
      */
-    public function __construct(string $option, string $expected, $value, int $code = 0, ?Exception $previous = null)
+    public function __construct(string $option, string $expected, $value, int $code = 0, ?\Exception $previous = null)
     {
-        parent::__construct(sprintf('Option "%s" must be %s, got "%s".', $option, $expected, is_object($value) ? get_class($value) : (null === $value ? '<null>' : gettype($value) . '#' . $value)), $code, $previous);
+        parent::__construct(sprintf(
+            'Option "%s" must be %s, got "%s".',
+            $option,
+            $expected,
+            /** @phpstan-ignore binaryOp.invalid */
+            is_object($value) ? get_class($value) : (null === $value ? '<null>' : gettype($value) . '#' . $value)
+        ), $code, $previous);
     }
 }

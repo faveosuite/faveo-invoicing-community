@@ -16,14 +16,14 @@
         }
     ],
     "require": {
-        "php": ">=8.1"
+        "php": ">=8.4.1"
     },
     "require-dev": {
-        "symfony\/filesystem": "^6.0|^7.0"
+        "symfony\/filesystem": "^7.4|^8.0"
     },
     "autoload": {
         "psr-4": {
-            "RectorPrefix202606\\Symfony\\Component\\Finder\\": ""
+            "RectorPrefix202607\\Symfony\\Component\\Finder\\": ""
         },
         "exclude-from-classmap": [
             "\/Tests\/"

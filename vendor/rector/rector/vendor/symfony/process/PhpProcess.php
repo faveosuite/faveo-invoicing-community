@@ -8,10 +8,10 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\Symfony\Component\Process;
+namespace RectorPrefix202607\Symfony\Component\Process;
 
-use RectorPrefix202606\Symfony\Component\Process\Exception\LogicException;
-use RectorPrefix202606\Symfony\Component\Process\Exception\RuntimeException;
+use RectorPrefix202607\Symfony\Component\Process\Exception\LogicException;
+use RectorPrefix202607\Symfony\Component\Process\Exception\RuntimeException;
 /**
  * PhpProcess runs a PHP script in an independent process.
  *
@@ -20,15 +20,17 @@ use RectorPrefix202606\Symfony\Component\Process\Exception\RuntimeException;
  *     print $p->getOutput()."\n";
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @psalm-import-type EnvArray from Process
  */
 class PhpProcess extends Process
 {
     /**
-     * @param string      $script  The PHP script to run (as a string)
-     * @param string|null $cwd     The working directory or null to use the working dir of the current PHP process
-     * @param array|null  $env     The environment variables or null to use the same environment as the current PHP process
-     * @param int         $timeout The timeout in seconds
-     * @param array|null  $php     Path to the PHP binary to use with any additional arguments
+     * @param string        $script  The PHP script to run (as a string)
+     * @param string|null   $cwd     The working directory or null to use the working dir of the current PHP process
+     * @param EnvArray|null $env     The environment variables or null to use the same environment as the current PHP process
+     * @param int           $timeout The timeout in seconds
+     * @param array|null    $php     Path to the PHP binary to use with any additional arguments
      */
     public function __construct(string $script, ?string $cwd = null, ?array $env = null, int $timeout = 60, ?array $php = null)
     {
@@ -56,6 +58,7 @@ class PhpProcess extends Process
     }
     /**
      * @param (callable('out'|'err', string):void)|null $callback
+     * @param EnvArray                                  $env
      */
     public function start(?callable $callback = null, array $env = []): void
     {

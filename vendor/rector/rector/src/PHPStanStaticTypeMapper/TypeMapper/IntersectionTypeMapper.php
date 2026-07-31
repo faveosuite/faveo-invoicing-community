@@ -4,6 +4,7 @@ declare (strict_types=1);
 namespace Rector\PHPStanStaticTypeMapper\TypeMapper;
 
 use PhpParser\Node;
+use PhpParser\Node\Identifier;
 use PhpParser\Node\Name\FullyQualified;
 use PHPStan\PhpDocParser\Ast\Node as AstNode;
 use PHPStan\PhpDocParser\Ast\Type\ArrayShapeItemNode;
@@ -49,9 +50,12 @@ final class IntersectionTypeMapper implements TypeMapperInterface
         $this->objectTypeMapper = $objectTypeMapper;
         $this->scalarStringToTypeMapper = $scalarStringToTypeMapper;
     }
-    public function getNodeClass(): string
+    /**
+     * @return array<class-string<Type>>
+     */
+    public function getNodeClasses(): array
     {
-        return IntersectionType::class;
+        return [IntersectionType::class];
     }
     /**
      * @param IntersectionType $type
@@ -90,6 +94,10 @@ final class IntersectionTypeMapper implements TypeMapperInterface
      */
     public function mapToPhpParserNode(Type $type, string $typeKind): ?Node
     {
+        // accessory string types, e.g. "numeric-string&non-falsy-string", are just "string"
+        if ($type->isString()->yes()) {
+            return new Identifier('string');
+        }
         if (!$this->phpVersionProvider->isAtLeastPhpVersion(PhpVersionFeature::INTERSECTION_TYPES)) {
             return null;
         }

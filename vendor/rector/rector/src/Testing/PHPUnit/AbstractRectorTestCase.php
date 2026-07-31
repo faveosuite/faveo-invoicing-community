@@ -3,10 +3,10 @@
 declare (strict_types=1);
 namespace Rector\Testing\PHPUnit;
 
-use RectorPrefix202606\Illuminate\Container\RewindableGenerator;
+use RectorPrefix202607\Illuminate\Container\RewindableGenerator;
 use Iterator;
-use RectorPrefix202606\Nette\Utils\FileSystem;
-use RectorPrefix202606\Nette\Utils\Strings;
+use RectorPrefix202607\Nette\Utils\FileSystem;
+use RectorPrefix202607\Nette\Utils\Strings;
 use PHPUnit\Framework\ExpectationFailedException;
 use Rector\Application\ApplicationFileProcessor;
 use Rector\Autoloading\AdditionalAutoloader;
@@ -18,6 +18,7 @@ use Rector\Contract\DependencyInjection\ResettableInterface;
 use Rector\Contract\Rector\RectorInterface;
 use Rector\DependencyInjection\Laravel\ContainerMemento;
 use Rector\Exception\ShouldNotHappenException;
+use Rector\NodeTypeResolver\DependencyInjection\PHPStanServicesFactory;
 use Rector\NodeTypeResolver\Reflection\BetterReflection\SourceLocatorProvider\DynamicSourceLocatorProvider;
 use Rector\PhpParser\NodeTraverser\RectorNodeTraverser;
 use Rector\Rector\AbstractRector;
@@ -90,7 +91,7 @@ abstract class AbstractRectorTestCase extends \Rector\Testing\PHPUnit\AbstractLa
         $additionalAutoloader->autoloadPaths();
         /** @var BootstrapFilesIncluder $bootstrapFilesIncluder */
         $bootstrapFilesIncluder = $this->make(BootstrapFilesIncluder::class);
-        $bootstrapFilesIncluder->includeBootstrapFiles();
+        $bootstrapFilesIncluder->includeBootstrapFiles($rectorConfig->get(PHPStanServicesFactory::class)->getContainer());
     }
     protected function tearDown(): void
     {

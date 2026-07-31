@@ -48,11 +48,11 @@ CODE_SAMPLE
     {
         return [New_::class];
     }
+    /**
+     * @param New_ $node
+     */
     public function refactor(Node $node): ?Node
     {
-        if (!$node instanceof New_) {
-            return null;
-        }
         if ($node->isFirstClassCallable()) {
             return null;
         }
@@ -125,7 +125,12 @@ CODE_SAMPLE
                     return null;
                 }
             }
-            $arg = new Arg($item->value);
+            $argValue = $item->value;
+            // the "groups" constructor argument is typed as array, so a scalar option must be wrapped
+            if ($keyValue === 'groups' && !$argValue instanceof Array_) {
+                $argValue = new Array_([new ArrayItem($argValue)]);
+            }
+            $arg = new Arg($argValue);
             $arg->name = new Identifier($keyValue);
             $namedArgs[] = $arg;
         }

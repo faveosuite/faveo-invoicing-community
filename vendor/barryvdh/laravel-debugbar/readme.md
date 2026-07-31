@@ -120,9 +120,9 @@ debug($var1, $someString, $intValue, $object);
 // `$collection->debug()` will return the collection and dump it as a debug message. Like `$collection->dump()`
 collect([$var1, $someString])->debug();
 
-debugbar()->start_measure('render','Time for rendering');
-debugbar()->stop_measure('render');
-debugbar()->add_measure('now', LARAVEL_START, microtime(true));
+debugbar()->startMeasure('render','Time for rendering');
+debugbar()->stopMeasure('render');
+debugbar()->addMeasure('now', LARAVEL_START, microtime(true));
 debugbar()->measure('My long operation', function() {
     // Do something…
 });

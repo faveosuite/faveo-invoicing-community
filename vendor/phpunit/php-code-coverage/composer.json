@@ -34,7 +34,7 @@
         "ext-libxml": "*",
         "ext-mbstring": "*",
         "ext-xmlwriter": "*",
-        "nikic/php-parser": "^5.7.0",
+        "nikic/php-parser": "^5.8.0",
         "phpunit/php-text-template": "^6.0",
         "sebastian/complexity": "^6.0",
         "sebastian/environment": "^9.3.2",
@@ -44,7 +44,7 @@
         "theseer/tokenizer": "^2.0.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^13.2.0"
+        "phpunit/phpunit": "^13.2.2"
     },
     "suggest": {
         "ext-pcov": "PHP extension that provides line coverage",

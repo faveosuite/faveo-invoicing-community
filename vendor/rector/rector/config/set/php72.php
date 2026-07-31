@@ -1,7 +1,7 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix202606;
+namespace RectorPrefix202607;
 
 use Rector\Config\RectorConfig;
 use Rector\Php72\Rector\Assign\ListEachRector;
@@ -20,7 +20,7 @@ return static function (RectorConfig $rectorConfig): void {
         'jpeg2wbmp' => 'imagecreatefromjpeg',
         # or imagewbmp
         'png2wbmp' => 'imagecreatefrompng',
-        #migration72.deprecated.gmp_random-function
+        # migration72.deprecated.gmp_random-function
         # http://php.net/manual/en/migration72.deprecated.php
         # or gmp_random_range
         'gmp_random' => 'gmp_random_bits',

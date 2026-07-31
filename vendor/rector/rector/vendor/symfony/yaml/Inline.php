@@ -8,11 +8,11 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix202606\Symfony\Component\Yaml;
+namespace RectorPrefix202607\Symfony\Component\Yaml;
 
-use RectorPrefix202606\Symfony\Component\Yaml\Exception\DumpException;
-use RectorPrefix202606\Symfony\Component\Yaml\Exception\ParseException;
-use RectorPrefix202606\Symfony\Component\Yaml\Tag\TaggedValue;
+use RectorPrefix202607\Symfony\Component\Yaml\Exception\DumpException;
+use RectorPrefix202607\Symfony\Component\Yaml\Exception\ParseException;
+use RectorPrefix202607\Symfony\Component\Yaml\Tag\TaggedValue;
 /**
  * Inline implements a YAML parser/dumper for the YAML inline syntax.
  *
@@ -134,6 +134,8 @@ class Inline
                 return 'false';
             case \is_int($value):
                 return $value;
+            case \is_float($value) && is_nan($value):
+                return '.NaN';
             case is_numeric($value) && \false === strpbrk($value, "\f\n\r\t\v"):
                 $locale = setlocale(\LC_NUMERIC, 0);
                 if (\false !== $locale) {
@@ -339,6 +341,20 @@ class Inline
                     continue;
                 }
                 $tag = self::parseTag($sequence, $i, $flags);
+                $anchorRef = self::parseAnchor($sequence, $i);
+                if (null !== $anchorRef && null === $tag) {
+                    $tag = self::parseTag($sequence, $i, $flags);
+                }
+                if (null !== $anchorRef && (!isset($sequence[$i]) || ',' === $sequence[$i] || ']' === $sequence[$i])) {
+                    $value = null;
+                    $references[$anchorRef] = $value;
+                    if (null !== $tag && '' !== $tag) {
+                        $value = new TaggedValue($tag, $value);
+                    }
+                    $output[] = $value;
+                    $lastToken = 'value';
+                    continue;
+                }
                 switch ($sequence[$i]) {
                     case '[':
                         // nested sequence
@@ -349,7 +365,6 @@ class Inline
                         $value = self::parseMapping($state, $sequence, $flags, $i, $references);
                         break;
                     default:
-                        $hasAnchorAtStart = null === $tag && isset($sequence[$i]) && '&' === $sequence[$i];
                         $value = self::parseScalar($sequence, $flags, [',', ']'], $i, null === $tag, $references, $isQuoted, $state);
                         // the value can be an array if a reference has been resolved to an array var
                         if (\is_string($value) && !$isQuoted && strpos($value, ': ') !== \false) {
@@ -380,11 +395,10 @@ class Inline
                                 throw $mappingException;
                             }
                         }
-                        if ($hasAnchorAtStart && !$isQuoted && \is_string($value) && '' !== $value && '&' === $value[0] && Parser::preg_match(Parser::REFERENCE_PATTERN, $value, $matches)) {
-                            $value = '' === $matches['value'] ? null : $matches['value'];
-                            $references[$matches['ref']] = $value;
-                        }
                         --$i;
+                }
+                if (null !== $anchorRef) {
+                    $references[$anchorRef] = $value;
                 }
                 if (null !== $tag && '' !== $tag) {
                     $value = new TaggedValue($tag, $value);
@@ -458,10 +472,29 @@ class Inline
                         continue;
                     }
                     $tag = self::parseTag($mapping, $i, $flags);
+                    $anchorRef = self::parseAnchor($mapping, $i);
+                    if (null !== $anchorRef && null === $tag) {
+                        $tag = self::parseTag($mapping, $i, $flags);
+                    }
+                    if (null !== $anchorRef && (!isset($mapping[$i]) || \in_array($mapping[$i], [',', '}', "\n"], \true))) {
+                        $value = null;
+                        $references[$anchorRef] = $value;
+                        if ('<<' !== $key) {
+                            if ($allowOverwrite || !isset($output[$key])) {
+                                $output[$key] = null !== $tag ? new TaggedValue($tag, $value) : $value;
+                            } elseif (isset($output[$key])) {
+                                throw new ParseException(\sprintf('Duplicate key "%s" detected.', $key), self::$parsedLineNumber + 1, $mapping);
+                            }
+                        }
+                        continue 2;
+                    }
                     switch ($mapping[$i]) {
                         case '[':
                             // nested sequence
                             $value = self::parseSequence($state, $mapping, $flags, $i, $references);
+                            if (null !== $anchorRef) {
+                                $references[$anchorRef] = $value;
+                            }
                             // Spec: Keys MUST be unique; first one wins.
                             // Parser cannot abort this mapping earlier, since lines
                             // are processed sequentially.
@@ -483,6 +516,9 @@ class Inline
                         case '{':
                             // nested mapping
                             $value = self::parseMapping($state, $mapping, $flags, $i, $references);
+                            if (null !== $anchorRef) {
+                                $references[$anchorRef] = $value;
+                            }
                             // Spec: Keys MUST be unique; first one wins.
                             // Parser cannot abort this mapping earlier, since lines
                             // are processed sequentially.
@@ -500,8 +536,10 @@ class Inline
                             }
                             break;
                         default:
-                            $hasAnchorAtStart = null === $tag && isset($mapping[$i]) && '&' === $mapping[$i];
                             $value = self::parseScalar($mapping, $flags, [',', '}', "\n"], $i, null === $tag, $references, $isValueQuoted, $state);
+                            if (null !== $anchorRef) {
+                                $references[$anchorRef] = $value;
+                            }
                             // Spec: Keys MUST be unique; first one wins.
                             // Parser cannot abort this mapping earlier, since lines
                             // are processed sequentially.
@@ -509,10 +547,6 @@ class Inline
                             if ('<<' === $key) {
                                 $output += $value;
                             } elseif ($allowOverwrite || !isset($output[$key])) {
-                                if ($hasAnchorAtStart && !$isValueQuoted && \is_string($value) && '' !== $value && '&' === $value[0] && !self::isBinaryString($value) && Parser::preg_match(Parser::REFERENCE_PATTERN, $value, $matches)) {
-                                    $value = '' === $matches['value'] ? null : $matches['value'];
-                                    $references[$matches['ref']] = $value;
-                                }
                                 if (null !== $tag) {
                                     $output[$key] = new TaggedValue($tag, $value);
                                 } else {
@@ -584,7 +618,7 @@ class Inline
                             if (!isset($scalar[12])) {
                                 throw new ParseException('Missing value for tag "!php/object".', self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
                             }
-                            return unserialize(self::parseScalar((string) substr($scalar, 12)));
+                            return unserialize(self::parseScalar((string) substr($scalar, 12)), ['allowed_classes' => \true]);
                         }
                         if (self::$exceptionOnInvalidType) {
                             throw new ParseException('Object support when parsing a YAML file has been disabled.', self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
@@ -654,6 +688,9 @@ class Inline
             case \in_array($scalar[0], ['+', '-', '.'], \true) || is_numeric($scalar[0]):
                 if (Parser::preg_match('{^[+-]?[0-9][0-9_]*$}', $scalar)) {
                     $scalar = str_replace('_', '', $scalar);
+                    if ('+' === $scalar[0]) {
+                        $scalar = (string) substr($scalar, 1);
+                    }
                 }
                 switch (\true) {
                     case ctype_digit($scalar):
@@ -668,8 +705,9 @@ class Inline
                         $scalar = str_replace('_', '', $scalar);
                         return '0x' === $scalar[0] . $scalar[1] ? hexdec($scalar) : (float) $scalar;
                     case '.inf' === $scalarLower:
-                    case '.nan' === $scalarLower:
                         return -log(0);
+                    case '.nan' === $scalarLower:
+                        return \NAN;
                     case '-.inf' === $scalarLower:
                         return log(0);
                     case Parser::preg_match('/^(-|\+)?[0-9][0-9_]*(\.[0-9_]+)?$/', $scalar):
@@ -699,6 +737,17 @@ class Inline
                 }
         }
         return (string) $scalar;
+    }
+    private static function parseAnchor(string $value, int &$i): ?string
+    {
+        if (!isset($value[$i]) || '&' !== $value[$i]) {
+            return null;
+        }
+        if (!Parser::preg_match('/^&(?P<ref>[^ \t,\[\]\{\}\n]++)\s*+/A', (string) substr($value, $i), $matches)) {
+            return null;
+        }
+        $i += \strlen($matches[0]);
+        return $matches['ref'];
     }
     private static function parseTag(string $value, int &$i, int $flags): ?string
     {

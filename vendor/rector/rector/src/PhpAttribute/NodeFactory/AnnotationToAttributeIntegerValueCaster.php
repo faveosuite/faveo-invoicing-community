@@ -15,7 +15,7 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Type\Type;
 use PHPStan\Type\UnionType;
 use Rector\Php80\ValueObject\AnnotationToAttribute;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 final class AnnotationToAttributeIntegerValueCaster
 {
     /**
@@ -79,12 +79,14 @@ final class AnnotationToAttributeIntegerValueCaster
         if (!$type instanceof UnionType) {
             return \false;
         }
+        $found = \false;
         foreach ($type->getTypes() as $unionedType) {
             if ($unionedType->isInteger()->yes()) {
-                return \true;
+                $found = \true;
+                break;
             }
         }
-        return \false;
+        return $found;
     }
     /**
      * @return ParameterReflection[]

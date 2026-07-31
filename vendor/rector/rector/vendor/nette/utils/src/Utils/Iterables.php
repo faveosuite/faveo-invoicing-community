@@ -5,9 +5,9 @@ declare (strict_types=1);
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-namespace RectorPrefix202606\Nette\Utils;
+namespace RectorPrefix202607\Nette\Utils;
 
-use RectorPrefix202606\Nette;
+use RectorPrefix202607\Nette;
 use function is_array;
 /**
  * Utilities for iterables.
@@ -175,6 +175,9 @@ final class Iterables
     {
         return new class(\Closure::fromCallable($factory)) implements \IteratorAggregate
         {
+            /**
+             * @readonly
+             */
             private \Closure $factory;
             public function __construct(\Closure $factory)
             {

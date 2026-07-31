@@ -7,16 +7,20 @@ use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;
 use Rector\Contract\Rector\RectorInterface;
 use Rector\DeadCode\Rector\Array_\RemoveDuplicatedArrayKeyRector;
 use Rector\DeadCode\Rector\Assign\RemoveDoubleAssignRector;
+use Rector\DeadCode\Rector\Assign\RemoveDoubleSelfAssignRector;
 use Rector\DeadCode\Rector\Assign\RemoveUnusedVariableAssignRector;
 use Rector\DeadCode\Rector\Block\ReplaceBlockToItsStmtsRector;
 use Rector\DeadCode\Rector\BooleanAnd\RemoveAndTrueRector;
 use Rector\DeadCode\Rector\Cast\RecastingRemovalRector;
 use Rector\DeadCode\Rector\ClassConst\RemoveUnusedPrivateClassConstantRector;
-use Rector\DeadCode\Rector\ClassLike\RemoveTypedPropertyNonMockDocblockRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveArgumentFromDefaultParentCallRector;
+use Rector\DeadCode\Rector\ClassMethod\RemoveDuplicatedReturnSelfDocblockRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveEmptyClassMethodRector;
+use Rector\DeadCode\Rector\ClassMethod\RemoveMixedDocblockOverruledByNativeTypeRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveNullTagValueNodeRector;
+use Rector\DeadCode\Rector\ClassMethod\RemoveParentDelegatingClassMethodRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveParentDelegatingConstructorRector;
+use Rector\DeadCode\Rector\ClassMethod\RemoveReturnTagIncompatibleWithNativeTypeRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedConstructorParamRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPrivateMethodParameterRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPrivateMethodRector;
@@ -26,6 +30,7 @@ use Rector\DeadCode\Rector\ClassMethod\RemoveUselessAssignFromPropertyPromotionR
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnExprInConstructRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
+use Rector\DeadCode\Rector\ClassMethod\RemoveUselessUnionReturnDocblockRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveVoidDocblockFromMagicMethodRector;
 use Rector\DeadCode\Rector\Closure\RemoveUnusedClosureVariableUseRector;
 use Rector\DeadCode\Rector\Concat\RemoveConcatAutocastRector;
@@ -51,6 +56,7 @@ use Rector\DeadCode\Rector\MethodCall\RemoveNullArgOnNullDefaultParamRector;
 use Rector\DeadCode\Rector\MethodCall\RemoveNullNamedArgOnNullDefaultParamRector;
 use Rector\DeadCode\Rector\Node\RemoveNonExistingVarAnnotationRector;
 use Rector\DeadCode\Rector\Plus\RemoveDeadZeroAndOneOperationRector;
+use Rector\DeadCode\Rector\Property\RemoveDefaultValueFromAssignedPropertyRector;
 use Rector\DeadCode\Rector\Property\RemoveUnusedPrivatePropertyRector;
 use Rector\DeadCode\Rector\Property\RemoveUselessReadOnlyTagRector;
 use Rector\DeadCode\Rector\Property\RemoveUselessVarTagRector;
@@ -60,6 +66,7 @@ use Rector\DeadCode\Rector\StaticCall\RemoveParentCallWithoutParentRector;
 use Rector\DeadCode\Rector\Stmt\RemoveConditionExactReturnRector;
 use Rector\DeadCode\Rector\Stmt\RemoveNextSameValueConditionRector;
 use Rector\DeadCode\Rector\Stmt\RemoveUnreachableStatementRector;
+use Rector\DeadCode\Rector\StmtsAwareInterface\RemoveDeadInstanceOfAssertRector;
 use Rector\DeadCode\Rector\Switch_\RemoveDuplicatedCaseInSwitchRector;
 use Rector\DeadCode\Rector\Ternary\RemoveUselessTernaryRector;
 use Rector\DeadCode\Rector\Ternary\TernaryToBooleanOrFalseToBooleanAndRector;
@@ -94,13 +101,16 @@ final class DeadCodeLevel
         RemoveDeadContinueRector::class,
         RemoveUnusedNonEmptyArrayBeforeForeachRector::class,
         RemoveNullPropertyInitializationRector::class,
+        RemoveDefaultValueFromAssignedPropertyRector::class,
         RemoveUselessReturnExprInConstructRector::class,
         ReplaceBlockToItsStmtsRector::class,
         RemoveFilterVarOnExactTypeRector::class,
         RemoveTypedPropertyDeadInstanceOfRector::class,
+        RemoveDeadInstanceOfAssertRector::class,
         TernaryToBooleanOrFalseToBooleanAndRector::class,
         RemoveUselessTernaryRector::class,
         RemoveDoubleAssignRector::class,
+        RemoveDoubleSelfAssignRector::class,
         RemoveUselessAssignFromPropertyPromotionRector::class,
         RemoveConcatAutocastRector::class,
         SimplifyIfElseWithSameContentRector::class,
@@ -111,13 +121,16 @@ final class DeadCodeLevel
         RemoveVoidDocblockFromMagicMethodRector::class,
         RemoveUselessParamTagRector::class,
         RemoveUselessReturnTagRector::class,
+        RemoveDuplicatedReturnSelfDocblockRector::class,
+        RemoveMixedDocblockOverruledByNativeTypeRector::class,
+        RemoveReturnTagIncompatibleWithNativeTypeRector::class,
+        RemoveUselessUnionReturnDocblockRector::class,
         RemoveUselessReadOnlyTagRector::class,
         RemoveNonExistingVarAnnotationRector::class,
         RemoveUselessVarTagRector::class,
         // prioritize safe belt on RemoveUseless*TagRector that registered previously first
         RemoveNullTagValueNodeRector::class,
         RemovePhpVersionIdCheckRector::class,
-        RemoveTypedPropertyNonMockDocblockRector::class,
         RemoveAlwaysTrueIfConditionRector::class,
         ReduceAlwaysFalseIfOrRector::class,
         RemoveUnusedPrivateClassConstantRector::class,
@@ -134,6 +147,7 @@ final class DeadCodeLevel
         UnwrapFutureCompatibleIfPhpVersionRector::class,
         RemoveParentCallWithoutParentRector::class,
         RemoveParentDelegatingConstructorRector::class,
+        RemoveParentDelegatingClassMethodRector::class,
         RemoveDeadConditionAboveReturnRector::class,
         RemoveDeadLoopRector::class,
         // removing methods could be risky if there is some magic loading them

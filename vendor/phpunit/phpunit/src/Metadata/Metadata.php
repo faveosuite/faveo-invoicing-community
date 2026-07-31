@@ -22,17 +22,11 @@ abstract readonly class Metadata
 {
     private Level $level;
 
-    /**
-     * @param non-negative-int $priority
-     */
     public static function after(int $priority): After
     {
         return new After(Level::METHOD_LEVEL, $priority);
     }
 
-    /**
-     * @param non-negative-int $priority
-     */
     public static function afterClass(int $priority): AfterClass
     {
         return new AfterClass(Level::METHOD_LEVEL, $priority);
@@ -68,17 +62,11 @@ abstract readonly class Metadata
         return new BackupStaticProperties(Level::METHOD_LEVEL, $enabled);
     }
 
-    /**
-     * @param non-negative-int $priority
-     */
     public static function before(int $priority): Before
     {
         return new Before(Level::METHOD_LEVEL, $priority);
     }
 
-    /**
-     * @param non-negative-int $priority
-     */
     public static function beforeClass(int $priority): BeforeClass
     {
         return new BeforeClass(Level::METHOD_LEVEL, $priority);
@@ -279,17 +267,11 @@ abstract readonly class Metadata
         return new IgnorePhpunitDeprecations(Level::METHOD_LEVEL);
     }
 
-    /**
-     * @param non-negative-int $priority
-     */
     public static function postCondition(int $priority): PostCondition
     {
         return new PostCondition(Level::METHOD_LEVEL, $priority);
     }
 
-    /**
-     * @param non-negative-int $priority
-     */
     public static function preCondition(int $priority): PreCondition
     {
         return new PreCondition(Level::METHOD_LEVEL, $priority);
@@ -424,8 +406,7 @@ abstract readonly class Metadata
     }
 
     /**
-     * @param non-empty-string  $environmentVariableName
-     * @param ?non-empty-string $value
+     * @param non-empty-string $environmentVariableName
      */
     public static function requiresEnvironmentVariableOnClass(string $environmentVariableName, null|string $value): RequiresEnvironmentVariable
     {
@@ -433,8 +414,7 @@ abstract readonly class Metadata
     }
 
     /**
-     * @param non-empty-string  $environmentVariableName
-     * @param ?non-empty-string $value
+     * @param non-empty-string $environmentVariableName
      */
     public static function requiresEnvironmentVariableOnMethod(string $environmentVariableName, null|string $value): RequiresEnvironmentVariable
     {
@@ -442,8 +422,7 @@ abstract readonly class Metadata
     }
 
     /**
-     * @param non-empty-string  $environmentVariableName
-     * @param ?non-empty-string $value
+     * @param non-empty-string $environmentVariableName
      */
     public static function withEnvironmentVariableOnClass(string $environmentVariableName, null|string $value): WithEnvironmentVariable
     {
@@ -451,8 +430,7 @@ abstract readonly class Metadata
     }
 
     /**
-     * @param non-empty-string  $environmentVariableName
-     * @param ?non-empty-string $value
+     * @param non-empty-string $environmentVariableName
      */
     public static function withEnvironmentVariableOnMethod(string $environmentVariableName, null|string $value): WithEnvironmentVariable
     {

@@ -3,10 +3,10 @@
 declare (strict_types=1);
 namespace Rector\FileSystem;
 
-use RectorPrefix202606\Nette\Utils\Strings;
+use RectorPrefix202607\Nette\Utils\Strings;
 use Rector\Skipper\FileSystem\PathNormalizer;
-use RectorPrefix202606\Symfony\Component\Filesystem\Filesystem;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Symfony\Component\Filesystem\Filesystem;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\FileSystem\FilePathHelperTest
  */
@@ -55,7 +55,7 @@ final class FilePathHelper
             $scheme = self::SCHEME_UNDEFINED;
             $path = $originalPath;
         }
-        $normalizedPath = PathNormalizer::normalize((string) $path);
+        $normalizedPath = PathNormalizer::normalize($path);
         $path = Strings::replace($normalizedPath, self::TWO_AND_MORE_SLASHES_REGEX, '/');
         $pathRoot = strncmp($path, '/', strlen('/')) === 0 ? $directorySeparator : '';
         $pathParts = explode('/', trim($path, '/'));

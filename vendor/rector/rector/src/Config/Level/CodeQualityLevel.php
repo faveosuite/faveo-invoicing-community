@@ -4,10 +4,12 @@ declare (strict_types=1);
 namespace Rector\Config\Level;
 
 use Rector\CodeQuality\Rector\Assign\CombinedAssignRector;
+use Rector\CodeQuality\Rector\AssignOp\NewArrayItemConcatAssignToAssignRector;
 use Rector\CodeQuality\Rector\Attribute\SortAttributeNamedArgsRector;
 use Rector\CodeQuality\Rector\BooleanAnd\RemoveUselessIsObjectCheckRector;
 use Rector\CodeQuality\Rector\BooleanAnd\RepeatedAndNotEqualToNotInArrayRector;
 use Rector\CodeQuality\Rector\BooleanAnd\SimplifyEmptyArrayCheckRector;
+use Rector\CodeQuality\Rector\BooleanNot\NegatedAndsToPositiveOrsRector;
 use Rector\CodeQuality\Rector\BooleanNot\ReplaceConstantBooleanNotRector;
 use Rector\CodeQuality\Rector\BooleanNot\ReplaceMultipleBooleanNotRector;
 use Rector\CodeQuality\Rector\BooleanNot\SimplifyDeMorganBinaryRector;
@@ -16,17 +18,15 @@ use Rector\CodeQuality\Rector\Catch_\ThrowWithPreviousExceptionRector;
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\Class_\ConvertStaticToSelfRector;
 use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
+use Rector\CodeQuality\Rector\Class_\InnerFunctionToPrivateMethodRector;
 use Rector\CodeQuality\Rector\Class_\RemoveReadonlyPropertyVisibilityOnReadonlyClassRector;
 use Rector\CodeQuality\Rector\ClassConstFetch\VariableConstFetchToClassConstFetchRector;
 use Rector\CodeQuality\Rector\ClassMethod\ExplicitReturnNullRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\ClassMethod\LocallyCalledStaticMethodToNonStaticRector;
 use Rector\CodeQuality\Rector\ClassMethod\OptionalParametersAfterRequiredRector;
-use Rector\CodeQuality\Rector\Concat\JoinStringConcatRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodeQuality\Rector\Equal\UseIdenticalOverEqualWithSameTypeRector;
-use Rector\CodeQuality\Rector\Expression\InlineIfToExplicitIfRector;
-use Rector\CodeQuality\Rector\Expression\TernaryFalseExpressionToIfRector;
 use Rector\CodeQuality\Rector\For_\ForRepeatedCountToOwnVariableRector;
 use Rector\CodeQuality\Rector\Foreach_\ForeachItemsAssignToEmptyArrayToAssignRector;
 use Rector\CodeQuality\Rector\Foreach_\ForeachToInArrayRector;
@@ -53,12 +53,7 @@ use Rector\CodeQuality\Rector\Identical\SimplifyArraySearchRector;
 use Rector\CodeQuality\Rector\Identical\SimplifyBoolIdenticalTrueRector;
 use Rector\CodeQuality\Rector\Identical\SimplifyConditionsRector;
 use Rector\CodeQuality\Rector\Identical\StrlenZeroToIdenticalEmptyStringRector;
-use Rector\CodeQuality\Rector\If_\CombineIfRector;
-use Rector\CodeQuality\Rector\If_\CompleteMissingIfElseBracketRector;
 use Rector\CodeQuality\Rector\If_\ConsecutiveNullCompareReturnsToNullCoalesceQueueRector;
-use Rector\CodeQuality\Rector\If_\ExplicitBoolCompareRector;
-use Rector\CodeQuality\Rector\If_\ShortenElseIfRector;
-use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfNotNullReturnRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfNullableReturnRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector;
@@ -69,8 +64,10 @@ use Rector\CodeQuality\Rector\LogicalAnd\LogicalToBooleanRector;
 use Rector\CodeQuality\Rector\New_\NewStaticToNewSelfRector;
 use Rector\CodeQuality\Rector\NotEqual\CommonNotEqualRector;
 use Rector\CodeQuality\Rector\NullsafeMethodCall\CleanupUnneededNullsafeOperatorRector;
+use Rector\CodeQuality\Rector\Property\FixClassCaseSensitivityVarDocblockRector;
+use Rector\CodeQuality\Rector\StmtsAwareInterface\MoveInnerFunctionToTopLevelRector;
 use Rector\CodeQuality\Rector\Switch_\SingularSwitchToIfRector;
-use Rector\CodeQuality\Rector\Switch_\SwitchTrueToIfRector;
+use Rector\CodeQuality\Rector\Switch_\SwitchTrueToMatchRector;
 use Rector\CodeQuality\Rector\Ternary\ArrayKeyExistsTernaryThenValueToCoalescingRector;
 use Rector\CodeQuality\Rector\Ternary\NumberCompareToMaxFuncCallRector;
 use Rector\CodeQuality\Rector\Ternary\SimplifyTautologyTernaryRector;
@@ -103,7 +100,7 @@ final class CodeQualityLevel
      *
      * @var array<class-string<RectorInterface>>
      */
-    public const RULES = [CombinedAssignRector::class, SimplifyEmptyArrayCheckRector::class, ReplaceMultipleBooleanNotRector::class, ReplaceConstantBooleanNotRector::class, ForeachToInArrayRector::class, RepeatedOrEqualToInArrayRector::class, RepeatedAndNotEqualToNotInArrayRector::class, SimplifyForeachToCoalescingRector::class, SimplifyFuncGetArgsCountRector::class, SimplifyInArrayValuesRector::class, SimplifyStrposLowerRector::class, SimplifyArraySearchRector::class, SimplifyConditionsRector::class, SimplifyIfNotNullReturnRector::class, SimplifyIfReturnBoolRector::class, UnnecessaryTernaryExpressionRector::class, RemoveExtraParametersRector::class, SimplifyDeMorganBinaryRector::class, SimplifyTautologyTernaryRector::class, SingleInArrayToCompareRector::class, SimplifyIfElseToTernaryRector::class, TernaryImplodeToImplodeRector::class, JoinStringConcatRector::class, ConsecutiveNullCompareReturnsToNullCoalesceQueueRector::class, ExplicitBoolCompareRector::class, CombineIfRector::class, UseIdenticalOverEqualWithSameTypeRector::class, SimplifyBoolIdenticalTrueRector::class, SimplifyRegexPatternRector::class, BooleanNotIdenticalToNotIdenticalRector::class, AndAssignsToSeparateLinesRector::class, CompactToVariablesRector::class, CompleteDynamicPropertiesRector::class, IsAWithStringWithThirdArgumentRector::class, StrlenZeroToIdenticalEmptyStringRector::class, ThrowWithPreviousExceptionRector::class, RemoveSoleValueSprintfRector::class, ShortenElseIfRector::class, ExplicitReturnNullRector::class, ArrayMergeOfNonArraysToSimpleArrayRector::class, ArrayKeyExistsTernaryThenValueToCoalescingRector::class, AbsolutizeRequireAndIncludePathRector::class, ChangeArrayPushToArrayAssignRector::class, ForRepeatedCountToOwnVariableRector::class, ForeachItemsAssignToEmptyArrayToAssignRector::class, InlineIfToExplicitIfRector::class, UnusedForeachValueToArrayKeysRector::class, CommonNotEqualRector::class, SetTypeToCastRector::class, LogicalToBooleanRector::class, VarToPublicPropertyRector::class, IssetOnPropertyObjectToPropertyExistsRector::class, NewStaticToNewSelfRector::class, UnwrapSprintfOneArgumentRector::class, VariableConstFetchToClassConstFetchRector::class, SwitchNegatedTernaryRector::class, SingularSwitchToIfRector::class, SimplifyIfNullableReturnRector::class, CallUserFuncWithArrowFunctionToInlineRector::class, FlipTypeControlToUseExclusiveTypeRector::class, InlineArrayReturnAssignRector::class, InlineIsAInstanceOfRector::class, TernaryFalseExpressionToIfRector::class, InlineConstructorDefaultToPropertyRector::class, TernaryEmptyArrayArrayDimFetchToCoalesceRector::class, OptionalParametersAfterRequiredRector::class, SimplifyEmptyCheckOnEmptyArrayRector::class, SwitchTrueToIfRector::class, CleanupUnneededNullsafeOperatorRector::class, DisallowedEmptyRuleFixerRector::class, LocallyCalledStaticMethodToNonStaticRector::class, NumberCompareToMaxFuncCallRector::class, CompleteMissingIfElseBracketRector::class, RemoveUselessIsObjectCheckRector::class, ConvertStaticToSelfRector::class, SortCallLikeNamedArgsRector::class, SortAttributeNamedArgsRector::class, RemoveReadonlyPropertyVisibilityOnReadonlyClassRector::class, SafeDeclareStrictTypesRector::class];
+    public const RULES = [FixClassCaseSensitivityVarDocblockRector::class, CombinedAssignRector::class, NewArrayItemConcatAssignToAssignRector::class, SimplifyEmptyArrayCheckRector::class, ReplaceMultipleBooleanNotRector::class, ReplaceConstantBooleanNotRector::class, ForeachToInArrayRector::class, RepeatedOrEqualToInArrayRector::class, RepeatedAndNotEqualToNotInArrayRector::class, MoveInnerFunctionToTopLevelRector::class, InnerFunctionToPrivateMethodRector::class, SimplifyForeachToCoalescingRector::class, SimplifyFuncGetArgsCountRector::class, SimplifyInArrayValuesRector::class, SimplifyStrposLowerRector::class, SimplifyArraySearchRector::class, SimplifyConditionsRector::class, SimplifyIfNotNullReturnRector::class, SimplifyIfReturnBoolRector::class, UnnecessaryTernaryExpressionRector::class, RemoveExtraParametersRector::class, SimplifyDeMorganBinaryRector::class, NegatedAndsToPositiveOrsRector::class, SimplifyTautologyTernaryRector::class, SingleInArrayToCompareRector::class, TernaryImplodeToImplodeRector::class, ConsecutiveNullCompareReturnsToNullCoalesceQueueRector::class, UseIdenticalOverEqualWithSameTypeRector::class, SimplifyBoolIdenticalTrueRector::class, SimplifyRegexPatternRector::class, BooleanNotIdenticalToNotIdenticalRector::class, AndAssignsToSeparateLinesRector::class, CompactToVariablesRector::class, CompleteDynamicPropertiesRector::class, IsAWithStringWithThirdArgumentRector::class, StrlenZeroToIdenticalEmptyStringRector::class, ThrowWithPreviousExceptionRector::class, RemoveSoleValueSprintfRector::class, ExplicitReturnNullRector::class, ArrayMergeOfNonArraysToSimpleArrayRector::class, ArrayKeyExistsTernaryThenValueToCoalescingRector::class, AbsolutizeRequireAndIncludePathRector::class, ChangeArrayPushToArrayAssignRector::class, ForRepeatedCountToOwnVariableRector::class, ForeachItemsAssignToEmptyArrayToAssignRector::class, UnusedForeachValueToArrayKeysRector::class, CommonNotEqualRector::class, SetTypeToCastRector::class, LogicalToBooleanRector::class, VarToPublicPropertyRector::class, IssetOnPropertyObjectToPropertyExistsRector::class, NewStaticToNewSelfRector::class, UnwrapSprintfOneArgumentRector::class, VariableConstFetchToClassConstFetchRector::class, SwitchNegatedTernaryRector::class, SingularSwitchToIfRector::class, SwitchTrueToMatchRector::class, SimplifyIfNullableReturnRector::class, CallUserFuncWithArrowFunctionToInlineRector::class, FlipTypeControlToUseExclusiveTypeRector::class, InlineArrayReturnAssignRector::class, InlineIsAInstanceOfRector::class, InlineConstructorDefaultToPropertyRector::class, TernaryEmptyArrayArrayDimFetchToCoalesceRector::class, OptionalParametersAfterRequiredRector::class, SimplifyEmptyCheckOnEmptyArrayRector::class, CleanupUnneededNullsafeOperatorRector::class, DisallowedEmptyRuleFixerRector::class, LocallyCalledStaticMethodToNonStaticRector::class, NumberCompareToMaxFuncCallRector::class, RemoveUselessIsObjectCheckRector::class, ConvertStaticToSelfRector::class, SortCallLikeNamedArgsRector::class, SortAttributeNamedArgsRector::class, RemoveReadonlyPropertyVisibilityOnReadonlyClassRector::class, SafeDeclareStrictTypesRector::class];
     /**
      * @var array<class-string<RectorInterface>, mixed[]>
      */

@@ -84,6 +84,10 @@ final class LockRegistry
         return $previousFiles;
     }
 
+    /**
+     * @param-immediately-invoked-callable $callback
+     * @param-immediately-invoked-callable $setMetadata
+     */
     public static function compute(callable $callback, ItemInterface $item, bool &$save, CacheInterface $pool, ?\Closure $setMetadata = null, ?LoggerInterface $logger = null, ?float $beta = null): mixed
     {
         if ('\\' === \DIRECTORY_SEPARATOR && null === self::$lockedFiles) {
@@ -97,7 +101,7 @@ final class LockRegistry
             return $callback($item, $save);
         }
 
-        self::$signalingException ??= unserialize("O:9:\"Exception\":1:{s:16:\"\0Exception\0trace\";a:0:{}}");
+        self::$signalingException ??= unserialize("O:9:\"Exception\":1:{s:16:\"\0Exception\0trace\";a:0:{}}", ['allowed_classes' => [\Exception::class]]);
         self::$signalingCallback ??= static fn () => throw self::$signalingException;
 
         while (true) {

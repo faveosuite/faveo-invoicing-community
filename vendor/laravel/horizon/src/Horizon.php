@@ -66,6 +66,13 @@ class Horizon
     ];
 
     /**
+     * The CSP nonce to use for style and script tags.
+     *
+     * @var string
+     */
+    public static $nonceAttribute = '';
+
+    /**
      * Determine if the given request can access the Horizon dashboard.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -189,10 +196,12 @@ class Horizon
             throw new RuntimeException('Unable to load the Horizon dashboard CSS.');
         }
 
+        $nonceAttribute = static::$nonceAttribute;
+
         return new HtmlString(<<<HTML
-            <style data-scheme="light">{$light}</style>
-            <style data-scheme="dark">{$dark}</style>
-            <style>{$app}</style>
+            <style data-scheme="light"{$nonceAttribute}>{$light}</style>
+            <style data-scheme="dark"{$nonceAttribute}>{$dark}</style>
+            <style{$nonceAttribute}>{$app}</style>
             HTML);
     }
 
@@ -209,8 +218,10 @@ class Horizon
 
         $horizon = Js::from(static::scriptVariables());
 
+        $nonceAttribute = static::$nonceAttribute;
+
         return new HtmlString(<<<HTML
-            <script type="module">
+            <script type="module"{$nonceAttribute}>
                 window.Horizon = {$horizon};
                 {$js}
             </script>
@@ -283,5 +294,31 @@ class Horizon
         static::$smsNumber = $number;
 
         return new static;
+    }
+
+    /**
+     * Set the CSP nonce to use for style and script tags.
+     *
+     * @param  string  $nonce
+     * @return static
+     */
+    public static function cspNonce($nonce)
+    {
+        static::$nonceAttribute = " nonce=\"{$nonce}\"";
+
+        return new static;
+    }
+
+    /**
+     * Register the Horizon dev commands.
+     *
+     * @return void
+     */
+    public static function registerDevCommands()
+    {
+        if (class_exists(\Illuminate\Foundation\DevCommands::class)) {
+            \Illuminate\Foundation\DevCommands::artisan('horizon', 'horizon');
+            \Illuminate\Foundation\DevCommands::except('queue');
+        }
     }
 }

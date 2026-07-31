@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Config;
 
-use RectorPrefix202606\Illuminate\Container\Container;
+use RectorPrefix202607\Illuminate\Container\Container;
 use Override;
 use Rector\Caching\Contract\CacheMetaExtensionInterface;
 use Rector\Caching\Contract\ValueObject\Storage\CacheStorageInterface;
@@ -22,8 +22,8 @@ use Rector\Validation\RectorConfigValidator;
 use Rector\ValueObject\Configuration\LevelOverflow;
 use Rector\ValueObject\PhpVersion;
 use Rector\ValueObject\PolyfillPackage;
-use RectorPrefix202606\Symfony\Component\Console\Command\Command;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Symfony\Component\Console\Command\Command;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 /**
  * @api
  * @see \Rector\Tests\Config\RectorConfigTest
@@ -258,6 +258,18 @@ final class RectorConfig extends Container
         SimpleParameterProvider::setParameter(Option::TREAT_CLASSES_AS_FINAL, $treatClassesAsFinal);
     }
     /**
+     * Guard the listed classes and their descendants against method signature changes that would
+     * break child classes - e.g. adding a return type or a param type. Only non-final classes are
+     * guarded, as final classes cannot be extended.
+     *
+     * @param string[] $classes
+     */
+    public function typeGuardedClasses(array $classes): void
+    {
+        Assert::allString($classes);
+        SimpleParameterProvider::setParameter(Option::TYPE_GUARDED_CLASSES, $classes);
+    }
+    /**
      * @param string[] $extensions
      */
     public function fileExtensions(array $extensions): void
@@ -350,6 +362,10 @@ final class RectorConfig extends Container
     public function reportingRealPath(bool $absolute = \true): void
     {
         SimpleParameterProvider::setParameter(Option::ABSOLUTE_FILE_PATH, $absolute);
+    }
+    public function reportUnusedSkips(bool $report = \true): void
+    {
+        SimpleParameterProvider::setParameter(Option::REPORT_UNUSED_SKIPS, $report);
     }
     public function editorUrl(string $editorUrl): void
     {

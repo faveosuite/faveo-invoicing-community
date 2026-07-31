@@ -38,11 +38,11 @@ use Rector\Symfony\Set\SymfonyInternalSetList;
 use Rector\Symfony\Set\SymfonySetList;
 use Rector\ValueObject\Configuration\LevelOverflow;
 use Rector\ValueObject\PhpVersion;
-use RectorPrefix202606\Symfony\Component\Console\Input\ArgvInput;
-use RectorPrefix202606\Symfony\Component\Console\Output\ConsoleOutput;
-use RectorPrefix202606\Symfony\Component\Console\Style\SymfonyStyle;
-use RectorPrefix202606\Symfony\Component\Finder\Finder;
-use RectorPrefix202606\Webmozart\Assert\Assert;
+use RectorPrefix202607\Symfony\Component\Console\Input\ArgvInput;
+use RectorPrefix202607\Symfony\Component\Console\Output\ConsoleOutput;
+use RectorPrefix202607\Symfony\Component\Console\Style\SymfonyStyle;
+use RectorPrefix202607\Symfony\Component\Finder\Finder;
+use RectorPrefix202607\Webmozart\Assert\Assert;
 /**
  * @api
  */
@@ -52,6 +52,13 @@ final class RectorConfigBuilder
      * @var int
      */
     private const MAX_LEVEL_GAP = 10;
+    /**
+     * A level method and the set that contains the very same rules,
+     * so they are never enabled both at once
+     *
+     * @var array<string, array{string, string}> level method name => [set file path, set title]
+     */
+    private const LEVEL_METHOD_TO_SET = ['withTypeCoverageLevel' => [SetList::TYPE_DECLARATION, 'type declarations'], 'withTypeCoverageDocblockLevel' => [SetList::TYPE_DECLARATION_DOCBLOCKS, 'type declaration docblocks'], 'withDeadCodeLevel' => [SetList::DEAD_CODE, 'dead code'], 'withCodeQualityLevel' => [SetList::CODE_QUALITY, 'code quality'], 'withCodingStyleLevel' => [SetList::CODING_STYLE, 'coding style']];
     /**
      * @var string[]
      */
@@ -117,16 +124,18 @@ final class RectorConfigBuilder
     private ?string $symfonyContainerXmlFile = null;
     private ?string $symfonyContainerPhpFile = null;
     /**
-     * To make sure type declarations set and level are not duplicated,
+     * To make sure a set and its level method are not duplicated,
      * as both contain same rules
+     *
+     * @var array<string, true> level method name => true
      */
-    private ?bool $isTypeCoverageLevelUsed = null;
-    private ?bool $isTypeCoverageDocblockLevelUsed = null;
-    private ?bool $isDeadCodeLevelUsed = null;
-    private ?bool $isCodeQualityLevelUsed = null;
-    private ?bool $isCodingStyleLevelUsed = null;
+    private array $usedLevelMethods = [];
     private ?bool $isFluentNewLine = null;
     private ?bool $isTreatClassesAsFinal = null;
+    /**
+     * @var string[]
+     */
+    private array $typeGuardedClasses = [];
     /**
      * @var RegisteredService[]
      */
@@ -136,6 +145,7 @@ final class RectorConfigBuilder
      */
     private array $setGroups = [];
     private ?bool $reportingRealPath = null;
+    private ?bool $reportUnusedSkips = null;
     /**
      * @var string[]
      */
@@ -169,20 +179,14 @@ final class RectorConfigBuilder
         if ($this->isWithPhpLevelUsed && $this->isWithPhpSetsUsed) {
             throw new InvalidConfigurationException(sprintf('Your config uses "withPhp*()" and "withPhpLevel()" methods at the same time.%sPick one of them to avoid rule conflicts.', \PHP_EOL));
         }
-        if (in_array(SetList::TYPE_DECLARATION, $uniqueSets, \true) && $this->isTypeCoverageLevelUsed === \true) {
-            throw new InvalidConfigurationException(sprintf('Your config already enables type declarations set.%sRemove "->withTypeCoverageLevel()" as it only duplicates it, or remove type declaration set.', \PHP_EOL));
-        }
-        if (in_array(SetList::TYPE_DECLARATION_DOCBLOCKS, $uniqueSets, \true) && $this->isTypeCoverageDocblockLevelUsed === \true) {
-            throw new InvalidConfigurationException(sprintf('Your config already enables type declarations set.%sRemove "->withTypeCoverageDocblockLevel()" as it only duplicates it, or remove type declaration set.', \PHP_EOL));
-        }
-        if (in_array(SetList::DEAD_CODE, $uniqueSets, \true) && $this->isDeadCodeLevelUsed === \true) {
-            throw new InvalidConfigurationException(sprintf('Your config already enables dead code set.%sRemove "->withDeadCodeLevel()" as it only duplicates it, or remove dead code set.', \PHP_EOL));
-        }
-        if (in_array(SetList::CODE_QUALITY, $uniqueSets, \true) && $this->isCodeQualityLevelUsed === \true) {
-            throw new InvalidConfigurationException(sprintf('Your config already enables code quality set.%sRemove "->withCodeQualityLevel()" as it only duplicates it, or remove code quality set.', \PHP_EOL));
-        }
-        if (in_array(SetList::CODING_STYLE, $uniqueSets, \true) && $this->isCodingStyleLevelUsed === \true) {
-            throw new InvalidConfigurationException(sprintf('Your config already enables coding style set.%sRemove "->withCodingStyleLevel()" as it only duplicates it, or remove coding style set.', \PHP_EOL));
+        foreach (self::LEVEL_METHOD_TO_SET as $levelMethod => [$setFilePath, $setTitle]) {
+            if (!isset($this->usedLevelMethods[$levelMethod])) {
+                continue;
+            }
+            if (!in_array($setFilePath, $uniqueSets, \true)) {
+                continue;
+            }
+            throw new InvalidConfigurationException(sprintf('Your config already enables %s set.%sRemove "->%s()" as it only duplicates it, or remove %s set.', $setTitle, \PHP_EOL, $levelMethod, $setTitle));
         }
         if ($uniqueSets !== []) {
             $rectorConfig->sets($uniqueSets);
@@ -273,11 +277,17 @@ final class RectorConfigBuilder
         if ($this->isFluentNewLine !== null) {
             $rectorConfig->newLineOnFluentCall($this->isFluentNewLine);
         }
+        if ($this->typeGuardedClasses !== []) {
+            $rectorConfig->typeGuardedClasses($this->typeGuardedClasses);
+        }
         if ($this->isTreatClassesAsFinal !== null) {
             $rectorConfig->treatClassesAsFinal($this->isTreatClassesAsFinal);
         }
         if ($this->reportingRealPath !== null) {
             $rectorConfig->reportingRealPath($this->reportingRealPath);
+        }
+        if ($this->reportUnusedSkips !== null) {
+            $rectorConfig->reportUnusedSkips($this->reportUnusedSkips);
         }
         if ($this->editorUrl !== null) {
             $rectorConfig->editorUrl($this->editorUrl);
@@ -409,75 +419,18 @@ final class RectorConfigBuilder
             throw new InvalidConfigurationException(sprintf('Method "%s()" can be called only once. It always includes all previous sets UP TO the defined version.%sThe best practise is to call it once with no argument. That way it will pick up PHP version from composer.json and your project will always stay up to date.', __METHOD__, \PHP_EOL));
         }
         $this->isWithPhpSetsUsed = \true;
-        $pickedArguments = array_filter(func_get_args());
-        if ($pickedArguments !== []) {
+        $pickedPhpVersions = array_keys(array_filter([PhpVersion::PHP_53 => $php53, PhpVersion::PHP_54 => $php54, PhpVersion::PHP_55 => $php55, PhpVersion::PHP_56 => $php56, PhpVersion::PHP_70 => $php70, PhpVersion::PHP_71 => $php71, PhpVersion::PHP_72 => $php72, PhpVersion::PHP_73 => $php73, PhpVersion::PHP_74 => $php74, PhpVersion::PHP_80 => $php80, PhpVersion::PHP_81 => $php81, PhpVersion::PHP_82 => $php82, PhpVersion::PHP_83 => $php83, PhpVersion::PHP_84 => $php84, PhpVersion::PHP_85 => $php85, PhpVersion::PHP_86 => $php86]));
+        if ($pickedPhpVersions !== []) {
             Notifier::errorWithPhpSetsNotSuitableForPHP74AndLower();
         }
-        if (count($pickedArguments) > 1) {
+        if (count($pickedPhpVersions) > 1) {
             throw new InvalidConfigurationException(sprintf('Pick only one version target in "withPhpSets()". All rules up to this version will be used.%sTo use your composer.json PHP version, keep arguments empty.', \PHP_EOL));
         }
-        if ($pickedArguments === []) {
-            $projectPhpVersion = ComposerJsonPhpVersionResolver::resolveFromCwdOrFail();
-            $phpLevelSets = \Rector\Configuration\PhpLevelSetResolver::resolveFromPhpVersion($projectPhpVersion);
-            $this->sets = array_merge($this->sets, $phpLevelSets);
-            return $this;
+        // no version picked, resolve it from the project composer.json
+        if ($pickedPhpVersions === []) {
+            return $this->addPhpLevelSets(ComposerJsonPhpVersionResolver::resolveFromCwdOrFail());
         }
-        if ($php53) {
-            $this->withPhp53Sets();
-            return $this;
-        }
-        if ($php54) {
-            $this->withPhp54Sets();
-            return $this;
-        }
-        if ($php55) {
-            $this->withPhp55Sets();
-            return $this;
-        }
-        if ($php56) {
-            $this->withPhp56Sets();
-            return $this;
-        }
-        if ($php70) {
-            $this->withPhp70Sets();
-            return $this;
-        }
-        if ($php71) {
-            $this->withPhp71Sets();
-            return $this;
-        }
-        if ($php72) {
-            $this->withPhp72Sets();
-            return $this;
-        }
-        if ($php73) {
-            $this->withPhp73Sets();
-            return $this;
-        }
-        if ($php74) {
-            $this->withPhp74Sets();
-            return $this;
-        }
-        if ($php80) {
-            $targetPhpVersion = PhpVersion::PHP_80;
-        } elseif ($php81) {
-            $targetPhpVersion = PhpVersion::PHP_81;
-        } elseif ($php82) {
-            $targetPhpVersion = PhpVersion::PHP_82;
-        } elseif ($php83) {
-            $targetPhpVersion = PhpVersion::PHP_83;
-        } elseif ($php84) {
-            $targetPhpVersion = PhpVersion::PHP_84;
-        } elseif ($php85) {
-            $targetPhpVersion = PhpVersion::PHP_85;
-        } elseif ($php86) {
-            $targetPhpVersion = PhpVersion::PHP_86;
-        } else {
-            throw new InvalidConfigurationException('Invalid PHP version set');
-        }
-        $phpLevelSets = \Rector\Configuration\PhpLevelSetResolver::resolveFromPhpVersion($targetPhpVersion);
-        $this->sets = array_merge($this->sets, $phpLevelSets);
-        return $this;
+        return $this->addPhpLevelSets($pickedPhpVersions[0]);
     }
     /**
      * Following methods are suitable for PHP 7.4 and lower, before named args
@@ -485,57 +438,39 @@ final class RectorConfigBuilder
      */
     public function withPhp53Sets(): self
     {
-        $this->isWithPhpSetsUsed = \true;
-        $this->sets = array_merge($this->sets, \Rector\Configuration\PhpLevelSetResolver::resolveFromPhpVersion(PhpVersion::PHP_53));
-        return $this;
+        return $this->addPhpLevelSets(PhpVersion::PHP_53);
     }
     public function withPhp54Sets(): self
     {
-        $this->isWithPhpSetsUsed = \true;
-        $this->sets = array_merge($this->sets, \Rector\Configuration\PhpLevelSetResolver::resolveFromPhpVersion(PhpVersion::PHP_54));
-        return $this;
+        return $this->addPhpLevelSets(PhpVersion::PHP_54);
     }
     public function withPhp55Sets(): self
     {
-        $this->isWithPhpSetsUsed = \true;
-        $this->sets = array_merge($this->sets, \Rector\Configuration\PhpLevelSetResolver::resolveFromPhpVersion(PhpVersion::PHP_55));
-        return $this;
+        return $this->addPhpLevelSets(PhpVersion::PHP_55);
     }
     public function withPhp56Sets(): self
     {
-        $this->isWithPhpSetsUsed = \true;
-        $this->sets = array_merge($this->sets, \Rector\Configuration\PhpLevelSetResolver::resolveFromPhpVersion(PhpVersion::PHP_56));
-        return $this;
+        return $this->addPhpLevelSets(PhpVersion::PHP_56);
     }
     public function withPhp70Sets(): self
     {
-        $this->isWithPhpSetsUsed = \true;
-        $this->sets = array_merge($this->sets, \Rector\Configuration\PhpLevelSetResolver::resolveFromPhpVersion(PhpVersion::PHP_70));
-        return $this;
+        return $this->addPhpLevelSets(PhpVersion::PHP_70);
     }
     public function withPhp71Sets(): self
     {
-        $this->isWithPhpSetsUsed = \true;
-        $this->sets = array_merge($this->sets, \Rector\Configuration\PhpLevelSetResolver::resolveFromPhpVersion(PhpVersion::PHP_71));
-        return $this;
+        return $this->addPhpLevelSets(PhpVersion::PHP_71);
     }
     public function withPhp72Sets(): self
     {
-        $this->isWithPhpSetsUsed = \true;
-        $this->sets = array_merge($this->sets, \Rector\Configuration\PhpLevelSetResolver::resolveFromPhpVersion(PhpVersion::PHP_72));
-        return $this;
+        return $this->addPhpLevelSets(PhpVersion::PHP_72);
     }
     public function withPhp73Sets(): self
     {
-        $this->isWithPhpSetsUsed = \true;
-        $this->sets = array_merge($this->sets, \Rector\Configuration\PhpLevelSetResolver::resolveFromPhpVersion(PhpVersion::PHP_73));
-        return $this;
+        return $this->addPhpLevelSets(PhpVersion::PHP_73);
     }
     public function withPhp74Sets(): self
     {
-        $this->isWithPhpSetsUsed = \true;
-        $this->sets = array_merge($this->sets, \Rector\Configuration\PhpLevelSetResolver::resolveFromPhpVersion(PhpVersion::PHP_74));
-        return $this;
+        return $this->addPhpLevelSets(PhpVersion::PHP_74);
     }
     // there is no withPhp80Sets() and above,
     // as we already use PHP 8.0 and should go with withPhpSets() instead
@@ -549,12 +484,15 @@ final class RectorConfigBuilder
         bool $naming = \false,
         bool $namedArgs = \false,
         bool $instanceOf = \false,
+        bool $if = \false,
         bool $earlyReturn = \false,
         /** @deprecated */
         bool $strictBooleans = \false,
         bool $carbon = \false,
         bool $rectorPreset = \false,
         bool $phpunitCodeQuality = \false,
+        bool $phpunitNarrowAsserts = \false,
+        bool $phpunitMockToStub = \false,
         bool $doctrineCodeQuality = \false,
         bool $symfonyCodeQuality = \false,
         bool $symfonyConfigs = \false
@@ -566,7 +504,7 @@ final class RectorConfigBuilder
             $symfonyStyle = new SymfonyStyle(new ArgvInput(), new ConsoleOutput());
             $symfonyStyle->warning($message);
         }
-        $setMap = [SetList::DEAD_CODE => $deadCode, SetList::CODE_QUALITY => $codeQuality, SetList::CODING_STYLE => $codingStyle, SetList::TYPE_DECLARATION => $typeDeclarations, SetList::TYPE_DECLARATION_DOCBLOCKS => $typeDeclarationDocblocks, SetList::PRIVATIZATION => $privatization, SetList::NAMING => $naming, SetList::NAMED_ARGS => $namedArgs, SetList::INSTANCEOF => $instanceOf, SetList::EARLY_RETURN => $earlyReturn, SetList::CARBON => $carbon, SetList::RECTOR_PRESET => $rectorPreset, PHPUnitSetList::PHPUNIT_CODE_QUALITY => $phpunitCodeQuality, DoctrineSetList::DOCTRINE_CODE_QUALITY => $doctrineCodeQuality, SymfonySetList::SYMFONY_CODE_QUALITY => $symfonyCodeQuality, SymfonySetList::CONFIGS => $symfonyConfigs];
+        $setMap = [SetList::DEAD_CODE => $deadCode, SetList::CODE_QUALITY => $codeQuality, SetList::CODING_STYLE => $codingStyle, SetList::TYPE_DECLARATION => $typeDeclarations, SetList::TYPE_DECLARATION_DOCBLOCKS => $typeDeclarationDocblocks, SetList::PRIVATIZATION => $privatization, SetList::NAMING => $naming, SetList::NAMED_ARGS => $namedArgs, SetList::INSTANCEOF => $instanceOf, SetList::IF => $if, SetList::EARLY_RETURN => $earlyReturn, SetList::CARBON => $carbon, SetList::RECTOR_PRESET => $rectorPreset, PHPUnitSetList::PHPUNIT_CODE_QUALITY => $phpunitCodeQuality, PHPUnitSetList::PHPUNIT_NARROW_ASSERTS => $phpunitNarrowAsserts, PHPUnitSetList::PHPUNIT_MOCK_TO_STUB => $phpunitMockToStub, DoctrineSetList::DOCTRINE_CODE_QUALITY => $doctrineCodeQuality, SymfonySetList::SYMFONY_CODE_QUALITY => $symfonyCodeQuality, SymfonySetList::CONFIGS => $symfonyConfigs];
         foreach ($setMap as $setPath => $isEnabled) {
             if ($isEnabled) {
                 $this->sets[] = $setPath;
@@ -574,9 +512,9 @@ final class RectorConfigBuilder
         }
         return $this;
     }
-    public function withComposerBased(bool $twig = \false, bool $doctrine = \false, bool $phpunit = \false, bool $symfony = \false, bool $netteUtils = \false, bool $laravel = \false): self
+    public function withComposerBased(bool $twig = \false, bool $doctrine = \false, bool $phpunit = \false, bool $symfony = \false, bool $netteUtils = \false, bool $laravel = \false, bool $drupal = \false): self
     {
-        $setMap = [SetGroup::TWIG => $twig, SetGroup::DOCTRINE => $doctrine, SetGroup::PHPUNIT => $phpunit, SetGroup::SYMFONY => $symfony, SetGroup::NETTE_UTILS => $netteUtils, SetGroup::LARAVEL => $laravel];
+        $setMap = [SetGroup::TWIG => $twig, SetGroup::DOCTRINE => $doctrine, SetGroup::PHPUNIT => $phpunit, SetGroup::SYMFONY => $symfony, SetGroup::NETTE_UTILS => $netteUtils, SetGroup::LARAVEL => $laravel, SetGroup::DRUPAL => $drupal];
         foreach ($setMap as $setPath => $isEnabled) {
             if ($isEnabled) {
                 $this->setGroups[] = $setPath;
@@ -652,7 +590,7 @@ final class RectorConfigBuilder
         $this->parallel = \false;
         return $this;
     }
-    public function withImportNames(bool $importNames = \true, bool $importDocBlockNames = \true, bool $importShortClasses = \true, bool $removeUnusedImports = \false): self
+    public function withImportNames(bool $importNames = \true, bool $importDocBlockNames = \true, bool $importShortClasses = \true, bool $removeUnusedImports = \true): self
     {
         $this->importNames = $importNames;
         $this->importDocBlockNames = $importDocBlockNames;
@@ -730,16 +668,7 @@ final class RectorConfigBuilder
      */
     public function withTypeCoverageLevel(int $level): self
     {
-        Assert::natural($level);
-        $this->isTypeCoverageLevelUsed = \true;
-        $levelRules = LevelRulesResolver::resolve($level, TypeDeclarationLevel::RULES, __METHOD__);
-        // too high
-        $levelRulesCount = count($levelRules);
-        if ($levelRulesCount + self::MAX_LEVEL_GAP < $level) {
-            $this->levelOverflows[] = new LevelOverflow('withTypeCoverageLevel', $level, $levelRulesCount, 'typeDeclarations', 'TYPE_DECLARATION');
-        }
-        $this->rules = array_merge($this->rules, $levelRules);
-        return $this;
+        return $this->addLevelRules('withTypeCoverageLevel', $level, TypeDeclarationLevel::RULES, 'typeDeclarations', 'TYPE_DECLARATION');
     }
     /**
      * Raise your type coverage docblock from the safest type rules
@@ -747,16 +676,7 @@ final class RectorConfigBuilder
      */
     public function withTypeCoverageDocblockLevel(int $level): self
     {
-        Assert::natural($level);
-        $this->isTypeCoverageDocblockLevelUsed = \true;
-        $levelRules = LevelRulesResolver::resolve($level, TypeDeclarationDocblocksLevel::RULES, __METHOD__);
-        // too high
-        $levelRulesCount = count($levelRules);
-        if ($levelRulesCount + self::MAX_LEVEL_GAP < $level) {
-            $this->levelOverflows[] = new LevelOverflow(__METHOD__, $level, $levelRulesCount, 'typeDeclarationDocblocks', 'TYPE_DECLARATION_DOCBLOCKS');
-        }
-        $this->rules = array_merge($this->rules, $levelRules);
-        return $this;
+        return $this->addLevelRules('withTypeCoverageDocblockLevel', $level, TypeDeclarationDocblocksLevel::RULES, 'typeDeclarationDocblocks', 'TYPE_DECLARATION_DOCBLOCKS');
     }
     /**
      * Raise your dead-code coverage from the safest rules
@@ -764,16 +684,7 @@ final class RectorConfigBuilder
      */
     public function withDeadCodeLevel(int $level): self
     {
-        Assert::natural($level);
-        $this->isDeadCodeLevelUsed = \true;
-        $levelRules = LevelRulesResolver::resolve($level, DeadCodeLevel::RULES, __METHOD__);
-        // too high
-        $levelRulesCount = count($levelRules);
-        if ($levelRulesCount + self::MAX_LEVEL_GAP < $level) {
-            $this->levelOverflows[] = new LevelOverflow('withDeadCodeLevel', $level, $levelRulesCount, 'deadCode', 'DEAD_CODE');
-        }
-        $this->rules = array_merge($this->rules, $levelRules);
-        return $this;
+        return $this->addLevelRules('withDeadCodeLevel', $level, DeadCodeLevel::RULES, 'deadCode', 'DEAD_CODE');
     }
     /**
      * Raise your PHP level from, one level at a time
@@ -808,15 +719,7 @@ final class RectorConfigBuilder
      */
     public function withCodeQualityLevel(int $level): self
     {
-        Assert::natural($level);
-        $this->isCodeQualityLevelUsed = \true;
-        $levelRules = LevelRulesResolver::resolve($level, CodeQualityLevel::RULES, __METHOD__);
-        // too high
-        $levelRulesCount = count($levelRules);
-        if ($levelRulesCount + self::MAX_LEVEL_GAP < $level) {
-            $this->levelOverflows[] = new LevelOverflow('withCodeQualityLevel', $level, $levelRulesCount, 'codeQuality', 'CODE_QUALITY');
-        }
-        $this->rules = array_merge($this->rules, $levelRules);
+        $this->addLevelRules('withCodeQualityLevel', $level, CodeQualityLevel::RULES, 'codeQuality', 'CODE_QUALITY');
         foreach (CodeQualityLevel::RULES_WITH_CONFIGURATION as $rectorClass => $configuration) {
             $this->rulesWithConfigurations[$rectorClass][] = $configuration;
         }
@@ -828,15 +731,7 @@ final class RectorConfigBuilder
      */
     public function withCodingStyleLevel(int $level): self
     {
-        Assert::natural($level);
-        $this->isCodingStyleLevelUsed = \true;
-        $levelRules = LevelRulesResolver::resolve($level, CodingStyleLevel::RULES, __METHOD__);
-        // too high
-        $levelRulesCount = count($levelRules);
-        if ($levelRulesCount + self::MAX_LEVEL_GAP < $level) {
-            $this->levelOverflows[] = new LevelOverflow('withCodingStyleLevel', $level, $levelRulesCount, 'codingStyle', 'CODING_STYLE');
-        }
-        $this->rules = array_merge($this->rules, $levelRules);
+        $this->addLevelRules('withCodingStyleLevel', $level, CodingStyleLevel::RULES, 'codingStyle', 'CODING_STYLE');
         foreach (CodingStyleLevel::RULES_WITH_CONFIGURATION as $rectorClass => $configuration) {
             $this->rulesWithConfigurations[$rectorClass][] = $configuration;
         }
@@ -850,6 +745,17 @@ final class RectorConfigBuilder
     public function withTreatClassesAsFinal(bool $isTreatClassesAsFinal = \true): self
     {
         $this->isTreatClassesAsFinal = $isTreatClassesAsFinal;
+        return $this;
+    }
+    /**
+     * Guard the listed classes and their non-final descendants against method signature changes
+     * that would break child classes - e.g. adding a return type or a param type.
+     *
+     * @param string[] $typeGuardedClasses
+     */
+    public function withTypeGuardedClasses(array $typeGuardedClasses): self
+    {
+        $this->typeGuardedClasses = $typeGuardedClasses;
         return $this;
     }
     public function registerService(string $className, ?string $alias = null, ?string $tag = null): self
@@ -870,34 +776,25 @@ final class RectorConfigBuilder
     }
     public function withDowngradeSets(bool $php84 = \false, bool $php83 = \false, bool $php82 = \false, bool $php81 = \false, bool $php80 = \false, bool $php74 = \false, bool $php73 = \false, bool $php72 = \false, bool $php71 = \false): self
     {
-        $pickedArguments = array_filter(func_get_args());
-        if (count($pickedArguments) !== 1) {
+        $pickedDowngradeSets = array_keys(array_filter([DowngradeLevelSetList::DOWN_TO_PHP_84 => $php84, DowngradeLevelSetList::DOWN_TO_PHP_83 => $php83, DowngradeLevelSetList::DOWN_TO_PHP_82 => $php82, DowngradeLevelSetList::DOWN_TO_PHP_81 => $php81, DowngradeLevelSetList::DOWN_TO_PHP_80 => $php80, DowngradeLevelSetList::DOWN_TO_PHP_74 => $php74, DowngradeLevelSetList::DOWN_TO_PHP_73 => $php73, DowngradeLevelSetList::DOWN_TO_PHP_72 => $php72, DowngradeLevelSetList::DOWN_TO_PHP_71 => $php71]));
+        if (count($pickedDowngradeSets) !== 1) {
             throw new InvalidConfigurationException('Pick only one PHP version target in "withDowngradeSets()". All rules down to this version will be used.');
         }
-        if ($php84) {
-            $this->sets[] = DowngradeLevelSetList::DOWN_TO_PHP_84;
-        } elseif ($php83) {
-            $this->sets[] = DowngradeLevelSetList::DOWN_TO_PHP_83;
-        } elseif ($php82) {
-            $this->sets[] = DowngradeLevelSetList::DOWN_TO_PHP_82;
-        } elseif ($php81) {
-            $this->sets[] = DowngradeLevelSetList::DOWN_TO_PHP_81;
-        } elseif ($php80) {
-            $this->sets[] = DowngradeLevelSetList::DOWN_TO_PHP_80;
-        } elseif ($php74) {
-            $this->sets[] = DowngradeLevelSetList::DOWN_TO_PHP_74;
-        } elseif ($php73) {
-            $this->sets[] = DowngradeLevelSetList::DOWN_TO_PHP_73;
-        } elseif ($php72) {
-            $this->sets[] = DowngradeLevelSetList::DOWN_TO_PHP_72;
-        } elseif ($php71) {
-            $this->sets[] = DowngradeLevelSetList::DOWN_TO_PHP_71;
-        }
+        $this->sets[] = $pickedDowngradeSets[0];
         return $this;
     }
     public function withRealPathReporting(bool $absolutePath = \true): self
     {
         $this->reportingRealPath = $absolutePath;
+        return $this;
+    }
+    /**
+     * Report skips configured via withSkip() that never matched anything during the run,
+     * so they can be safely removed.
+     */
+    public function reportUnusedSkips(bool $report = \true): self
+    {
+        $this->reportUnusedSkips = $report;
         return $this;
     }
     public function withEditorUrl(string $editorUrl): self
@@ -919,6 +816,31 @@ final class RectorConfigBuilder
             }
             $this->setProviders[$setProvider] = \true;
         }
+        return $this;
+    }
+    /**
+     * @param PhpVersion::* $phpVersion
+     */
+    private function addPhpLevelSets(int $phpVersion): self
+    {
+        $this->isWithPhpSetsUsed = \true;
+        $this->sets = array_merge($this->sets, \Rector\Configuration\PhpLevelSetResolver::resolveFromPhpVersion($phpVersion));
+        return $this;
+    }
+    /**
+     * @param array<class-string<RectorInterface>> $availableRules
+     */
+    private function addLevelRules(string $levelMethod, int $level, array $availableRules, string $suggestedRuleset, string $suggestedSetListConstant): self
+    {
+        Assert::natural($level);
+        $this->usedLevelMethods[$levelMethod] = \true;
+        $levelRules = LevelRulesResolver::resolve($level, $availableRules, $levelMethod);
+        // too high
+        $levelRulesCount = count($levelRules);
+        if ($levelRulesCount + self::MAX_LEVEL_GAP < $level) {
+            $this->levelOverflows[] = new LevelOverflow($levelMethod, $level, $levelRulesCount, $suggestedRuleset, $suggestedSetListConstant);
+        }
+        $this->rules = array_merge($this->rules, $levelRules);
         return $this;
     }
 }

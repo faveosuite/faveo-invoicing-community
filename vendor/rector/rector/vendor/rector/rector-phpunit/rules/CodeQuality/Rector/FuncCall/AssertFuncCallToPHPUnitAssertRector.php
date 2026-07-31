@@ -23,6 +23,7 @@ use PHPStan\Reflection\ClassReflection;
 use Rector\PhpParser\Node\Value\ValueResolver;
 use Rector\PHPStan\ScopeFetcher;
 use Rector\PHPUnit\Enum\AssertMethod;
+use Rector\PHPUnit\Enum\BehatClassName;
 use Rector\PHPUnit\Enum\PHPUnitClassName;
 use Rector\PHPUnit\NodeAnalyzer\TestsNodeAnalyzer;
 use Rector\Rector\AbstractRector;
@@ -101,6 +102,11 @@ CODE_SAMPLE
                     $useStaticAssert = \true;
                     return null;
                 }
+                // assert() inside an anonymous class has no $this of the test case
+                if ($node instanceof Class_ && $node->isAnonymous()) {
+                    $useStaticAssert = \true;
+                    return null;
+                }
                 if (!$node instanceof FuncCall) {
                     return null;
                 }
@@ -164,12 +170,12 @@ CODE_SAMPLE
     private function isBehatContext(Class_ $class): bool
     {
         $scope = ScopeFetcher::fetch($class);
-        if (!$scope->getClassReflection() instanceof ClassReflection) {
+        $classReflection = $scope->getClassReflection();
+        if (!$classReflection instanceof ClassReflection) {
             return \false;
         }
-        $className = $scope->getClassReflection()->getName();
         // special case with static call
-        return substr_compare($className, 'Context', -strlen('Context')) === 0;
+        return $classReflection->is(BehatClassName::CONTEXT);
     }
     /**
      * @param Expr[] $exprs
