@@ -7206,7 +7206,6 @@ __metadata:
     pinia: "npm:^4.0.2"
     postcss: "npm:^8.5.25"
     sass: "npm:^1.102.0"
-    tinymce: "npm:^8.8.2"
     undici: "npm:^8.9.0"
     v-tables-3: "npm:^0.4.7"
     validator: "npm:^13.15.35"
@@ -7583,13 +7582,6 @@ __metadata:
     fdir: "npm:^6.5.0"
     picomatch: "npm:^4.0.4"
   checksum: 10c0/7f7bb0f197c88bc4b20c231e0deca4240ca3bf313a88f5a7fee93a872b84966a4d50220947c0455ad07a60b3b360961c5b7fd979222aeb716a9f99b412002e4c
-  languageName: node
-  linkType: hard
-
-"tinymce@npm:^8.8.2":
-  version: 8.8.2
-  resolution: "tinymce@npm:8.8.2"
-  checksum: 10c0/74540d4c12bc804676784059e1c7d1c20989c91c17d40868b0ea7187b17165203a8ee4c90b8fac0f1451ff49e25f658f7145fb161a00c43fccc8889dd8cacd30
   languageName: node
   linkType: hard
 

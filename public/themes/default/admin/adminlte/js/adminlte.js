@@ -1,5 +1,5 @@
 /*!
- * AdminLTE v4.0.0 (https://adminlte.io)
+ * AdminLTE v4.1.0 (https://adminlte.io)
  * Copyright 2014-2026 Colorlib <https://colorlib.com>
  * Licensed under MIT (https://github.com/ColorlibHQ/AdminLTE/blob/master/LICENSE)
  */
@@ -9,25 +9,57 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.adminlte = {}));
 })(this, (function (exports) { 'use strict';
 
-    const domContentLoadedCallbacks = [];
-    const onDOMContentLoaded = (callback) => {
-        if (document.readyState === 'loading') {
-            if (!domContentLoadedCallbacks.length) {
-                document.addEventListener('DOMContentLoaded', () => {
-                    for (const callback of domContentLoadedCallbacks) {
-                        callback();
-                    }
-                });
-            }
-            domContentLoadedCallbacks.push(callback);
+    const lifecycleCallbacks = [];
+    const lifecycleState = {
+        controller: new AbortController(),
+        hasInitialized: false
+    };
+    const getLifecycleSignal = () => lifecycleState.controller.signal;
+    const runLifecycleCallbacks = () => {
+        if (lifecycleState.hasInitialized) {
+            return;
         }
-        else {
+        lifecycleState.hasInitialized = true;
+        for (const callback of lifecycleCallbacks) {
             callback();
         }
     };
+    const onDOMContentLoaded = (callback) => {
+        lifecycleCallbacks.push(callback);
+        if (lifecycleState.hasInitialized) {
+            callback();
+        }
+    };
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runLifecycleCallbacks, { once: true });
+    }
+    else {
+        runLifecycleCallbacks();
+    }
+    document.addEventListener('turbo:before-render', () => {
+        lifecycleState.controller.abort();
+        lifecycleState.controller = new AbortController();
+        lifecycleState.hasInitialized = false;
+    });
+    document.addEventListener('turbo:load', runLifecycleCallbacks);
+    const slideTimers = new WeakMap();
+    const cancelSlide = (target) => {
+        const timers = slideTimers.get(target) ?? [];
+        for (const timer of timers) {
+            globalThis.clearTimeout(timer);
+        }
+        slideTimers.delete(target);
+    };
+    const clearSlideStyles = (target) => {
+        for (const property of ['height', 'padding-top', 'padding-bottom', 'margin-top', 'margin-bottom', 'overflow', 'transition-duration', 'transition-property']) {
+            target.style.removeProperty(property);
+        }
+    };
     const slideUp = (target, duration = 500) => {
+        cancelSlide(target);
         if (duration <= 1) {
             target.style.display = 'none';
+            clearSlideStyles(target);
             return;
         }
         target.style.transitionProperty = 'height, margin, padding';
@@ -35,26 +67,23 @@
         target.style.boxSizing = 'border-box';
         target.style.height = `${target.offsetHeight}px`;
         target.style.overflow = 'hidden';
-        globalThis.setTimeout(() => {
+        const stepTimer = globalThis.setTimeout(() => {
             target.style.height = '0';
             target.style.paddingTop = '0';
             target.style.paddingBottom = '0';
             target.style.marginTop = '0';
             target.style.marginBottom = '0';
         }, 1);
-        globalThis.setTimeout(() => {
+        const cleanupTimer = globalThis.setTimeout(() => {
             target.style.display = 'none';
-            target.style.removeProperty('height');
-            target.style.removeProperty('padding-top');
-            target.style.removeProperty('padding-bottom');
-            target.style.removeProperty('margin-top');
-            target.style.removeProperty('margin-bottom');
-            target.style.removeProperty('overflow');
-            target.style.removeProperty('transition-duration');
-            target.style.removeProperty('transition-property');
+            clearSlideStyles(target);
+            slideTimers.delete(target);
         }, duration);
+        slideTimers.set(target, [stepTimer, cleanupTimer]);
     };
     const slideDown = (target, duration = 500) => {
+        cancelSlide(target);
+        clearSlideStyles(target);
         target.style.removeProperty('display');
         let { display } = globalThis.getComputedStyle(target);
         if (display === 'none') {
@@ -71,7 +100,7 @@
         target.style.paddingBottom = '0';
         target.style.marginTop = '0';
         target.style.marginBottom = '0';
-        globalThis.setTimeout(() => {
+        const stepTimer = globalThis.setTimeout(() => {
             target.style.boxSizing = 'border-box';
             target.style.transitionProperty = 'height, margin, padding';
             target.style.transitionDuration = `${duration}ms`;
@@ -81,12 +110,11 @@
             target.style.removeProperty('margin-top');
             target.style.removeProperty('margin-bottom');
         }, 1);
-        globalThis.setTimeout(() => {
-            target.style.removeProperty('height');
-            target.style.removeProperty('overflow');
-            target.style.removeProperty('transition-duration');
-            target.style.removeProperty('transition-property');
+        const cleanupTimer = globalThis.setTimeout(() => {
+            clearSlideStyles(target);
+            slideTimers.delete(target);
         }, duration);
+        slideTimers.set(target, [stepTimer, cleanupTimer]);
     };
 
     const CLASS_NAME_HOLD_TRANSITIONS = 'hold-transition';
@@ -110,19 +138,61 @@
     }
     onDOMContentLoaded(() => {
         const layout = new Layout(document.body);
-        window.addEventListener('resize', () => layout.holdTransition(200));
+        window.addEventListener('resize', () => layout.holdTransition(200), { signal: getLifecycleSignal() });
         setTimeout(() => {
             document.body.classList.add(CLASS_NAME_APP_LOADED);
         }, 400);
     });
 
-    const DATA_KEY$4 = 'lte.card-widget';
-    const EVENT_KEY$4 = `.${DATA_KEY$4}`;
-    const EVENT_COLLAPSED$2 = `collapsed${EVENT_KEY$4}`;
-    const EVENT_EXPANDED$2 = `expanded${EVENT_KEY$4}`;
-    const EVENT_REMOVE = `remove${EVENT_KEY$4}`;
-    const EVENT_MAXIMIZED$1 = `maximized${EVENT_KEY$4}`;
-    const EVENT_MINIMIZED$1 = `minimized${EVENT_KEY$4}`;
+    const componentRegistry = new WeakMap();
+    class BaseComponent {
+        static get NAME() {
+            throw new Error('Component subclasses must override the static NAME getter.');
+        }
+        static get DATA_KEY() {
+            return `lte.${this.NAME}`;
+        }
+        static _getInstance(element) {
+            if (!element) {
+                return null;
+            }
+            return componentRegistry.get(element)?.get(this.DATA_KEY) ?? null;
+        }
+        _element;
+        constructor(element) {
+            this._element = element;
+            const instances = componentRegistry.get(element) ?? new Map();
+            componentRegistry.set(element, instances);
+            instances.set(this.constructor.DATA_KEY, this);
+        }
+        dispose() {
+            const instances = componentRegistry.get(this._element);
+            instances?.delete(this.constructor.DATA_KEY);
+            if (instances?.size === 0) {
+                componentRegistry.delete(this._element);
+            }
+        }
+    }
+    const dispatchCustomEvent = (element, name, options = {}) => {
+        const event = new CustomEvent(name, {
+            bubbles: true,
+            cancelable: options.cancelable ?? false,
+            detail: options.detail
+        });
+        element.dispatchEvent(event);
+        return event;
+    };
+
+    const NAME$4 = 'card-widget';
+    const EVENT_KEY$5 = `.lte.${NAME$4}`;
+    const EVENT_COLLAPSE$2 = `collapse${EVENT_KEY$5}`;
+    const EVENT_EXPAND$1 = `expand${EVENT_KEY$5}`;
+    const EVENT_REMOVE = `remove${EVENT_KEY$5}`;
+    const EVENT_COLLAPSED$3 = `collapsed${EVENT_KEY$5}`;
+    const EVENT_EXPANDED$2 = `expanded${EVENT_KEY$5}`;
+    const EVENT_REMOVED = `removed${EVENT_KEY$5}`;
+    const EVENT_MAXIMIZED$1 = `maximized${EVENT_KEY$5}`;
+    const EVENT_MINIMIZED$1 = `minimized${EVENT_KEY$5}`;
     const CLASS_NAME_CARD = 'card';
     const CLASS_NAME_COLLAPSED = 'collapsed-card';
     const CLASS_NAME_COLLAPSING = 'collapsing-card';
@@ -141,13 +211,20 @@
         removeTrigger: SELECTOR_DATA_REMOVE,
         maximizeTrigger: SELECTOR_DATA_MAXIMIZE
     };
-    class CardWidget {
-        _element;
+    class CardWidget extends BaseComponent {
+        static get NAME() {
+            return NAME$4;
+        }
+        static getInstance(element) {
+            return this._getInstance(element);
+        }
+        static getOrCreateInstance(element, config = {}) {
+            return this.getInstance(element) ?? new this(element, config);
+        }
         _parent;
-        _clone;
         _config;
-        constructor(element, config) {
-            this._element = element;
+        constructor(element, config = {}) {
+            super(element);
             this._parent = element.closest(SELECTOR_CARD);
             if (element.classList.contains(CLASS_NAME_CARD)) {
                 this._parent = element;
@@ -155,58 +232,73 @@
             this._config = { ...Default$1, ...config };
         }
         collapse() {
-            const event = new Event(EVENT_COLLAPSED$2);
-            if (this._parent) {
-                this._parent.classList.add(CLASS_NAME_COLLAPSING);
-                const elm = this._parent?.querySelectorAll(`:scope > ${SELECTOR_CARD_BODY}, :scope > ${SELECTOR_CARD_FOOTER}`);
-                elm.forEach(el => {
-                    if (el instanceof HTMLElement) {
-                        slideUp(el, this._config.animationSpeed);
-                    }
-                });
-                setTimeout(() => {
-                    if (this._parent) {
-                        this._parent.classList.add(CLASS_NAME_COLLAPSED);
-                        this._parent.classList.remove(CLASS_NAME_COLLAPSING);
-                    }
-                }, this._config.animationSpeed);
+            if (!this._parent) {
+                return;
             }
-            this._element?.dispatchEvent(event);
+            if (dispatchCustomEvent(this._parent, EVENT_COLLAPSE$2, { cancelable: true }).defaultPrevented) {
+                return;
+            }
+            this._parent.classList.add(CLASS_NAME_COLLAPSING);
+            this._parent.classList.remove(CLASS_NAME_EXPANDING);
+            const elm = this._parent.querySelectorAll(`:scope > ${SELECTOR_CARD_BODY}, :scope > ${SELECTOR_CARD_FOOTER}`);
+            elm.forEach(el => {
+                if (el instanceof HTMLElement) {
+                    slideUp(el, this._config.animationSpeed);
+                }
+            });
+            setTimeout(() => {
+                if (this._parent?.classList.contains(CLASS_NAME_COLLAPSING)) {
+                    this._parent.classList.add(CLASS_NAME_COLLAPSED);
+                    this._parent.classList.remove(CLASS_NAME_COLLAPSING);
+                    dispatchCustomEvent(this._parent, EVENT_COLLAPSED$3);
+                }
+            }, this._config.animationSpeed);
         }
         expand() {
-            const event = new Event(EVENT_EXPANDED$2);
-            if (this._parent) {
-                this._parent.classList.add(CLASS_NAME_EXPANDING);
-                const elm = this._parent?.querySelectorAll(`:scope > ${SELECTOR_CARD_BODY}, :scope > ${SELECTOR_CARD_FOOTER}`);
-                elm.forEach(el => {
-                    if (el instanceof HTMLElement) {
-                        slideDown(el, this._config.animationSpeed);
-                    }
-                });
-                setTimeout(() => {
-                    if (this._parent) {
-                        this._parent.classList.remove(CLASS_NAME_COLLAPSED, CLASS_NAME_EXPANDING);
-                    }
-                }, this._config.animationSpeed);
+            if (!this._parent) {
+                return;
             }
-            this._element?.dispatchEvent(event);
+            if (dispatchCustomEvent(this._parent, EVENT_EXPAND$1, { cancelable: true }).defaultPrevented) {
+                return;
+            }
+            this._parent.classList.add(CLASS_NAME_EXPANDING);
+            this._parent.classList.remove(CLASS_NAME_COLLAPSING, CLASS_NAME_COLLAPSED);
+            const elm = this._parent.querySelectorAll(`:scope > ${SELECTOR_CARD_BODY}, :scope > ${SELECTOR_CARD_FOOTER}`);
+            elm.forEach(el => {
+                if (el instanceof HTMLElement) {
+                    slideDown(el, this._config.animationSpeed);
+                }
+            });
+            setTimeout(() => {
+                if (this._parent?.classList.contains(CLASS_NAME_EXPANDING)) {
+                    this._parent.classList.remove(CLASS_NAME_EXPANDING);
+                    dispatchCustomEvent(this._parent, EVENT_EXPANDED$2);
+                }
+            }, this._config.animationSpeed);
         }
         remove() {
-            const event = new Event(EVENT_REMOVE);
-            if (this._parent) {
-                slideUp(this._parent, this._config.animationSpeed);
+            if (!this._parent) {
+                return;
             }
-            this._element?.dispatchEvent(event);
+            if (dispatchCustomEvent(this._parent, EVENT_REMOVE, { cancelable: true }).defaultPrevented) {
+                return;
+            }
+            const parent = this._parent;
+            slideUp(parent, this._config.animationSpeed);
+            setTimeout(() => {
+                dispatchCustomEvent(parent, EVENT_REMOVED);
+                parent.remove();
+                this.dispose();
+            }, this._config.animationSpeed);
         }
         toggle() {
-            if (this._parent?.classList.contains(CLASS_NAME_COLLAPSED)) {
+            if (this._parent?.classList.contains(CLASS_NAME_COLLAPSED) || this._parent?.classList.contains(CLASS_NAME_COLLAPSING)) {
                 this.expand();
                 return;
             }
             this.collapse();
         }
         maximize() {
-            const event = new Event(EVENT_MAXIMIZED$1);
             if (this._parent) {
                 this._parent.style.height = `${this._parent.offsetHeight}px`;
                 this._parent.style.width = `${this._parent.offsetWidth}px`;
@@ -221,13 +313,12 @@
                         if (this._parent.classList.contains(CLASS_NAME_COLLAPSED)) {
                             this._parent.classList.add(CLASS_NAME_WAS_COLLAPSED);
                         }
+                        dispatchCustomEvent(this._parent, EVENT_MAXIMIZED$1);
                     }
                 }, 150);
             }
-            this._element?.dispatchEvent(event);
         }
         minimize() {
-            const event = new Event(EVENT_MINIMIZED$1);
             if (this._parent) {
                 this._parent.style.height = 'auto';
                 this._parent.style.width = 'auto';
@@ -242,10 +333,15 @@
                         if (this._parent?.classList.contains(CLASS_NAME_WAS_COLLAPSED)) {
                             this._parent.classList.remove(CLASS_NAME_WAS_COLLAPSED);
                         }
+                        dispatchCustomEvent(this._parent, EVENT_MINIMIZED$1);
+                        setTimeout(() => {
+                            this._parent?.style.removeProperty('height');
+                            this._parent?.style.removeProperty('width');
+                            this._parent?.style.removeProperty('transition');
+                        }, 150);
                     }
                 }, 10);
             }
-            this._element?.dispatchEvent(event);
         }
         toggleMaximize() {
             if (this._parent?.classList.contains(CLASS_NAME_MAXIMIZED)) {
@@ -255,41 +351,42 @@
             this.maximize();
         }
     }
-    onDOMContentLoaded(() => {
-        const collapseBtn = document.querySelectorAll(SELECTOR_DATA_COLLAPSE);
-        collapseBtn.forEach(btn => {
-            btn.addEventListener('click', event => {
-                event.preventDefault();
-                const target = event.target;
-                const data = new CardWidget(target, Default$1);
-                data.toggle();
-            });
-        });
-        const removeBtn = document.querySelectorAll(SELECTOR_DATA_REMOVE);
-        removeBtn.forEach(btn => {
-            btn.addEventListener('click', event => {
-                event.preventDefault();
-                const target = event.target;
-                const data = new CardWidget(target, Default$1);
-                data.remove();
-            });
-        });
-        const maxBtn = document.querySelectorAll(SELECTOR_DATA_MAXIMIZE);
-        maxBtn.forEach(btn => {
-            btn.addEventListener('click', event => {
-                event.preventDefault();
-                const target = event.target;
-                const data = new CardWidget(target, Default$1);
-                data.toggleMaximize();
-            });
-        });
+    document.addEventListener('click', event => {
+        const target = event.target;
+        if (!(target instanceof Element)) {
+            return;
+        }
+        const collapseTrigger = target.closest(SELECTOR_DATA_COLLAPSE);
+        const removeTrigger = target.closest(SELECTOR_DATA_REMOVE);
+        const maximizeTrigger = target.closest(SELECTOR_DATA_MAXIMIZE);
+        const trigger = collapseTrigger ?? removeTrigger ?? maximizeTrigger;
+        if (!trigger) {
+            return;
+        }
+        event.preventDefault();
+        const card = trigger.closest(SELECTOR_CARD);
+        if (!card) {
+            return;
+        }
+        const widget = CardWidget.getOrCreateInstance(card);
+        if (collapseTrigger) {
+            widget.toggle();
+        }
+        else if (removeTrigger) {
+            widget.remove();
+        }
+        else {
+            widget.toggleMaximize();
+        }
     });
 
-    const DATA_KEY$3 = 'lte.treeview';
-    const EVENT_KEY$3 = `.${DATA_KEY$3}`;
-    const EVENT_EXPANDED$1 = `expanded${EVENT_KEY$3}`;
-    const EVENT_COLLAPSED$1 = `collapsed${EVENT_KEY$3}`;
-    const EVENT_LOAD_DATA_API = `load${EVENT_KEY$3}`;
+    const NAME$3 = 'treeview';
+    const EVENT_KEY$4 = `.lte.${NAME$3}`;
+    const EVENT_EXPAND = `expand${EVENT_KEY$4}`;
+    const EVENT_COLLAPSE$1 = `collapse${EVENT_KEY$4}`;
+    const EVENT_EXPANDED$1 = `expanded${EVENT_KEY$4}`;
+    const EVENT_COLLAPSED$2 = `collapsed${EVENT_KEY$4}`;
+    const EVENT_LOAD_DATA_API = `load${EVENT_KEY$4}`;
     const CLASS_NAME_MENU_OPEN = 'menu-open';
     const SELECTOR_NAV_ITEM = '.nav-item';
     const SELECTOR_NAV_LINK = '.nav-link';
@@ -299,20 +396,35 @@
         animationSpeed: 300,
         accordion: true
     };
-    class Treeview {
-        _element;
+    const setAriaExpanded = (navItem, expanded) => {
+        const link = navItem.querySelector(`:scope > ${SELECTOR_NAV_LINK}`);
+        link?.setAttribute('aria-expanded', String(expanded));
+    };
+    class Treeview extends BaseComponent {
+        static get NAME() {
+            return NAME$3;
+        }
+        static getInstance(element) {
+            return this._getInstance(element);
+        }
+        static getOrCreateInstance(element, config = {}) {
+            return this.getInstance(element) ?? new this(element, config);
+        }
         _config;
-        constructor(element, config) {
-            this._element = element;
+        constructor(element, config = {}) {
+            super(element);
             this._config = { ...Default, ...config };
         }
         open() {
-            const event = new Event(EVENT_EXPANDED$1);
+            if (dispatchCustomEvent(this._element, EVENT_EXPAND, { cancelable: true }).defaultPrevented) {
+                return;
+            }
             if (this._config.accordion) {
                 const openMenuList = this._element.parentElement?.querySelectorAll(`${SELECTOR_NAV_ITEM}.${CLASS_NAME_MENU_OPEN}`);
                 openMenuList?.forEach(openMenu => {
-                    if (openMenu !== this._element.parentElement) {
+                    if (!this._element.contains(openMenu)) {
                         openMenu.classList.remove(CLASS_NAME_MENU_OPEN);
+                        setAriaExpanded(openMenu, false);
                         const childElement = openMenu?.querySelector(SELECTOR_TREEVIEW_MENU);
                         if (childElement) {
                             slideUp(childElement, this._config.animationSpeed);
@@ -321,20 +433,32 @@
                 });
             }
             this._element.classList.add(CLASS_NAME_MENU_OPEN);
-            const childElement = this._element?.querySelector(SELECTOR_TREEVIEW_MENU);
+            setAriaExpanded(this._element, true);
+            const childElement = this._element.querySelector(SELECTOR_TREEVIEW_MENU);
             if (childElement) {
                 slideDown(childElement, this._config.animationSpeed);
             }
-            this._element.dispatchEvent(event);
+            setTimeout(() => {
+                if (this._element.classList.contains(CLASS_NAME_MENU_OPEN)) {
+                    dispatchCustomEvent(this._element, EVENT_EXPANDED$1);
+                }
+            }, this._config.animationSpeed);
         }
         close() {
-            const event = new Event(EVENT_COLLAPSED$1);
+            if (dispatchCustomEvent(this._element, EVENT_COLLAPSE$1, { cancelable: true }).defaultPrevented) {
+                return;
+            }
             this._element.classList.remove(CLASS_NAME_MENU_OPEN);
-            const childElement = this._element?.querySelector(SELECTOR_TREEVIEW_MENU);
+            setAriaExpanded(this._element, false);
+            const childElement = this._element.querySelector(SELECTOR_TREEVIEW_MENU);
             if (childElement) {
                 slideUp(childElement, this._config.animationSpeed);
             }
-            this._element.dispatchEvent(event);
+            setTimeout(() => {
+                if (!this._element.classList.contains(CLASS_NAME_MENU_OPEN)) {
+                    dispatchCustomEvent(this._element, EVENT_COLLAPSED$2);
+                }
+            }, this._config.animationSpeed);
         }
         toggle() {
             if (this._element.classList.contains(CLASS_NAME_MENU_OPEN)) {
@@ -345,6 +469,31 @@
             }
         }
     }
+    document.addEventListener('click', event => {
+        const target = event.target;
+        if (!(target instanceof Element)) {
+            return;
+        }
+        const toggleRoot = target.closest(SELECTOR_DATA_TOGGLE$1);
+        if (!toggleRoot) {
+            return;
+        }
+        const targetItem = target.closest(SELECTOR_NAV_ITEM);
+        const targetLink = target.closest(SELECTOR_NAV_LINK);
+        if (!targetItem?.querySelector(SELECTOR_TREEVIEW_MENU)) {
+            return;
+        }
+        if (target.getAttribute('href') === '#' || targetLink?.getAttribute('href') === '#') {
+            event.preventDefault();
+        }
+        const accordionAttr = toggleRoot.dataset.accordion;
+        const animationSpeedAttr = toggleRoot.dataset.animationSpeed;
+        const config = {
+            accordion: accordionAttr === undefined ? Default.accordion : accordionAttr === 'true',
+            animationSpeed: animationSpeedAttr === undefined ? Default.animationSpeed : Number(animationSpeedAttr)
+        };
+        Treeview.getOrCreateInstance(targetItem, config).toggle();
+    });
     onDOMContentLoaded(() => {
         const openMenuItems = document.querySelectorAll(`${SELECTOR_NAV_ITEM}.${CLASS_NAME_MENU_OPEN}`);
         openMenuItems.forEach(menuItem => {
@@ -355,144 +504,129 @@
                 menuItem.dispatchEvent(event);
             }
         });
-        const button = document.querySelectorAll(SELECTOR_DATA_TOGGLE$1);
-        button.forEach(btn => {
-            btn.addEventListener('click', event => {
-                const target = event.target;
-                const targetItem = target.closest(SELECTOR_NAV_ITEM);
-                const targetLink = target.closest(SELECTOR_NAV_LINK);
-                const targetTreeviewMenu = targetItem?.querySelector(SELECTOR_TREEVIEW_MENU);
-                const lteToggleElement = event.currentTarget;
-                if (!targetTreeviewMenu) {
-                    return;
-                }
-                if (target?.getAttribute('href') === '#' || targetLink?.getAttribute('href') === '#') {
-                    event.preventDefault();
-                }
-                if (targetItem) {
-                    const accordionAttr = lteToggleElement.dataset.accordion;
-                    const animationSpeedAttr = lteToggleElement.dataset.animationSpeed;
-                    const config = {
-                        accordion: accordionAttr === undefined ? Default.accordion : accordionAttr === 'true',
-                        animationSpeed: animationSpeedAttr === undefined ? Default.animationSpeed : Number(animationSpeedAttr)
-                    };
-                    const data = new Treeview(targetItem, config);
-                    data.toggle();
+        document.querySelectorAll(SELECTOR_DATA_TOGGLE$1).forEach(root => {
+            root.querySelectorAll(SELECTOR_NAV_ITEM).forEach(item => {
+                if (item.querySelector(`:scope > ${SELECTOR_TREEVIEW_MENU}`)) {
+                    setAriaExpanded(item, item.classList.contains(CLASS_NAME_MENU_OPEN));
                 }
             });
         });
     });
 
-    const DATA_KEY$2 = 'lte.direct-chat';
-    const EVENT_KEY$2 = `.${DATA_KEY$2}`;
-    const EVENT_EXPANDED = `expanded${EVENT_KEY$2}`;
-    const EVENT_COLLAPSED = `collapsed${EVENT_KEY$2}`;
+    const NAME$2 = 'direct-chat';
+    const EVENT_KEY$3 = `.lte.${NAME$2}`;
+    const EVENT_EXPANDED = `expanded${EVENT_KEY$3}`;
+    const EVENT_COLLAPSED$1 = `collapsed${EVENT_KEY$3}`;
     const SELECTOR_DATA_TOGGLE = '[data-lte-toggle="chat-pane"]';
     const SELECTOR_DIRECT_CHAT = '.direct-chat';
     const CLASS_NAME_DIRECT_CHAT_OPEN = 'direct-chat-contacts-open';
-    class DirectChat {
-        _element;
-        constructor(element) {
-            this._element = element;
+    class DirectChat extends BaseComponent {
+        static get NAME() {
+            return NAME$2;
+        }
+        static getInstance(element) {
+            return this._getInstance(element);
+        }
+        static getOrCreateInstance(element) {
+            return this.getInstance(element) ?? new this(element);
         }
         toggle() {
             if (this._element.classList.contains(CLASS_NAME_DIRECT_CHAT_OPEN)) {
-                const event = new Event(EVENT_COLLAPSED);
                 this._element.classList.remove(CLASS_NAME_DIRECT_CHAT_OPEN);
-                this._element.dispatchEvent(event);
+                dispatchCustomEvent(this._element, EVENT_COLLAPSED$1);
             }
             else {
-                const event = new Event(EVENT_EXPANDED);
                 this._element.classList.add(CLASS_NAME_DIRECT_CHAT_OPEN);
-                this._element.dispatchEvent(event);
+                dispatchCustomEvent(this._element, EVENT_EXPANDED);
             }
         }
     }
-    onDOMContentLoaded(() => {
-        const button = document.querySelectorAll(SELECTOR_DATA_TOGGLE);
-        button.forEach(btn => {
-            btn.addEventListener('click', event => {
-                event.preventDefault();
-                const target = event.target;
-                const chatPane = target.closest(SELECTOR_DIRECT_CHAT);
-                if (chatPane) {
-                    const data = new DirectChat(chatPane);
-                    data.toggle();
-                }
-            });
-        });
+    document.addEventListener('click', event => {
+        const target = event.target;
+        if (!(target instanceof Element)) {
+            return;
+        }
+        const trigger = target.closest(SELECTOR_DATA_TOGGLE);
+        if (!trigger) {
+            return;
+        }
+        event.preventDefault();
+        const chatPane = trigger.closest(SELECTOR_DIRECT_CHAT);
+        if (chatPane) {
+            DirectChat.getOrCreateInstance(chatPane).toggle();
+        }
     });
 
-    const DATA_KEY$1 = 'lte.fullscreen';
-    const EVENT_KEY$1 = `.${DATA_KEY$1}`;
-    const EVENT_MAXIMIZED = `maximized${EVENT_KEY$1}`;
-    const EVENT_MINIMIZED = `minimized${EVENT_KEY$1}`;
+    const NAME$1 = 'fullscreen';
+    const EVENT_KEY$2 = `.lte.${NAME$1}`;
+    const EVENT_MAXIMIZED = `maximized${EVENT_KEY$2}`;
+    const EVENT_MINIMIZED = `minimized${EVENT_KEY$2}`;
     const SELECTOR_FULLSCREEN_TOGGLE = '[data-lte-toggle="fullscreen"]';
     const SELECTOR_MAXIMIZE_ICON = '[data-lte-icon="maximize"]';
     const SELECTOR_MINIMIZE_ICON = '[data-lte-icon="minimize"]';
-    class FullScreen {
-        _element;
-        _config;
-        constructor(element, config) {
-            this._element = element;
-            this._config = config;
+    function syncFullScreenState() {
+        const iconMaximize = document.querySelector(SELECTOR_MAXIMIZE_ICON);
+        const iconMinimize = document.querySelector(SELECTOR_MINIMIZE_ICON);
+        const isFullScreen = Boolean(document.fullscreenElement);
+        iconMaximize?.classList.toggle('d-none', isFullScreen);
+        iconMinimize?.classList.toggle('d-none', !isFullScreen);
+        const eventName = isFullScreen ? EVENT_MAXIMIZED : EVENT_MINIMIZED;
+        document.querySelectorAll(SELECTOR_FULLSCREEN_TOGGLE).forEach(button => {
+            dispatchCustomEvent(button, eventName);
+        });
+    }
+    class FullScreen extends BaseComponent {
+        static get NAME() {
+            return NAME$1;
+        }
+        static getInstance(element) {
+            return this._getInstance(element);
+        }
+        static getOrCreateInstance(element) {
+            return this.getInstance(element) ?? new this(element);
         }
         inFullScreen() {
-            const event = new Event(EVENT_MAXIMIZED);
-            const iconMaximize = document.querySelector(SELECTOR_MAXIMIZE_ICON);
-            const iconMinimize = document.querySelector(SELECTOR_MINIMIZE_ICON);
-            void document.documentElement.requestFullscreen();
-            if (iconMaximize) {
-                iconMaximize.classList.add('d-none');
-            }
-            if (iconMinimize) {
-                iconMinimize.classList.remove('d-none');
-            }
-            this._element.dispatchEvent(event);
+            void document.documentElement.requestFullscreen().catch(() => {
+            });
         }
         outFullscreen() {
-            const event = new Event(EVENT_MINIMIZED);
-            const iconMaximize = document.querySelector(SELECTOR_MAXIMIZE_ICON);
-            const iconMinimize = document.querySelector(SELECTOR_MINIMIZE_ICON);
-            void document.exitFullscreen();
-            if (iconMaximize) {
-                iconMaximize.classList.remove('d-none');
-            }
-            if (iconMinimize) {
-                iconMinimize.classList.add('d-none');
-            }
-            this._element.dispatchEvent(event);
+            void document.exitFullscreen().catch(() => {
+            });
         }
         toggleFullScreen() {
-            if (document.fullscreenEnabled) {
-                if (document.fullscreenElement) {
-                    this.outFullscreen();
-                }
-                else {
-                    this.inFullScreen();
-                }
+            if (!document.fullscreenEnabled) {
+                return;
+            }
+            if (document.fullscreenElement) {
+                this.outFullscreen();
+            }
+            else {
+                this.inFullScreen();
             }
         }
     }
+    document.addEventListener('click', event => {
+        const target = event.target;
+        if (!(target instanceof Element)) {
+            return;
+        }
+        const button = target.closest(SELECTOR_FULLSCREEN_TOGGLE);
+        if (!button) {
+            return;
+        }
+        event.preventDefault();
+        FullScreen.getOrCreateInstance(button).toggleFullScreen();
+    });
     onDOMContentLoaded(() => {
-        const buttons = document.querySelectorAll(SELECTOR_FULLSCREEN_TOGGLE);
-        buttons.forEach(btn => {
-            btn.addEventListener('click', event => {
-                event.preventDefault();
-                const target = event.target;
-                const button = target.closest(SELECTOR_FULLSCREEN_TOGGLE);
-                if (button) {
-                    const data = new FullScreen(button, undefined);
-                    data.toggleFullScreen();
-                }
-            });
-        });
+        document.addEventListener('fullscreenchange', syncFullScreenState, { signal: getLifecycleSignal() });
     });
 
-    const DATA_KEY = 'lte.push-menu';
-    const EVENT_KEY = `.${DATA_KEY}`;
-    const EVENT_OPEN = `open${EVENT_KEY}`;
-    const EVENT_COLLAPSE = `collapse${EVENT_KEY}`;
+    const NAME = 'push-menu';
+    const EVENT_KEY$1 = `.lte.${NAME}`;
+    const EVENT_OPEN = `open${EVENT_KEY$1}`;
+    const EVENT_COLLAPSE = `collapse${EVENT_KEY$1}`;
+    const EVENT_OPENED = `opened${EVENT_KEY$1}`;
+    const EVENT_COLLAPSED = `collapsed${EVENT_KEY$1}`;
     const CLASS_NAME_SIDEBAR_MINI = 'sidebar-mini';
     const CLASS_NAME_SIDEBAR_EXPAND = 'sidebar-expand';
     const CLASS_NAME_SIDEBAR_OVERLAY = 'sidebar-overlay';
@@ -504,14 +638,22 @@
     const SELECTOR_SIDEBAR_TOGGLE = '[data-lte-toggle="sidebar"]';
     const STORAGE_KEY_SIDEBAR_STATE = 'lte.sidebar.state';
     const Defaults = {
-        sidebarBreakpoint: 992,
+        sidebarBreakpoint: 991.98,
         enablePersistence: false
     };
-    class PushMenu {
-        _element;
+    class PushMenu extends BaseComponent {
+        static get NAME() {
+            return NAME;
+        }
+        static getInstance(element) {
+            return this._getInstance(element);
+        }
+        static getOrCreateInstance(element, config = {}) {
+            return this.getInstance(element) ?? new this(element, config);
+        }
         _config;
-        constructor(element, config) {
-            this._element = element;
+        constructor(element, config = {}) {
+            super(element);
             this._config = { ...Defaults, ...config };
         }
         isCollapsed() {
@@ -527,16 +669,22 @@
             return globalThis.innerWidth <= this._config.sidebarBreakpoint;
         }
         expand() {
+            if (dispatchCustomEvent(this._element, EVENT_OPEN, { cancelable: true }).defaultPrevented) {
+                return;
+            }
             document.body.classList.remove(CLASS_NAME_SIDEBAR_COLLAPSE);
             if (this.isMobileSize()) {
                 document.body.classList.add(CLASS_NAME_SIDEBAR_OPEN);
             }
-            this._element.dispatchEvent(new Event(EVENT_OPEN));
+            dispatchCustomEvent(this._element, EVENT_OPENED);
         }
         collapse() {
+            if (dispatchCustomEvent(this._element, EVENT_COLLAPSE, { cancelable: true }).defaultPrevented) {
+                return;
+            }
             document.body.classList.remove(CLASS_NAME_SIDEBAR_OPEN);
             document.body.classList.add(CLASS_NAME_SIDEBAR_COLLAPSE);
-            this._element.dispatchEvent(new Event(EVENT_COLLAPSE));
+            dispatchCustomEvent(this._element, EVENT_COLLAPSED);
         }
         toggle() {
             const isCollapsed = this.isCollapsed();
@@ -631,8 +779,23 @@
             }
         }
     }
+    document.addEventListener('click', event => {
+        const target = event.target;
+        if (!(target instanceof Element)) {
+            return;
+        }
+        const button = target.closest(SELECTOR_SIDEBAR_TOGGLE);
+        if (!button) {
+            return;
+        }
+        event.preventDefault();
+        const sidebar = document.querySelector(SELECTOR_APP_SIDEBAR);
+        if (sidebar) {
+            PushMenu.getOrCreateInstance(sidebar).toggle();
+        }
+    });
     onDOMContentLoaded(() => {
-        const sidebar = document?.querySelector(SELECTOR_APP_SIDEBAR);
+        const sidebar = document.querySelector(SELECTOR_APP_SIDEBAR);
         if (!sidebar) {
             return;
         }
@@ -646,15 +809,19 @@
                 Defaults.enablePersistence :
                 enablePersistenceAttr === 'true'
         };
-        const pushMenu = new PushMenu(sidebar, config);
+        const pushMenu = PushMenu.getOrCreateInstance(sidebar, config);
         pushMenu.init();
-        window.addEventListener('resize', () => {
-            pushMenu.setupSidebarBreakPoint();
+        const breakpointQuery = globalThis.matchMedia(`(max-width: ${pushMenu._config.sidebarBreakpoint}px)`);
+        breakpointQuery.addEventListener('change', () => {
             pushMenu.updateStateByResponsiveLogic();
-        });
-        const sidebarOverlay = document.createElement('div');
-        sidebarOverlay.className = CLASS_NAME_SIDEBAR_OVERLAY;
-        document.querySelector(SELECTOR_APP_WRAPPER)?.append(sidebarOverlay);
+        }, { signal: getLifecycleSignal() });
+        const appWrapper = document.querySelector(SELECTOR_APP_WRAPPER);
+        let sidebarOverlay = appWrapper?.querySelector(`:scope > .${CLASS_NAME_SIDEBAR_OVERLAY}`);
+        if (!sidebarOverlay) {
+            sidebarOverlay = document.createElement('div');
+            sidebarOverlay.className = CLASS_NAME_SIDEBAR_OVERLAY;
+            appWrapper?.append(sidebarOverlay);
+        }
         let overlayTouchMoved = false;
         sidebarOverlay.addEventListener('touchstart', () => {
             overlayTouchMoved = false;
@@ -673,26 +840,102 @@
             event.preventDefault();
             pushMenu.collapse();
         });
-        const fullBtn = document.querySelectorAll(SELECTOR_SIDEBAR_TOGGLE);
-        fullBtn.forEach(btn => {
-            btn.addEventListener('click', event => {
-                event.preventDefault();
-                let button = event.currentTarget;
-                if (button?.dataset.lteToggle !== 'sidebar') {
-                    button = button?.closest(SELECTOR_SIDEBAR_TOGGLE);
-                }
-                if (button) {
-                    event?.preventDefault();
-                    pushMenu.toggle();
-                }
+    });
+
+    const DATA_KEY = 'lte.color-mode';
+    const EVENT_KEY = `.${DATA_KEY}`;
+    const EVENT_CHANGED = `changed${EVENT_KEY}`;
+    const STORAGE_KEY = 'lte-theme';
+    const SELECTOR_TOGGLE = '[data-bs-theme-value]';
+    const SELECTOR_ICON = '[data-lte-theme-icon]';
+    class ColorMode {
+        getStoredTheme() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                return stored && ['light', 'dark', 'auto'].includes(stored) ? stored : null;
+            }
+            catch {
+                return null;
+            }
+        }
+        getPreferredTheme() {
+            const stored = this.getStoredTheme();
+            if (stored) {
+                return stored;
+            }
+            return this._prefersDark() ? 'dark' : 'light';
+        }
+        resolveTheme(theme) {
+            if (theme === 'auto') {
+                return this._prefersDark() ? 'dark' : 'light';
+            }
+            return theme;
+        }
+        setTheme(theme) {
+            try {
+                localStorage.setItem(STORAGE_KEY, theme);
+            }
+            catch {
+            }
+            this._applyTheme(theme);
+            this._showActiveTheme(theme);
+            document.dispatchEvent(new CustomEvent(EVENT_CHANGED, {
+                detail: { theme, resolved: this.resolveTheme(theme) }
+            }));
+        }
+        _applyTheme(theme) {
+            const resolved = this.resolveTheme(theme);
+            document.documentElement.setAttribute('data-bs-theme', resolved);
+            document.documentElement.style.colorScheme = resolved;
+        }
+        _prefersDark() {
+            return globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        _showActiveTheme(theme) {
+            document.querySelectorAll(SELECTOR_TOGGLE).forEach(toggle => {
+                const isActive = toggle.getAttribute('data-bs-theme-value') === theme;
+                toggle.classList.toggle('active', isActive);
+                toggle.setAttribute('aria-pressed', String(isActive));
+                toggle.querySelector('.bi-check-lg')?.classList.toggle('d-none', !isActive);
             });
-        });
+            document.querySelectorAll(SELECTOR_ICON).forEach(icon => {
+                icon.classList.toggle('d-none', icon.dataset.lteThemeIcon !== theme);
+            });
+        }
+        init() {
+            const theme = this.getPreferredTheme();
+            this._applyTheme(theme);
+            this._showActiveTheme(theme);
+        }
+    }
+    document.addEventListener('click', event => {
+        const target = event.target;
+        if (!(target instanceof Element)) {
+            return;
+        }
+        const toggle = target.closest(SELECTOR_TOGGLE);
+        const theme = toggle?.getAttribute('data-bs-theme-value');
+        if (theme) {
+            new ColorMode().setTheme(theme);
+        }
+    });
+    onDOMContentLoaded(() => {
+        const colorMode = new ColorMode();
+        colorMode.init();
+        globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            const stored = colorMode.getStoredTheme();
+            if (!stored || stored === 'auto') {
+                colorMode._applyTheme('auto');
+                colorMode._showActiveTheme(stored ?? 'auto');
+            }
+        }, { signal: getLifecycleSignal() });
     });
 
     class AccessibilityManager {
         config;
         liveRegion = null;
         focusHistory = [];
+        signal = getLifecycleSignal();
         constructor(config = {}) {
             this.config = {
                 announcements: true,
@@ -727,6 +970,11 @@
         createLiveRegion() {
             if (this.liveRegion)
                 return;
+            const existingRegion = document.getElementById('live-region');
+            if (existingRegion) {
+                this.liveRegion = existingRegion;
+                return;
+            }
             this.liveRegion = document.createElement('div');
             this.liveRegion.id = 'live-region';
             this.liveRegion.className = 'live-region';
@@ -736,6 +984,10 @@
             document.body.append(this.liveRegion);
         }
         addSkipLinks() {
+            if (document.querySelector('.skip-links')) {
+                this.ensureSkipTargets();
+                return;
+            }
             const skipLinksContainer = document.createElement('div');
             skipLinksContainer.className = 'skip-links';
             const skipToMain = document.createElement('a');
@@ -769,41 +1021,12 @@
         }
         initFocusManagement() {
             document.addEventListener('keydown', (event) => {
-                if (event.key === 'Tab') {
-                    this.handleTabNavigation(event);
-                }
                 if (event.key === 'Escape') {
                     this.handleEscapeKey(event);
                 }
-            });
+            }, { signal: this.signal });
             this.initModalFocusManagement();
             this.initDropdownFocusManagement();
-        }
-        handleTabNavigation(event) {
-            const focusableElements = this.getFocusableElements();
-            const currentIndex = focusableElements.indexOf(document.activeElement);
-            if (event.shiftKey) {
-                if (currentIndex <= 0) {
-                    event.preventDefault();
-                    focusableElements.at(-1)?.focus();
-                }
-            }
-            else if (currentIndex >= focusableElements.length - 1) {
-                event.preventDefault();
-                focusableElements[0]?.focus();
-            }
-        }
-        getFocusableElements() {
-            const selector = [
-                'a[href]',
-                'button:not([disabled])',
-                'input:not([disabled])',
-                'select:not([disabled])',
-                'textarea:not([disabled])',
-                '[tabindex]:not([tabindex="-1"])',
-                '[contenteditable="true"]'
-            ].join(', ');
-            return Array.from(document.querySelectorAll(selector));
         }
         handleEscapeKey(event) {
             const activeModal = document.querySelector('.modal.show');
@@ -820,6 +1043,9 @@
         initKeyboardNavigation() {
             document.addEventListener('keydown', (event) => {
                 const target = event.target;
+                if (target.matches('input, textarea, select, [contenteditable], [contenteditable] *')) {
+                    return;
+                }
                 if (target.closest('.nav, .navbar-nav, .dropdown-menu')) {
                     this.handleMenuNavigation(event);
                 }
@@ -827,15 +1053,19 @@
                     event.preventDefault();
                     target.click();
                 }
-            });
+            }, { signal: this.signal });
         }
         handleMenuNavigation(event) {
             if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
                 return;
             }
             const currentElement = event.target;
-            const menuItems = Array.from(currentElement.closest('.nav, .navbar-nav, .dropdown-menu')?.querySelectorAll('a, button') || []);
+            const menuItems = Array.from(currentElement.closest('.nav, .navbar-nav, .dropdown-menu')?.querySelectorAll('a, button') || [])
+                .filter(item => item.offsetParent !== null);
             const currentIndex = menuItems.indexOf(currentElement);
+            if (currentIndex === -1) {
+                return;
+            }
             let nextIndex;
             switch (event.key) {
                 case 'ArrowDown':
@@ -868,15 +1098,18 @@
             if (prefersReducedMotion) {
                 document.body.classList.add('reduce-motion');
                 document.documentElement.style.scrollBehavior = 'auto';
-                const style = document.createElement('style');
-                style.textContent = `
-        *, *::before, *::after {
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 0.01ms !important;
-        }
-      `;
-                document.head.append(style);
+                if (!document.getElementById('adminlte-reduce-motion')) {
+                    const style = document.createElement('style');
+                    style.id = 'adminlte-reduce-motion';
+                    style.textContent = `
+          *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        `;
+                    document.head.append(style);
+                }
             }
         }
         initErrorAnnouncements() {
@@ -899,6 +1132,9 @@
                 childList: true,
                 subtree: true
             });
+            this.signal.addEventListener('abort', () => {
+                observer.disconnect();
+            }, { once: true });
         }
         initTableAccessibility() {
             document.querySelectorAll('table').forEach((table) => {
@@ -950,6 +1186,9 @@
             });
         }
         handleFormError(input) {
+            if (!input.id && !input.name) {
+                input.id = accessibilityUtils.generateId('field');
+            }
             const errorId = `${input.id || input.name}-error`;
             let errorElement = document.getElementById(errorId);
             if (!errorElement) {
@@ -960,25 +1199,31 @@
                 input.parentNode?.append(errorElement);
             }
             errorElement.textContent = input.validationMessage;
-            input.setAttribute('aria-describedby', errorId);
+            const describedBy = (input.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+            if (!describedBy.includes(errorId)) {
+                describedBy.push(errorId);
+            }
+            input.setAttribute('aria-describedby', describedBy.join(' '));
             input.classList.add('is-invalid');
             this.announce(`Error in ${input.labels?.[0]?.textContent || input.name}: ${input.validationMessage}`, 'assertive');
         }
         initModalFocusManagement() {
+            document.addEventListener('show.bs.modal', () => {
+                this.focusHistory.push(document.activeElement);
+            }, { signal: this.signal });
             document.addEventListener('shown.bs.modal', (event) => {
                 const modal = event.target;
-                const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                if (focusableElements.length > 0) {
-                    focusableElements[0].focus();
-                }
-                this.focusHistory.push(document.activeElement);
-            });
+                const autofocusElement = modal.querySelector('[autofocus]');
+                const firstFocusable = autofocusElement ||
+                    modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                firstFocusable?.focus();
+            }, { signal: this.signal });
             document.addEventListener('hidden.bs.modal', () => {
                 const previousElement = this.focusHistory.pop();
-                if (previousElement) {
+                if (previousElement?.isConnected) {
                     previousElement.focus();
                 }
-            });
+            }, { signal: this.signal });
         }
         initDropdownFocusManagement() {
             document.addEventListener('shown.bs.dropdown', (event) => {
@@ -988,7 +1233,7 @@
                 if (firstItem) {
                     firstItem.focus();
                 }
-            });
+            }, { signal: this.signal });
         }
         announce(message, priority = 'polite') {
             if (!this.liveRegion) {
@@ -1029,7 +1274,7 @@
                         event.preventDefault();
                     }
                 }
-            });
+            }, { signal: this.signal });
         }
         addLandmarks() {
             const main = document.querySelector('main');
@@ -1037,10 +1282,15 @@
                 const appMain = document.querySelector('.app-main');
                 if (appMain) {
                     appMain.setAttribute('role', 'main');
-                    appMain.id = 'main';
+                    if (!appMain.id) {
+                        appMain.id = 'main';
+                    }
                 }
             }
             document.querySelectorAll('.navbar-nav, .nav').forEach((nav, index) => {
+                if (nav.tagName === 'UL' || nav.tagName === 'OL') {
+                    return;
+                }
                 if (!nav.hasAttribute('role')) {
                     nav.setAttribute('role', 'navigation');
                 }
@@ -1057,6 +1307,54 @@
     const initAccessibility = (config) => {
         return new AccessibilityManager(config);
     };
+    const parseColorChannels = (color) => {
+        const hexMatch = /^#([\da-f]{3}|[\da-f]{6})$/i.exec(color.trim());
+        if (hexMatch) {
+            let hex = hexMatch[1];
+            if (hex.length === 3) {
+                hex = [...hex].map(character => character + character).join('');
+            }
+            return [
+                Number.parseInt(hex.slice(0, 2), 16),
+                Number.parseInt(hex.slice(2, 4), 16),
+                Number.parseInt(hex.slice(4, 6), 16)
+            ];
+        }
+        return color.match(/\d+/g)?.map(Number) || [0, 0, 0];
+    };
+    const getLuminance = (color) => {
+        const [r, g, b] = parseColorChannels(color).map(c => {
+            c = c / 255;
+            return c <= 0.039_28 ? c / 12.92 : (c + 0.055) ** 2.4 / (1.055 ** 2.4);
+        });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const accessibilityUtils = {
+        checkColorContrast: (foreground, background) => {
+            const l1 = getLuminance(foreground);
+            const l2 = getLuminance(background);
+            const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+            return {
+                ratio: Math.round(ratio * 100) / 100,
+                passes: ratio >= 4.5
+            };
+        },
+        generateId: (prefix = 'a11y') => {
+            return `${prefix}-${Math.random().toString(36).slice(2, 11)}`;
+        },
+        isFocusable: (element) => {
+            const focusableSelectors = [
+                'a[href]',
+                'button:not([disabled])',
+                'input:not([disabled])',
+                'select:not([disabled])',
+                'textarea:not([disabled])',
+                '[tabindex]:not([tabindex="-1"])',
+                '[contenteditable="true"]'
+            ];
+            return focusableSelectors.some(selector => element.matches(selector));
+        }
+    };
 
     onDOMContentLoaded(() => {
         const accessibilityManager = initAccessibility({
@@ -1070,6 +1368,7 @@
     });
 
     exports.CardWidget = CardWidget;
+    exports.ColorMode = ColorMode;
     exports.DirectChat = DirectChat;
     exports.FullScreen = FullScreen;
     exports.Layout = Layout;
