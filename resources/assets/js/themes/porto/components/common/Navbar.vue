@@ -64,9 +64,9 @@
                       <ul class="nav nav-pills" id="mainNav">
 
                         <!-- Store -->
-                        <li class="dropdown">
+                        <li class="dropdown" :class="{ open: openDropdownKey === 'store' }">
                           <a class="nav-link dropdown-toggle" href="javascript:;"
-                             data-bs-toggle="dropdown" aria-expanded="false">
+                             :aria-expanded="openDropdownKey === 'store'" @click="toggleDropdown('store', $event)">
                             &nbsp;{{ __('message.store') }}&nbsp;
                           </a>
                           <ul class="dropdown-menu border-light mt-n1">
@@ -79,9 +79,9 @@
                         <!-- CMS Pages (published) -->
                         <template v-for="page in topLevelPages" :key="page.id">
                           <!-- Page with children -> dropdown -->
-                          <li v-if="childPages(page.id).length" class="dropdown">
+                          <li v-if="childPages(page.id).length" class="dropdown" :class="{ open: openDropdownKey === page.id }">
                             <a class="nav-link dropdown-toggle" href="javascript:;"
-                               data-bs-toggle="dropdown" aria-expanded="false">
+                               :aria-expanded="openDropdownKey === page.id" @click="toggleDropdown(page.id, $event)">
                               &nbsp;{{ ucfirst(page.name) }}&nbsp;
                             </a>
                             <ul class="dropdown-menu border-light mt-n1">
@@ -97,9 +97,9 @@
                         </template>
 
                         <!-- My Account (authenticated) -->
-                        <li v-if="isAuthenticated" class="dropdown">
+                        <li v-if="isAuthenticated" class="dropdown" :class="{ open: openDropdownKey === 'account' }">
                           <a class="nav-link dropdown-toggle" href="javascript:;"
-                             data-bs-toggle="dropdown" aria-expanded="false">
+                             :aria-expanded="openDropdownKey === 'account'" @click="toggleDropdown('account', $event)">
                             &nbsp;{{ __('message.my_account') }}&nbsp;
                           </a>
                           <ul class="dropdown-menu border-light mt-n1">
@@ -326,9 +326,19 @@ const showCloudTrialModal = ref(false)
 const showDemoModal       = ref(false)
 const showCartDropdown    = ref(false)
 const cartRef             = ref(null)
+const openDropdownKey     = ref(null)
 
 function toggleCartDropdown() {
   showCartDropdown.value = !showCartDropdown.value
+}
+
+// Porto's mobile CSS only reveals a nav dropdown-menu when its parent <li>
+// has class "open" (accordion-style, no hover on touch) — Bootstrap's own
+// dropdown JS only ever toggles "show" on the menu itself, which Porto's
+// mobile stylesheet doesn't key off, so it never becomes visible on mobile.
+function toggleDropdown(key, event) {
+  event?.preventDefault()
+  openDropdownKey.value = openDropdownKey.value === key ? null : key
 }
 
 function handleCheckout() {
@@ -350,6 +360,9 @@ function handleCheckout() {
 function onClickOutside(e) {
   if (cartRef.value && !cartRef.value.contains(e.target)) {
     showCartDropdown.value = false
+  }
+  if (openDropdownKey.value !== null && !e.target.closest('.header-nav-main li.dropdown')) {
+    openDropdownKey.value = null
   }
 }
 

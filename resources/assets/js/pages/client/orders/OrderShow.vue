@@ -665,6 +665,7 @@ import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import { useAlertStore } from '@/core/stores/alert'
+import { useLoaderStore } from '@/core/stores/loader'
 import Modal from '@/themes/porto/components/common/Modal.vue'
 import AppAlert from '@/components/Reusable/Alert.vue'
 import RenewModal from './components/RenewModal.vue'
@@ -767,6 +768,7 @@ const agentBusy  = ref(false)
 const planBusy   = ref(false)
 
 const alertStore = useAlertStore()
+const loaderStore = useLoaderStore()
 
 const showCloudTab      = computed(() => !!order.value?.is_cloud && order.value?.status !== 'Terminated')
 const showAutoRenewTab  = computed(() => !!order.value?.autorenewal_enabled)
@@ -882,8 +884,9 @@ async function openRenewalRazorpayPopup(config) {
     // plus a second authorization step later via an emailed link.
     const options = { ...config }
     options.handler = async (response) => {
+        renewalBusy.value = true
+        loaderStore.startLoader('renewal-verify')
         try {
-            renewalBusy.value = true
             const res = await http.post(`/auto-renewal/${orderId}/razorpay/confirm`, {
                 razorpay_subscription_id: response.razorpay_subscription_id,
                 razorpay_payment_id:      response.razorpay_payment_id,
@@ -897,6 +900,7 @@ async function openRenewalRazorpayPopup(config) {
             errorHandler(e, 'client-page')
         } finally {
             renewalBusy.value = false
+            loaderStore.stopLoader('renewal-verify')
         }
     }
     options.modal = { ondismiss: () => { renewalBusy.value = false } }
@@ -1000,6 +1004,7 @@ async function payRenewalStripe() {
 }
 
 async function finalizeRenewalStripe() {
+    loaderStore.startLoader('renewal-verify')
     try {
         const res = await http.post(`/auto-renewal/${orderId}/stripe/confirm`, {
             payment_intent: renewalPaymentIntentId,
@@ -1019,6 +1024,7 @@ async function finalizeRenewalStripe() {
         })
     } finally {
         stripeRenewalBusy.value = false
+        loaderStore.stopLoader('renewal-verify')
     }
 }
 

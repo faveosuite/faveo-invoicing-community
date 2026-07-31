@@ -168,6 +168,7 @@
 import { ref, reactive, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAlertStore } from '@/core/stores/alert'
+import { useLoaderStore } from '@/core/stores/loader'
 import http, { parseErrorMessage } from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 
@@ -179,6 +180,7 @@ const router = useRouter()
 const invoiceId = computed(() => route.query.invoice)
 
 const alertStore = useAlertStore()
+const loaderStore = useLoaderStore()
 
 const loading = ref(true)
 const busy = ref(false)
@@ -407,6 +409,7 @@ async function payStripe() {
 // Authoritatively verify the PaymentIntent + fulfil the invoice server-side.
 // Idempotent: safe to call for an intent a prior attempt already completed.
 async function finalizeStripe() {
+  loaderStore.startLoader('pay-verify')
   try {
     const { data } = await http.post(`/invoice/${invoiceId.value}/stripe/confirm`, { payment_intent: paymentIntentId })
     if (data?.success) {
@@ -419,6 +422,8 @@ async function finalizeStripe() {
   } catch (e) {
     alertStore.setAlert({ message: parseErrorMessage(e), type: 'danger', component_name: 'stripe-modal' })
     busy.value = false
+  } finally {
+    loaderStore.stopLoader('pay-verify')
   }
 }
 
@@ -426,6 +431,7 @@ async function payRazorpay(config) {
   await loadScript('https://checkout.razorpay.com/v1/checkout.js')
   const options = { ...config }
   options.handler = async (response) => {
+    loaderStore.startLoader('pay-verify')
     try {
       const { data } = await http.post(`/invoice/${invoiceId.value}/razorpay/confirm`, {
         razorpay_payment_id: response.razorpay_payment_id,
@@ -439,6 +445,8 @@ async function payRazorpay(config) {
       }
     } catch (e) {
       alertStore.setAlert({ message: parseErrorMessage(e), type: 'danger', component_name: 'client-page' })
+    } finally {
+      loaderStore.stopLoader('pay-verify')
     }
   }
   options.modal = { ondismiss: () => { busy.value = false } }
