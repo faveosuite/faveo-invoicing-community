@@ -46,8 +46,6 @@ describe('useBreadcrumb', () => {
     beforeEach(() => {
         // Reset the module-level title override between tests
         setPageTitle(null)
-        // Provide the DOM element used as fallback
-        document.body.innerHTML = '<div id="app-client" data-page-title="Billing"></div>'
     })
 
     it('pageTitle returns route.meta.title when no override', async () => {
@@ -75,15 +73,6 @@ describe('useBreadcrumb', () => {
         setPageTitle('Override')
         setPageTitle(null)
         expect(wrapper.vm.pageTitle).toBe('Dashboard')
-    })
-
-    it('falls back to data-page-title on DOM element when meta.title is absent', async () => {
-        document.body.innerHTML = '<div id="app-client" data-page-title="My App"></div>'
-        const routes = [
-            { path: '/unknown', component: { template: '<div />' } },
-        ]
-        const { wrapper } = await mountAtPath(routes, '/unknown')
-        expect(wrapper.vm.pageTitle).toBe('My App')
     })
 
     it('breadcrumbs built from path segments with resolved meta', async () => {

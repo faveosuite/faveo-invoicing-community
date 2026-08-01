@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Policies;
 
 use App\Policies\Csp\CspPolicy;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Spatie\Csp\Policy;
 use Tests\TestCase;
 
@@ -15,6 +16,7 @@ class CspPolicyTest extends TestCase
         $this->assertInstanceOf(\Spatie\Csp\Preset::class, new CspPolicy());
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function test_csp_policy_configure_runs_without_exception_when_not_hot(): void
     {
         \Illuminate\Support\Facades\Vite::shouldReceive('isRunningHot')->andReturn(false);

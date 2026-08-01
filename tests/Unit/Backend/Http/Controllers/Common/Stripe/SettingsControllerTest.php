@@ -16,7 +16,9 @@ use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Plugins\Payment\Dto\SubscriptionResult;
 use App\Plugins\Stripe\Controllers\SettingsController;
+use App\Services\Payment\SubscriptionService;
 use App\User;
 use Auth;
 // Cartalyst Stripe SDK not installed — tests using Stripe::make() are skipped below
@@ -130,12 +132,17 @@ class SettingsControllerTest extends DBTestCase
         $unitCost = 50;
         $currency = 'INR';
         $plan = (object) ['days' => 30];
-        $expectedArguments = ['id' => 'sub_1OyXYHI0SyY30M2QDkWSfCb2',
-            'object' => 'subscription', ];
         $status = 'incomplete';
-        $stripeClientConstructorMock = $this->setupStripeClientMock($expectedArguments, $status);
+        // handleStripeAutoPay delegates to SubscriptionService (resolved from the
+        // container), not a Stripe client injected into the controller — mock the
+        // service itself instead of hitting the real Stripe API.
+        $this->mock(SubscriptionService::class, function ($mock) use ($status): void {
+            $mock->shouldReceive('createSubscription')
+                ->once()
+                ->andReturn(new SubscriptionResult(gateway: 'Stripe', id: 'sub_1OyXYHI0SyY30M2QDkWSfCb2', status: $status));
+        });
         $this->SetAuthUser();
-        $controller = new SettingsController($stripeClientConstructorMock);
+        $controller = new SettingsController;
         $response = $controller->handleStripeAutoPay($stripePaymentDetails, $productDetails, $unitCost, $currency, $plan);
         $this->assertEquals($status, $response->status);
     }
@@ -149,12 +156,14 @@ class SettingsControllerTest extends DBTestCase
         $unitCost = 50;
         $currency = 'INR';
         $plan = (object) ['days' => 30];
-        $expectedArguments = ['id' => 'sub_1OyXYHI0SyY30M2QDkWSfCb2',
-            'object' => 'subscription', ];
         $status = 'incomplete';
-        $stripeClientConstructorMock = $this->setupStripeClientMock($expectedArguments, $status);
+        $this->mock(SubscriptionService::class, function ($mock) use ($status): void {
+            $mock->shouldReceive('createSubscription')
+                ->once()
+                ->andReturn(new SubscriptionResult(gateway: 'Stripe', id: 'sub_1OyXYHI0SyY30M2QDkWSfCb2', status: $status));
+        });
         $this->SetAuthUser();
-        $controller = new SettingsController($stripeClientConstructorMock);
+        $controller = new SettingsController;
         $response = $controller->handleStripeAutoPay($stripePaymentDetails, $productDetails, $unitCost, $currency, $plan);
         $this->assertEquals($status, $response->status);
     }

@@ -37,7 +37,7 @@ class CouponTest extends DBTestCase
             'expiry' => '2017-07-30 00:00:00',
         ]);
 
-        $response = $this->postJson('cart/coupon', ['code' => 'EXPIREDCOUPON']);
+        $response = $this->postJson('my-cart/coupon', ['code' => 'EXPIREDCOUPON']);
 
         $response->assertStatus(422);
         $response->assertJson(['success' => false]);
@@ -49,7 +49,7 @@ class CouponTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->postJson('cart/coupon', ['code' => 'NONEXISTENTCODE99999']);
+        $response = $this->postJson('my-cart/coupon', ['code' => 'NONEXISTENTCODE99999']);
 
         $response->assertStatus(422);
         $response->assertJson(['success' => false]);
@@ -71,7 +71,7 @@ class CouponTest extends DBTestCase
             'expiry' => now()->addDay()->toDateTimeString(),
         ]);
 
-        $response = $this->postJson('cart/coupon', ['code' => 'VALID10OFF']);
+        $response = $this->postJson('my-cart/coupon', ['code' => 'VALID10OFF']);
 
         // Either succeeds (line 64) or fails validation — both are valid
         $this->assertContains($response->status(), [200, 422]);

@@ -223,18 +223,18 @@ describe('CheckoutPage.vue — proceed()', () => {
         expect(axiosMock.history.post.length).toBe(0)
     })
 
-    it('proceed POST /cart/place-order on success and pushes /place-order', async () => {
-        axiosMock.onPost('/cart/place-order').reply(200, { data: { invoice_id: 99 } })
+    it('proceed POST /my-cart/place-order on success and pushes /place-order', async () => {
+        axiosMock.onPost('/my-cart/place-order').reply(200, { data: { invoice_id: 99 } })
         wrapper.vm.selectedGateway = 'stripe'
 
         await wrapper.vm.proceed()
         await flushPromises()
 
-        expect(axiosMock.history.post.some(r => r.url.includes('/cart/place-order'))).toBe(true)
+        expect(axiosMock.history.post.some(r => r.url.includes('/my-cart/place-order'))).toBe(true)
     })
 
     it('proceed resets placing to false on API error', async () => {
-        axiosMock.onPost('/cart/place-order').reply(500)
+        axiosMock.onPost('/my-cart/place-order').reply(500)
         wrapper.vm.selectedGateway = 'stripe'
 
         await wrapper.vm.proceed()

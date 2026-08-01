@@ -25,7 +25,7 @@ class Google2FAControllerTest extends DBTestCase
 
     public function test_verify_2fa_returns_redirect_to_login_when_no_session(): void
     {
-        $response = $this->getJson('/verify-2fa');
+        $response = $this->getJson('/auth/2fa-check');
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
@@ -35,7 +35,7 @@ class Google2FAControllerTest extends DBTestCase
     {
         session(['2fa:user:id' => $this->user->id]);
 
-        $response = $this->getJson('/verify-2fa');
+        $response = $this->getJson('/auth/2fa-check');
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);

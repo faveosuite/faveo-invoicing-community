@@ -62,6 +62,10 @@ class ZohoControllerTest extends DBTestCase
         $user = User::factory()->create(['email' => 'test@example.com']);
 
         $campaignsMock = $this->createMock(ZohoCampaignsController::class);
+        $campaignsMock->expects($this->once())
+            ->method('subscribe')
+            ->with('test@example.com', 'newsletter');
+
         $crmMock = $this->createMock(ZohoCrmController::class);
         $crmMock->expects($this->once())
             ->method('addUserDataToCrm')

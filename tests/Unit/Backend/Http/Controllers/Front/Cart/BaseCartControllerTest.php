@@ -24,7 +24,7 @@ class BaseCartControllerTest extends DBTestCase
         $plan = Plan::factory()->create(['product' => $product->id, 'status' => 1]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'add_price' => 100]);
 
-        $response = $this->postJson('cart/items', [
+        $response = $this->postJson('my-cart/items', [
             'product_id' => $product->id,
             'plan_id' => $plan->id,
             'quantity' => 1,
@@ -42,7 +42,7 @@ class BaseCartControllerTest extends DBTestCase
         $plan = Plan::factory()->create(['product' => $product->id, 'status' => 1]);
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'add_price' => 200]);
 
-        $response = $this->postJson('cart/items', [
+        $response = $this->postJson('my-cart/items', [
             'product_id' => $product->id,
             'plan_id' => $plan->id,
             'quantity' => 2,
@@ -57,7 +57,7 @@ class BaseCartControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->postJson('cart/items', [
+        $response = $this->postJson('my-cart/items', [
             'product_id' => 999999,
         ]);
 
@@ -71,7 +71,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->actingAs($user);
 
         // Clear cart first, then show it
-        $response = $this->getJson('cart/');
+        $response = $this->getJson('my-cart/');
         $response->assertStatus(200);
     }
 
@@ -84,7 +84,7 @@ class BaseCartControllerTest extends DBTestCase
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD', 'add_price' => 100]);
 
         // Add item first
-        $addResponse = $this->postJson('cart/items', [
+        $addResponse = $this->postJson('my-cart/items', [
             'product_id' => $product->id,
             'plan_id' => $plan->id,
             'quantity' => 1,
@@ -94,7 +94,7 @@ class BaseCartControllerTest extends DBTestCase
 
         if (! empty($cartData['items'])) {
             $itemId = $cartData['items'][0]['id'];
-            $updateResponse = $this->putJson("cart/items/{$itemId}", ['quantity' => 2]);
+            $updateResponse = $this->putJson("my-cart/items/{$itemId}", ['quantity' => 2]);
             $updateResponse->assertStatus(200);
         } else {
         }
@@ -106,7 +106,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->actingAs($user);
 
         // Try to update non-owned item
-        $response = $this->putJson('cart/items/99999', ['quantity' => 1]);
+        $response = $this->putJson('my-cart/items/99999', ['quantity' => 1]);
         $response->assertStatus(403);
     }
 
@@ -115,7 +115,7 @@ class BaseCartControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->getJson('cart/');
+        $response = $this->getJson('my-cart/');
         $response->assertStatus(200);
         $response->assertJsonStructure(['success', 'data']);
     }
@@ -125,7 +125,7 @@ class BaseCartControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->deleteJson('cart/items/99999');
+        $response = $this->deleteJson('my-cart/items/99999');
         $response->assertStatus(403);
     }
 
@@ -139,10 +139,10 @@ class BaseCartControllerTest extends DBTestCase
         PlanPrice::factory()->create(['plan_id' => $plan1->id, 'currency' => 'USD', 'add_price' => 100]);
         PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'USD', 'add_price' => 200]);
 
-        $r1 = $this->postJson('cart/items', ['product_id' => $product->id, 'plan_id' => $plan1->id]);
+        $r1 = $this->postJson('my-cart/items', ['product_id' => $product->id, 'plan_id' => $plan1->id]);
         $r1->assertStatus(200);
 
-        $r2 = $this->postJson('cart/items', ['product_id' => $product->id, 'plan_id' => $plan2->id]);
+        $r2 = $this->postJson('my-cart/items', ['product_id' => $product->id, 'plan_id' => $plan2->id]);
         $r2->assertStatus(200);
     }
 
@@ -151,7 +151,7 @@ class BaseCartControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->getJson('cart/');
+        $response = $this->getJson('my-cart/');
         $response->assertStatus(200);
         $response->assertJsonStructure(['success', 'data']);
     }
@@ -164,7 +164,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->withoutMiddleware(false);
         $this->actingAs($user);
 
-        $response = $this->getJson('cart/checkout');
+        $response = $this->getJson('my-cart/checkout');
         $response->assertStatus(200);
     }
 
@@ -173,7 +173,7 @@ class BaseCartControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->getJson('cart/');
+        $response = $this->getJson('my-cart/');
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
     }

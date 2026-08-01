@@ -20,7 +20,7 @@ class SecurityTest extends DBTestCase
 
     // Web routes that require authentication — guests get redirected
     protected array $protectedWebUrls = [
-        'cart/checkout',
+        'my-cart/checkout',
         'settings/email',
     ];
 

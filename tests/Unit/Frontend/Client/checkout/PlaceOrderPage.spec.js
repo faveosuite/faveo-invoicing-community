@@ -528,7 +528,7 @@ describe('PlaceOrderPage.vue — openStripeModal and payStripe branches', () => 
             return { open: openMock }
         })
 
-        axiosMock.onPost('/payment/42').reply(200, {})
+        axiosMock.onPost('/invoice/42/razorpay/confirm').reply(200, {})
 
         await wrapper.vm.payRazorpay({ key: 'rzp_test', amount: 9900 })
 
@@ -539,7 +539,7 @@ describe('PlaceOrderPage.vue — openStripeModal and payStripe branches', () => 
         })
         await flushPromises()
 
-        expect(axiosMock.history.post.some(r => r.url.includes('/payment/42'))).toBe(true)
+        expect(axiosMock.history.post.some(r => r.url.includes('/invoice/42/razorpay/confirm'))).toBe(true)
     })
 
     it('payRazorpay handler sets alert on payment POST failure', async () => {
@@ -550,7 +550,7 @@ describe('PlaceOrderPage.vue — openStripeModal and payStripe branches', () => 
             return { open: openMock }
         })
 
-        axiosMock.onPost('/payment/42').reply(500)
+        axiosMock.onPost('/invoice/42/razorpay/confirm').reply(500)
 
         await wrapper.vm.payRazorpay({ key: 'rzp_test', amount: 9900 })
 
