@@ -345,7 +345,9 @@ async function submit() {
     } else if (selectedProductIds.value.some(id => !productVersions.value[id]?.trim())) {
         errs.products = __('message.version_required_per_product') || 'Every selected product needs a version.'
     }
-    if (!form.value.description || form.value.description.replace(/<[^>]*>/g, '').trim() === '') {
+    const descTpl = document.createElement('template')
+    descTpl.innerHTML = form.value.description || ''
+    if (!descTpl.content.textContent.trim()) {
         errs.description = __('message.description')
     }
     const deps = parseDependencies()
