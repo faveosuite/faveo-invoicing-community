@@ -6,7 +6,8 @@ import Client from './Client.vue'
 import clientRouter from './routes/client/clientRouter'
 import pinia from './plugins/pinia.js'
 import i18n from './plugins/i18n.js'
-import VueProgressBar from '@aacassandra/vue3-progressbar'
+import VueProgressBarModule from '@aacassandra/vue3-progressbar'
+const VueProgressBar = VueProgressBarModule.default ?? VueProgressBarModule
 import { ServerTable } from 'v-tables-3'
 import mitt from 'mitt'
 

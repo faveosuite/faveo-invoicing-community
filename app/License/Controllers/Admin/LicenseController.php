@@ -104,7 +104,8 @@ class LicenseController extends Controller
             $request->get('license_limit'),
             $request->get('license_expire_date'),
             $request->get('license_updates_date'),
-            $request->get('license_support_date')
+            $request->get('license_support_date'),
+            isUpdate: true
         );
 
         if ($checks instanceof JsonResponse) {
@@ -215,8 +216,8 @@ class LicenseController extends Controller
     public function edit(int $license_id): JsonResponse
     {
         $license = License::with(['product:id,name', 'user:id,first_name,last_name,email'])->findOrFail($license_id);
-        $productName = collect([(object) ['name' => $license->product->name, 'id' => $license->id]]);
-        $clientName = collect([(object) ['full_name' => trim($license->user?->first_name.' '.$license->user?->last_name).' <'.$license->user?->email.'>', 'id' => $license->user_id]]);
+        $productName = collect([(object) ['product_id' => $license->product_id, 'product_title' => $license->product->name]]);
+        $clientName = collect([(object) ['client_id' => $license->user_id, 'full_name' => trim($license->user?->first_name.' '.$license->user?->last_name)]]);
 
         return successResponse('', ['license' => $license, 'product_name' => $productName, 'client_name' => $clientName], 200);
     }
@@ -230,13 +231,16 @@ class LicenseController extends Controller
         return filter_var($client_email, FILTER_VALIDATE_EMAIL) ? (string) $client_email : 'Unknown Client';
     }
 
-    protected function licenseChecks(mixed $client_id, ?string $license_code, ?string $license_ip, ?string $license_domain, mixed $license_limit, ?string $license_expire_date, ?string $license_updates_date, ?string $license_support_date): ?JsonResponse
+    protected function licenseChecks(mixed $client_id, ?string $license_code, ?string $license_ip, ?string $license_domain, mixed $license_limit, ?string $license_expire_date, ?string $license_updates_date, ?string $license_support_date, bool $isUpdate = false): ?JsonResponse
     {
         if (! LicenseHelper::validateIntegerValue($client_id) && in_array($license_code, [null, '', '0'], strict: true)) {
             return errorResponse(__('license::lang.error_client_or_license_code'), 400);
         }
 
-        if (LicenseHelper::validateIntegerValue($client_id) && ! in_array($license_code, [null, '', '0'], strict: true)) {
+        // A license_code paired with a client is only invalid on create (the code is meant to be
+        // auto-generated for a selected client, see licenseAdd()) — an existing license being
+        // edited legitimately has both already.
+        if (! $isUpdate && LicenseHelper::validateIntegerValue($client_id) && ! in_array($license_code, [null, '', '0'], strict: true)) {
             return errorResponse(__('license::lang.invalid_licnese'), 400);
         }
 

@@ -37,7 +37,7 @@ class LicenseHelper
             return false;
         }
 
-        return (bool) preg_match('/^[a-z0-9-.]+\.[a-z\.]{2,7}$/', strtolower($url));
+        return (bool) preg_match('/^[a-z0-9-.]+\.([a-z\.]{2,7}|localhost)$/', strtolower($url));
     }
 
     public static function getRawDomain(?string $url): string

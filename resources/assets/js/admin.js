@@ -8,7 +8,8 @@ import router from './routes/admin/adminRouter'
 import pinia from './plugins/pinia.js'
 import i18n from './plugins/i18n.js'
 import { ServerTable, ClientTable } from 'v-tables-3'
-import VueProgressBar from '@aacassandra/vue3-progressbar'
+import VueProgressBarModule from '@aacassandra/vue3-progressbar'
+const VueProgressBar = VueProgressBarModule.default ?? VueProgressBarModule
 
 import GlobalLoader from './components/Reusable/GlobalLoader.vue'
 import Loader from './components/Reusable/Loader.vue'

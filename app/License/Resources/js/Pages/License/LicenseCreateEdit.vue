@@ -207,12 +207,14 @@ function getInitialValues(id) {
         let resData = res.data.data
         let licenseData = res.data.data.license
         licenseData['api_key_secret'] = licenseData.api_key_secret ? licenseData.api_key_secret.split(',') : ''
-        licenseData['license_expire_date'] = licenseData.license_expire_date ? DateTime.fromISO(licenseData.license_expire_date).toJSDate() : ''
-        licenseData['license_updates_date'] = licenseData.license_updates_date ? DateTime.fromISO(licenseData.license_updates_date).toJSDate() : ''
-        licenseData['license_support_date'] = licenseData.license_support_date ? DateTime.fromISO(licenseData.license_support_date).toJSDate() : ''
+        licenseData['license_expire_date'] = licenseData.license_expire_date ? DateTime.fromSQL(licenseData.license_expire_date).toFormat('dd-MM-yyyy') : ''
+        licenseData['license_updates_date'] = licenseData.license_updates_date ? DateTime.fromSQL(licenseData.license_updates_date).toFormat('dd-MM-yyyy') : ''
+        licenseData['license_support_date'] = licenseData.license_support_date ? DateTime.fromSQL(licenseData.license_support_date).toFormat('dd-MM-yyyy') : ''
 
         product_id.value = resData.product_name[0].product_id
         product_title.value = resData.product_name[0].product_title
+        client_id.value = resData.client_name[0].client_id
+        client_name.value = resData.client_name[0].full_name
         license_id.value = licenseData.id
         api_key_secret.value = licenseData.api_key_secret
         license_code.value = licenseData.license_code

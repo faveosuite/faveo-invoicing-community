@@ -47,31 +47,27 @@ function numbersOnly(e) {
 
 function emitCountry() {
     if (!iti) return
-    const data = iti.getSelectedCountryData()
-    if (!data.iso2) return
+    const data = iti.getSelectedCountry()
+    if (!data?.iso2) return
     emit('countryChange', { iso: data.iso2.toUpperCase(), dialCode: data.dialCode })
 }
 
 onMounted(() => {
     if (!phoneRef.value) return
     const options = {
-        initialCountry:  props.initialCountry || 'auto',
+        initialCountry:   props.initialCountry && props.initialCountry !== 'auto' ? props.initialCountry : '',
         separateDialCode: true,
-        allowDropdown:    true,
         showFlags:        true,
         formatAsYouType:  false,
         strictMode:       true,
-        formatOnDisplay:  false,
-        nationalMode:     false,
         excludeCountries: ['ax'],
     }
-    if (options.initialCountry === 'auto') {
-        options.geoIpLookup = (success) => {
+    if (!options.initialCountry) {
+        options.initialCountryLookup = () =>
             fetch('https://ipapi.co/json')
                 .then(r => r.json())
-                .then(d => success(d.country_code))
-                .catch(() => success('IN'))
-        }
+                .then(d => d.country_code)
+                .catch(() => 'IN')
     }
     iti = intlTelInput(phoneRef.value, options)
     phoneRef.value.addEventListener('countrychange', emitCountry)
@@ -85,7 +81,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style>
-@import 'intl-tel-input/build/css/intlTelInput.css';
+@import 'intl-tel-input/dist/css/intlTelInput.css';
 
 .iti--allow-dropdown { width: 100% !important; }
 
