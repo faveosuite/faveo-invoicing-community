@@ -5,7 +5,7 @@ jest.mock('intl-tel-input/intlTelInputWithUtils', () => {
     const iti = {
         destroy: jest.fn(),
         getNumber: jest.fn(() => ''),
-        getSelectedCountryData: jest.fn(() => ({ dialCode: '1', iso2: 'us' })),
+        getSelectedCountry: jest.fn(() => ({ dialCode: '1', iso2: 'us' })),
         isValidNumber: jest.fn(() => true),
         setNumber: jest.fn(),
         setCountry: jest.fn(),

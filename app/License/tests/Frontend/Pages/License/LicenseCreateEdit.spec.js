@@ -84,7 +84,8 @@ describe('LicenseCreateEdit.vue', () => {
                     license_order_number: 100, license_comments: 'test', api_key_secret: null,
                     license_expire_date: null, license_updates_date: null, license_support_date: null,
                 },
-                product_name: [{ product_id: 1, product_title: 'Product A' }]
+                product_name: [{ product_id: 1, product_title: 'Product A' }],
+                client_name: [{ client_id: 2, full_name: 'Jane Doe' }]
             }
         })
         wrapper = mount(LicenseCreateEdit, {
