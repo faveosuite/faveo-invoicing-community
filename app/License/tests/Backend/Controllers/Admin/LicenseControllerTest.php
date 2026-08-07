@@ -244,8 +244,9 @@ class LicenseControllerTest extends LicenseTestCase
         $json = $this->assertSuccessfulJson($response);
 
         $this->assertSame($license->id, $json['data']['license']['id']);
-        $this->assertSame($product->name, $json['data']['product_name'][0]['name']);
-        $this->assertStringContainsString($user->email, $json['data']['client_name'][0]['full_name']);
+        $this->assertSame($product->name, $json['data']['product_name'][0]['product_title']);
+        $this->assertSame('License Client', $json['data']['client_name'][0]['full_name']);
+        $this->assertSame($user->email, $json['data']['license']['user']['email']);
     }
 
     #[Test]
