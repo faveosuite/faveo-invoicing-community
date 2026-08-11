@@ -10,6 +10,7 @@ use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Spatie\Activitylog\Models\Activity;
 
 class LogViewController
@@ -58,7 +59,7 @@ class LogViewController
             }
 
             $exceptionLog = $exceptionCategory->exceptions()
-                ->whereDate('created_at', $date)
+                ->whereBetween('created_at', [Date::parse($date)->startOfDay(), Date::parse($date)->endOfDay()])
                 ->when($this->searchString, function ($q): void {
                     $search = $this->searchString;
                     $q->where(function ($q) use ($search): void {
@@ -88,7 +89,7 @@ class LogViewController
             $status = $request->input('status');
             $cronCategory = $request->input('category');
 
-            $cronLogs = CronLog::whereDate('created_at', $date)
+            $cronLogs = CronLog::whereBetween('created_at', [Date::parse($date)->startOfDay(), Date::parse($date)->endOfDay()])
                 ->where('command', $cronCategory)
                 ->when($status, fn ($q) => $q->where('status', $status))
                 ->when($this->searchString, function ($q): void {
@@ -127,7 +128,7 @@ class LogViewController
             }
 
             $mailLogs = $mailCategory->mail()
-                ->whereDate('created_at', $date)
+                ->whereBetween('created_at', [Date::parse($date)->startOfDay(), Date::parse($date)->endOfDay()])
                 ->when($status, fn ($q) => $q->where('status', $status))
                 ->when($this->searchString, function ($q): void {
                     $search = $this->searchString;

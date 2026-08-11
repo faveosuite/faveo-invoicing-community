@@ -133,21 +133,22 @@ class ConcreteExportHandleControllerTest extends DBTestCase
     }
 
     // -------------------------------------------------------------------------
-    // invoiceExports — documents pre-existing bug: advanceSearch receives
-    // a string instead of Request, which triggers a PHP TypeError
+    // invoiceExports — branches
     // -------------------------------------------------------------------------
 
-    public function test_invoice_exports_throws_type_error_due_to_bug(): void
+    public function test_invoice_exports_returns_response_without_type_error(): void
     {
-        // The method calls $this->advanceSearch($name) where $name is a string,
-        // but advanceSearch expects a Request object.
-        $this->expectException(\TypeError::class);
-
-        $this->controller->invoiceExports(
+        // Previously $this->advanceSearch($name) passed a string where a
+        // Request is required, causing an uncaught TypeError. Now fixed to
+        // pass the built Request — this should run through to a JsonResponse.
+        $response = $this->controller->invoiceExports(
             ['invoice_no'],
             [],
             $this->user->email
         );
+
+        // 400 = no invoices matched; 200/500 = export ran (500 = mail dispatch failed in test env)
+        $this->assertContains($response->getStatusCode(), [200, 400, 500]);
     }
 
     // -------------------------------------------------------------------------

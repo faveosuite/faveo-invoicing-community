@@ -489,7 +489,7 @@ class CronController extends BaseCronController
         $date = Date::now()->subDays($days)->toDateString();
 
         return Invoice::where('status', 'pending')
-            ->whereDate('date', '<=', $date)
+            ->where('date', '<=', Date::parse($date)->endOfDay())
             ->with(['invoiceItem', 'orders'])
             ->get();
     }
@@ -498,7 +498,7 @@ class CronController extends BaseCronController
     {
         $date = Date::now()->subDays($days)->toDateString();
 
-        return EmailValidationResults::whereDate('created_at', '<=', $date)
+        return EmailValidationResults::where('created_at', '<=', Date::parse($date)->endOfDay())
             ->get();
     }
 

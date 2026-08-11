@@ -19,9 +19,9 @@ class TenatExport implements FromCollection, WithHeadings, WithTitle
     /**
      * @return Collection<int|string, mixed>
      */
-    public function collection()
+    public function collection(): Collection
     {
-        return collect((array) $this->tenantsData);
+        return collect($this->tenantsData);
     }
 
     /**

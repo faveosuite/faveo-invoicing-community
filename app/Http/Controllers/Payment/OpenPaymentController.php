@@ -19,6 +19,7 @@ use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Throwable;
 
 /**
@@ -319,11 +320,11 @@ class OpenPaymentController extends Controller
             }
 
             if ($from = $request->input('from_date')) {
-                $query->whereDate('created_at', '>=', $from);
+                $query->where('created_at', '>=', Date::parse($from)->startOfDay());
             }
 
             if ($to = $request->input('to_date')) {
-                $query->whereDate('created_at', '<=', $to);
+                $query->where('created_at', '<=', Date::parse($to)->endOfDay());
             }
 
             $allowed = ['name', 'email', 'amount', 'currency', 'gateway', 'payment_status', 'created_at'];

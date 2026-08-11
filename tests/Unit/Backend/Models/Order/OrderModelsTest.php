@@ -247,9 +247,9 @@ class OrderModelsTest extends TestCase
         $this->assertInstanceOf(HasMany::class, (new Order())->invoiceRelation());
     }
 
-    public function test_order_installation_detail_is_has_many(): void
+    public function test_order_licensed_installations_is_has_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Order())->installationDetail());
+        $this->assertInstanceOf(HasMany::class, (new Order())->licensedInstallations());
     }
 
     public function test_order_invoice_item_is_belongs_to(): void

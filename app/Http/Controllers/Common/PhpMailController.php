@@ -166,14 +166,12 @@ class PhpMailController extends Controller
             $day = ExpiryMailDay::value('cloud_days');
             $today = Date::today();
 
+            // Equivalent to DATE(DATE_ADD(ends_at, INTERVAL $day DAY)) <= $today,
+            // rewritten as a sargable range on ends_at itself (verified boundary shift).
             $sub = Subscription::whereNotNull('ends_at')
                 ->where('is_deleted', 0)
                 ->whereIn('product_id', cloudPopupProducts())
-                ->whereDate(
-                    DB::raw(sprintf('DATE_ADD(ends_at, INTERVAL %s DAY)', $day)),
-                    '<=',
-                    $today
-                )
+                ->where('ends_at', '<', $today->copy()->subDays(((int) $day) - 1))
                 ->get();
 
             foreach ($sub as $data) {

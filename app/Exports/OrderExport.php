@@ -19,9 +19,9 @@ class OrderExport implements FromCollection, WithHeadings, WithTitle
     /**
      * @return Collection<int|string, mixed>
      */
-    public function collection()
+    public function collection(): Collection
     {
-        return collect((array) $this->ordersData);
+        return collect($this->ordersData);
     }
 
     /**

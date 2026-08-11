@@ -130,14 +130,14 @@ trait AflCallbackHelpers
      */
     protected function createCallback(int $productId, ?int $userId, string $licenseCode, string $ip, string $domain, int $status): void
     {
-        $today = now()->format('Y-m-d');
+        $today = now()->startOfDay();
 
         // Prevent duplicate callbacks for the same license/IP/domain on the same day
         $exists = LicenseCallback::where('product_id', $productId)
             ->where('license_code', $licenseCode)
             ->where('callback_ip', $ip)
             ->where('callback_domain', $domain)
-            ->whereDate('callback_date_time', $today)
+            ->whereBetween('callback_date_time', [$today, $today->copy()->endOfDay()])
             ->exists();
 
         if ($exists) {

@@ -19,9 +19,9 @@ class UsersExport implements FromCollection, WithHeadings, WithTitle
     /**
      * @return Collection<int|string, mixed>
      */
-    public function collection()
+    public function collection(): Collection
     {
-        return collect((array) $this->usersData);
+        return collect($this->usersData);
     }
 
     /**

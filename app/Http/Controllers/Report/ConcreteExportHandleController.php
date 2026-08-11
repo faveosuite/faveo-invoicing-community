@@ -98,10 +98,12 @@ class ConcreteExportHandleController extends ExportHandleController
                 if ($value !== null && $value !== '') {
                     if ($key === 'reg_from') {
                         $time = strtotime((string) $value);
-                        $users->whereDate('created_at', '>=', $time !== false ? date('Y-m-d', $time) : date('Y-m-d'));
+                        $date = $time !== false ? date('Y-m-d', $time) : date('Y-m-d');
+                        $users->where('created_at', '>=', Date::parse($date)->startOfDay());
                     } elseif ($key === 'reg_till') {
                         $time = strtotime((string) $value);
-                        $users->whereDate('created_at', '<=', $time !== false ? date('Y-m-d', $time) : date('Y-m-d'));
+                        $date = $time !== false ? date('Y-m-d', $time) : date('Y-m-d');
+                        $users->where('created_at', '<=', Date::parse($date)->endOfDay());
                     } else {
                         match ($key) {
                             'company' => $users->where('company', 'LIKE', '%'.$value.'%'),
@@ -240,11 +242,9 @@ class ConcreteExportHandleController extends ExportHandleController
             // Perform search and filtering
             $request = new Request;
             $request->merge($searchParams);
-            $name = $request->input('name');
-            $from = $request->input('from');
 
             // Get invoices with filters applied
-            $invoices = $this->advanceSearch($name);
+            $invoices = $this->advanceSearch($request);
             $invoices->orderBy('date', 'desc');
 
             // Use LazyCollection for efficient memory usage
@@ -400,7 +400,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
                             break;
                         case 'status':
-                            $orderData['status'] = $order->installationDetail->isNotEmpty() ? 'Active' : 'Inactive';
+                            $orderData['status'] = $order->installationDetails->isNotEmpty() ? 'Active' : 'Inactive';
                             break;
                         case 'product_name':
                             $orderData['product_name'] = $order->productRelation?->name;

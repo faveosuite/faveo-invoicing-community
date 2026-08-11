@@ -460,7 +460,7 @@ class DashboardController extends Controller
 
         // Inactive subscriptions (no installation detail)
         $inactiveSubscription = Subscription::whereBetween('created_at', [$startDate, $endDate])
-            ->whereDoesntHave('order.installationDetail')
+            ->whereDoesntHave('order.licensedInstallations')
             ->count();
 
         // Calculate rate

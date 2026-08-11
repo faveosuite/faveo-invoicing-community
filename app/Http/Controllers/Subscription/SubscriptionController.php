@@ -72,16 +72,17 @@ class SubscriptionController extends Controller
         $subscriptions = collect();
 
         foreach ($days as $day) {
-            $endDate = Date::now()->addDays($day)->toDateString();
+            $dayStart = Date::now()->addDays($day)->startOfDay();
+            $dayEnd = $dayStart->copy()->endOfDay();
 
             $subscriptions = $subscriptions->merge(
                 Subscription::query()
                     ->select(['subscriptions.*', 'orders.id as order_id', 'subscriptions.id as id'])
                     ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
                     ->where(fn (Builder $q) => $q
-                        ->whereDate('subscriptions.update_ends_at', $endDate)
-                        ->orWhereDate('subscriptions.support_ends_at', $endDate)
-                        ->orWhereDate('subscriptions.ends_at', $endDate)
+                        ->whereBetween('subscriptions.update_ends_at', [$dayStart, $dayEnd])
+                        ->orWhereBetween('subscriptions.support_ends_at', [$dayStart, $dayEnd])
+                        ->orWhereBetween('subscriptions.ends_at', [$dayStart, $dayEnd])
                     )
                     ->where(fn (Builder $q) => $q
                         ->when($stripeEnabled, fn ($q) => $q
@@ -120,13 +121,14 @@ class SubscriptionController extends Controller
         $subscriptions = collect();
 
         foreach ($days as $day) {
-            $endDate = Date::now()->addDays($day)->toDateString();
+            $dayStart = Date::now()->addDays($day)->startOfDay();
+            $dayEnd = $dayStart->copy()->endOfDay();
 
             $subscriptions = $subscriptions->merge(
                 Subscription::where(fn (\Illuminate\Contracts\Database\Eloquent\Builder $q) => $q
-                    ->whereDate('update_ends_at', $endDate)
-                    ->orWhereDate('support_ends_at', $endDate)
-                    ->orWhereDate('ends_at', $endDate)
+                    ->whereBetween('update_ends_at', [$dayStart, $dayEnd])
+                    ->orWhereBetween('support_ends_at', [$dayStart, $dayEnd])
+                    ->orWhereBetween('ends_at', [$dayStart, $dayEnd])
                 )
                     ->where(fn ($q) => $q
                         ->when($stripeEnabled, fn ($q) => $q->orWhere('autoRenew_status', 2))

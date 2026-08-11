@@ -169,12 +169,12 @@ class DatabaseSeeder extends Seeder
     {
         $today = Date::today();
         $day = ExpiryMailDay::value('cloud_days');
+        // Equivalent to DATE(DATE_ADD(ends_at, INTERVAL $day DAY)) < $today,
+        // rewritten as a sargable range on ends_at itself (verified boundary shift).
         Subscription::whereNotNull('ends_at')
-            ->whereIn('product_id', cloudPopupProducts())->whereDate(
-                DB::raw(sprintf('DATE_ADD(ends_at, INTERVAL %s DAY)', $day)),
-                '<',
-                $today
-            )->update(['is_deleted' => 1]);
+            ->whereIn('product_id', cloudPopupProducts())
+            ->where('ends_at', '<', $today->copy()->subDays((int) $day))
+            ->update(['is_deleted' => 1]);
     }
 
     public function add_providers(): void

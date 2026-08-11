@@ -90,19 +90,28 @@ class OrderSearchController extends Controller
      */
     private function filterDateRange(Builder $query, Request $request): void
     {
-        $field = $request->renewal ? 'subscription.update_ends_at' : 'created_at';
+        if ($request->renewal) {
+            $query->whereHas('subscription', function (\Illuminate\Contracts\Database\Query\Builder $q) use ($request): void {
+                $this->applyDateRange($q, 'update_ends_at', $request);
+            });
 
+            return;
+        }
+
+        $this->applyDateRange($query, 'created_at', $request);
+    }
+
+    private function applyDateRange(\Illuminate\Contracts\Database\Query\Builder|Builder $query, string $column, Request $request): void
+    {
         if ($request->from && $request->till) {
-            $from = Date::parse($request->from)->startOfDay();
-            $till = Date::parse($request->till)->endOfDay();
-
-            $query->whereBetween($field, [$from, $till]);
+            $query->whereBetween($column, [
+                Date::parse($request->from)->startOfDay(),
+                Date::parse($request->till)->endOfDay(),
+            ]);
         } elseif ($request->from) {
-            $from = Date::parse($request->from)->startOfDay();
-            $query->whereDate($field, '>=', $from);
+            $query->where($column, '>=', Date::parse($request->from)->startOfDay());
         } elseif ($request->till) {
-            $till = Date::parse($request->till)->endOfDay();
-            $query->whereDate($field, '<=', $till);
+            $query->where($column, '<=', Date::parse($request->till)->endOfDay());
         }
     }
 

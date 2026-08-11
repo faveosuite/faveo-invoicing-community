@@ -42,10 +42,12 @@ use Spatie\Activitylog\Models\Activity;
  * @property-read int|null $activities_as_subject_count
  * @property-read Collection<int, Installation> $installation
  * @property-read int|null $installation_count
- * @property-read Collection<int, Installation> $installationDetail
- * @property-read int|null $installation_detail_count
+ * @property-read Collection<int, Installation> $licensedInstallations
+ * @property-read int|null $licensed_installations_count
  * @property-read Collection<int, Invoice> $invoice
  * @property-read int|null $invoice_count
+ * @property-read Collection<int, InstallationDetail> $installationDetails
+ * @property-read int|null $installation_details_count
  * @property-read InvoiceItem|null $invoiceItem
  * @property-read Collection<int, OrderInvoiceRelation> $invoiceRelation
  * @property-read int|null $invoice_relation_count
@@ -186,9 +188,11 @@ class Order extends BaseModel
     }
 
     /**
+     * Installations activated against this order's license (license_code = serial_key).
+     *
      * @return HasMany<Installation, $this>
      */
-    public function installationDetail(): HasMany
+    public function licensedInstallations(): HasMany
     {
         return $this->hasMany(Installation::class, 'license_code', 'serial_key');
     }
