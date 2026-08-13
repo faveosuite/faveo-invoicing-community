@@ -386,6 +386,26 @@
                                 </li>
 
                                 <li>
+                                    <div class="form-group {{ $errors->has('product_key') ? 'has-error' : '' }}">
+                                        {!! html()->label(trans('message.product_key'), 'product_key') !!}
+                                        {!! html()->text('product_key')->class('form-control'.($errors->has('product_key') ? ' is-invalid' : ''))->id('product_key') !!}
+                                        @error('product_key')
+                                        <span class="error-message"> {{$message}}</span>
+                                        @enderror
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="form-group {{ $errors->has('config_file_path') ? 'has-error' : '' }}">
+                                        {!! html()->label(trans('message.config_file_path'), 'config_file_path') !!}
+                                        {!! html()->text('config_file_path')->class('form-control'.($errors->has('config_file_path') ? ' is-invalid' : ''))->id('config_file_path') !!}
+                                        @error('config_file_path')
+                                        <span class="error-message"> {{$message}}</span>
+                                        @enderror
+                                    </div>
+                                </li>
+
+                                <li>
                                     <div class="form-group {{ $errors->has('parent') ? 'has-error' : '' }}">
                                         <!-- last name -->
                                         {!! html()->label(trans('message.parent'), 'parent') !!}
@@ -704,7 +724,7 @@
                                         <select id="Tax" placeholder="{{ __('message.select_taxes') }}" name="tax[]" style="width:500px;" class="select2 " multiple="multiple">
                                             <option></option>
                                             @foreach($taxes as $value)
-                                                <option value={{$value['id']}}>{{$value['name'].'('.$value['tax'][0]['name'].')'}}</option>
+                                                <option value={{$value['id']}}>{{$value['name'].(!empty($value['tax'][0]['name']) ? ' ('.$value['tax'][0]['name'].')' : '')}}</option>
                                             @endforeach
                                         </select>
 

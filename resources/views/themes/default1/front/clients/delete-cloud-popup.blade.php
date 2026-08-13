@@ -1,14 +1,14 @@
 
-<button class="btn btn-light-scale-2 btn-sm text-dark open-deleteTenantDialog" data-toggle="modal" data-target="#deleteConfirmationModal">
+<button class="btn btn-light-scale-2 btn-sm text-dark open-deleteTenantDialog" data-toggle="modal" data-target="#deleteConfirmationModal-{{ $orderNumber }}">
     <i class="fa fa-trash" data-toggle="tooltip" title="{{ __('message.click_cloud')}}"></i>&nbsp;
 </button>
 
 <!-- Modal -->
-<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteConfirmationModal-{{ $orderNumber }}" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel-{{ $orderNumber }}" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
              <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel" style="font-size: large;">{{ __('message.delete_confirm')}}</h5>
+        <h5 class="modal-title" id="deleteConfirmationModalLabel-{{ $orderNumber }}" style="font-size: large;">{{ __('message.delete_confirm')}}</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>

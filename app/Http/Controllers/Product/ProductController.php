@@ -21,6 +21,7 @@ use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
+use App\Services\Product\ProductBundleStampingService;
 use App\Traits\Upload\ChunkUpload;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -57,6 +58,8 @@ class ProductController extends BaseProductController
     public $tax_class;
 
     public $product_upload;
+
+    public ProductBundleStampingService $stampingService;
 
     public function __construct()
     {
@@ -101,6 +104,8 @@ class ProductController extends BaseProductController
 
         $license = new LicenseController();
         $this->licensing = $license;
+
+        $this->stampingService = new ProductBundleStampingService();
     }
 
     /**
@@ -640,10 +645,10 @@ class ProductController extends BaseProductController
             $repository = $product->github_repository;
             $file = $this->product_upload
                 ->where('product_id', '=', $uploadid)
-                ->where('id', $version_id)->select('file')->first();
+                ->where('id', $version_id)->first();
             $order = Order::where('invoice_id', '=', $invoice_id)->first();
             $order_id = $order->id;
-            $relese = $this->getRelease($owner, $repository, $order_id, $file);
+            $relese = $this->getRelease($owner, $repository, $order_id, $file, $product);
 
             return $relese;
         } catch (\Exception $e) {

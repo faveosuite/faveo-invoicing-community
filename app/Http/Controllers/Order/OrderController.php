@@ -545,7 +545,7 @@ class OrderController extends BaseOrderController
                             ->where('is_deleted', 1)
                             ->exists();
 
-                        if ($installation_path && ! $isCloudDeleted) {
+                        if ($installation_path && ! $isCloudDeleted && in_array($order->product, cloudPopupProducts())) {
                             event(new UserOrderDelete($installation_path, $order->id));
                         }
                         $order->delete();
