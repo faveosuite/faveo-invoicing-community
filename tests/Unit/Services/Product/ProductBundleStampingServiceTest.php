@@ -102,6 +102,7 @@ class ProductBundleStampingServiceTest extends TestCase
         $config = $this->readZipEntry($resultPath, 'storage/faveoconfig.ini');
         $this->assertStringContainsString('PRODUCT_KEY=COREKEY123', $config);
         $this->assertStringContainsString('APP_NAME=Core Product', $config);
+        $this->assertStringContainsString('PRODUCT_NAME_FOR_AUTO_UPDATE=Core Product', $config);
         $this->assertStringContainsString('APP_VERSION=1.2.3', $config);
         $this->assertStringContainsString('PRODUCT_ID=42', $config);
         $this->assertStringContainsString('LICENSE_MODE=DATABASE', $config);

@@ -156,6 +156,7 @@ class ProductBundleStampingService
             'APP_NAME='.$targetProduct->name,
             'APP_VERSION='.$version,
             'PRODUCT_ID='.$targetProduct->id,
+            'PRODUCT_NAME_FOR_AUTO_UPDATE='.$targetProduct->name,
             'LICENSE_MODE=DATABASE',
             '',
         ];
