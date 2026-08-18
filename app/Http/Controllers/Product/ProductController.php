@@ -345,12 +345,13 @@ class ProductController extends BaseProductController
         }
 
         try {
+            $productKey = null;
             $licenseStatus = StatusSetting::pluck('license_status')->first();
             if ($licenseStatus) { //If License Setting Status is on,Add Product to the License Manager
                 $addProductToLicensing = $this->licensing->addNewProduct($input['name'], $input['product_sku']);
                 $product_id = $this->licensing->searchProductId($input['product_sku']);
                 $updateCont = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
-                $addProductToLicensing = $updateCont->addNewProductToAUS($product_id, $input['name'], $input['product_sku']);
+                $productKey = $updateCont->addNewProductToAUS($product_id, $input['name'], $input['product_sku']);
             }
             if ($request->hasFile('image')) {
                 $image = Attach::put('common/images/', $request->file('image'), null, true);
@@ -364,6 +365,9 @@ class ProductController extends BaseProductController
             $data = $request->except(['image', 'file']);
             if (! empty($product_id)) {
                 $data['id'] = $product_id;
+            }
+            if (! empty($productKey)) {
+                $data['product_key'] = $productKey;
             }
             $this->product->fill($data)->save();
 

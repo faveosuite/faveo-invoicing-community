@@ -181,16 +181,6 @@
                                 </li>
 
                                 <li>
-                                    <div class="form-group {{ $errors->has('product_key') ? 'has-error' : '' }}">
-                                        {!! html()->label(trans('message.product_key'), 'product_key') !!}
-                                        {!! html()->text('product_key')->class('form-control'.($errors->has('product_key') ? ' is-invalid' : ''))->id('product_key') !!}
-                                        @error('product_key')
-                                        <span class="error-message"> {{$message}}</span>
-                                        @enderror
-                                    </div>
-                                </li>
-
-                                <li>
                                     <div class="form-group {{ $errors->has('config_file_path') ? 'has-error' : '' }}">
                                         {!! html()->label(trans('message.config_file_path'), 'config_file_path') !!}
                                         {!! html()->text('config_file_path')->class('form-control'.($errors->has('config_file_path') ? ' is-invalid' : ''))->id('config_file_path') !!}
