@@ -179,6 +179,16 @@
                                         @enderror
                                     </div>
                                 </li>
+
+                                <li>
+                                    <div class="form-group {{ $errors->has('config_file_path') ? 'has-error' : '' }}">
+                                        {!! html()->label(trans('message.config_file_path'), 'config_file_path') !!}
+                                        {!! html()->text('config_file_path')->class('form-control'.($errors->has('config_file_path') ? ' is-invalid' : ''))->id('config_file_path') !!}
+                                        @error('config_file_path')
+                                        <span class="error-message"> {{$message}}</span>
+                                        @enderror
+                                    </div>
+                                </li>
                                 <li>
                                     <div class="form-group {{ $errors->has('parent') ? 'has-error' : '' }}">
                                         <!-- last name -->
@@ -434,7 +444,7 @@
                                         <select id="editTax" placeholder="{{ __('message.select_taxes') }}" name="tax[]" style="width:500px;" class="select2" multiple="true">
 
                                             @foreach($taxes as $value)
-                                                <option value={{$value['id']}} <?php echo (in_array($value['id'], $savedTaxes)) ?  "selected" : "" ;  ?>>{{$value['name'].'('.$value['tax'][0]['name'].')'}}</option>
+                                                <option value={{$value['id']}} <?php echo (in_array($value['id'], $savedTaxes)) ?  "selected" : "" ;  ?>>{{$value['name'].(!empty($value['tax'][0]['name']) ? ' ('.$value['tax'][0]['name'].')' : '')}}</option>
                                             @endforeach
                                         </select>
 

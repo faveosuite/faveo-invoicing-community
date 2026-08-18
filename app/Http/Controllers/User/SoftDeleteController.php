@@ -127,7 +127,8 @@ class SoftDeleteController extends ClientController
                             $isCloudDeleted = Subscription::where('order_id', $tenant)
                                 ->where('is_deleted', 1)
                                 ->exists();
-                            if ($installation_path && ! $isCloudDeleted) {
+                            $tenantProductId = \App\Model\Order\Order::where('id', $tenant)->value('product');
+                            if ($installation_path && ! $isCloudDeleted && in_array($tenantProductId, cloudPopupProducts())) {
                                 event(new UserOrderDelete($installation_path, $tenant));
                             }
                         }

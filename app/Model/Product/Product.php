@@ -29,6 +29,9 @@ class Product extends BaseModel
      *                       1 = Active — monthly/yearly subscription toggle is shown in the store
      *                       0 = Inactive — product is visible in the store but monthly/yearly toggle is hidden
      *                       --------------------------------------------------------------------------
+     * @property string|null $product_key
+     * @property string|null $apl_salt
+     * @property string|null $config_file_path
      */
     protected $fillable = ['id', 'name', 'description', 'short_description', 'type', 'group', 'file', 'image', 'require_domain', 'category',
         'can_modify_agent',  'can_modify_quantity', 'show_agent', 'tax_apply', 'show_product_quantity', 'hidden',  'auto_terminate',
@@ -36,7 +39,7 @@ class Product extends BaseModel
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
         'deny_after_subscription', 'version', 'parent', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
-        'status', 'whatsapp_integration',
+        'status', 'whatsapp_integration', 'product_key', 'apl_salt', 'config_file_path',
     ];
 
     protected $logName = 'product';

@@ -63,9 +63,11 @@ class AutoUpdateController extends Controller
             $api_key_secret = $this->licenseService->getApiKeySecret();
             $token = $this->licenseService->getValidToken();
 
-            $addProduct = $this->postCurl($url.'api/admin/products/UpdateAdd', "api_key_secret=$api_key_secret&product_id=$product_id&product_title=$product_name&product_sku=$product_sku&product_key=$key&product_status=1", $token);
+            $this->postCurl($url.'api/admin/products/UpdateAdd', "api_key_secret=$api_key_secret&product_id=$product_id&product_title=$product_name&product_sku=$product_sku&product_key=$key&product_status=1", $token);
             //need to remove this once we deprecate updates.faveohelpdesk.com
-            $anotheradd = $this->postCurl($this->updateUrl, "api_key_secret=$this->update_api_secret&api_function=products_add&product_title=$product_name&product_sku=$product_sku&product_key=$key&product_status=1");
+            $this->postCurl($this->updateUrl, "api_key_secret=$this->update_api_secret&api_function=products_add&product_title=$product_name&product_sku=$product_sku&product_key=$key&product_status=1");
+
+            return $key;
         } catch (\Exception $ex) {
             throw new \Exception(__('message.configure_valid_license'));
         }

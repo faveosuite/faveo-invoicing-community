@@ -12,7 +12,6 @@ use App\Model\Product\ProductUpload;
 use App\ThirdPartyApp;
 use App\User;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class BaseProductController extends ExtendedBaseProductController
@@ -176,8 +175,6 @@ class BaseProductController extends ExtendedBaseProductController
             $this->checkSubscriptionExpiry($invoice);
             if ($user && $invoice) {
                 if ($user->active == 1) {
-                    $product_id = $invoice->order()->value('product');
-                    $name = Product::where('id', $product_id)->value('name');
                     $invoice_id = $invoice->id;
 
                     $release = $this->downloadProduct($uploadid, $userid, $invoice_id, $version_id);
@@ -187,28 +184,14 @@ class BaseProductController extends ExtendedBaseProductController
 
                         return view('themes.default1.front.download', compact('release'));
                     } else {
-                        if (isS3Enabled()) {
-                            if (! Attach::exists('products/'.explode('?', urldecode(basename($release)))[0])) {
-                                return redirect()->back()->with('fails', \Lang::get('message.file_not_exist'));
-                            }
-
-                            return downloadExternalFile($release, $name);
-                        } else {
-                            if (! $release instanceof \Symfony\Component\HttpFoundation\StreamedResponse) {
-                                return redirect()->back()->with('fails', \Lang::get('message.file_not_exist'));
-                            }
-                            $customFileName = "{$name}.zip";
-
-                            $release->headers->set(
-                                'Content-Disposition',
-                                $release->headers->makeDisposition(
-                                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                                    $customFileName
-                                )
-                            );
-
-                            return $release;
+                        // The stamping service always returns a local,
+                        // ready-to-send file response (S3 or not — the file
+                        // has to be copied and stamped locally either way).
+                        if (! $release instanceof \Symfony\Component\HttpFoundation\Response) {
+                            return redirect()->back()->with('fails', \Lang::get('message.file_not_exist'));
                         }
+
+                        return $release;
                     }
                 } else {
                     return redirect()->back()->with('fails', \Lang::get('activate-your-account'));
@@ -223,7 +206,7 @@ class BaseProductController extends ExtendedBaseProductController
         }
     }
 
-    public function getRelease($owner, $repository, $order_id, $file)
+    public function getRelease($owner, $repository, $order_id, $file, Product $product)
     {
         if ($owner && $repository) {//If the Product is downloaded from Github
             $github_controller = new \App\Http\Controllers\Github\GithubController();
@@ -232,14 +215,11 @@ class BaseProductController extends ExtendedBaseProductController
             return ['release' => $relese, 'type' => 'github'];
         } elseif ($file) {
             //If the Product is Downloaded from FileSystem
-            $fileName = $file->file;
-            $relese = Attach::download('products/'.$fileName);
-
-            return $relese;
+            return $this->stampingService->downloadResponseFor($file, $product, 'products/'.$file->file);
         }
     }
 
-    public function getReleaseAdmin($owner, $repository, $file)
+    public function getReleaseAdmin($owner, $repository, $file, Product $product)
     {
         if ($owner && $repository) {
             $github_controller = new \App\Http\Controllers\Github\GithubController();
@@ -247,37 +227,33 @@ class BaseProductController extends ExtendedBaseProductController
 
             return ['release' => $relese, 'type' => 'github'];
         } elseif ($file->file) {
-            // $relese = storage_path().'\products'.'\\'.$file->file;
-            //    $relese = '/home/faveo/products/'.$file->file;
-            $fileName = $file->file;
-
-            $relese = Attach::download('products/'.$fileName);
-
-            return $relese;
+            return $this->stampingService->downloadResponseFor($file, $product, 'products/'.$file->file);
         }
     }
 
-    public function downloadProductAdmin($id, $beta = 1)
+    public function downloadProductAdmin($id, $release = 'official')
     {
         try {
             $product = Product::findOrFail($id);
             $type = $product->type;
             $owner = $product->github_owner;
             $repository = $product->github_repository;
-            if ($beta) {
-                $file = ProductUpload::where('product_id', '=', $id)->select('file')
-                    ->orderBy('created_at', 'desc')
-                    ->first();
-            } else {
-                $file = ProductUpload::where('product_id', '=', $id)->
-                    where('is_pre_release', 0)
-                    ->select('file')
-                    ->orderBy('created_at', 'desc')
-                    ->first();
-            }
+
+            $releaseType = match ($release) {
+                'beta' => 'beta',
+                'rc' => 'pre_release',
+                default => 'official',
+            };
+
+            $file = ProductUpload::where('product_id', $id)
+                ->where('is_private', 0)
+                ->where('is_restricted', 0)
+                ->where('release_type', $releaseType)
+                ->orderBy('created_at', 'desc')->first();
+
             $permissions = LicensePermissionsController::getPermissionsForProduct($id);
             if ($permissions['downloadPermission'] == 1) {
-                $relese = $this->getReleaseAdmin($owner, $repository, $file);
+                $relese = $this->getReleaseAdmin($owner, $repository, $file, $product);
 
                 return $relese;
             }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Product;
 
-use App\Facades\Attach;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
@@ -12,7 +11,6 @@ use App\Model\Product\ProductUpload;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class ExtendedBaseProductController extends Controller
 {
@@ -197,7 +195,7 @@ class ExtendedBaseProductController extends Controller
         }
     }
 
-    public function adminDownload($id, $invoice = '', $api = false, $beta = 1)
+    public function adminDownload($id, $invoice = '', $api = false, $release = 'official')
     {
         $product = Product::where('id', $id)->get();
         $product = $product->toArray();
@@ -232,30 +230,16 @@ class ExtendedBaseProductController extends Controller
                         }, $fileName);
                     }
                 }
-                $release = $this->downloadProductAdmin($id, $beta);
-                $name = Product::where('id', $id)->value('name');
-                if (isS3Enabled()) {
-                    if (! Attach::exists('products/'.explode('?', urldecode(basename($release)))[0])) {
-                        return redirect('my-orders')->with('fails', __('message.file_not_exist'));
-                    }
+                $release = $this->downloadProductAdmin($id, $release);
 
-                    return downloadExternalFile($release, $name);
-                } else {
-                    if (! $release instanceof \Symfony\Component\HttpFoundation\StreamedResponse) {
-                        return redirect('my-orders')->with('fails', \Lang::get('message.file_not_exist'));
-                    }
-                    $customFileName = "{$name}.zip";
-
-                    $release->headers->set(
-                        'Content-Disposition',
-                        $release->headers->makeDisposition(
-                            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                            $customFileName
-                        )
-                    );
-
-                    return $release;
+                // The stamping service always returns a local, ready-to-send
+                // file response (S3 or not — the file has to be copied and
+                // stamped locally either way).
+                if (! $release instanceof \Symfony\Component\HttpFoundation\Response) {
+                    return redirect('my-orders')->with('fails', \Lang::get('message.file_not_exist'));
                 }
+
+                return $release;
             } else {
                 throw new \Exception(\Lang::get('message.no_permission_for_action'));
             }
