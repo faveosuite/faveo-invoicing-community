@@ -535,6 +535,7 @@ class ClientController extends AdvanceSearchController
             }
 
             $invoices = Invoice::where('user_id', $id)
+                ->withCount('orderRelation')
                 ->orderBy($sortField, $sortOrder)
                 ->paginate($limit, ['*'], 'page', $page);
 
@@ -551,6 +552,7 @@ class ClientController extends AdvanceSearchController
                     'balance' => $balance,
                     'currency' => $invoice->currency,
                     'status' => $invoice->status,
+                    'is_executed' => $invoice->order_relation_count > 0,
                 ];
             });
 

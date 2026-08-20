@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Front;
 
 use App\Http\Requests\Request;
+use Illuminate\Validation\Rule;
 use Override;
 
 class PageRequest extends Request
@@ -30,8 +31,8 @@ class PageRequest extends Request
         $requiredRule = $this->isMethod('PUT') ? 'sometimes' : 'required';
 
         return [
-            'name' => [$requiredRule, 'string'],
-            'slug' => [$requiredRule, 'string'],
+            'name' => [$requiredRule, 'string', Rule::unique('frontend_pages', 'name')->ignore($this->route('id'))],
+            'slug' => [$requiredRule, 'string', Rule::unique('frontend_pages', 'slug')->ignore($this->route('id'))],
             'url' => ['nullable', 'string'],
             'type' => ['nullable', 'string'],
             'publish' => ['nullable', 'boolean'],
@@ -52,7 +53,9 @@ class PageRequest extends Request
     {
         return [
             'name.required' => __('validation.frontend_pages.name.required'),
+            'name.unique' => __('validation.frontend_pages.name.unique'),
             'slug.required' => __('validation.frontend_pages.slug.required'),
+            'slug.unique' => __('validation.frontend_pages.slug.unique'),
             'content.required' => __('validation.frontend_pages.content.required'),
         ];
     }

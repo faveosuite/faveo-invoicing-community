@@ -141,7 +141,7 @@ onMounted(async () => {
         ])
         promotionTypes.value = typesRes.data?.data?.promotion_types ?? []
 
-        const p = promoRes.data
+        const p = promoRes.data.data
         form.code  = p.code ?? ''
         form.type  = p.type ?? ''
         form.value = p.value ? String(p.value).replace('%', '') : ''

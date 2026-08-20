@@ -12,6 +12,15 @@
                     >
                         <i class="fas fa-filter"></i>
                     </button>
+                    <button
+                        class="btn btn-tool"
+                        v-tooltip="__('message.export')"
+                        @click="exportOrders"
+                        :disabled="exporting"
+                    >
+                        <spinner-loader v-if="exporting" :size="18" />
+                        <i v-else class="fas fa-paper-plane"></i>
+                    </button>
                 </div>
             </div>
 
@@ -78,6 +87,8 @@
 <script setup>
 import { h, ref, reactive, watch, withDirectives, resolveDirective } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import http from '@/plugins/axios'
+import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 
 import { useDateTime } from '@/core/composables/useDateTime'
 import OrderTableActions from './components/OrderTableActions.vue'
@@ -109,6 +120,24 @@ function parseOrderQuery(query) {
 }
 
 const activeFilters = ref(parseOrderQuery(route.query))
+const exporting = ref(false)
+
+async function exportOrders() {
+    exporting.value = true
+    try {
+        const params = new URLSearchParams()
+        Object.entries(activeFilters.value).forEach(([k, v]) => {
+            if (v !== '' && v !== null) params.append(k, v)
+        })
+
+        const res = await http.get(`/export-orders?${params.toString()}`)
+        successHandler(res, 'orders-index')
+    } catch (e) {
+        errorHandler(e, 'orders-index')
+    } finally {
+        exporting.value = false
+    }
+}
 
 watch(() => route.query, (newQuery) => {
     activeFilters.value = parseOrderQuery(newQuery)

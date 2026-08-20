@@ -677,7 +677,7 @@ const invoiceOptions = {
         paid:        (_, row) => formatMoney(row.paid, row.currency),
         balance:     (_, row) => h('span', { class: row.balance > 0 ? 'text-danger' : '' }, formatMoney(row.balance, row.currency)),
         status:      (_, row) => statusBadge(row.status, { success: 'bg-success', pending: 'bg-warning text-dark', 'partially paid': 'bg-info text-dark' }),
-        action:      (_, row) => h(InvoiceTableActions, { invoiceId: row.id, showDelete: true, componentName: COMPONENT }),
+        action:      (_, row) => h(InvoiceTableActions, { invoiceId: row.id, isExecuted: !!row.is_executed, isPaid: ['Paid', 'Success'].includes(row.status), showDelete: true, componentName: COMPONENT }),
     },
     sortable:   ['date', 'number', 'grand_total', 'status'],
     filterable: true,

@@ -24,6 +24,7 @@ use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ProductController extends BaseProductController
 {
@@ -183,6 +184,9 @@ class ProductController extends BaseProductController
             ->when($searchQuery, function ($query, string $searchQuery): void {
                 $query->where('products.name', 'like', sprintf('%%%s%%', $searchQuery))
                     ->orWhereHas('groupRelation', function ($q) use ($searchQuery): void {
+                        $q->where('name', 'like', sprintf('%%%s%%', $searchQuery));
+                    })
+                    ->orWhereHas('licenseType', function ($q) use ($searchQuery): void {
                         $q->where('name', 'like', sprintf('%%%s%%', $searchQuery));
                     });
             })
@@ -513,7 +517,11 @@ class ProductController extends BaseProductController
     public function productCreate(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'unique:products,name'],
+            // Scoped to the group, not global — real catalog data has the same
+            // product name intentionally reused across different groups (e.g.
+            // "Helpdesk Enterprise" under Perpetual/Recurring/Cloud), just never
+            // twice within the same group.
+            'name' => ['required', Rule::unique('products', 'name')->where('group', $request->input('group'))],
             'type' => ['required'],
             'product_type' => ['required', 'in:independent,addon'],
             'config_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
@@ -550,6 +558,10 @@ class ProductController extends BaseProductController
                 $validated['add_to_contact'] = $request->boolean('add_to_contact');
                 $validated['can_modify_agent'] = $request->boolean('can_modify_agent');
                 $validated['can_modify_quantity'] = $request->boolean('can_modify_quantity');
+                $validated['require_domain'] = $request->boolean('require_domain');
+                $validated['hidden'] = $request->boolean('hidden');
+                $validated['invoice_hidden'] = $request->boolean('invoice_hidden');
+                $validated['whatsapp_integration'] = $request->boolean('whatsapp_integration');
 
                 // Filter only fillable fields
                 $data = array_intersect_key($validated, array_flip((new Product)->getFillable()));
@@ -578,7 +590,8 @@ class ProductController extends BaseProductController
     public function updateProduct(int $productId, Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => ['required'],
+            // Scoped to the group, not global — see productCreate for why.
+            'name' => ['required', Rule::unique('products', 'name')->where('group', $request->input('group'))->ignore($productId)],
             'type' => ['required'],
             'product_type' => ['required', 'in:independent,addon'],
             'config_file_path' => ['nullable', 'string', 'max:255', 'regex:/^(?!\/)(?!.*\.\.)[^\\\\]+$/'],
@@ -587,17 +600,19 @@ class ProductController extends BaseProductController
             'product_description' => ['required'],
             'image' => ['sometimes', 'mimes:jpeg,png,jpg', 'max:2048'],
             'file' => ['sometimes', 'file', 'max:102400'], // NOSONAR — 100 MB limit is intentional for product file downloads
-            'product_sku' => ['required'],
+            'product_sku' => ['required', Rule::unique('products', 'product_sku')->ignore($productId)],
             'group' => ['required'],
             'show_agent' => ['required'],
         ], [
             'name.required' => __('validation.product_controller.name_required'),
+            'name.unique' => __('validation.product_name_unique'),
             'type.required' => __('validation.product_controller.type_required'),
             'description.required' => __('validation.product_controller.description_required'),
             'product_description.required' => __('validation.product_controller.product_description_required'),
             'image.mimes' => __('validation.product_controller.image_mimes'),
             'image.max' => __('validation.product_controller.image_max'),
             'product_sku.required' => __('validation.product_controller.product_sku_required'),
+            'product_sku.unique' => __('validation.product_sku_unique'),
             'group.required' => __('validation.product_controller.group_required'),
             'show_agent.required' => __('validation.product_controller.show_agent_required'),
             'config_file_path.regex' => __('validation.config_file_path_regex'),
@@ -624,6 +639,10 @@ class ProductController extends BaseProductController
                 $validated['add_to_contact'] = $request->boolean('add_to_contact');
                 $validated['can_modify_agent'] = $request->boolean('can_modify_agent');
                 $validated['can_modify_quantity'] = $request->boolean('can_modify_quantity');
+                $validated['require_domain'] = $request->boolean('require_domain');
+                $validated['hidden'] = $request->boolean('hidden');
+                $validated['invoice_hidden'] = $request->boolean('invoice_hidden');
+                $validated['whatsapp_integration'] = $request->boolean('whatsapp_integration');
 
                 // Update product with only fillable fields
                 $fillableData = array_intersect_key($validated, array_flip($product->getFillable()));

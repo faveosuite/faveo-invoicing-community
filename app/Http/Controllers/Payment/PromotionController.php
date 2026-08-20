@@ -12,6 +12,7 @@ use App\Model\Product\Product;
 use DB;
 use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
@@ -179,6 +180,8 @@ class PromotionController extends BasePromotionController
             ]);
 
             return successResponse(__('message.updated-successfully'));
+        } catch (UniqueConstraintViolationException) {
+            return errorResponse(__('message.coupon-code-exists'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
@@ -210,6 +213,8 @@ class PromotionController extends BasePromotionController
             ]);
 
             return successResponse(__('message.created-successfully'));
+        } catch (UniqueConstraintViolationException) {
+            return errorResponse(__('message.coupon-code-exists'));
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }

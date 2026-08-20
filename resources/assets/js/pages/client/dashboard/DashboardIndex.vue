@@ -36,7 +36,7 @@
             </div>
 
             <div class="col-md-4 mb-4">
-                <RouterLink to="/my-orders" class="text-decoration-none">
+                <RouterLink to="/my-orders?renewal=1" class="text-decoration-none">
                     <div class="card h-100 bg-color-grey">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">

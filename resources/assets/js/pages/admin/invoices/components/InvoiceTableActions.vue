@@ -7,7 +7,8 @@
         <button
             v-if="!isExecuted"
             class="btn btn-light table_btn"
-            v-tooltip="__('message.order_execute')"
+            :disabled="!isPaid"
+            v-tooltip="isPaid ? __('message.order_execute') : __('message.invoice-not-paid')"
             @click="execute"
         >
             <i class="fas fa-play"></i>
@@ -41,6 +42,7 @@ import { useBaseUrl } from '@/core/composables/useBaseUrl'
 const props = defineProps({
     invoiceId:     { type: [Number, String], required: true },
     isExecuted:    { type: Boolean, default: false },
+    isPaid:        { type: Boolean, default: true },
     showDelete:    { type: Boolean, default: false },
     componentName: { type: String, default: 'invoices-index' },
 })

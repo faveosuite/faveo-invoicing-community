@@ -16,7 +16,7 @@ use Logger;
 
 trait PaymentsAndInvoices
 {
-    public function getAgents(mixed $agents, int $productid, int $plan): int
+    public function getAgents(mixed $agents, int $productid, ?int $plan): int
     {
         if (! $agents) {// If agents is not received in the request in the case when
             // 'modify agent' is not allowed for the Product,get the no of Agents from the Plan Table.
@@ -36,7 +36,7 @@ trait PaymentsAndInvoices
         return $agents;
     }
 
-    public function getQuantity(mixed $qty, int $productid, int $plan): int
+    public function getQuantity(mixed $qty, int $productid, ?int $plan): int
     {
         if (! $qty) {// If quantity is not received in the request in the case when 'modify quantity' is not allowed for the Product,get the Product qUANTITY from the Plan Table.
             /** @var Product $productForQty */

@@ -24,7 +24,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
      *
      * @return array<mixed>
      **/
-    public function getGrandTotal(?string $code, float|int $total, float|int $cost, int $productid, string $currency, string $user_id = ''): array
+    public function getGrandTotal(?string $code, float|int $total, float|int|null $cost, int $productid, string $currency, string $user_id = ''): array
     {
         if (! $total) {
             return ['total' => $total, 'code' => '', 'value' => '', 'mode' => ''];

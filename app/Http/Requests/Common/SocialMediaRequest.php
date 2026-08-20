@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Common;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Override;
 
 class SocialMediaRequest extends FormRequest
@@ -34,7 +35,7 @@ class SocialMediaRequest extends FormRequest
 
         if ($this->method() == 'PATCH') {
             return [
-                'name' => ['required'],
+                'name' => ['required', Rule::unique('social_media', 'name')->ignore($this->route('id'))],
                 'link' => 'required|url|regex:'.$regex,
             ];
         }

@@ -165,7 +165,11 @@ class TenantController extends Controller
         $this->validate($request,
             [
                 'orderNo' => 'required',
-                'domain' => 'required||regex:/^[a-zA-Z0-9]+$/u',
+                // Matches the frontend's already-correct cloudTrialValidations.js rule
+                // (letters/digits, hyphens allowed but not at the start/end) — this used
+                // to be stricter and rejected valid hyphenated domains after the customer
+                // had already been charged (see QA bug #41).
+                'domain' => 'required|regex:/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/',
             ],
             [
                 'domain.regex' => 'Special characters are not allowed in domain name',

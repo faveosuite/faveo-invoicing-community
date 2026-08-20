@@ -635,14 +635,17 @@ onMounted(async () => {
         form.product_description  = p.product_description ?? ''
         form.currentImage         = p.image ?? null
         form.show_agent           = Boolean(p.show_agent)
-        form.highlight            = Boolean(p.highlight)
-        form.add_to_contact       = Boolean(p.add_to_contact)
+        // highlight/add_to_contact/whatsapp_integration are string columns
+        // ("0"/"1") — Boolean("0") is true in JS, so these three need an
+        // actual value check rather than a truthy check like the others.
+        form.highlight            = String(p.highlight) === '1'
+        form.add_to_contact       = String(p.add_to_contact) === '1'
         form.can_modify_agent     = Boolean(p.can_modify_agent)
         form.can_modify_quantity  = Boolean(p.can_modify_quantity)
         form.require_domain       = Boolean(p.require_domain)
         form.hidden               = Boolean(p.hidden)
         form.invoice_hidden       = Boolean(p.invoice_hidden)
-        form.whatsapp_integration = Boolean(p.whatsapp_integration)
+        form.whatsapp_integration = String(p.whatsapp_integration) === '1'
         form.type                 = p.type ?? null
         form.product_type         = p.product_type ?? 'independent'
         form.group                = p.group ?? null

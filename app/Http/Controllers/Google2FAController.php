@@ -70,6 +70,28 @@ class Google2FAController extends Controller
         return Base32::encodeUpper($randomBytes);
     }
 
+    /**
+     * Verifies the code entered during initial 2FA setup (after enableTwoFactor
+     * generated the QR/secret) and, on success, actually flips the account over
+     * to 2FA-enabled. Mirrors disableTwoFactor's field-setting in reverse.
+     */
+    public function postSetupValidateToken(ValidateSecretRequest $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $secret = Crypt::decrypt((string) $user->google2fa_secret);
+
+        if (! new Google2FA()->verifyKey($secret, $request->totp)) {
+            return errorResponse(__('message.invalid_passcode'));
+        }
+
+        $user->is_2fa_enabled = 1;
+        $user->google2fa_activation_date = now();
+        $user->save();
+
+        return successResponse(__('message.2fa_enabled'));
+    }
+
     public function postLoginValidateToken(ValidateSecretRequest $request): JsonResponse
     {
         try {

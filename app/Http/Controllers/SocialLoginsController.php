@@ -6,6 +6,7 @@ use App\SocialLogin;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class SocialLoginsController extends Controller
 {
@@ -43,18 +44,25 @@ class SocialLoginsController extends Controller
 
     public function updateSocialLogin(Request $request): JsonResponse
     {
+        // Real credentials are only needed to actually turn the login ON —
+        // saving blank is always allowed while it stays Inactive, so admins
+        // can clear a mistaken value back out (see QA bug #33).
+        $isTogglingActive = (int) $request->input('optradio') === 1;
+
         $request->validate([
-            'client_id' => ['required_if:type,Google,Github,Linkedin'],
-            'client_secret' => ['required_if:type,Google,Github,Linkedin'],
-            'api_key' => ['required_if:type,Twitter'],
-            'api_secret' => ['required_if:type,Twitter'],
-            'redirect_url' => ['required'],
+            'client_id' => [Rule::requiredIf($isTogglingActive && in_array($request->input('type'), ['Google', 'Github', 'Linkedin'], true))],
+            'client_secret' => [Rule::requiredIf($isTogglingActive && in_array($request->input('type'), ['Google', 'Github', 'Linkedin'], true))],
+            'api_key' => [Rule::requiredIf($isTogglingActive && $request->input('type') === 'Twitter')],
+            'api_secret' => [Rule::requiredIf($isTogglingActive && $request->input('type') === 'Twitter')],
+            'redirect_url' => [Rule::requiredIf($isTogglingActive)],
         ],
             [
-                'client_id.required_if' => __('validation.social_login.client_id_required'),
-                'client_secret.required_if' => __('validation.social_login.client_secret_required'),
-                'api_key.required_if' => __('validation.social_login.api_key_required'),
-                'api_secret.required_if' => __('validation.social_login.api_secret_required'),
+                // Rule::requiredIf() compiles down to the plain "required" rule at
+                // validation time (not "required_if"), so the message key must match that.
+                'client_id.required' => __('validation.social_login.client_id_required'),
+                'client_secret.required' => __('validation.social_login.client_secret_required'),
+                'api_key.required' => __('validation.social_login.api_key_required'),
+                'api_secret.required' => __('validation.social_login.api_secret_required'),
                 'redirect_url.required' => __('validation.social_login.redirect_url_required'),
             ]);
 

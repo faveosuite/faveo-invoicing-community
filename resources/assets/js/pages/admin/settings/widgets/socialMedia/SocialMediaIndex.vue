@@ -87,12 +87,12 @@ const pendingDeleteRow  = ref(null)
 const pendingBulkDelete = ref(null)
 
 function confirmDeleteRow(id) {
-    pendingDeleteRow.value = { id }
+    pendingDeleteRow.value = { select: [id] }
 }
 
 function confirmBulkDelete() {
     if (!selected.value.length) return
-    pendingBulkDelete.value = { id: [...selected.value] }
+    pendingBulkDelete.value = { select: [...selected.value] }
 }
 
 const columns = ['select', 'name', 'link', 'action']

@@ -85,7 +85,16 @@ class LicensePermissionsController extends Controller
                 return errorResponse(__('message.no_record_found'), 404);
             }
 
-            $licenseType->permissions()->sync($request->input('permissionid'));
+            $permissionIds = (array) $request->input('permissionid');
+            $noPermissionsId = LicensePermission::where('permissions', 'No Permissions')->value('id');
+
+            // "No Permissions" is mutually exclusive with every real permission —
+            // if it's selected alongside others, it wins and the rest are dropped.
+            if ($noPermissionsId && in_array($noPermissionsId, $permissionIds)) {
+                $permissionIds = [$noPermissionsId];
+            }
+
+            $licenseType->permissions()->sync($permissionIds);
 
             return successResponse(__('message.permissions_updated_successfully'));
         } catch (Exception $exception) {

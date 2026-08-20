@@ -105,7 +105,8 @@
             </ul>
           </div>
 
-          <ClientCheckbox v-if="termsEnabled" v-model="regForm.terms" :error="regErrors.terms">
+          <ClientCheckbox v-if="termsEnabled" v-model="regForm.terms" :error="regErrors.terms"
+                          @update:modelValue="regSetFieldError('terms', undefined)">
             {{ __('message.i_agree_to') }}
             <a :href="termsUrl" target="_blank" class="text-decoration-none">{{
                 __('message.terms_and_conditions')

@@ -90,7 +90,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { __ } from '@/plugins/i18n'
 import RenewModal from './components/RenewModal.vue'
 import Alert from '@/components/Reusable/Alert.vue'
@@ -102,7 +102,9 @@ const { formatDate }  = useDateTime()
 const { downloadFile } = useDownload('order-download')
 
 const baseUrl = useBaseUrl()
-const apiUrl  = `/get-my-orders`
+const route   = useRoute()
+// Dashboard's "Order Renewals" widget links here with ?renewal=1
+const apiUrl  = route.query.renewal ? `/get-my-orders?renewal=1` : `/get-my-orders`
 
 const columns = ['product_name', 'order_date', 'number', 'agents', 'update_ends_at', 'action']
 

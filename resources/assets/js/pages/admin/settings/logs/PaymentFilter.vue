@@ -20,6 +20,7 @@
                         :label="__('message.view_logs_from')"
                         :value="form.dateFrom"
                         :clearable="true"
+                        :disabledDate="isFutureDate"
                         :onChange="(val) => form.dateFrom = val"
                     />
                 </div>
@@ -29,6 +30,7 @@
                         :label="__('message.view_logs_till')"
                         :value="form.dateTill"
                         :clearable="true"
+                        :disabledDate="isFutureDate"
                         :onChange="(val) => form.dateTill = val"
                     />
                 </div>
@@ -51,6 +53,9 @@ defineProps({
 })
 
 const emit = defineEmits(['apply', 'reset', 'close'])
+
+// Historical log data — nothing past today should be selectable.
+const isFutureDate = (date) => date > new Date()
 
 const statusOptions = [
     { id: 'success', name: 'Success' },

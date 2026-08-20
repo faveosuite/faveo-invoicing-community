@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Product;
 
 use App\Http\Requests\Request;
+use Illuminate\Validation\Rule;
 use Override;
 
 class GroupRequest extends Request
@@ -25,7 +26,7 @@ class GroupRequest extends Request
     public function rules(): array
     {
         return [
-            'name' => ['required'],
+            'name' => ['required', Rule::unique('product_groups', 'name')->ignore($this->route('group_id'))],
             'headline' => ['nullable', 'string'],
             'tagline' => ['nullable', 'string'],
             'hidden' => ['nullable', 'integer'],
@@ -44,6 +45,7 @@ class GroupRequest extends Request
     public function messages()
     {
         return [
+            'name.unique' => __('validation.group.name.unique'),
         ];
     }
 }

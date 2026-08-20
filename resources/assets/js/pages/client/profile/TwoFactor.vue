@@ -112,6 +112,7 @@
                                    maxlength="6"
                                    @keydown.enter="verify2fa" />
                         </div>
+                        <Honeypot name="2fa_code" v-model="totp2faCode" @ready="totpHpReady = $event" />
                     </template>
 
                     <!-- Step: Done -->
@@ -162,7 +163,7 @@
                             <i class="fas fa-arrow-left me-1"></i>{{ __('message.previous') }}
                         </button>
                         <button type="button" class="btn btn-primary btn-modern"
-                                :disabled="verifying2fa || !totp"
+                                :disabled="verifying2fa || !totp || !totpHpReady"
                                 @click="verify2fa">
                             <i v-if="verifying2fa" class="fas fa-circle-notch fa-spin me-1"></i>
                             <i v-else class="fas fa-check me-1"></i>
@@ -204,6 +205,7 @@ import { ref, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import Honeypot from '@/components/Reusable/Honeypot.vue'
 const el      = document.getElementById('app-client')
 const userId  = el?.dataset?.userId ?? ''
 
@@ -227,6 +229,8 @@ const qrImage           = ref('')
 const qrSecret          = ref('')
 const showSecretKey     = ref(false)
 const totp              = ref('')
+const totp2faCode       = ref({})
+const totpHpReady       = ref(false)
 const verifying2fa      = ref(false)
 
 // Disable modal state
@@ -341,7 +345,7 @@ async function verify2fa() {
     modalError.value   = ''
     verifying2fa.value = true
     try {
-        const res = await http.post(`/2fa/setupValidate`, { totp: totp.value })
+        const res = await http.post(`/2fa/setupValidate`, { totp: totp.value, '2fa_code': totp2faCode.value })
         successHandler(res, COMPONENT)
         twoFaStep.value = 'done'
     } catch (e) {

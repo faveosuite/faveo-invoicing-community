@@ -147,7 +147,7 @@ function onChange(val, name) {
     setFieldError(name, undefined)
     if (name === 'product') {
         form.productObj = val
-        form.product = val?.id ?? null
+        form.product = val ?? null
     } else {
         form[name] = val
     }

@@ -177,73 +177,81 @@ class ClientController extends BaseClientController
         }
     }
 
+    /**
+     * Single order's full detail (license, autorenew, WhatsApp, deploy info,
+     * etc.) — split out from getClientOrder() below, which is list-only.
+     */
+    public function getClientOrderDetail(int $id): JsonResponse
+    {
+        $order = $this->getClientPanelOrdersData()->where('id', $id)->first();
+        if (! $order) {
+            return errorResponse(__('message.no_records_found'), 404);
+        }
+
+        $latestInvoice = $order->invoices->first();
+        $user = Auth::user();
+        if (! $user instanceof User) {
+            return errorResponse('Unauthorized', 401);
+        }
+
+        $license = License::where('license_order_number', $order->number)->first(['license_domain', 'license_machine_id']);
+
+        return successResponse('', [
+            'id' => $order->id,
+            'number' => $order->number,
+            'product_name' => $order->productRelation?->name,
+            'product_id' => $order->productRelation?->id,
+            'version' => $order->subscription?->version,
+            'status' => $order->order_status,
+            'order_date' => $order->created_at,
+            'update_ends_at' => $order->subscription?->update_ends_at,
+            'license_ends_at' => $order->subscription?->ends_at,
+            'serial_key' => $order->serial_key,
+            'license_mode' => $order->license_mode,
+            'license_domain' => $license?->license_domain,
+            'license_machine_id' => $license?->license_machine_id,
+            'invoice_id' => $latestInvoice?->id,
+            'invoice_number' => $latestInvoice?->number,
+            'sub_id' => $order->subscription?->id,
+            'agents' => $order->invoiceItem?->agents,
+            'current_plan' => $order->subscription?->plan?->name,
+            'client_id' => $order->client,
+            'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
+            'autorenew_status' => (bool) $order->subscription?->autoRenew_status,
+            'is_subscribed' => (bool) $order->subscription?->is_subscribed,
+            'auto_renew_state' => $order->subscription?->autoRenewState() ?? 'inactive',
+            'autorenew_log' => Payment_log::where('order', $order->number)
+                ->where('payment_type', 'Payment method updated')
+                ->orderByDesc('id')
+                ->first(['payment_method', 'date']),
+            'available_gateways' => $this->autoRenewalGateways($user->country),
+            'autorenewal_enabled' => $this->autoRenewalGateways($user->country) !== [],
+            'whatsapp_enabled' => (bool) $order->productRelation?->whatsapp_integration,
+            'whatsapp_signup_enabled' => (bool) StatusSetting::value('whatsapp_status'),
+            'whatsapp_app_id' => WhatsappIntegration::first()?->app_id,
+            'whatsapp_config_id' => WhatsappIntegration::first()?->config_id,
+            'user' => [
+                'name' => ucfirst($user->first_name ?? '').' '.ucfirst($user->last_name ?? ''),
+                'email' => $user->email,
+                'mobile' => ($user->mobile_code ? '(+'.$user->mobile_code.') ' : '').($user->mobile ?? ''),
+                'address' => $user->address ?? '',
+            ],
+            'has_deployable_uploads' => ProductUpload::where('product_id', $order->productRelation?->id)
+                ->where('is_private', 0)
+                ->whereNotNull('file')
+                ->where('file', '!=', '')
+                ->exists(),
+            'manual_install_guide_url' => \App\Model\Common\Setting::where('id', 1)->value('help_docs_url'),
+            'deploy_enabled' => (bool) \App\Model\Common\Setting::where('id', 1)->value('deployment_enabled'),
+        ]);
+    }
+
+    /**
+     * Paginated order list for the client's My Orders page.
+     */
     public function getClientOrder(Request $request): JsonResponse
     {
         $query = $this->getClientPanelOrdersData();
-
-        if ($id = $request->input('id')) {
-            $order = (clone $query)->where('id', $id)->first();
-            if (! $order) {
-                return errorResponse(__('message.no_records_found'), 404);
-            }
-
-            $latestInvoice = $order->invoices->first();
-            $user = Auth::user();
-            if (! $user instanceof User) {
-                return errorResponse('Unauthorized', 401);
-            }
-
-            $license = License::where('license_order_number', $order->number)->first(['license_domain', 'license_machine_id']);
-
-            return successResponse('', [
-                'id' => $order->id,
-                'number' => $order->number,
-                'product_name' => $order->productRelation?->name,
-                'product_id' => $order->productRelation?->id,
-                'version' => $order->subscription?->version,
-                'status' => $order->order_status,
-                'order_date' => $order->created_at,
-                'update_ends_at' => $order->subscription?->update_ends_at,
-                'license_ends_at' => $order->subscription?->ends_at,
-                'serial_key' => $order->serial_key,
-                'license_mode' => $order->license_mode,
-                'license_domain' => $license?->license_domain,
-                'license_machine_id' => $license?->license_machine_id,
-                'invoice_id' => $latestInvoice?->id,
-                'invoice_number' => $latestInvoice?->number,
-                'sub_id' => $order->subscription?->id,
-                'agents' => $order->invoiceItem?->agents,
-                'current_plan' => $order->subscription?->plan?->name,
-                'client_id' => $order->client,
-                'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
-                'autorenew_status' => (bool) $order->subscription?->autoRenew_status,
-                'is_subscribed' => (bool) $order->subscription?->is_subscribed,
-                'auto_renew_state' => $order->subscription?->autoRenewState() ?? 'inactive',
-                'autorenew_log' => Payment_log::where('order', $order->number)
-                    ->where('payment_type', 'Payment method updated')
-                    ->orderByDesc('id')
-                    ->first(['payment_method', 'date']),
-                'available_gateways' => $this->autoRenewalGateways($user->country),
-                'autorenewal_enabled' => $this->autoRenewalGateways($user->country) !== [],
-                'whatsapp_enabled' => (bool) $order->productRelation?->whatsapp_integration,
-                'whatsapp_signup_enabled' => (bool) StatusSetting::value('whatsapp_status'),
-                'whatsapp_app_id' => WhatsappIntegration::first()?->app_id,
-                'whatsapp_config_id' => WhatsappIntegration::first()?->config_id,
-                'user' => [
-                    'name' => ucfirst($user->first_name ?? '').' '.ucfirst($user->last_name ?? ''),
-                    'email' => $user->email,
-                    'mobile' => ($user->mobile_code ? '(+'.$user->mobile_code.') ' : '').($user->mobile ?? ''),
-                    'address' => $user->address ?? '',
-                ],
-                'has_deployable_uploads' => ProductUpload::where('product_id', $order->productRelation?->id)
-                    ->where('is_private', 0)
-                    ->whereNotNull('file')
-                    ->where('file', '!=', '')
-                    ->exists(),
-                'manual_install_guide_url' => \App\Model\Common\Setting::where('id', 1)->value('help_docs_url'),
-                'deploy_enabled' => (bool) \App\Model\Common\Setting::where('id', 1)->value('deployment_enabled'),
-            ]);
-        }
 
         $search = trim((string) $request->input('search-query', ''));
 
@@ -252,6 +260,12 @@ class ClientController extends BaseClientController
                 $q->where('number', 'like', sprintf('%%%s%%', $search))
                     ->orWhereHas('productRelation', fn (Builder $pq) => $pq->where('name', 'like', sprintf('%%%s%%', $search)));
             });
+        }
+
+        // Dashboard's "Order Renewals" widget links here with this flag — same
+        // criteria as its own count in clientDetails().
+        if ($request->boolean('renewal')) {
+            $query->whereHas('subscription', fn (Builder $q) => $q->where('update_ends_at', '<', now()));
         }
 
         $sortField = $request->input('sort-field', 'order_date');
@@ -741,6 +755,7 @@ class ClientController extends BaseClientController
 
             $paginated->getCollection()->transform(fn ($payment): array => [
                 'id' => $payment->id,
+                'invoice_id' => $payment->invoice->id ?? null,
                 'invoice_number' => $payment->invoice->number ?? '—',
                 'amount' => currencyFormat($payment->amount, $payment->invoice->currency ?? ''),
                 'payment_method' => $payment->payment_method,

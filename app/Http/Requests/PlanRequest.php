@@ -34,8 +34,12 @@ class PlanRequest extends FormRequest
 
             'product' => ['required'],
             'days' => ['nullable', 'numeric'],
-            'product_quantity' => ['required_without:no_of_agents', 'integer', 'min:0'],
-            'no_of_agents' => ['required_without:product_quantity', 'integer', 'min:0'],
+            // 'nullable' matters here: once the other field satisfies
+            // required_without, this one is allowed to be legitimately null —
+            // without it, Laravel still runs 'integer' against that null and
+            // rejects it, blocking every Update on a plan with one field unset.
+            'product_quantity' => ['nullable', 'required_without:no_of_agents', 'integer', 'min:0'],
+            'no_of_agents' => ['nullable', 'required_without:product_quantity', 'integer', 'min:0'],
             'status' => [
                 'required',
                 Rule::unique('plans')

@@ -183,7 +183,7 @@ class RegisterController extends Controller
             $user->active = 1;
             $user->role = 'user';
             $user->account_manager = $managerSettings->get('account') ? (string) $user->assignManagerByPosition('account_manager') : null;
-            $user->manager = $managerSettings->get('sales') ? User::find($user->assignManagerByPosition('manager')) : null;
+            $user->manager = $managerSettings->get('sales') ? $user->assignManagerByPosition('manager') : null;
             $user->save();
 
             $need_verify = ($status->emailverification_status || $status->msg91_status) ? 1 : 0;

@@ -276,21 +276,21 @@ trait ApiKeySettings
     public function updateTermsDetails(Request $request): JsonResponse
     {
         $terms_url = $request->input('terms_url');
-        try {
-            $response = Http::get($terms_url);
 
-            if ($response == false) { // @phpstan-ignore equal.alwaysFalse
-                return errorResponse(__('message.terms_error'));
-            }
-
-            $status = (int) $request->input('status');
-            StatusSetting::where('id', 1)->update(['terms' => $status]);
-            ApiKey::where('id', 1)->update(['terms_url' => $terms_url]);
-
-            return successResponse(__('message.terms_setting'));
-        } catch (Exception) {
+        // Format-only check, not a live fetch — a live Http::get() here was
+        // fragile (any transient network hiccup on THIS server permanently
+        // blocked saving even a correct URL) and wrong in principle for a
+        // config field: the URL doesn't need to be reachable right now to be
+        // valid (see QA bug #54).
+        if (! filter_var($terms_url, FILTER_VALIDATE_URL)) {
             return errorResponse(__('message.terms_error'));
         }
+
+        $status = (int) $request->input('status');
+        StatusSetting::where('id', 1)->update(['terms' => $status]);
+        ApiKey::where('id', 1)->update(['terms_url' => $terms_url]);
+
+        return successResponse(__('message.terms_setting'));
     }
 
     public function showFileStorage(): JsonResponse

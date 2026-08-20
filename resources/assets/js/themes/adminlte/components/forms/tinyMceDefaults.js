@@ -103,4 +103,9 @@ export const editorInit = {
     toolbar:       toolbarItems.join(' | '),
     content_style: `.${TOOLTIP_CLASS} { text-decoration: underline dotted #aaa; cursor: pointer; }`,
     setup:         registerTooltipButton,
+    // TinyMCE's default (true) rewrites inserted URLs relative to the admin
+    // editor's own page — which then resolves to the wrong path wherever the
+    // saved HTML is rendered on a different URL (e.g. the client-facing page).
+    // Keep URLs absolute as entered so they resolve identically everywhere.
+    relative_urls: false,
 }

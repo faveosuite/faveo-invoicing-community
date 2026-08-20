@@ -262,6 +262,10 @@
                     <!-- ── Payment Receipts ─────────────────────────────── -->
                     <div v-if="activeTab === 'receipt'">
                         <DataTable :url="paymentsUrl" :dataColumns="paymentColumns" :option="paymentOptions">
+                            <template #invoice_number="{ row }">
+                                <RouterLink v-if="row.invoice_id" :to="'/my-invoice/' + row.invoice_id" class="fw-semibold">{{ row.invoice_number || '—' }}</RouterLink>
+                                <span v-else>{{ row.invoice_number || '—' }}</span>
+                            </template>
                             <template #payment_status="{ row }">
                                 <span :class="paymentBadge(row.payment_status)">{{ row.payment_status || '—' }}</span>
                             </template>
@@ -1305,7 +1309,7 @@ async function submitPlan() {
 
 onMounted(async () => {
     try {
-        const res = await http.get(`/get-my-orders`, { params: { id: orderId } })
+        const res = await http.get(`/get-my-order/${orderId}`)
         order.value = res.data?.data ?? null
         await loadPluginLicenses()
     } catch (e) {

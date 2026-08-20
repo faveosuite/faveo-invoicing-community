@@ -319,6 +319,7 @@
                         placehold="Enter Passcode..."
                         :max="6"
                     />
+                    <Honeypot name="2fa_code" v-model="totp2faCode" @ready="totpHpReady = $event" />
                 </template>
 
                 <!-- Step: Done -->
@@ -369,7 +370,7 @@
                         variant="primary"
                         :label="__('message.verify')"
                         :loading="verifying2fa"
-                        :disabled="!totp"
+                        :disabled="!totp || !totpHpReady"
                         @click="verify2fa"
                     />
                 </div>
@@ -408,6 +409,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { validateForm } from '@/helpers/formUtils.js'
 import ImageUpload from '@/components/Reusable/FormField/ImageUpload.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
+import Honeypot from '@/components/Reusable/Honeypot.vue'
 import { profileSchema, passwordChangeSchema } from '@/validations/admin/profileValidations'
 import { passwordChecks } from '@/validations/client/authSchemas'
 
@@ -426,6 +428,8 @@ const dateSinceEnabled = ref(null)
 const qrImage          = ref('')
 const qrSecret         = ref('')
 const totp             = ref('')
+const totp2faCode      = ref({})
+const totpHpReady      = ref(false)
 
 // Enable 2FA modal state
 const showEnableModal    = ref(false)
@@ -712,7 +716,7 @@ async function verify2fa() {
     modalError.value   = ''
     verifying2fa.value = true
     try {
-        const res = await http.post(`/2fa/setupValidate`, { totp: totp.value })
+        const res = await http.post(`/2fa/setupValidate`, { totp: totp.value, '2fa_code': totp2faCode.value })
         successHandler(res, COMPONENT)
         twoFaStep.value = 'done'
     } catch (e) {

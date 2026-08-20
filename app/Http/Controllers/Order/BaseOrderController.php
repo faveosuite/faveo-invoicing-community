@@ -121,9 +121,13 @@ class BaseOrderController extends ExtendedOrderController
             $supportExpiry = $sub?->ends_at;
         } else {
             $isOneTime = $plan->periods()->where('name', 'One Time')->exists();
-            $licenseExpiry = $isOneTime ? null : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $plan->days); // @phpstan-ignore argument.type
-            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $plan->days); // @phpstan-ignore argument.type
-            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $plan->days); // @phpstan-ignore argument.type
+            // plans.days is a varchar column; some plans (per-issue support,
+            // non-expiring add-ons) store it as '' rather than '0', which can't
+            // weakly-coerce to int and crashed here (QA bug #42) — cast like
+            // every other caller of $plan->days already does.
+            $licenseExpiry = $isOneTime ? null : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], (int) $plan->days);
+            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], (int) $plan->days);
+            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], (int) $plan->days);
         }
 
         Subscription::create([

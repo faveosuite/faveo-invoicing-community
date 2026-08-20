@@ -175,8 +175,8 @@
                 </div>
               </template>
 
-              <!-- Payment methods -->
-              <div class="py-3">
+              <!-- Payment methods — nothing to show when there's nothing to charge (free/trial item, or credit covers it all) -->
+              <div v-if="requiresGateway" class="py-3">
                 <strong class="d-block text-color-dark text-uppercase mb-3">{{ __('message.payment_methods') }}</strong>
 
                 <p v-if="!gateways.length" class="text-color-grey text-2 mb-0">
@@ -314,8 +314,11 @@ const cartTotalPreview = computed(() => cartCreditPreview.value > 0
   ? (toNumber(cartStore.grandTotal) - cartCreditPreview.value).toFixed(2)
   : cartStore.grandTotal)
 // A gateway is only required when there's actually something left to charge —
-// credit alone can cover an invoice entirely, with nothing to pay via gateway.
-const requiresGateway = computed(() => mode.value !== 'invoice' || toNumber(invAmount.value) > 0)
+// credit alone can cover an invoice entirely (or a cart item can be free/trial),
+// with nothing to pay via gateway.
+const requiresGateway = computed(() =>
+  toNumber(mode.value === 'invoice' ? invAmount.value : cartTotalPreview.value) > 0
+)
 
 // One unified item shape for the table, regardless of source.
 const displayItems = computed(() => {
@@ -451,7 +454,10 @@ async function submitOrder(autoRenewOptIn) {
       return
     }
     const { data } = await http.post(`/my-cart/place-order`, {
-      gateway: selectedGateway.value,
+      // Backend still requires a gateway string even for a free cart (it's
+      // unused beyond an auto-renew check there) — fall back to the first
+      // available one when nothing was shown/selected for the user to pick.
+      gateway: selectedGateway.value || gateways.value[0]?.name || '',
       auto_renew_opt_in: autoRenewOptIn,
     })
     router.push({ path: '/place-order', query: { invoice: data.data.invoice_id, gateway: selectedGateway.value, use_credit: credit } })

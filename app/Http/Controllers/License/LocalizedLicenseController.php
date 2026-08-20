@@ -83,6 +83,13 @@ class LocalizedLicenseController extends Controller
 
         $ipAndDomain = LicenseService::parseIpAndDomain($domain);
 
+        // Not a recognised IP, so it must be a syntactically valid hostname —
+        // rejects things like "invalid domain!!" before they get baked into
+        // the signed license file. Hyphens/subdomains are fine (FILTER_FLAG_HOSTNAME).
+        if ($ipAndDomain['requireDomain'] && ! filter_var($ipAndDomain['domain'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+            return errorResponse(__('message.invalid_domain'));
+        }
+
         $updated = License::where('license_order_number', $orderNo)->update([
             'license_domain' => $ipAndDomain['domain'],
             'license_ip' => $ipAndDomain['ip'],

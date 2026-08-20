@@ -276,8 +276,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 throw new Exception('Product not found.');
             }
 
-            $baseCost = $userCurrency['plan']->add_price;
-            $offer = $userCurrency['plan']['offer_price'] ?? 0;
+            $baseCost = $userCurrency['plan']?->add_price;
+            $offer = $userCurrency['plan'] ? ($userCurrency['plan']['offer_price'] ?? 0) : 0;
             $cost = $offer > 0 ? $baseCost * (1 - $offer / 100) : $baseCost;
             Session::put('plan', $plan);
             $couponTotal = $this->getGrandTotal($code, $total, $cost, $productid, $currency, $user_id);
@@ -318,9 +318,16 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     public function executeInvoice(int $id): JsonResponse
     {
         try {
+            $invoice = Invoice::findOrFail($id);
+            // 'Paid' (checkout/cart flow) and 'Success' (manual payment recording,
+            // client renewals) both mean "fully paid" — see ExtendedBaseInvoiceController
+            // and RenewController::successRenew().
+            if (! in_array($invoice->status, ['Paid', 'Success'], true)) {
+                return errorResponse(__('message.invoice-not-paid'));
+            }
+
             (new OrderController)->executeOrder($id);
 
-            $invoice = Invoice::findOrFail($id);
             if (! empty($invoice->cloud_domain)) {
                 $cloudProductIds = CloudProducts::pluck('cloud_product');
                 $orderIds = OrderInvoiceRelation::where('invoice_id', $id)->pluck('order_id');
@@ -341,7 +348,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     }
 
     public function createInvoiceItemsByAdmin(int $invoiceid, string $productid, mixed $price,
-        string $currency, int $qty, mixed $agents, int $planid, int $userid, ?string $tax_name, float|int $tax_rate, mixed $grandTotalAfterCoupon): InvoiceItem|JsonResponse|RedirectResponse
+        string $currency, int $qty, mixed $agents, ?int $planid, int $userid, ?string $tax_name, float|int $tax_rate, mixed $grandTotalAfterCoupon): InvoiceItem|JsonResponse|RedirectResponse
     {
         try {
             $product = $this->product->findOrFail($productid);

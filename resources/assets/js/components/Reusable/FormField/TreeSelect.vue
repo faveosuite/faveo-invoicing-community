@@ -61,7 +61,7 @@ const props = defineProps({
 
 const loaderRef     = ref(null)
 const listElements  = ref([...props.elements])
-const selectedValue = ref(props.value)
+const selectedValue = ref(toScalar(props.value))
 const isLoading     = ref(false)
 const nextPageUrl   = ref(null)
 const searchQuery   = ref('')
@@ -70,6 +70,22 @@ let   observer      = null
 let   initialLoaded = false
 
 const hasNextPage = computed(() => Boolean(nextPageUrl.value && props.apiEndpoint))
+
+// A single-select tree's v-model is a plain scalar id, not an object — but a
+// caller hydrating from a saved record (e.g. an edit form) only has an
+// `{ id, name }` pair to work with (the full options tree hasn't loaded yet
+// to look the label up). Accept that shape here: pull out the id for the
+// actual model value, and seed it into the options list so the closed-state
+// label resolves immediately instead of falling back to "<value> (unknown)".
+function toScalar(val) {
+    if (val && typeof val === 'object' && !Array.isArray(val)) {
+        if (val.id != null && !listElements.value.some(el => el.id === val.id)) {
+            listElements.value = [...listElements.value, { id: val.id, name: val.name ?? val.label ?? '' }]
+        }
+        return val.id ?? null
+    }
+    return val
+}
 
 function normalizer(node) {
     return {
@@ -145,7 +161,7 @@ onBeforeUnmount(() => {
     onSearch.cancel()
 })
 
-watch(() => props.value, val => { selectedValue.value = val ?? null })
+watch(() => props.value, val => { selectedValue.value = toScalar(val) ?? null })
 watch(() => props.elements, val => { if (!props.apiEndpoint) listElements.value = [...val] })
 watch(() => props.apiEndpoint, val => {
     if (val) { listElements.value = []; page.value = 1; nextPageUrl.value = null; initialLoaded = false; loadPage(true) }

@@ -14,6 +14,7 @@ use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Validator;
 
 /**
@@ -141,7 +142,7 @@ class TaxController extends Controller
                 return errorResponse(__('message.tax_not_found'), 404);
             }
 
-            if ($error = $this->validateRate($request)) {
+            if ($error = $this->validateRate($request, (int) $id)) {
                 return errorResponse($error, 422);
             }
 
@@ -256,10 +257,17 @@ class TaxController extends Controller
         }
     }
 
-    private function validateRate(Request $request): ?string
+    private function validateRate(Request $request, ?int $ignoreId = null): ?string
     {
+        // Scoped, not global — real data reuses the same name across different
+        // country/state/tax_class combinations (e.g. "UGST" for Puducherry vs
+        // Delhi), just never twice within the same one.
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'name' => ['required', Rule::unique('tax_rates', 'name')
+                ->where('country', strtoupper((string) $request->input('country', '')))
+                ->where('state', (string) $request->input('state', ''))
+                ->where('tax_class', (string) $request->input('tax_class', ''))
+                ->ignore($ignoreId)],
             'rate' => 'required|numeric|min:0',
             'priority' => 'nullable|numeric|min:1',
         ]);

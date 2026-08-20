@@ -368,7 +368,7 @@ function getCurrencySymbolAndPriceForPlans(string $countryCode, mixed $plan): ar
 {
     $userCurrency = getCurrencyForClient($countryCode);
 
-    $userPlan = $plan->planPrice->firstWhere('currency', $userCurrency);
+    $userPlan = $plan?->planPrice->firstWhere('currency', $userCurrency);
 
     $currency = $userCurrency;
     $currencySymbol = Currency::where('code', $currency)->value('symbol');

@@ -373,6 +373,7 @@ return [
         ],
         'slug' => [
             'required' => 'The slug field is required.',
+            'unique' => 'This slug already exists.',
         ],
         'url' => [
             'required' => 'The URL field is required.',
@@ -448,6 +449,7 @@ return [
             'required' => 'The discount value field is required.',
             'numeric' => 'The discount value field must be a number.',
             'between' => 'The discount value field must be between :min and :max if the type is percentage.',
+            'max' => 'The discount value cannot exceed the applied product\'s price (:max).',
         ],
     ],
 
@@ -506,6 +508,7 @@ return [
     'group' => [
         'name' => [
             'required' => 'The name is required',
+            'unique' => 'This name already exists.',
         ],
         'pricing_templates_id' => [
             'required' => 'The design template is required.',

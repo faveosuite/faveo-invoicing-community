@@ -220,7 +220,7 @@ class PageController extends Controller
         try {
             $contact = getContactData();
 
-            $isSpam = $this->detectSpam($request->input('message'));
+            $isSpam = $this->detectSpam($request->input('conmessage'));
 
             if ($isSpam) {
                 return errorResponse(__('message.spam_detected'));

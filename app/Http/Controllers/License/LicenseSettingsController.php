@@ -6,6 +6,7 @@ use App\Model\License\LicenseType;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class LicenseSettingsController extends LicensePermissionsController
 {
@@ -51,6 +52,10 @@ class LicenseSettingsController extends LicensePermissionsController
      */
     public function createLicense(Request $request): JsonResponse
     {
+        $this->validate($request, [
+            'name' => ['required', Rule::unique('license_types', 'name')],
+        ]);
+
         try {
             $this->licenseType->fill($request->input())->save();
 
@@ -62,6 +67,10 @@ class LicenseSettingsController extends LicensePermissionsController
 
     public function updateLicense(Request $request, mixed $id): JsonResponse
     {
+        $this->validate($request, [
+            'name' => ['required', Rule::unique('license_types', 'name')->ignore($id)],
+        ]);
+
         try {
             $type_name = $request->input('name');
             /** @var LicenseType|null $type */

@@ -322,6 +322,7 @@ Route::middleware('installAgora')->group(function (): void {
 
     // --- Orders (client) ---
     Route::get('get-my-orders', [ClientController::class, 'getClientOrder'])->name('get-my-orders');
+    Route::get('get-my-order/{id}', [ClientController::class, 'getClientOrderDetail'])->name('get-my-order');
     Route::get('renew-popup-details/{productid}', [ClientController::class, 'renewPopupVue']);
     Route::get('get-cloud-settings/{orderId}', [ClientController::class, 'getCloudSettings']);
     Route::get('get-my-invoices/{orderid}/{userid}/{admin?}', [ClientController::class, 'getInvoicesByOrderId']);
