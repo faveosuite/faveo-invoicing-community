@@ -45,19 +45,19 @@ return new class extends Migration
         // its full amount. Rows created by the interim parent/child scheme are
         // allocations of their PARENT's money, so they fold into the parent and
         // the duplicate row goes away.
-        DB::statement("
+        DB::statement('
             INSERT INTO payment_invoice (payment_id, invoice_id, amount, created_at, updated_at)
             SELECT id, invoice_id, CAST(COALESCE(amount, 0) AS DECIMAL(20,4)), created_at, updated_at
             FROM payments
             WHERE invoice_id > 0 AND COALESCE(parent_id, 0) = 0
-        ");
+        ');
 
-        DB::statement("
+        DB::statement('
             INSERT INTO payment_invoice (payment_id, invoice_id, amount, created_at, updated_at)
             SELECT parent_id, invoice_id, CAST(COALESCE(amount, 0) AS DECIMAL(20,4)), created_at, updated_at
             FROM payments
             WHERE invoice_id > 0 AND COALESCE(parent_id, 0) > 0
-        ");
+        ');
 
         DB::table('payments')->where('invoice_id', '>', 0)->where('parent_id', '>', 0)->delete();
 
