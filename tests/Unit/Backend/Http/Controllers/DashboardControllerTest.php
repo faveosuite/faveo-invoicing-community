@@ -34,7 +34,8 @@ class DashboardControllerTest extends DBTestCase
         $this->getLoggedInUser();
         $user = $this->user;
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'currency' => 'INR', 'status' => 'success']);
-        Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '10000']);
+        Payment::create(['user_id' => $user->id, 'amount' => '10000', 'currency' => $invoice->currency])
+            ->invoices()->attach($invoice->id, ['amount' => 10000]);
         $controller = new DashboardController;
         $allowedCurrencies2 = 'INR';
         $response = $controller->getTotalSales($allowedCurrencies2);
@@ -49,7 +50,8 @@ class DashboardControllerTest extends DBTestCase
         $user = $this->user;
         $date = date('Y-m-d H:m:i');
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'currency' => 'INR', 'status' => 'success', 'date' => $date]);
-        Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '10000']);
+        Payment::create(['user_id' => $user->id, 'amount' => '10000', 'currency' => $invoice->currency])
+            ->invoices()->attach($invoice->id, ['amount' => 10000]);
         $controller = new DashboardController;
         $allowedCurrencies2 = 'INR';
         $response = $controller->getYearlySales($allowedCurrencies2);
@@ -252,7 +254,8 @@ class DashboardControllerTest extends DBTestCase
         $this->getLoggedInUser();
         $user = $this->user;
         $invoice = Invoice::factory()->create(['id' => 22, 'user_id' => $user->id, 'status' => 'Pending', 'date' => Date::now()]);
-        Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '50000']);
+        Payment::create(['user_id' => $user->id, 'amount' => '50000', 'currency' => $invoice->currency])
+            ->invoices()->attach($invoice->id, ['amount' => 50000]);
         $invoice1 = Invoice::factory()->create(['id' => 23, 'user_id' => $user->id, 'status' => 'success', 'date' => Date::now()]);
         Payment::create(['invoice_id' => $invoice1->id, 'user_id' => $user->id, 'amount' => '20000']);
         $invoice2 = Invoice::factory()->create(['id' => 24, 'user_id' => $user->id, 'status' => 'Pending', 'date' => Date::now()]);
@@ -272,7 +275,8 @@ class DashboardControllerTest extends DBTestCase
         $this->getLoggedInUser();
         $user = $this->user;
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'success', 'date' => Date::now(), 'currency' => 'INR']);
-        Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '50000']);
+        Payment::create(['user_id' => $user->id, 'amount' => '50000', 'currency' => $invoice->currency])
+            ->invoices()->attach($invoice->id, ['amount' => 50000]);
         $response = $this->getPrivateMethod($this->classObject, 'getMonthlySales', ['INR']);
         $this->assertEquals(50000, $response);
     }
@@ -285,7 +289,8 @@ class DashboardControllerTest extends DBTestCase
         $user = $this->user;
         Setting::create(['default_currency' => 'INR', 'default_symbol' => '₹']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending', 'date' => Date::now()]);
-        Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '50000']);
+        Payment::create(['user_id' => $user->id, 'amount' => '50000', 'currency' => $invoice->currency])
+            ->invoices()->attach($invoice->id, ['amount' => 50000]);
         $invoice1 = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'success', 'date' => Date::now()]);
         Payment::create(['invoice_id' => $invoice1->id, 'user_id' => $user->id, 'amount' => '20000']);
         $invoice2 = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending', 'date' => Date::now()]);

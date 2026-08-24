@@ -4,6 +4,7 @@
             <DataTable :url="apiUrl" :dataColumns="columns" :option="tableOptions">
                 <template #number="{ row }">
                     <RouterLink :to="'/my-order/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
+                    <span v-if="row.is_terminated" class="badge bg-danger ms-1">{{ __('message.terminated') }}</span>
                 </template>
                 <template #order_date="{ row }">{{ formatDate(row.order_date) }}</template>
                 <template #update_ends_at="{ row }">{{ formatDate(row.update_ends_at) }}</template>

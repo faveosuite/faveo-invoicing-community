@@ -43,10 +43,10 @@ class DashboardController extends Controller
      */
     public function getTotalSales(mixed $allowedCurrencies): float|int
     {
-        $total = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
+        $total = Invoice::leftJoin('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
             ->where('invoices.currency', $allowedCurrencies)
             ->where('invoices.status', '!=', 'pending')
-            ->pluck('payments.amount')->all();
+            ->pluck('payment_invoice.amount')->all();
 
         return array_sum($total);
     }
@@ -59,11 +59,11 @@ class DashboardController extends Controller
     public function getYearlySales(mixed $allowedCurrencies): float|int
     {
         $currentYear = date('Y');
-        $yearlytotal = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
+        $yearlytotal = Invoice::leftJoin('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
             ->whereYear('invoices.date', '=', $currentYear)
             ->where('invoices.currency', $allowedCurrencies)
             ->where('invoices.status', '!=', 'pending')
-            ->pluck('payments.amount')->all();
+            ->pluck('payment_invoice.amount')->all();
 
         return array_sum($yearlytotal);
     }
@@ -77,11 +77,11 @@ class DashboardController extends Controller
     {
         $currentMonth = date('m');
         $currentYear = date('Y');
-        $total = Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
+        $total = Invoice::leftJoin('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
             ->whereYear('invoices.date', '=', $currentYear)->whereMonth('invoices.date', '=', $currentMonth)
             ->where('invoices.currency', $allowedCurrencies)
             ->where('invoices.status', '!=', 'pending')
-            ->pluck('payments.amount')->all();
+            ->pluck('payment_invoice.amount')->all();
 
         return array_sum($total);
     }
@@ -227,9 +227,9 @@ class DashboardController extends Controller
 
         return Invoice::with('user:id,first_name,last_name,email,user_name')
             ->leftJoin('currencies', 'invoices.currency', '=', 'currencies.code')
-            ->leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
+            ->leftJoin('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
             ->select('invoices.id as invoice_id', 'invoices.number as invoice_number', 'invoices.grand_total', 'invoices.status',
-                DB::raw('SUM(payments.amount) as paid'), 'invoices.user_id', 'currencies.code as currency_code', 'invoices.date')
+                DB::raw('SUM(payment_invoice.amount) as paid'), 'invoices.user_id', 'currencies.code as currency_code', 'invoices.date')
             ->whereBetween('invoices.date', [$fromDateStart, $tillDateEnd])
 
             ->groupBy('invoices.id')
@@ -405,40 +405,40 @@ class DashboardController extends Controller
 
     public function getTotalSalesByCurrency(): mixed
     {
-        return Invoice::join('payments', 'invoices.id', '=', 'payments.invoice_id')
+        return Invoice::join('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
             ->where('invoices.status', '!=', 'pending')
             ->groupBy('invoices.currency')
-            ->selectRaw('invoices.currency, SUM(payments.amount) as total')
+            ->selectRaw('invoices.currency, SUM(payment_invoice.amount) as total')
             ->pluck('total', 'currency');
     }
 
     public function getYearlySalesByCurrency(): mixed
     {
-        return Invoice::join('payments', 'invoices.id', '=', 'payments.invoice_id')
+        return Invoice::join('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
             ->where('invoices.status', '!=', 'pending')
             ->whereYear('invoices.created_at', Date::now()->year)
             ->groupBy('invoices.currency')
-            ->selectRaw('invoices.currency, SUM(payments.amount) as total')
+            ->selectRaw('invoices.currency, SUM(payment_invoice.amount) as total')
             ->pluck('total', 'currency');
     }
 
     public function getMonthlySalesByCurrency(): mixed
     {
-        return Invoice::join('payments', 'invoices.id', '=', 'payments.invoice_id')
+        return Invoice::join('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
             ->where('invoices.status', '!=', 'pending')
             ->whereBetween('invoices.date', [now()->startOfMonth(), now()->endOfMonth()])
             ->groupBy('invoices.currency')
-            ->selectRaw('invoices.currency, SUM(payments.amount) as total')
+            ->selectRaw('invoices.currency, SUM(payment_invoice.amount) as total')
             ->pluck('total', 'currency');
     }
 
     public function getAllPendingPayments(): mixed
     {
         return DB::table(
-            Invoice::leftJoin('payments', 'invoices.id', '=', 'payments.invoice_id')
+            Invoice::leftJoin('payment_invoice', 'invoices.id', '=', 'payment_invoice.invoice_id')
                 ->where('invoices.status', '!=', 'paid')
                 ->groupBy('invoices.id', 'invoices.currency', 'invoices.grand_total')
-                ->selectRaw('invoices.currency, invoices.grand_total - COALESCE(SUM(payments.amount), 0) as remaining')
+                ->selectRaw('invoices.currency, invoices.grand_total - COALESCE(SUM(payment_invoice.amount), 0) as remaining')
                 ->toBase(),
             'sub'
         )
@@ -507,7 +507,9 @@ class DashboardController extends Controller
         $invoices = Invoice::with([
             'user:id,first_name,last_name',
         ])
-            ->withSum('payment', 'amount')
+            // Sum the allocations, not the payments — a payment covering three
+            // invoices must only count here for the slice that landed on each.
+            ->withSum('allocations', 'amount')
             ->whereBetween('date', [$fromDate, $toDate])
             ->orderByDesc('date')
             ->get([
@@ -521,7 +523,7 @@ class DashboardController extends Controller
             ]);
 
         return $invoices->map(function ($invoice): array {
-            $paidAmount = $invoice->payment_sum_amount ?? 0;
+            $paidAmount = $invoice->allocations_sum_amount ?? 0;
             $balance = $invoice->grand_total - $paidAmount;
 
             return [

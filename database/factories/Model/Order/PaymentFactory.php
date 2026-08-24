@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Factories\Model\Order;
 
-use App\Model\Order\Invoice;
 use App\Model\Order\Payment;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,7 +19,8 @@ class PaymentFactory extends Factory
     {
         return [
             'parent_id' => 0,
-            'invoice_id' => Invoice::factory(),
+            // What a payment settles lives in payment_invoice, not here.
+            'invoice_id' => 0,
             'amount' => fake()->randomFloat(2, 50, 5000),
             'payment_method' => fake()->randomElement(['razorpay', 'stripe', 'bank_transfer', 'manual']),
             'user_id' => User::factory(),

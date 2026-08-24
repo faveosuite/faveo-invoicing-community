@@ -8,9 +8,9 @@ use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\User\AdvanceSearchController;
 use App\License\Models\Installation;
 use App\License\Models\License;
-use App\Model\Common\CreditActivity;
 use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
+use App\Model\Order\CreditTransaction;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
@@ -101,7 +101,7 @@ class ClientController extends BaseClientController
     {
         $query = Invoice::with([
             'orders:id,number',
-            'payment' => fn ($q) => $q->where('payment_status', 'success')->select('invoice_id', 'amount'),
+            'allocations.payment:id,payment_status',
         ])
             ->select('id', 'number', 'date', 'grand_total', 'billing_pay', 'status', 'currency', 'is_renewed')
             ->where('user_id', Auth::id());
@@ -122,7 +122,11 @@ class ClientController extends BaseClientController
         $paginated = $query->paginate((int) $request->input('limit', 10));
 
         $paginated->getCollection()->transform(function ($invoice): array {
-            $paymentTotal = $invoice->payment->sum('amount');
+            // The allocated amounts, not the payments' own totals — one payment
+            // can be spread over several invoices.
+            $paymentTotal = $invoice->allocations
+                ->filter(fn ($a): bool => $a->payment?->payment_status === 'success')
+                ->sum(fn ($a): float => (float) $a->amount);
             $paid = floatval($invoice->billing_pay ?? 0) + floatval($paymentTotal);
             $balance = max(0, floatval($invoice->grand_total) - $paid);
             $isPaid = strtolower($invoice->status ?? '') === 'success';
@@ -146,9 +150,10 @@ class ClientController extends BaseClientController
     }
 
     /**
-     * Client's credit balance = SUM of their invoice_id = 0 rows (see
-     * AdvanceSearchController::getExtraAmt / ExtendedBaseInvoiceController::updatePaymentByInvoice),
-     * plus the client-visible activity log across every row that fed that balance.
+     * Client's credit balance, summed across all currencies, and the history
+     * behind it read straight from the ledger. The old `credit_activity` table
+     * is no longer consulted: it stopped gaining rows when credit moved to the
+     * ledger, so it left the client staring at a balance with no explanation.
      */
     public function getCreditBalance(): JsonResponse
     {
@@ -158,23 +163,45 @@ class ClientController extends BaseClientController
                 return errorResponse('Unauthorized', 401);
             }
 
-            $creditPaymentIds = Payment::where('user_id', $user->id)->where('invoice_id', 0)->pluck('id');
             $balance = new AdvanceSearchController()->getExtraAmt($user->id);
 
-            $activity = CreditActivity::whereIn('payment_id', $creditPaymentIds)
-                ->where('role', 'user')
+            $transactions = CreditTransaction::where('user_id', $user->id)
                 ->orderByDesc('created_at')
-                ->get(['text', 'created_at']);
+                ->orderByDesc('id') // same-second rows would otherwise order arbitrarily
+                ->limit(50)
+                ->get();
+
+            $invoiceNumbers = Invoice::whereIn('id', $transactions->pluck('invoice_id')->filter())
+                ->pluck('number', 'id');
 
             return successResponse('', [
                 'balance' => currencyFormat($balance, getCurrencyForClient($user->country), true),
-                'activity' => $activity,
+                'activity' => $transactions->map(fn ($transaction): array => [
+                    'text' => $this->creditActivityText($transaction, $invoiceNumbers[$transaction->invoice_id] ?? null),
+                    'created_at' => $transaction->created_at,
+                ])->values(),
             ]);
         } catch (Exception $exception) {
             Logger::exception($exception);
 
             return errorResponse(__('message.something_bad'));
         }
+    }
+
+    /**
+     * One ledger row as a sentence for the client. Plain text on purpose — the
+     * note half of it is written by an admin, and this is rendered in the
+     * client's browser.
+     */
+    private function creditActivityText(CreditTransaction $transaction, ?string $invoiceNumber): string
+    {
+        $amount = currencyFormat(abs((float) $transaction->amount), $transaction->currency, true);
+
+        $text = $transaction->type === CreditTransaction::TYPE_APPLIED_TO_INVOICE
+            ? __('message.credit_history_applied', ['amount' => $amount, 'number' => $invoiceNumber ?? '—'])
+            : __('message.credit_history_added', ['amount' => $amount]);
+
+        return $transaction->note ? $text.' '.$transaction->note : $text;
     }
 
     /**
@@ -195,6 +222,16 @@ class ClientController extends BaseClientController
         }
 
         $license = License::where('license_order_number', $order->number)->first(['license_domain', 'license_machine_id']);
+
+        // A plan/agent change terminates the old order and creates a new one
+        // (see terminated_order_upgrade, written by CloudExtraActivities).
+        // Surface that link both ways so the client isn't left looking at a
+        // dead order with no explanation, or a new one they don't remember
+        // creating themselves.
+        $replacementOrderId = \DB::table('terminated_order_upgrade')->where('terminated_order_id', $order->id)->value('upgraded_order_id');
+        $predecessorOrderId = \DB::table('terminated_order_upgrade')->where('upgraded_order_id', $order->id)->value('terminated_order_id');
+        $replacementOrder = $replacementOrderId ? \App\Model\Order\Order::where('client', $order->client)->find((int) $replacementOrderId) : null;
+        $predecessorOrder = $predecessorOrderId ? \App\Model\Order\Order::where('client', $order->client)->find((int) $predecessorOrderId) : null;
 
         return successResponse('', [
             'id' => $order->id,
@@ -243,6 +280,8 @@ class ClientController extends BaseClientController
                 ->exists(),
             'manual_install_guide_url' => \App\Model\Common\Setting::where('id', 1)->value('help_docs_url'),
             'deploy_enabled' => (bool) \App\Model\Common\Setting::where('id', 1)->value('deployment_enabled'),
+            'replacement_order' => $replacementOrder ? ['id' => $replacementOrder->id, 'number' => $replacementOrder->number] : null,
+            'predecessor_order' => $predecessorOrder ? ['id' => $predecessorOrder->id, 'number' => $predecessorOrder->number] : null,
         ]);
     }
 
@@ -749,15 +788,16 @@ class ClientController extends BaseClientController
             $invoiceIds = $order->invoices()->pluck('invoices.id')->toArray();
 
             $paginated = $this->payment::query()
-                ->with(['invoice:id,number,currency'])
-                ->whereIn('invoice_id', $invoiceIds)->latest()
+                ->with(['invoices:id,number,currency'])
+                ->whereHas('invoices', fn ($q) => $q->whereIn('invoices.id', $invoiceIds))
+                ->latest()
                 ->paginate(10);
 
             $paginated->getCollection()->transform(fn ($payment): array => [
                 'id' => $payment->id,
-                'invoice_id' => $payment->invoice->id ?? null,
-                'invoice_number' => $payment->invoice->number ?? '—',
-                'amount' => currencyFormat($payment->amount, $payment->invoice->currency ?? ''),
+                'invoice_id' => $payment->invoices->first()?->id,
+                'invoice_number' => $payment->invoices->pluck('number')->implode(', ') ?: '—',
+                'amount' => currencyFormat($payment->amount, $payment->currency ?: ($payment->invoices->first()->currency ?? '')),
                 'payment_method' => $payment->payment_method,
                 'payment_status' => $payment->payment_status,
                 'created_at' => $payment->created_at,

@@ -11,6 +11,7 @@ use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -62,9 +63,15 @@ class OrderModelsTest extends TestCase
         $this->assertContains('payment_status', $fillable);
     }
 
-    public function test_payment_invoice_is_belongs_to(): void
+    public function test_payment_invoices_is_many_to_many(): void
     {
-        $this->assertInstanceOf(BelongsTo::class, (new Payment())->invoice());
+        // A payment can settle several invoices, so this cannot be a belongsTo.
+        $this->assertInstanceOf(BelongsToMany::class, (new Payment())->invoices());
+    }
+
+    public function test_payment_allocations_is_has_many(): void
+    {
+        $this->assertInstanceOf(HasMany::class, (new Payment())->allocations());
     }
 
     public function test_payment_user_is_belongs_to(): void
@@ -130,9 +137,15 @@ class OrderModelsTest extends TestCase
         $this->assertTrue(method_exists(Invoice::class, 'installationDetail'));
     }
 
-    public function test_invoice_payment_is_has_many(): void
+    public function test_invoice_payments_is_many_to_many(): void
     {
-        $this->assertInstanceOf(HasMany::class, (new Invoice())->payment());
+        // ...and an invoice can be settled by several payments.
+        $this->assertInstanceOf(BelongsToMany::class, (new Invoice())->payments());
+    }
+
+    public function test_invoice_allocations_is_has_many(): void
+    {
+        $this->assertInstanceOf(HasMany::class, (new Invoice())->allocations());
     }
 
     public function test_invoice_status_is_cast_attribute(): void

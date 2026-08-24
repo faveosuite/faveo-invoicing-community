@@ -62,14 +62,13 @@ const router = createRouter({
     routes,
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
     const auth         = useAuthStore()
     const requiresAuth = to.meta?.requiresAuth !== false
     const guestOnly    = to.meta?.guestOnly === true
 
-    if (guestOnly && auth.isAuthenticated) return next('/client-dashboard')
-    if (requiresAuth && !auth.isAuthenticated) return next({ path: '/login', query: { redirect: to.fullPath } })
-    next()
+    if (guestOnly && auth.isAuthenticated) return '/client-dashboard'
+    if (requiresAuth && !auth.isAuthenticated) return { path: '/login', query: { redirect: to.fullPath } }
 })
 
 router.afterEach((to) => {

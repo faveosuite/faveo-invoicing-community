@@ -5,11 +5,29 @@
 
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">{{ __('message.link-extra') }}</h4>
+                <h4 class="card-title">{{ __('message.apply_payment_to_invoices') }}</h4>
             </div>
             <div class="card-body">
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <TextField
+                            name="payment_amount"
+                            :label="__('message.amount')"
+                            :value="`${symbol}${money(payment.amount)}`"
+                            :disabled="true"
+                            :onChange="() => {}"
+                        />
+                    </div>
+                    <div class="col-md-3">
+                        <TextField
+                            name="payment_method"
+                            :label="__('message.payment-method')"
+                            :value="payment.payment_method ?? ''"
+                            :disabled="true"
+                            :onChange="() => {}"
+                        />
+                    </div>
+                    <div class="col-md-3">
                         <DatePicker
                             name="payment_date"
                             :label="__('message.date-of-payment')"
@@ -19,23 +37,11 @@
                             :error="errors.payment_date"
                         />
                     </div>
-                    <div class="col-md-4">
-                        <SelectField
-                            name="payment_method"
-                            :label="__('message.payment-method')"
-                            :required="true"
-                            :elements="paymentMethods"
-                            :value="selectedMethod"
-                            :onChange="(val) => { form.payment_method = val?.value ?? ''; setFieldError('payment_method', undefined) }"
-                            :clearable="false"
-                            :error="errors.payment_method"
-                        />
-                    </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <TextField
-                            name="available_credit"
-                            :label="__('message.available_credit')"
-                            :value="`${symbol}${availableCredit}`"
+                            name="unapplied"
+                            :label="__('message.unapplied_balance')"
+                            :value="`${symbol}${money(unapplied)}`"
                             :disabled="true"
                             :onChange="() => {}"
                         />
@@ -68,7 +74,7 @@
                             <th>{{ __('message.invoice_number') }}</th>
                             <th>{{ __('message.total') }}</th>
                             <th>{{ __('message.invoice_due') }}</th>
-                            <th>{{ __('message.credit_applied') }}</th>
+                            <th>{{ __('message.amount_applied') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -99,8 +105,8 @@
                 </table>
             </div>
             <div class="card-footer">
-                <strong>{{ __('message.credit_applied') }}: {{ symbol }}{{ totalApplied }}</strong>
-                <span class="ms-3 text-muted">{{ __('message.available_credit') }}: {{ symbol }}{{ remainingCredit }}</span>
+                <strong>{{ __('message.amount_applied') }}: {{ symbol }}{{ totalApplied }}</strong>
+                <span class="ms-3 text-muted">{{ __('message.unapplied_balance') }}: {{ symbol }}{{ remaining }}</span>
             </div>
         </div>
     </div>
@@ -127,32 +133,27 @@ const loading    = ref(true)
 const submitting = ref(false)
 const invoices   = ref([])
 const symbol     = ref('')
-const availableCredit = ref(0)
+const unapplied = ref(0)
+const payment   = ref({})
 
+// Only the allocation date is editable — the payment's own amount and method
+// are facts about money that already arrived, not fields to re-type here.
 const form = ref({
-    payment_date:   '',
-    payment_method: '',
+    payment_date: '',
 })
-
-const paymentMethods = [
-    { name: 'Cash',           value: 'cash' },
-    { name: 'Check',          value: 'check' },
-    { name: 'Online Payment', value: 'online payment' },
-    { name: 'Razorpay',       value: 'razorpay' },
-    { name: 'Stripe',         value: 'stripe' },
-    { name: 'Credit Balance', value: 'Credit Balance' },
-]
-
-const selectedMethod = computed(() =>
-    paymentMethods.find(m => m.value === form.value.payment_method) ?? null
-)
 
 const breadcrumbs = [
     { label: __('message.home'),       to: '/dashboard' },
     { label: __('message.all-users'),  to: '/users' },
     { label: __('message.view_user'),  to: `/users/${userId}` },
-    { label: __('message.edit-payment') },
+    { label: __('message.apply_payment_to_invoices') },
 ]
+
+// Display helper only. The underlying values stay raw numbers so the
+// allocation maths keeps working — a formatted "1,234.50" parses back as 1.
+function money(value) {
+    return (parseFloat(value) || 0).toFixed(2)
+}
 
 const totalApplied = computed(() => {
     const sum = invoices.value
@@ -161,18 +162,18 @@ const totalApplied = computed(() => {
     return sum.toFixed(2)
 })
 
-const remainingCredit = computed(() =>
-    Math.max(0, (parseFloat(availableCredit.value) || 0) - parseFloat(totalApplied.value)).toFixed(2)
+const remaining = computed(() =>
+    Math.max(0, (parseFloat(unapplied.value) || 0) - parseFloat(totalApplied.value)).toFixed(2)
 )
 
 const canSubmit = computed(() =>
     parseFloat(totalApplied.value) > 0 &&
-    parseFloat(totalApplied.value) <= (parseFloat(availableCredit.value) || 0)
+    parseFloat(totalApplied.value) <= (parseFloat(unapplied.value) || 0)
 )
 
-// Auto-distribute the available credit across checked invoices, capped by each invoice's due.
+// Spread what is left on this payment across the ticked invoices, capped by each invoice's due.
 function distribute() {
-    let remaining = parseFloat(availableCredit.value) || 0
+    let remaining = parseFloat(unapplied.value) || 0
     invoices.value.forEach(inv => {
         if (inv.checked) {
             const alloc = Math.min(remaining, parseFloat(inv.pending) || 0)
@@ -194,8 +195,7 @@ function clampRow(inv) {
 
 function validate() {
     const errs = {}
-    if (!form.value.payment_date)   errs.payment_date   = __('message.payment_date_error')
-    if (!form.value.payment_method) errs.payment_method = __('message.payment_method')
+    if (!form.value.payment_date) errs.payment_date = __('message.payment_date_error')
     setErrors(errs)
     return !Object.keys(errs).length
 }
@@ -203,7 +203,7 @@ function validate() {
 async function submit() {
     if (!validate()) return
     if (!canSubmit.value) {
-        alertStore.setAlert({ message: __('message.insufficient_credit_balance'), type: 'danger', component_name: COMPONENT })
+        alertStore.setAlert({ message: __('message.insufficient_unapplied_payment'), type: 'danger', component_name: COMPONENT })
         return
     }
     submitting.value = true
@@ -214,9 +214,9 @@ async function submit() {
     const invoiceAmount  = checked.map(i => parseFloat(i.payAmount) || 0)
 
     try {
-        await http.post(`/newMultiplePayment/update/${userId}`, {
-            payment_date:   form.value.payment_date,
-            payment_method: form.value.payment_method,
+        // Targets THIS payment, so the money allocated is the money on screen.
+        await http.post(`/payments/${paymentId}/apply`, {
+            payment_date: form.value.payment_date,
             invoiceChecked,
             invoiceAmount,
         })
@@ -237,8 +237,9 @@ async function submit() {
 onMounted(async () => {
     try {
         const { data } = await http.get(`/payments/${paymentId}/edit`)
-        symbol.value          = data.data.symbol ?? ''
-        availableCredit.value = data.data.available_credit ?? 0
+        symbol.value    = data.data.symbol ?? ''
+        unapplied.value = data.data.unapplied ?? 0
+        payment.value   = data.data.payment ?? {}
         invoices.value = (data.data.invoices ?? []).map(inv => ({
             ...inv,
             checked:   false,

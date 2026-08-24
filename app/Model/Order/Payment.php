@@ -9,9 +9,19 @@ use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
+ * One payment is one real-world event: an amount left the client's bank on a
+ * date, by a method. What it paid for lives in `payment_invoice` — a payment
+ * can be split across several invoices, and an invoice can be settled by
+ * several payments, so that fact cannot live in a column here.
+ *
+ * `invoice_id` and `parent_id` still hold their pre-pivot values for history
+ * but are NOT authoritative; read {@see invoices()} / {@see applied()}.
+ *
  * @property int $id
  * @property int $parent_id
  * @property int $invoice_id
@@ -23,7 +33,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $amt_to_credit
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Invoice|null $invoice
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentInvoice> $allocations
  * @property-read User|null $user
  *
  * @method static \Database\Factories\Model\Order\PaymentFactory factory($count = null, $state = [])
@@ -57,11 +68,38 @@ class Payment extends BaseModel
         'payment_method', 'user_id', 'payment_status', 'created_at', 'amt_to_credit', 'currency', ];
 
     /**
-     * @return BelongsTo<Invoice, $this>
+     * The invoices this payment settles, with how much went to each.
+     *
+     * @return BelongsToMany<Invoice, $this, PaymentInvoice>
      */
-    public function invoice(): BelongsTo
+    public function invoices(): BelongsToMany
     {
-        return $this->belongsTo(Invoice::class);
+        return $this->belongsToMany(Invoice::class, 'payment_invoice', 'payment_id', 'invoice_id')
+            ->using(PaymentInvoice::class)
+            ->withPivot('amount');
+    }
+
+    /**
+     * This payment's allocations as first-class rows — the typed way to read
+     * how much went where, without going through an untyped pivot.
+     *
+     * @return HasMany<PaymentInvoice, $this>
+     */
+    public function allocations(): HasMany
+    {
+        return $this->hasMany(PaymentInvoice::class, 'payment_id');
+    }
+
+    /** How much of this payment has been put against invoices. */
+    public function applied(): float
+    {
+        return (float) $this->invoices()->sum('payment_invoice.amount');
+    }
+
+    /** What is left of it — money received that no invoice has claimed. */
+    public function unapplied(): float
+    {
+        return max(0, round((float) $this->amount - $this->applied(), 2));
     }
 
     /**

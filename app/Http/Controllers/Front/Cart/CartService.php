@@ -174,7 +174,7 @@ class CartService
             'tax_label' => collect($summary['taxes'])->pluck('label')->unique()->implode(' + '),
             'gateways' => $gateways = $this->activeGateways($currency),
             'grand_total' => currencyFormat($summary['grand_total'], $currency, includeSymbol: false),
-            'available_credit' => currencyFormat($this->invoices->availableCredit((int) $user->getAuthIdentifier()), $currency, includeSymbol: false),
+            'available_credit' => currencyFormat($this->invoices->availableCredit((int) $user->getAuthIdentifier(), $currency), $currency, includeSymbol: false),
             'auto_renew_gateways' => $this->autoRenewalGateways($gateways, (float) $summary['grand_total']),
         ];
     }
@@ -297,7 +297,7 @@ class CartService
     {
         $invoice = $cart->invoice_id ? Invoice::find($cart->invoice_id) : null;
 
-        if ($invoice && strtolower((string) $invoice->status) === 'pending' && (float) $invoice->payment()->sum('amount') === 0.0) {
+        if ($invoice && strtolower((string) $invoice->status) === 'pending' && $invoice->paidTotal() <= 0) {
             return $invoice;
         }
 

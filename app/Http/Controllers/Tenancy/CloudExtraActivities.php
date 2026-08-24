@@ -13,8 +13,9 @@ use App\Model\Common\FaveoCloud;
 use App\Model\Common\State;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
+use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
-use App\Model\Order\OrderInvoiceRelation;
+use App\Model\Order\CreditTransaction;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
@@ -107,17 +108,29 @@ class CloudExtraActivities extends Controller
     public function getUpgradeCost(Request $request): array
     {
         try {
-            $planId = $request->input('plan');
-            $agents = $request->input('agents');
-            $orderId = $request->input('orderId');
+            $this->validate($request, [
+                'plan' => 'required|integer',
+                'orderId' => 'required|integer',
+            ]);
+
+            // agents is deliberately not read from the request — see
+            // calculatePlanChange()/licenseAgents(): the client cannot be
+            // trusted to report its own agent count.
+            $planId = (int) $request->input('plan');
+            $order = $this->authorizedOrder((int) $request->input('orderId'));
             $plan = Plan::find($planId);
 
             $planDetails = userCurrencyAndPrice($this->authUser()->id, $plan);
-            $oldLicense = Order::where('id', $orderId)->latest()->value('serial_key');
+            $calc = $this->calculatePlanChange($order, $planId);
 
-            return $this->getThePaymentCalculationUpgradeDowngradeDisplay(
-                $agents, $oldLicense, $orderId, $planId, $planDetails['plan']->add_price
-            );
+            return [
+                'priceoldplan' => currencyFormat($calc['priceoldplan'], $calc['currency'], includeSymbol: false),
+                'pricenewplan' => currencyFormat($calc['pricenewplan'], $calc['currency'], includeSymbol: false),
+                'price_to_be_paid' => currencyFormat(abs($calc['price']), $calc['currency'], includeSymbol: false),
+                'discount' => currencyFormat($calc['discount'] ?? 0, $calc['currency'], includeSymbol: false),
+                'priceperagent' => currencyFormat($planDetails['plan']->add_price ?? 0, $calc['currency'], includeSymbol: false),
+                'currency_symbol' => \App\Model\Payment\Currency::where('code', $calc['currency'])->value('symbol') ?? $calc['currency'],
+            ];
         } catch (Exception $exception) {
             Logger::exception($exception);
 
@@ -192,34 +205,27 @@ class CloudExtraActivities extends Controller
         ]);
     }
 
+    /**
+     * Change an order's agent count to a target total. The UI asks for the
+     * desired total (not an increase/decrease amount) — simpler for the
+     * client, and it also means direction and delta are always derived from
+     * the order's own license here, never trusted from the request.
+     */
     public function agentAlteration(Request $request): JsonResponse
     {
         try {
-            $newAgents = $request->newAgents;
+            $this->validate($request, [
+                'orderId' => 'required|integer',
+                'desiredAgents' => 'required|integer|min:1',
+            ]);
 
-            if (empty($newAgents)) {
-                return errorResponse(trans('message.agent_zero'));
+            $order = $this->authorizedOrder((int) $request->input('orderId'));
+            $oldAgents = $this->licenseAgents($order->serial_key);
+            $desiredAgents = (int) $request->input('desiredAgents');
+
+            if ($desiredAgents === $oldAgents) {
+                return errorResponse(trans('message.nothing_changed'));
             }
-
-            $orderId = $request->input('order_id');
-            $order = Order::where('id', $orderId)->first();
-            if (! $order) {
-                return errorResponse(trans('message.something_went_wrong'));
-            }
-
-            if ($order->client != $this->authUser()->id) {
-                return errorResponse(trans('message.invalid_user'));
-            }
-
-            $oldAgents = ltrim(substr((string) $order->serial_key, 12), '0');
-
-            if ($request->agentAction == 'decrease' && $oldAgents <= $newAgents) {
-                return errorResponse(trans('message.agent_decrease_invalid'));
-            }
-
-            $totalAgents = $request->agentAction == 'increase'
-                ? $oldAgents + $newAgents
-                : $oldAgents - $newAgents;
 
             $installationPath = Installation::where('license_code', $order->serial_key)
                 ->where('installation_path', '!=', cloudCentralDomain())
@@ -230,19 +236,21 @@ class CloudExtraActivities extends Controller
                 return errorResponse(trans('message.installation_path_not_found'));
             }
 
-            if ($this->checktheAgent($totalAgents, $installationPath)) {
+            if ($this->checktheAgent($desiredAgents, $installationPath)) {
                 return errorResponse(trans('message.agent_reduce'));
             }
 
-            $oldLicense = $order->serial_key;
-            $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId, agentAction: $request->agentAction);
-            $invoice = new RenewController()->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', isAgentIncrease: false, agents: $totalAgents);
+            $agentAction = $desiredAgents > $oldAgents ? 'increase' : 'decrease';
+            $delta = abs($desiredAgents - $oldAgents);
+
+            $items = $this->getThePaymentCalculation($delta, $order->serial_key, $order->id, agentAction: $agentAction);
+            $invoice = new RenewController()->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', isAgentIncrease: false, agents: $desiredAgents);
             if (! $invoice instanceof InvoiceItem) {
                 return errorResponse(trans('message.something_went_wrong'));
             }
 
             // Determine if subscription is expired — if so, renewal date extension is needed
-            $sub = Subscription::where('order_id', $orderId)->first();
+            $sub = Subscription::where('order_id', $order->id)->first();
             $isExpired = $sub && Date::now() >= Date::parse($sub->ends_at);
 
             $dbInvoice = Invoice::find($invoice->invoice_id);
@@ -251,11 +259,11 @@ class CloudExtraActivities extends Controller
                     'metadata' => [
                         'type' => 'agent_alteration',
                         'sub_id' => $request->subId,
-                        'new_agents' => $totalAgents,
-                        'order_id' => $orderId,
+                        'new_agents' => $desiredAgents,
+                        'order_id' => $order->id,
                         'installation_path' => $installationPath,
-                        'product_id' => $request->product_id,
-                        'old_license' => $oldLicense,
+                        'product_id' => $order->product,
+                        'old_license' => $order->serial_key,
                         'agent_increase_date' => $isExpired,
                     ],
                 ]);
@@ -272,29 +280,39 @@ class CloudExtraActivities extends Controller
     public function upgradeDowngradeCloud(Request $request): JsonResponse
     {
         try {
-            $planId = $request->id;
-            $agents = (int) $request->agents;
-            $orderId = $request->orderId;
+            $this->validate($request, [
+                'id' => 'required|integer',
+                'orderId' => 'required|integer',
+            ]);
 
-            $order = Order::find($orderId);
-            if (! $order instanceof Order) {
-                return errorResponse(trans('message.something_went_wrong'));
-            }
-            if ($order->client != $this->authUser()->id) {
-                return errorResponse(trans('message.invalid_user'));
-            }
+            $planId = (int) $request->input('id');
+            // agents is deliberately not read from the request — see
+            // calculatePlanChange()/licenseAgents(): the client cannot be
+            // trusted to report its own agent count when it's the very thing
+            // the price is multiplied by.
+            $order = $this->authorizedOrder((int) $request->input('orderId'));
 
-            $oldLicense = $order->serial_key;
-            $installationPath = Installation::where('license_code', $oldLicense)
+            $installationPath = Installation::where('license_code', $order->serial_key)
                 ->where('installation_path', '!=', cloudCentralDomain())
                 ->latest('updated_at')
                 ->value('installation_path');
 
-            $calc = $this->getThePaymentCalculationUpgradeDowngrade($agents, $oldLicense, $orderId, $planId);
+            $calc = $this->calculatePlanChange($order, $planId);
             $price = abs(round($calc['price']));
-            $discount = $calc['discount'] ?? null;
+            // The new plan's actual prorated cost before old-plan credit is
+            // applied — kept so the invoice can show a real product price
+            // and a real "credit applied" line instead of just a bare 0
+            // whenever the old plan's credit fully covers it.
+            $grossPrice = round($calc['pricenewplan']);
+            // Rounded here, at the point it's actually banked as credit —
+            // the preview (getUpgradeCost) shows the unrounded value.
+            $discount = $calc['discount'] !== null ? round($calc['discount']) : null;
             $productNew = $calc['product'];
             $currencyNew = $calc['currency'];
+
+            if (! $productNew instanceof Product) {
+                return errorResponse(trans('message.something_went_wrong'));
+            }
 
             $user = $this->authUser();
             $tax = $this->calculateTax($productNew->id, (string) $user->state, $user->country);
@@ -308,22 +326,44 @@ class CloudExtraActivities extends Controller
                 'grand_total' => $finalCost,
                 'currency' => $currencyNew,
                 'status' => 'pending',
+                // What's discounted off THIS invoice (old-plan credit covering
+                // some/all of the new plan's cost) — read by the checkout
+                // page's generic discount row. Distinct from metadata.discount
+                // below, which is the *leftover* credit banked for future use
+                // (see doTheActivity) — that's not a discount on this invoice.
+                'discount' => max(0, $grossPrice - $price),
                 'metadata' => [
                     'type' => 'upgrade_downgrade',
-                    'old_order_id' => $orderId,
-                    'old_license' => $oldLicense,
+                    'old_order_id' => $order->id,
+                    'old_license' => $order->serial_key,
                     'installation_path' => $installationPath,
                     'discount' => $discount,
                 ],
             ]);
 
-            OrderInvoiceRelation::create(['order_id' => $orderId, 'invoice_id' => $invoice->id]);
+            // No OrderInvoiceRelation to the OLD order here on purpose: this
+            // invoice needs to create a genuinely NEW order for the new plan
+            // once paid (via executeOrders() in PostPaymentService), and that
+            // relies on Order::whereIn(OrderInvoiceRelation...) being empty to
+            // know a new order hasn't been made yet. A relation created here
+            // made that check see the old order and think fulfilment was
+            // already done, so the new order/subscription was never created
+            // and the old order got wrongly marked Terminated in its place.
+            // old_order_id in metadata above already carries this linkage.
 
-            $invoiceCtrl->createInvoiceItemsByAdmin(
-                $invoice->id, $productNew->id, $price, $currencyNew,
-                1, $agents, $planId, $user->id,
-                $tax['name'], (float) $tax['value'], $price
+            $item = $invoiceCtrl->createInvoiceItemsByAdmin(
+                $invoice->id, (string) $productNew->id, $grossPrice, $currencyNew,
+                1, $this->licenseAgents($order->serial_key), $planId, $user->id,
+                $tax['name'], (float) $tax['value'], $grossPrice
             );
+
+            // createInvoiceItemsByAdmin computes its tax line off the item's
+            // (gross) subtotal — correct it to tax-on-what's-actually-charged
+            // so it doesn't show tax on an amount the client never pays.
+            if ($item instanceof InvoiceItem) {
+                InvoiceTaxLine::where('invoice_item_id', $item->id)
+                    ->update(['amount' => round($price * (float) $tax['value'] / 100, 4)]);
+            }
 
             return successResponse('success', ['invoice_id' => $invoice->id]);
         } catch (Exception $exception) {
@@ -365,13 +405,12 @@ class CloudExtraActivities extends Controller
             switch ($agentAction) {
                 case 'increase':
                     $totalAgents = $newAgents + $oldAgents;
-                    $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
                     break;
                 case 'decrease':
                     $totalAgents = $oldAgents - $newAgents;
-                    $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
                     break;
             }
+            $price = $this->agentProration($ends_at, $base_price, $totalAgents, $oldAgents, $planDays)['price'];
 
             return [
                 'id' => $product->id,
@@ -389,72 +428,100 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    private function newAgentgreaterthenOld(string $ends_at, float|int $base_price, int $newAgents, int $oldAgents, int $planDays): float
+    /**
+     * Proration for changing an order's agent count, same formula regardless
+     * of direction: what the CURRENT agent count is worth for the rest of
+     * this billing cycle (priceRemaining), what the DESIRED agent count
+     * would cost for that same remaining period (priceToBePaid), and the
+     * difference (price) — never negative, since a decrease isn't refunded
+     * mid-cycle, only not-charged. Exposing the two halves (not just the net
+     * price) lets the UI show the client exactly what they're paying for
+     * instead of a single unexplained number.
+     *
+     * @return array{price: float, priceRemaining: float, priceToBePaid: float}
+     */
+    private function agentProration(string $ends_at, float|int $base_price, int $newAgents, int $oldAgents, int $planDays): array
     {
         if ($this->isExpired($ends_at)) {
-            return (float) ($base_price * $newAgents);
+            $full = (float) ($base_price * $newAgents);
+
+            return ['price' => $full, 'priceRemaining' => 0.0, 'priceToBePaid' => $full];
         }
 
-        $agentsAdded = $newAgents - $oldAgents;
-        $pricePerDay = $base_price / $planDays;
         $daysRemain = $this->daysRemaining($ends_at);
+        $pricePerDay = $base_price / $planDays;
+        $priceRemaining = $pricePerDay * $oldAgents * $daysRemain;
+        $priceToBePaid = $pricePerDay * $newAgents * $daysRemain;
 
-        return (float) ($agentsAdded * $pricePerDay * $daysRemain);
+        return [
+            'price' => max(0.0, $priceToBePaid - $priceRemaining),
+            'priceRemaining' => $priceRemaining,
+            'priceToBePaid' => $priceToBePaid,
+        ];
     }
 
-    private function newAgentlessthenOld(string $ends_at, float|int $base_price, int $newAgents, int $oldAgents, int $planDays): float
+    /** Agent count encoded in a cloud license's serial key — the source of truth for pricing; a client's own claim about its agent count is never trusted. */
+    private function licenseAgents(?string $serialKey): int
     {
-        if ($this->isExpired($ends_at)) {
-            return (float) ($base_price * $newAgents);
-        }
-
-        $daysRemain = $this->daysRemaining($ends_at);
-        $pricePerDayNewAgents = ($base_price * $newAgents) / $planDays;
-        $pricePerDayOldAgents = ($base_price * $oldAgents) / $planDays;
-        $priceRemaining = $pricePerDayOldAgents * $daysRemain;
-        $priceToBePaid = $pricePerDayNewAgents * $daysRemain;
-
-        return $priceToBePaid > $priceRemaining ? $priceToBePaid - $priceRemaining : 0;
+        return (int) substr((string) $serialKey, 12, 16);
     }
 
     /**
-     * @return array<mixed>
+     * Load a cloud order and enforce it belongs to the signed-in user. Same
+     * failure for "doesn't exist" and "not yours" so neither leaks which one
+     * it was. Every endpoint that prices or mutates a specific order must
+     * resolve it through here, never read $request->orderId's Order directly.
      */
-    private function getThePaymentCalculationUpgradeDowngrade(int $newAgents, string $oldLicense, int $orderId, int $planIdNew): array
+    private function authorizedOrder(int $orderId): Order
     {
-        try {
-            $sub = Subscription::where('order_id', $orderId)->first();
-            if (! $sub) {
-                return ['price' => 0, 'discount' => null, 'product' => null, 'currency' => ''];
-            }
-            $planIdOld = $sub->plan_id;
-            $ends_at = (string) $sub->ends_at;
-            $oldAgents = (int) substr($oldLicense, 12, 16);
+        $order = Order::find($orderId);
+        if (! $order instanceof Order || $order->client != $this->authUser()->id) {
+            throw new Exception('Unauthorized');
+        }
 
-            $planOld = Plan::with('productRelation')->find($planIdOld);
-            if (! $planOld) {
-                return ['price' => 0, 'discount' => null, 'product' => null, 'currency' => ''];
+        return $order;
+    }
+
+    /**
+     * Proration for changing an existing cloud order to a different plan —
+     * the one calculation both the pay page's preview ({@see getUpgradeCost})
+     * and the actual charge ({@see upgradeDowngradeCloud}) use, so they can't
+     * quietly disagree the way two hand-maintained copies of this formula
+     * once did. Agent count is always read off the order's own license (a
+     * plan swap doesn't change agents — that's the separate agentAlteration
+     * flow), never taken from the request.
+     *
+     * @return array{price: float, discount: float|null, product: ?Product, currency: string, priceoldplan: float, pricenewplan: float}
+     */
+    private function calculatePlanChange(Order $order, int $planIdNew): array
+    {
+        $empty = ['price' => 0.0, 'discount' => null, 'product' => null, 'currency' => '', 'priceoldplan' => 0.0, 'pricenewplan' => 0.0];
+
+        try {
+            $sub = Subscription::where('order_id', $order->id)->first();
+            if (! $sub) {
+                return $empty;
             }
-            $productOld = $planOld->productRelation;
-            if (! $productOld) {
-                return ['price' => 0, 'discount' => null, 'product' => null, 'currency' => ''];
+
+            $agents = $this->licenseAgents($order->serial_key);
+            $ends_at = (string) $sub->ends_at;
+
+            $planOld = Plan::with('productRelation')->find($sub->plan_id);
+            $productOld = $planOld?->productRelation;
+            if (! $planOld || ! $productOld) {
+                return $empty;
             }
-            $planTargetOld = $productOld->planRelation->find($planIdOld);
-            $currencyOld = userCurrencyAndPrice('', $planTargetOld);
-            $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->value('add_price') * $oldAgents;
+            $currencyOld = userCurrencyAndPrice('', $productOld->planRelation->find($sub->plan_id));
+            $base_priceOld = PlanPrice::where('plan_id', $sub->plan_id)->where('currency', $currencyOld['currency'])->value('add_price') * $agents;
             $planDaysOld = (int) $planOld->days;
 
             $planNew = Plan::with('productRelation')->find($planIdNew);
-            if (! $planNew) {
-                return ['price' => 0, 'discount' => null, 'product' => null, 'currency' => ''];
+            $productNew = $planNew?->productRelation;
+            if (! $planNew || ! $productNew) {
+                return $empty;
             }
-            $productNew = $planNew->productRelation;
-            if (! $productNew) {
-                return ['price' => 0, 'discount' => null, 'product' => null, 'currency' => ''];
-            }
-            $planTargetNew = $productNew->planRelation->find($planIdNew);
-            $currencyNew = userCurrencyAndPrice('', $planTargetNew);
-            $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->value('add_price') * $newAgents;
+            $currencyNew = userCurrencyAndPrice('', $productNew->planRelation->find($planIdNew));
+            $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->value('add_price') * $agents;
             $planDaysNew = (int) $planNew->days;
 
             if ($base_price_new > $base_priceOld) {
@@ -470,11 +537,13 @@ class CloudExtraActivities extends Controller
                 'discount' => $result['discount'] ?? null,
                 'product' => $productNew,
                 'currency' => $currencyNew['currency'],
+                'priceoldplan' => $result['priceRemaining'],
+                'pricenewplan' => $result['priceToBePaid'],
             ];
         } catch (Exception $exception) {
             Logger::exception($exception);
 
-            return ['price' => 0, 'discount' => null, 'product' => null, 'currency' => ''];
+            return $empty;
         }
     }
 
@@ -510,9 +579,12 @@ class CloudExtraActivities extends Controller
         if ($priceToBePaid > $priceRemaining) {
             $price = $priceToBePaid - $priceRemaining;
         } else {
-            $discount = round($priceRemaining - $priceToBePaid);
-            DB::table('users')->where('id', $this->authUser()->id)->update(['billing_pay_balance' => 1]);
-            $price = $priceToBePaid;
+            // Old plan's remaining value covers the new plan's prorated cost —
+            // nothing is due now; the excess is banked as credit afterward
+            // (see doTheActivity), not charged.
+            $discount = $priceRemaining - $priceToBePaid;
+            User::where('id', $this->authUser()->id)->update(['billing_pay_balance' => 1]);
+            $price = 0;
         }
 
         return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => $discount];
@@ -538,9 +610,10 @@ class CloudExtraActivities extends Controller
         if ($priceToBePaid > $priceRemaining) {
             $price = $priceToBePaid - $priceRemaining;
         } else {
-            $discount = round($priceRemaining - $priceToBePaid);
+            // Same reasoning as lessPriceNewDaysEqualToOldDays above.
+            $discount = $priceRemaining - $priceToBePaid;
             User::where('id', $this->authUser()->id)->update(['billing_pay_balance' => 1]);
-            $price = $priceToBePaid;
+            $price = 0;
         }
 
         return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => $discount];
@@ -645,9 +718,10 @@ class CloudExtraActivities extends Controller
         string $oldLicenseCode,
         int $terminatedOrderId = 0,
         int $newActiveOrderId = 0,
-        ?float $discount = null
+        ?float $discount = null,
+        ?string $currency = null
     ): void {
-        $this->doTheActivity($terminatedOrderId, $newActiveOrderId, $discount);
+        $this->doTheActivity($terminatedOrderId, $newActiveOrderId, $discount, $currency);
 
         $this->cloudApiPost('/performProductUpgradeOrDowngrade', [
             'licenseCode' => $licenseCode,
@@ -663,186 +737,24 @@ class CloudExtraActivities extends Controller
         ]);
     }
 
-    public function doTheActivity(int $terminatedOrderId, int $newActiveOrderId, ?float $discount = null): void
+    /**
+     * Bank the unused portion of the old plan as spendable credit, in the
+     * downgrade invoice's own currency (falls back to the client's country
+     * currency when none is given, e.g. a caller outside the invoice flow).
+     */
+    public function doTheActivity(int $terminatedOrderId, int $newActiveOrderId, ?float $discount = null, ?string $currency = null): void
     {
-        if ($discount === null) {
+        if ($discount === null || $discount <= 0) {
             return;
         }
 
-        Payment::where('user_id', $this->authUser()->id)
-            ->where('payment_status', 'pending')
-            ->where('amt_to_credit', $discount)
-            ->where('payment_method', 'Credit Balance')
-            ->latest()
-            ->update(['payment_status' => 'success']);
-
-        $payment_id = DB::table('payments')
-            ->where('user_id', $this->authUser()->id)
-            ->where('payment_status', 'success')
-            ->where('payment_method', 'Credit Balance')
-            ->value('id');
-
-        $formattedValue = currencyFormat($discount, getCurrencyForClient($this->authUser()->country), includeSymbol: true);
-        $oldOrderNumber = Order::where('id', $terminatedOrderId)->value('number');
-        $newOrderNumber = Order::where('id', $newActiveOrderId)->value('number');
-
-        $messageAdmin = 'A credit of '.$formattedValue.' has been added to the balance due to a plan downgrade. Details of the terminated order can be found here: '
-            .'<a href="'.config('app.url').'/orders/'.$terminatedOrderId.'">'.$oldOrderNumber.'</a>.'
-            .' You can also view details of the downgraded order here: '
-            .'<a href="'.config('app.url').'/orders/'.$newActiveOrderId.'">'.$newOrderNumber.'</a>.';
-
-        $messageClient = 'A credit of '.$formattedValue.' has been added to your balance due to a product downgrade. Details of the terminated order can be found here: '
-            .'<a href="'.config('app.url').'/my-order/'.$terminatedOrderId.'">'.$oldOrderNumber.'</a>.'
-            .' You can also view details of the downgraded order here: '
-            .'<a href="'.config('app.url').'/my-order/'.$newActiveOrderId.'">'.$newOrderNumber.'</a>.';
-
-        DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin,  'role' => 'admin', 'created_at' => Date::now(), 'updated_at' => Date::now()]);
-        DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user',  'created_at' => Date::now(), 'updated_at' => Date::now()]);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function getThePaymentCalculationUpgradeDowngradeDisplay(int $newAgents, string $oldAgents, int $orderId, int $planIdNew, float|int $pricePerAgent): array
-    {
-        try {
-            $discount = 0;
-            $planIdOld = Subscription::where('order_id', $orderId)->value('plan_id');
-            $ends_at = (string) Subscription::where('order_id', $orderId)->value('ends_at');
-            $oldAgents = substr($oldAgents, 12, 16);
-
-            $product_id_old = Plan::where('id', $planIdOld)->value('product');
-            $planDaysOld = Plan::where('id', $planIdOld)->value('days');
-            $productOld = Product::find($product_id_old);
-            if (! $productOld instanceof Product) {
-                throw new Exception('Product not found');
-            }
-            $planTargetOld = $productOld->planRelation->find($planIdOld);
-            $currencyOld = userCurrencyAndPrice('', $planTargetOld);
-            $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->value('add_price') * $oldAgents;
-
-            $product_id_new = Plan::where('id', $planIdNew)->value('product');
-            $planDaysNew = Plan::where('id', $planIdNew)->value('days');
-            $productNew = Product::find($product_id_new);
-            if (! $productNew instanceof Product) {
-                throw new Exception('Product not found');
-            }
-            $planTargetNew = $productNew->planRelation->find($planIdNew);
-            $currencyNew = userCurrencyAndPrice('', $planTargetNew);
-            $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->value('add_price') * $newAgents;
-
-            if ($base_price_new > $base_priceOld) {
-                $variables = $this->displayPriceNewGreaterThanOld($ends_at, $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld);
-            } elseif ($base_price_new == $base_priceOld) {
-                if ($this->isExpired($ends_at)) {
-                    $variables = ['price' => $base_price_new, 'priceRemaining' => 0, 'priceToBePaid' => $base_price_new];
-                } else {
-                    $variables = ['price' => 0, 'priceRemaining' => 0, 'priceToBePaid' => 0];
-                }
-            } else {
-                $variables = $this->displayPriceNewLessThanOld($ends_at, $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld);
-                $discount = $variables['discount'] ?? 0;
-            }
-
-            return [
-                'priceoldplan' => currencyFormat($variables['priceRemaining'], $currencyNew['currency'], includeSymbol: false),
-                'pricenewplan' => currencyFormat($variables['priceToBePaid'], $currencyNew['currency'], includeSymbol: false),
-                'price_to_be_paid' => currencyFormat(abs($variables['price']), $currencyNew['currency'], includeSymbol: false),
-                'discount' => currencyFormat($discount, $currencyNew['currency'], includeSymbol: false),
-                'priceperagent' => currencyFormat($pricePerAgent, $currencyNew['currency'], includeSymbol: false),
-                'currency_symbol' => \App\Model\Payment\Currency::where('code', $currencyNew['currency'])->value('symbol') ?? $currencyNew['currency'],
-            ];
-        } catch (Exception $exception) {
-            Logger::exception($exception);
-
-            return ['price_to_be_paid' => 'NaN', 'discount' => 'NaN', 'currency' => 'NaN'];
-        }
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function displayPriceNewGreaterThanOld(string $ends_at, int|float $base_price_new, int|float $base_priceOld, int $planDaysNew, int $planDaysOld): array
-    {
-        if ($this->isExpired($ends_at)) {
-            return ['price' => $base_price_new, 'priceRemaining' => 0, 'priceToBePaid' => $base_price_new];
-        }
-
-        $pricePerDayNew = $base_price_new / $planDaysNew;
-        $pricePerDayOld = $base_priceOld / $planDaysOld;
-        $daysRemain = $this->daysRemaining($ends_at);
-
-        if ($planDaysNew !== $planDaysOld) {
-            $daysRemainNewFinal = $planDaysNew - ($planDaysOld - $daysRemain);
-            $priceToBePaid = $pricePerDayNew * $daysRemainNewFinal;
-            $priceRemaining = $pricePerDayOld * $daysRemain;
-        } else {
-            $priceToBePaid = $pricePerDayNew * $daysRemain;
-            $priceRemaining = $pricePerDayOld * $daysRemain;
-        }
-
-        return ['price' => $priceToBePaid - $priceRemaining, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid];
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function displayPriceNewLessThanOld(string $ends_at, int|float $base_price_new, int|float $base_priceOld, int $planDaysNew, int $planDaysOld): array
-    {
-        $discount = 0;
-
-        if ($this->isExpired($ends_at)) {
-            return ['price' => $base_price_new, 'priceRemaining' => 0, 'priceToBePaid' => $base_price_new, 'discount' => 0];
-        }
-
-        $daysRemain = $this->daysRemaining($ends_at);
-        $pricePerDayNew = $base_price_new / $planDaysNew;
-        $pricePerDayOld = $base_priceOld / $planDaysOld;
-
-        if ($planDaysOld !== $planDaysNew) {
-            $variables = $this->displayNewPlanDaysNotEqualOld($daysRemain, $planDaysNew, $planDaysOld, $pricePerDayNew, $pricePerDayOld);
-            $price = $variables['price'];
-            $priceToBePaid = $variables['priceToBePaid'];
-            $priceRemaining = $variables['priceRemaining'];
-            $discount = $variables['discount'];
-        } else {
-            $priceToBePaid = $pricePerDayNew * $daysRemain;
-            $priceRemaining = $pricePerDayOld * $daysRemain;
-            if ($priceToBePaid > $priceRemaining) {
-                $price = $priceToBePaid - $priceRemaining;
-            } else {
-                $discount = $priceRemaining - $priceToBePaid;
-                $price = 0;
-            }
-        }
-
-        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => $discount];
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function displayNewPlanDaysNotEqualOld(int $daysRemain, int $planDaysNew, int $planDaysOld, float|int $pricePerDayForNewPlan, float|int $pricePerDayForOldPlan): array
-    {
-        $discount = 0;
-
-        if ($daysRemain <= $planDaysNew && $planDaysOld > $planDaysNew) {
-            $priceToBePaid = $pricePerDayForNewPlan * $daysRemain;
-            $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
-        } else {
-            $daysRemainNewFinal = $planDaysNew - ($planDaysOld - $daysRemain);
-            $priceToBePaid = $pricePerDayForNewPlan * $daysRemainNewFinal;
-            $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
-        }
-
-        if ($priceToBePaid > $priceRemaining) {
-            $price = $priceToBePaid - $priceRemaining;
-        } else {
-            $discount = $priceRemaining - $priceToBePaid;
-            $price = 0;
-        }
-
-        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => $discount];
+        app(\App\Services\Payment\CreditBalanceService::class)->grant(
+            $this->authUser()->id,
+            $currency ?? getCurrencyForClient($this->authUser()->country),
+            $discount,
+            CreditTransaction::TYPE_DOWNGRADE_PRORATION,
+            note: sprintf('Plan downgrade: terminated order #%d, new order #%d', $terminatedOrderId, $newActiveOrderId),
+        );
     }
 
     /**
@@ -851,51 +763,41 @@ class CloudExtraActivities extends Controller
     public function getThePaymentCalculationDisplay(Request $request): array|JsonResponse
     {
         try {
-            $newAgents = $request->get('number');
-            $oldAgents = $request->get('oldAgents');
+            $this->validate($request, [
+                'orderId' => 'required|integer',
+                'desiredAgents' => 'required|integer|min:1',
+            ]);
 
-            if ($request->agentAction == 'decrease' && $oldAgents <= $newAgents) {
-                return errorResponse(trans('message.agent_decrease_invalid'));
-            }
+            $order = $this->authorizedOrder((int) $request->input('orderId'));
+            $oldAgents = $this->licenseAgents($order->serial_key);
+            $desiredAgents = (int) $request->input('desiredAgents');
 
-            $orderId = $request->get('orderId');
-            $planId = Subscription::where('order_id', $orderId)->value('plan_id');
+            $planId = Subscription::where('order_id', $order->id)->value('plan_id');
             $product = Product::find(Plan::where('id', $planId)->value('product'));
             if (! $product instanceof Product) {
                 throw new Exception('Product not found');
             }
             $plan = $product->planRelation->find($planId);
             $currency = userCurrencyAndPrice('', $plan);
-            $ends_at = (string) Subscription::where('order_id', $orderId)->value('ends_at');
+            $ends_at = (string) Subscription::where('order_id', $order->id)->value('ends_at');
             $planDays = (int) Plan::where('id', $planId)->value('days');
             $base_price = PlanPrice::where('plan_id', $planId)->where('currency', $currency['currency'])->value('add_price');
 
-            if (empty($newAgents)) {
-                return [
-                    'pricePerAgent' => currencyFormat($base_price, $currency['currency'], includeSymbol: false),
-                    'totalPrice' => 0,
-                    'priceToPay' => 0,
-                    'currency_symbol' => \App\Model\Payment\Currency::where('code', $currency['currency'])->value('symbol') ?? $currency['currency'],
-                ];
-            }
-
-            $totalAgents = 0;
-            $price = 0.0;
-            switch ($request->agentAction) {
-                case 'increase':
-                    $totalAgents = $newAgents + $oldAgents;
-                    $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
-                    break;
-                case 'decrease':
-                    $totalAgents = $oldAgents - $newAgents;
-                    $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
-                    break;
-            }
+            // A single net "price to pay" wasn't enough for the client to see
+            // what they're actually paying for — so this also exposes the
+            // two halves that net figure comes from: what the CURRENT agent
+            // count is worth for the rest of this cycle (currentAgentsCost),
+            // and what the DESIRED agent count would cost for that same
+            // remaining period (newAgentsCost). priceToPay is just their
+            // difference (never negative — see agentProration).
+            $calc = $this->agentProration($ends_at, $base_price, $desiredAgents, $oldAgents, $planDays);
 
             return [
                 'pricePerAgent' => currencyFormat($base_price, $currency['currency'], includeSymbol: false),
-                'totalPrice' => currencyFormat($base_price * $totalAgents, $currency['currency'], includeSymbol: false),
-                'priceToPay' => currencyFormat($price, $currency['currency'], includeSymbol: false),
+                'totalPrice' => currencyFormat($base_price * $desiredAgents, $currency['currency'], includeSymbol: false),
+                'currentAgentsCost' => currencyFormat($calc['priceRemaining'], $currency['currency'], includeSymbol: false),
+                'newAgentsCost' => currencyFormat($calc['priceToBePaid'], $currency['currency'], includeSymbol: false),
+                'priceToPay' => currencyFormat($calc['price'], $currency['currency'], includeSymbol: false),
                 'currency_symbol' => \App\Model\Payment\Currency::where('code', $currency['currency'])->value('symbol') ?? $currency['currency'],
             ];
         } catch (Exception $exception) {

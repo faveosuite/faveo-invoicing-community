@@ -75,10 +75,10 @@ class PaymentController extends Controller
                 return $data;
             }),
             'summary' => $this->invoiceSummary($model, $items),
-            'paid' => currencyFormat($model->payment()->sum('amount'), $model->currency, includeSymbol: false),
+            'paid' => currencyFormat($model->paidTotal(), $model->currency, includeSymbol: false),
             'amount' => currencyFormat($outstanding, $model->currency, includeSymbol: false),
             'credit_applied' => currencyFormat($creditApplied, $model->currency, includeSymbol: false),
-            'available_credit' => currencyFormat($this->invoices->availableCredit((int) $model->user_id), $model->currency, includeSymbol: false),
+            'available_credit' => currencyFormat($this->invoices->availableCredit((int) $model->user_id, $model->currency), $model->currency, includeSymbol: false),
             'currency' => $model->currency,
             'currency_symbol' => Currency::where('code', $model->currency)->value('symbol'),
             'gateways' => $gateways,
@@ -161,7 +161,7 @@ class PaymentController extends Controller
     {
         $model = $this->authorizedInvoice($request, $invoice);
 
-        $payment = $model->payment()->latest()->first();
+        $payment = $model->payments()->latest('payments.created_at')->first();
         $orderIds = OrderInvoiceRelation::where('invoice_id', $model->id)->pluck('order_id');
         $permissions = resolve(LicensePermissionsController::class);
         $cloudProducts = cloudPopupProducts();

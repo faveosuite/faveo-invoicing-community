@@ -509,7 +509,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $query = Invoice::with([
                 'user:id,first_name,last_name,email,company,address,town,state,country,zip,mobile_code,mobile,gstin',
                 'invoiceItem.order:id,number,invoice_item_id',
-                'payment',
+                'allocations.payment',
             ])->findOrFail($id);
 
             if (! $query->user || User::onlyTrashed()->find($query->user->id)) {
@@ -554,7 +554,16 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'to' => $query->user,
                 'items' => $query->invoiceItem,
                 'totals' => $result,
-                'payments' => $query->payment,
+                // Each payment with the slice of itself that landed here — a
+                // payment covering three invoices must not show its full amount
+                // against this one.
+                'payments' => $query->allocations->map(fn ($allocation): array => [
+                    'id' => $allocation->payment_id,
+                    'amount' => (float) $allocation->amount,
+                    'payment_method' => $allocation->payment?->payment_method,
+                    'payment_status' => $allocation->payment?->payment_status,
+                    'created_at' => $allocation->payment?->created_at,
+                ])->values(),
             ];
 
             return successResponse('', $invoice);

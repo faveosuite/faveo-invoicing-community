@@ -182,6 +182,63 @@ class ClientControllerTest extends DBTestCase
     }
 
     // =========================================================================
+    // GET /user/{id}/credits
+    // =========================================================================
+
+    public function test_get_user_credits_returns_200(): void
+    {
+        $this->getLoggedInUser('admin');
+        $client = User::factory()->create(['role' => 'user']);
+        $response = $this->getJson("/user/{$client->id}/credits");
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    public function test_get_user_credits_lists_ledger_movements(): void
+    {
+        $this->getLoggedInUser('admin');
+        $client = User::factory()->create(['role' => 'user', 'email' => 'credits-tab-'.uniqid().'@test.local']);
+        $invoice = \App\Model\Order\Invoice::factory()->create([
+            'user_id' => $client->id,
+            'grand_total' => 40.0,
+            'currency' => 'USD',
+            'status' => 'pending',
+        ]);
+
+        $credits = new \App\Services\Payment\CreditBalanceService;
+        $credits->grant($client->id, 'USD', 100.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT, note: 'Received via cash on 2026-08-21');
+        $credits->apply($client->id, 'USD', 40.0, (int) $invoice->id);
+
+        $rows = $this->getJson("/user/{$client->id}/credits")->assertStatus(200)->json('data.data');
+
+        $this->assertCount(2, $rows);
+        // Newest first: the spend, signed negative and carrying its invoice.
+        $this->assertSame(-40.0, (float) $rows[0]['amount']);
+        $this->assertSame($invoice->number, $rows[0]['invoice_number']);
+        $this->assertSame(100.0, (float) $rows[1]['amount']);
+        $this->assertSame('Received via cash on 2026-08-21', $rows[1]['note']);
+    }
+
+    public function test_get_user_summary_reports_credit_balance_per_currency(): void
+    {
+        $this->getLoggedInUser('admin');
+        $client = User::factory()->create(['role' => 'user', 'email' => 'credits-sum-'.uniqid().'@test.local']);
+
+        $credits = new \App\Services\Payment\CreditBalanceService;
+        $credits->grant($client->id, 'USD', 25.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT);
+        $credits->grant($client->id, 'INR', 500.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT);
+
+        $data = $this->getJson("/user/{$client->id}/summary")->assertStatus(200)->json('data');
+
+        $this->assertSame(525.0, (float) $data['credit_balance']);
+        $this->assertSame(2, $data['credit_count']);
+        $this->assertEquals(
+            [['currency' => 'INR', 'balance' => 500.0], ['currency' => 'USD', 'balance' => 25.0]],
+            $data['credit_balances']
+        );
+    }
+
+    // =========================================================================
     // GET /user/{id}/comments
     // =========================================================================
 

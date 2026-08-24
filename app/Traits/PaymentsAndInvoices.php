@@ -72,18 +72,19 @@ trait PaymentsAndInvoices
         return $sum;
     }
 
-    public function getAmountPaid(int $userId): int
+    /**
+     * What the client has actually paid us. Excludes the pre-ledger credit
+     * deposits (invoice_id = 0), which are a balance the client holds, not
+     * money settled against an invoice — counting them inflated this figure by
+     * their whole deposit history.
+     */
+    public function getAmountPaid(int $userId): float
     {
         try {
-            $amounts = Payment::where('user_id', $userId)->select('amount', 'amt_to_credit')->get();
-            $paidSum = 0;
-            foreach ($amounts as $amount) {
-                if ($amount) { // @phpstan-ignore if.alwaysTrue
-                    $paidSum += (int) $amount->amount;
-                }
-            }
-
-            return $paidSum;
+            return (float) Payment::where('user_id', $userId)
+                ->where('invoice_id', '!=', 0)
+                ->where('payment_status', 'success')
+                ->sum('amount');
         } catch (Exception $exception) {
             Logger::exception($exception);
 

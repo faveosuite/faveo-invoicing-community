@@ -1,13 +1,13 @@
 <template>
     <div class="user-table-actions">
-        <!-- Edit shows only for credit-balance payments (not linked to an invoice) -->
+        <!-- Only a payment with money left on it has anything to allocate -->
         <router-link
-            v-if="!invoiceId"
+            v-if="unapplied > 0"
             :to="`/users/${userId}/payments/${paymentId}/edit`"
             class="btn btn-light table_btn"
-            v-tooltip="__('message.edit')"
+            v-tooltip="__('message.apply_payment_to_invoices')"
         >
-            <i class="fas fa-edit"></i>
+            <i class="fas fa-link"></i>
         </router-link>
 
         <!-- Delete is available on every payment row -->
@@ -38,7 +38,7 @@ import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
 defineProps({
     paymentId: { type: [Number, String], required: true },
-    invoiceId: { type: [Number, String], default: 0 },
+    unapplied: { type: [Number, String], default: 0 },
     userId:    { type: [Number, String], required: true },
     baseUrl:   { type: String, default: '' },
 })

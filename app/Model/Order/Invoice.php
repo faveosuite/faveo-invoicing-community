@@ -207,11 +207,62 @@ class Invoice extends BaseModel
     }
 
     /**
-     * @return HasMany<Payment, $this>
+     * The payments that settle this invoice, each carrying how much of itself
+     * it put here. Renamed from the old hasMany `payment()` deliberately: that
+     * relation summed `payments.amount`, which is the whole payment, not the
+     * slice that landed on this invoice.
+     *
+     * @return BelongsToMany<Payment, $this, PaymentInvoice>
      */
-    public function payment(): HasMany
+    public function payments(): BelongsToMany
     {
-        return $this->hasMany(Payment::class);
+        return $this->belongsToMany(Payment::class, 'payment_invoice', 'invoice_id', 'payment_id')
+            ->using(PaymentInvoice::class)
+            ->withPivot('amount');
+    }
+
+    /**
+     * The three money questions about an invoice — asked here and nowhere else.
+     * Every surface (admin payment forms, client invoice list, gateway
+     * callbacks, bulk-delete) used to re-derive these with subtly different
+     * rules; the one that forgot the payment_status filter reported less owed
+     * than was actually owed.
+     */
+    public function paidTotal(): float
+    {
+        return (float) $this->payments()
+            ->where('payment_status', 'success')
+            ->sum('payment_invoice.amount');
+    }
+
+    /**
+     * @return HasMany<PaymentInvoice, $this>
+     */
+    public function allocations(): HasMany
+    {
+        return $this->hasMany(PaymentInvoice::class, 'invoice_id');
+    }
+
+    /**
+     * Rounded to the cent, because both sides come out of varchar columns and
+     * a run of partial payments otherwise leaves float dust behind — enough to
+     * make a fully-paid invoice read as still owing 0.0000000001.
+     */
+    public function outstanding(): float
+    {
+        return max(0, round((float) $this->grand_total - $this->paidTotal(), 2));
+    }
+
+    /** Re-derive the status from what has actually been paid, and persist it. */
+    public function refreshStatus(): void
+    {
+        $this->status = match (true) {
+            $this->outstanding() <= 0 => 'success',
+            $this->paidTotal() > 0 => 'partially paid',
+            default => 'pending',
+        };
+
+        $this->save();
     }
 
     /**
@@ -230,7 +281,9 @@ class Invoice extends BaseModel
         $this->orders()->detach();
         $this->installationDetail()->delete();
         $this->invoiceItem()->delete();
-        $this->payment()->delete();
+        // Detach, never delete: a payment may be settling other invoices too,
+        // and the money arrived regardless of what happens to this invoice.
+        $this->payments()->detach();
 
         return parent::delete();
     }

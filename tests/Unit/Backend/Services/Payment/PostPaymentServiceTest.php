@@ -40,15 +40,17 @@ class PostPaymentServiceTest extends DBTestCase
             'status' => 'pending',
         ]);
 
-        $paymentsBefore = Payment::where('invoice_id', $invoice->id)->count();
+        $paymentsBefore = $invoice->payments()->count();
 
         $this->getPrivateMethod($this->service, 'recordPayment', [$invoice, 'Stripe']);
 
-        $paymentsAfter = Payment::where('invoice_id', $invoice->id)->count();
+        $paymentsAfter = $invoice->payments()->count();
         $this->assertGreaterThan($paymentsBefore, $paymentsAfter);
 
-        $payment = Payment::where('invoice_id', $invoice->id)->latest()->first();
+        $payment = $invoice->payments()->latest('payments.created_at')->first();
         $this->assertNotNull($payment);
+        // The payment carries the full outstanding balance as its allocation.
+        $this->assertSame(100.0, $invoice->fresh()->paidTotal());
         $this->assertSame('success', $payment->payment_status);
         $this->assertSame('Stripe', $payment->payment_method);
     }
@@ -101,25 +103,26 @@ class PostPaymentServiceTest extends DBTestCase
             'status' => 'pending',
         ]);
 
-        // A prior payment of 60.00 already recorded.
+        // A prior payment of 60.00 already allocated to this invoice.
         Payment::create([
-            'invoice_id' => $invoice->id,
             'user_id' => $invoice->user_id,
             'amount' => 60.00,
             'payment_method' => 'Stripe',
             'payment_status' => 'success',
-        ]);
+            'currency' => $invoice->currency,
+        ])->invoices()->attach($invoice->id, ['amount' => 60.00]);
 
         $this->getPrivateMethod($this->service, 'recordPayment', [$invoice, 'Stripe']);
 
         // Should create a new payment for only the remaining 40.00.
-        $newPayment = Payment::where('invoice_id', $invoice->id)
+        $newPayment = $invoice->payments()
             ->where('payment_status', 'success')
-            ->orderByDesc('id')
+            ->orderByDesc('payments.id')
             ->first();
 
         $this->assertNotNull($newPayment);
         $this->assertEqualsWithDelta(40.00, (float) $newPayment->amount, 0.01);
+        $this->assertEqualsWithDelta(100.00, $invoice->fresh()->paidTotal(), 0.01);
     }
 
     // --- clearCart() (private) ---
@@ -318,63 +321,6 @@ class PostPaymentServiceTest extends DBTestCase
         } catch (\Throwable $e) {
             $this->assertTrue(true);
         }
-    }
-
-    // =========================================================================
-    // doTheDeed() — with auth user having Credit Balance payment
-    // =========================================================================
-
-    public function test_do_the_deed_updates_credit_balance_when_user_has_credit(): void
-    {
-        $this->getLoggedInUser('user');
-
-        /** @var Invoice $invoice */
-        $invoice = Invoice::factory()->create([
-            'user_id' => $this->user->id,
-            'grand_total' => 100.0,
-            'status' => 'pending',
-            'billing_pay' => 50.0,
-            'currency' => 'USD',
-        ]);
-
-        // Create a Credit Balance payment for the auth user
-        Payment::create([
-            'invoice_id' => $invoice->id,
-            'user_id' => $this->user->id,
-            'amount' => 200.0,
-            'amt_to_credit' => 200.0,
-            'payment_method' => 'Credit Balance',
-            'payment_status' => 'success',
-        ]);
-
-        // doTheDeed reads amt_to_credit and updates the payment + user balance
-        $this->getPrivateMethod($this->service, 'doTheDeed', [$invoice]);
-
-        // After doTheDeed, billing_pay_balance should be 0
-        $this->assertDatabaseHas('users', [
-            'id' => $this->user->id,
-            'billing_pay_balance' => 0,
-        ]);
-    }
-
-    public function test_do_the_deed_does_nothing_when_no_credit_payment(): void
-    {
-        $this->getLoggedInUser('user');
-
-        /** @var Invoice $invoice */
-        $invoice = Invoice::factory()->create([
-            'user_id' => $this->user->id,
-            'grand_total' => 50.0,
-            'status' => 'pending',
-            'billing_pay' => 0,
-            'currency' => 'USD',
-        ]);
-
-        // No Credit Balance payment → doTheDeed does nothing
-        $this->getPrivateMethod($this->service, 'doTheDeed', [$invoice]);
-
-        // Should not throw; assert nothing changed
-        $this->assertTrue(true);
     }
 
     // =========================================================================

@@ -67,7 +67,7 @@
               </div>
 
               <div v-if="summary.discount > 0" class="d-flex justify-content-between py-3 border-bottom">
-                <strong class="text-color-dark">{{ __('message.coupon') }}<span v-if="summary.coupon_code" class="text-color-grey fw-normal"> : {{ summary.coupon_code }}</span></strong>
+                <strong class="text-color-dark">{{ summary.coupon_code ? __('message.coupon') : __('message.discount') }}<span v-if="summary.coupon_code" class="text-color-grey fw-normal"> : {{ summary.coupon_code }}</span></strong>
                 <span class="amount text-success">−{{ symbol }}{{ summary.discount }}</span>
               </div>
 

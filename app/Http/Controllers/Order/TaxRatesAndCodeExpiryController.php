@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Payment\PromotionController;
-use App\Http\Controllers\User\AdvanceSearchController;
 use App\Model\Common\Setting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Order\Invoice;
 use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
+use App\Services\Payment\UnappliedPaymentService;
 use App\User;
 use Exception;
 use Illuminate\Contracts\Routing\UrlGenerator;
@@ -141,46 +141,47 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
     {
         try {
             $payment = Payment::findOrFail($id);
-            $clientid = $payment->user_id;
-            $client = $this->user->where('id', $clientid)->firstOrFail(); // @phpstan-ignore property.notFound
-            $symbol = Currency::where('code', $client->currency)->value('symbol');
+            $clientid = (int) $payment->user_id;
+            $this->user->where('id', $clientid)->firstOrFail(); // @phpstan-ignore property.notFound
 
-            // Client's available credit balance = sum of their invoice_id = 0 rows.
-            $availableCredit = new AdvanceSearchController()->getExtraAmt($clientid);
+            // This screen exists for ONE payment: money the client sent that was
+            // never tied to an invoice. What can be allocated is what is left on
+            // that payment — not the client's credit balance, which is a
+            // different pool entirely (see UnappliedPaymentService).
+            $currency = (string) $payment->currency;
+            $unapplied = app(UnappliedPaymentService::class)->unappliedOn($clientid, (int) $payment->id);
+            $symbol = Currency::where('code', $currency)->value('symbol');
 
-            // Invoices that still carry a balance and can absorb credit.
+            // Only invoices this money could actually pay: same client, still
+            // owing, and in the payment's own currency.
             $invoices = Invoice::where('user_id', $clientid)
+                ->where('currency', $currency)
                 ->whereNotIn('status', ['success', 'Success'])
                 ->orderBy('created_at', 'desc')
                 ->get()
-                ->map(function ($inv): array {
-                    $paid = Payment::where('invoice_id', $inv->id)
-                        ->where('payment_status', 'success')
-                        ->sum('amount');
-
-                    return [
-                        'id' => $inv->id,
-                        'number' => $inv->number,
-                        'date' => $inv->date,
-                        'grand_total' => $inv->grand_total,
-                        'pending' => max(0, (float) $inv->grand_total - $paid),
-                        'status' => $inv->status,
-                    ];
-                })
+                ->map(fn ($inv): array => [
+                    'id' => $inv->id,
+                    'number' => $inv->number,
+                    'date' => $inv->date,
+                    'grand_total' => $inv->grand_total,
+                    'pending' => $inv->outstanding(),
+                    'status' => $inv->status,
+                ])
                 ->filter(fn ($inv): bool => $inv['pending'] > 0)
                 ->values();
 
             return successResponse('', [
                 'payment' => [
                     'id' => $payment->id,
-                    'invoice_id' => $payment->invoice_id,
                     'payment_method' => $payment->payment_method,
+                    'amount' => (float) $payment->amount,
+                    'date' => $payment->created_at,
                 ],
                 'clientid' => $clientid,
-                'available_credit' => $availableCredit,
+                'unapplied' => $unapplied,
                 'invoices' => $invoices,
                 'symbol' => $symbol,
-                'currency' => $client->currency,
+                'currency' => $currency,
             ]);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());

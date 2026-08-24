@@ -86,14 +86,20 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
     {
         $invoice->update(['status' => 'success']);
 
-        return $this->payment->create([
-            'invoice_id' => $invoice->id,
+        $payment = $this->payment->create([
+            'invoice_id' => 0,
+            'parent_id' => 0,
             'user_id' => $invoice->user_id,
             'amount' => $invoice->grand_total,
             'payment_method' => $payment_method,
             'payment_status' => 'success',
             'created_at' => Date::now()->toDateTimeString(),
+            'currency' => $invoice->currency,
         ]);
+
+        $payment->invoices()->attach($invoice->id, ['amount' => $invoice->grand_total]);
+
+        return $payment;
     }
 
     public function getProcessingFee(string $paymentMethod, string $currency): ?string

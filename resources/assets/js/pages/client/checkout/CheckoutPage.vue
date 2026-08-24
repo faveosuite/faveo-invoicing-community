@@ -158,7 +158,7 @@
                   <span class="amount font-weight-medium">{{ symbol }}{{ tax.amount }}</span>
                 </div>
                 <div v-if="invSummary.discount > 0" class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">{{ __('message.coupon') }}<span v-if="invSummary.coupon_code" class="text-color-grey fw-normal"> : {{ invSummary.coupon_code }}</span></strong>
+                  <strong class="text-color-dark">{{ invSummary.coupon_code ? __('message.coupon') : __('message.discount') }}<span v-if="invSummary.coupon_code" class="text-color-grey fw-normal"> : {{ invSummary.coupon_code }}</span></strong>
                   <span class="amount text-success">−{{ symbol }}{{ invSummary.discount }}</span>
                 </div>
                 <div v-if="invPaidNumber > 0" class="d-flex justify-content-between py-3 border-bottom">

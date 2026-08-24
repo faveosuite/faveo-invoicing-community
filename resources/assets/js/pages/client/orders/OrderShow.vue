@@ -33,6 +33,32 @@
                 </div>
             </div>
 
+            <!-- Terminated because of a plan/agent change: explain why this
+                 order stopped working and point at what replaced it. Someone
+                 can land here directly (bookmark, old link) without ever
+                 seeing the "Terminated" badge on the orders list. -->
+            <div v-if="order.status === 'Terminated' && order.replacement_order" class="row justify-content-center mb-4">
+                <div class="col-lg-12 alert alert-warning mb-0">
+                    <strong>{{ __('message.order_terminated_notice_title') }}</strong>
+                    <p class="mb-0 mt-1">{{ __('message.order_terminated_notice_body') }}</p>
+                    <p class="mb-0 mt-1">
+                        {{ __('message.order_terminated_replacement') }}
+                        <RouterLink :to="'/my-order/' + order.replacement_order.id">#{{ order.replacement_order.number }}</RouterLink>
+                    </p>
+                </div>
+            </div>
+
+            <!-- The reverse case: this order exists because an older one was
+                 terminated (a plan/agent change created it automatically) —
+                 say so plainly instead of leaving an order the client doesn't
+                 remember placing themselves unexplained. -->
+            <div v-else-if="order.predecessor_order" class="row justify-content-center mb-4">
+                <div class="col-lg-12 alert alert-info mb-0">
+                    {{ __('message.order_created_from_predecessor') }}
+                    <RouterLink :to="'/my-order/' + order.predecessor_order.id">#{{ order.predecessor_order.number }}</RouterLink>
+                </div>
+            </div>
+
             <!-- Two-column layout -->
             <div class="row pt-2">
 
@@ -40,7 +66,10 @@
                 <div class="col-lg-3 mt-4 mt-lg-0">
                     <aside class="sidebar mt-2 mb-5">
                         <ul class="nav nav-list flex-column">
-                            <li class="nav-item">
+                            <!-- Nothing to show for a terminated order — the notice
+                                 above already covers it, and this tab held nothing
+                                 but the (no longer reachable) license itself. -->
+                            <li v-if="order.status !== 'Terminated'" class="nav-item">
                                 <a class="nav-link text-3" :class="{ active: activeTab === 'license' }"
                                    href="javascript:;" @click="activeTab = 'license'">
                                     {{ __('message.license_details') }}
@@ -96,6 +125,9 @@
                 <div class="col-lg-9 mt-2">
 
                     <!-- ── License Details ──────────────────────────────── -->
+                    <!-- Nav item above hides this tab for a terminated order, and
+                         onMounted() redirects activeTab away from it in that case,
+                         so nothing here needs its own Terminated check any more. -->
                     <div v-show="activeTab === 'license'">
 
                         <div class="row align-items-center">
@@ -133,7 +165,7 @@
                             </div>
                             <div class="col-sm-7 d-flex align-items-center gap-2">
                                 <span>{{ formatDate(order.license_ends_at) }}</span>
-                                <button v-if="order.status !== 'Terminated' && order.license_ends_at"
+                                <button v-if="order.license_ends_at"
                                         class="btn btn-light btn-sm ms-2 table_btn"
                                         v-tooltip="__('message.renew')"
                                         @click="showRenewModal = true">
@@ -156,7 +188,7 @@
                                      so the renew action lives here instead, since updates/support are what run out.
                                      But if updates never expire either (product has no expiring permissions at all),
                                      there's nothing to renew. -->
-                                <button v-if="order.status !== 'Terminated' && !order.license_ends_at && order.update_ends_at"
+                                <button v-if="!order.license_ends_at && order.update_ends_at"
                                         class="btn btn-light btn-sm ms-2 table_btn"
                                         v-tooltip="__('message.renew')"
                                         @click="showRenewModal = true">
@@ -185,7 +217,7 @@
                         <div class="row"><div class="col"><hr class="solid my-3"></div></div>
 
                         <!-- Installations table -->
-                        <DataTable :key="installKey" :url="installationsUrl" :dataColumns="installColumns" :option="installOptions">
+                        <DataTable :key="`${orderId}-${installKey}`" :url="installationsUrl" :dataColumns="installColumns" :option="installOptions">
                             <template #last_active="{ row }">{{ formatDate(row.last_active) }}</template>
                             <template #version="{ row }">{{ row.version || '—' }}</template>
                         </DataTable>
@@ -237,7 +269,7 @@
 
                     <!-- ── Invoice List ─────────────────────────────────── -->
                     <div v-if="activeTab === 'invoice'">
-                        <DataTable :url="invoicesUrl" :dataColumns="invoiceColumns" :option="invoiceOptions">
+                        <DataTable :key="orderId" :url="invoicesUrl" :dataColumns="invoiceColumns" :option="invoiceOptions">
                             <template #number="{ row }">
                                 <div class="d-flex flex-column">
                                     <RouterLink :to="'/my-invoice/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
@@ -261,7 +293,7 @@
 
                     <!-- ── Payment Receipts ─────────────────────────────── -->
                     <div v-if="activeTab === 'receipt'">
-                        <DataTable :url="paymentsUrl" :dataColumns="paymentColumns" :option="paymentOptions">
+                        <DataTable :key="orderId" :url="paymentsUrl" :dataColumns="paymentColumns" :option="paymentOptions">
                             <template #invoice_number="{ row }">
                                 <RouterLink v-if="row.invoice_id" :to="'/my-invoice/' + row.invoice_id" class="fw-semibold">{{ row.invoice_number || '—' }}</RouterLink>
                                 <span v-else>{{ row.invoice_number || '—' }}</span>
@@ -430,36 +462,63 @@
                 </template>
                 <template #fields>
                     <AppAlert componentName="agents-modal" />
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-muted">{{ __('message.current_no_agents') }}</span>
-                        <span class="fw-bold text-dark">{{ cloud?.current_agents || '—' }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
-                        <span class="text-muted">{{ __('message.price_per_agent') }}</span>
-                        <span class="fw-bold text-dark">{{ cloud?.price_per_agent || '—' }}</span>
+                    <div class="bg-light rounded px-3 py-3 mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">{{ __('message.current_no_agents') }}</span>
+                            <span class="fw-bold text-dark">{{ cloud?.current_agents || '—' }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">{{ __('message.price_per_agent') }}</span>
+                            <span class="fw-bold text-dark">{{ cloud?.price_per_agent || '—' }}</span>
+                        </div>
                     </div>
 
-                    <SelectField name="action" required
-                                 :label="__('message.action')"
-                                 :elements="actionOptions"
-                                 :value="actionOptions.find(o => o.id === agentForm.action) ?? null"
-                                 :onChange="onActionChange"
-                                 :clearable="false" />
-
-                    <ClientField type="number" name="number" required
-                                 :label="__('message.choose_no_desired_agents')"
-                                 v-model="agentForm.number" @update:modelValue="fetchAgentCost" />
-
-                    <div v-if="agentCost" class="d-flex justify-content-between align-items-center border-top pt-3 mt-1">
-                        <span class="text-muted">{{ __('message.price_to_be_paid') }}</span>
-                        <span class="fw-bold text-dark fs-6">{{ agentCost }}</span>
+                    <div class="text-center mb-4">
+                        <div class="download-section-label mb-2">{{ __('message.choose_no_desired_agents') }}</div>
+                        <div class="d-flex align-items-center justify-content-center gap-3">
+                            <button type="button" class="btn btn-light agent-stepper-btn" :disabled="agentAtMinimum" @click="stepAgents(-1)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="agent-count-display">{{ agentForm.number || 0 }}</span>
+                            <button type="button" class="btn btn-light agent-stepper-btn" @click="stepAgents(1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <!-- Plain sentence, not a bare "+1" symbol — says what's
+                             about to happen, not just a number. -->
+                        <div v-if="agentChanged" class="fw-bold mt-2" :class="agentIncreasing ? 'text-success' : 'text-danger'">
+                            {{ agentSubmitLabel }}
+                        </div>
                     </div>
+
+                    <!-- Laid out like a receipt on purpose: a cost, a credit for
+                         what's unused, and the total — so it's obvious the two
+                         big numbers above aren't extra charges, they're what
+                         the final number below is calculated from. -->
+                    <div v-if="agentChanged" class="cost-breakdown rounded p-3 mb-1">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-color-grey">{{ __('message.new_agent_count_cost', { count: agentForm.number }) }}</span>
+                            <span class="fw-bold text-dark">{{ agentNewCost }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
+                            <span class="text-color-grey">{{ __('message.unused_current_agents_credit', { count: cloud?.current_agents }) }}</span>
+                            <span class="fw-bold text-success">−{{ agentCurrentCost }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-dark">{{ __('message.price_due_today') }}</span>
+                            <span class="fw-bold text-dark fs-6">{{ agentCost }}</span>
+                        </div>
+                    </div>
+
+                    <p v-if="agentChanged" class="text-color-grey text-2 mb-0">
+                        {{ __('message.agent_proration_note', { count: agentForm.number }) }}
+                    </p>
                 </template>
                 <template #controls>
                     <action-button action="confirm"
-                                   :label="__('message.update_agents')"
+                                   :label="agentSubmitLabel"
                                    :loading="agentBusy"
-                                   :disabled="!agentForm.number"
+                                   :disabled="!agentChanged"
                                    @click="submitAgents" />
                 </template>
             </Modal>
@@ -483,18 +542,38 @@
                                  :onChange="onPlanChange"
                                  :placeholder="__('message.select')" />
 
+                    <!-- Reads top to bottom like a real deduction: how much
+                         credit you have, what the new plan costs, how much
+                         of that credit gets used, then what's left to pay.
+                         The second, distinctly-styled box is money going the
+                         OTHER way (into your account) — kept apart so it's
+                         never confused with the subtraction above it. -->
                     <template v-if="planCost">
-                        <div class="d-flex justify-content-between align-items-center mt-2 mb-1">
-                            <span class="text-muted">{{ __('message.total_credits_remaining') }}</span>
-                            <span class="fw-bold text-dark">{{ planCost.currency_symbol }}{{ planCost.priceoldplan }}</span>
+                        <div class="cost-breakdown rounded p-3 mt-2 mb-1">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-color-grey">{{ __('message.total_credits_remaining') }}</span>
+                                <span class="fw-bold text-dark">{{ planCost.currency_symbol }}{{ planCost.priceoldplan }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
+                                <span class="text-color-grey">{{ __('message.price_for_new_plan') }}</span>
+                                <span class="fw-bold text-dark">{{ planCost.currency_symbol }}{{ planCost.pricenewplan }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
+                                <span class="text-color-grey">{{ __('message.credit_deducted_label') }}</span>
+                                <span class="fw-bold text-success">−{{ planCost.currency_symbol }}{{ planCreditApplied.toFixed(2) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark">{{ __('message.price_due_today') }}</span>
+                                <span class="fw-bold text-dark fs-6">{{ planCost.currency_symbol }}{{ planCost.price_to_be_paid }}</span>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="text-muted">{{ __('message.price_for_new_plan') }}</span>
-                            <span class="fw-bold text-dark">{{ planCost.currency_symbol }}{{ planCost.pricenewplan }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2">
-                            <span class="text-muted">{{ __('message.price_to_be_paid') }}</span>
-                            <span class="fw-bold text-dark fs-6">{{ planCost.currency_symbol }}{{ planCost.price_to_be_paid }}</span>
+
+                        <!-- Leftover credit (old plan worth more than the new
+                             one costs) doesn't just vanish — called out here,
+                             clearly apart from the payment math above. -->
+                        <div v-if="planFutureCredit > 0" class="future-credit-callout rounded p-3 mb-1 d-flex justify-content-between align-items-center">
+                            <span class="text-dark">{{ __('message.future_plan_credit_label') }}</span>
+                            <span class="fw-bold text-success fs-6">+{{ planCost.currency_symbol }}{{ planFutureCredit.toFixed(2) }}</span>
                         </div>
                     </template>
                 </template>
@@ -663,7 +742,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
@@ -685,16 +764,20 @@ const userId  = el?.dataset?.userId  ?? ''
 
 const route   = useRoute()
 const router  = useRouter()
-const orderId = route.params.id
+// Reactive, not a one-time snapshot — the SPA reuses this component instance
+// when navigating from one order's page straight to another's (e.g. the
+// termination notice's "replaces order #X" link), so a plain `const` here
+// would freeze on whichever order loaded first and never update.
+const orderId = computed(() => route.params.id)
 
 const loading   = ref(true)
 const copied    = ref(false)
 const activeTab = ref('license')
 const order     = ref(null)
 
-const installationsUrl = `/get-my-installations/${orderId}`
-const invoicesUrl      = `/get-my-invoices/${orderId}/${userId}`
-const paymentsUrl      = `/get-my-payment-client/${orderId}/${userId}`
+const installationsUrl = computed(() => `/get-my-installations/${orderId.value}`)
+const invoicesUrl      = computed(() => `/get-my-invoices/${orderId.value}/${userId}`)
+const paymentsUrl      = computed(() => `/get-my-payment-client/${orderId.value}/${userId}`)
 
 
 const installColumns = ['installation_path', 'installation_ip', 'version', 'last_active']
@@ -745,17 +828,36 @@ const showAgentsModal = ref(false)
 const showPlanModal   = ref(false)
 
 const domainForm = reactive({ newDomain: '' })
-const agentForm  = reactive({ action: 'increase', number: '' })
+// A single "desired total" field — simpler than an increase/decrease action
+// picker plus a delta amount. Direction and delta are worked out (here and
+// server-side) by comparing to the current count, not asked for directly.
+const agentForm  = reactive({ number: '' })
 const planForm   = reactive({ planId: '' })
 
-// Increase/Decrease options for the SelectField (vue-select expects objects).
-const actionOptions = computed(() => [
-    { id: 'increase', name: __('message.increase') },
-    { id: 'decrease', name: __('message.decrease') },
-])
+// Nothing to submit until the desired total actually differs from what's
+// already provisioned. Direction/delta are plain counts (not money), so
+// computing them here is fine — the one money figure shown (agentCost
+// below) always comes straight from the server, never computed here.
+const agentChanged = computed(() =>
+    !!agentForm.number && Number(agentForm.number) !== Number(cloud.value?.current_agents)
+)
+const agentIncreasing = computed(() => Number(agentForm.number || 0) > Number(cloud.value?.current_agents || 0))
+const agentCountDelta = computed(() => Math.abs(Number(agentForm.number || 0) - Number(cloud.value?.current_agents || 0)))
+const agentAtMinimum = computed(() => Number(agentForm.number || 0) <= 1)
+// "Add 1 agent" vs "Add 3 agents" — the __() helper has no pluralization, so
+// pick the right key by hand rather than showing "Add 1 agents". Used both
+// as the button label and as the plain-English line under the stepper, so
+// the two always say exactly the same thing.
+const agentSubmitLabel = computed(() => {
+    if (!agentChanged.value) return __('message.update_agents')
+    const count = agentCountDelta.value
+    if (agentIncreasing.value) return count === 1 ? __('message.add_one_agent') : __('message.add_agents_count', { count })
+    return count === 1 ? __('message.remove_one_agent') : __('message.remove_agents_count', { count })
+})
 
-function onActionChange(v) {
-    agentForm.action = v?.id ?? 'increase'
+function stepAgents(delta) {
+    const next = Number(agentForm.number || cloud.value?.current_agents || 1) + delta
+    agentForm.number = Math.max(1, next)
     fetchAgentCost()
 }
 
@@ -765,7 +867,27 @@ function onPlanChange(v) {
 }
 
 const agentCost = ref('')
+// The two halves priceToPay (agentCost) is the difference of — see fetchAgentCost.
+const agentCurrentCost = ref('')
+const agentNewCost = ref('')
 const planCost  = ref(null)
+
+// Money fields from the backend are currency-formatted for display (e.g.
+// "3,000.00") — strip thousands separators before treating them as numbers.
+function toNumber(v) {
+    return parseFloat(String(v ?? '').replace(/,/g, '')) || 0
+}
+
+// How much of the old plan's remaining value is actually going toward this
+// purchase — never more than the new plan costs. planCost.discount (if any)
+// is the leftover beyond that, banked as credit for later (see below), not
+// spent here, so it's subtracted out rather than shown as part of this credit.
+const planCreditApplied = computed(() => planCost.value
+    ? toNumber(planCost.value.priceoldplan) - toNumber(planCost.value.discount)
+    : 0)
+// Set only when the old plan was worth more than the new one costs — the
+// difference doesn't just vanish, it's added to the account as credit.
+const planFutureCredit = computed(() => planCost.value ? toNumber(planCost.value.discount) : 0)
 
 const domainBusy = ref(false)
 const agentBusy  = ref(false)
@@ -775,7 +897,7 @@ const alertStore = useAlertStore()
 const loaderStore = useLoaderStore()
 
 const showCloudTab      = computed(() => !!order.value?.is_cloud && order.value?.status !== 'Terminated')
-const showAutoRenewTab  = computed(() => !!order.value?.autorenewal_enabled)
+const showAutoRenewTab  = computed(() => !!order.value?.autorenewal_enabled && order.value?.status !== 'Terminated')
 
 /* ── Auto Renewal ─────────────────────────────────────────── */
 const showRenewalModal = ref(false)
@@ -844,7 +966,7 @@ async function confirmDisableRenewal() {
     renewalBusy.value = true
     closeDisableRenewalModal()
     try {
-        const res = await http.post(`/auto-renewal/${orderId}/disable`)
+        const res = await http.post(`/auto-renewal/${orderId.value}/disable`)
         order.value.is_subscribed    = false
         order.value.autorenew_status = false
         order.value.auto_renew_state = 'inactive'
@@ -861,7 +983,7 @@ async function enableAutoRenewal() {
     renewalBusy.value = true
     try {
         if (selectedGateway.value === 'razorpay') {
-            const { data } = await http.post(`/auto-renewal/${orderId}/razorpay/order`)
+            const { data } = await http.post(`/auto-renewal/${orderId.value}/razorpay/order`)
             closeRenewalModal()
             await openRenewalRazorpayPopup(data.data)
         } else {
@@ -891,7 +1013,7 @@ async function openRenewalRazorpayPopup(config) {
         renewalBusy.value = true
         loaderStore.startLoader('renewal-verify')
         try {
-            const res = await http.post(`/auto-renewal/${orderId}/razorpay/confirm`, {
+            const res = await http.post(`/auto-renewal/${orderId.value}/razorpay/confirm`, {
                 razorpay_subscription_id: response.razorpay_subscription_id,
                 razorpay_payment_id:      response.razorpay_payment_id,
                 razorpay_signature:       response.razorpay_signature,
@@ -917,7 +1039,7 @@ const renewalAmount        = ref('')
 const renewalSymbol        = ref('')
 
 async function openRenewalStripeModal() {
-    const { data } = await http.post(`/auto-renewal/${orderId}/stripe/session`)
+    const { data } = await http.post(`/auto-renewal/${orderId.value}/stripe/session`)
     renewalClientSecret    = data.data.client_secret
     renewalPaymentIntentId = data.data.payment_intent_id
     renewalAmount.value    = data.data.display_amount ?? ''
@@ -1010,7 +1132,7 @@ async function payRenewalStripe() {
 async function finalizeRenewalStripe() {
     loaderStore.startLoader('renewal-verify')
     try {
-        const res = await http.post(`/auto-renewal/${orderId}/stripe/confirm`, {
+        const res = await http.post(`/auto-renewal/${orderId.value}/stripe/confirm`, {
             payment_intent: renewalPaymentIntentId,
         })
         order.value.is_subscribed    = true
@@ -1069,7 +1191,7 @@ async function reissueLicense() {
     if (reissuing.value) return
     reissuing.value = true
     try {
-        const res = await http.patch(`/reissue-license`, { id: orderId })
+        const res = await http.patch(`/reissue-license`, { id: orderId.value })
         alertStore.setAlert({
             message: res.data?.message ?? __('message.license_reissued'),
             type: 'success',
@@ -1181,7 +1303,7 @@ async function openCloudTab() {
     if (cloudLoaded.value) return
     cloudLoading.value = true
     try {
-        const res = await http.get(`/get-cloud-settings/${orderId}`)
+        const res = await http.get(`/get-cloud-settings/${orderId.value}`)
         cloud.value = res.data?.data ?? null
         cloudLoaded.value = true
     } catch (e) {
@@ -1220,40 +1342,46 @@ async function submitDomain() {
 
 /* ── Change agents ────────────────────────────────────────── */
 function openAgentsModal() {
-    agentForm.action = 'increase'
-    agentForm.number = ''
-    agentCost.value  = ''
+    agentForm.number = cloud.value?.current_agents ?? ''
+    agentCost.value = ''
+    agentCurrentCost.value = ''
+    agentNewCost.value = ''
     showAgentsModal.value = true
 }
 function closeAgentsModal() { showAgentsModal.value = false; alertStore.unsetAlert() }
 
+function resetAgentCost() {
+    agentCost.value = ''
+    agentCurrentCost.value = ''
+    agentNewCost.value = ''
+}
+
 async function fetchAgentCost() {
-    if (!cloud.value || !agentForm.number) { agentCost.value = ''; return }
+    if (!cloud.value || !agentChanged.value) { resetAgentCost(); return }
     try {
         const res = await http.post(`/get-agent-inc-dec-cost`, {
-            number:      agentForm.number,
-            oldAgents:   cloud.value.current_agents,
-            orderId:     cloud.value.order_id,
-            agentAction: agentForm.action,
+            orderId:       cloud.value.order_id,
+            desiredAgents: agentForm.number,
         })
-        // raw (un-wrapped) array response: { pricePerAgent, totalPrice, priceToPay }
-        agentCost.value = (res.data?.currency_symbol ?? '') + (res.data?.priceToPay ?? '')
+        // raw (un-wrapped) array response: { pricePerAgent, totalPrice, priceToPay, currentAgentsCost, newAgentsCost }
+        const symbol = res.data?.currency_symbol ?? ''
+        agentCost.value = symbol + (res.data?.priceToPay ?? '')
+        agentCurrentCost.value = symbol + (res.data?.currentAgentsCost ?? '')
+        agentNewCost.value = symbol + (res.data?.newAgentsCost ?? '')
     } catch (e) {
-        agentCost.value = ''
+        resetAgentCost()
         errorHandler(e, 'agents-modal')
     }
 }
 
 async function submitAgents() {
-    if (!cloud.value || !agentForm.number) return
+    if (!cloud.value || !agentChanged.value) return
     agentBusy.value = true
     try {
         const res = await http.post(`/changeAgents`, {
-            newAgents:   agentForm.number,
-            orderId:     cloud.value.order_id,
-            product_id:  cloud.value.product_id,
-            subId:       cloud.value.sub_id,
-            agentAction: agentForm.action,
+            orderId:       cloud.value.order_id,
+            subId:         cloud.value.sub_id,
+            desiredAgents: agentForm.number,
         })
         const invoiceId = res.data?.data?.invoice_id
         if (invoiceId) router.push({ path: '/checkout', query: { invoice: invoiceId } })
@@ -1307,17 +1435,31 @@ async function submitPlan() {
     }
 }
 
-onMounted(async () => {
+// Re-runs whenever orderId changes — including navigating from one order's
+// page straight to another's (e.g. the termination notice's "replaces order
+// #X" link) — since Vue Router reuses this component instance rather than
+// remounting it for a same-route param change.
+watch(orderId, async () => {
+    loading.value = true
+    activeTab.value = 'license'
+    // Cloud tab data belongs to whichever order was open before — drop it so
+    // openCloudTab() re-fetches for the new order instead of reusing it.
+    cloud.value = null
+    cloudLoaded.value = false
     try {
-        const res = await http.get(`/get-my-order/${orderId}`)
+        const res = await http.get(`/get-my-order/${orderId.value}`)
         order.value = res.data?.data ?? null
+        // License Details isn't offered for a terminated order (no nav item
+        // for it), so land somewhere that is instead of defaulting to a tab
+        // that's invisible with nothing selected.
+        if (order.value?.status === 'Terminated') activeTab.value = 'invoice'
         await loadPluginLicenses()
     } catch (e) {
         errorHandler(e, 'client-page')
     } finally {
         loading.value = false
     }
-})
+}, { immediate: true })
 </script>
 
 <style scoped>
@@ -1347,6 +1489,25 @@ onMounted(async () => {
     color: #6c757d;
     margin-bottom: 0.5rem;
 }
+.agent-stepper-btn {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+}
+.agent-stepper-btn:disabled { opacity: 0.4; }
+.agent-count-display {
+    min-width: 2.5rem;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #212529;
+}
+.cost-breakdown { background-color: #e7f4fb; }
+.future-credit-callout { background-color: #e6f9ef; border: 1px dashed #1a9d5c; }
 </style>
 
 <!-- Modal.vue teleports to <body>, so scoped styles can't reach its internals -

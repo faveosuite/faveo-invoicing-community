@@ -54,29 +54,47 @@ class InvoicePaymentService
     /** Outstanding balance on an invoice (grand total less payments recorded). */
     public function outstanding(Invoice $invoice): float
     {
-        $paid = (float) $invoice->payment()->sum('amount');
-
-        return max(0, (float) $invoice->grand_total - $paid);
-    }
-
-    /** Client's spendable credit balance — SUM of their invoice_id = 0 rows. */
-    public function availableCredit(int $userId): float
-    {
-        return (float) app(AdvanceSearchController::class)->getExtraAmt($userId);
-    }
-
-    /** How much credit will be auto-applied to this invoice: the full balance, capped at what's owed. */
-    public function creditApplied(Invoice $invoice): float
-    {
-        return min($this->outstanding($invoice), $this->availableCredit((int) $invoice->user_id));
+        return $invoice->outstanding();
     }
 
     /**
-     * Pay an invoice entirely out of the client's own credit balance — the full
-     * available amount is used automatically, up to what's owed; there's no
+     * Credit we granted the client — the only balance checkout offers them.
+     * Unapplied payment ({@see UnappliedPaymentService}) is a separate pool
+     * that only admins allocate (Apply Payment to Invoices); it's the
+     * client's own unallocated money, not credit, so checkout never spends or
+     * shows it. Doesn't cross currencies.
+     */
+    public function availableCredit(int $userId, string $currency): float
+    {
+        return app(AdvanceSearchController::class)->getExtraAmt($userId, $currency);
+    }
+
+    /** Spend that credit balance against an invoice. */
+    private function spendBalance(Invoice $invoice, float $amount): void
+    {
+        app(InvoiceController::class)->updatePaymentByInvoice(
+            (int) $invoice->user_id,
+            [$invoice->id],
+            'Credit Balance',
+            Date::now(),
+            [$amount],
+            'success'
+        );
+
+        $invoice->refresh();
+    }
+
+    /** How much credit will be auto-applied to this invoice: the full balance in its currency, capped at what's owed. */
+    public function creditApplied(Invoice $invoice): float
+    {
+        return min($this->outstanding($invoice), $this->availableCredit((int) $invoice->user_id, $invoice->currency));
+    }
+
+    /**
+     * Pay an invoice out of the client's existing balance — the full available
+     * amount is used automatically, up to what's owed; there's no
      * partial/manual amount to choose (mirrors a coupon: no per-payment
-     * negotiation). Reuses the same ledger operation the admin "Edit Payment"
-     * tool uses (ExtendedBaseInvoiceController::updatePaymentByInvoice).
+     * negotiation). See {@see spendBalance} for which pool it comes from.
      *
      * If the credit fully covers the invoice, fulfilment runs immediately (same
      * pipeline a real gateway payment triggers) since no gateway step follows.
@@ -94,16 +112,7 @@ class InvoicePaymentService
         }
 
         if ($toApply > 0) {
-            app(InvoiceController::class)->updatePaymentByInvoice(
-                (int) $invoice->user_id,
-                [$invoice->id],
-                'Credit Balance',
-                Date::now(),
-                [$toApply],
-                'success'
-            );
-
-            $invoice->refresh();
+            $this->spendBalance($invoice, $toApply);
         }
 
         $paidInFull = $this->outstanding($invoice) <= 0;
@@ -231,17 +240,18 @@ class InvoicePaymentService
         $invoice->refresh();
 
         $creditApplied = (float) ($payload['credit_applied'] ?? $result->raw['metadata']['credit_applied'] ?? 0);
-        $creditApplied = min($creditApplied, $this->availableCredit((int) $invoice->user_id));
+        $creditApplied = min($creditApplied, $this->availableCredit((int) $invoice->user_id, $invoice->currency));
 
         if ($creditApplied > 0) {
-            app(InvoiceController::class)->updatePaymentByInvoice(
-                (int) $invoice->user_id,
-                [$invoice->id],
-                'Credit Balance',
-                Date::now(),
-                [$creditApplied],
-                'success'
-            );
+            $this->spendBalance($invoice, $creditApplied);
+
+            // Applying credit re-derives the invoice's status from what has
+            // been paid so far, which — with the gateway's own payment not
+            // recorded until fulfilment below — knocks it back to "partially
+            // paid" and reopens the claim above. A second caller could then
+            // win a claim of its own and fulfil the same purchase twice, so
+            // the claim is re-asserted before that window can be used.
+            $invoice->update(['status' => 'success']);
             $invoice->refresh();
         }
 
@@ -355,7 +365,7 @@ class InvoicePaymentService
             return;
         }
 
-        $alreadyPaid = (float) $invoice->payment()->where('payment_status', 'success')->sum('amount');
+        $alreadyPaid = $invoice->paidTotal();
         $invoice->processing_fee = ProcessingFee::label($fee);
         $invoice->grand_total = (string) ($alreadyPaid + ProcessingFee::addTo(max(0, (float) $invoice->grand_total - $alreadyPaid), $gateway));
         $invoice->save();

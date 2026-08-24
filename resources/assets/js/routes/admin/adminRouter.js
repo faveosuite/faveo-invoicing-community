@@ -56,13 +56,11 @@ const router = createRouter({
 // If the session expires mid-session, redirect back to the client panel login.
 import { useAuthStore } from '@/core/stores/auth'
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
     const requiresAuth = to.meta?.requiresAuth !== false
 
     if (requiresAuth && !useAuthStore().isAuthenticated) {
         globalThis.location.href = useBaseUrl() + '/login'
-    } else {
-        next()
     }
 })
 

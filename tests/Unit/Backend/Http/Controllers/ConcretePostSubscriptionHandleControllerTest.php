@@ -52,7 +52,9 @@ class ConcretePostSubscriptionHandleControllerTest extends DBTestCase
         $payment = $this->controller->recordPayment($invoice, 'stripe');
 
         $this->assertInstanceOf(Payment::class, $payment);
-        $this->assertEquals($invoice->id, $payment->invoice_id);
+        // The invoice it settles is an allocation now, not a column.
+        $this->assertSame([(int) $invoice->id], $payment->invoices->pluck('id')->map(fn ($v): int => (int) $v)->all());
+        $this->assertSame(100.0, $invoice->fresh()->paidTotal());
 
         $invoice->refresh();
         $this->assertEqualsIgnoringCase('success', $invoice->status);

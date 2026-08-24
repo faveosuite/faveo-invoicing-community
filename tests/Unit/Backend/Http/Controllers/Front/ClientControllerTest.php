@@ -26,6 +26,33 @@ class ClientControllerTest extends DBTestCase
     }
 
     // -------------------------------------------------------------------------
+    // getCreditBalance — GET /get-credit-balance
+    // -------------------------------------------------------------------------
+
+    public function test_get_credit_balance_lists_history_from_the_ledger(): void
+    {
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'grand_total' => 30.0,
+            'currency' => 'USD',
+            'status' => 'pending',
+        ]);
+
+        $credits = new \App\Services\Payment\CreditBalanceService;
+        $credits->grant($this->user->id, 'USD', 80.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT, note: 'Received via cash on 2026-08-21');
+        $credits->apply($this->user->id, 'USD', 30.0, (int) $invoice->id);
+
+        $data = $this->getJson('/get-credit-balance')->assertStatus(200)->json('data');
+
+        // Two ledger movements, newest first, each explained in words — the old
+        // credit_activity table would have returned an empty list here.
+        $this->assertCount(2, $data['activity']);
+        $this->assertStringContainsString($invoice->number, $data['activity'][0]['text']);
+        $this->assertStringContainsString('applied', $data['activity'][0]['text']);
+        $this->assertStringContainsString('Received via cash on 2026-08-21', $data['activity'][1]['text']);
+    }
+
+    // -------------------------------------------------------------------------
     // getInvoices — GET /get-my-invoices
     // -------------------------------------------------------------------------
 

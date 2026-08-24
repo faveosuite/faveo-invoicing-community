@@ -2,26 +2,13 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Model\Order\Payment;
-use Exception;
-use Logger;
+use App\Services\Payment\CreditBalanceService;
 
 class AdvanceSearchController extends AdminOrderInvoiceController
 {
-    public function getExtraAmt(mixed $userId): mixed
+    /** Client's spendable credit balance. Pass no currency to sum across all of the user's currencies (display-only use). */
+    public function getExtraAmt(mixed $userId, ?string $currency = null): float
     {
-        try {
-            $amounts = Payment::where('user_id', $userId)->where('invoice_id', 0)->select('amt_to_credit')->get();
-            $balance = 0;
-            foreach ($amounts as $amount) {
-                $balance += $amount->amt_to_credit;
-            }
-
-            return $balance;
-        } catch (Exception $exception) {
-            Logger::exception($exception);
-
-            return errorResponse($exception->getMessage());
-        }
+        return app(CreditBalanceService::class)->balance((int) $userId, $currency);
     }
 }

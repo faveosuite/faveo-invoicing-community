@@ -203,12 +203,13 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
         ]);
 
         $payment = Payment::create([
-            'invoice_id' => $invoice->id,
             'user_id' => $user->id,
             'amount' => 100.0,
             'payment_method' => 'stripe',
             'payment_status' => 'success',
+            'currency' => $invoice->currency,
         ]);
+        $payment->invoices()->attach($invoice->id, ['amount' => 100.0]);
 
         $response = $this->deleteJson('/payments', ['payment_ids' => [$payment->id]]);
         $response->assertStatus(200);
@@ -231,19 +232,21 @@ class CoupCodeAndInvoiceSearchTest extends DBTestCase
 
         // Keep one payment, delete another
         $payment1 = Payment::create([
-            'invoice_id' => $invoice->id,
             'user_id' => $user->id,
             'amount' => 100.0,
             'payment_method' => 'stripe',
             'payment_status' => 'success',
+            'currency' => $invoice->currency,
         ]);
+        $payment1->invoices()->attach($invoice->id, ['amount' => 100.0]);
         $payment2 = Payment::create([
-            'invoice_id' => $invoice->id,
             'user_id' => $user->id,
             'amount' => 100.0,
             'payment_method' => 'stripe',
             'payment_status' => 'success',
+            'currency' => $invoice->currency,
         ]);
+        $payment2->invoices()->attach($invoice->id, ['amount' => 100.0]);
 
         // Delete payment1 only
         $response = $this->deleteJson('/payments', ['payment_ids' => [$payment1->id]]);

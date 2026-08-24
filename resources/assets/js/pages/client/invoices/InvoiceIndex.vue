@@ -83,7 +83,7 @@
                 </li>
                 <li v-for="(item, i) in creditActivity" :key="i" class="list-group-item">
                     <div class="text-muted small">{{ formatDateTime(item.created_at) }}</div>
-                    <div v-html="item.text"></div>
+                    <div>{{ item.text }}</div>
                 </li>
             </ul>
         </template>

@@ -44,21 +44,32 @@
                             ></span>
                         </p>
 
-                        <!-- Financial summary — shown above user details -->
+                        <!-- Financial summary — shown above user details, all in
+                             one row like before. Only change from the original:
+                             every label now has a tooltip explaining what the
+                             figure means (previously only Unused Amount did). -->
                         <div v-if="!loadingSummary" class="row text-center g-0 border rounded mb-3">
-                            <div class="col-4 border-end py-2">
-                                <div class="small text-muted">{{ __('message.invoice-total') || 'Invoiced' }}</div>
+                            <div class="col py-2 border-end">
+                                <div class="small text-muted" v-tooltip="__('message.invoice_total_description')">{{ __('message.invoice-total') || 'Invoiced' }}</div>
                                 <div class="fw-bold small">{{ formatMoney(summary.invoice_total, summary.currency) }}</div>
                             </div>
-                            <div class="col-4 border-end py-2">
-                                <div class="small text-muted">{{ __('message.paid') }}</div>
+                            <div class="col py-2 border-end">
+                                <div class="small text-muted" v-tooltip="__('message.paid_description')">{{ __('message.paid') }}</div>
                                 <div class="fw-bold small text-success">{{ formatMoney(summary.amount_paid, summary.currency) }}</div>
                             </div>
-                            <div class="col-4 py-2">
-                                <div class="small text-muted">{{ __('message.balance') }}</div>
+                            <div class="col py-2 border-end">
+                                <div class="small text-muted" v-tooltip="__('message.balance_description')">{{ __('message.balance') }}</div>
                                 <div class="fw-bold small" :class="summary.balance > 0 ? 'text-danger' : 'text-success'">
                                     {{ formatMoney(summary.balance, summary.currency) }}
                                 </div>
+                            </div>
+                            <div class="col py-2 border-end" v-tooltip="__('message.unapplied_payment')">
+                                <div class="small text-muted">{{ __('message.unapplied_balance') }}</div>
+                                <div class="fw-bold small text-primary">{{ formatMoney(summary.unapplied_balance, summary.currency) }}</div>
+                            </div>
+                            <div class="col py-2" v-tooltip="__('message.credit_balance_description')">
+                                <div class="small text-muted">{{ __('message.credit_balance') }}</div>
+                                <div class="fw-bold small text-info">{{ formatMoney(summary.credit_balance, summary.currency) }}</div>
                             </div>
                         </div>
                         <div v-else class="row justify-content-center py-3"><loader :size="30" /></div>
@@ -310,6 +321,23 @@
                                         </DataTable>
                                     </div>
 
+                                    <!-- Credits -->
+                                    <div v-show="activeTab === 'credits'">
+                                        <!-- Credit never crosses currencies, so the spendable
+                                             figure is per currency, not the single total above. -->
+                                        <div v-if="summary.credit_balances?.length" class="d-flex flex-wrap gap-2 mb-3">
+                                            <span v-for="bal in summary.credit_balances" :key="bal.currency" class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
+                                                {{ __('message.credit_balance') }} {{ formatMoney(bal.balance, bal.currency) }}
+                                            </span>
+                                        </div>
+                                        <DataTable
+                                            v-if="tabMounted.credits"
+                                            :url="creditsUrl"
+                                            :dataColumns="creditColumns"
+                                            :option="creditOptions"
+                                        />
+                                    </div>
+
                                     <!-- Orders -->
                                     <div v-show="activeTab === 'orders'">
                                         <DataTable
@@ -454,6 +482,7 @@ const fallbackAvatar = asset('images/avatar.png')
 // ── API URLs ──────────────────────────────────────────────────────────────────
 const invoicesUrl = `/user/${userId}/invoices`
 const paymentsUrl = `/user/${userId}/payments`
+const creditsUrl  = `/user/${userId}/credits`
 const ordersUrl   = `/orders`
 
 // ── Multi-select + bulk delete (per table) ─────────────────────────────────────
@@ -494,7 +523,7 @@ const loadingComments = ref(false)
 const copied          = ref('')
 
 const user    = ref(null)
-const summary = ref({ invoice_total: 0, amount_paid: 0, balance: 0, currency: '', invoice_count: null, payment_count: null, order_count: null })
+const summary = ref({ invoice_total: 0, amount_paid: 0, balance: 0, credit_balance: 0, credit_balances: [], unapplied_balance: 0, unapplied_balances: [], currency: '', invoice_count: null, payment_count: null, order_count: null, credit_count: null })
 
 const comments       = ref([])
 const newComment     = ref('')
@@ -510,10 +539,11 @@ const tabs = [
     { key: 'orders',   label: __('message.orders')           || 'Orders',   countKey: 'order_count'   },
     { key: 'invoices', label: __('message.invoices')         || 'Invoices', countKey: 'invoice_count' },
     { key: 'payments', label: __('message.payments_section') || 'Payments', countKey: 'payment_count' },
+    { key: 'credits',  label: __('message.credits')          || 'Credits',  countKey: 'credit_count'  },
     { key: 'comments', label: __('message.comments')         || 'Comments', countKey: null             },
 ]
 const activeTab  = ref('orders')
-const tabMounted = reactive({ invoices: false, payments: false, orders: false })
+const tabMounted = reactive({ invoices: false, payments: false, orders: false, credits: false })
 
 function activateTab(key) {
     activeTab.value = key
@@ -685,35 +715,50 @@ const invoiceOptions = {
     orderBy: { column: 'date', ascending: false },
 }
 
-const paymentColumns = ['select', 'invoice_number', 'date', 'payment_method', 'amount', 'status', 'action']
+const paymentColumns = ['select', 'invoices', 'date', 'payment_method', 'amount', 'unapplied', 'status', 'action']
 const paymentOptions = {
     headings: {
         select:         () => h('input', { type: 'checkbox', checked: allPaySelected.value, onChange: toggleAllPayments }),
-        invoice_number: __('message.invoice_no')     || 'Invoice No',
+        invoices:       __('message.invoice_no')     || 'Invoice No',
         date:           __('message.date')           || 'Date',
         payment_method: __('message.payment-method') || 'Payment Method',
         amount:         __('message.total')          || 'Amount',
+        unapplied:      __('message.unapplied_balance'),
         status:         __('message.status')         || 'Status',
         action:         __('message.actions')        || 'Actions',
     },
     columnsClasses: {
         select: 'dt-select',
-        invoice_number: 'dt-number',
+        invoices: 'dt-number',
         date: 'dt-date',
         payment_method: 'dt-name',
         amount: 'dt-amount',
+        unapplied: 'dt-amount',
         status: 'dt-status',
         action: 'dt-action',
     },
     templates: {
         select:         (_, row) => selectCheckbox(selPayments, togglePaymentRow, row),
-        invoice_number: (_, row) => row.invoice_number && row.invoice_id ? h(RouterLink, { to: '/invoices/' + row.invoice_id }, () => row.invoice_number) : (row.invoice_number || '—'),
+        // One row per payment. A payment split over several invoices lists them
+        // all here rather than appearing as several rows of money.
+        invoices:       (_, row) => (row.invoices ?? []).length
+            ? h('span', {}, (row.invoices ?? []).flatMap((inv, i) => [
+                i ? h('span', {}, ', ') : null,
+                h(RouterLink, { to: '/invoices/' + inv.id }, () => inv.number),
+            ].filter(Boolean)))
+            : h('span', { class: 'text-muted' }, '—'),
         date:           (_, row) => fmtDate(row.date),
         amount:         (_, row) => formatMoney(row.amount, row.currency),
+        // Always a figure, never a dash — a money column that sometimes shows
+        // "—" reads as "unknown" when the answer is a definite zero.
+        unapplied:      (_, row) => row.unapplied > 0
+            ? h('span', { class: 'badge bg-primary' }, formatMoney(row.unapplied, row.currency))
+            : h('span', { class: 'text-muted' }, formatMoney(0, row.currency)),
         status:         (_, row) => statusBadge(row.status, { success: 'bg-success', pending: 'bg-warning text-dark', failed: 'bg-danger' }),
         action:         (_, row) => h(PaymentTableActions, {
             paymentId: row.id,
-            invoiceId: row.invoice_id,
+            // Only a payment with money left on it has anything to allocate.
+            unapplied: row.unapplied,
             userId:    userId,
             baseUrl:   baseUrl,
         }),
@@ -721,6 +766,37 @@ const paymentOptions = {
     sortable:   ['date', 'payment_method', 'amount', 'status'],
     filterable: true,
     requestAdapter: makeRequestAdapter('created_at', null, { date: 'created_at', status: 'payment_status' }),
+    orderBy: { column: 'date', ascending: false },
+}
+
+const creditColumns = ['date', 'type', 'amount', 'invoice_number', 'note']
+const creditOptions = {
+    headings: {
+        date:           __('message.date')           || 'Date',
+        type:           __('message.credit_type')    || 'Type',
+        amount:         __('message.total')          || 'Amount',
+        invoice_number: __('message.invoice_no')     || 'Invoice No',
+        note:           __('message.credit_note')    || 'Note',
+    },
+    columnsClasses: {
+        date: 'dt-date',
+        type: 'dt-status',
+        amount: 'dt-amount',
+        invoice_number: 'dt-number',
+        note: 'dt-name',
+    },
+    templates: {
+        date:           (_, row) => fmtDate(row.date),
+        // Signed on purpose: a deposit reads +, a spend reads -, so the column
+        // adds up to the balance shown above it.
+        amount:         (_, row) => h('span', { class: row.amount < 0 ? 'text-danger' : 'text-success' }, formatMoney(row.amount, row.currency)),
+        type:           (_, row) => h('span', { class: 'badge bg-secondary' }, row.type || '—'),
+        invoice_number: (_, row) => row.invoice_number && row.invoice_id ? h(RouterLink, { to: '/invoices/' + row.invoice_id }, () => row.invoice_number) : '—',
+        note:           (_, row) => row.note || '—',
+    },
+    sortable:   ['date', 'type'],
+    filterable: false,
+    requestAdapter: makeRequestAdapter('created_at', null, { date: 'created_at' }),
     orderBy: { column: 'date', ascending: false },
 }
 
@@ -764,7 +840,11 @@ const orderOptions = {
                 )
             )
         },
-        order_status: (_, row) => statusBadge(row.order_status, { active: 'bg-success', pending: 'bg-warning text-dark', cancelled: 'bg-danger', expired: 'bg-secondary', terminated: 'bg-dark' }),
+        // 'executed' and 'terminated' are the only two order_status values
+        // this app ever sets — the map used to only know about statuses
+        // ('active', 'pending', ...) that don't exist here, so every real
+        // order fell through to the plain gray default.
+        order_status: (_, row) => statusBadge(row.order_status, { executed: 'bg-success', terminated: 'bg-danger' }),
         action:       (_, row) => h(OrderTableActions, { orderId: row.id, showDelete: true, componentName: COMPONENT }),
     },
     sortable:   ['order_date', 'number', 'order_status'],

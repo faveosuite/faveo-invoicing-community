@@ -68,13 +68,14 @@ class InvoicePaymentServiceTest extends DBTestCase
     {
         $invoice = Invoice::factory()->create(['grand_total' => 100.0]);
 
-        // Create a payment record for the full amount
-        $invoice->payment()->create([
+        // A payment for the full amount, allocated to this invoice.
+        \App\Model\Order\Payment::create([
             'user_id' => $invoice->user_id,
             'amount' => 100.0,
             'payment_method' => 'Stripe',
             'payment_status' => 'success',
-        ]);
+            'currency' => $invoice->currency,
+        ])->invoices()->attach($invoice->id, ['amount' => 100.0]);
 
         $outstanding = $this->service->outstanding($invoice);
 
@@ -102,6 +103,65 @@ class InvoicePaymentServiceTest extends DBTestCase
         $this->expectException(\Exception::class);
 
         $this->service->applyCredit($invoice);
+    }
+
+    public function test_available_credit_reads_from_the_ledger_for_the_given_currency(): void
+    {
+        $user = \App\User::factory()->create();
+        app(\App\Services\Payment\CreditBalanceService::class)->grant(
+            $user->id, 'USD', 75.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT
+        );
+
+        $this->assertSame(75.0, $this->service->availableCredit($user->id, 'USD'));
+    }
+
+    public function test_available_credit_does_not_leak_across_currencies(): void
+    {
+        $user = \App\User::factory()->create();
+        app(\App\Services\Payment\CreditBalanceService::class)->grant(
+            $user->id, 'INR', 5000.0, \App\Model\Order\CreditTransaction::TYPE_OVERPAYMENT
+        );
+
+        $this->assertSame(0.0, $this->service->availableCredit($user->id, 'USD'));
+    }
+
+    public function test_available_credit_excludes_unapplied_payment(): void
+    {
+        $user = \App\User::factory()->create();
+        app(\App\Services\Payment\UnappliedPaymentService::class)->record($user->id, 'USD', 60.0, 'cash');
+        app(\App\Services\Payment\CreditBalanceService::class)->grant(
+            $user->id, 'USD', 90.0, \App\Model\Order\CreditTransaction::TYPE_DOWNGRADE_PRORATION
+        );
+
+        // Unapplied payment is the client's own unallocated money, not credit
+        // we granted — client-facing checkout must only ever offer the real
+        // ledger balance (90), never the unapplied payment on top of it.
+        $this->assertSame(90.0, $this->service->availableCredit($user->id, 'USD'));
+    }
+
+    public function test_apply_credit_only_spends_ledger_credit_never_unapplied_payment(): void
+    {
+        $user = \App\User::factory()->create(['role' => 'user', 'email' => 'spend-order-'.uniqid().'@test.local']);
+        $invoice = Invoice::factory()->create([
+            'user_id' => $user->id, 'grand_total' => 90.0, 'currency' => 'USD', 'status' => 'pending',
+        ]);
+
+        $unapplied = app(\App\Services\Payment\UnappliedPaymentService::class);
+        $credit = app(\App\Services\Payment\CreditBalanceService::class);
+        $unapplied->record($user->id, 'USD', 60.0, 'cash');
+        $credit->grant($user->id, 'USD', 90.0, \App\Model\Order\CreditTransaction::TYPE_DOWNGRADE_PRORATION);
+
+        $this->postPayment->shouldReceive('handle')->once()->andReturn([]);
+
+        $result = $this->service->applyCredit($invoice);
+
+        $this->assertTrue($result['paid_in_full']);
+        $this->assertSame(90.0, $invoice->fresh()->paidTotal());
+        // Checkout only ever spends the real credit ledger — unapplied
+        // payment is the client's own unallocated money and is never touched
+        // by this flow (only admins allocate it, elsewhere).
+        $this->assertSame(60.0, $unapplied->balance($user->id, 'USD'));
+        $this->assertSame(0.0, $credit->balance($user->id, 'USD'));
     }
 
     public function test_gateways_for_returns_array(): void

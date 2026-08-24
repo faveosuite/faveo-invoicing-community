@@ -24,7 +24,6 @@ use App\Plugins\Payment\Dto\SubscriptionRequest;
 use App\Traits\Payment\PostPaymentHandle;
 use App\Traits\TaxCalculation;
 use App\User;
-use Crypt;
 use DB;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -87,7 +86,6 @@ class PostPaymentService
     private function handlePurchase(Invoice $invoice, string $gateway): array
     {
         $this->executeOrders($invoice);
-        $this->doTheDeed($invoice);
 
         event(new OrderPlacedEvent($invoice));
 
@@ -150,8 +148,6 @@ class PostPaymentService
     {
         new RenewController()->successRenew($invoice);
 
-        $this->doTheDeed($invoice);
-
         return ['status' => 'success'];
     }
 
@@ -167,7 +163,6 @@ class PostPaymentService
             new RenewController()->successRenew($invoice);
         }
 
-        $this->doTheDeed($invoice);
 
         $cloud->doTheAgentAltering(
             $metadata['new_agents'],
@@ -202,10 +197,12 @@ class PostPaymentService
             throw new RuntimeException(sprintf('New order not found for invoice #%s after checkoutAction.', $invoice->id));
         }
 
-        $licenseCode = Crypt::decrypt($newOrder->serial_key);
+        // Order::$serial_key already decrypts on access (see Order::serialKey()) —
+        // decrypting it again here threw DecryptException("The payload is invalid")
+        // on every upgrade/downgrade whose new order's license this loaded.
+        $licenseCode = $newOrder->serial_key;
         $productId = (int) $newOrder->product;
 
-        $this->doTheDeed($invoice);
 
         $cloud = new CloudExtraActivities(new Client, new FaveoCloud);
         $cloud->doTheProductUpgradeDowngrade(
@@ -216,6 +213,7 @@ class PostPaymentService
             $terminatedOrderId,
             $newActiveOrderId,
             $discount,
+            $invoice->currency,
         );
 
         // Transfer subscription from terminated order to new order
@@ -259,67 +257,28 @@ class PostPaymentService
 
     private function recordPayment(Invoice $invoice, string $gateway): void
     {
-        $alreadyPaid = (float) $invoice->payment()->where('payment_status', 'success')->sum('amount');
-        $outstanding = max(0, (float) $invoice->grand_total - $alreadyPaid);
+        $outstanding = $invoice->outstanding();
 
         if ($outstanding > 0) {
+            $amount = rounding($outstanding, $invoice->currency);
+
             Payment::create([
-                'invoice_id' => $invoice->id,
+                'invoice_id' => 0,
+                'parent_id' => 0,
                 'user_id' => $invoice->user_id,
-                'amount' => rounding($outstanding, $invoice->currency),
+                'amount' => $amount,
                 'payment_method' => $gateway,
                 'payment_status' => 'success',
                 'created_at' => Date::now(),
-            ]);
+                'currency' => $invoice->currency,
+            ])->invoices()->attach($invoice->id, ['amount' => $amount]);
         }
 
+        // Asserted, not derived: the gateway has been paid in full, and
+        // rounding() may legitimately record a hair less than was owed (it
+        // rounds to whole units when the tax rule says so), which would
+        // otherwise leave a paid invoice reading as partially paid.
         $invoice->update(['status' => 'success']);
-    }
-
-    private function doTheDeed(Invoice $invoice): void
-    {
-        $userId = $invoice->user_id;
-        $amt_to_credit = Payment::where('user_id', $userId)
-            ->where('payment_status', 'success')
-            ->where('payment_method', 'Credit Balance')
-            ->value('amt_to_credit');
-
-        if ($amt_to_credit) {
-            $amt_to_credit = (int) $amt_to_credit - (int) $invoice->billing_pay;
-            Payment::where('user_id', $userId)
-                ->where('payment_method', 'Credit Balance')
-                ->where('payment_status', 'success')
-                ->update(['amt_to_credit' => $amt_to_credit]);
-            User::where('id', $userId)->update(['billing_pay_balance' => 0]);
-
-            $payment_id = DB::table('payments')
-                ->where('user_id', $userId)
-                ->where('payment_status', 'success')
-                ->where('payment_method', 'Credit Balance')
-                ->value('id');
-            $formattedValue = currencyFormat($invoice->billing_pay, $invoice->currency, includeSymbol: true);
-
-            $messageAdmin = 'The payment balance of '.$formattedValue.' has been utilized or adjusted with this invoice.'
-                .' You can view the details of the invoice '
-                .'<a href="'.config('app.url').'/invoices/show?invoiceid='.$invoice->id.'">'.$invoice->number.'</a>.';
-            $messageClient = 'The payment balance of '.$formattedValue.' has been utilized or adjusted with this invoice.'
-                .' You can view the details of the invoice '
-                .'<a href="'.config('app.url').'/my-invoice/'.$invoice->id.'">'.$invoice->number.'</a>.';
-
-            DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin,  'role' => 'admin', 'created_at' => Date::now(), 'updated_at' => Date::now()]);
-            DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user',  'created_at' => Date::now(), 'updated_at' => Date::now()]);
-
-            if ($invoice->billing_pay) {
-                Payment::create([
-                    'invoice_id' => $invoice->id,
-                    'user_id' => $invoice->user_id,
-                    'amount' => $invoice->billing_pay,
-                    'payment_method' => 'Credits',
-                    'payment_status' => 'success',
-                    'created_at' => Date::now(),
-                ]);
-            }
-        }
     }
 
     /**

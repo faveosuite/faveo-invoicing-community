@@ -397,14 +397,15 @@ class OrderController extends BaseOrderController
 
             $invoiceIds = $order->invoices->pluck('id')->toArray();
 
-            $payments = Payment::whereIn('invoice_id', $invoiceIds)
-                ->select(['id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at'])
+            $payments = Payment::whereHas('invoices', fn ($q) => $q->whereIn('invoices.id', $invoiceIds))
+                ->with('invoices:id,number,currency')
+                ->select(['id', 'currency', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at'])
                 ->when($searchQuery, function ($query) use ($searchQuery): void {
                     $query->where(function ($q) use ($searchQuery): void {
                         $q->where('payment_method', 'like', sprintf('%%%s%%', $searchQuery))
                             ->orWhere('payment_status', 'like', sprintf('%%%s%%', $searchQuery))
                             ->orWhere('amount', 'like', sprintf('%%%s%%', $searchQuery))
-                            ->orWhereHas('invoice', function ($inv) use ($searchQuery): void {
+                            ->orWhereHas('invoices', function ($inv) use ($searchQuery): void {
                                 $inv->where('number', 'like', sprintf('%%%s%%', $searchQuery));
                             });
                     });
@@ -414,9 +415,9 @@ class OrderController extends BaseOrderController
 
             $payments->getCollection()->transform(fn ($payment): array => [
                 'id' => $payment->id,
-                'invoice_number' => $payment->invoice?->number,
+                'invoice_number' => $payment->invoices->pluck('number')->implode(', '),
                 'user_id' => $payment->user_id,
-                'amount' => currencyFormat($payment->amount, $payment->invoice?->currency),
+                'amount' => currencyFormat($payment->amount, $payment->currency ?: $payment->invoices->first()?->currency),
                 'payment_method' => $payment->payment_method,
                 'payment_status' => $payment->payment_status,
                 'created_at' => $payment->created_at,

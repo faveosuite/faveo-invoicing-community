@@ -98,6 +98,6 @@ class PaymentsAndInvoicesTest extends TestCase
     public function test_get_amount_paid_returns_zero_for_nonexistent_user(): void
     {
         $result = $this->subject->getAmountPaid(999999999);
-        $this->assertSame(0, $result);
+        $this->assertSame(0.0, $result);
     }
 }

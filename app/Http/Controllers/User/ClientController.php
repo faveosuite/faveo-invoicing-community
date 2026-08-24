@@ -15,12 +15,17 @@ use App\Model\Common\State;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Mailjob\QueueService;
+use App\Model\Order\CreditTransaction;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
+use App\Model\Order\PaymentInvoice;
+use App\Model\Order\UserCreditBalance;
 use App\Model\Product\Product;
 use App\Model\User\AccountActivate;
 use App\ReportColumn;
+use App\Services\Payment\CreditBalanceService;
+use App\Services\Payment\UnappliedPaymentService;
 use App\Traits\PaginationTotal;
 use App\Traits\PaymentsAndInvoices;
 use App\User;
@@ -512,9 +517,23 @@ class ClientController extends AdvanceSearchController
                 'amount_paid' => $amountPaid,
                 'balance' => $balance,
                 'currency' => $currency,
+                // Summed across every currency the client holds credit in, to
+                // match the tiles beside it (which also total mixed-currency
+                // invoices). The Credits tab shows the honest per-currency split.
+                'credit_balance' => app(CreditBalanceService::class)->balance($id),
+                'credit_balances' => UserCreditBalance::where('user_id', $id)
+                    ->orderBy('currency')
+                    ->get()
+                    ->map(fn ($row): array => ['currency' => $row->currency, 'balance' => (float) $row->balance])
+                    ->values(),
+                // Kept apart from credit on purpose: this is the client's own
+                // money waiting to be allocated, not something we granted them.
+                'unapplied_balance' => app(UnappliedPaymentService::class)->balance($id),
+                'unapplied_balances' => app(UnappliedPaymentService::class)->balances($id),
                 'invoice_count' => $invoices->count(),
                 'payment_count' => Payment::where('user_id', $id)->count(),
                 'order_count' => Order::where('client', $id)->count(),
+                'credit_count' => CreditTransaction::where('user_id', $id)->count(),
             ]);
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
@@ -540,16 +559,13 @@ class ClientController extends AdvanceSearchController
                 ->paginate($limit, ['*'], 'page', $page);
 
             $invoices->getCollection()->transform(function ($invoice): array {
-                $paid = Payment::where('invoice_id', $invoice->id)->sum('amount');
-                $balance = max(0, (float) $invoice->grand_total - $paid);
-
                 return [
                     'id' => $invoice->id,
                     'number' => $invoice->number,
                     'date' => $invoice->date,
                     'grand_total' => $invoice->grand_total,
-                    'paid' => $paid,
-                    'balance' => $balance,
+                    'paid' => $invoice->paidTotal(),
+                    'balance' => $invoice->outstanding(),
                     'currency' => $invoice->currency,
                     'status' => $invoice->status,
                     'is_executed' => $invoice->order_relation_count > 0,
@@ -560,6 +576,70 @@ class ClientController extends AdvanceSearchController
         } catch (Exception $exception) {
             return errorResponse($exception->getMessage());
         }
+    }
+
+    /**
+     * The client's credit ledger: the per-currency balances they can actually
+     * spend, plus every movement behind them. Without this the ledger is
+     * write-only — a receipt banked with no invoice attached writes no payment
+     * row, so this is the only screen it ever appears on.
+     */
+    public function getUserCredits(int $id, Request $request): JsonResponse
+    {
+        try {
+            $limit = $request->input('limit', 15);
+            $page = $request->input('page', 1);
+            $sortField = $request->input('sort-field', 'created_at');
+            $sortOrder = $request->input('sort-order', 'desc');
+
+            $allowedSorts = ['created_at', 'type', 'currency']; // not 'amount' — it is a varchar column, so it would sort lexicographically
+            if (! in_array($sortField, $allowedSorts, strict: true)) {
+                $sortField = 'created_at';
+            }
+
+            $transactions = CreditTransaction::where('user_id', $id)
+                ->orderBy($sortField, $sortOrder)
+                // Ledger rows land in the same second often enough (a spend
+                // right after the grant that funded it) that without this the
+                // order between them is whatever the DB feels like.
+                ->orderBy('id', $sortOrder)
+                ->paginate($limit, ['*'], 'page', $page);
+
+            $invoiceNumbers = Invoice::whereIn('id', $transactions->getCollection()->pluck('invoice_id')->filter())
+                ->pluck('number', 'id');
+
+            $transactions->getCollection()->transform(fn ($transaction): array => [
+                'id' => $transaction->id,
+                'date' => $transaction->created_at,
+                'type' => CreditTransaction::typeLabel($transaction->type),
+                'amount' => (float) $transaction->amount,
+                'currency' => $transaction->currency,
+                'invoice_id' => $transaction->invoice_id,
+                'invoice_number' => $invoiceNumbers[$transaction->invoice_id] ?? null,
+                'note' => $transaction->note,
+            ]);
+
+            return successResponse('', $transactions);
+        } catch (Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    /**
+     * Which invoices a payment settled, and how much went to each.
+     *
+     * @return array<int, array{id: int, number: string, amount: float}>
+     */
+    private function allocationsOf(Payment $payment): array
+    {
+        return $payment->allocations
+            ->map(fn (PaymentInvoice $allocation): array => [
+                'id' => (int) $allocation->invoice_id,
+                'number' => (string) ($allocation->invoice->number ?? ''),
+                'amount' => (float) $allocation->amount,
+            ])
+            ->values()
+            ->all();
     }
 
     public function getUserPayments(int $id, Request $request): JsonResponse
@@ -576,23 +656,23 @@ class ClientController extends AdvanceSearchController
             }
 
             $payments = Payment::where('user_id', $id)
+                ->with('allocations.invoice:id,number,currency')
                 ->orderBy($sortField, $sortOrder)
                 ->paginate($limit, ['*'], 'page', $page);
 
-            $payments->getCollection()->transform(function ($payment): array {
-                $invoice = $payment->invoice_id ? Invoice::find($payment->invoice_id) : null;
-
-                return [
-                    'id' => $payment->id,
-                    'invoice_id' => $payment->invoice_id,
-                    'invoice_number' => $invoice?->number,
-                    'date' => $payment->created_at,
-                    'payment_method' => $payment->payment_method,
-                    'amount' => $payment->amount,
-                    'currency' => $payment->currency ?: $invoice?->currency,
-                    'status' => $payment->payment_status,
-                ];
-            });
+            // One row per payment, whatever it settled. A payment split across
+            // three invoices is still one row — the invoices it paid are listed
+            // on it, and anything no invoice claimed shows as unapplied.
+            $payments->getCollection()->transform(fn ($payment): array => [
+                'id' => $payment->id,
+                'invoices' => $this->allocationsOf($payment),
+                'date' => $payment->created_at,
+                'payment_method' => $payment->payment_method,
+                'amount' => $payment->amount,
+                'unapplied' => $payment->unapplied(),
+                'currency' => $payment->currency ?: $payment->allocations->first()?->invoice?->currency,
+                'status' => $payment->payment_status,
+            ]);
 
             return successResponse('', $payments);
         } catch (Exception $exception) {

@@ -402,6 +402,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::get('user/{id}/summary', [User\ClientController::class, 'getUserSummary']);
     Route::get('user/{id}/invoices', [User\ClientController::class, 'getUserInvoices']);
     Route::get('user/{id}/payments', [User\ClientController::class, 'getUserPayments']);
+    Route::get('user/{id}/credits', [User\ClientController::class, 'getUserCredits']);
     Route::get('user/{id}/comments', [User\ClientController::class, 'getUserComments']);
     Route::post('user/{id}/comments', [User\ClientController::class, 'storeUserComment']);
     Route::put('user/{id}/comments/{commentId}', [User\ClientController::class, 'updateUserComment']);
@@ -499,6 +500,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::post('newMultiplePayment/receive/{clientid}', [InvoiceController::class, 'postNewMultiplePayment']);
     Route::post('newMultiplePayment/update/{clientid}', [InvoiceController::class, 'updateNewMultiplePayment']);
     Route::get('payments/{id}/edit', [InvoiceController::class, 'paymentEditById']);
+    Route::post('payments/{id}/apply', [InvoiceController::class, 'applyPaymentToInvoices']);
 
     // --------------------------------------------------------
     // Pages & Widgets (Admin CMS)

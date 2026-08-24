@@ -44,7 +44,7 @@
                             :error="errors.payment_method"
                         />
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4" v-if="!spendsExistingPool">
                         <TextField
                             name="amount"
                             type="number"
@@ -112,7 +112,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="card-footer">
+            <div class="card-footer" v-if="!spendsExistingPool">
                 <strong>{{ __('message.amount_to_credit') }} {{ symbol }}{{ amountToCredit }}</strong>
             </div>
         </div>
@@ -147,6 +147,10 @@ const form = ref({
     currency:       '',
 })
 
+// This page records a payment being made. The first five are money arriving;
+// 'Credit Balance' is a payment funded from credit we granted, which is still a
+// new payment. Allocating money the client ALREADY paid is not a new payment at
+// all — that lives on the payment itself, via its Apply action.
 const paymentMethods = [
     { name: 'Cash',           value: 'cash' },
     { name: 'Check',          value: 'check' },
@@ -155,6 +159,12 @@ const paymentMethods = [
     { name: 'Stripe',         value: 'stripe' },
     { name: 'Credit Balance', value: 'Credit Balance' },
 ]
+
+// Paying from credit draws on a balance rather than taking new money in, so the
+// Amount field and the leftover-to-bank line don't apply.
+const spendsExistingPool = computed(() =>
+    form.value.payment_method === 'Credit Balance'
+)
 
 const selectedMethod = computed(() =>
     paymentMethods.find(m => m.value === form.value.payment_method) ?? null
@@ -219,7 +229,7 @@ function validate() {
     if (!form.value.currency)       errs.currency       = __('message.select_currency') || 'Please select a currency.'
     if (!form.value.payment_date)   errs.payment_date   = __('message.payment_date_error')
     if (!form.value.payment_method) errs.payment_method = __('message.payment_method')
-    if (!form.value.amount)         errs.amount         = __('message.payment_amount')
+    if (!form.value.amount && !spendsExistingPool.value) errs.amount = __('message.payment_amount')
     setErrors(errs)
     return !Object.keys(errs).length
 }
@@ -241,7 +251,8 @@ async function submit() {
             currency:       form.value.currency,
             invoiceChecked,
             invoiceAmount,
-            amtToCredit:    amountToCredit.value,
+            // amountToCredit is a preview only — the server derives the leftover
+            // from the amount received, so it can't be told to bank a different figure.
         })
         alertStore.setAlert({ message: __('message.payment_updated_succcessfully'), type: 'success', component_name: COMPONENT })
         router.push(`/users/${userId}`)
