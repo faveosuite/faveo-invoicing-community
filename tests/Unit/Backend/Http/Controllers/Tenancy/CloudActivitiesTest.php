@@ -558,7 +558,7 @@ class CloudActivitiesTest extends DBTestCase
         PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 3000]);
         PlanPrice::factory()->create(['plan_id' => $plan2->id, 'currency' => 'INR', 'add_price' => 5000]);
 
-        $makeOrder = function () use ($user, $product, $plan, $plan2): Order {
+        $makeOrder = function () use ($user, $product, $plan): Order {
             $invoice = Invoice::factory()->create(['user_id' => $user->id]);
             InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
             $order = Order::create(['client' => $user->id, 'order_status' => 'executed',

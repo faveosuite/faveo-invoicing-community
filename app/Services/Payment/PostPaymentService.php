@@ -163,7 +163,6 @@ class PostPaymentService
             new RenewController()->successRenew($invoice);
         }
 
-
         $cloud->doTheAgentAltering(
             $metadata['new_agents'],
             $metadata['old_license'],
@@ -202,7 +201,6 @@ class PostPaymentService
         // on every upgrade/downgrade whose new order's license this loaded.
         $licenseCode = $newOrder->serial_key;
         $productId = (int) $newOrder->product;
-
 
         $cloud = new CloudExtraActivities(new Client, new FaveoCloud);
         $cloud->doTheProductUpgradeDowngrade(
